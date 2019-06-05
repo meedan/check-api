@@ -46,7 +46,7 @@ ru:
       inconclusive:
         label: Неясно
       misleading:
-        label: Обманчиво
+        label: Вводит в заблуждение
       disputed:
         label: Под сомнением
       out_of_scope:
@@ -71,7 +71,7 @@ ru:
         description: 'Заключение: скорее всего, заслуживает доверия'
       sockpuppet:
         label: Виртуал
-        description: 'Заключение: источник — виртуальный аккаунт'
+        description: 'Заключение: источник — виртуал'
     translation:
       pending:
         label: В очереди
@@ -115,7 +115,7 @@ ru:
       uploaded_image:
         file: Изображение
       team:
-        slug: Краткое имя
+        slug: Идентификатор
       source:
         name: Имя
       contact:
@@ -136,7 +136,7 @@ ru:
             slug:
               slug_format: только буквы, цифры и дефисы
       messages:
-        record_invalid: 'Ошибки валидации: %{errors}'
+        record_invalid: 'Ошибки проверки: %{errors}'
         improbable_phone: — неправильный номер
         too_short:
           one: 'не подходит по длине (минимум: 1 символ)'
@@ -146,17 +146,17 @@ ru:
   slack_webhook_format_wrong: 'Неверный адрес webhook: он должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
   invalid_format_for_languages: 'Неправильно указан язык. Корректный формат: [{''id'': ''en'', ''title'': ''English''}]'
-  invalid_media_item: Не является корректным медиа-файлом
+  invalid_media_item: Извините, этот формат файла не поддерживается
   invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса по умолчанию
   invalid_active_status_for_custom_verification_status: Неверный идентификатор активного статуса
   invalid_label_for_custom_verification_status: Название статуса обязательно
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_verification_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль, и опциональную пометку «финальный»'
+  invalid_statuses_format_for_custom_verification_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль и опциональную пометку о завершении работы'
   invalid_default_status_for_custom_translation_status: Неверный идентификатор статуса по умолчанию
   invalid_active_status_for_custom_translation_status: Неверный идентификатор активного статуса
   invalid_label_for_custom_translation_status: Название статуса обязательно
   invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_translation_status: 'Дополнительные статусы должен иметь название, идентификатор, описание, стиль, и опциональную пометку «финальный»'
+  invalid_statuses_format_for_custom_translation_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль и опциональную пометку о завершении работы'
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   mail_request_to_join: "%{user} хочет вступить в группу %{team} в %{app_name}!"
   approved: одобрен!
@@ -211,10 +211,10 @@ ru:
   mail_view_process_request: 'Чтобы обработать запрос, авторизуйтесь и перейдите по ссылке:'
   pender_could_not_parse: Не удалось обработать медиа-объект
   mail_duplicate_email_exists: Ваш способ входа в %{app_name}
-  mail_duplicate_email_exists_body: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались войти в %{app_name} через аккаунт в %{user_provider}, привязанный к адресу %{user_email}, но этот адрес уже используется в %{app_name} для входа через %{duplicate_provider}.</p> <p>Что делать: выберите вход через %{duplicate_provider}, чтобы войти в свой аккаунт.</p> <p>Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p> <p>— Команда %{app_name}</p>"
+  mail_duplicate_email_exists_body: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались войти в %{app_name} через аккаунт в %{user_provider}, привязанный к адресу %{user_email}, но этот адрес уже используется в %{app_name} для входа через %{duplicate_provider}.</p> <p>Что делать: выберите вход через %{duplicate_provider}, чтобы войти в свой аккаунт.</p> <p>Вы попадёте в аккаунт, которым пользовались раньше. Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p> <p>— Команда %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались создать новый аккаунт в %{app_name}, но аккаунт с таким адресом e-mail уже существует.</p> <p>Попробуйте войти с вашим e-mail и паролем вместо того, чтобы регистрировать новый аккаунт. Если вы не помните пароль, воспользуйтесь функцией восстановления.</p> <p>Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p> <p>— Команда %{app_name}</p>"
   mail_duplicate_email_exists_email: e-mail
-  slack_restricted_join_to_members: Группа %{team_name} доступна только членам %{teams} в Slack.
+  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только членам %{teams} в Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -226,7 +226,7 @@ ru:
       delete_tasks:
         done: вопросы удалены
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Вы уверены, что хотите удалить все вопросы в группе <strong>%{team}</strong>? Следующие вопросы будут удалены:'
+          html: 'Вы уверены, что хотите удалить все вопросы в группе <strong>%{team}</strong>? Будут удалены следующие вопросы:'
       duplicate_team:
         menu: Дублировать группу
         done: скопировано
@@ -241,7 +241,7 @@ ru:
   email_not_found: E-mail не найден
   slack_channel_format_wrong: Неверный канал Slack
   translation_status_not_valid: Неверный статус
-  translation_status_permission_error: Вы не можете изменить этот статус.
+  translation_status_permission_error: Извините, вы не можете изменить этот статус.
   translation_request_id_exists: Запрос на перевод этого сообщения уже существует
   auto_publisher_added_to_project: Спасибо! Теперь все новые переводы в проекте «%{project}» будут автоматически публиковаться в %{provider}. Если вы больше не хотите получать обновления, свяжитесь с администратором или отключите авторизацию Bridge в настройках %{provider}.
   invalid_token: Неверный токен
@@ -288,34 +288,34 @@ ru:
   pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через пару секунд.
   duplicate_source: Источник уже существует
   geolocation_invalid_value: Местонахождение должно содержать корректный GeoJSON (http://geojson.org/)
-  datetime_invalid_date: Укажите верную дату
+  datetime_invalid_date: Пожалуйста, укажите верную дату
   error_team_archived: Нельзя добавить проект в группу, которая находится в корзине
   error_project_archived: Нельзя добавить материал к проекту, который находится в корзине
   error_team_archived_for_source: Нельзя добавить источник в группу, которая находится в корзине
-  permission_error: Вам не разрешена данная операция
-  error_annotated_archived: Нельзя добавить заметку к материалу, который находится в корзине
-  only_super_admin_can_do_this: Только суперадминистраторы могут менять эти настройки
-  max_number_of_team_users_reached: В этой группе достигнут лимит участников
-  max_number_of_projects_reached: В этой группе достигнут лимит проектов
-  cant_set_custom_statuses: 'Дополнительные статусы не включены для данной группы '
+  permission_error: Извините, вам не разрешена данная операция
+  error_annotated_archived: Извините, нельзя добавить заметку к материалу в корзине
+  only_super_admin_can_do_this: Извините, только суперадминистраторы могут менять эти настройки
+  max_number_of_team_users_reached: Извините, в этой группе достигнут лимит участников
+  max_number_of_projects_reached: Извините, в этой группе достигнут лимит проектов
+  cant_set_custom_statuses: Извините, для данной группы не включены дополнительные статусы
   cant_change_custom_statuses: |-
-      Нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
+      Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
       %{urls} %{others_amount}
-  cant_create_team_task: У вашей группы нет доступа к данной функциональности
-  cant_create_media_under_this_team_using_extension: Браузерное расширение не включено для данной группы
+  cant_create_team_task: Извините, у вашей группы нет доступа к данной функциональности
+  cant_create_media_under_this_team_using_extension: Извините, для данной группы не включено браузерное расширение
   error_invalid_attribution: Неверное авторство
   account_exists: Такой аккаунт уже существует
   media_exists: Такой материал уже существует
   source_exists: Такой источник уже существует
   email_exists: уже используется
-  banned_user: Вам был закрыт доступ к %{app_name}. Свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
+  banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
   devise:
     mailer:
       reset_password_instructions:
         instruction: 'Мы получили запрос на смену пароля к вашему аккаунту. Это можно сделать по ссылке ниже. <strong>Важно: ссылка действует %{expire} часов.</strong>'
       invitation_instructions:
         subject: "%{user} пригласил(а) вас вступить в группу %{team}"
-        hello: Здравствуйте %{name}
+        hello: Здравствуйте, %{name}!
         someone_invited_you_default:
           html: "%{name} пригласил(а) вас вступить в группу %{team}."
         someone_invited_you_custom:
@@ -332,52 +332,56 @@ ru:
     team_found: Группа не найдена.
     invalid: Некорректный токен приглашения.
     no_invitation: Вы не приглашены в группу %{name}
-  error_user_is_not_a_team_member: Вы можете назначать задачи только участникам этой группы
-  error_login_with_exists_account: Этот аккаунт уже подключен другим пользователем
+  error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам этой группы
+  error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
   mail_see_it: 'Задачу можно посмотреть по ссылке:'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Вам был назначен материал"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] С вас был снят материал"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Вам был назначен материал"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] С вас был снят материал"
-  mail_subject_assign_task: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
-  mail_subject_unassign_task: "[%{team} - %{project}] С вас был снят вопрос по материалу"
-  mail_subject_update_status: "[%{team} - %{project}] Статус материала изменен: %{status}"
-  mail_assign_verification_status: "%{author} назначил(а) вам материал:"
-  mail_unassign_verification_status: "%{author} снял(а) вас с материала:"
-  mail_assign_translation_status: "%{author} назначил(а) вам материал:"
-  mail_unassign_translation_status: "%{author} снял(а) вас с материала:"
-  mail_assign_task: '%{author} назначил(а) вам вопрос "%{task}", относящийся к материалу: '
-  mail_unassign_task: '%{author} снял(а) с вас вопрос "%{task}", относящийся к материалу:'
-  mail_update_status: '%{author} изменил(а) статус "%{title}" на "%{status}"'
-  mail_assign_project: "%{author} назначил(а) вам проект:"
-  mail_unassign_project: "%{author} снял(а) вас с проекта:"
-  mail_subject_assign_project: "[%{team} - %{project}] Вам был назначен проект"
-  mail_subject_unassign_project: "[%{team} - %{project}] Вы были сняты с проекта"
   mail_subject_delete_user: "[%{team}] Пользователь был удалён"
   mail_body_delete_user: Аккаунт пользователя был удален. Автор созданного контента теперь будет указан как анонимный пользователь %{id}.
+  mail_security:
+    device_subject: "Внимание: Новый вход в %{app_name} через %{browser} на %{platform}"
+    ip_subject: "Внимание: Нетипичный вход в %{app_name}"
+    failed_subject: "Внимание: Неудачные попытки входа в %{app_name}"
+    ip: "Вход выполнен из %{location}"
+    device: "Вход выполнен через %{browser} на %{platform}"
+    devise_name: "%{browser} на %{platform}"
+    failed: "Обнаружены неудачные попытки входа"
+    password_text: "немедленно сбросить пароль."
+    device_text: "Кажется, вы недавно выполнили вход в %{app_name} с нового устройства. Если это были не вы, вам нужно %{change_password}"
+    ip_text: "Кажется, вы недавно выполнили вход в %{app_name} из нового места. Если это были не вы, вам нужно %{change_password}"
+    failed_text: "Кажется, было выполнено несколько попыток входа в ваш аккаунт %{app_name} подряд. Если это были вы, можно проигнорировать это предупреждение. Если нет, вам нужно %{change_password}"
+    time_h: "Время"
+    device_h: "Устройство"
+    location_h: "Местонахождение"
+    location_disclaimer: "* Местоположение определено по IP-адресу и может быть неточным."
+    ip_h: "IP-адрес"
+    privacy: "%{manage} e-mail уведомления • Ознакомьтесь с нашей %{privacy}"
+    privacy_text: 'политикой конфиденциальности'
+    manage_text: 'Настройте'
+    privace_manage_plain: "Настроить e-mail уведомления"
+    privacy_plain: "Ознакомьтесь с нашей политикой конфиденциальности"
   archive_keep_backup: Сохранённые видео
   archive_pender_archive: Скриншоты Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   project_export_email_title_csv: Отчёт по проекту готов для скачивания
   workflow_status_not_valid: Неверный статус
-  workflow_status_permission_error: Вы не можете изменить этот статус.
+  workflow_status_permission_error: Извините, вы не можете изменить этот статус.
   blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение "default" для дополнительных статусов
   blank_active_status_for_custom_translation_status: Пожалуйста, задайте значение "active" для дополнительных статусов
   blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение "default" для дополнительных статусов
   blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение "active" для дополнительных статусов
   bot_name_exists_for_this_team: В этой группе уже есть бот с таким именем
-  bot_team_id_doesnt_exist: Группы с таким идентификатором не существует
-  bot_team_id_mandatory_to_create: Чтобы добавить бота, нужно выбрать группу
-  bot_not_approved_for_installation: Этот бот не был одобрен, поэтому не может быть добавлен
-  only_admins_can_approve_bots: Только суперадминистраторы могут одобрять ботов
-  could_not_save_related_bot_data: Не удалось добавить бота в эту группу
-  bot_limited_team_not_pro: Этот бот не может быть добавлен в данную группу
+  bot_team_id_doesnt_exist: Извините, группы с таким идентификатором не существует
+  bot_team_id_mandatory_to_create: Извините, нужно выбрать группу, чтобы добавить бота
+  bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не может быть добавлен
+  only_admins_can_approve_bots: Извините, только суперадминистраторы могут одобрять ботов
+  could_not_save_related_bot_data: Извините, не удалось добавить бота в эту группу
+  bot_limited_team_not_pro: Извините, этот бот не может быть добавлен в данную группу
   slack_save_task_comment: "*%{user}* добавил(а) заметку к вопросу *%{task}* в проекте *%{project}* (%{url}): %{comment}"
-  bot_cant_add_response_to_task: Бот не может отвечать на вопросы — вместо этого можно предложить ответ
-  bot_cant_add_review_to_task: Бот не может обрабатывать вопросы
+  bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо этого можно предложить ответ
+  bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
   task_suggestion_invalid_value: Предлагаемый ответ должен быть представлен в виде объекта JSON с ключами 'suggestion' (ответ на вопрос, публикуемый при принятии предложения) и 'comment' (показывается пользователям)
-  tag_text_id_not_found: Тэга с таким идентификатором не существует
+  tag_text_id_not_found: Извините, тэга с таким идентификатором не существует
   annotation_type_language_label: Язык
   smooch_bot_message_confirmed: |-
       Спасибо. Ваше сообщение поможет нам исследовать распространение дезинформации во время выборов через WhatsApp.
@@ -385,7 +389,7 @@ ru:
       Сообщение также было добавлено в очередь на верификацию. Мы постараемся отправить вам отчёт в течение 24 часов, но, к сожалению, мы можем ответить не на все запросы.
   smooch_bot_message_unconfirmed: Поскольку вы не ответили «1», беседа будет завершена. Спасибо.
   smooch_bot_message_type_unsupported: Извините, но мы пока не принимаем файлы этого формата для верификации.
-  smooch_bot_meme: 'Изображение по материалу, который вы отправили нам для верификации. Подробнее: %{url}.'
+  smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от вас для верификации. Подробнее: %{url}.'
   smooch_bot_result: |-
       [Отчёт о верификации] Сообщение, которое вы нам отправили, получило отметку «*%{status}*».
 
@@ -393,7 +397,7 @@ ru:
   smooch_bot_ask_for_confirmation: |-
       Спасибо за ваше сообщение!
 
-      Вы подозреваете, что это дезинформация, связанная с выборами 2019 в Индии?
+      Вы подозреваете, что это дезинформация, связанная с выборами 2019 года в Индии?
 
       Если да, *отправьте 1*. Любой другой ответ завершит беседу.
   smooch_bot_window_closing: В настоящее время нам поступает очень много запросов, и ваш всё ещё находится в очереди. Спасибо за сообщение. Если вы хотите отправить ещё материалы, пожалуйста, не стесняйтесь!
@@ -436,7 +440,7 @@ ru:
       contributor:
         description: Участники (чаще всего — представители общественности) могут добавлять новую информацию для верификации.
       annotator:
-        description: Аннотаторы могут просматривать вопросы, которые на них назначены, и отвечать на них.
+        description: Аннотаторы могут просматривать и давать ответы только на те вопросы, которые были им назначены.
     permissions:
       sections:
         project_management:
@@ -470,7 +474,7 @@ ru:
           permissions:
             delete: Удаление группы
             edit: Редактирование информации о группе
-            set_private: Закрытие публичного доступа к группей
+            set_private: Закрытие публичного доступа к группе
             edit_status: Редактирование общих статусов
             edit_tasks: Создание и редактирование общих вопросов
             roles: Редактирование ролей в группе
@@ -494,12 +498,12 @@ ru:
     invalid_assignee: Неверный пользователь %{user}
   mail_subject_assignments_ready: "[%{team} - %{project}] Изменение назначений завершено"
   mail_body_assignments_ready_assign: |-
-      Здравствуйте %{username},
+      Здравствуйте, %{username}!
       Процесс назначения задач прошёл успешно. Проект «%{project_title}» (%{project_url}) со всеми материалами и вопросами теперь назначен на %{assignee}.
       Спасибо,
       — Команда %{app_name}
   mail_body_assignments_ready_unassign: |-
-      Здравствуйте %{username},
+      Здравствуйте, %{username}!
       Процесс переназначения задач прошёл успешно. Проект «%{project_title}» (%{project_url}) со всеми материалами и вопросами был снят с %{assignee}.
       Спасибо,
       — Команда %{app_name}

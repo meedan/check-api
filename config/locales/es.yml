@@ -327,24 +327,6 @@ es:
   error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros de este equipo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando esta cuenta
   mail_see_it: 'Puedes verlo en:'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Se te ha asignado un ítem"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Se te ha desasignado un ítem"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Se te ha asignado un ítem"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Se te ha desasignado un ítem"
-  mail_subject_assign_task: "[%{team} - %{project}] Se te ha asignado una tarea"
-  mail_subject_unassign_task: "[%{team} - %{project}] Se te ha desasignado una tarea"
-  mail_subject_update_status: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
-  mail_assign_verification_status: "%{author} te asignó el medio: "
-  mail_unassign_verification_status: "%{author} te desasignó el ítem: "
-  mail_assign_translation_status: "%{author} te asignó el ítem: "
-  mail_unassign_translation_status: "%{author} te desasignó el ítem: "
-  mail_assign_task: '%{author} te asignó la tarea  "%{task}" del medio: '
-  mail_unassign_task: '%{author} te desasignó la tarea "%{task}" del medio: '
-  mail_update_status: '%{author}estableció el estado de "%{title}" a %{status}'
-  mail_assign_project: "%{author} te asignó el proyecto:"
-  mail_unassign_project: "%{author} te desasignó el proyecto:"
-  mail_subject_assign_project: "[%{team} - %{project}] Se te ha asignado un proyecto"
-  mail_subject_unassign_project: "[%{team} - %{project}] Se te ha desasignado un proyecto"
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
   mail_security:

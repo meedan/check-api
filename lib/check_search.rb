@@ -2,7 +2,7 @@ class CheckSearch
   def initialize(options)
     # options include keywords, projects, tags, status
     options = JSON.parse(options)
-    @options = options.clone
+    @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
@@ -257,33 +257,34 @@ class CheckSearch
     doc_c
   end
 
-  def format_time_with_timezone(time, timezone)
-    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+  def format_time_with_timezone(time, tz)
     begin
       Time.use_zone(tz) { Time.zone.parse(time) }
     rescue StandardError
-      ''
+      nil
     end
   end
 
-  def format_times_search_range_filter(name, values, timezone)
-    return if values.blank? || ![:created_at, :updated_at].include?(name.to_sym)
-    from = format_time_with_timezone(values.dig('start_time'), timezone)
-    to = format_time_with_timezone(values.dig('end_time'), timezone)
+  def format_times_search_range_filter(values, timezone)
+    return if values.blank?
+    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+    from = format_time_with_timezone(values.dig('start_time'), tz)
+    to = format_time_with_timezone(values.dig('end_time'), tz)
     return if from.blank? && to.blank?
-    from = DateTime.new if from.blank?
-    to = DateTime.now if to.blank?
-
+    from ||= DateTime.new
+    to ||= DateTime.now.in_time_zone(tz)
+    to = to.end_of_day if to.strftime('%T') == '00:00:00'
     [from, to]
   end
 
   # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
   def build_search_range_filter(type, filters = nil)
     conditions = []
-    return conditions unless @options.has_key?('range')
-    timezone = @options['range'].delete('timezone') || @context_timezone
-    @options['range'].each do |name, values|
-      range = format_times_search_range_filter(name, values, timezone)
+    return conditions unless @options.has_key?(:range)
+    timezone = @options[:range].delete(:timezone) || @context_timezone
+    [:created_at, :updated_at].each do |name|
+      values = @options['range'].dig(name)
+      range = format_times_search_range_filter(values, timezone)
       next if range.nil?
       if type == :pg
         filters[name] = range[0]..range[1]
