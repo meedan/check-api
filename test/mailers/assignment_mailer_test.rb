@@ -6,7 +6,9 @@ class AssignmentMailerTest < ActionMailer::TestCase
     create_user email: 'user1@mail.com'
     t = create_task
 
-    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t)
+    annotation = Annotation.find t.id
+
+    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', annotation)
 
     assert_emails 1 do
       email.deliver_now
@@ -20,8 +22,9 @@ class AssignmentMailerTest < ActionMailer::TestCase
     u2 = create_user email: 'user1@mail.com'
     u2.set_send_email_notifications = false; u2.save!
     t = create_task
+    annotation = Annotation.find t.id
 
-    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', t)
+    email = AssignmentMailer.notify(:assign_status, u, 'user1@mail.com', annotation)
 
     assert_emails 0 do
       email.deliver_now
@@ -29,7 +32,7 @@ class AssignmentMailerTest < ActionMailer::TestCase
     
     # test with banned user
     u3 = create_user email: 'user3@mail.com', is_active: false
-    email = AssignmentMailer.notify(:assign_status, u, 'user3@mail.com', t)
+    email = AssignmentMailer.notify(:assign_status, u, 'user3@mail.com', annotation)
     assert_emails 0 do
       email.deliver_now
     end
