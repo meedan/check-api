@@ -331,26 +331,14 @@ ro:
   error_user_is_not_a_team_member: Ne pare rău, puteți desemna doar pentru membrii echipei date
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] V-a fost desemnat un element media"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un element media a fost transferat de la Dvs"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] V-a fost desemnat un element media"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un element media a fost transferat de la Dvs"
-  mail_subject_assign_task: "[%{team} - %{project}] V-a fost desemnată o sarcină"
-  mail_subject_unassign_task: "[%{team} - %{project}] O sarcină a fost transferată de la Dvs"
-  mail_subject_update_status: "[%{team} - %{project}] Statutul unui element media a fost marcat %{status}"
-  mail_assign_verification_status: "%{author} v-a desemnat un element media. Titlul acestuia este:"
-  mail_unassign_verification_status: "%{author} a transferat un element media de la Dvs. Titlul acestuia este:"
-  mail_assign_translation_status: "%{author} v-a desemnat un element media. Titlul acestuia este:"
-  mail_unassign_translation_status: "%{author} a transferat un element media de la Dvs. Titlul acestuia este:"
-  mail_assign_task: '%{author} v-a desemnat sarcina "%{task}" . Este pe elementul media cu titlul:'
-  mail_unassign_task: '%{author} a transferat sarcina "%{task}" de la Dvs. Este pe elementul media cu titlul:'
-  mail_update_status: '%{author} a marcat "%{title}" ca %{status}'
-  mail_assign_project: "%{author} v-a desemnat un proiect. Titlul acestuia este:"
-  mail_unassign_project: "%{author} a transferat un proiect de la Dvs. Titlul acestuia este:"
-  mail_subject_assign_project: "[%{team} - %{project}] V-a fost desemnat un proiect"
-  mail_subject_unassign_project: "[%{team} - %{project}] Un proiect a fost transferat de la Dvs"
   mail_subject_delete_user: "[%{team}] A fost șters un utilizator"
   mail_body_delete_user: Un cont de utilizator a fost șters și conținutul acestuia a fost desemnat utilizatorului anonim %{id}
+  mail_security:
+    ip: "V-ați conectat din %{location}"
+    ip_text: "Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}"
+    location_h: "Locația"
+    location_disclaimer: "* Locația a fost stabilită aproximativ, în baza adresei IP de origine."
+    ip_h: "Adresa IP"
   archive_keep_backup: Video Vault
   archive_pender_archive: Păstrează capturi de ecran
   archive_archive_is: Archive.is
@@ -376,7 +364,7 @@ ro:
   tag_text_id_not_found: Ne pare rău, nu există etichete cu identificator introdus
   annotation_type_language_label: Limba
   smooch_bot_message_confirmed: |-
-      Vă mulțumim. Ceea ce ne-ați transmis ne va ajuta să studiem răspândire informațiilor înșelătoare pe WhatsApp în timpul alegerilor actuale.
+      Vă mulțumim. Ceea ce ne-ați transmis ne va ajuta să studiem răspândirea informațiilor înșelătoare pe WhatsApp în perioada electorală actuală.
 
       De asemenea, acest element a fost adăugat în rândul nostru pentru verificare. Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
   smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
