@@ -430,10 +430,10 @@ en:
       unassign_media_title: 'Media Item Unassigned'
       assign_media_text: "%{author} assigned a media item in project %{project} in %{team}."
       unassign_media_text: "%{author} unassigned a media item in project %{project} in %{team}."
-      assign_log: "%{model} assigned to %{username} by %{author}"
-      unassign_log: "%{model} unassigned from %{username} by %{author}"
-      assign_by: 'Assinged by'
-      unassign_by: 'Unassinged by'
+      assign_log: "%{author} assigned %{model} to %{username}"
+      unassign_log: "%{author} unassigned %{model} from %{username}"
+      assign_by: 'Assigned by'
+      unassign_by: 'Unassigned by'
   mail_security:
     device_subject: "Security alert: New login to %{app_name} from %{browser} on %{platform}"
     ip_subject: "Security alert: New or unusual %{app_name} login"

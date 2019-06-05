@@ -335,22 +335,6 @@ ru:
   error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам этой группы
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
   mail_see_it: 'Задачу можно посмотреть по ссылке:'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Вам был назначен материал"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] С вас был снят материал"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Вам был назначен материал"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] С вас был снят материал"
-  mail_subject_assign_task: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
-  mail_subject_unassign_task: "[%{team} - %{project}] С вас был снят вопрос по материалу"
-  mail_assign_verification_status: "%{author} назначил(а) вам материал:"
-  mail_unassign_verification_status: "%{author} снял(а) вас с материала:"
-  mail_assign_translation_status: "%{author} назначил(а) вам материал:"
-  mail_unassign_translation_status: "%{author} снял(а) вас с материала:"
-  mail_assign_task: '%{author} назначил(а) вам вопрос "%{task}", относящийся к материалу: '
-  mail_unassign_task: '%{author} снял(а) с вас вопрос "%{task}", относящийся к материалу:'
-  mail_assign_project: "%{author} назначил(а) вам проект:"
-  mail_unassign_project: "%{author} снял(а) вас с проекта:"
-  mail_subject_assign_project: "[%{team} - %{project}] Вам был назначен проект"
-  mail_subject_unassign_project: "[%{team} - %{project}] Вы были сняты с проекта"
   mail_subject_delete_user: "[%{team}] Пользователь был удалён"
   mail_body_delete_user: Аккаунт пользователя был удален. Автор созданного контента теперь будет указан как анонимный пользователь %{id}.
   mail_security:
