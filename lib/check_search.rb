@@ -257,23 +257,23 @@ class CheckSearch
     doc_c
   end
 
-  def format_time_with_timezone(time, timezone)
-    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+  def format_time_with_timezone(time, tz)
     begin
       Time.use_zone(tz) { Time.zone.parse(time) }
     rescue StandardError
-      ''
+      nil
     end
   end
 
   def format_times_search_range_filter(name, values, timezone)
+    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
     return if values.blank? || ![:created_at, :updated_at].include?(name.to_sym)
-    from = format_time_with_timezone(values.dig('start_time'), timezone)
-    to = format_time_with_timezone(values.dig('end_time'), timezone)
+    from = format_time_with_timezone(values.dig('start_time'), tz)
+    to = format_time_with_timezone(values.dig('end_time'), tz)
     return if from.blank? && to.blank?
-    from = DateTime.new if from.blank?
-    to = DateTime.now if to.blank?
-
+    from ||= DateTime.new
+    to ||= DateTime.now.in_time_zone(tz)
+    to = to.end_of_day if to.strftime('%T') == '00:00:00'
     [from, to]
   end
 

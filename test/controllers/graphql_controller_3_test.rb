@@ -212,7 +212,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
     pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
-    pm2.update_attribute(:updated_at, Time.new(2019, 05, 21))
+    pm2.update_attribute(:updated_at, Time.new(2019, 05, 21, 12, 00))
     sleep 1
 
     Time.stubs(:now).returns(Time.new(2019, 05, 22, 13, 00))
@@ -225,10 +225,10 @@ class GraphqlController3Test < ActionController::TestCase
     queries = []
 
     # query on ES
-    queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+    queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
     # query on PG
-    queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-22\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+    queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
     queries.each do |query|
       post :create, query: query, team: t.slug
