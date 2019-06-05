@@ -349,25 +349,44 @@ ar:
   mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
   mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
   mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-  mail_subject_update_status: "[%{team} - %{project}] تم تغيير حالة العنصر إلى %{status}"
-  mail_assign_verification_status: "كلَّفَ(ت) %{author} إليك العنصر : "
-  mail_unassign_verification_status: "ألغى(ت) %{author} تكليف العنصر : "
-  mail_assign_translation_status: "كلَّفَ(ت) %{author} إليك العنصر : "
-  mail_unassign_translation_status: "ألغى(ت) %{author} تكليف العنصر : "
-  mail_assign_task: 'كلَّفَ(ت) %{author} إليك مهمة "%{task}" التي تنتمي إلى العنصر : '
-  mail_unassign_task: 'ألغى(ت) %{author} تكليف مهمة "%{task}" التي تنتمي إلى العنصر : '
-  mail_update_status: 'قام %{author} بتغيير حالة "%{title}" إلى %{status}.'
-  mail_assign_project: "كلَّفَ(ت) %{author} إليك مشروع : "
-  mail_unassign_project: "ألغى(ت) %{author} تكليف مشروع : "
+  mail_assign_verification_status: "قام(ت) %{author} بتكليف إليك العنصر : "
+  mail_unassign_verification_status: "قام(ت) %{author} بالغاء تكليف العنصر : "
+  mail_assign_translation_status: "قام(ت) %{author} بتكليف إليك العنصر : "
+  mail_unassign_translation_status: "قام(ت) %{author} بالغاء تكليف العنصر : "
+  mail_assign_task: 'قام(ت) %{author} بتكليف إليك مهمة "%{task}" التي تنتمي إلى العنصر : '
+  mail_unassign_task: 'قام(ت) %{author} بالغاء تكليف مهمة "%{task}" التي تنتمي إلى العنصر : '
+  mail_assign_project: "قام(ت) %{author} بتكليف إليك مشروع : "
+  mail_unassign_project: "قام(ت) %{author} بالغاء تكليف مشروع : "
   mail_subject_assign_project: "[%{team} - %{project}] تم تكليف مشروع إليك"
   mail_subject_unassign_project: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
   mail_subject_delete_user: "[%{team}] تم حذف مستخدم"
   mail_body_delete_user: تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم مجهول معرّفه %{id}
+  mails_notifications:
+    greeting: "مرحباً %{name}"
+    project_view: "عرض المشروع"
+    unsubscribe: 'إلغاء الاشتراك'
+    unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
+    copyright_html: "%{app_name} من <a href=\"https://meedan.com\">Meedan</a>"
+    task_resolved:
+      subject: "[%{team} - %{project}] تمت اجابة مهمة"
+      header_title: 'تمت اجابة مهمة'
+      header_text: "قام(ت) %{author} باجابة مهمة في مشروع %{project} التابع الى %{team}."
+      section_title: 'من أو ما هو مصدر الإدعاء ؟'
+      status: 'الحالة'
+      media_h: 'الميديا'
+    media_status:
+      label: 'الميديا'
+      subject: "[%{team} - %{project}] تم تغيير حالة العنصر إلى %{status}"
+      header_title: 'تم تحديث حالة الميديا'
+      header_text: "قام(ت) %{author} بتحديث عنصر في مشروع %{project} التابع الى %{team}."
+      section_title: "تم التصنيف أنه %{status}."
+      added_to: "تمت الإضافة الى %{app_name}"
+      update_h: 'آخر تحديث'
+      tasks_h: 'تم اكتمال بعض المهام'
   mail_security:
     device_subject: "تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser} على %{platform}"
     ip_subject: "تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}"
     failed_subject: "تنبيه الأمان : محاولات فاشلة لتسجيل الدخول على %{app_name}"
-    greeting: "مرحباً %{name}"
     ip: "لقد قمت بتسجيل الدخول من %{location}"
     device: "لقد قمت بتسجيل الدخول من %{browser} على %{platform}"
     devise_name: "%{browser} على %{platform}"
@@ -386,7 +405,6 @@ ar:
     manage_text: 'إدارة'
     privace_manage_plain: "إدارة تنبيهات للبريد الإلكتروني الخاصة بك"
     privacy_plain: "معرفة المزيد عن سياسة الخصوصية"
-    copyright_html: "%{app_name} من <a href=\"https://meedan.com\">Meedan</a>"
   archive_keep_backup: Video Vault
   archive_pender_archive: لقطات الشاشة من Keep
   archive_archive_is: Archive.is
