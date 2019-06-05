@@ -331,22 +331,6 @@ ro:
   error_user_is_not_a_team_member: Ne pare rău, puteți desemna doar pentru membrii echipei date
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] V-a fost desemnat un element media"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Un element media a fost transferat de la Dvs"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] V-a fost desemnat un element media"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Un element media a fost transferat de la Dvs"
-  mail_subject_assign_task: "[%{team} - %{project}] V-a fost desemnată o sarcină"
-  mail_subject_unassign_task: "[%{team} - %{project}] O sarcină a fost transferată de la Dvs"
-  mail_assign_verification_status: "%{author} v-a desemnat un element media. Titlul acestuia este:"
-  mail_unassign_verification_status: "%{author} a transferat un element media de la Dvs. Titlul acestuia este:"
-  mail_assign_translation_status: "%{author} v-a desemnat un element media. Titlul acestuia este:"
-  mail_unassign_translation_status: "%{author} a transferat un element media de la Dvs. Titlul acestuia este:"
-  mail_assign_task: '%{author} v-a desemnat sarcina "%{task}" . Este pe elementul media cu titlul:'
-  mail_unassign_task: '%{author} a transferat sarcina "%{task}" de la Dvs. Este pe elementul media cu titlul:'
-  mail_assign_project: "%{author} v-a desemnat un proiect. Titlul acestuia este:"
-  mail_unassign_project: "%{author} a transferat un proiect de la Dvs. Titlul acestuia este:"
-  mail_subject_assign_project: "[%{team} - %{project}] V-a fost desemnat un proiect"
-  mail_subject_unassign_project: "[%{team} - %{project}] Un proiect a fost transferat de la Dvs"
   mail_subject_delete_user: "[%{team}] A fost șters un utilizator"
   mail_body_delete_user: Un cont de utilizator a fost șters și conținutul acestuia a fost desemnat utilizatorului anonim %{id}
   mail_security:

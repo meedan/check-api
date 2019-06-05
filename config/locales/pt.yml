@@ -327,22 +327,6 @@ pt:
   error_user_is_not_a_team_member: Desculpe, você pode somente atribuir tarefas a membros desta equipe
   error_login_with_exists_account: Desculpe, existe outro usuário que já está usando esta conta
   mail_see_it: 'Você pode o ver aqui: '
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Uma mídia foi atribuída para você"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] A atribuição de uma mídia foi removida de você"
-  mail_subject_assign_task: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
-  mail_subject_unassign_task: "[%{team} - %{project}] A atribuição de uma tarefa foi removida de você"
-  mail_assign_verification_status: "%{author} atribuiu para você a mídia intitulada "
-  mail_unassign_verification_status: "%{author} removeu a atribuição da mídia intitulada "
-  mail_assign_translation_status: "%{author} atribuiu para você a mídia intitulada "
-  mail_unassign_translation_status: "%{author} removeu a atribuição da mídia intitulada "
-  mail_assign_task: '%{author} atribuiu para você a tarefa "%{task}" que fica na mídia intitulada '
-  mail_unassign_task: '%{author} removeu a atribuição da tarefa "%{task}" que fica na mídia intitulada '
-  mail_assign_project: "%{author} atribuiu um projeto para você. O título é:"
-  mail_unassign_project: "%{author} desatribuiu um projeto de você. O título é:"
-  mail_subject_assign_project: "[%{team} - %{project}] Um projeto foi atribuído para você"
-  mail_subject_unassign_project: "[%{team} - %{project}] Um projeto foi desatribuído de você"
   mail_subject_delete_user: "[%{team}] Um usuário foi excluído"
   mail_body_delete_user: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para usuário anônimo %{id}
   mails_notifications:
@@ -367,6 +351,29 @@ pt:
       added_to: "Adicionado ao %{app_name}"
       update_h: 'Última Atualização'
       tasks_h: 'Tarefas Concluídas'
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
+      unassign_task_subject: "[%{team} - %{project}] Uma tarefa foi desatribuída de você"
+      assign_project_subject: "[%{team} - %{project}] Um projeto foi atribuído para você"
+      unassign_project_subject: "[%{team} - %{project}] Um projeto foi desatribuído de você"
+      assign_media_subject: "[%{team} - %{project}] Uma mídia foi atribuída para você"
+      unassign_media_subject: "[%{team} - %{project}] Uma mídia foi desatribuída de você"
+      assign_project_title: 'Projeto atribuído'
+      unassign_project_title: 'Projeto desatribuído'
+      assign_project_text: " %{author} atribuiu o projeto %{project} em %{team}."
+      unassign_project_text: " %{author} desatribuiu o projeto %{project} em %{team}."
+      assign_task_title: 'Tarefa atribuída'
+      unassign_task_title: 'Tarefa desatribuída'
+      assign_task_text: " %{author} atribuiu uma tarefa no projeto %{project} em %{team}."
+      unassign_task_text: " %{author} desatribuiu uma tarefa no projeto %{project} em %{team}."
+      assign_media_title: 'Mídia atribuída'
+      unassign_media_title: 'Mídia desatribuída'
+      assign_media_text: " %{author} atribuiu uma mídia no projeto %{project} em %{team}."
+      unassign_media_text: " %{author} desatribuiu uma mídia no projeto %{project} em %{team}."
+      assign_log: " %{author} atribuiu um(a) %{model} para %{username}"
+      unassign_log: " %{author} desatribuiu um(a) %{model} de %{username}"
+      assign_by: 'Atribuído(a) por'
+      unassign_by: 'Desatribuído(a) por'
   mail_security:
     device_subject: "Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}"
     ip_subject: "Alerta de segurança: Login novo ou incomum em %{app_name}"

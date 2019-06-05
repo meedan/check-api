@@ -343,22 +343,6 @@ ar:
   error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   mail_see_it: 'تستطيع أن تراه هنا : '
-  mail_subject_assign_verification_status: "[%{team} - %{project}] تم تكليف العنصر إليك"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] تم تكليف العنصر إليك"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
-  mail_subject_assign_task: "[%{team} - %{project}] تم تكليف مهمة إليك"
-  mail_subject_unassign_task: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-  mail_assign_verification_status: "قام(ت) %{author} بتكليف إليك العنصر : "
-  mail_unassign_verification_status: "قام(ت) %{author} بالغاء تكليف العنصر : "
-  mail_assign_translation_status: "قام(ت) %{author} بتكليف إليك العنصر : "
-  mail_unassign_translation_status: "قام(ت) %{author} بالغاء تكليف العنصر : "
-  mail_assign_task: 'قام(ت) %{author} بتكليف إليك مهمة "%{task}" التي تنتمي إلى العنصر : '
-  mail_unassign_task: 'قام(ت) %{author} بالغاء تكليف مهمة "%{task}" التي تنتمي إلى العنصر : '
-  mail_assign_project: "قام(ت) %{author} بتكليف إليك مشروع : "
-  mail_unassign_project: "قام(ت) %{author} بالغاء تكليف مشروع : "
-  mail_subject_assign_project: "[%{team} - %{project}] تم تكليف مشروع إليك"
-  mail_subject_unassign_project: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
   mail_subject_delete_user: "[%{team}] تم حذف مستخدم"
   mail_body_delete_user: تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم مجهول معرّفه %{id}
   mails_notifications:
@@ -383,6 +367,29 @@ ar:
       added_to: "تمت الإضافة الى %{app_name}"
       update_h: 'آخر تحديث'
       tasks_h: 'تم اكتمال بعض المهام'
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
+      unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
+      assign_project_subject: "[%{team} - %{project}] تم تكليف مشروع إليك"
+      unassign_project_subject: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
+      assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
+      unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
+      assign_project_title: 'تكليف مشروع'
+      unassign_project_title: 'إلغاء تكليف مشروع'
+      assign_project_text: "قام(ت) %{author} بتكليف مشروع %{project} التابع الى %{team}."
+      unassign_project_text: "قام(ت) %{author} بالغاء تكليف مشروع %{project} التابع الى %{team}."
+      assign_task_title: 'تكليف مهمة'
+      unassign_task_title: 'إلغاء تكليف مهمة'
+      assign_task_text: "قام(ت) %{author} بتكليف مهمة في مشروع %{project} التابع الى %{team}."
+      unassign_task_text: "قام(ت) %{author} بالغاء تكليف مهمة في مشروع %{project} التابع الى %{team}."
+      assign_media_title: 'تكليف عنصر'
+      unassign_media_title: 'إلغاء تكليف عنصر'
+      assign_media_text: "قام(ت) %{author} بتكليف عنصر في مشروع %{project} التابع الى %{team}."
+      unassign_media_text: "قام(ت) %{author} بالغاء تكليف عنصر في مشروع %{project} التابع الى %{team}."
+      assign_log: "قام(ت) %{author} بتكليف %{model} الى %{username}"
+      unassign_log: "قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}"
+      assign_by: 'تكليف من'
+      unassign_by: 'قام(ت) بإلغاء التكليف'
   mail_security:
     device_subject: "تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser} على %{platform}"
     ip_subject: "تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}"

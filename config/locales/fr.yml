@@ -327,22 +327,6 @@ fr:
   error_user_is_not_a_team_member: Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà ce compte
   mail_see_it: 'Vous pouvez le/la visionner à :'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été affecté"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Un élément vous a été affecté"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
-  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
-  mail_subject_unassign_task: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
-  mail_assign_verification_status: "%{author} vous a affecté un élément intitulé "
-  mail_unassign_verification_status: "%{author} a annulé votre affectation à l'élément intitulé "
-  mail_assign_translation_status: "%{author} vous a affecté un élément intitulé "
-  mail_unassign_translation_status: "%{author} a annulé votre affectation à l'élément intitulé "
-  mail_assign_task: '%{author} vous a affecté la tâche "%{task}" dans l''élément intitulé '
-  mail_unassign_task: '%{author} a annulé votre affectation à la tâche "%{task}" pour l''élément intitulé '
-  mail_assign_project: "%{author} vous a affecté le projet intitulé "
-  mail_unassign_project: "%{author} a annulé votre affectation au projet intitulé "
-  mail_subject_assign_project: "[%{team} - %{project}] Un projet vous a été affecté"
-  mail_subject_unassign_project: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
   mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
   mail_body_delete_user: Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}
   mails_notifications:
@@ -367,6 +351,29 @@ fr:
       added_to: "Ajouté à %{app_name}"
       update_h: 'Dernière mise à jour'
       tasks_h: 'Tâches complétées'
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Une tâche vous a été affectée"
+      unassign_task_subject: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
+      assign_project_subject: "[%{team} - %{project}] Un projet vous a été affecté"
+      unassign_project_subject: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
+      assign_media_subject: "[%{team} - %{project}] Un élément vous a été affecté"
+      unassign_media_subject: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
+      assign_project_title: 'Projet affecté'
+      unassign_project_title: 'Affectation de projet annulée'
+      assign_project_text: "%{author} a affecté le projet %{project} dans %{team}."
+      unassign_project_text: "%{author} a annulé l'affectation du projet %{project} dans %{team}."
+      assign_task_title: 'Tâche affectée'
+      unassign_task_title: 'Affectation de tâche annulée'
+      assign_task_text: "%{author} a affecté une tâche du projet %{project} dans %{team}."
+      unassign_task_text: "%{author} a annulé l'affectation d'une tâche du projet %{project} dans %{team}."
+      assign_media_title: 'Élément affecté'
+      unassign_media_title: 'Affectation d''élément annulée'
+      assign_media_text: "%{author} a affecté un élément du projet %{project} dans %{team}."
+      unassign_media_text: "%{author} a annulé l'affectation d'un élément du projet %{project} dans %{team}."
+      assign_log: "%{author} a affecté un.e %{model} à %{username}"
+      unassign_log: "%{author} a annulé l'affectation d'un.e %{model} à %{username}"
+      assign_by: 'Affecté par'
+      unassign_by: 'Affectation annulée par'
   mail_security:
     device_subject: "Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}"
     ip_subject: "Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle"
