@@ -62,6 +62,7 @@ development: &default
   failed_attempts: 4
   google_client_id:
   google_client_secret:
+  google_auth_redirect_uri:
 
 test:
   <<: *default
