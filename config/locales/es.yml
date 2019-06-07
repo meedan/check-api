@@ -251,8 +251,8 @@ es:
   oembed_disclaimer_undetermined: Este medio no ha sido revisado por el equipo de %{team}
   oembed_disclaimer_in_progress: la veracidad de este medio está en proceso de ser determinada por el equipo de %{team} el %{date}
   oembed_disclaimer_verified: la precisión de este medio fue verificada por el equipo %{team} el %{date}
-  oembed_disclaimer_false: el equipo de %{team} ha determinado que la veracidad de este medio es falsa, el %{date}
-  oembed_disclaimer_not_applicable: El equipo %{team} no pudo llegar a ninguna conclusión sobre la precisión de este medio el %{date}
+  oembed_disclaimer_false: El equipo %{team} ha determinado la veracidad de este medio como falsa, el %{date}
+  oembed_disclaimer_not_applicable: El equipo %{team} no pudo llegar a ninguna conclusión sobre la precisión de este medio, el %{date}
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
   role_owner: propietario
@@ -297,7 +297,7 @@ es:
   cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión del navegador no está disponible para este equipo
   error_invalid_attribution: Atribución inválida
   account_exists: Esta cuenta ya existe
-  media_exists: Este archivo multimedia ya existe
+  media_exists: Este medio ya existe
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con soporte técnico  si crees que ha sido un error.
@@ -329,8 +329,73 @@ es:
   mail_see_it: 'Puedes verlo en:'
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
+  mails_notifications:
+    greeting: "Hola %{username},"
+    project_view: "Vista de proyecto"
+    unsubscribe: 'Cancelar suscripción '
+    unsubscribe_link: "%{unsubscribe} de estas notificaciones"
+    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
+    task_resolved:
+      subject: "[%{team} - %{project}] Tarea resuelta"
+      header_title: 'Tarea respondida'
+      header_text: " %{author} respondió una tarea en el proyecto %{project} en %{team}."
+      section_title: '¿Quién o cuál es la fuente de la afirmación?'
+      status: 'Estado'
+      media_h: 'Medio'
+    media_status:
+      label: 'medio'
+      subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
+      header_title: 'El estado del medio ha sido actualizado'
+      header_text: " %{author} actualizó un ítem del poyecto %{project} en %{team}."
+      section_title: "Marcado como %{status}."
+      added_to: "Añadido a %{app_name}"
+      update_h: 'Última actualización'
+      tasks_h: 'Tarea finalizada'
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
+      unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
+      assign_project_subject: "[%{team} - %{project}] Se te ha asignado un proyecto"
+      unassign_project_subject: "[%{team} - %{project}] Se te ha desasignado un proyecto"
+      assign_media_subject: "[%{team} - %{project}] Se te ha asignado un  ítem"
+      unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
+      assign_project_title: 'Proyecto asignado '
+      unassign_project_title: 'Proyecto sin asignar '
+      assign_project_text: "%{author} asignó un proyecto %{project} en %{team}."
+      unassign_project_text: "%{author} desasignó un proyecto %{project} en %{team}. "
+      assign_task_title: 'Tarea asignada '
+      unassign_task_title: 'Tarea sin asignar'
+      assign_task_text: "%{author} asignó una tarea de %{project} en %{team}."
+      unassign_task_text: "%{author} desasignó una tarea de %{project} en %{team}. "
+      assign_media_title: 'Ítem asignado'
+      unassign_media_title: 'Ítem desasignado'
+      assign_media_text: " %{author} asignó un ítem del proyecto %{project} en%{team}."
+      unassign_media_text: " %{author} desasignó un ítem del proyecto %{project} en%{team}."
+      assign_log: "%{author} asignó %{model} a %{username}"
+      unassign_log: "%{author} desasignó %{model} a %{username}"
+      assign_by: 'Asignado por'
+      unassign_by: 'Desasignado por'
   mail_security:
-    privacy_text: 'Política de Privacidad'
+    device_subject: "Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}"
+    ip_subject: "Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} "
+    failed_subject: "Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}"
+    ip: "Has iniciado sesión desde %{location}"
+    device: "Has iniciado sesión desde %{browser} en %{platform}"
+    devise_name: "%{browser} en %{platform}"
+    failed: "Se han detectado Intentos fallidos de inicio de sesión "
+    password_text: "restablece tu contraseña inmediatamente "
+    device_text: "Al parecer, recientemente has iniciado sesión en tu cuenta de %{app_name} desde un nuevo dispositivo. Si no has sido tú, te recomendamos %{change_password}"
+    ip_text: "Al parecer,  recientemente has iniciado sesión en tu cuenta de %{app_name} desde una nueva locación. Si no has sido tú,  te recomendamos %{change_password}"
+    failed_text: "Al parecer, han habido múltiples intentos fallidos de inicio de sesión en tu cuenta de %{app_name}. Si has sido tú has caso omiso de este mensaje, si no has sido tú te recomendamos %{change_password}"
+    time_h: "Tiempo"
+    device_h: "Dispositivo"
+    location_h: "Ubicación"
+    location_disclaimer: "* La ubicación es aproximada según la dirección IP desde la que se originó"
+    ip_h: "Dirección IP"
+    privacy: "%{manage}tus notificaciones de correo electrónico • Aprende más acerca de nuestras %{privacy}"
+    privacy_text: 'Políticas de Privacidad'
+    manage_text: 'Gestionar'
+    privace_manage_plain: "Gestiona tus notificaciones de correo electrónico"
+    privacy_plain: "Aprende más acerca de nuestras Políticas de Privacidad"
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
@@ -443,7 +508,7 @@ es:
             delete: Eliminar tarea
             add_response: Añadir una respuesta
             delete_repsonse: Eliminar respuesta
-            assign_task: Asignar tareo o ítem
+            assign_task: Asignar tarea o ítem
         team_management:
           name: Gestión del equipo
           permissions:

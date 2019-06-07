@@ -127,8 +127,7 @@ class Bot::Alegre < ActiveRecord::Base
         Airbrake.notify(e) if Airbrake.configuration.api_key
       end
     end
-    print response.inspect
-    pm_ids = response['results'].collect{|r| r.dig('context', 'project_media_id')}
+    pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}
     self.add_relationships(pm, pm_ids)
   end
 
