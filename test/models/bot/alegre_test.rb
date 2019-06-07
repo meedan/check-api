@@ -26,7 +26,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return und if there is an error" do
+  test "should return und language if there is an error" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_error do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
@@ -56,7 +56,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return null for language object if there is no annotation" do
+  test "should return null language object if there is no annotation" do
     pm = create_project_media
     assert_nil @bot.language_object(pm)
   end
@@ -84,6 +84,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       :target_id => pm2.id
     })
     assert_equal 1, r.length
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: 'invalid result')
+    assert_nothing_raised do
+      @bot.get_image_similarities(pm2)
+    end
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: '{"error":"message"}')
+    assert_nothing_raised do
+      @bot.get_image_similarities(pm2)
+    end
   end
 
   # test "should return no machine translations if Alegre client throws exception" do

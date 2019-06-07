@@ -75,7 +75,7 @@ class Bot::Alegre < ActiveRecord::Base
   end
 
   def add_relationships(pm, pm_ids)
-    return if pm_ids.empty? || pm_ids.include?(pm.id)
+    return if pm_ids.blank? || pm_ids.include?(pm.id)
 
     # Take first match as being the best potential parent.
     # Conditions to check for a valid parent in 2-level hierarchy:
