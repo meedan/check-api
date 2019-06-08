@@ -244,7 +244,15 @@ end
 def copy_to_file(select_query, filename)
   filename += '.copy'
   begin
-    @conn.execute("COPY (#{select_query}) TO '#{filename}' NULL '*' CSV HEADER")
+    query = "COPY (#{select_query}) TO STDOUT NULL '*' CSV HEADER"
+    csv = []
+    @conn.raw_connection.copy_data(query) do
+      while row = @conn.raw_connection.get_copy_data
+        csv.push(row)
+      end
+    end
+    sql_data_as_string = csv.join("")
+    File.open(filename, "w") {|file| file.write(sql_data_as_string.force_encoding("UTF-8"))}
   rescue Exception => e
     Rails.logger.warn "[Team Export] Could not create #{filename}: #{e.message} #{e.backtrace.join("\n")}"
   end
@@ -261,6 +269,7 @@ namespace :check do
     return "Could not find a team with id or slug #{args.team}" if team.nil?
     slug, @id = team.slug, team.id
     @path = args.folder_path
+    FileUtils.mkdir_p(@path)
     @conn = ActiveRecord::Base.connection
     Benchmark.bm(40) do |bm|
       @conn.tables.each do |table|
