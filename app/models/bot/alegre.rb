@@ -5,9 +5,8 @@ class Bot::Alegre < ActiveRecord::Base
 
   def self.run(body)
     begin
-      data = JSON.parse(body)
-      pm = ProjectMedia.where(id: data['data']['dbid']).last
-      unless data['event'] != 'create_project_media' or pm.nil?
+      pm = ProjectMedia.where(id: body['data']['dbid']).last
+      unless body['event'] != 'create_project_media' or pm.nil?
         Bot::Alegre.default.get_language(pm)
         # Bot::Alegre.default.create_empty_mt_annotation(pm)
         # Bot::Alegre.default.create_similarities_from_alegre(pm)
@@ -15,7 +14,7 @@ class Bot::Alegre < ActiveRecord::Base
       end
       true
     rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Exception for event #{data['event']}: #{e.message}")
+      Rails.logger.error("[Alegre Bot] Exception for event #{body['event']}: #{e.message}")
       Airbrake.notify(e) if Airbrake.configuration.api_key
       false
     end
