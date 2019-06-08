@@ -87,7 +87,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: l
     u = create_user is_admin: true
-    Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id }.to_json)
+    Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
     assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
