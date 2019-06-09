@@ -27,4 +27,15 @@ class AdminMailer < ApplicationMailer
     mail(to: email, subject: I18n.t(:team_import_completed_subject))
   end
 
+  def send_team_download_link(slug, link, email, password)
+    @link = link.gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
+    Rails.logger.info "Sending e-mail to #{email} with download link #{@link} related to team #{slug}"
+    @team = slug
+    @link = link
+    @days = CONFIG['export_download_expiration_days'] || 7
+    @app = CONFIG['app_name']
+    @password = password
+    mail(to: email, subject: I18n.t(:team_dump_email_title))
+  end
+
 end
