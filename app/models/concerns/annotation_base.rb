@@ -20,7 +20,7 @@ module AnnotationBase
       def define_annotation_relation_method
         define_method :annotation_relation do |type=nil|
           query = self.annotation_query(type)
-          klass = (type.blank? || type.is_a?(Array)) ? Annotation : type.camelize.constantize
+          klass = (type.blank? || type.is_a?(Array)) ? Annotation : (begin type.camelize.constantize rescue Annotation end)
           klass.where(query).order('id DESC')
         end
       end
@@ -87,12 +87,12 @@ module AnnotationBase
     serialize :data, HashWithIndifferentAccess
     serialize :entities, Array
 
-    custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' }
+    custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' && a.annotated_type == 'Source' }
 
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }
 
     def annotations
-      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Flag', 'Tag', 'Comment', 'Embed'], annotated_id: self.id)
+      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Flag', 'Tag', 'Comment'], annotated_id: self.id)
     end
 
     def start_serialized_fields
@@ -138,6 +138,10 @@ module AnnotationBase
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end
       Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
+    end
+
+    def parsed_fragment
+      begin URI.media_fragment(self.fragment) rescue {} end
     end
   end
 

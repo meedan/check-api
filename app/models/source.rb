@@ -174,7 +174,7 @@ class Source < ActiveRecord::Base
   def refresh_accounts=(refresh)
     return if refresh.blank?
     self.accounts.each do |a|
-      a.refresh_embed_data
+      a.refresh_metadata
       a.skip_check_ability = true
       a.save!
     end
@@ -246,6 +246,7 @@ class Source < ActiveRecord::Base
       m.annotated = self
       m.annotator = user
       m.set_fields = { metadata_value: {}.to_json }.to_json
+      m.is_being_copied = self.team&.is_being_copied
       m.save!
       User.current = user
     end

@@ -160,7 +160,7 @@ class TeamUser < ActiveRecord::Base
 
   def send_email_to_team_owners
     return if self.is_being_copied
-    TeamUserMailer.delay.request_to_join(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
+    TeamUserMailer.request_to_join_notification(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
   end
 
   def send_email_to_requestor

@@ -65,9 +65,9 @@ module ProjectMediaCreators
     end
   end
 
-  def set_quote_embed
-    self.embed = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
-    self.embed = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
+  def set_quote_metadata
+    self.metadata = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.metadata = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
   end
 
   protected
@@ -109,7 +109,7 @@ module ProjectMediaCreators
   end
 
   def set_jsonld_response(task)
-    jsonld = self.embed['raw']['json+ld'] if self.embed.has_key?('raw')
+    jsonld = self.metadata['raw']['json+ld'] if self.metadata.has_key?('raw')
     unless jsonld.nil?
       value = self.get_response_value(jsonld, task)
       self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?

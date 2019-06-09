@@ -32,8 +32,6 @@ class ProjectSource < ActiveRecord::Base
       ms.title = s.name
       ms.description = s.description
     end
-    ms.recent_added = self.created_at.to_i
-    ms.recent_activity = Time.now.to_i
   end
 
   def slack_params

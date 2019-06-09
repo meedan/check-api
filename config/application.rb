@@ -54,8 +54,8 @@ module Check
       allow do
         origins(/^(#{cfg['checkdesk_client']}|(moz|chrome)-extension:)|file:/)
         resource '*',
-          headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Requested-With', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers', 'Credentials', 'X-Check-Client', 'X-Check-Team', 'X-API-Key'],
-          methods: [:get, :post, :delete, :options]
+        headers: [cfg['authorization_header'], 'Content-Type', 'Accept', 'X-Requested-With', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers', 'Credentials', 'X-Check-Client', 'X-Check-Team', 'X-API-Key', 'X-Timezone'],
+        methods: [:get, :post, :put, :delete, :options]
       end
     end
 

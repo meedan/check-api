@@ -25,7 +25,9 @@ Devise.setup do |config|
   config.omniauth :twitter, CONFIG['twitter_consumer_key'], CONFIG['twitter_consumer_secret']
   config.omniauth :facebook, CONFIG['facebook_app_id'], CONFIG['facebook_app_secret'], scope: 'email,public_profile', info_fields: 'name,email,picture'
   config.omniauth :slack, CONFIG['slack_app_id'], CONFIG['slack_app_secret'], scope: 'identify,users:read'
-  config.omniauth :google_oauth2, CONFIG['google_client_id'], CONFIG['google_client_secret'], { access_type: 'offline', approval_prompt: '' }
+  google_auth_config = { access_type: 'offline', approval_prompt: '' }
+  google_auth_config[:redirect_uri] = CONFIG['google_auth_redirect_uri'] unless CONFIG['google_auth_redirect_uri'].blank?
+  config.omniauth :google_oauth2, CONFIG['google_client_id'], CONFIG['google_client_secret'], google_auth_config 
   config.skip_session_storage = [:http_auth, :token_auth]
   config.warden do |manager|
     manager.failure_app = CustomFailure

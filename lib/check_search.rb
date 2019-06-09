@@ -2,7 +2,7 @@ class CheckSearch
   def initialize(options)
     # options include keywords, projects, tags, status
     options = JSON.parse(options)
-    @options = options.clone
+    @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
@@ -112,6 +112,7 @@ class CheckSearch
         archived: archived,
         inactive: false
       })
+      build_search_range_filter(:pg, filters)
     end
     associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
   end
@@ -126,10 +127,12 @@ class CheckSearch
       conditions << { term: { inactive: 0 } }
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
+      conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
+    conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
     conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     { bool: { must: conditions } }
@@ -198,10 +201,9 @@ class CheckSearch
 
   def build_search_sort
     if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
+      sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
       return [
-        {
-          @options['sort'] => { order: @options['sort_type'] }
-        }
+        { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
     [
@@ -253,6 +255,45 @@ class CheckSearch
       doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
     end
     doc_c
+  end
+
+  def format_time_with_timezone(time, tz)
+    begin
+      Time.use_zone(tz) { Time.zone.parse(time) }
+    rescue StandardError
+      nil
+    end
+  end
+
+  def format_times_search_range_filter(values, timezone)
+    return if values.blank?
+    tz = (!timezone.blank? && ActiveSupport::TimeZone[timezone]) ? timezone : 'UTC'
+    from = format_time_with_timezone(values.dig('start_time'), tz)
+    to = format_time_with_timezone(values.dig('end_time'), tz)
+    return if from.blank? && to.blank?
+    from ||= DateTime.new
+    to ||= DateTime.now.in_time_zone(tz)
+    to = to.end_of_day if to.strftime('%T') == '00:00:00'
+    [from, to]
+  end
+
+  # range: {created_at: {start_time: <start_time>, end_time: <end_time>}, updated_at: {start_time: <start_time>, end_time: <end_time>}, timezone: 'GMT'}
+  def build_search_range_filter(type, filters = nil)
+    conditions = []
+    return conditions unless @options.has_key?(:range)
+    timezone = @options[:range].delete(:timezone) || @context_timezone
+    [:created_at, :updated_at].each do |name|
+      values = @options['range'].dig(name)
+      range = format_times_search_range_filter(values, timezone)
+      next if range.nil?
+      if type == :pg
+        filters[name] = range[0]..range[1]
+      else
+        method = "field_search_query_type_range_#{name}"
+        conditions << ProjectMedia.send(method, range, timezone)
+      end
+    end
+    conditions
   end
 
   def sort_pg_results(results, table)

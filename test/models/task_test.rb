@@ -99,13 +99,13 @@ class TaskTest < ActiveSupport::TestCase
     t.save!
     r = t.responses.first
     assert_not_nil Annotation.where(id: r.id).last
-    assert_equal 2, DynamicAnnotation::Field.count
-    assert_equal 5, Dynamic.count
+    assert_equal 11, DynamicAnnotation::Field.count
+    assert_equal 12, Dynamic.count
     t.disable_es_callbacks = true
     t.destroy
     assert_nil Annotation.where(id: r.id).last
-    assert_equal 2, Dynamic.count
-    assert_equal 0, DynamicAnnotation::Field.count
+    assert_equal 9, Dynamic.count
+    assert_equal 9, DynamicAnnotation::Field.count
   end
 
   test "should notify on Slack when task is assigned" do
@@ -326,7 +326,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "should accept suggestion from bot" do
     text = create_field_type field_type: 'text', label: 'Text'
-    json = create_field_type field_type: 'json', label: 'JSON'
+    json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
     create_field_instance annotation_type_object: at, name: 'review_free_text', label: 'Review', field_type_object: json, optional: true
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false

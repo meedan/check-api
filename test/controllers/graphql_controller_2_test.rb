@@ -31,7 +31,7 @@ class GraphqlController2Test < ActionController::TestCase
     end
     sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
     assert_response :success
@@ -327,7 +327,6 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
 
     query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
 
@@ -345,7 +344,6 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
 
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
@@ -946,7 +944,6 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media project: p
     tk = create_task annotated: pm
     tk.assign_user(u1.id)
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     d1 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u1
     d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
 
@@ -968,7 +965,6 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media project: p
     tk = create_task annotated: pm
     tk.assign_user(u1.id)
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     d1 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u1
     d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
 

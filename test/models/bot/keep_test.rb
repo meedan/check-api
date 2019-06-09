@@ -10,6 +10,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     DynamicAnnotation::FieldType.delete_all
     DynamicAnnotation::Field.delete_all
     create_annotation_type_and_fields('Keep Backup', { 'Response' => ['JSON', false] })
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     @bot = Bot::Keep.new
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/').to_return(body: { package: '123456' }.to_json)
     WebMock.stub_request(:post, 'https://www.bravenewtech.org/api/status.php').to_return(body: { location: 'http://keep.org' }.to_json)
@@ -86,7 +87,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: l
     u = create_user is_admin: true
-    Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id }.to_json)
+    Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
     assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
