@@ -88,15 +88,11 @@ class TeamBot < ActiveRecord::Base
     end
   end
 
-  def core?
-    host = self.request_url.to_s.match(/^https?:\/\/[^\/]+/)
-    !host.nil? && host[0] == CONFIG['checkdesk_base_url_private']
-  end
-
   def call(data)
     if self.core?
       User.current = self.bot_user
-      TeamBot.call_core_bot(self.identifier, data)
+      bot = BOT_NAME_TO_CLASS[self.identifier.to_sym]
+      bot.run(data) unless bot.blank?
       User.current = nil
     else
       begin
@@ -210,15 +206,17 @@ class TeamBot < ActiveRecord::Base
     end
   end
 
-  def self.call_core_bot(id, data = {})
-    bot_name_to_class = {
-      keep: Bot::Keep,
-      smooch: Bot::Smooch,
-      alegre: Bot::Alegre
-    }
+  # FIXME This should go away when we merge BotUser, TeamBot, and the various Bot::XXX models.
+  BOT_NAME_TO_CLASS = {
+    keep: Bot::Keep,
+    smooch: Bot::Smooch,
+    alegre: Bot::Alegre
+  }
 
-    bot = bot_name_to_class[id.to_sym]
-    bot.run(data.to_json) unless bot.blank?
+  # FIXME Convert this to an overridden method that returns false in the base class
+  # and true for derived, core bots.
+  def core?
+    return !BOT_NAME_TO_CLASS[self.identifier.to_sym].blank?
   end
 
   private

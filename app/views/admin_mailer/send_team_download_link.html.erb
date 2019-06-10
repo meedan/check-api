@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <%= simple_format(I18n.t(:team_dump_download_mail, team: @team, link: @link, days: @days, app: @app, password: @password)) %>
+  </body>
+</html>

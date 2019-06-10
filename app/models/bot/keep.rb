@@ -1,8 +1,7 @@
 class Bot::Keep
   def self.run(body)
-    json = JSON.parse(body)
-    pm = ProjectMedia.where(id: json['data']['dbid']).last
-    user = User.where(id: json['user_id']).last
+    pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
+    user = User.where(id: body.dig(:user_id)).last
     if pm.present? && user.present?
       User.current = user
       pm.create_all_archive_annotations
@@ -69,9 +68,9 @@ class Bot::Keep
 
         ProjectMedia.where(media_id: link.id).each do |pm|
           next if Bot::Keep.should_skip_project_media?(pm)
-          
+
           annotation = pm.annotations.where(annotation_type: type).last
-          
+
           unless annotation.nil?
             annotation = annotation.load
             annotation.skip_check_ability = true
