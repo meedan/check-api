@@ -994,6 +994,53 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     I18n.unstub(:exists?)
   end
 
+  test "should not accept new requests if bot is disabled" do
+    u = create_user is_admin: true
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    
+    ProjectMedia.delete_all
+    
+    s = @installation.settings.clone.with_indifferent_access
+    s['smooch_disabled'] = true
+    @installation.settings = s
+    @installation.save!
+    @installation = TeamBotInstallation.find(@installation.id)
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    Bot::Smooch.run(payload)
+    send_confirmation(uid)
+    assert_equal 0, ProjectMedia.count
+ 
+    s = @installation.settings.clone.with_indifferent_access
+    s['smooch_disabled'] = false
+    @installation.settings = s
+    @installation.save!
+    @installation = TeamBotInstallation.find(@installation.id)   
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    Bot::Smooch.run(payload)
+    send_confirmation(uid)
+    assert_equal 1, ProjectMedia.count
+  end
+
   protected
 
   def run_concurrent_requests
