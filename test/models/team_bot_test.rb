@@ -682,4 +682,10 @@ class TeamBotTest < ActiveSupport::TestCase
     b = create_team_bot name: 'Keep', request_url: CONFIG['checkdesk_base_url_private'] + '/foo/bar'
     b.call({})
   end
+
+  test "should return UI schema for team bot settings" do
+    settings = [{ name: 'smooch_message_foo', label: 'Foo', type: 'string', default: '' }]
+    tb = create_team_bot settings: settings
+    assert_match /textarea/, tb.settings_ui_schema
+  end
 end

@@ -32,6 +32,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
     ]
+    {
+      'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_result_changed' => 'Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_ask_for_confirmation' => 'Message that asks the user to confirm the request to verify an item... should mention that the user needs to sent "1" to confirm',
+      'smooch_bot_message_confirmed' => 'Message that confirms to the user that the request is in the queue to be verified',
+      'smooch_bot_message_type_unsupported' => 'Message that informs the user that the type of message is not supported (for example, audio and video)',
+      'smooch_bot_message_unconfirmed' => 'Message sent when the user does not send "1" to confirm a request',
+      'smooch_bot_not_final' => 'Message when an item was wrongly marked as final, but that status is reverted (placeholder: %{status} (previous final status))',
+      'smooch_bot_meme' => 'Message sent along with a meme (placeholder: %{url} (public URL to verification results))',
+    }.each do |name, label|
+      settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
+    end
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:put, 'https://www.transifex.com/api/2/project/check-2/resource/api/content').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
     @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
@@ -932,6 +947,51 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
     end
+  end
+
+  test "should send strings to Transifex" do
+    t = create_team
+    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+      s = tbi.settings.clone
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      tbi.settings = s
+      assert_nothing_raised do
+        tbi.save!
+      end
+      TeamBotInstallation.stubs(:upload_smooch_strings_to_transifex).raises(StandardError)
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      tbi.settings = s
+      assert_raises StandardError do
+        tbi.save!
+      end
+      TeamBotInstallation.unstub(:upload_smooch_strings_to_transifex)
+    end
+  end
+
+  test "should get message string" do
+    slug = random_string.downcase
+    c1 = 'Here is your meme'
+    c2 = 'Aqui está o seu meme'
+    t = create_team slug: slug
+    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    RequestStore.store[:smooch_bot_settings] = tbi.settings.with_indifferent_access.merge({ team_id: t.id })
+    k = 'smooch_bot_meme'
+    assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
+    assert_equal I18n.t(k, locale: 'pt'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
+    assert_equal c1, Bot::Smooch.i18n_t(k)
+    assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    I18n.stubs(:exists?).with("#{k}_#{slug}").returns(true)
+    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, {}).returns(c1)
+    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
+    assert_equal c1, Bot::Smooch.i18n_t(k)
+    assert_equal c2, Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
   end
 
   protected
