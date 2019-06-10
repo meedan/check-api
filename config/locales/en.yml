@@ -653,3 +653,16 @@ en:
   smooch_requests: Requests
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
+  team_dump_email_title: Your team dump is ready to be downloaded
+  team_dump_download_mail: |-
+    Hello!
+
+    You've requested a dump for %{team} - here's a link to download it: %{link}
+
+    The tables dump will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
+
+    Please note that this link will expire in %{days} days.
+
+    Cheers,
+
+    %{app} team
