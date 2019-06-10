@@ -148,6 +148,16 @@ class TeamBot < ActiveRecord::Base
     TeamBotInstallation.where(team_id: current_team.id, team_bot_id: self.id).last unless current_team.nil?
   end
 
+  def settings_ui_schema
+    return nil if self.settings.blank?
+    schema = {}
+    self.settings.each do |setting|
+      s = setting.with_indifferent_access
+      schema[s[:name]] = { 'ui:widget' => 'textarea' } if s[:name] =~ /^smooch_message_/
+    end
+    schema.to_json
+  end
+
   def settings_as_json_schema
     return nil if self.settings.blank?
     properties = {}
