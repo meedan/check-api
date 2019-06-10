@@ -208,7 +208,6 @@ ro:
   mail_view_rejected_to_join: Ne pare rău, solicitarea Dvs de a se alătura echipei %{team} nu a fost aprobată.
   mail_view_request_to_join: "%{user} (%{handle}) dorește să se alăture echipei %{team} pe %{app_name}!"
   mail_view_process_request: 'Pentru a procesa această solicitare, conectați-vă și vizitați:'
-  pender_could_not_parse: Imposibil de analizat acest fișier media
   mail_duplicate_email_exists: Metoda dvs. de conectare pentru %{app_name}
   mail_duplicate_email_exists_body: "<p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să vă conectați la %{app_name} cu un cont pe %{user_provider} legat de %{user_email}.  Însă, această adresă de e-mail este deja asociată cu un cont pe%{duplicate_provider} în %{app_name}.</p> <p>Ce trebuie făcut: Conectați-vă cu %{duplicate_provider}.</p> <p>În acest caz vă veți conecta cu ajutorul contului folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p> <p>— Echipa %{app_name} </p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să creați un nou cont bazat pe e-mail pe %{app_name}, însă acest cont deja există.</p> <p>Încercați să vă conectați cu adresa de e-mail și parola dvs în loc să creați un cont nou.</p> <p>Vă veți conecta la contul folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p> <p>— Echipa %{app_name} </p>"
@@ -294,9 +293,6 @@ ro:
   max_number_of_team_users_reached: Ne pare rău, s-a atins numărul maxim de utilizatori pentru această echipă
   max_number_of_projects_reached: Ne pare rău, s-a atins numărul maxim de proiecte pentru această echipă
   cant_set_custom_statuses: Ne pare rău, individualizarea statuturilor nu este disponibilă pentru această echipă
-  cant_change_custom_statuses: |-
-      Ne pare rău, nu puteți modifica definițiile statuturilor pentru că unele statuturi s-ar putea pierde. Acești identificatori de statut: %{statuses} sunt folosiți în elementele ce urmează:
-      %{urls} %{others_amount}
   cant_create_team_task: Ne pare rău, echipa Dvs nu are acces la această caracteristică
   cant_create_media_under_this_team_using_extension: Ne pare rău, extensia pentru browser nu este disponibilă pentru această echipă
   error_invalid_attribution: Atribuire nevalidă
@@ -334,11 +330,12 @@ ro:
   mail_subject_delete_user: "[%{team}] A fost șters un utilizator"
   mail_body_delete_user: Un cont de utilizator a fost șters și conținutul acestuia a fost desemnat utilizatorului anonim %{id}
   mail_security:
-    ip: "V-ați conectat din %{location}"
-    ip_text: "Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}"
-    location_h: "Locația"
+    ip: V-ați conectat din %{location}
+    ip_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}
+    time_h: Ora
+    location_h: Locația
     location_disclaimer: "* Locația a fost stabilită aproximativ, în baza adresei IP de origine."
-    ip_h: "Adresa IP"
+    ip_h: Adresa IP
   archive_keep_backup: Video Vault
   archive_pender_archive: Păstrează capturi de ecran
   archive_archive_is: Archive.is
@@ -381,7 +378,7 @@ ro:
 
       Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
   smooch_bot_window_closing: Numărul solicitărilor în lucru este foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim pentru că ne-ați transmis-o. Dacă aveți alte mesaje pentru noi, vă rugăm să le trimiteți.
-  smooch_bot_not_final: '[Raport de verificare - CORECTARE] Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru verificări ulterioare.'
+  smooch_bot_not_final: "[Raport de verificare - CORECTARE] Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru verificări ulterioare."
   smooch_bot_result_changed: |-
       [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
 
