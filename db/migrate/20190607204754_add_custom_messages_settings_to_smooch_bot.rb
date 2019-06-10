@@ -12,6 +12,7 @@ class AddCustomMessagesSettingsToSmoochBot < ActiveRecord::Migration
         'smooch_bot_message_unconfirmed' => 'Message sent when the user does not send "1" to confirm a request',
         'smooch_bot_not_final' => 'Message when an item was wrongly marked as final, but that status is reverted (placeholder: %{status} (previous final status))',
         'smooch_bot_meme' => 'Message sent along with a meme (placeholder: %{url} (public URL to verification results))',
+        'smooch_bot_window_closing' => 'Message sent near 24h since the last message from the user'
       }.each do |name, label|
         settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
       end
