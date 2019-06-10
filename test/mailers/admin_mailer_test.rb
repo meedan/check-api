@@ -46,4 +46,14 @@ class AdminMailerTest < ActionMailer::TestCase
     assert_equal [u.email], email.to
   end
 
+  test "should send team download link" do
+    t = create_team
+    requestor = create_user
+    email = AdminMailer.send_team_download_link(t.slug, 'http://download.com', requestor.email, 'password')
+    assert_emails 1 do
+      email.deliver_now
+    end
+    assert_equal [requestor.email], email.to
+  end
+
 end
