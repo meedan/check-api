@@ -626,7 +626,7 @@ class Bot::Smooch
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        return if self.config['smooch_disabled']
+        next if self.config['smooch_disabled']
         lang = data['language']
         status_label = self.get_status_label(pm, status, lang)
         response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: lang, status: status_label }))
@@ -731,7 +731,7 @@ class Bot::Smooch
     pm2.get_annotations('smooch').find_each do |a|
       data = JSON.parse(a.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      return if self.config['smooch_disabled']
+      next if self.config['smooch_disabled']
       smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_meme, { locale: data['language'], url: Bot::Smooch.embed_url(pm) }), { type: 'image', mediaUrl: meme })
       self.save_smooch_response(smooch_response, pm2)
     end
