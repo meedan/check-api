@@ -224,18 +224,18 @@ end
 
 def get_dynamic_annotation_types
   query = "SELECT DISTINCT(annotation_type) FROM dynamic_annotation_annotation_types"
-  @dynamic_types ||= @conn.execute(query).values.map {|v| "'#{v[0]}'" }
+  @dynamic_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
 def get_annotation_types
   query = "SELECT DISTINCT(annotation_type) FROM annotations"
-  @annotation_types ||= @conn.execute(query).values.map {|v| "'#{v[0]}'" }
+  @annotation_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
 def get_ids(table)
   query = send("#{table}_query", table, 'id')
   if instance_variable_get("@#{table}_ids").nil?
-    ids = @conn.execute(query).values.map {|v| v[0] }.join(',')
+    ids = ActiveRecord::Base.connection.execute(query).values.map {|v| v[0] }.join(',')
     instance_variable_set("@#{table}_ids", ids)
   end
   instance_variable_get("@#{table}_ids")
@@ -246,8 +246,9 @@ def copy_to_file(select_query, filename)
   begin
     query = "COPY (#{select_query}) TO STDOUT NULL '*' CSV HEADER"
     csv = []
-    @conn.raw_connection.copy_data(query) do
-      while row = @conn.raw_connection.get_copy_data
+    conn = ActiveRecord::Base.connection.raw_connection
+    conn.copy_data(query) do
+      while row = conn.get_copy_data
         csv.push(row)
       end
     end
@@ -295,20 +296,24 @@ namespace :check do
     slug, @id = team.slug, team.id
     email = args.email
     @files = {}
-    @conn = ActiveRecord::Base.connection
+    tables = ActiveRecord::Base.connection.tables
     Benchmark.bm(40) do |bm|
-      @conn.tables.each do |table|
+      tables.each do |table|
         query = "#{table}_query"
-        if self.respond_to?(query, table)
-          bm.report("#{table}:") do
-            if ['versions', 'annotations'].include?(table)
-              send(query, table)
-            else
-              copy_to_file(send(query, table), table)
+        begin
+          if self.respond_to?(query, table)
+            bm.report("#{table}:") do
+              if ['versions', 'annotations'].include?(table)
+                send(query, table)
+              else
+                copy_to_file(send(query, table), table)
+              end
             end
+          else
+            puts "Missing query to copy #{table}"
           end
-        else
-          puts "Missing query to copy #{table}"
+        rescue
+          puts "Error dumping table #{table}"
         end
       end
     end

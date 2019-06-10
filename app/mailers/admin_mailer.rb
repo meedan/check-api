@@ -31,7 +31,6 @@ class AdminMailer < ApplicationMailer
     @link = link.gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
     Rails.logger.info "Sending e-mail to #{email} with download link #{@link} related to team #{slug}"
     @team = slug
-    @link = link
     @days = CONFIG['export_download_expiration_days'] || 7
     @app = CONFIG['app_name']
     @password = password
