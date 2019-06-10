@@ -208,7 +208,8 @@ class Bot::Smooch
 
   def self.team_has_smooch_bot_installed(pm)
     bot = TeamBot.where(identifier: 'smooch').last
-    !TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last.nil?
+    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last
+    !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
   def self.convert_numbers(str)
@@ -254,7 +255,7 @@ class Bot::Smooch
       case json['trigger']
       when 'message:appUser'
         json['messages'].each do |message|
-          self.process_message(message, json['app']['_id'])
+          self.discard_or_process_message(message, json['app']['_id'])
         end
         true
       when 'message:delivery:failure'
@@ -334,6 +335,15 @@ class Bot::Smooch
     hash
   end
 
+  def self.discard_or_process_message(message, app_id)
+    if self.config['smooch_disabled']
+      lang = message['language'] = self.get_language(message)
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_disabled, { locale: lang }), {}, true)
+    else
+      self.process_message(message, app_id)
+    end
+  end
+
   def self.process_message(message, app_id)
     lang = message['language'] = self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
@@ -399,7 +409,8 @@ class Bot::Smooch
     end
   end
 
-  def self.send_message_to_user(uid, text, extra = {})
+  def self.send_message_to_user(uid, text, extra = {}, force = false)
+    return if self.config['smooch_disabled'] && !force
     payload = { scope: 'app' }
     jwtHeader = { kid: self.config['smooch_secret_key_key_id'] }
     token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwtHeader
@@ -604,7 +615,7 @@ class Bot::Smooch
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'], previous_final_status)
+        self.send_verification_results_to_user(data['authorId'], pm, status, data['language'], previous_final_status) unless self.config['smooch_disabled']
       end
     end
   end
@@ -615,6 +626,7 @@ class Bot::Smooch
       pm.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+        return if self.config['smooch_disabled']
         lang = data['language']
         status_label = self.get_status_label(pm, status, lang)
         response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: lang, status: status_label }))
@@ -686,7 +698,7 @@ class Bot::Smooch
 
   def self.send_meme_to_user(uid, pm, lang)
     annotation = Bot::Smooch.get_meme(pm)
-    return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank?
+    return if annotation.nil? || annotation.get_field_value('memebuster_published_at').blank? || self.config['smooch_disabled']
     meme = annotation.memebuster_png_path(false)
     Bot::Smooch.send_message_to_user(uid, ::Bot::Smooch.i18n_t(:smooch_bot_meme, { locale: lang, url: Bot::Smooch.embed_url(pm) }), { type: 'image', mediaUrl: meme })
   end
@@ -719,6 +731,7 @@ class Bot::Smooch
     pm2.get_annotations('smooch').find_each do |a|
       data = JSON.parse(a.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+      return if self.config['smooch_disabled']
       smooch_response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_meme, { locale: data['language'], url: Bot::Smooch.embed_url(pm) }), { type: 'image', mediaUrl: meme })
       self.save_smooch_response(smooch_response, pm2)
     end
