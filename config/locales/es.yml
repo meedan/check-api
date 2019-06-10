@@ -207,7 +207,6 @@ es:
   mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} no fue aprobada.
   mail_view_request_to_join: "%{user} (%{handle}) quiere unirse al equipo de  %{team} en %{app_name}!"
   mail_view_process_request: 'Para procesar esta solicitud, por favor inicia sesión y visita:'
-  pender_could_not_parse: No se pudo analizar este medio
   mail_duplicate_email_exists: Tu método de inicio de sesión para %{app_name}
   mail_duplicate_email_exists_body: "<p>Hola, este es solo un recordatorio amistoso para ayudarte a  iniciar sesión en %{app_name}. </p> <p> Lo que sucedió fue que intentaste ingresar a %{app_name} con una cuenta de %{user_provider} asociada a %{user_email}. Pero esta dirección de correo electrónico ya está asociada con esta cuenta de%{duplicate_provider} en %{app_name} .</p> <p> Lo qué debes hacer a continuación es: inicia sesión con %{duplicate_provider}. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email} .</p> <p>- El equipo %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Hola, esto es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name} .</p>  <p>Lo que sucedió fue que intentaste crear una nueva cuenta en %{app_name},  con un correo electrónico que está asociado a una cuenta que ya existe. </p><p>  Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email}. </p> <p>- el equipo %{app_name}</p>"
@@ -290,9 +289,6 @@ es:
   max_number_of_team_users_reached: Lo sentimos, se ha alcanzado el número máximo de usuarios para este equipo
   max_number_of_projects_reached: Lo sentimos, se alcanzó el número máximo de proyectos para este equipo
   cant_set_custom_statuses: Lo sentimos, la función de estados personalizados no está disponible para este equipo
-  cant_change_custom_statuses: |-
-      Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
-      %{urls} %{others_amount}
   cant_create_team_task: Lo sentimos, tu equipo no tiene acceso a estas funciones
   cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión del navegador no está disponible para este equipo
   error_invalid_attribution: Atribución inválida
@@ -330,27 +326,27 @@ es:
   mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
   mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
   mails_notifications:
-    greeting: "Hola %{username},"
-    project_view: "Vista de proyecto"
+    greeting: Hola %{username},
+    project_view: Vista de proyecto
     unsubscribe: 'Cancelar suscripción '
     unsubscribe_link: "%{unsubscribe} de estas notificaciones"
-    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
+    copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
-      header_title: 'Tarea respondida'
+      header_title: Tarea respondida
       header_text: " %{author} respondió una tarea en el proyecto %{project} en %{team}."
-      section_title: '¿Quién o cuál es la fuente de la afirmación?'
-      status: 'Estado'
-      media_h: 'Medio'
+      section_title: ¿Quién o cuál es la fuente de la afirmación?
+      status: Estado
+      media_h: Medio
     media_status:
-      label: 'medio'
+      label: medio
       subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
-      header_title: 'El estado del medio ha sido actualizado'
+      header_title: El estado del medio ha sido actualizado
       header_text: " %{author} actualizó un ítem del poyecto %{project} en %{team}."
-      section_title: "Marcado como %{status}."
-      added_to: "Añadido a %{app_name}"
-      update_h: 'Última actualización'
-      tasks_h: 'Tarea finalizada'
+      section_title: Marcado como %{status}.
+      added_to: Añadido a %{app_name}
+      update_h: Última actualización
+      tasks_h: Tarea finalizada
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
@@ -363,39 +359,39 @@ es:
       assign_project_text: "%{author} asignó un proyecto %{project} en %{team}."
       unassign_project_text: "%{author} desasignó un proyecto %{project} en %{team}. "
       assign_task_title: 'Tarea asignada '
-      unassign_task_title: 'Tarea sin asignar'
+      unassign_task_title: Tarea sin asignar
       assign_task_text: "%{author} asignó una tarea de %{project} en %{team}."
       unassign_task_text: "%{author} desasignó una tarea de %{project} en %{team}. "
-      assign_media_title: 'Ítem asignado'
-      unassign_media_title: 'Ítem desasignado'
+      assign_media_title: Ítem asignado
+      unassign_media_title: Ítem desasignado
       assign_media_text: " %{author} asignó un ítem del proyecto %{project} en%{team}."
       unassign_media_text: " %{author} desasignó un ítem del proyecto %{project} en%{team}."
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
-      assign_by: 'Asignado por'
-      unassign_by: 'Desasignado por'
+      assign_by: Asignado por
+      unassign_by: Desasignado por
   mail_security:
-    device_subject: "Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}"
-    ip_subject: "Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} "
-    failed_subject: "Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}"
-    ip: "Has iniciado sesión desde %{location}"
-    device: "Has iniciado sesión desde %{browser} en %{platform}"
+    device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
+    ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
+    failed_subject: 'Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}'
+    ip: Has iniciado sesión desde %{location}
+    device: Has iniciado sesión desde %{browser} en %{platform}
     devise_name: "%{browser} en %{platform}"
-    failed: "Se han detectado Intentos fallidos de inicio de sesión "
-    password_text: "restablece tu contraseña inmediatamente "
-    device_text: "Al parecer, recientemente has iniciado sesión en tu cuenta de %{app_name} desde un nuevo dispositivo. Si no has sido tú, te recomendamos %{change_password}"
-    ip_text: "Al parecer,  recientemente has iniciado sesión en tu cuenta de %{app_name} desde una nueva locación. Si no has sido tú,  te recomendamos %{change_password}"
-    failed_text: "Al parecer, han habido múltiples intentos fallidos de inicio de sesión en tu cuenta de %{app_name}. Si has sido tú has caso omiso de este mensaje, si no has sido tú te recomendamos %{change_password}"
-    time_h: "Tiempo"
-    device_h: "Dispositivo"
-    location_h: "Ubicación"
+    failed: 'Se han detectado Intentos fallidos de inicio de sesión '
+    password_text: 'restablece tu contraseña inmediatamente '
+    device_text: Al parecer, recientemente has iniciado sesión en tu cuenta de %{app_name} desde un nuevo dispositivo. Si no has sido tú, te recomendamos %{change_password}
+    ip_text: Al parecer,  recientemente has iniciado sesión en tu cuenta de %{app_name} desde una nueva locación. Si no has sido tú,  te recomendamos %{change_password}
+    failed_text: Al parecer, han habido múltiples intentos fallidos de inicio de sesión en tu cuenta de %{app_name}. Si has sido tú has caso omiso de este mensaje, si no has sido tú te recomendamos %{change_password}
+    time_h: Tiempo
+    device_h: Dispositivo
+    location_h: Ubicación
     location_disclaimer: "* La ubicación es aproximada según la dirección IP desde la que se originó"
-    ip_h: "Dirección IP"
+    ip_h: Dirección IP
     privacy: "%{manage}tus notificaciones de correo electrónico • Aprende más acerca de nuestras %{privacy}"
-    privacy_text: 'Políticas de Privacidad'
-    manage_text: 'Gestionar'
-    privace_manage_plain: "Gestiona tus notificaciones de correo electrónico"
-    privacy_plain: "Aprende más acerca de nuestras Políticas de Privacidad"
+    privacy_text: Políticas de Privacidad
+    manage_text: Gestionar
+    privace_manage_plain: Gestiona tus notificaciones de correo electrónico
+    privacy_plain: Aprende más acerca de nuestras Políticas de Privacidad
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
@@ -438,7 +434,7 @@ es:
 
       Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido es muy alto y aún no hemos podido resolver tu solicitud. \nSi tienes otro mensaje para enviar, por favor hazlo. "
-  smooch_bot_not_final: '[Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional.'
+  smooch_bot_not_final: "[Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional."
   smooch_bot_result_changed: |-
       [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
 

@@ -207,7 +207,6 @@ fr:
   mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
   mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
   mail_view_process_request: 'Pour traiter cette requête, veuillez vous connecter et visiter :'
-  pender_could_not_parse: Ce n'était pas possible d'analyser ce média
   mail_duplicate_email_exists: Votre connexion à %{app_name}
   mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
   mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
@@ -290,9 +289,6 @@ fr:
   max_number_of_team_users_reached: Désolé, le nombre maximum de membres a été atteint pour cette équipe
   max_number_of_projects_reached: Désolé, le nombre maximum de projets a été atteint pour cette équipe
   cant_set_custom_statuses: Désolé, la fonction de statuts personnalisés n'est pas disponible à votre équipe
-  cant_change_custom_statuses: |-
-      Désolé, il est impossible de modifier les définitions de statut car certains statuts disparaîtraient. Ces identifiants de statut : %{statuses} sont en cours d'utilisation par les articles suivants :
-      %{urls} %{others_amount}
   cant_create_team_task: Désolé, cette fonction n'est pas disponible à votre équipe
   cant_create_media_under_this_team_using_extension: Désolé, la fonction d'extension de navigateur n'est pas disponible à votre équipe
   error_invalid_attribution: Attribution non valide
@@ -330,27 +326,27 @@ fr:
   mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
   mail_body_delete_user: Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}
   mails_notifications:
-    greeting: "Bonjour %{username},"
-    project_view: "Ouvrir le projet"
-    unsubscribe: 'Se désabonner'
+    greeting: Bonjour %{username},
+    project_view: Ouvrir le projet
+    unsubscribe: Se désabonner
     unsubscribe_link: "%{unsubscribe} de ces notifications"
-    copyright_html: "%{app_name} par <a href=\"https://meedan.com\">Meedan</a>"
+    copyright_html: '%{app_name} par <a href="https://meedan.com">Meedan</a>'
     task_resolved:
       subject: "[%{team} - %{project}] Une tâche a été répondue"
-      header_title: 'Tâches répondues'
+      header_title: Tâches répondues
       header_text: "%{author} a répondu à une tâche du projet %{project} dans %{team}."
-      section_title: 'Qui ou quelle est la source de la déclaration ?'
-      status: 'Statut'
-      media_h: 'Média'
+      section_title: Qui ou quelle est la source de la déclaration ?
+      status: Statut
+      media_h: Média
     media_status:
-      label: 'média'
+      label: média
       subject: "[%{team} - %{project}] Un élément a été marqué comme %{status}"
-      header_title: 'Statut mis à jour'
+      header_title: Statut mis à jour
       header_text: "%{author} a modifié un élément du projet %{project} dans %{team}."
-      section_title: "Marqué comme %{status}."
-      added_to: "Ajouté à %{app_name}"
-      update_h: 'Dernière mise à jour'
-      tasks_h: 'Tâches complétées'
+      section_title: Marqué comme %{status}.
+      added_to: Ajouté à %{app_name}
+      update_h: Dernière mise à jour
+      tasks_h: Tâches complétées
     assignment:
       assign_task_subject: "[%{team} - %{project}] Une tâche vous a été affectée"
       unassign_task_subject: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
@@ -358,44 +354,44 @@ fr:
       unassign_project_subject: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
       assign_media_subject: "[%{team} - %{project}] Un élément vous a été affecté"
       unassign_media_subject: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
-      assign_project_title: 'Projet affecté'
-      unassign_project_title: 'Affectation de projet annulée'
+      assign_project_title: Projet affecté
+      unassign_project_title: Affectation de projet annulée
       assign_project_text: "%{author} a affecté le projet %{project} dans %{team}."
       unassign_project_text: "%{author} a annulé l'affectation du projet %{project} dans %{team}."
-      assign_task_title: 'Tâche affectée'
-      unassign_task_title: 'Affectation de tâche annulée'
+      assign_task_title: Tâche affectée
+      unassign_task_title: Affectation de tâche annulée
       assign_task_text: "%{author} a affecté une tâche du projet %{project} dans %{team}."
       unassign_task_text: "%{author} a annulé l'affectation d'une tâche du projet %{project} dans %{team}."
-      assign_media_title: 'Élément affecté'
-      unassign_media_title: 'Affectation d''élément annulée'
+      assign_media_title: Élément affecté
+      unassign_media_title: Affectation d'élément annulée
       assign_media_text: "%{author} a affecté un élément du projet %{project} dans %{team}."
       unassign_media_text: "%{author} a annulé l'affectation d'un élément du projet %{project} dans %{team}."
       assign_log: "%{author} a affecté un.e %{model} à %{username}"
       unassign_log: "%{author} a annulé l'affectation d'un.e %{model} à %{username}"
-      assign_by: 'Affecté par'
-      unassign_by: 'Affectation annulée par'
+      assign_by: Affecté par
+      unassign_by: Affectation annulée par
   mail_security:
-    device_subject: "Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}"
-    ip_subject: "Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle"
-    failed_subject: "Alerte de sécurité : Tentatives de connexion échouées à %{app_name} "
-    ip: "Vous vous êtes connecté.e de %{location}"
-    device: "Vous vous êtes connecté.e à partir de %{browser} sur %{platform}"
+    device_subject: 'Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}'
+    ip_subject: 'Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle'
+    failed_subject: 'Alerte de sécurité : Tentatives de connexion échouées à %{app_name} '
+    ip: Vous vous êtes connecté.e de %{location}
+    device: Vous vous êtes connecté.e à partir de %{browser} sur %{platform}
     devise_name: "%{browser} sur %{platform}"
-    failed: "Tentatives de connexion échouées détectées"
-    password_text: "réinitialiser votre mot de passe immédiatement."
-    device_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel appareil. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    ip_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel emplacement. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    failed_text: "Il semble que plusieurs tentatives de connexion à votre compte sur %{app_name} aient été effectuées. Si c'était vous, vous pouvez ignorer ce message. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    time_h: "Date et heure"
-    device_h: "Appareil"
-    location_h: "Emplacement"
+    failed: Tentatives de connexion échouées détectées
+    password_text: réinitialiser votre mot de passe immédiatement.
+    device_text: Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel appareil. Si ce n'était pas vous, alors vous devriez %{change_password}
+    ip_text: Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel emplacement. Si ce n'était pas vous, alors vous devriez %{change_password}
+    failed_text: Il semble que plusieurs tentatives de connexion à votre compte sur %{app_name} aient été effectuées. Si c'était vous, vous pouvez ignorer ce message. Si ce n'était pas vous, alors vous devriez %{change_password}
+    time_h: Date et heure
+    device_h: Appareil
+    location_h: Emplacement
     location_disclaimer: "* L'emplacement est approximatif en fonction de l'adresse IP d'origine."
-    ip_h: "Adresse IP"
+    ip_h: Adresse IP
     privacy: "%{manage} vos notifications par e-mail • En savoir plus sur notre %{privacy}"
-    privacy_text: 'politique de confidentialité'
-    manage_text: 'Gérer'
-    privace_manage_plain: "Gérer vos notifications par e-mail"
-    privacy_plain: "En savoir plus sur notre politique de confidentialité "
+    privacy_text: politique de confidentialité
+    manage_text: Gérer
+    privace_manage_plain: Gérer vos notifications par e-mail
+    privacy_plain: 'En savoir plus sur notre politique de confidentialité '
   archive_keep_backup: Video Vault
   archive_pender_archive: copies d'écran de Keep
   archive_archive_is: Archive.is
@@ -438,7 +434,7 @@ fr:
 
       Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à cette requête.
   smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci de nous l'avoir soumise. Si vous avez une autre demande à nous soumettre, n'hésitez pas à le faire.
-  smooch_bot_not_final: '[Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*. Il est encore dans notre file pour davantage de vérification.'
+  smooch_bot_not_final: "[Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*. Il est encore dans notre file pour davantage de vérification."
   smooch_bot_result_changed: |-
       [Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a changé de *%{previous_status}* à *%{status}*.
 

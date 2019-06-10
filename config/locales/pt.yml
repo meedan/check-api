@@ -290,9 +290,6 @@ pt:
   max_number_of_team_users_reached: Desculpe, o número máximo de usuários para esta equipe foi alcançado
   max_number_of_projects_reached: Desculpe, o número máximo de projetos para esta equipe foi alcançado
   cant_set_custom_statuses: Desculpe, o recurso de status personalizados não está disponível para esta equipe
-  cant_change_custom_statuses: |-
-      Desculpe, não é possível modificar as definições de status porque alguns status desapareceriam. Esses identificadores de status: %{statuses} estão em uso nos seguintes itens:
-      %{urls} %{others_amount}
   cant_create_team_task: Desculpe, essa equipe não tem acesso a essa funcionalidade
   cant_create_media_under_this_team_using_extension: Desculpe, o recurso de extensão do navegador não está disponível para esta equipe
   error_invalid_attribution: Autoria inválida
@@ -330,27 +327,27 @@ pt:
   mail_subject_delete_user: "[%{team}] Um usuário foi excluído"
   mail_body_delete_user: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para usuário anônimo %{id}
   mails_notifications:
-    greeting: "Olá %{username},"
-    project_view: "Ver projeto"
-    unsubscribe: 'Cancelar inscrição'
+    greeting: Olá %{username},
+    project_view: Ver projeto
+    unsubscribe: Cancelar inscrição
     unsubscribe_link: "%{unsubscribe} dessas notificações"
-    copyright_html: "%{app_name} por <a href=\"https://meedan.com\">Meedan</a>"
+    copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
     task_resolved:
       subject: "[%{team} - %{project}] Tarefa Respondida"
-      header_title: 'Tarefa respondida'
+      header_title: Tarefa respondida
       header_text: " %{author} respondeu uma tarefa no projeto %{project} em %{team}."
-      section_title: 'Quem ou qual é a fonte dessa afirmação?'
-      status: 'Status'
-      media_h: 'Mídia'
+      section_title: Quem ou qual é a fonte dessa afirmação?
+      status: Status
+      media_h: Mídia
     media_status:
-      label: 'mídia'
+      label: mídia
       subject: "[%{team} - %{project}] O status de uma mídia foi marcado como %{status}"
-      header_title: 'Status de Mídia Atualizado'
+      header_title: Status de Mídia Atualizado
       header_text: " %{author} atualizou uma mídia no projeto %{project} em %{team}."
-      section_title: "Marcado como %{status}."
-      added_to: "Adicionado ao %{app_name}"
-      update_h: 'Última Atualização'
-      tasks_h: 'Tarefas Concluídas'
+      section_title: Marcado como %{status}.
+      added_to: Adicionado ao %{app_name}
+      update_h: Última Atualização
+      tasks_h: Tarefas Concluídas
     assignment:
       assign_task_subject: "[%{team} - %{project}] Uma tarefa foi atribuída para você"
       unassign_task_subject: "[%{team} - %{project}] Uma tarefa foi desatribuída de você"
@@ -358,44 +355,44 @@ pt:
       unassign_project_subject: "[%{team} - %{project}] Um projeto foi desatribuído de você"
       assign_media_subject: "[%{team} - %{project}] Uma mídia foi atribuída para você"
       unassign_media_subject: "[%{team} - %{project}] Uma mídia foi desatribuída de você"
-      assign_project_title: 'Projeto atribuído'
-      unassign_project_title: 'Projeto desatribuído'
+      assign_project_title: Projeto atribuído
+      unassign_project_title: Projeto desatribuído
       assign_project_text: " %{author} atribuiu o projeto %{project} em %{team}."
       unassign_project_text: " %{author} desatribuiu o projeto %{project} em %{team}."
-      assign_task_title: 'Tarefa atribuída'
-      unassign_task_title: 'Tarefa desatribuída'
+      assign_task_title: Tarefa atribuída
+      unassign_task_title: Tarefa desatribuída
       assign_task_text: " %{author} atribuiu uma tarefa no projeto %{project} em %{team}."
       unassign_task_text: " %{author} desatribuiu uma tarefa no projeto %{project} em %{team}."
-      assign_media_title: 'Mídia atribuída'
-      unassign_media_title: 'Mídia desatribuída'
+      assign_media_title: Mídia atribuída
+      unassign_media_title: Mídia desatribuída
       assign_media_text: " %{author} atribuiu uma mídia no projeto %{project} em %{team}."
       unassign_media_text: " %{author} desatribuiu uma mídia no projeto %{project} em %{team}."
       assign_log: " %{author} atribuiu um(a) %{model} para %{username}"
       unassign_log: " %{author} desatribuiu um(a) %{model} de %{username}"
-      assign_by: 'Atribuído(a) por'
-      unassign_by: 'Desatribuído(a) por'
+      assign_by: Atribuído(a) por
+      unassign_by: Desatribuído(a) por
   mail_security:
-    device_subject: "Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}"
-    ip_subject: "Alerta de segurança: Login novo ou incomum em %{app_name}"
-    failed_subject: "Alerta de segurança: Tentativas de login em %{app_name} falharam"
-    ip: "Você se conectou de %{location}"
-    device: "Você se conectou pelo %{browser} em %{platform}"
+    device_subject: 'Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}'
+    ip_subject: 'Alerta de segurança: Login novo ou incomum em %{app_name}'
+    failed_subject: 'Alerta de segurança: Tentativas de login em %{app_name} falharam'
+    ip: Você se conectou de %{location}
+    device: Você se conectou pelo %{browser} em %{platform}
     devise_name: "%{browser} em %{platform}"
-    failed: "Tentativas de login com falha foram detectadas"
-    password_text: "redefina sua senha imediatamente."
-    device_text: "Parece que você recentemente entrou em sua conta do %{app_name} a partir de um novo dispositivo. Se não é o caso, você deveria %{change_password}"
-    ip_text: "Parece que você recentemente entrou em sua conta do %{app_name} a partir de uma nova localização. Se não foi você, você deveria %{change_password}"
-    failed_text: "Parece que foram feitas múltiplas tentativas de login em sua conta do %{app_name}. Se foi você, pode desconsiderar este email. Se não foi você, você deveria %{change_password}"
-    time_h: "Horário"
-    device_h: "Dispositivo"
-    location_h: "Localização"
+    failed: Tentativas de login com falha foram detectadas
+    password_text: redefina sua senha imediatamente.
+    device_text: Parece que você recentemente entrou em sua conta do %{app_name} a partir de um novo dispositivo. Se não é o caso, você deveria %{change_password}
+    ip_text: Parece que você recentemente entrou em sua conta do %{app_name} a partir de uma nova localização. Se não foi você, você deveria %{change_password}
+    failed_text: Parece que foram feitas múltiplas tentativas de login em sua conta do %{app_name}. Se foi você, pode desconsiderar este email. Se não foi você, você deveria %{change_password}
+    time_h: Horário
+    device_h: Dispositivo
+    location_h: Localização
     location_disclaimer: "* A localização é estimada com base no endereço IP de origem."
-    ip_h: "Endereço IP"
+    ip_h: Endereço IP
     privacy: "%{manage} suas notificações de email • Saiba mais sobre nossa %{privacy}"
-    privacy_text: 'Política de Privacidade'
-    manage_text: 'Gerenciar'
-    privace_manage_plain: "Gerenciar suas notificações de email"
-    privacy_plain: "Saiba mais sobre nossa Política de Privacidade"
+    privacy_text: Política de Privacidade
+    manage_text: Gerenciar
+    privace_manage_plain: Gerenciar suas notificações de email
+    privacy_plain: Saiba mais sobre nossa Política de Privacidade
   archive_keep_backup: Video Vault
   archive_pender_archive: capturas de tela com Keep
   archive_archive_is: Archive.is
@@ -438,7 +435,7 @@ pt:
 
       Para dizer sim, *responda com 1*. Qualquer outra resposta terminará nossa conversa.
   smooch_bot_window_closing: O volume de solicitações está muito alto e ainda não conseguimos resolver sua solicitação. Obrigado por enviar. Se você tiver outra mensagem para enviar, por favor faça.
-  smooch_bot_not_final: '[Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ainda está em nossa fila para verificação adicional.'
+  smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ainda está em nossa fila para verificação adicional."
   smooch_bot_result_changed: |-
       [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco mudou de *%{previous_status}* para *%{status}*.
 
@@ -572,3 +569,5 @@ pt:
   smooch_requests: Solicitações
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
+  team_dump_email_title: Sua cópia da equipe está pronta para baixar
+  smooch_bot_ask_for_confirmation_checkpoint: Esta é uma mensagem personalizada pedindo para você confirmar com "1".
