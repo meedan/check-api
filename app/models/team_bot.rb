@@ -94,7 +94,7 @@ class TeamBot < ActiveRecord::Base
       User.current = self.bot_user
       bot = BOT_NAME_TO_CLASS[self.identifier.to_sym]
       begin
-        bot.run(data) unless bot.blank?
+        bot.run(data.with_indifferent_access) unless bot.blank?
       rescue StandardError => e
         Rails.logger.error("[TeamBot] Error calling bot #{self.identifier}: #{e.message}")
         Airbrake.notify(e) if Airbrake.configuration.api_key
