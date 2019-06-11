@@ -83,7 +83,8 @@ class TeamBot < ActiveRecord::Base
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
-      Rails.logger.error("[Bot Garden] Error performing GraphQL query: #{e.message}")
+      Rails.logger.error("[TeamBot] Error performing GraphQL query: #{e.message}")
+      Airbrake.notify(e) if Airbrake.configuration.api_key
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
@@ -92,7 +93,12 @@ class TeamBot < ActiveRecord::Base
     if self.core?
       User.current = self.bot_user
       bot = BOT_NAME_TO_CLASS[self.identifier.to_sym]
-      bot.run(data) unless bot.blank?
+      begin
+        bot.run(data) unless bot.blank?
+      rescue StandardError => e
+        Rails.logger.error("[TeamBot] Error calling bot #{self.identifier}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
+      end
       User.current = nil
     else
       begin
@@ -104,7 +110,8 @@ class TeamBot < ActiveRecord::Base
         request.body = data.to_json
         http.request(request)
       rescue StandardError => e
-        Rails.logger.error("[Bots] Error calling bot #{self.id}: #{e.message}")
+        Rails.logger.error("[TeamBot] Error calling bot #{self.identifier}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
       end
     end
   end
