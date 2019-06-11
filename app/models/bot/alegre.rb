@@ -110,13 +110,12 @@ class Bot::Alegre < ActiveRecord::Base
     # Send image to VFRAME to get matches.
     url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
     response = { 'results' => [] }
-    Net::HTTP.start(url.host, url.port) do |http|
+    Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
         'url' => CONFIG['checkdesk_base_url_private'] + pm.media.file.url,
         'context' => self.get_context(pm).to_json,
         'filter' => { project_id: pm.project.id }.to_json
       })
-      http.use_ssl = (url.scheme == 'https')
 
       begin
         response = JSON.parse(http.request(req).body)
