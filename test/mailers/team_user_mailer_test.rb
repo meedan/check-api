@@ -12,29 +12,37 @@ class TeamUserMailerTest < ActionMailer::TestCase
     create_team_user team: t, user: u, role: 'contributor'
     r = create_user
 
-    emails = TeamUserMailer.request_to_join_notification(t, u, 'http://team.localhost:3333')
+    options = {
+      team: t,
+      user: u
+    }
+
+    emails = TeamUserMailer.send_notification(YAML::dump(options))
     assert_equal ['owner1@mail.com', 'owner2@mail.com'].sort, emails.sort
 
-    email = TeamUserMailer.request_to_join(o1.email, t, u, 'http://team.localhost:3333')
+    info = {
+      team: t,
+      requestor: u,
+      url: "#{CONFIG['checkdesk_client']}/#{t.slug}",
+    }
+
+    email = TeamUserMailer.request_to_join(o1.email, info, 'mail subject')
 
     assert_emails 1 do
       email.deliver_now
     end
-
-    assert_equal [CONFIG['default_mail']], email.from
   end
 
   test "should send request to join accepted email" do
     t = create_team
     u = create_user email: 'user@mail.com'
 
-    email = TeamUserMailer.request_to_join_processed(t, u, true, 'http://team.localhost:3333')
+    email = TeamUserMailer.request_to_join_processed(t, u, true)
 
     assert_emails 1 do
       email.deliver_now
     end
 
-    assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['user@mail.com'], email.to
     assert_match "approved", email.body.parts.first.to_s
   end
@@ -43,13 +51,12 @@ class TeamUserMailerTest < ActionMailer::TestCase
     t = create_team
     u = create_user email: 'user@mail.com'
 
-    email = TeamUserMailer.request_to_join_processed(t, u, false, 'http://team.localhost:3333')
+    email = TeamUserMailer.request_to_join_processed(t, u, false)
 
     assert_emails 1 do
       email.deliver_now
     end
 
-    assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['user@mail.com'], email.to
     assert_match "not approved", email.body.parts.first.to_s
   end
@@ -65,7 +72,12 @@ class TeamUserMailerTest < ActionMailer::TestCase
     r = create_user
     create_bounce email: o1.email
 
-    emails = TeamUserMailer.request_to_join_notification(t, u, 'http://team.localhost:3333')
+    options = {
+      team: t,
+      user: u
+    }
+
+    emails = TeamUserMailer.send_notification(YAML::dump(options))
     assert_equal ['owner2@mail.com'], emails.sort
   end
 
@@ -74,7 +86,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
     u = create_user email: 'user@mail.com'
     create_bounce email: u.email
 
-    email = TeamUserMailer.request_to_join_processed(t, u, true, 'http://team.localhost:3333')
+    email = TeamUserMailer.request_to_join_processed(t, u, true)
 
     assert_emails 0 do
       email.deliver_now
@@ -86,7 +98,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
     u = create_user email: 'user@mail.com'
     create_bounce email: u.email
 
-    email = TeamUserMailer.request_to_join_processed(t, u, false, 'http://team.localhost:3333')
+    email = TeamUserMailer.request_to_join_processed(t, u, false)
 
     assert_emails 0 do
       email.deliver_now
