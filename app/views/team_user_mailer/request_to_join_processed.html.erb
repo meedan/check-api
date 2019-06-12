@@ -44,11 +44,9 @@
                           <td style="border-collapse: collapse; font-size: 13px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
                         </tr>
                       </table>
-                      <% if @info[:request_status] == 'approved' %>
-                        <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
-                          <%= I18n.t("mails_notifications.request_to_join.approved_title", team: @info[:team].name) %>
-                        </div>
-                      <% end %>
+                      <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
+                        <%= I18n.t("mails_notifications.request_to_join.#{@info[:request_status]}_title", team: @info[:team].name) %>
+                      </div>
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
                           <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>

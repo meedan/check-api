@@ -384,6 +384,7 @@ en:
       request_text: "%{name} (%{email}) wants to join %{team} on %{app_name}. You can process this request by visiting %{url}."
       approved_title: Welcome to the %{team} team
       approved_text: "Your request to join %{team} on %{app_name} was approved. You can now go to the %{url} and start contributing."
+      rejected_title: Request Denied
       rejected_text: "Sorry your request to join %{team} on %{app_name} was not approved."
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'

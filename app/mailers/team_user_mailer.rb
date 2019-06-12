@@ -10,7 +10,6 @@ class TeamUserMailer < ApplicationMailer
         team: team,
         requestor: requestor,
         url: "#{CONFIG['checkdesk_client']}/#{team.slug}",
-        handle: requestor.handle,
       }
       subject = I18n.t("mails_notifications.request_to_join.subject", team: team.name)
       recipients = team.recipients(requestor)

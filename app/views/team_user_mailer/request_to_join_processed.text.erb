@@ -1,10 +1,8 @@
 <%= @info[:greeting] %>
 
-<% if @info[:request_status] == 'approved' %>
 ==========================================
- <%= I18n.t("mails_notifications.request_to_join.request_title", team: @info[:team].name) %>
+ <%= I18n.t("mails_notifications.request_to_join.#{@info[:request_status]}_title", team: @info[:team].name) %>
 ==========================================
-<% end %>
 
 <%= 
   I18n.t("mails_notifications.request_to_join.#{@info[:request_status]}_text",
