@@ -1,7 +1,7 @@
 class MailWorker
   include Sidekiq::Worker
 
-  # Mailer class should implemnt `send_notification` or call you own method in perform
+  # Mailer class should implemnt `send_notification` or call your own method in perform
 
   def perform(mailer, options)
   	mailer = mailer.constantize

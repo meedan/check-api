@@ -164,10 +164,6 @@ en:
   invalid_id_for_custom_translation_status: The status identifier is mandatory and must contain only lowercase letters, hyphens and underscores
   invalid_statuses_format_for_custom_translation_status: 'Custom translation statuses should have valid entries for: label, identifier, description, style and final state flag'
   mail_account_confirmation: "%{app_name} account confirmation"
-  mail_request_to_join: "%{user} wants to join %{team} team on %{app_name}!"
-  approved: approved!
-  rejected: not approved
-  mail_request_to_join_processed: Your request to join %{team} on %{app_name} was %{status}
   mail_new_account: New account for you on %{app_name}
   slack:
     fields:
@@ -211,10 +207,6 @@ en:
       user_banned: "%{user} was banned from team %{team}"
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm your email address by clicking the following link:'
-  mail_view_joined: Your request to join %{team} was approved! You can now go to %{url} and start contributing!
-  mail_view_rejected_to_join: Sorry, but your request to join %{team} was not approved.
-  mail_view_request_to_join: "%{user} (%{handle}) wants to join %{team} team on %{app_name}!"
-  mail_view_process_request: 'To process this request, please login and visit:'
   pender_could_not_parse: Could not parse this media
   mail_duplicate_email_exists: Your login method for %{app_name}
   mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}. But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p> <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p> <p>— The %{app_name} team</p>"
@@ -382,6 +374,17 @@ en:
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
+    request_to_join:
+      subject: "Request to join %{team}"
+      team_page: team page
+      team_button: Go to the team page
+      rejected_subject: Your request to join %{team} was not approved
+      approved_subject: Welcome to %{team}
+      request_title: "Request to join %{team}"
+      request_text: "%{name} (%{email}) wants to join %{team} on %{app_name}. You can process this request by visiting %{url}."
+      approved_title: Welcome to the %{team} team
+      approved_text: "Your request to join %{team} on %{app_name} was approved. You can now go to the %{url} and start contributing."
+      rejected_text: "Sorry your request to join %{team} on %{app_name} was not approved."
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
