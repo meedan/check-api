@@ -327,14 +327,17 @@ en:
   error_user_is_not_a_team_member: Sorry, you can only assign to members of this team
   error_login_with_exists_account: Sorry, there is another user who is already using this account
   mail_see_it: 'You can see it at: '
-  mail_subject_delete_user: "[%{team}] A user was deleted"
-  mail_body_delete_user: A user account was deleted and its content was reassigned to anonymous user %{id}
   mails_notifications:
     greeting: Hello %{username},
     project_view: View project
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: '%{app_name} by <a href="https://meedan.com">Meedan</a>'
+    delete_user:
+      subject: "[%{team}] A user was deleted"
+      header_title: User Deleted
+      header_text: A user account was deleted and its content was reassigned to %{anonymous} user %{id}
+      anonymous: anonymous
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: Task Answered

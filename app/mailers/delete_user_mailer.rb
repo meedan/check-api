@@ -1,26 +1,25 @@
 class DeleteUserMailer < ApplicationMailer
   layout nil
 
-  def self.send_owner_notification(user, team)
+  def self.send_notification(user, team)
     recipients = team.recipients(user, ['owner'])
     recipients = Bounce.remove_bounces(recipients)
-    subject = I18n.t(:mail_subject_delete_user, team: team.name)
+    subject = I18n.t("mails_notifications.delete_user.subject", team: team.name)
     recipients.each do |recipient|
-      self.delay.notify_owners(recipient, user, subject)
+      self.delay.notify(recipient, user, subject, 'delete_user')
+    end
+    unless CONFIG['privacy_email'].blank?
+      subject = I18n.t("mails_notifications.delete_user.subject", team: CONFIG['app_name'])
+      self.delay.notify(CONFIG['privacy_email'], user, subject)
     end
   end
 
-  def notify_owners(recipient, user, subject)
-    @user = user
-    mail(to: recipient, email_type: 'delete_user', subject: subject)
-  end
-
-  def notify_privacy(user)
-    email = CONFIG['privacy_email']
-    return if email.blank?
-    @user = user
-    subject = I18n.t(:mail_subject_delete_user, team: CONFIG['app_name'])
-    mail(to: email, subject: subject)
+  def notify(recipient, user, subject, type = nil)
+    info = {
+      user: user
+    }
+    self.set_template_var(info, recipient)
+    mail(to: recipient, email_type: type, subject: subject)
   end
 
 end
