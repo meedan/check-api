@@ -1,0 +1,17 @@
+<%= @info[:greeting] %>
+
+==========================================
+ <%= I18n.t("mails_notifications.delete_user.header_title") %>
+==========================================
+
+<%= 
+  I18n.t("mails_notifications.delete_user.header_text",
+    id: @info[:user].id,
+    anonymous: I18n.t("mails_notifications.delete_user.anonymous")
+  )
+%>
+
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com

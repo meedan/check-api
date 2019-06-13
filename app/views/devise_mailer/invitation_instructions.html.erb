@@ -1,29 +1,143 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  </head>
-  <body>
-		<p><%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %></p>
+<%= render "shared/header" %>
 
-		<p><%= raw I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, team: link_to(@team.name, @url)) %></p>
+  <style>
+    @media only screen and (max-width: 481px) {
+      .notify-title a {
+        display: block !important;
+        width: auto !important;
+      }
+    }
 
-		<% if @invited_text %>
-			<p> <%= @invited_text %></p>
-		<% end %>
 
-		<p>
-		<%= I18n.t(:"devise.mailer.invitation_instructions.accept", url: accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug)) %>
+    @media only screen and (max-width: 601px) {
+      .notify-title__content {
+        padding: 0 30px;
+      }
+    }
 
-		</p>
 
-		<% if @due_at %>
-		  <p><%= t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %></p>
-		<% end %>
+    @media only screen and (max-width: 481px) {
+      .notify-title__content {
+        padding: 0 !important;
+      }
+    }
+  </style>
 
-		<p><%= t("devise.mailer.invitation_instructions.ignore") %></p>
+  <!--~~// Notify-title module start \\~~-->
+  <!--————————————————————————————-->
+  <div class="notify-title" style="text-align: left !important;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+              <tr>
+                <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+              </tr>
+            </table>
+            <div class="container " width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+              <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+                <tr>
+                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
+                    <div class="notify-title__content">
+                      <div class="h3 notify-title__proj" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;">
+                        <%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 13px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="h1 notify-title__header" style="font-size: 40px; font-weight: bold; letter-spacing: -0.8px; line-height: 40px;">
+                        <%= @title %>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          <%= 
+                           raw I18n.t("devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, role: @role, team: link_to(@team.name, @url))
+                          %>
+                          <% if @invited_text %>
+                          	<br>
+														<%= @invited_text %>
+													<% end %>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                      <tr>
+                        <td style="border-collapse: collapse; font-size: 28px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                      </tr>
+                    </table>
 
-		<p><%= I18n.t(:"devise.mailer.invitation_instructions.app_team", app: CONFIG['app_name']) %></p>
-  </body>
-</html>
+                    <!--————————————————————————————-->
+                    <!--~~\\ Notify-title module end //~~-->
 
+                    <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td class="notify-title__button text-white" style="background: #2E77FC; border-collapse: collapse; border-radius: 4px; color: #f1f1f1 !important; display: inline-block; padding-bottom: 15px; padding-left: 25px; padding-right: 23px; padding-top: 15px;"
+                            width="auto">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                              <tr>
+                                <td style="border-collapse: collapse; padding-right: 14px;">
+                                  <span class="span" style="font-size: 17px; font-weight: bold; line-height: 20px;">
+                                    <%=
+                                      link_to(I18n.t('devise.mailer.invitation_instructions.accept'),
+                                         accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug),
+                                          :style => "text-decoration: none !important;color: #fff !important;"
+                                        )
+                                    %>
+                                  </span>
+                                </td>
+                                <td style="border-collapse: collapse;" align="right"><img src="https://images.ctfassets.net/g118h5yoccvd/1ji47bOy90143djFnEPuj1/936ebe3388362a7861715a1b819b231b/arrow_3x.png" alt="arrow-icon" width="7" style="-ms-interpolation-mode: bicubic; border: 0 none; height: auto; line-height: 100%; outline: none; text-decoration: none;">
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 23px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          <% if @due_at %>
+													  <%= t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %>
+													  <br>
+													<% end %>
+
+													<%= t("devise.mailer.invitation_instructions.ignore") %>
+
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                      <tr>
+                        <td style="border-collapse: collapse; font-size: 23px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                      </tr>
+                    </table>
+                    <style>
+                      @media only screen and (max-width: 601px) {
+                        th.footer {
+                          padding: 0 30px !important;
+                        }
+                      }
+
+
+                      @media only screen and (max-width: 481px) {
+                        th.footer {
+                          padding: 0 !important;
+                        }
+                      }
+                    </style>
+
+<%= render "shared/footer" %>

@@ -3,8 +3,6 @@ class AssignmentMailer < ApplicationMailer
     
   def notify(event, author, recipient, assigned)
     return unless should_notify?(recipient, assigned)
-
-    @event = event
     
     if assigned.is_a?(Annotation)
       annotation = assigned
@@ -81,13 +79,15 @@ class AssignmentMailer < ApplicationMailer
   def ready(requestor_id, team, project, event, assignee)
     requestor = User.where(id: requestor_id).last
     return if requestor.nil? || assignee.nil? || requestor.email.blank?
-    @event = event
-    @username = requestor.name
-    @project_title = project.title
-    @project_url = project.url
-    @assignee = assignee.name
-    @app_name = CONFIG['app_name']
+    @info = {
+      event: event,
+      greeting: I18n.t("mails_notifications.greeting", username: requestor.name),
+      project_title: project.title,
+      project_url: project.url,
+      assignee: assignee.name
+    }
     Rails.logger.info "Sending e-mail to #{requestor.email} because the assignments are ready"
-    mail(to: requestor.email, email_type: 'assignment', subject: I18n.t(:mail_subject_assignments_ready, team: team&.name, project: project&.title))
+    subject = I18n.t("mails_notifications.assignment.ready_subject", team: team&.name, project: project&.title)
+    mail(to: requestor.email, email_type: 'assignment', subject: subject)
   end
 end
