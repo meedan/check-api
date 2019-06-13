@@ -374,6 +374,14 @@ en:
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
+      ready_subject: "[%{team} - %{project}] Assignments update is ready"
+      ready_assign_title: Assign assignments
+      ready_assign_text: "The assignments update process was completed successfully.
+          Project %{url} and its items and tasks are now assigned to %{assignee}."
+      ready_unassign_title: Unassign assignments
+      ready_unassign_text: "The assignments update process was completed successfully.
+          Project %{url} and its items and tasks are now unassigned from %{assignee}."
+      project_button: Go to the project page
     request_to_join:
       subject: "Request to join %{team}"
       team_page: team page
@@ -548,19 +556,6 @@ en:
     blank_project: Invalid blank project
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] Assignments update is ready"
-  mail_body_assignments_ready_assign: |-
-      Hello %{username},
-      The assignments update process was completed successfully.
-      Project '%{project_title}' (%{project_url}) and its items and tasks are now assigned to %{assignee}.
-      Thanks,
-      — The %{app_name} team
-  mail_body_assignments_ready_unassign: |-
-      Hello %{username},
-      The assignments update process was completed successfully.
-      Project '%{project_title}' (%{project_url}) and its items and tasks are now unassigned from %{assignee}.
-      Thanks,
-      — The %{app_name} team
   team_import_completed_subject: Your data import has completed
   team_import_completed_mail: "<p>Hello,</p> <p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p> <p>Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.</p> <p>— The %{app_name} team</p>"
   pender_url_invalid: This link is invalid.
