@@ -207,6 +207,7 @@ en:
       user_banned: "%{user} was banned from team %{team}"
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm your email address by clicking the following link:'
+  mail_confirm_button: 'Confirm my account'
   pender_could_not_parse: Could not parse this media
   mail_duplicate_email_exists: Your login method for %{app_name}
   mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}. But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p> <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p> <p>— The %{app_name} team</p>"
@@ -309,10 +310,10 @@ en:
         subject: "%{user} invited you to join %{team} team"
         hello: Hello %{name}
         someone_invited_you_default:
-          html: "%{name} has invited you to %{team}."
+          html: "%{name} has invited you to join %{team} team as %{role}."
         someone_invited_you_custom:
-          html: "%{name} has invited you to %{team}, saying:"
-        accept: 'You can accept this invitation through this link: %{url}'
+          html: "%{name} has invited you to join %{team} team as %{role}, saying:"
+        accept: 'Accept invitation'
         accept_until: This invitation will expire on %{due_date}.
         ignore: If you don't want to accept the invitation, please ignore this email.
         app_team: "%{app} Team"
@@ -333,6 +334,10 @@ en:
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: '%{app_name} by <a href="https://meedan.com">Meedan</a>'
+    reset_password:
+      title: Reset Password
+    invitation:
+      title: New Invitation
     delete_user:
       subject: "[%{team}] A user was deleted"
       header_title: User Deleted
