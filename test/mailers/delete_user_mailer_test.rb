@@ -12,7 +12,7 @@ class DeleteUserMailerTest < ActionMailer::TestCase
     create_team_user team: t, user: u, role: 'contributor'
 
     stub_config 'privacy_email', 'privacy_email@local.com' do
-      emails = DeleteUserMailer.send_notification(u, t)
+      emails = DeleteUserMailer.send_notification(u, [t])
       assert_equal ['owner1@mail.com', 'owner2@mail.com', 'privacy_email@local.com'].sort, emails.sort
     end
 
@@ -33,10 +33,10 @@ class DeleteUserMailerTest < ActionMailer::TestCase
 
     create_bounce email: o1.email
 
-
-    emails = DeleteUserMailer.send_notification(u, t)
-
-    assert_equal ['owner3@mail.com'].sort, emails.sort
+    stub_config 'privacy_email', '' do
+      emails = DeleteUserMailer.send_notification(u, [t])
+      assert_equal ['owner3@mail.com'].sort, emails.sort
+    end
 
   end
 end

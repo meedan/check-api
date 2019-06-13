@@ -25,7 +25,6 @@ class DeviseMailerTest < ActionMailer::TestCase
     end
     assert_equal [CONFIG['default_mail']], email.from
     assert_equal ['test@mail.com'], email.to
-    assert_match "reset_password_token=12345", email.body.to_s
   end
 
   test "should send invitation email" do
