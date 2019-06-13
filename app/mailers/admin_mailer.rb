@@ -34,7 +34,7 @@ class AdminMailer < ApplicationMailer
     @days = CONFIG['export_download_expiration_days'] || 7
     @app = CONFIG['app_name']
     @password = password
-    mail(to: email, subject: I18n.t(:team_dump_email_title))
+    mail(to: email, subject: I18n.t("mails_notifications.admin_mailer.team_download_subject", team: @team))
   end
 
 end

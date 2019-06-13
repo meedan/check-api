@@ -330,6 +330,7 @@ en:
   mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},
+    greeting_anonymous: Hello!
     project_view: View project
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
@@ -343,6 +344,15 @@ en:
       header_title: User Deleted
       header_text: A user account was deleted and its content was reassigned to %{anonymous} user %{id}
       anonymous: anonymous
+    admin_mailer:
+      team_download_subject: "[%{team}] dump is ready to be downloaded"
+      team_dump_title: "Team Dump"
+      team_dump_text: "You've requested a dump for %{team} - here's a link to download it: %{link}"
+      team_dump_button: Download team dump
+      team_dump_text_2: |-
+          The tables dump will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
+          <br>
+          Please note that this link will expire in %{days} days.
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: Task Answered
@@ -582,19 +592,6 @@ en:
   smooch_requests: Requests
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
-  team_dump_email_title: Your team dump is ready to be downloaded
-  team_dump_download_mail: |-
-      Hello!
-
-      You've requested a dump for %{team} - here's a link to download it: %{link}
-
-      The tables dump will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
-
-      Please note that this link will expire in %{days} days.
-
-      Cheers,
-
-      %{app} team
   smooch_bot_ask_for_confirmation_checkpoint: This is a custom message asking you to confirm with "1".
   smooch_bot_message_confirmed_checkpoint: This is a custom message to say that your request was received.
   smooch_bot_message_unconfirmed_checkpoint: This is a custom message to say that your message was discarded.
