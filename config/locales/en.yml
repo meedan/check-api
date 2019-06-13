@@ -382,6 +382,7 @@ en:
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
+<<<<<<< HEAD
       ready_subject: "[%{team} - %{project}] Assignments update is ready"
       ready_assign_title: Assign assignments
       ready_assign_text: "The assignments update process was completed successfully.
@@ -390,6 +391,8 @@ en:
       ready_unassign_text: "The assignments update process was completed successfully.
           Project %{url} and its items and tasks are now unassigned from %{assignee}."
       project_button: Go to the project page
+=======
+>>>>>>> develop
     request_to_join:
       subject: "Request to join %{team}"
       team_page: team page
