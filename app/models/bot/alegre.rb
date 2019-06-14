@@ -115,7 +115,7 @@ class Bot::Alegre < ActiveRecord::Base
         'url' => CONFIG['checkdesk_base_url_private'] + pm.media.file.url,
         'context' => self.get_context(pm).to_json,
         'filter' => { project_id: pm.project.id }.to_json,
-        'threshold' => 20,
+        'threshold' => 1,
         'limit' => 1
       })
 
