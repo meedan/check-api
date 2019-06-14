@@ -66,7 +66,7 @@ def projects_query(table, field = '*')
 end
 
 def sources_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@id}"
+  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@id} OR (sources.user_id IN (#{get_ids('users')})) OR team_id IS NULL"
 end
 
 def tag_texts_query(table)
