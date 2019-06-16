@@ -347,12 +347,23 @@ en:
     admin_mailer:
       team_download_subject: "[%{team}] dump is ready to be downloaded"
       team_dump_title: "Team Dump"
+      types:
+        dump: 'tables dump'
+        csv: 'report'
+        images: 'images'
       team_dump_text: "You've requested a dump for %{team} - here's a link to download it: %{link}"
       team_dump_button: Download team dump
-      team_dump_text_2: |-
-          The tables dump will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
-          <br>
-          Please note that this link will expire in %{days} days.
+      decompress_text: "The %{type} will download as a compressed, encrypted file. To decompress it, please use the password %{password}."
+      expire_note: "Please note that this link will expire in %{days} days."
+      project_export_csv_subject: "[%{project}] project report is ready to be downloaded"
+      project_export_images_subject: "[%{project}] project images are ready to be downloaded"
+      project_export_title: Project Export
+      project_export_button: Download project export
+      project_export_csv_text: "You've requested a report for %{project} - here's a link to download it: %{link}"
+      project_export_images_text: "You've requested a download of %{project} images - here's a link to download it: %{link}"
+      team_import_subject: Your data import has completed
+      team_import_title: Data Import
+      team_import_text: "<p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p> <p>Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: Task Answered
@@ -438,7 +449,6 @@ en:
   archive_pender_archive: Keep screenshots
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Your project report is ready to be downloaded
   workflow_status_not_valid: Invalid status
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
   blank_default_status_for_custom_translation_status: Please provide a 'default' value for the custom translation statuses
@@ -482,31 +492,6 @@ en:
       [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
 
       Here are the steps we took to determine this: %{url}
-  project_export_download_mail_csv: |-
-      Hello!
-
-      You've requested a report for %{project} - here's a link to download it: %{link}
-
-      The report will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
-
-      Please note that this link will expire in %{days} days.
-
-      Cheers,
-
-      %{app} team
-  project_export_email_title_images: Your project images are ready to be downloaded
-  project_export_download_mail_images: |-
-      Hello!
-
-      You've requested a download of %{project} images - here's a link to download it: %{link}
-
-      The images will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
-
-      Please note that this link will expire in %{days} days.
-
-      Cheers,
-
-      %{app} team
   permissions_info:
     roles:
       owner:
@@ -574,8 +559,6 @@ en:
     blank_project: Invalid blank project
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
-  team_import_completed_subject: Your data import has completed
-  team_import_completed_mail: "<p>Hello,</p> <p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p> <p>Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.</p> <p>— The %{app_name} team</p>"
   pender_url_invalid: This link is invalid.
   pender_url_unsafe: This link is unsafe.
   verification_status_deadline: Deadline

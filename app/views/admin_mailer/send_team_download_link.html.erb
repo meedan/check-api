@@ -102,7 +102,9 @@
 
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
-                        	<%= t("mails_notifications.admin_mailer.team_dump_text_2", days: @days, password: @password).html_safe %>
+                          <%= t("mails_notifications.admin_mailer.decompress_text", type: I18n.t("mails_notifications.admin_mailer.types.dump"), password: @password) %>
+                          <br>
+                        	<%= t("mails_notifications.admin_mailer.expire_note", days: @days) %>
                         </div>
                       </div>
 

@@ -6,7 +6,9 @@
 
 <%= I18n.t("mails_notifications.admin_mailer.team_dump_text", team: @team, link: @link) %>
 
-<%= t("mails_notifications.admin_mailer.team_dump_text_2", days: @days, password: @password) %>
+<%= t("mails_notifications.admin_mailer.decompress_text", type: I18n.t("mails_notifications.admin_mailer.types.#{@type}"), password: @password) %>
+ 
+ <%= t("mails_notifications.admin_mailer.expire_note", days: @days) %>
 
 ...
 
