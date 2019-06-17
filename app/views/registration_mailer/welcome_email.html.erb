@@ -81,7 +81,7 @@
                                 <td style="border-collapse: collapse; padding-right: 14px;">
                                   <span class="span" style="font-size: 17px; font-weight: bold; line-height: 20px;">
                                     <%=
-                                      link_to(I18n.t('mails_notifications.register.login_button'), @url,
+                                      link_to(I18n.t("mails_notifications.register.login_button", app_name: CONFIG['app_name']), @url,
                                           :style => "text-decoration: none !important;color: #fff !important;"
                                         )
                                     %>

@@ -8,7 +8,7 @@
 	strip_tags I18n.t("mails_notifications.register.header_text", app_name: CONFIG['app_name'], url: @url, password: @user.password)
 %>
 
-<%= I18n.t('mails_notifications.register.login_button') %>
+<%= I18n.t("mails_notifications.register.login_button", app_name: CONFIG['app_name']) %>
 <%= @url %>
 
 <%= t("mails_notifications.register.footer_text") %>
