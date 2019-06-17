@@ -1,6 +1,19 @@
-Welcome to <%= CONFIG['app_name'] %>, <%= @user.name %>!
-========================================
+<%= I18n.t("mails_notifications.greeting", username: @user.name) %>
 
-You have successfully signed up to <%= CONFIG['app_name'] %>!
-To login to the site, just follow this link: <%= @url %>. Enter this e-mail address and this password: <%= @user.password %>
-Thanks for joining and have a great day!
+==========================================
+<%= I18n.t(:mail_view_welcome, app_name: CONFIG['app_name']) %>
+==========================================
+
+<%= 
+	strip_tags I18n.t("mails_notifications.register.header_text", app_name: CONFIG['app_name'], url: @url, password: @user.password)
+%>
+
+<%= I18n.t('mails_notifications.register.login_button') %>
+<%= @url %>
+
+<%= t("mails_notifications.register.footer_text") %>
+
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com
