@@ -53,7 +53,7 @@ class Assignment < ActiveRecord::Base
     self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay_for(1.second).propagate_assignments(assignment, User.current&.id, event)
   end
 
-  def self.propagate_assignments(assignment, requestor_id, event)
+  def self.propagate_assignments(assignment, _requestor_id, event)
     assignment = YAML::load(assignment)
     return if assignment.assigned.nil?
     to_create = []
