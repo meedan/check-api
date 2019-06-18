@@ -1,5 +1,9 @@
 <%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %>
 
+==========================================
+<%= @title %>
+==========================================
+
 <%= 
 	raw I18n.t("devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", 
 				name: @invited_by,

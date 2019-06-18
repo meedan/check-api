@@ -31,14 +31,6 @@ class Assignment < ActiveRecord::Base
     assigned.get_team if assigned.is_annotation?
   end
 
-  def get_team_and_project
-    team = Team.where(id: self.get_team.first).last
-    project = nil
-    project = self.assigned if self.assigned_type == 'Project'
-    project = self.assigned.annotated.project if self.assigned_type == 'Annotation'
-    OpenStruct.new({ project: project, team: team })
-  end
-
   protected
 
   def send_email_notification(action)
@@ -61,7 +53,7 @@ class Assignment < ActiveRecord::Base
     self.propagate_in_foreground ? Assignment.propagate_assignments(assignment, nil, event) : Assignment.delay_for(1.second).propagate_assignments(assignment, User.current&.id, event)
   end
 
-  def self.propagate_assignments(assignment, requestor_id, event)
+  def self.propagate_assignments(assignment, _requestor_id, event)
     assignment = YAML::load(assignment)
     return if assignment.assigned.nil?
     to_create = []
@@ -86,18 +78,6 @@ class Assignment < ActiveRecord::Base
     DynamicAnnotation::Field.joins(:annotation).where(field_name: 'task_status_status').where('annotations.annotated_id' => task_ids).update_all(value: 'unresolved')
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
-    Assignment.notify_propagate_assignments(requestor_id, assignment, event)
-  end
-
-  def self.notify_propagate_assignments(requestor_id, assignment, event)
-    if Assignment.should_send_assignment_email(requestor_id, assignment)
-      data = assignment.get_team_and_project
-      AssignmentMailer.delay_for(1.second).ready(requestor_id, data.team, data.project, event, assignment.user)
-    end
-  end
-
-  def self.should_send_assignment_email(requestor_id, assignment)
-    requestor_id && assignment.assigned_type == 'Project'
   end
 
   def self.bulk_assign(obj, user_ids)

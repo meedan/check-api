@@ -29,8 +29,8 @@ class TerminalStatusMailer < ApplicationMailer
       resolved_tasks: annotated.tasks_resolved_count,
       type: annotated.class.name.underscore,
       media_type: annotated.media.type.downcase,
-      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
-      updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p")
+      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p %Z"),
+      updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p %Z")
     }
     subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project.title, status: status)
     recipients = team.recipients(author, ['editor', 'owner'])
