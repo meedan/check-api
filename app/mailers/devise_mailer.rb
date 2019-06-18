@@ -12,7 +12,7 @@ class DeviseMailer < Devise::Mailer
   def reset_password_instructions(record, token, opts={})
     @host = CONFIG['checkdesk_base_url']
     @title = I18n.t("mails_notifications.reset_password.title")
-    opts[:subject] = I18n.t(:reset_password_instructions, app_name: CONFIG['app_name'])
+    opts[:subject] = I18n.t('devise.mailer.reset_password_instructions.subject', app_name: CONFIG['app_name'])
     super
   end
 
