@@ -164,7 +164,6 @@ en:
   invalid_id_for_custom_translation_status: The status identifier is mandatory and must contain only lowercase letters, hyphens and underscores
   invalid_statuses_format_for_custom_translation_status: 'Custom translation statuses should have valid entries for: label, identifier, description, style and final state flag'
   mail_account_confirmation: "%{app_name} account confirmation"
-  mail_new_account: New account for you on %{app_name}
   slack:
     fields:
       assigned: Assigned to
@@ -209,10 +208,6 @@ en:
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm your email address by clicking the following link:'
   mail_confirm_button: 'Confirm my account'
   pender_could_not_parse: Could not parse this media
-  mail_duplicate_email_exists: Your login method for %{app_name}
-  mail_duplicate_email_exists_body: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}. But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p> <p>What to do next: Sign in with %{duplicate_provider}.</p> <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p> <p>— The %{app_name} team</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Hello, this is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> <p>What happened: You tried to create a new email- based account on %{app_name}, but this account already exists.</p> <p>Try signing in with your email and password, rather than creating a new account.</p> <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p> <p>— The %{app_name} team</p>"
-  mail_duplicate_email_exists_email: email
   slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it is restricted to members of the Slack team(s) %{teams}.
   admin:
     actions:
@@ -236,7 +231,6 @@ en:
           html: When ready, the team copy will be available at <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: The team %{team} is being deleted
-  reset_password_instructions: "%{app_name} reset password instructions"
   email_not_found: E-mail not found
   slack_channel_format_wrong: Invalid Slack channel
   translation_status_not_valid: Invalid status
@@ -305,7 +299,12 @@ en:
   devise:
     mailer:
       reset_password_instructions:
-        instruction: Someone has requested a link to change your password, and you can do this through the link below. <strong>Please note that this link expires in %{expire} hours.</strong>
+        subject: "%{app_name} reset password instructions"
+        header_title: Password reset request
+        header_text: "We've received your request to reset your %{app_name} password."
+        action: Reset your password
+        instruction: This request will expire in %{expire} hours. Get a new password reset email for a new request
+        instruction_2: If you didn't make this request, or are having difficulty resetting your password, please contact us at %{support_email}
       invitation_instructions:
         subject: "%{user} invited you to join %{team} team"
         hello: Hello %{name}
@@ -335,8 +334,30 @@ en:
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: '%{app_name} by <a href="https://meedan.com">Meedan</a>'
-    reset_password:
-      title: Reset Password
+    register:
+      subject: New account for you on %{app_name}
+      header_text: |-
+        You have successfully signed up to %{app_name}!
+        <br>
+        To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
+      login_button: "Login to %{app_name}"
+      footer_text: Thanks for joining and have a great day!
+    duplicated:
+      subject: Your login method for %{app_name}
+      header_title: Duplicate Account
+      one_email: |-
+        <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> 
+        <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}. 
+        But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p>
+        <p>What to do next: Sign in with %{duplicate_provider}.</p> 
+        <p>Then you'll be logged in with the account you were using before. 
+        If you need additional help, please email %{support_email}.</p> 
+      both_emails: |-
+        <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> 
+        <p>What happened: You tried to create a new email- based account on %{app_name}, but this account already exists.</p> 
+        <p>Try signing in with your email and password, rather than creating a new account.</p> 
+        <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p>
+      email: email
     invitation:
       title: New Invitation
     delete_user:
