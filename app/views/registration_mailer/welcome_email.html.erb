@@ -55,7 +55,7 @@
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= 
-                           I18n.t("mails_notifications.register.header_text", app_name: CONFIG['app_name'], url: @url, password: @user.password)
+                           I18n.t("mails_notifications.register.header_text", app_name: CONFIG['app_name'], url: @url, password: @user.password).html_safe
                           %>
                         </div>
                       </div>
