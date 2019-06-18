@@ -424,7 +424,6 @@ en:
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
-      ready_subject: "[%{team} - %{project}] Assignments update is ready"
       project_button: Go to the project page
     request_to_join:
       subject: "Request to join %{team}"
