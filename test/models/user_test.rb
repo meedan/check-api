@@ -1230,6 +1230,10 @@ class UserTest < ActiveSupport::TestCase
       create_omniauth_user email: email
     end
     assert_equal ["member"], u1.reload.team_users.map(&:status)
+    # try to register with same email
+    assert_raises ActiveRecord::RecordInvalid do
+      create_user email: email
+    end
   end
 
   test "should request to join invited team" do
