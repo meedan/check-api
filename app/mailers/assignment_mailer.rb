@@ -20,7 +20,7 @@ class AssignmentMailer < ApplicationMailer
       # add more info related to media 
       image_path = project_media.media.type == 'UploadedImage' ? project_media.media.image_path : ''
       media_link = project_media.media.url
-      updated_at = project_media.updated_at.strftime("%B #{project_media.updated_at.day.ordinalize} %I:%M %p")
+      updated_at = project_media.updated_at.strftime("%B #{project_media.updated_at.day.ordinalize} %I:%M %p %Z")
       total_tasks = project_media.get_annotations('task').count
       resolved_tasks =  project_media.tasks_resolved_count
     elsif assigned.is_a?(Project)
@@ -53,7 +53,7 @@ class AssignmentMailer < ApplicationMailer
       url: url,
       profile_image: profile_image,
       role: role,
-      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
+      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p %Z"),
       image_path: image_path,
       media_link: media_link,
       updated_at: updated_at,
@@ -74,20 +74,5 @@ class AssignmentMailer < ApplicationMailer
 
   def should_notify?(recipient, assigned)
     !recipient.blank? && assigned.class.exists?(assigned.id)
-  end
-
-  def ready(requestor_id, team, project, event, assignee)
-    requestor = User.where(id: requestor_id).last
-    return if requestor.nil? || assignee.nil? || requestor.email.blank?
-    @info = {
-      event: event,
-      greeting: I18n.t("mails_notifications.greeting", username: requestor.name),
-      project_title: project.title,
-      project_url: project.url,
-      assignee: assignee.name
-    }
-    Rails.logger.info "Sending e-mail to #{requestor.email} because the assignments are ready"
-    subject = I18n.t("mails_notifications.assignment.ready_subject", team: team&.name, project: project&.title)
-    mail(to: requestor.email, email_type: 'assignment', subject: subject)
   end
 end
