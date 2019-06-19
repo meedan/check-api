@@ -156,11 +156,6 @@ fr:
   invalid_id_for_custom_translation_status: L'identifiant de statut est requis et il accepte uniquement les lettres, les chiffres, les tirets et les underscores
   invalid_statuses_format_for_custom_translation_status: 'Les statuts de traduction personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d''état final.'
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
-  mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  approved: acceptée !
-  rejected: rejetée
-  mail_request_to_join_processed: Votre requête pour vous joindre à %{team} sur %{app_name} est %{status}
-  mail_new_account: Votre nouveau compte sur %{app_name}
   slack:
     fields:
       assigned: Affecté à
@@ -203,14 +198,7 @@ fr:
       user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre e-mail en cliquant ce lien :'
-  mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
-  mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
-  mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  mail_view_process_request: 'Pour traiter cette requête, veuillez vous connecter et visiter :'
-  mail_duplicate_email_exists: Votre connexion à %{app_name}
-  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_email: e-mail
+  pender_could_not_parse: Il n'a pas été possible d'analyser ce média
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
     actions:
@@ -234,7 +222,6 @@ fr:
           html: Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: L'équipe %{team} est en cours de suppression
-  reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: Canal Slack non valide
   translation_status_not_valid: Statut non valide
@@ -299,16 +286,10 @@ fr:
   banned_user: Désolé, votre compte a été banni de %{app_name}. Veuillez prévenir l'équipe de support si vous pensez qu'il s'agit d'une erreur.
   devise:
     mailer:
-      reset_password_instructions:
-        instruction: 'Quelqu''un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>'
       invitation_instructions:
         subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
         hello: 'Bonjour %{name} '
-        someone_invited_you_default:
-          html: "%{name} vous a invité à rejoindre l'équipe %{team}."
-        someone_invited_you_custom:
-          html: "%{name} vous a invité à rejoindre l'équipe %{team} avec ce mot :"
-        accept: 'Vous pouvez accepter l''invitation via ce lien : %{url}'
+        accept: 'Accepter l''invitation'
         accept_until: Cette invitation va expirer le %{due_date}.
         ignore: Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message.
         app_team: "Équipe %{app}"
@@ -323,14 +304,19 @@ fr:
   error_user_is_not_a_team_member: Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà ce compte
   mail_see_it: 'Vous pouvez le/la visionner à :'
-  mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
-  mail_body_delete_user: Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}
   mails_notifications:
     greeting: Bonjour %{username},
     project_view: Ouvrir le projet
     unsubscribe: Se désabonner
     unsubscribe_link: "%{unsubscribe} de ces notifications"
     copyright_html: '%{app_name} par <a href="https://meedan.com">Meedan</a>'
+    duplicated:
+      email: e-mail
+    admin_mailer:
+      types:
+        csv: 'rapport'
+        images: 'images'
+      team_import_title: Importation de données
     task_resolved:
       subject: "[%{team} - %{project}] Une tâche a été répondue"
       header_title: Tâches répondues
@@ -396,7 +382,6 @@ fr:
   archive_pender_archive: copies d'écran de Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Votre rapport de projet est prêt à télécharger
   workflow_status_not_valid: Statut non valide
   workflow_status_permission_error: Désolé, vous n'êtes pas autorisé à modifier ce statut.
   blank_default_status_for_custom_translation_status: Veuillez fournir une valeur de défaut pour les statuts de traduction personnalisés
@@ -439,31 +424,6 @@ fr:
       [Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a changé de *%{previous_status}* à *%{status}*.
 
       Voici les étapes que nous avons suivies pour arriver à cette conclusion: %{url}
-  project_export_download_mail_csv: |-
-      Bonjour !
-
-      Vous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}
-
-      Le rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.
-
-      Veuillez noter que le lien ci-dessus expirera dans %{days} jours.
-
-      Amicalement,
-
-      L'équipe %{app}
-  project_export_email_title_images: Les images de votre projet sont prêtes à télécharger
-  project_export_download_mail_images: |-
-      Bonjour !
-
-      Vous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}
-
-      Les images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.
-
-      Veuillez noter que le lien ci-dessus expirera dans %{days} jours.
-
-      Amicalement,
-
-      L'équipe %{app}
   permissions_info:
     roles:
       owner:
@@ -531,19 +491,6 @@ fr:
     blank_project: Projet vide non valide
     invalid_annotator: Annotateur non valide %{user}
     invalid_assignee: Membre affecté non valide %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] La mise à jour des affectations est terminée"
-  mail_body_assignments_ready_assign: |-
-      Bonjour %{username},
-      Le processus de mise à jour des affectations a terminé avec succès.
-      Le projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches ont été affectés à %{assignee}.
-      — L'équipe %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      Bonjour %{username} ,
-      Le processus de mise à jour des affectations a terminé avec succès.
-      L'affectation du projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches à %{assignee} a été annulée.
-      — L'équipe %{app_name}
-  team_import_completed_subject: Le processus d'importation de données a terminé
-  team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
   pender_url_invalid: Lien non valide.
   pender_url_unsafe: Lien non sécurisé.
   verification_status_deadline: Échéance

@@ -157,11 +157,6 @@ ro:
   invalid_id_for_custom_translation_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cratime și caractere de subliniere
   invalid_statuses_format_for_custom_translation_status: 'Stările personalizate ale traducerii trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil și semn al stării finale'
   mail_account_confirmation: "Confirmarea contului %{app_name}"
-  mail_request_to_join: "%{user} vrea să se alăture echipei %{team} pe %{app_name}!"
-  approved: aprobată!
-  rejected: dezaprobată
-  mail_request_to_join_processed: Solicitarea dvs. de a vă alătura echipei %{team}pe %{app_name} a fost %{status}
-  mail_new_account: Noul cont pentru Dvs pe %{app_name}
   slack:
     fields:
       assigned: Atribuit lui
@@ -204,14 +199,6 @@ ro:
       user_banned: "%{user} a fost interzis în echipa %{team}"
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa de e-mail, făcând click pe următorul link:'
-  mail_view_joined: Solicitarea Dvs de a se alătura echipei %{team} a fost aprobată! Acum puteți accesa %{url} pentru a începe să contribuiți!
-  mail_view_rejected_to_join: Ne pare rău, solicitarea Dvs de a se alătura echipei %{team} nu a fost aprobată.
-  mail_view_request_to_join: "%{user} (%{handle}) dorește să se alăture echipei %{team} pe %{app_name}!"
-  mail_view_process_request: 'Pentru a procesa această solicitare, conectați-vă și vizitați:'
-  mail_duplicate_email_exists: Metoda dvs. de conectare pentru %{app_name}
-  mail_duplicate_email_exists_body: "<p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să vă conectați la %{app_name} cu un cont pe %{user_provider} legat de %{user_email}.  Însă, această adresă de e-mail este deja asociată cu un cont pe%{duplicate_provider} în %{app_name}.</p> <p>Ce trebuie făcut: Conectați-vă cu %{duplicate_provider}.</p> <p>În acest caz vă veți conecta cu ajutorul contului folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p> <p>— Echipa %{app_name} </p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să creați un nou cont bazat pe e-mail pe %{app_name}, însă acest cont deja există.</p> <p>Încercați să vă conectați cu adresa de e-mail și parola dvs în loc să creați un cont nou.</p> <p>Vă veți conecta la contul folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p> <p>— Echipa %{app_name} </p>"
-  mail_duplicate_email_exists_email: e-mail
   slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura echipei %{team_name} deoarece ea este doar pentru membrii echipei(lor) Slack %{teams}.
   admin:
     actions:
@@ -235,7 +222,6 @@ ro:
           html: După finalizare, copia echipei va fi disponibilă pe <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: 'Are loc ștergerea echipei %{team} '
-  reset_password_instructions: "%{app_name} instrucțiuni pentru resetarea parolei"
   email_not_found: Adresa de e-mail nu a fost găsită
   slack_channel_format_wrong: Canalul Slack nu este valid
   translation_status_not_valid: Starea nu este validă
@@ -303,16 +289,9 @@ ro:
   banned_user: Ne pare rău, contul Dvs a fost interzis pentru %{app_name}. Contactați echipa de suport dacă credeți că s-a produs o eroare.
   devise:
     mailer:
-      reset_password_instructions:
-        instruction: Cineva a solicitat un link pentru a modifica parola Dvs, și puteți face acest lucru accesând linkul de mai jos. <strong>Atenție! Linkul expiră peste %{expire} ore.</strong>
       invitation_instructions:
         subject: "%{user} v-a invitat să vă alăturați echipei %{team} "
         hello: Salut %{name}
-        someone_invited_you_default:
-          html: "%{name} v-a invitat în echipa %{team}."
-        someone_invited_you_custom:
-          html: "%{name} v-a invitat în echipa %{team}, spunând:"
-        accept: 'Puteți accepta invitația cu ajutorul acestui link: %{url}'
         accept_until: Invitația dată va expira pe %{due_date}.
         ignore: Dacă nu doriți să acceptați invitația, ignorați acest email.
         app_team: "Echipa %{app} "
@@ -327,8 +306,18 @@ ro:
   error_user_is_not_a_team_member: Ne pare rău, puteți desemna doar pentru membrii echipei date
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
-  mail_subject_delete_user: "[%{team}] A fost șters un utilizator"
-  mail_body_delete_user: Un cont de utilizator a fost șters și conținutul acestuia a fost desemnat utilizatorului anonim %{id}
+  mails_notifications:
+    task_resolved:
+      subject: "[%{team} - %{project}] Sarcină rezolvată"
+      header_title: Sarcină rezolvată
+      header_text: " %{author} a rezolvat o sarcină în proiectul %{project} din %{team}."
+    media_status:
+      tasks_h: Sarcină finalizată
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
+      assign_task_title: Sarcină desemnată
+      assign_task_text: "%{author} a desemnat o sarcină în proiectul %{project} din %{team}."
+      unassign_task_text: "%{author} a transferat o sarcină în proiectul %{project} din %{team}."
   mail_security:
     ip: V-ați conectat din %{location}
     ip_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}
@@ -340,7 +329,6 @@ ro:
   archive_pender_archive: Păstrează capturi de ecran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Raportul Dvs de proiect este gata pentru a fi descărcat
   workflow_status_not_valid: Starea nu este validă
   workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica această stare
   blank_default_status_for_custom_translation_status: Vă rugăm să introduceți o valoare 'implicită' pentru stările personalizate ale traducerii
@@ -383,31 +371,6 @@ ro:
       [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
 
       Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
-  project_export_download_mail_csv: |-
-      Salut!
-
-      Ați solicitat un raport pentru%{project} - acesta este link-ul pentru descărcarea acestuia: %{link}
-
-      Raportul va fi descărcat sub forma unui fișier comprimat, criptat. Pentru a-l decomprima folosiți parola %{password}.
-
-      Atenție! Acest link va expira peste %{days} zile.
-
-      Cu gânduri bune,
-
-      Echipa %{app}
-  project_export_email_title_images: Imaginile din proiectul Dvs sunt gata pentru a fi descărcate
-  project_export_download_mail_images: |-
-      Salut!
-
-      Ați solicitat descărcarea imaginilor din %{project} - aici este link-ul pentru descărcare: %{link}
-
-      Imaginile vor fi descărcate sub forma unui fișier comprimat, criptat. Pentru a-l decomprima folosiți parola %{password}.
-
-      Atenție! Acest link va expira peste %{days} zile.
-
-      Cu gânduri bune,
-
-      Echipa %{app}
   permissions_info:
     roles:
       owner:
@@ -475,21 +438,6 @@ ro:
     blank_project: Proiectul necompletat nu este valid
     invalid_annotator: Adnotator nevalid %{user}
     invalid_assignee: Destinatar al desemnării nevalid %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] Actualizarea desemnărilor este gata"
-  mail_body_assignments_ready_assign: |-
-      Salut %{username},
-      Procesul de actualizare a desemnărilor a fost finalizat cu succes.
-      Proiectul '%{project_title}' (%{project_url}) și elementele și sarcinile acestuia acum sunt desemnați lui %{assignee}.
-      Mulțumim,
-      — Echipa %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      Salut %{username},
-      Procesul de actualizare a desemnărilor a fost finalizat cu succes.
-      Proiectul '%{project_title}' (%{project_url}) și elementele și sarcinile acestuia au fost transferați de la %{assignee}.
-      Mulțumim,
-      — Echipa %{app_name}
-  team_import_completed_subject: Importul de date s-a finalizat
-  team_import_completed_mail: "<p>Salut,</p> <p>Activitatea dvs de import de date în %{app_name} s-a finalizat. Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați erorile raportate acolo - elementele importate anterior nu vor fi dublate.</p> <p>— Echipa %{app_name} </p>"
   pender_url_invalid: Acest link nu este valid.
   pender_url_unsafe: Acest link nu este sigur.
   verification_status_deadline: Termen limită

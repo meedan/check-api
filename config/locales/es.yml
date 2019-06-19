@@ -156,11 +156,6 @@ es:
   invalid_id_for_custom_translation_status: El identificador de estado es obligatorio y acepta solo letras, números, guiones y guiones bajos
   invalid_statuses_format_for_custom_translation_status: 'Los estados de traducción personalizados deben tener entradas válidas para: etiqueta, identificador, descripción, estilo y marca de estado final.'
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
-  mail_request_to_join: "%{user} quiere unirse al equipo de %{team} en %{app_name}!"
-  approved: '¡aprobado! '
-  rejected: 'no aprobado '
-  mail_request_to_join_processed: Tu solicitud para unirte a  %{team} en %{app_name} fue %{status}
-  mail_new_account: Nueva cuenta para ti en  %{app_name}
   slack:
     fields:
       assigned: Asignado a
@@ -203,14 +198,8 @@ es:
       user_banned: "%{user}fue suspendido del equipo %{team}"
   mail_view_welcome: Bienvenida / Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
-  mail_view_joined: ¡Tu solicitud para unirte a %{team} fue aprobada! ¡Puedes ir a %{url} y empezar a contribuir!
-  mail_view_rejected_to_join: Lo sentimos, pero tu solicitud para unirte a  %{team} no fue aprobada.
-  mail_view_request_to_join: "%{user} (%{handle}) quiere unirse al equipo de  %{team} en %{app_name}!"
-  mail_view_process_request: 'Para procesar esta solicitud, por favor inicia sesión y visita:'
-  mail_duplicate_email_exists: Tu método de inicio de sesión para %{app_name}
-  mail_duplicate_email_exists_body: "<p>Hola, este es solo un recordatorio amistoso para ayudarte a  iniciar sesión en %{app_name}. </p> <p> Lo que sucedió fue que intentaste ingresar a %{app_name} con una cuenta de %{user_provider} asociada a %{user_email}. Pero esta dirección de correo electrónico ya está asociada con esta cuenta de%{duplicate_provider} en %{app_name} .</p> <p> Lo qué debes hacer a continuación es: inicia sesión con %{duplicate_provider}. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email} .</p> <p>- El equipo %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Hola, esto es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name} .</p>  <p>Lo que sucedió fue que intentaste crear una nueva cuenta en %{app_name},  con un correo electrónico que está asociado a una cuenta que ya existe. </p><p>  Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email}. </p> <p>- el equipo %{app_name}</p>"
-  mail_duplicate_email_exists_email: correo electrónico
+  mail_confirm_button: 'Confirmar mi cuenta'
+  pender_could_not_parse: 'No se pudo analizar este ítem '
   slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
     actions:
@@ -234,7 +223,6 @@ es:
           html: Cuando esté lista, la copia del equipo estará disponible en <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: El equipo %{team} está siendo eliminado
-  reset_password_instructions: "%{app_name} instrucciones para restablecer la contraseña"
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: Canal de Slack inválido
   translation_status_not_valid: Estado inválido
@@ -289,6 +277,9 @@ es:
   max_number_of_team_users_reached: Lo sentimos, se ha alcanzado el número máximo de usuarios para este equipo
   max_number_of_projects_reached: Lo sentimos, se alcanzó el número máximo de proyectos para este equipo
   cant_set_custom_statuses: Lo sentimos, la función de estados personalizados no está disponible para este equipo
+  cant_change_custom_statuses: |-
+      Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
+      %{urls} %{others_amount}
   cant_create_team_task: Lo sentimos, tu equipo no tiene acceso a estas funciones
   cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión del navegador no está disponible para este equipo
   error_invalid_attribution: Atribución inválida
@@ -300,15 +291,20 @@ es:
   devise:
     mailer:
       reset_password_instructions:
-        instruction: Alguien ha solicitado un enlace para cambiar tu contraseña, y tu puedes hacerlo a través del siguiente enlace.  <strong>Ten en cuenta que este enlace vence en  %{expire} horas.</strong>
+        subject: "%{app_name} instrucciones para restablecer la contraseña"
+        header_title: Solicitud de restablecimiento de contraseña
+        header_text: "Hemos recibido tu solicitud para restablecer tu contraseña de %{app_name}."
+        action: Reestablecer tu contraseña
+        instruction: 'Esta solicitud caducará en %{expire} horas. Si necesitas otra solicitud obtén un nuevo correo electrónico de restablecimiento de contraseña. '
+        instruction_2: Si tu no has hecho esta solicitud, o estás teniendo dificultades restableciendo tu contraseña, ponte en contacto con %{support_email}
       invitation_instructions:
-        subject: "%{user} convocado a unirse al equipo %{team}"
+        subject: "%{user} ha sido invitado a unirse al equipo %{team}"
         hello: ¡Hola %{name}!
         someone_invited_you_default:
-          html: "%{name} convocado a unirse al equipo %{team}."
+          html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}."
         someone_invited_you_custom:
-          html: "%{name} le ha invitado al equipo %{team}, diciendo:"
-        accept: 'Usa este enlace para aceptar la invitación: %{url}'
+          html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}, diciendo:"
+        accept: 'Aceptar invitación'
         accept_until: Esta invitación expirará a las %{due_date}.
         ignore: Si no desea aceptar la invitación, ignore este correo electrónico.
         app_team: "Equipo %{app} "
@@ -323,14 +319,60 @@ es:
   error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros de este equipo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando esta cuenta
   mail_see_it: 'Puedes verlo en:'
-  mail_subject_delete_user: "[%{team}] Un usuario fue eliminado"
-  mail_body_delete_user: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario anónimo%{id}
   mails_notifications:
     greeting: Hola %{username},
+    greeting_anonymous: ¡Hola!
     project_view: Vista de proyecto
     unsubscribe: 'Cancelar suscripción '
     unsubscribe_link: "%{unsubscribe} de estas notificaciones"
     copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: Nueva cuenta para ti en  %{app_name}
+      header_text: |-
+          ¡Te has registrado con éxito en %{app_name}!
+          <br>
+          Para iniciar sesión, sigue estos sencillos pasos:
+          1. Has click en este link: %{url}
+          2. Completa los campos
+          -Escribe esta dirección de correo electrónico
+          - Escribe esta contraseña %{password}
+      login_button: "Iniciar sesión en %{app_name}"
+      footer_text: '¡Gracias por unirte y esperamos que tengas un día increíble! '
+    duplicated:
+      subject: Tu método de inicio de sesión para %{app_name}
+      header_title: Cuenta duplicada
+      one_email: |-
+          <p>Hola, este es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name}. </p> <p> Lo que sucedió fue que intentaste ingresar a %{app_name} con una cuenta de %{user_provider} asociada a %{user_email}. Pero esta dirección de correo electrónico ya está asociada con esta cuenta de%{duplicate_provider} en %{app_name} .</p> <p> Lo qué debes hacer a continuación es: inicia sesión con %{duplicate_provider}. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, ponte en contacto con %{support_email} .</p> <p>- El equipo %{app_name}</p>
+      both_emails: |-
+          <p>Hola, esto es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name} .</p>  <p>Lo que sucedió fue que intentaste crear una nueva cuenta en %{app_name},  con un correo electrónico que está asociado a una cuenta que ya existe. </p><p>  Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente. Si necesita ayuda adicional, envía un correo electrónico a %{support_email}. </p> <p>- el equipo %{app_name}</p>
+      email: correo electrónico
+    invitation:
+      title: Nueva invitación
+    delete_user:
+      subject: "[%{team}] Un usuario fue eliminado"
+      header_title: Usuario eliminado
+      header_text: Una cuenta de usuario se eliminó y su contenido se reasignó a un usuario %{anonymous} %{id}
+      anonymous: anónimo
+    admin_mailer:
+      team_download_subject: "El volcado [%{team}] está listo para ser descargado"
+      team_dump_title: "Volcado del equipo"
+      types:
+        dump: 'tablas de volcado'
+        csv: 'informe'
+        images: 'imágenes'
+      team_dump_text: "Solicitaste descargar un volcado de %{project} - aquí está el enlace de descarga: %{link}"
+      team_dump_button: Descargar el volcado del equipo
+      decompress_text: "El %{type} se descargará como un archivo comprimido y cifrado. Para descomprimirlo, usa esta contraseña %{password}."
+      expire_note: "Ten en cuenta que este enlace caducará en %{days} días."
+      project_export_csv_subject: "El informe del proyecto [%{project}] está listo para ser descargado"
+      project_export_images_subject: "Las imágenes del proyecto [%{project}] están listas para ser descargadas"
+      project_export_title: Proyecto de Exportación
+      project_export_button: Descargar proyecto de exportación
+      project_export_csv_text: "Solicitaste descargar un reporte de %{project} - aquí está el enlace de descarga: %{link}"
+      project_export_images_text: "Solicitaste descargar imágenes de %{project} - aquí está el enlace de descarga: %{link}"
+      team_import_subject: Tu importación de datos se ha completado
+      team_import_title: Importación de datos
+      team_import_text: "<p>Se ha completado la importación de datos en %{app_name}. Puedes mirar %{worksheet_url} para revisar el estado de cada ítem a importar.</p><p> Nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. </p>"
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
       header_title: Tarea respondida
@@ -370,6 +412,19 @@ es:
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
+      project_button: Ir a la página del proyecto.
+    request_to_join:
+      subject: "Solicitar unirse a %{team}"
+      team_page: página del equipo
+      team_button: Ir a la página del equipo.
+      rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
+      approved_subject: 'Bienvenida/Bienvenido a %{team} '
+      request_title: "Solicitar unirse a %{team}"
+      request_text: "%{name} (%{email}) quiere unirse a %{team} en %{app_name}. Puedes procesas esta solicitud visitando %{url}."
+      approved_title: Bienvenida/Bienvenido al equipo %{team}
+      approved_text: "¡Tu solicitud para unirte a %{team} en %{app_name}fue aprobada. Puedes ir a %{url} y empezar a contribuir!"
+      rejected_title: Solicitud denegada
+      rejected_text: "Lo sentimos, pero tu solicitud para unirte a %{team} en %{app_name} no fue aprobada."
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
     ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
@@ -396,7 +451,6 @@ es:
   archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Tu informe de proyecto está listo para descargar
   workflow_status_not_valid: Estado inválido
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar este estado.
   blank_default_status_for_custom_translation_status: Por favor proporcione un valor predeterminado para los estados de traducción personalizados
@@ -435,36 +489,11 @@ es:
       Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido es muy alto y aún no hemos podido resolver tu solicitud. \nSi tienes otro mensaje para enviar, por favor hazlo. "
   smooch_bot_not_final: "[Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*. Todavía está en nuestra cola de verificación para añadirle información adicional."
+  smooch_bot_disabled: Gracias por enviar este mensaje. No podemos devolver ningún informe de verificación, porque este proyecto ya no está activo.
   smooch_bot_result_changed: |-
       [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
 
       Este es el proceso que seguimos para llegar a esta conclusión: %{url}
-  project_export_download_mail_csv: |-
-      ¡Hola!
-
-      Solicitaste un informe para el proyecto %{project} - aquí hay un enlace para descargarlo: %{link}
-
-      El informe se descargará como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}
-
-      Ten en cuenta que este enlace expirará en %{days} días.
-
-      Saludos,
-
-      Equipo %{app}
-  project_export_email_title_images: Las imágenes de tu proyecto están listas para descargar
-  project_export_download_mail_images: |-
-      ¡Hola!
-
-
-      Solicitaste una descarga de las imágenes del proyecto %{project} - aquí hay un enlace para descargarlas: %{link}
-
-      Las imágenes se descargarán como un archivo comprimido y encriptado. Para descomprimirlo, usa la contraseña: %{password}
-
-      Ten en cuenta que este enlace expirará en %{days} días.
-
-      Saludos,
-
-      Equipo %{app}
   permissions_info:
     roles:
       owner:
@@ -532,21 +561,6 @@ es:
     blank_project: Proyecto en blanco inválido
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] La actualización de las asinaciones está lista."
-  mail_body_assignments_ready_assign: |-
-      Hola%{username}
-      El proceso de asignaciones ha sido completado con éxito.
-      El proyecto '%{project_title}' (%{project_url}) junto con sus ítems y tareas han sido asignados a %{assignee}.
-      Gracias,
-      — Equipo %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      Hola%{username}
-      El proceso de asignaciones ha sido completado con éxito.
-      El proyecto '%{project_title}' (%{project_url}) junto con sus ítems y tareas han sido desasignados de %{assignee}
-      Gracias,
-      — Equipo %{app_name}
-  team_import_completed_subject: Tu importación de datos se ha completado
-  team_import_completed_mail: "<p>Hola,</p><p>Se ha completado la importación de datos en %{app_name}.  Puedes mirar %{worksheet_url}para revisar el estado de cada ítem a importar.</p><p>nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. <p>—El equipo %{app_name}</p>"
   pender_url_invalid: Este enlace es inválido
   pender_url_unsafe: Este enlace no es seguro
   verification_status_deadline: 'Fecha límite '
@@ -563,3 +577,6 @@ es:
   smooch_requests: Solicitudes
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
+  smooch_bot_ask_for_confirmation_checkpoint: Este es un mensaje personalizado para pedirte que confirmes con "1".
+  smooch_bot_message_confirmed_checkpoint: Este es un mensaje personalizado para decir que recibimos tu solicitud.
+  smooch_bot_message_unconfirmed_checkpoint: Este es un mensaje personalizado para decirte que tu mensaje fue descartado.
