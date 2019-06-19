@@ -160,11 +160,6 @@ ar:
   invalid_id_for_custom_translation_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_translation_status: 'حالات الترجمة الخاصة يجب أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة النهائية.'
   mail_account_confirmation: "تأكيد حساب %{app_name}"
-  mail_request_to_join: "لقد طلب %{user} الانضمام لفريق %{team} على %{app_name}"
-  approved: تم الموافقة
-  rejected: لم يتم الموافقة
-  mail_request_to_join_processed: '%{status} على طلب انضمامك إلى فريق %{team} على %{app_name}'
-  mail_new_account: حساب جديد لك على %{app_name}
   slack:
     fields:
       assigned: مُكَلَّف إلى
@@ -207,14 +202,7 @@ ar:
       user_banned: "تم نبذ %{user} من الفريق %{team}"
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
-  mail_view_joined: تم الموافقة على طلب انضمامك إلى فريق %{team}! يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
-  mail_view_rejected_to_join: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
-  mail_view_request_to_join: "لقد طلب %{user} (%{handle}) الانضمام لفريق %{team} على %{app_name}"
-  mail_view_process_request: 'لمعالجة هذا الطلب برجاء تسجيل الدخول وزيارة '
-  mail_duplicate_email_exists: كيفية تسجيل الدخول على %{app_name} الخاصة بك
-  mail_duplicate_email_exists_body: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>مرحباً — نود أن نساعدك لتسجيل الدخول على %{app_name}.</p> <p>\nما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p> <p>\nحاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p> <p>\nبذلك ستدخل إلى %{app_name} باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p> <p>\n— فريق عمل %{app_name}</p>"
-  mail_duplicate_email_exists_email: البريد الإلكتروني
+  mail_confirm_button: 'أكِّد الحساب'
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
     actions:
@@ -238,7 +226,6 @@ ar:
           html: بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: يتم حذف الفريق %{team}
-  reset_password_instructions: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: قناة Slack غير صالحة
   translation_status_not_valid: حالة غير صالحة
@@ -316,15 +303,18 @@ ar:
   devise:
     mailer:
       reset_password_instructions:
-        instruction: طلب أحدهم رابطًا لتغيير كلمة السر الخاصة بك، ويُمكن عمل ذلك من خلال الرابط التالي. <strong>يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.</strong>
+        header_title: إعادة تعيين كلمة المرور
+        header_text: "لقد تلقينا طلبك لإعادة تعيين كلمة المرور الخاصة على%{app_name}"
+        instruction: يرجى الملاحظة أن مدة صلاحية الرابط %{expire} ساعات.احصل على رسالة بريد إلكتروني جديدة لإعادة تعيين كلمة المرور
+        instruction_2: إذا لم تقم بتنفيذ هذا الطلب ، أو كنت تواجه صعوبة لإعادة تعيين كلمة المرور الخاصة بك ، فيرجى الاتصال بنا على %{support_email}
       invitation_instructions:
         subject: "لقد دعاك %{user} للانضمام إلى فريق %{team}"
         hello: مرحباً %{name}
         someone_invited_you_default:
-          html: "لقد دعاك %{name} للانضمام إلى فريق %{team}."
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team}بصفه %{role}."
         someone_invited_you_custom:
-          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} قائلاً :"
-        accept: 'يمكنك قبول الدعوة من خلال هذا الرابط : %{url}'
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} بصفه %{role}قائلاً :"
+        accept: 'قبول الدعوة'
         accept_until: هذه الدعوة سوف تنتهي في %{due_date}.
         ignore: إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة.
         app_team: "فريق %{app}"
@@ -339,14 +329,60 @@ ar:
   error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   mail_see_it: 'تستطيع أن تراه هنا : '
-  mail_subject_delete_user: "[%{team}] تم حذف مستخدم"
-  mail_body_delete_user: تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم مجهول معرّفه %{id}
   mails_notifications:
-    greeting: مرحباً %{name}
+    greeting: مرحباً %{username}
+    greeting_anonymous: مرحباً
     project_view: عرض المشروع
     unsubscribe: إلغاء الاشتراك
     unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: حساب جديد لك على %{app_name}
+      header_text: |-
+          تم التسجيل بنجاح على %{app_name}
+          <br>
+          للدخول على الموقع يجب اتباع هذا الرابط : %{url}. قم بإدخال بريدك الإلكتروني وكلمة السر: %{password}
+      login_button: "الدخول إلى %{app_name}"
+      footer_text: شكراً على انضمامك ونتمنى لك يوما جيدا
+    duplicated:
+      subject: كيفية تسجيل الدخول على %{app_name} الخاصة بك
+      header_title: حساب مُكَرَّر
+      one_email: |-
+          <p>نود أن نذكرك بطريقة تسجيل حسابك الحالية على %{app_name}.</p>
+          </p>ما الذي حدث؟ لقد حاولت التسجيل على %{app_name} باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}.
+          ولكن هذا البريد الإلكتروني مسجل بالفعل على %{app_name} مرتبطاً بحساب اخر على %{duplicate_provider}.</p>
+          </p>ما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p>
+          </p>للدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p>
+      both_emails: |-
+          <p>نود أن نساعدك لتسجيل الدخول على %{app_name}.</p>
+          </p>ما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p>
+          </p>حاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p>
+          </p>بذلك ستدخل باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p>
+    invitation:
+      title: دعوة جديدة
+    delete_user:
+      subject: "[%{team}] تم حذف مستخدم"
+      header_title: حذف مستخدم
+      header_text: تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم %{anonymous} معرّفه %{id}
+      anonymous: مجهول
+    admin_mailer:
+      team_download_subject: "[%{team}] تصدير الفريق جاهز للتحميل"
+      team_dump_title: "تصدير الفريق"
+      types:
+        dump: 'تصدير الجداول'
+        images: 'صور'
+      team_dump_button: تحميل تصدير الفريق
+      decompress_text: "سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط الرجاء استخدام كلمة السر %{password}"
+      expire_note: "يرجى الملاحظة أن مدة صلاحية الرابط %{days} أيام."
+      project_export_csv_subject: "[%{project}] تقرير مشروعك جاهز للتحميل"
+      project_export_images_subject: "[%{project}] صور مشروعك جاهزة للتحميل"
+      project_export_title: تصدير المشروع
+      project_export_button: تحميل تصدير المشروع
+      project_export_csv_text: "لقد طلبت تقرير %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}"
+      project_export_images_text: "لقد طلبت صور %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}"
+      team_import_subject: تمت عملية استيراد البيانات
+      team_import_title: استيراد البيانات
+      team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
       header_title: تمت اجابة مهمة
@@ -386,6 +422,17 @@ ar:
       unassign_log: "قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}"
       assign_by: تكليف من
       unassign_by: قام(ت) بإلغاء التكليف
+    request_to_join:
+      subject: "طلب انضمام إلى %{team}"
+      team_page: صفحة الفريق
+      team_button: 'اذهب إلى صفحة الفريق '
+      rejected_subject: لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
+      request_title: "طلب انضمام إلى %{team}"
+      request_text: "%{name} (%{email}) يريد الإنضمام إلى%{team} على %{app_name}. يمكنك معالجة هذا الطلب بالضغط على الرابط %{url}."
+      approved_title: مرحبًا بك في فريق %{team}
+      approved_text: "تم الموافقة على طلب انضمامك إلى فريق %{team}على%{app_name} يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!"
+      rejected_title: تم رفض الطلب
+      rejected_text: "عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}على %{app_name}  "
   mail_security:
     device_subject: 'تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser} على %{platform}'
     ip_subject: 'تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}'
@@ -412,7 +459,6 @@ ar:
   archive_pender_archive: لقطات الشاشة من Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: تقرير مشروعك جاهز للتحميل
   workflow_status_not_valid: حالة غير صالحة
   workflow_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
   blank_default_status_for_custom_translation_status: من فضلك أضف قيمة إفتراضية لحالات الترجمة الخاصة
@@ -455,31 +501,6 @@ ar:
       [تقرير التحقيق - تصحيح] لقد تغير تصنيف العنصر الذي أرسلته لنا من *%{previous_status}* إلى *%{status}*.
 
       فيما يلي الخطوات التي اتخذناها لتحديد ذلك : %{url}
-  project_export_download_mail_csv: |-
-      مرحباً !
-
-      لقد طلبت تقريراً عن المشروع %{project} - إليك الرابط لتحميله : %{link}
-
-      سوف يتم تحميل التقرير على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}
-
-      رجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.
-
-      تحياتنا
-
-      فريق %{app}
-  project_export_email_title_images: صور مشروعك جاهزة للتحميل
-  project_export_download_mail_images: |-
-      مرحباً !
-
-      لقد طلبت تحميل صور المشروع %{project} - إليك الرابط لتحميلها : %{link}
-
-      سوف يتم تحميل الصور على هيئة ملف مضغوط و مشفّر. يمكنك فك ضغطه بكلمة السر الآتية : %{password}
-
-      رجاء الملاحظة أن مدة صلاحية الرابط %{days} أيام.
-
-      تحياتنا
-
-      فريق %{app}
   permissions_info:
     roles:
       owner:
@@ -547,19 +568,6 @@ ar:
     blank_project: مشروع فارغ غير صالح
     invalid_annotator: مُعلِّق غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] تمت عملية تحديث التكليفات"
-  mail_body_assignments_ready_assign: |-
-      مرحباً %{username}
-      تمت عملية تحديث التكليفات بنجاح.
-      تم تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه إلى %{assignee}.
-      — فريق عمل %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      مرحباً %{username}
-      تمت عملية تحديث التكليفات بنجاح.
-      تم إلغاء تكليف مشروع %{project_title} (%{project_url}) مع عناصره ومهامه عن %{assignee}.
-      — فريق عمل %{app_name}
-  team_import_completed_subject: تمت عملية استيراد البيانات
-  team_import_completed_mail: "<p>مرحباً —</p><p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p><p>— فريق عمل %{app_name}"
   pender_url_invalid: هذا الرابط غير صالح
   pender_url_unsafe: هذا الرابط غير آمن.
   verification_status_deadline: الموعد

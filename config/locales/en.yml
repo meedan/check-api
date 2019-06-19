@@ -337,26 +337,26 @@ en:
     register:
       subject: New account for you on %{app_name}
       header_text: |-
-        You have successfully signed up to %{app_name}!
-        <br>
-        To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
+          You have successfully signed up to %{app_name}!
+          <br>
+          To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
       login_button: "Login to %{app_name}"
       footer_text: Thanks for joining and have a great day!
     duplicated:
       subject: Your login method for %{app_name}
       header_title: Duplicate Account
       one_email: |-
-        <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> 
-        <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}. 
-        But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p>
-        <p>What to do next: Sign in with %{duplicate_provider}.</p> 
-        <p>Then you'll be logged in with the account you were using before. 
-        If you need additional help, please email %{support_email}.</p> 
+          <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p>
+          <p>What happened: You tried to sign in to %{app_name} with a %{user_provider}-based account linked to %{user_email}.
+          But this email address is already associated with a %{duplicate_provider}-based account in %{app_name}.</p>
+          <p>What to do next: Sign in with %{duplicate_provider}.</p>
+          <p>Then you'll be logged in with the account you were using before.
+          If you need additional help, please email %{support_email}.</p>
       both_emails: |-
-        <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p> 
-        <p>What happened: You tried to create a new email- based account on %{app_name}, but this account already exists.</p> 
-        <p>Try signing in with your email and password, rather than creating a new account.</p> 
-        <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p>
+          <p>This is just a friendly reminder to help make sure you get logged in to %{app_name}.</p>
+          <p>What happened: You tried to create a new email- based account on %{app_name}, but this account already exists.</p>
+          <p>Try signing in with your email and password, rather than creating a new account.</p>
+          <p>Then you'll be logged in with the account you were using before. If you need additional help, please email %{support_email}.</p>
       email: email
     invitation:
       title: New Invitation

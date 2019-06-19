@@ -158,11 +158,6 @@ ru:
   invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, дефисы и подчеркивания
   invalid_statuses_format_for_custom_translation_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль и опциональную пометку о завершении работы'
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
-  mail_request_to_join: "%{user} хочет вступить в группу %{team} в %{app_name}!"
-  approved: одобрен!
-  rejected: отклонён.
-  mail_request_to_join_processed: Ваш запрос на вступление в группу %{team} в %{app_name} был %{status}
-  mail_new_account: Новый аккаунт на %{app_name}
   slack:
     fields:
       assigned: Назначен
@@ -205,14 +200,7 @@ ru:
       user_banned: "Новый бан в группе %{team}: %{user}"
   mail_view_welcome: Добро пожаловать в %{app_name}
   mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
-  mail_view_joined: Ваш запрос на вступление в %{team} был одобрен! Теперь вы можете перейти по ссылке — %{url} — и начать работу!
-  mail_view_rejected_to_join: Извините, но ваш запрос на вступление в %{team} не был одобрен.
-  mail_view_request_to_join: "От пользователя %{user} (%{handle}) поступила заявка на вступление в группу %{team} (%{app_name})!"
-  mail_view_process_request: 'Чтобы обработать запрос, авторизуйтесь и перейдите по ссылке:'
-  mail_duplicate_email_exists: Ваш способ входа в %{app_name}
-  mail_duplicate_email_exists_body: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались войти в %{app_name} через аккаунт в %{user_provider}, привязанный к адресу %{user_email}, но этот адрес уже используется в %{app_name} для входа через %{duplicate_provider}.</p> <p>Что делать: выберите вход через %{duplicate_provider}, чтобы войти в свой аккаунт.</p> <p>Вы попадёте в аккаунт, которым пользовались раньше. Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p> <p>— Команда %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Здравствуйте! При вашей попытке входа в %{app_name} произошла небольшая ошибка.</p> <p>Что произошло: вы попытались создать новый аккаунт в %{app_name}, но аккаунт с таким адресом e-mail уже существует.</p> <p>Попробуйте войти с вашим e-mail и паролем вместо того, чтобы регистрировать новый аккаунт. Если вы не помните пароль, воспользуйтесь функцией восстановления.</p> <p>Если проблема повторяется или что-то не работает так, как должно, свяжитесь с нами по адресу %{support_email}.</p> <p>— Команда %{app_name}</p>"
-  mail_duplicate_email_exists_email: e-mail
+  pender_could_not_parse: Не удалось обработать медиа-объект
   slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только членам %{teams} в Slack.
   admin:
     actions:
@@ -236,7 +224,6 @@ ru:
           html: 'Когда копия будет готова, она станет доступна по ссылке: <strong>%{copy_url}</strong>'
     flash:
       delete_team_scheduled: Группа %{team} удаляется
-  reset_password_instructions: "%{app_name}: инструкции по восстановлению пароля"
   email_not_found: E-mail не найден
   slack_channel_format_wrong: Неверный канал Slack
   translation_status_not_valid: Неверный статус
@@ -297,6 +284,9 @@ ru:
   max_number_of_team_users_reached: Извините, в этой группе достигнут лимит участников
   max_number_of_projects_reached: Извините, в этой группе достигнут лимит проектов
   cant_set_custom_statuses: Извините, для данной группы не включены дополнительные статусы
+  cant_change_custom_statuses: |-
+      Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
+      %{urls} %{others_amount}
   cant_create_team_task: Извините, у вашей группы нет доступа к данной функциональности
   cant_create_media_under_this_team_using_extension: Извините, для данной группы не включено браузерное расширение
   error_invalid_attribution: Неверное авторство
@@ -307,16 +297,9 @@ ru:
   banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
   devise:
     mailer:
-      reset_password_instructions:
-        instruction: 'Мы получили запрос на смену пароля к вашему аккаунту. Это можно сделать по ссылке ниже. <strong>Важно: ссылка действует %{expire} часов.</strong>'
       invitation_instructions:
         subject: "%{user} пригласил(а) вас вступить в группу %{team}"
         hello: Здравствуйте, %{name}!
-        someone_invited_you_default:
-          html: "%{name} пригласил(а) вас вступить в группу %{team}."
-        someone_invited_you_custom:
-          html: "%{name} пригласил(а) вас вступить в группу %{team} и оставил(а) сообщение:"
-        accept: 'Вы можете принять приглашение по ссылке: %{url}'
         accept_until: Приглашение истекает %{due_date}.
         ignore: Если вы не хотите принять приглашение, просто проигнорируйте это письмо.
         app_team: "%{app} Группа"
@@ -331,8 +314,24 @@ ru:
   error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам этой группы
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
   mail_see_it: 'Задачу можно посмотреть по ссылке:'
-  mail_subject_delete_user: "[%{team}] Пользователь был удалён"
-  mail_body_delete_user: Аккаунт пользователя был удален. Автор созданного контента теперь будет указан как анонимный пользователь %{id}.
+  mails_notifications:
+    greeting: Здравствуйте, %{username}!
+    unsubscribe: Отписаться
+    copyright_html: '%{app_name} от <a href="https://meedan.com">Meedan</a>'
+    task_resolved:
+      status: Статус
+      media_h: Медиа
+    media_status:
+      label: медиа
+      subject: "[%{team} - %{project}] Статус материала изменен: %{status}"
+      added_to: Добавлено в %{app_name}
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
+      unassign_task_subject: "[%{team} - %{project}] С вас был снят вопрос по материалу"
+      assign_project_subject: "[%{team} - %{project}] Вам был назначен проект"
+      unassign_project_subject: "[%{team} - %{project}] Вы были сняты с проекта"
+      assign_media_subject: "[%{team} - %{project}] Вам был назначен материал"
+      unassign_media_subject: "[%{team} - %{project}] С вас был снят материал"
   mail_security:
     device_subject: 'Внимание: Новый вход в %{app_name} через %{browser} на %{platform}'
     ip_subject: 'Внимание: Нетипичный вход в %{app_name}'
@@ -359,7 +358,6 @@ ru:
   archive_pender_archive: Скриншоты Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Отчёт по проекту готов для скачивания
   workflow_status_not_valid: Неверный статус
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
   blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение "default" для дополнительных статусов
@@ -398,33 +396,11 @@ ru:
       Если да, *отправьте 1*. Любой другой ответ завершит беседу.
   smooch_bot_window_closing: В настоящее время нам поступает очень много запросов, и ваш всё ещё находится в очереди. Спасибо за сообщение. Если вы хотите отправить ещё материалы, пожалуйста, не стесняйтесь!
   smooch_bot_not_final: "[Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*». Сообщение возвращено в очередь и ожидает верификации."
+  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести верификацию, поскольку этот проект больше не активен.
   smooch_bot_result_changed: |-
       [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
 
       Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
-  project_export_download_mail_csv: |-
-      Здравствуйте!
-
-      Отчёт по проекту %{project}, который вы запросили, готов к выгрузке: %{link}
-
-      Отчёт будет скачан в виде зашифрованного архива. Чтобы разархивировать его, введите пароль: %{password}.
-
-      Внимание: ссылка на архив истекает через %{days} дней.
-
-      Всегда ваша,
-      Команда %{app}
-  project_export_email_title_images: Изображения проекта готовы для скачивания
-  project_export_download_mail_images: |-
-      Здравствуйте!
-
-      Изображения из проекта %{project}, которые вы запросили, готовы к выгрузке: %{link}
-
-      Изображения будут скачаны в виде зашифрованного архива. Чтобы разархивировать их, введите пароль: %{password}.
-
-      Внимание: ссылка истекает через %{days} дней.
-
-      Всегда ваша,
-      Команда %{app}
   permissions_info:
     roles:
       owner:
@@ -492,19 +468,6 @@ ru:
     blank_project: Не указан проект
     invalid_annotator: Неверный аннотатор %{user}
     invalid_assignee: Неверный пользователь %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] Изменение назначений завершено"
-  mail_body_assignments_ready_assign: |-
-      Здравствуйте, %{username}!
-      Процесс назначения задач прошёл успешно. Проект «%{project_title}» (%{project_url}) со всеми материалами и вопросами теперь назначен на %{assignee}.
-      Спасибо,
-      — Команда %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      Здравствуйте, %{username}!
-      Процесс переназначения задач прошёл успешно. Проект «%{project_title}» (%{project_url}) со всеми материалами и вопросами был снят с %{assignee}.
-      Спасибо,
-      — Команда %{app_name}
-  team_import_completed_subject: Импорт данных завершён
-  team_import_completed_mail: "<p>Здравствуйте,</p> <p>Ваш запрос на импорт данных в %{app_name} выполнен. Чтобы проверить детальное состояние импорта по всем элементам, перейдите по ссылке: %{worksheet_url}.</p> <p>При наличии ошибок, вы можете исправить их и перезапустить импорт — элементы, которые уже были успешно импортированы, дублированы не будут.</p> <p>— Команда %{app_name}</p>"
   pender_url_invalid: Некорректная ссылка.
   pender_url_unsafe: Небезопасная ссылка.
   verification_status_deadline: Дедлайн
