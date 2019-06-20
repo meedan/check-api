@@ -295,8 +295,9 @@ pt:
         header_title: Solicitação de redefinição de senha
         header_text: "Recebemos sua solicitação de redefinição de senha no %{app_name}."
         action: Redefinir sua senha
-        instruction: Esta solicitação expira em %{expire} horas. Receba um novo e-mail de redefinição de senha para uma nova solicitação
-        instruction_2: Se você não fez essa solicitação ou está com dificuldades para redefinir sua senha, por favor entre em contato com %{support_email}
+        expiry: Esta solicitação irá expirar em %{expire} hours.
+        instruction_1: Clique aqui para fazer uma nova solicitação.
+        instruction_2: Se você não fez essa solicitação ou está com dificuldades para redefinir sua senha, por favor entre em contato com %{support_email}.
       invitation_instructions:
         subject: "%{user} convidou você para %{team}"
         hello: Ola %{name}
@@ -347,7 +348,7 @@ pt:
       both_emails: |-
           <p>Este é apenas um lembrete para ajudar a garantir que você faça login no  %{app_name}.</p>
           <p>O que aconteceu: você tentou criar uma nova conta no %{app_name} baseada em um email, mas essa conta já existe.</p>
-          <p>Tente fazer login com seu e-mail e senha em vez de criar uma nova conta.</p>
+          <p>Tente fazer login com seu e-mail e senha ao invés de criar uma nova conta.</p>
           <p>Então você estará conectado com a conta que estava usando antes. Se você precisar de ajuda adicional, por favor envie um e-mail para %{support_email}.</p>
       email: e-mail
     invitation:
@@ -358,22 +359,22 @@ pt:
       header_text: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído para o usuário %{anonymous} %{id}
       anonymous: anônimo
     admin_mailer:
-      team_download_subject: "[%{team}] cópia dos dados está pronto para baixar"
-      team_dump_title: "Cópia dos dados da Equipe"
+      team_download_subject: "[%{team}] Cópia dos dados da equipe está pronto para baixar"
+      team_dump_title: Dados da Equipe
       types:
-        dump: 'cópia dos dados'
+        dump: 'cópia de dados'
         csv: 'relato'
-        images: 'imagens'
+        images: 'arquivo de imagem'
       team_dump_text: "Você solicitou uma cópia dos dados de %{team} - aqui está um link para baixá-lo: %{link}"
-      team_dump_button: Baixar a cópia dos dados da equipe
+      team_dump_button: Baixar dados da equipe
       decompress_text: "O %{type} será baixado em um arquivo comprimido e encriptado. Para descomprimir, por favor use a senha %{password}."
       expire_note: "Observe que esse link irá expirar em %{days} dias."
-      project_export_csv_subject: "[%{project}] o relatório de projeto está pronto para baixar"
-      project_export_images_subject: "[%{project}] Imagens do seu projeto estão prontas para baixar"
-      project_export_title: Exportação de projeto
-      project_export_button: Baixar exportação de projeto
-      project_export_csv_text: "Você solicitou um relatório de %{project} -  aqui está um link para baixá-lo: %{link}"
-      project_export_images_text: "Você solicitou um arquivo com as imagens do projeto %{project} - aqui está um link para baixá-lo: %{link}"
+      project_export_csv_subject: "[%{team} - %{project}] O relatório de projeto está pronto para baixar"
+      project_export_images_subject: "[%{team} - %{project}] O arquivo com imagens do projeto está pronto para baixar"
+      project_export_title: Dados do Projeto
+      project_export_button: Baixar dados do projeto
+      project_export_csv_text: "Você solicitou um relatório do projeto %{project} -  aqui está um link para baixá-lo: %{link}"
+      project_export_images_text: "Você solicitou um arquivo com as imagens do projeto %{project} -  aqui está um link para baixá-lo: %{link}"
       team_import_subject: Sua importação de dados foi concluída
       team_import_title: Importação de Dados
       team_import_text: "<p>Sua importação de dados em %{app_name} foi concluída. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.</p> <p>Observe que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.</p>"
@@ -468,31 +469,25 @@ pt:
   only_admins_can_approve_bots: Desculpe, apenas super admins podem aprovar bots
   could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esta equipe
   bot_limited_team_not_pro: Desculpe, este bot não está disponível para esta equipe
-  slack_save_task_comment: "*%{user}* adicionou uma nota à tarefa *%{task}* em %{url} em *%{project}*: %{comment}"
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder uma tarefa diretamente - por favor adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma sugestão de resposta
   task_suggestion_invalid_value: Desculpe, o valor da sugestão não é válido
   tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
   annotation_type_language_label: Idioma
   smooch_bot_message_confirmed: |-
-      Obrigado. Sua submissão nos ajudará a pesquisar a disseminação de desinformação no WhatsApp durante essas eleições.
-
-      Este item também foi adicionado à nossa fila de verificação. Tentaremos obter um relatório dentro de 24 horas, mas por favor observe que não podemos responder a todas as solicitações.
-  smooch_bot_message_unconfirmed: Como você não respondeu com 1, não processaremos mais sua mensagem. Obrigado.
-  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este formato de arquivo para verificação.
+      Obrigado. Sua mensagem foi adicionada à nossa fila de verificação. Vamos tentar enviar um relatório dentro de 24 horas, mas por favor note que não somos capazes de responder a todas as mensagens.
+  smooch_bot_message_unconfirmed: Como você não respondeu com 1, não processaremos mais sua requisição. Obrigado.
+  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo de mensagem para verificação.
   smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que verificássemos. Saiba mais em %{url}.
   smooch_bot_result: |-
       [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
 
       Aqui estão os passos que fizemos para determinar isso: %{url}
   smooch_bot_ask_for_confirmation: |-
-      Obrigado por enviar esta mensagem.
-
-      Você suspeita que seja uma informação errada relacionada às Eleições Gerais Indianas de 2019?
-
-      Para dizer sim, *responda com 1*. Qualquer outra resposta terminará nossa conversa.
-  smooch_bot_window_closing: O volume de solicitações está muito alto e ainda não conseguimos resolver sua solicitação. Obrigado por enviar. Se você tiver outra mensagem para enviar, por favor faça.
-  smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ainda está em nossa fila para verificação adicional."
+      Obrigado por enviar esta mensagem. Você quer verificar o conteúdo dela? Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
+  smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e ainda não conseguimos resolver a sua solicitação. Obrigado pela sua paciência.
+  smooch_bot_not_final: |-
+      [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*. Ainda está em nossa fila para verificação adicional.
   smooch_bot_disabled: Obrigado por enviar esta mensagem. Não é possível enviar relatório de verificação porque este projeto não está mais ativo.
   smooch_bot_result_changed: |-
       [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco mudou de *%{previous_status}* para *%{status}*.
