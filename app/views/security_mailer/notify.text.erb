@@ -6,7 +6,7 @@
 <%= I18n.t("mail_security.#{@type}_text", app_name: CONFIG['app_name'], change_password: t("mail_security.password_text")) %>
 <%= "#{CONFIG['checkdesk_client']}/check/user/password-reset" %>
 
-<%= I18n.t("mail_security.time_h").upcase %> (<%= @timestamp %>)
+<%= I18n.t("mail_security.time_h").upcase %> (<%= I18n.l @timestamp, format: :email %>)
 <%= I18n.t("mail_security.device_h").upcase %> (<%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @platform) %>)
 <%= I18n.t("mail_security.location_h").upcase %> (<%= @location %>)
 <%= I18n.t("mail_security.location_disclaimer") %>

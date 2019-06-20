@@ -42,7 +42,11 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   def set_template_direction
-    if I18n.locale.to_s == 'ar'
+    rtl_lang = [
+      'ae', 'ar',  'arc','bcc', 'bqi','ckb', 'dv','fa',
+      'glk', 'he', 'ku', 'mzn','nqo', 'pnb','ps', 'sd', 'ug','ur','yi'
+    ]
+    if rtl_lang.include?(I18n.locale.to_s)
       @direction = {
         dir: 'rtl',
         align: 'right',
