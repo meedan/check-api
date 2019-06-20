@@ -1,13 +1,13 @@
-<div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+<div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
   <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
     <tr>
-      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
+      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
         <div class="section" style="background-color: #fff; text-align: !important;">
           <!-- Section title-->
           <% if !@info[:description].blank? %>
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <tr>
-                <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="left">
+                <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="<%= @direction[:align] %>">
                   <span class="span text" style="font-size: 17px; line-height: 20px;">
                     <%= @info[:description] %>
                   </span>
@@ -31,12 +31,12 @@
                 <!--~~//media-info module start \\~~-->
                 <!--————————————————————————————-->
                 
-                <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
                   <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
 
                     <tr>
-                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                        <div class="media-info" style="padding: 0px 30px; text-align: left;">
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="<%= @direction[:align] %>">
+                        <div class="media-info" style="padding: 0px 30px; text-align: <%= @direction[:align] %>;">
                           <div>
                             <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 25px;">
                               <%= I18n.t("mails_notifications.assignment.#{@info[:event_type]}_by") %>
@@ -62,8 +62,8 @@
                           </div>
                         </div>
                       </th>
-                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                        <div class="media-info" style="padding: 0px 30px; text-align: left;">
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="<%= @direction[:align] %>">
+                        <div class="media-info" style="padding: 0px 30px; text-align: <%= @direction[:align] %>;">
                           <div>
                             <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
                               <%= I18n.t('activerecord.models.project') %>
@@ -95,11 +95,11 @@
                     <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
                   </tr>
                 </table>
-                <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
                   <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                     <tr>
-                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
-                        <div class="media-info" style="padding: 0px 30px; text-align: left;">
+                      <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
+                        <div class="media-info" style="padding: 0px 30px; text-align: <%= @direction[:align] %>;">
                           <div>
                             <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
                               <%= I18n.t('mails_notifications.task_resolved.media_h') %>
@@ -168,13 +168,13 @@
   }
 </style>
 
-<div class="container wide" width="100%" style="margin: 0 auto; text-align: left;">
+<div class="container wide" width="100%" style="margin: 0 auto; text-align: <%= @direction[:align] %>;">
   <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
     <tr>
-      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="100%" valign="top" align="left">
+      <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="100%" valign="top" align="<%= @direction[:align] %>">
         <table cellpadding="0" cellspacing="0" border="0" width="auto" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
           <tr>
-            <th class="footer" style="font-weight: normal; padding: 0;" align="left">
+            <th class="footer" style="font-weight: normal; padding: 0;" align="<%= @direction[:align] %>">
               <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
                 <%= link_to(@info[:button], @info[:url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
                  •                 

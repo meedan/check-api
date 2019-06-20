@@ -7,6 +7,7 @@ class ApplicationMailer < ActionMailer::Base
   def mail(options={})
     filter_to_if_user_opted_out(options)
     return if options[:to].empty?
+    set_template_direction
     super(options)
   end
 
@@ -39,4 +40,21 @@ class ApplicationMailer < ActionMailer::Base
     info[:username] = username
     @info = info
   end
+
+  def set_template_direction
+    if I18n.locale.to_s == 'ar'
+      @direction = {
+        dir: 'rtl',
+        align: 'right',
+        arrow: '5DMN6P814LWo5ARRkwIGsU/9b058087aab31c370c9cbf33d4332037/arrow_3x-rtl.png'
+      }
+    else
+     @direction = {
+        dir: 'ltr',
+        align: 'left',
+        arrow: '1ji47bOy90143djFnEPuj1/936ebe3388362a7861715a1b819b231b/arrow_3x.png'
+      }
+    end
+  end
+
 end
