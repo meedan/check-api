@@ -836,7 +836,8 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should propagate assignments" do
     Sidekiq::Testing.inline! do
-      create_verification_status_stuff
+      create_translation_status_stuff
+      create_verification_status_stuff(false)
       stub_config('default_project_media_workflow', 'verification_status') do
         t = create_team
         p = create_project team: t
@@ -861,5 +862,28 @@ class ProjectTest < ActiveSupport::TestCase
   test "should return search object" do
     p = create_project
     assert_kind_of CheckSearch, p.search
+  end
+
+  test "should not create duplicate assignment" do
+    Sidekiq::Testing.inline! do
+      create_translation_status_stuff
+      create_verification_status_stuff(false)
+      t = create_team
+      u = create_user
+      p = create_project team: t
+      create_team_user user: u, team: t
+      pm = create_project_media project: p
+      3.times { create_task(annotated: pm) }
+      id = pm.last_verification_status_obj.id
+      a = Assignment.new(user: u, assigned_type: 'Annotation', assigned_id: id)
+      Assignment.import([a])
+      a = YAML::dump(a)
+      Assignment.propagate_assignments(a, 0, :assign)
+      n = Assignment.count
+      Assignment.any_instance.stubs(:nil?).returns(true)
+      Assignment.propagate_assignments(a, 0, :assign)
+      Assignment.any_instance.unstub(:nil?)
+      assert_equal n, Assignment.count
+    end
   end
 end

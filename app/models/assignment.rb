@@ -74,7 +74,7 @@ class Assignment < ActiveRecord::Base
         to_delete << existing.id
       end
     end
-    Assignment.import(to_create)
+    Assignment.import(to_create, on_duplicate_key_ignore: true)
     DynamicAnnotation::Field.joins(:annotation).where(field_name: 'task_status_status').where('annotations.annotated_id' => task_ids).update_all(value: 'unresolved')
     Assignment.delete(to_delete)
     assignment.send(:update_user_assignments_progress)
