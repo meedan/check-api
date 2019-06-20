@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -303,8 +303,9 @@ en:
         header_title: Password reset request
         header_text: "We've received your request to reset your %{app_name} password."
         action: Reset your password
-        instruction: This request will expire in %{expire} hours. Get a new password reset email for a new request
-        instruction_2: If you didn't make this request, or are having difficulty resetting your password, please contact us at %{support_email}
+        expiry: This request will expire in %{expire} hours.
+        instruction_1: Click here to make a new request.
+        instruction_2: If you didn't make this request, or are having difficulty resetting your password, please contact us at %{support_email}.
       invitation_instructions:
         subject: "%{user} invited you to join %{team} team"
         hello: Hello %{name}
@@ -366,22 +367,22 @@ en:
       header_text: A user account was deleted and its content was reassigned to %{anonymous} user %{id}
       anonymous: anonymous
     admin_mailer:
-      team_download_subject: "[%{team}] dump is ready to be downloaded"
-      team_dump_title: "Team Dump"
+      team_download_subject: "[%{team}] Team data snapshot is ready to be downloaded"
+      team_dump_title: Team Data
       types:
-        dump: 'tables dump'
+        dump: 'data snapshot'
         csv: 'report'
-        images: 'images'
-      team_dump_text: "You've requested a dump for %{team} - here's a link to download it: %{link}"
-      team_dump_button: Download team dump
+        images: 'image archive'
+      team_dump_text: "You've requested a data snapshot for team %{team} - here's a link to download it: %{link}"
+      team_dump_button: Download team data
       decompress_text: "The %{type} will download as a compressed, encrypted file. To decompress it, please use the password %{password}."
       expire_note: "Please note that this link will expire in %{days} days."
-      project_export_csv_subject: "[%{project}] project report is ready to be downloaded"
-      project_export_images_subject: "[%{project}] project images are ready to be downloaded"
-      project_export_title: Project Export
-      project_export_button: Download project export
-      project_export_csv_text: "You've requested a report for %{project} - here's a link to download it: %{link}"
-      project_export_images_text: "You've requested a download of %{project} images - here's a link to download it: %{link}"
+      project_export_csv_subject: "[%{team} - %{project}] Project report is ready to be downloaded"
+      project_export_images_subject: "[%{team} - %{project}] Project image archive is ready to be downloaded"
+      project_export_title: Project Data
+      project_export_button: Download project data
+      project_export_csv_text: "You've requested a report for project %{project} - here's a link to download it: %{link}"
+      project_export_images_text: "You've requested an archive of images for project %{project} - here's a link to download it: %{link}"
       team_import_subject: Your data import has completed
       team_import_title: Data Import
       team_import_text: "<p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p> <p>Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.</p>"
@@ -476,31 +477,31 @@ en:
   only_admins_can_approve_bots: Sorry, only super admins can approve bots
   could_not_save_related_bot_data: Sorry, could not add the bot to this team
   bot_limited_team_not_pro: Sorry, this bot is not available to this team
-  slack_save_task_comment: "*%{user}* added a note to task *%{task}* in %{url} in *%{project}*: %{comment}"
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
   task_suggestion_invalid_value: A suggestion must be a JSON hash with a 'suggestion' (the actual value that is copied to the task answer when accepted) and a 'comment' (displayed to users)
   tag_text_id_not_found: Sorry, there is no tag with the provided identifier
   annotation_type_language_label: Language
   smooch_bot_message_confirmed: |-
-      Thank you. Your submission will help us research the spread of misinformation on WhatsApp during these elections.
+      Thank you. Your request has been added to our verification queue.
 
-      This item has also been added to our verification queue. We will try to get you a report within 24 hours, but please note that we are not able to respond to every request.
-  smooch_bot_message_unconfirmed: Since you didn’t reply with 1, we will not process your message further. Thank you.
-  smooch_bot_message_type_unsupported: Sorry, we don't support this type of file format for verification yet.
+      We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
+  smooch_bot_message_unconfirmed: Since you didn't reply with 1, we will not process your request further. Thank you.
+  smooch_bot_message_type_unsupported: Sorry, we don't support this type of message for verification at this time.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that we verify. Learn more at %{url}.
   smooch_bot_result: |-
-      [Verification Report] The message you shared with us is marked *%{status}*.
+      [Verification Report] The item that you shared with us is marked *%{status}*.
 
       Here are the steps we took to determine this: %{url}
   smooch_bot_ask_for_confirmation: |-
-      Thank you for sending this message.
-
-      Do you suspect it to be misinformation related to the Indian General Elections 2019?
+      Thank you for sending this request. Do you want us to verify its content?
 
       To say yes, *please reply with 1*. Any other response will end our conversation.
-  smooch_bot_window_closing: The volume of requests in the tipline is very high, and we haven't been able to resolve your request yet. Thank you for submitting. If you have another message to submit, please do.
-  smooch_bot_not_final: "[Verification Report - CORRECTION] The message you shared with us was wrongly marked as *%{status}*. It is still in our queue for further verification."
+  smooch_bot_window_closing: The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
+  smooch_bot_not_final: |-
+      [Verification Report - CORRECTION] The message you shared with us was wrongly marked as *%{status}*.
+
+      It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back any verification reports, because this project is no longer active.
   smooch_bot_result_changed: |-
       [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
