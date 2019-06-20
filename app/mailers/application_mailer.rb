@@ -2,12 +2,33 @@ class ApplicationMailer < ActionMailer::Base
   default from: CONFIG['default_mail']
   layout 'mailer'
 
+  def self.set_template_direction
+    rtl_lang = [
+      'ae', 'ar',  'arc','bcc', 'bqi','ckb', 'dv','fa',
+      'glk', 'he', 'ku', 'mzn','nqo', 'pnb','ps', 'sd', 'ug','ur','yi'
+    ]
+    if rtl_lang.include?(I18n.locale.to_s)
+      direction = {
+        dir: 'rtl',
+        align: 'right',
+        arrow: '5DMN6P814LWo5ARRkwIGsU/9b058087aab31c370c9cbf33d4332037/arrow_3x-rtl.png'
+      }
+    else
+     direction = {
+        dir: 'ltr',
+        align: 'left',
+        arrow: '1ji47bOy90143djFnEPuj1/936ebe3388362a7861715a1b819b231b/arrow_3x.png'
+      }
+    end
+    direction
+  end
+
   private
 
   def mail(options={})
     filter_to_if_user_opted_out(options)
     return if options[:to].empty?
-    set_template_direction
+    @direction = ApplicationMailer.set_template_direction
     super(options)
   end
 
@@ -39,26 +60,6 @@ class ApplicationMailer < ActionMailer::Base
     info[:greeting] = I18n.t("mails_notifications.greeting", username: username)
     info[:username] = username
     @info = info
-  end
-
-  def set_template_direction
-    rtl_lang = [
-      'ae', 'ar',  'arc','bcc', 'bqi','ckb', 'dv','fa',
-      'glk', 'he', 'ku', 'mzn','nqo', 'pnb','ps', 'sd', 'ug','ur','yi'
-    ]
-    if rtl_lang.include?(I18n.locale.to_s)
-      @direction = {
-        dir: 'rtl',
-        align: 'right',
-        arrow: '5DMN6P814LWo5ARRkwIGsU/9b058087aab31c370c9cbf33d4332037/arrow_3x-rtl.png'
-      }
-    else
-     @direction = {
-        dir: 'ltr',
-        align: 'left',
-        arrow: '1ji47bOy90143djFnEPuj1/936ebe3388362a7861715a1b819b231b/arrow_3x.png'
-      }
-    end
   end
 
 end
