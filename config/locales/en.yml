@@ -243,6 +243,7 @@ en:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: This media has not been reviewed by the %{team} team
   oembed_disclaimer_in_progress: The accuracy of this media is in progress of being determined by the %{team} team on %{date}
   oembed_disclaimer_verified: The accuracy of this media was verified by the %{team} team on %{date}

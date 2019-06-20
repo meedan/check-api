@@ -1,7 +1,7 @@
 <%= @info[:description] %>
 <%= I18n.t("mails_notifications.assignment.#{@info[:event_type]}_by") %> (<%= @info[:author] %>)
-<%= I18n.t("mails_notifications.media_status.added_to", app_name: CONFIG['app_name']) %> (<%= @info[:created_at] %>)
-<%= I18n.t("mails_notifications.media_status.update_h") %> (<%= @info[:updated_at] %>)
+<%= I18n.t("mails_notifications.media_status.added_to", app_name: CONFIG['app_name']) %> (<%= I18n.l @info[:created_at], format: :email %>)
+<%= I18n.t("mails_notifications.media_status.update_h") %> (<%= I18n.l @info[:updated_at], format: :email %>)
 <%= I18n.t("activerecord.models.project") %> (<%= @info[:project] %>)
 <%= I18n.t("mails_notifications.media_status.tasks_h") %> (<%= "#{@info[:resolved_tasks]}/#{@info[:total_tasks]}" %>)
 ...

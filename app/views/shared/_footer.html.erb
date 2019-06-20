@@ -1,12 +1,12 @@
    <!--~~// Footer module start \\~~-->
                     <!--————————————————————————————-->
-                    <div class="container wide" width="100%" style="margin: 0 auto; text-align: left;">
+                    <div class="container wide" width="100%" style="margin: 0 auto; direction: <%= @direction[:dir] %>; text-align: <%= @direction[:align] %>;">
                       <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                         <tr>
-                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
-                            <table cellpadding="0" cellspacing="0" border="0" width="auto" style="border-top: 1px solid #e3e3e3; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top: 1px solid #e3e3e3; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                               <tr>
-                                <th class="footer" style="font-weight: normal; padding: 0;" align="left">
+                                <th class="footer" style="font-weight: normal; padding: 0;" align="<%= @direction[:align] %>">
                                   <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin-top: 10px;"><%= I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']).html_safe %><br></p>
                                 </th>
                               </tr>

@@ -25,17 +25,17 @@
 
   <!--~~// Notify-title module start \\~~-->
   <!--————————————————————————————-->
-  <div class="notify-title" style="text-align: left !important;">
+  <div class="notify-title" style="text-align: <%= @direction[:align] %> !important; direction: <%= @direction[:dir] %>">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <tr>
                 <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
               </tr>
             </table>
-            <div class="container " width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+            <div class="container " width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
               <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                 <tr>
-                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
-                    <div class="notify-title__content">
+                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
+                    <div class="notify-title__content" style="text-align:<%= @direction[:align] %>;">
                       <div class="h3 notify-title__proj" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;">
                         <%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %>
                       </div>
@@ -65,7 +65,7 @@
                             </table>
                             <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                               <tr>
-                                <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="left"><div class="span text" style="font-size: 15px; line-height: 15px;"><%= @invited_text %></div></td>
+                                <td class="section__title" style="padding: 23px 30px;" bgcolor="#fff" align="<%= @direction[:align] %>"><div class="span text" style="font-size: 15px; line-height: 15px;"><%= @invited_text %></div></td>
                               </tr>
                             </table>
 													<% end %>
@@ -82,7 +82,7 @@
                     <!--————————————————————————————-->
                     <!--~~\\ Notify-title module end //~~-->
 
-                    <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
 
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
@@ -100,7 +100,8 @@
                                     %>
                                   </span>
                                 </td>
-                                <td style="border-collapse: collapse;" align="right"><img src="https://images.ctfassets.net/g118h5yoccvd/1ji47bOy90143djFnEPuj1/936ebe3388362a7861715a1b819b231b/arrow_3x.png" alt="arrow-icon" width="7" style="-ms-interpolation-mode: bicubic; border: 0 none; height: auto; line-height: 100%; outline: none; text-decoration: none;">
+                                <td style="border-collapse: collapse;" align="right">
+                                  <%= image_tag("https://images.ctfassets.net/g118h5yoccvd/#{@direction[:arrow]}", width: "7", alt: "arrow-icon",  style: "-ms-interpolation-mode: bicubic; border: 0 none; height: auto; line-height: 100%; outline: none; text-decoration: none;") %>
                                 </td>
                               </tr>
                             </table>
