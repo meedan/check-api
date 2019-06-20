@@ -34,7 +34,7 @@ cache:
   - "/tmp/bundler"
   - "/tmp/downloads"
 addons:
-  postgresql: '9.4'
+  postgresql: '9.5'
   hosts:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
@@ -67,7 +67,7 @@ matrix:
     sudo: required
     dist: trusty
     addons:
-      postgresql: '9.4'
+      postgresql: '9.5'
       hosts:
       - bridgembed
     before_install:
