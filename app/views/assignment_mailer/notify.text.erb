@@ -8,7 +8,7 @@
 
 <%= @info[:title] %>
 
-<%= "#{@info[:author]} (#{@info[:role]}) - #{@info[:created_at]}" %>
+<%= "#{@info[:author]} (#{@info[:role]}) - #{I18n.l @info[:created_at], format: :email}" %>
 > <%=
 	I18n.t("mails_notifications.assignment.#{@info[:event_type]}_log",
 					model: I18n.t("activerecord.models.#{@info[:model]}"),

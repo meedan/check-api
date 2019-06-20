@@ -17,17 +17,17 @@
 
           <!--~~// Notify-title module start \\~~-->
           <!--————————————————————————————-->
-          <div class="notify-title" style="text-align: left !important;">
+          <div class="notify-title" style="text-align: <%= @direction[:align] %> !important; direction: <%= @direction[:dir] %>">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <tr>
                 <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
               </tr>
             </table>
-            <div class="container " width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+            <div class="container " width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
               <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                 <tr>
-                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
-                    <div class="notify-title__content">
+                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" text-align: <%= @direction[:align] %>>
+                    <div class="notify-title__content" style="text-align:<%= @direction[:align] %>;">
                       <div class="h3 notify-title__greeting" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;"><%= I18n.t("mails_notifications.greeting", username: @user.name) %></div>
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
@@ -64,10 +64,10 @@
 
                     <!--~~// Section module start \\~~-->
                     <!--————————————————————————————-->
-                    <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
                       <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                         <tr>
-                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="left">
+                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" text-align: <%= @direction[:align] %>>
                             <div class="section" style="background-color: #fff; text-align: !important;">
 
                               <!-- Section content-->
@@ -90,12 +90,12 @@
                                         <td style="border-collapse: collapse; font-size: 18px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
                                       </tr>
                                     </table>
-                                    <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
                                       <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
 
                                         <tr>
-                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" text-align: <%= @direction[:align] %>>
+                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: <%= @direction[:align] %>;">
                                               <div>
                                                 <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
                                                   <%= I18n.t("mail_security.time_h") %>
@@ -106,7 +106,10 @@
                                                   </tr>
                                                 </table>
                                               </div>
-                                              <div class="text-gray" style="color: #9a9a9a !important;"><span class="span" style="font-size: 15px; line-height: 20px;"><%= @timestamp %></span>
+                                              <div class="text-gray" style="color: #9a9a9a !important;">
+                                                <span class="span" style="font-size: 15px; line-height: 20px;">
+                                                  <%= I18n.l @timestamp, format: :email %>
+                                                </span>
                                                 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                                                   <tr class="rowgap" style="display: block;">
                                                     <td style="border-collapse: collapse; font-size: 5px; line-height: 1;">&nbsp;</td>
@@ -118,8 +121,8 @@
                                               </div>
                                             </div>
                                           </th>
-                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" text-align: <%= @direction[:align] %>>
+                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: <%= @direction[:align] %>;">
                                               <div><span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;"><%= I18n.t("mail_security.device_h") %></span>
                                                 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                                                   <tr>
@@ -141,11 +144,11 @@
                                         <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
                                       </tr>
                                     </table>
-                                    <div class="container wide" width="600" style="margin: 0 auto; text-align: left; width: 600px;">
+                                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
                                       <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                                         <tr>
-                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" text-align: <%= @direction[:align] %>>
+                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: <%= @direction[:align] %>;">
                                               <div><span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
                                                 <%= I18n.t("mail_security.location_h") %>
                                                 </span>
@@ -168,8 +171,8 @@
                                               </div>
                                             </div>
                                           </th>
-                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" align="left">
-                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: left;">
+                                          <th class="col-2" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="300px" valign="top" text-align: <%= @direction[:align] %>>
+                                            <div class="activity-info" style="padding-left: 30px; padding-right: 30px; text-align: <%= @direction[:align] %>;">
                                               <div><span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
                                                 <%= I18n.t("mail_security.ip_h") %>
                                                 </span>
@@ -234,13 +237,13 @@
                         }
                       }
                     </style>
-                    <div class="container wide" width="100%" style="margin: 0 auto; text-align: left;">
+                    <div class="container wide" width="100%" style="margin: 0 auto; text-align: <%= @direction[:align] %>;">
                       <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                         <tr>
-                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="100%" valign="top" align="left">
+                          <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="100%" valign="top" text-align: <%= @direction[:align] %>>
                             <table cellpadding="0" cellspacing="0" border="0" width="auto" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                               <tr>
-                                <th class="footer" style="font-weight: normal; padding: 0;" align="left">
+                                <th class="footer" style="font-weight: normal; padding: 0;" text-align: <%= @direction[:align] %>>
                                   <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
                                     <%= I18n.t("mail_security.privacy",
                                       manage: link_to(t("mail_security.manage_text"), "#{CONFIG['checkdesk_client']}/check/me/privacy"),
