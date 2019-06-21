@@ -198,7 +198,7 @@ pt:
       user_banned: "%{user} foi banido da equipe %{team}"
   mail_view_welcome: Bem-vindo ao %{app_name}
   mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor confirme o seu endereço de e-mail clicando no seguinte link:'
-  mail_confirm_button: 'Confirmar minha conta'
+  mail_confirm_button: Confirmar minha conta
   pender_could_not_parse: Não foi possível analisar esta mídia
   slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name} porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
   admin:
@@ -293,7 +293,7 @@ pt:
       reset_password_instructions:
         subject: "%{app_name} instruções para redefinição de senha"
         header_title: Solicitação de redefinição de senha
-        header_text: "Recebemos sua solicitação de redefinição de senha no %{app_name}."
+        header_text: Recebemos sua solicitação de redefinição de senha no %{app_name}.
         action: Redefinir sua senha
         expiry: Esta solicitação irá expirar em %{expire} hours.
         instruction_1: Clique aqui para fazer uma nova solicitação.
@@ -305,7 +305,7 @@ pt:
           html: "%{name} convidou você para %{team} como %{role}."
         someone_invited_you_custom:
           html: "%{name} convidou você para %{team} como %{role}, dizendo:"
-        accept: 'Aceitar convite'
+        accept: Aceitar convite
         accept_until: Este convite expirará em %{due_date}.
         ignore: Se você não quiser aceitar o convite, ignore este e-mail.
         app_team: "Time %{app}"
@@ -333,7 +333,7 @@ pt:
           Você se inscreveu com sucesso no %{app_name}!
           <br>
           Para fazer login no site, siga esse link: %{url}. Insira esse endereço de e-mail e senha: %{password}
-      login_button: "Login no %{app_name}"
+      login_button: Login no %{app_name}
       footer_text: Obrigado por se registrar e tenha um ótimo dia!
     duplicated:
       subject: Seu método de login no %{app_name}
@@ -362,19 +362,19 @@ pt:
       team_download_subject: "[%{team}] Cópia dos dados da equipe está pronto para baixar"
       team_dump_title: Dados da Equipe
       types:
-        dump: 'cópia de dados'
-        csv: 'relato'
-        images: 'arquivo de imagem'
-      team_dump_text: "Você solicitou uma cópia dos dados de %{team} - aqui está um link para baixá-lo: %{link}"
+        dump: cópia de dados
+        csv: relato
+        images: arquivo de imagem
+      team_dump_text: 'Você solicitou uma cópia dos dados de %{team} - aqui está um link para baixá-lo: %{link}'
       team_dump_button: Baixar dados da equipe
-      decompress_text: "O %{type} será baixado em um arquivo comprimido e encriptado. Para descomprimir, por favor use a senha %{password}."
-      expire_note: "Observe que esse link irá expirar em %{days} dias."
+      decompress_text: O %{type} será baixado em um arquivo comprimido e encriptado. Para descomprimir, por favor use a senha %{password}.
+      expire_note: Observe que esse link irá expirar em %{days} dias.
       project_export_csv_subject: "[%{team} - %{project}] O relatório de projeto está pronto para baixar"
       project_export_images_subject: "[%{team} - %{project}] O arquivo com imagens do projeto está pronto para baixar"
       project_export_title: Dados do Projeto
       project_export_button: Baixar dados do projeto
-      project_export_csv_text: "Você solicitou um relatório do projeto %{project} -  aqui está um link para baixá-lo: %{link}"
-      project_export_images_text: "Você solicitou um arquivo com as imagens do projeto %{project} -  aqui está um link para baixá-lo: %{link}"
+      project_export_csv_text: 'Você solicitou um relatório do projeto %{project} -  aqui está um link para baixá-lo: %{link}'
+      project_export_images_text: 'Você solicitou um arquivo com as imagens do projeto %{project} -  aqui está um link para baixá-lo: %{link}'
       team_import_subject: Sua importação de dados foi concluída
       team_import_title: Importação de Dados
       team_import_text: "<p>Sua importação de dados em %{app_name} foi concluída. Você pode conferir em %{worksheet_url} para revisar o status de cada item importado.</p> <p>Observe que você pode reiniciar a importação depois de corrigir os erros reportados - os itens previamente importados não serão duplicados.</p>"
@@ -419,17 +419,17 @@ pt:
       unassign_by: Desatribuído(a) por
       project_button: Ir para a página do projeto
     request_to_join:
-      subject: "Solicitação para participar de %{team}"
+      subject: Solicitação para participar de %{team}
       team_page: página da equipe
       team_button: Ir para a página da equipe
       rejected_subject: Sua solicitação para participar de %{team} não foi aprovada
       approved_subject: Bem-vindo a %{team}
-      request_title: "Solicitação para participar de %{team}"
+      request_title: Solicitação para participar de %{team}
       request_text: "%{name} (%{email}) quer entrar em %{team} em %{app_name}. Você pode processar essa solicitação visitando %{url}."
       approved_title: Bem-vindo a equipe %{team}
-      approved_text: "Sua solicitação para participar de %{team} no %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir."
+      approved_text: Sua solicitação para participar de %{team} no %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir.
       rejected_title: Solicitação Negada
-      rejected_text: "Desculpe, mas sua solicitação para participar de %{team} no %{app_name} não foi aprovada."
+      rejected_text: Desculpe, mas sua solicitação para participar de %{team} no %{app_name} não foi aprovada.
   mail_security:
     device_subject: 'Alerta de segurança: Novo login em %{app_name} pelo %{browser} em %{platform}'
     ip_subject: 'Alerta de segurança: Login novo ou incomum em %{app_name}'
