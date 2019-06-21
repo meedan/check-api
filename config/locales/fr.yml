@@ -198,7 +198,7 @@ fr:
       user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre e-mail en cliquant ce lien :'
-  mail_confirm_button: 'Confirmer mon compte'
+  mail_confirm_button: Confirmer mon compte
   pender_could_not_parse: Il n'a pas été possible d'analyser ce média
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
@@ -293,7 +293,7 @@ fr:
       reset_password_instructions:
         subject: "Instructions pour réinitialiser le mot de passe de %{app_name}"
         header_title: Demande de réinitialisation du mot de passe
-        header_text: "Nous avons bien reçu votre demande de réinitialiser votre mot de passe sur %{app_name}."
+        header_text: Nous avons bien reçu votre demande de réinitialiser votre mot de passe sur %{app_name}.
         action: Réinitialiser votre mot de passe
         expiry: Cette demande va expirer dans %{expire} heures.
         instruction_1: Cliquez ici pour une nouvelle demande.
@@ -305,7 +305,7 @@ fr:
           html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}."
         someone_invited_you_custom:
           html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}, disant : "
-        accept: 'Accepter l''invitation'
+        accept: Accepter l'invitation
         accept_until: Cette invitation va expirer le %{due_date}.
         ignore: Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message.
         app_team: "Équipe %{app}"
@@ -333,7 +333,7 @@ fr:
           Votre inscription à %{app_name} est complète !
           <br>
           Pour vous connecter, suivez ce lien: %{url}. Utilisez votre courriel et le mot de passe suivant : %{password}
-      login_button: "Se connecter à %{app_name}"
+      login_button: Se connecter à %{app_name}
       footer_text: Merci de nous rejoindre et bonne journée !
     duplicated:
       subject: Votre connexion à %{app_name}
@@ -354,19 +354,19 @@ fr:
       team_download_subject: "[%{team} - %{project}] Instantané des données de l'équipe est prêt au téléchargement"
       team_dump_title: Données de l'équipe
       types:
-        dump: 'instantané des données'
-        csv: 'rapport'
-        images: 'archive d''images'
-      team_dump_text: "Vous avez demandé un instantané des données de l'équipe %{team} - voici le lien de téléchargement : %{link}"
+        dump: instantané des données
+        csv: rapport
+        images: archive d'images
+      team_dump_text: 'Vous avez demandé un instantané des données de l''équipe %{team} - voici le lien de téléchargement : %{link}'
       team_dump_button: Télécharger les données de l'équipe
-      decompress_text: "Le %{type} sera téléchargé en format compressé et chiffré. Pour le décompresser, utilisez le mot-clé %{password}."
-      expire_note: "Notez que ce lien va expirer dans %{days} jours."
+      decompress_text: Le %{type} sera téléchargé en format compressé et chiffré. Pour le décompresser, utilisez le mot-clé %{password}.
+      expire_note: Notez que ce lien va expirer dans %{days} jours.
       project_export_csv_subject: "[%{team} - %{project}] Rapport du projet est prêt au téléchargement"
       project_export_images_subject: "[%{team} - %{project}] Archive des images du projet est prête au téléchargement"
       project_export_title: Données de projet
       project_export_button: Télécharger les données de projet
-      project_export_csv_text: "Vous avez demandé un rapport du projet %{project} - voici le lien de téléchargement : %{link}"
-      project_export_images_text: "Vous avez demandé une archive des images du projet %{project} - voici le lien de téléchargement : %{link}"
+      project_export_csv_text: 'Vous avez demandé un rapport du projet %{project} - voici le lien de téléchargement : %{link}'
+      project_export_images_text: 'Vous avez demandé une archive des images du projet %{project} - voici le lien de téléchargement : %{link}'
       team_import_subject: Le processus d'importation de données a terminé
       team_import_title: Importation de données
       team_import_text: "<p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p> <p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p>"
@@ -411,17 +411,17 @@ fr:
       unassign_by: Affectation annulée par
       project_button: Ouvrir la page du projet
     request_to_join:
-      subject: "Demander à joindre %{team}"
+      subject: Demander à joindre %{team}
       team_page: page de l'équipe
       team_button: Ouvrir la page de l'équipe
       rejected_subject: Votre demande de vous joindre à %{team} n'a pas été approuvée
       approved_subject: Bienvenue sur %{team}
-      request_title: "Demander à joindre %{team}"
+      request_title: Demander à joindre %{team}
       request_text: "%{name} (%{email}) demande à se joindre à %{team} sur %{app_name}. Vous pouvez traiter cette demande à %{url}."
       approved_title: Bienvenue sur l'équipe %{team}
-      approved_text: "Votre demande de vous joindre à %{team} sur %{app_name} a été acceptée ! Vous pouvez maintenant ouvrir %{url} pour commencer à contribuer."
+      approved_text: Votre demande de vous joindre à %{team} sur %{app_name} a été acceptée ! Vous pouvez maintenant ouvrir %{url} pour commencer à contribuer.
       rejected_title: Demande refusée
-      rejected_text: "Désolé, votre demande de vous joindre à %{team} sur %{app_name} n'a pas été approuvée."
+      rejected_text: Désolé, votre demande de vous joindre à %{team} sur %{app_name} n'a pas été approuvée.
   mail_security:
     device_subject: 'Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}'
     ip_subject: 'Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle'

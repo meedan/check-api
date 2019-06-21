@@ -198,7 +198,7 @@ es:
       user_banned: "%{user}fue suspendido del equipo %{team}"
   mail_view_welcome: Bienvenida / Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
-  mail_confirm_button: 'Confirmar mi cuenta'
+  mail_confirm_button: Confirmar mi cuenta
   pender_could_not_parse: 'No se pudo analizar este ítem '
   slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
@@ -293,7 +293,7 @@ es:
       reset_password_instructions:
         subject: "%{app_name} instrucciones para restablecer la contraseña"
         header_title: Solicitud de restablecimiento de contraseña
-        header_text: "Hemos recibido tu solicitud para restablecer tu contraseña de %{app_name}."
+        header_text: Hemos recibido tu solicitud para restablecer tu contraseña de %{app_name}.
         action: Reestablecer tu contraseña
       invitation_instructions:
         subject: "%{user} ha sido invitado a unirse al equipo %{team}"
@@ -302,7 +302,7 @@ es:
           html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}."
         someone_invited_you_custom:
           html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}, diciendo:"
-        accept: 'Aceptar invitación'
+        accept: Aceptar invitación
         accept_until: Esta invitación expirará a las %{due_date}.
         ignore: Si no desea aceptar la invitación, ignore este correo electrónico.
         app_team: "Equipo %{app} "
@@ -334,7 +334,7 @@ es:
           2. Completa los campos
           -Escribe esta dirección de correo electrónico
           - Escribe esta contraseña %{password}
-      login_button: "Iniciar sesión en %{app_name}"
+      login_button: Iniciar sesión en %{app_name}
       footer_text: '¡Gracias por unirte y esperamos que tengas un día increíble! '
     duplicated:
       subject: Tu método de inicio de sesión para %{app_name}
@@ -349,9 +349,9 @@ es:
       anonymous: anónimo
     admin_mailer:
       types:
-        csv: 'informe'
-      decompress_text: "El %{type} se descargará como un archivo comprimido y cifrado. Para descomprimirlo, usa esta contraseña %{password}."
-      expire_note: "Ten en cuenta que este enlace caducará en %{days} días."
+        csv: informe
+      decompress_text: El %{type} se descargará como un archivo comprimido y cifrado. Para descomprimirlo, usa esta contraseña %{password}.
+      expire_note: Ten en cuenta que este enlace caducará en %{days} días.
       team_import_subject: Tu importación de datos se ha completado
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}. Puedes mirar %{worksheet_url} para revisar el estado de cada ítem a importar.</p><p> Nota que puedes reiniciar la importación después de corregir cualquier error que se informe allí - los ítems previamente- importados no se duplicarán. </p>"
@@ -396,17 +396,17 @@ es:
       unassign_by: Desasignado por
       project_button: Ir a la página del proyecto.
     request_to_join:
-      subject: "Solicitar unirse a %{team}"
+      subject: Solicitar unirse a %{team}
       team_page: página del equipo
       team_button: Ir a la página del equipo.
       rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
       approved_subject: 'Bienvenida/Bienvenido a %{team} '
-      request_title: "Solicitar unirse a %{team}"
+      request_title: Solicitar unirse a %{team}
       request_text: "%{name} (%{email}) quiere unirse a %{team} en %{app_name}. Puedes procesas esta solicitud visitando %{url}."
       approved_title: Bienvenida/Bienvenido al equipo %{team}
-      approved_text: "¡Tu solicitud para unirte a %{team} en %{app_name}fue aprobada. Puedes ir a %{url} y empezar a contribuir!"
+      approved_text: ¡Tu solicitud para unirte a %{team} en %{app_name}fue aprobada. Puedes ir a %{url} y empezar a contribuir!
       rejected_title: Solicitud denegada
-      rejected_text: "Lo sentimos, pero tu solicitud para unirte a %{team} en %{app_name} no fue aprobada."
+      rejected_text: Lo sentimos, pero tu solicitud para unirte a %{team} en %{app_name} no fue aprobada.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
     ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
