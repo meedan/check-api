@@ -102,7 +102,7 @@ ro:
       comment: Notă
       project_media: Element
       media: Element
-      project: Proiect
+      project: Dosar
       team: Echipa
       user: Utilizator
       source: Sursa
@@ -163,7 +163,7 @@ ro:
       unassigned: Transferat de la
       required: Obligatoriu?
       required_yes: 'Da'
-      project: Proiect
+      project: Dosar
       source: Sursa
       status: Starea
       status_previous: Starea precedentă
@@ -190,9 +190,9 @@ ro:
       project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_source_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_source_update: "%{user} (%{role} în %{team}) a redactat %{type}"
-      project_create: "%{user} (%{role} în %{team}) a creat un proiect"
-      project_assign: "%{user} (%{role} în %{team}) a desemnat un proiect"
-      project_unassign: "%{user} (%{role} în %{team}) a transferat un proiect"
+      project_create: "%{user} (%{role} în %{team}) a creat un dosar"
+      project_assign: "%{user} (%{role} în %{team}) a desemnat un dosar"
+      project_unassign: "%{user} (%{role} în %{team}) a transferat un dosar"
       user_member: "%{user} s-a alăturat echipei %{team}"
       user_requested: "%{user} a solicitat să se alăture echipei %{team}"
       user_invited: "%{user} a fost invitat să se alăture echipei %{team}"
@@ -206,9 +206,9 @@ ro:
       send_reset_password_email:
         menu: Trimite instrucțiuni pentru resetarea parolei
       export_project:
-        menu: Exportați datele proiectului
+        menu: Exportați datele dosarului
       export_images:
-        menu: Exportați imaginile proiectului
+        menu: Exportați imaginile dosarului
       delete_tasks:
         done: a șters sarcinile
         are_you_sure_you_want_to_delete_the_tasks_from_team:
@@ -228,7 +228,7 @@ ro:
   translation_status_not_valid: Starea nu este validă
   translation_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica această stare
   translation_request_id_exists: Solicitarea de traducere a acestui mesaj deja există
-  auto_publisher_added_to_project: Mulțumim! Acum toate traducerile noi la proiectul %{project} vor fi publicate  în mod automat  în acest cont pe %{provider}. Dacă vă răzgândiți, contactați administratorul sau pur și simplu retrageți autorizarea Bridge de la %{provider}.
+  auto_publisher_added_to_project: Mulțumim! Acum toate traducerile noi la dosarul %{project} vor fi publicate  în mod automat  în acest cont pe %{provider}. Dacă vă răzgândiți, contactați administratorul sau pur și simplu retrageți autorizarea Bridge de la %{provider}.
   invalid_token: Cod temporar nevalid
   viber_screenshot_footer: "Traducerea în %{target_language} din %{source_language}: “%{source_text}”"
   time:
@@ -271,14 +271,14 @@ ro:
   duplicate_source: Sursa există
   geolocation_invalid_value: Locația trebuie să conțină GeoJSON valid (http://geojson.org/)
   datetime_invalid_date: Introduceți o dată validă
-  error_team_archived: Ne pare rău, nu puteți adăuga proiecte la o echipă eliminată
-  error_project_archived: Ne pare rău, nu puteți adăuga elemente la un proiect eliminat
+  error_team_archived: Ne pare rău, nu puteți adăuga dosare la o echipă eliminată
+  error_project_archived: Ne pare rău, nu puteți adăuga elemente la un dosar eliminat
   error_team_archived_for_source: Ne pare rău, nu puteți adăuga sursă la o echipă eliminată
   permission_error: Ne pare rău, nu aveți permisiunea de a efectua această operațiune
   error_annotated_archived: Ne pare rău, nu puteți adăuga note la un element eliminat
   only_super_admin_can_do_this: Ne pare rău, doar administratorul de sistem poate efectua această modificare
   max_number_of_team_users_reached: Ne pare rău, s-a atins numărul maxim de utilizatori pentru această echipă
-  max_number_of_projects_reached: Ne pare rău, s-a atins numărul maxim de proiecte pentru această echipă
+  max_number_of_projects_reached: Ne pare rău, s-a atins numărul maxim de dosar pentru această echipă
   cant_set_custom_statuses: Ne pare rău, individualizarea statuturilor nu este disponibilă pentru această echipă
   cant_change_custom_statuses: |-
       Ne pare rău, nu puteți modifica definițiile statuturilor pentru că unele statuturi s-ar putea pierde. Acești identificatori de statut: %{statuses} sunt folosiți în elementele ce urmează:
@@ -300,7 +300,7 @@ ro:
           html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de %{role}."
         someone_invited_you_custom:
           html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de %{role}, spunând:"
-        accept: 'Acceptă invitația'
+        accept: Acceptă invitația
         accept_until: Invitația dată va expira pe %{due_date}.
         ignore: Dacă nu doriți să acceptați invitația, ignorați acest email.
         app_team: "Echipa %{app} "
@@ -316,17 +316,23 @@ ro:
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
+    project_view: Vizualizare dosar
     task_resolved:
       subject: "[%{team} - %{project}] Sarcină rezolvată"
       header_title: Sarcină rezolvată
-      header_text: " %{author} a rezolvat o sarcină în proiectul %{project} din %{team}."
+      header_text: " %{author} a rezolvat o sarcină în dosarul %{project} din %{team}."
     media_status:
+      subject: "[%{team} - %{project}] Statutul unui element media a fost marcat %{status}"
+      header_text: " %{author} a actualizat un element media în dosarul %{project} din %{team}."
       tasks_h: Sarcină finalizată
     assignment:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
+      assign_media_subject: "[%{team} - %{project}] V-a fost desemnat un element media"
+      assign_project_title: Dosar atribuit
       assign_task_title: Sarcină desemnată
       assign_task_text: "%{author} a desemnat o sarcină în proiectul %{project} din %{team}."
       unassign_task_text: "%{author} a transferat o sarcină în proiectul %{project} din %{team}."
+      assign_media_text: "%{author} a desemnat un element media în dosarul %{project} din %{team}."
   mail_security:
     device_subject: 'Avertizare de securitate: Conectare nouă la %{app_name} din %{browser} pe %{platform}'
     failed_subject: 'Avertizare de securitate: Încercări ieșuate de a se conecta la %{app_name}'
@@ -396,7 +402,7 @@ ro:
       owner:
         description: Coordonatorii controlează spațiul de lucru.
       editor:
-        description: Redactorii gestionează echipa și proiectele.
+        description: Redactorii gestionează echipa și dosarele.
       journalist:
         description: Jurnaliștii verifică informația.
       contributor:
@@ -406,12 +412,12 @@ ro:
     permissions:
       sections:
         project_management:
-          name: Gestionare proiecte
+          name: Gestionarea dosarelor
           permissions:
-            create: Creează un proiect
-            edit: Editare proiect
-            delete: Ștergere proiect
-            add_item: Adaugă element media la proiect
+            create: Creează un dosar
+            edit: Editare dosar
+            delete: Ștergerea dosarului
+            add_item: Adaugă element media la dosar
         item_page_management:
           name: Gestionare elemente
           permissions:
@@ -450,12 +456,12 @@ ro:
     team_not_present: În timpul importului de date echipa actuală nu a fost găsită. Vă rugăm să informați echipa de suport despre acest incident.
     user_not_present: În timpul importului de date utilizatorul actual nu a fost găsit. Vă rugăm să informați echipa de suport despre acest incident.
     user_not_authorized: Ne pare rău, nu aveți permisiunea de a importa date în această echipă.
-    invalid_project: Proiectul %{project} nu este valid
+    invalid_project: Dosarul %{project} nu este valid
     invalid_user: Autorul %{user} nu este valid
     invalid_status: Starea %{status} nu este validă
     blank_user: Autorul necompletat nu este valid
     blank_annotator: 'Adnotatorul necompletat nu este valid '
-    blank_project: Proiectul necompletat nu este valid
+    blank_project: Dosarul necompletat nu este valid
     invalid_annotator: Adnotator nevalid %{user}
     invalid_assignee: Destinatar al desemnării nevalid %{user}
   pender_url_invalid: Acest link nu este valid.
