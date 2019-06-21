@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out Of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -206,7 +206,7 @@ en:
       user_banned: "%{user} was banned from team %{team}"
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm your email address by clicking the following link:'
-  mail_confirm_button: 'Confirm my account'
+  mail_confirm_button: Confirm my account
   pender_could_not_parse: Could not parse this media
   slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it is restricted to members of the Slack team(s) %{teams}.
   admin:
@@ -243,7 +243,6 @@ en:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
-      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: This media has not been reviewed by the %{team} team
   oembed_disclaimer_in_progress: The accuracy of this media is in progress of being determined by the %{team} team on %{date}
   oembed_disclaimer_verified: The accuracy of this media was verified by the %{team} team on %{date}
@@ -302,7 +301,7 @@ en:
       reset_password_instructions:
         subject: "%{app_name} reset password instructions"
         header_title: Password reset request
-        header_text: "We've received your request to reset your %{app_name} password."
+        header_text: We've received your request to reset your %{app_name} password.
         action: Reset your password
         expiry: This request will expire in %{expire} hours.
         instruction_1: Click here to make a new request.
@@ -314,7 +313,7 @@ en:
           html: "%{name} has invited you to join %{team} team as %{role}."
         someone_invited_you_custom:
           html: "%{name} has invited you to join %{team} team as %{role}, saying:"
-        accept: 'Accept invitation'
+        accept: Accept invitation
         accept_until: This invitation will expire on %{due_date}.
         ignore: If you don't want to accept the invitation, please ignore this email.
         app_team: "%{app} Team"
@@ -342,7 +341,7 @@ en:
           You have successfully signed up to %{app_name}!
           <br>
           To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
-      login_button: "Login to %{app_name}"
+      login_button: Login to %{app_name}
       footer_text: Thanks for joining and have a great day!
     duplicated:
       subject: Your login method for %{app_name}
@@ -371,19 +370,19 @@ en:
       team_download_subject: "[%{team}] Team data snapshot is ready to be downloaded"
       team_dump_title: Team Data
       types:
-        dump: 'data snapshot'
-        csv: 'report'
-        images: 'image archive'
-      team_dump_text: "You've requested a data snapshot for team %{team} - here's a link to download it: %{link}"
+        dump: data snapshot
+        csv: report
+        images: image archive
+      team_dump_text: 'You''ve requested a data snapshot for team %{team} - here''s a link to download it: %{link}'
       team_dump_button: Download team data
-      decompress_text: "The %{type} will download as a compressed, encrypted file. To decompress it, please use the password %{password}."
-      expire_note: "Please note that this link will expire in %{days} days."
+      decompress_text: The %{type} will download as a compressed, encrypted file. To decompress it, please use the password %{password}.
+      expire_note: Please note that this link will expire in %{days} days.
       project_export_csv_subject: "[%{team} - %{project}] Project report is ready to be downloaded"
       project_export_images_subject: "[%{team} - %{project}] Project image archive is ready to be downloaded"
       project_export_title: Project Data
       project_export_button: Download project data
-      project_export_csv_text: "You've requested a report for project %{project} - here's a link to download it: %{link}"
-      project_export_images_text: "You've requested an archive of images for project %{project} - here's a link to download it: %{link}"
+      project_export_csv_text: 'You''ve requested a report for project %{project} - here''s a link to download it: %{link}'
+      project_export_images_text: 'You''ve requested an archive of images for project %{project} - here''s a link to download it: %{link}'
       team_import_subject: Your data import has completed
       team_import_title: Data Import
       team_import_text: "<p>Your data import job into %{app_name} has completed. You can check %{worksheet_url} to review the status of each item to be imported.</p> <p>Note that you can restart the import after you fix any errors that are reported there - the previously-imported items will not be duplicated.</p>"
@@ -428,17 +427,17 @@ en:
       unassign_by: Unassigned by
       project_button: Go to the project page
     request_to_join:
-      subject: "Request to join %{team}"
+      subject: Request to join %{team}
       team_page: team page
       team_button: Go to the team page
       rejected_subject: Your request to join %{team} was not approved
       approved_subject: Welcome to %{team}
-      request_title: "Request to join %{team}"
+      request_title: Request to join %{team}
       request_text: "%{name} (%{email}) wants to join %{team} on %{app_name}. You can process this request by visiting %{url}."
       approved_title: Welcome to the %{team} team
-      approved_text: "Your request to join %{team} on %{app_name} was approved. You can now go to the %{url} and start contributing."
+      approved_text: Your request to join %{team} on %{app_name} was approved. You can now go to the %{url} and start contributing.
       rejected_title: Request Denied
-      rejected_text: "Sorry your request to join %{team} on %{app_name} was not approved."
+      rejected_text: Sorry your request to join %{team} on %{app_name} was not approved.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
@@ -594,3 +593,7 @@ en:
   smooch_bot_ask_for_confirmation_checkpoint: This is a custom message asking you to confirm with "1".
   smooch_bot_message_confirmed_checkpoint: This is a custom message to say that your request was received.
   smooch_bot_message_unconfirmed_checkpoint: This is a custom message to say that your message was discarded.
+  smooch_bot_not_final_mantis-7357: Bla
+  smooch_bot_disabled_checkpoint: |-
+      Thank you for sending this message.
+      We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.

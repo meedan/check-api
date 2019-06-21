@@ -202,7 +202,7 @@ ar:
       user_banned: "تم نبذ %{user} من الفريق %{team}"
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
-  mail_confirm_button: 'أكِّد الحساب'
+  mail_confirm_button: أكِّد الحساب
   pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name} حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -309,7 +309,7 @@ ar:
       reset_password_instructions:
         subject: "تعليمات إعادة ضبط كلمة المرور لدى %{app_name}"
         header_title: إعادة تعيين كلمة المرور
-        header_text: "لقد تلقينا طلبك لإعادة تعيين كلمة المرور الخاصة على%{app_name}"
+        header_text: لقد تلقينا طلبك لإعادة تعيين كلمة المرور الخاصة على%{app_name}
         action: إعادة تعيين كلمة مرورك
         expiry: مدة صلاحية الرابط %{expire} ساعات.
         instruction_1: اضغط هنا لإعادة الطلب.
@@ -321,7 +321,7 @@ ar:
           html: "لقد دعاك %{name} للانضمام إلى فريق %{team}بصفه %{role}."
         someone_invited_you_custom:
           html: "لقد دعاك %{name} للانضمام إلى فريق %{team} بصفه %{role}قائلاً :"
-        accept: 'قبول الدعوة'
+        accept: قبول الدعوة
         accept_until: هذه الدعوة سوف تنتهي في %{due_date}.
         ignore: إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة.
         app_team: "فريق %{app}"
@@ -349,7 +349,7 @@ ar:
           تم التسجيل بنجاح على %{app_name}
           <br>
           للدخول على الموقع يجب اتباع هذا الرابط : %{url}. قم بإدخال بريدك الإلكتروني وكلمة السر: %{password}
-      login_button: "الدخول إلى %{app_name}"
+      login_button: الدخول إلى %{app_name}
       footer_text: شكراً على انضمامك ونتمنى لك يوما جيدا
     duplicated:
       subject: كيفية تسجيل الدخول على %{app_name} الخاصة بك
@@ -377,19 +377,19 @@ ar:
       team_download_subject: "[%{team}] بيانات الفريق جاهزة للتحميل"
       team_dump_title: بيانات الفريق
       types:
-        dump: 'لقطة البيانات'
-        csv: 'تقرير'
-        images: 'أرشيف الصور'
-      team_dump_text: "لقد طلبت لقطة البيانات للفريق %{team} - يمكنك استخدام هذا الرابط للتحميل %{link}"
+        dump: لقطة البيانات
+        csv: تقرير
+        images: أرشيف الصور
+      team_dump_text: 'لقد طلبت لقطة البيانات للفريق %{team} - يمكنك استخدام هذا الرابط للتحميل %{link}'
       team_dump_button: تحميل بيانات الفريق
-      decompress_text: "سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط الرجاء استخدام كلمة السر %{password}"
-      expire_note: "يرجى الملاحظة أن مدة صلاحية الرابط %{days} أيام."
+      decompress_text: سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط الرجاء استخدام كلمة السر %{password}
+      expire_note: يرجى الملاحظة أن مدة صلاحية الرابط %{days} أيام.
       project_export_csv_subject: "[%{team} - %{project}] تقرير المشروع جاهز للتحميل"
       project_export_images_subject: "[%{team} - %{project}] أرشيف صور المشروع جاهز للتحميل"
       project_export_title: بيانات المشروع
       project_export_button: تحميل بيانات المشروع
-      project_export_csv_text: "لقد طلبت تقريراً للمشروع %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}"
-      project_export_images_text: "لقد طلبت أرشيف الصور للمشروع %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}"
+      project_export_csv_text: 'لقد طلبت تقريراً للمشروع %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}'
+      project_export_images_text: 'لقد طلبت أرشيف الصور للمشروع %{project} - يمكنك استخدام هذا الرابط للتحميل %{link}'
       team_import_subject: تمت عملية استيراد البيانات
       team_import_title: استيراد البيانات
       team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url} لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p>"
@@ -434,17 +434,17 @@ ar:
       unassign_by: قام(ت) بإلغاء التكليف
       project_button: 'اذهب إلى صفحة المشروع '
     request_to_join:
-      subject: "طلب انضمام إلى %{team}"
+      subject: طلب انضمام إلى %{team}
       team_page: صفحة الفريق
       team_button: 'اذهب إلى صفحة الفريق '
       rejected_subject: لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
       approved_subject: مرحباً بك في %{team}
-      request_title: "طلب انضمام إلى %{team}"
+      request_title: طلب انضمام إلى %{team}
       request_text: "%{name} (%{email}) يريد الإنضمام إلى%{team} على %{app_name}. يمكنك معالجة هذا الطلب بالضغط على الرابط %{url}."
       approved_title: مرحبًا بك في فريق %{team}
-      approved_text: "تم الموافقة على طلب انضمامك إلى فريق %{team}على%{app_name} يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!"
+      approved_text: تم الموافقة على طلب انضمامك إلى فريق %{team}على%{app_name} يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
       rejected_title: تم رفض الطلب
-      rejected_text: "عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}على %{app_name}  "
+      rejected_text: 'عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}على %{app_name}  '
   mail_security:
     device_subject: 'تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser} على %{platform}'
     ip_subject: 'تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}'
