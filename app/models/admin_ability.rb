@@ -37,7 +37,7 @@ class AdminAbility
       end
     end
 
-    can :update, Embed, ['annotation_type = ?', 'embed'] do |obj|
+    can :update, [Dynamic, Annotation], ['annotation_type = ?', 'metadata'] do |obj|
       !(obj.get_team & @teams).empty?
     end
     can :destroy, DynamicAnnotation::Field do |obj|

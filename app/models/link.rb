@@ -29,7 +29,7 @@ class Link < Media
   end
 
   def get_saved_pender_data
-    JSON.parse(self.annotations.where(annotation_type: 'embed').last.data['embed'])
+    begin JSON.parse(self.annotations.where(annotation_type: 'metadata').last.load.get_field_value('metadata_value')) rescue {} end
   end
 
   def text
@@ -37,7 +37,7 @@ class Link < Media
   end
 
   def original_published_time
-    published_time = self.pender_embed.data['published_at']
+    published_time = self.metadata['published_at']
     published_time.to_i.zero? ? '' : Time.at(published_time)
   end
 

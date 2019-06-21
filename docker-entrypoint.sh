@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Redis
-redis-server &
-
 # Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
@@ -17,7 +14,7 @@ export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
 # Sidekiq
-bundle exec sidekiq -L log/sidekiq.log -d
+$"bin/sidekiq" &
 
 # Web server
 mkdir -p /app/tmp/pids

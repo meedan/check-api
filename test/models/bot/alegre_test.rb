@@ -26,7 +26,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return und if there is an error" do
+  test "should return und language if there is an error" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_error do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
@@ -56,14 +56,44 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return null for language object if there is no annotation" do
+  test "should return null language object if there is no annotation" do
     pm = create_project_media
     assert_nil @bot.language_object(pm)
   end
 
-  test "should have profile image" do
-    b = create_alegre_bot
-    assert_kind_of String, b.profile_image
+  test "should notify Pusher when language is saved" do
+    lang = @bot.send(:save_language, @pm, 'en')
+    assert lang.sent_to_pusher
+  end
+
+  test "should link similar images" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    vframe_url = CONFIG['vframe_host'] + '/api/v1/match'
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: '{"results":[]}')
+    pm1 = create_project_media project: @pm.project, media: create_uploaded_image
+    @bot.get_image_similarities(pm1)
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: '{"results":[{"context":{"project_media_id":'+pm1.id.to_s+'}}]}')
+    pm2 = create_project_media project: @pm.project, media: create_uploaded_image
+    @bot.get_image_similarities(pm2)
+    r = Relationship.where("source_id = :source_id AND target_id = :target_id", {
+      :source_id => pm1.id,
+      :target_id => pm2.id
+    })
+    assert_equal 1, r.length
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: 'invalid result')
+    assert_nothing_raised do
+      @bot.get_image_similarities(pm2)
+    end
+    WebMock.stub_request(:post, vframe_url)
+    .to_return(body: '{"error":"message"}')
+    assert_nothing_raised do
+      @bot.get_image_similarities(pm2)
+    end
   end
 
   # test "should return no machine translations if Alegre client throws exception" do
@@ -225,16 +255,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   #   end
   # end
 
-  test "should notify Pusher when language is saved" do
-    lang = @bot.send(:save_language, @pm, 'en')
-    assert lang.sent_to_pusher
+  test "should have profile image" do
+    b = create_alegre_bot
+    assert_kind_of String, b.profile_image
   end
 
   test "should return true when bot is called successfully" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' }.to_json)
+        assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
       end
     end
   end
@@ -243,7 +273,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
         WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert !Bot::Alegre.run({ event: 'create_project_media' }.to_json)
+        assert !Bot::Alegre.run({ event: 'create_project_media' })
       end
     end
   end

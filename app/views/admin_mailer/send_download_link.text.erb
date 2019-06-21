@@ -1,1 +1,17 @@
-<%= I18n.t("project_export_download_mail_#{@type}".to_sym, project: @project, link: @link, days: @days, app: @app, password: @password) %>
+<%= I18n.t("mails_notifications.greeting_anonymous") %>
+
+==========================================
+<%= I18n.t("mails_notifications.admin_mailer.project_export_title") %>
+==========================================
+
+<%= I18n.t("mails_notifications.admin_mailer.project_export_#{@type}_text", project: @project, link: @link) %>
+
+
+<%= t("mails_notifications.admin_mailer.decompress_text", type: I18n.t("mails_notifications.admin_mailer.types.#{@type}"), password: @password) %>
+ 
+ <%= t("mails_notifications.admin_mailer.expire_note", days: @days) %>
+
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com

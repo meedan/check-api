@@ -29,8 +29,8 @@ class AccountTest < ActiveSupport::TestCase
     assert_not_empty @account.data
   end
 
-  test "should get embed" do
-    assert_not_empty @account.embed
+  test "should get metadata" do
+    assert_not_empty @account.metadata
   end
 
   test "should set user" do
@@ -346,20 +346,20 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal 'Daniela', a.data['author_name']
   end
 
-  test "should create source when account embed is nil" do
-    Account.any_instance.stubs(:embed).returns(nil)
+  test "should create source when account metadata is nil" do
+    Account.any_instance.stubs(:metadata).returns(nil)
 
     assert_difference 'Source.count' do
       a = Account.create_for_source(@url)
       assert_kind_of Source, a.source
       assert a.source.valid?
     end
-    Account.any_instance.unstub(:embed)
+    Account.any_instance.unstub(:metadata)
   end
 
-  test "should return empty data if there is no embed annotation" do
+  test "should return empty data if there is no metadata annotation" do
     account = create_account
-    account.annotations('embed').last.destroy
+    account.annotations('metadata').last.destroy
     assert_kind_of Hash, account.data
     assert_empty account.data
   end

@@ -22,8 +22,8 @@ before_install:
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
-- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 && mkdir -p tmp/cache tmp/cache1
-  tmp/cache2 tmp/cache3 tmp/cache4
+- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
+  tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 - cd /tmp/downloads &&
   (ls phantomjs-2.1.1-linux-x86_64.tar.bz2 || wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2) &&
   tar -vxjf phantomjs-2.1.1-linux-x86_64.tar.bz2 &&
@@ -34,7 +34,7 @@ cache:
   - "/tmp/bundler"
   - "/tmp/downloads"
 addons:
-  postgresql: '9.4'
+  postgresql: '9.5'
   hosts:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
@@ -44,7 +44,7 @@ before_script:
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
 - sleep 10
 - chmod +w tmp/parallel_runtime_test.log
-script: bundle exec rake "parallel:test[4]"
+script: bundle exec rake "parallel:test[5]"
 after_script:
 - bundle exec codeclimate-test-reporter
 - echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
@@ -67,7 +67,7 @@ matrix:
     sudo: required
     dist: trusty
     addons:
-      postgresql: '9.4'
+      postgresql: '9.5'
       hosts:
       - bridgembed
     before_install:

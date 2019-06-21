@@ -2,7 +2,7 @@ class TeamBot < ActiveRecord::Base
   include HasImage
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
-  annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'embed', 'flag', 'tag', 'task', 'geolocation']
+  annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'flag', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
     EVENTS << "create_annotation_#{type}"
     EVENTS << "update_annotation_#{type}"
@@ -83,20 +83,22 @@ class TeamBot < ActiveRecord::Base
       Team.current = current_team
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
-      Rails.logger.error("[Bot Garden] Error performing GraphQL query: #{e.message}")
+      Rails.logger.error("[TeamBot] Error performing GraphQL query: #{e.message}")
+      Airbrake.notify(e) if Airbrake.configuration.api_key
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
-  end
-
-  def core?
-    host = self.request_url.to_s.match(/^https?:\/\/[^\/]+/)
-    !host.nil? && host[0] == CONFIG['checkdesk_base_url_private']
   end
 
   def call(data)
     if self.core?
       User.current = self.bot_user
-      TeamBot.call_core_bot(self.identifier, data)
+      bot = BOT_NAME_TO_CLASS[self.identifier.to_sym]
+      begin
+        bot.run(data.with_indifferent_access) unless bot.blank?
+      rescue StandardError => e
+        Rails.logger.error("[TeamBot] Error calling bot #{self.identifier}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
+      end
       User.current = nil
     else
       begin
@@ -108,7 +110,8 @@ class TeamBot < ActiveRecord::Base
         request.body = data.to_json
         http.request(request)
       rescue StandardError => e
-        Rails.logger.error("[Bots] Error calling bot #{self.id}: #{e.message}")
+        Rails.logger.error("[TeamBot] Error calling bot #{self.identifier}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
       end
     end
   end
@@ -146,6 +149,16 @@ class TeamBot < ActiveRecord::Base
   def installation
     current_team = User.current ? (Team.current || User.current.current_team) : nil
     TeamBotInstallation.where(team_id: current_team.id, team_bot_id: self.id).last unless current_team.nil?
+  end
+
+  def settings_ui_schema
+    return nil if self.settings.blank?
+    schema = {}
+    self.settings.each do |setting|
+      s = setting.with_indifferent_access
+      schema[s[:name]] = { 'ui:widget' => 'textarea' } if s[:name] =~ /^smooch_message_/
+    end
+    schema.to_json
   end
 
   def settings_as_json_schema
@@ -200,15 +213,17 @@ class TeamBot < ActiveRecord::Base
     end
   end
 
-  def self.call_core_bot(id, data = {})
-    bot_name_to_class = {
-      keep: Bot::Keep,
-      smooch: Bot::Smooch,
-      alegre: Bot::Alegre
-    }
+  # FIXME This should go away when we merge BotUser, TeamBot, and the various Bot::XXX models.
+  BOT_NAME_TO_CLASS = {
+    keep: Bot::Keep,
+    smooch: Bot::Smooch,
+    alegre: Bot::Alegre
+  }
 
-    bot = bot_name_to_class[id.to_sym]
-    bot.run(data.to_json) unless bot.blank?
+  # FIXME Convert this to an overridden method that returns false in the base class
+  # and true for derived, core bots.
+  def core?
+    return !BOT_NAME_TO_CLASS[self.identifier.to_sym].blank?
   end
 
   private

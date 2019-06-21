@@ -14,16 +14,16 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     begin
       duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
       user = resource
-      if duplicate_user.nil?
-        resource.last_accepted_terms_at = Time.now
-        resource.save!
-      else
+      if !duplicate_user.nil? && duplicate_user.invited_to_sign_up?
         duplicate_user.accept_invitation_or_confirm
         duplicate_user.password = resource.password
         duplicate_user.encrypted_password = resource.encrypted_password
         duplicate_user.last_accepted_terms_at = Time.now
         duplicate_user.save!
         user = duplicate_user
+      else
+        resource.last_accepted_terms_at = Time.now
+        resource.save!
       end
       User.current = user
       sign_up(resource_name, user)

@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   test "should create field" do
-    assert_difference 'DynamicAnnotation::Field.count' do
+    assert_nothing_raised do
       create_field
     end
   end
@@ -186,6 +186,20 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_field(field_name: 'team_bot_response_formatted_data', value: 'Not a JSON')
     end
+  end
+
+  test "should query by JSON key" do
+    json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
+    begin create_field_instance(name: 'metadata', field_type_object: json) rescue nil end
+    p1 = random_string
+    p2 = random_string
+    create_field field_name: 'metadata', value: { provider: p1, external_id: 10 }.to_json
+    create_field field_name: 'metadata', value: { provider: p2, external_id: 20 }.to_json
+    create_field field_name: 'metadata', value: { provider: p2, external_id: 30 }.to_json
+    assert_equal 2, DynamicAnnotation::Field.find_in_json({ provider: p2 }).count
+    assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p1 }).count
+    assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p2, external_id: 20 }).count
+    assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p2, external_id: 30 }).count
   end
 
   protected

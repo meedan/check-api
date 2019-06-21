@@ -1,8 +1,7 @@
 class Bot::Keep
   def self.run(body)
-    json = JSON.parse(body)
-    pm = ProjectMedia.where(id: json['data']['dbid']).last
-    user = User.where(id: json['user_id']).last
+    pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
+    user = User.where(id: body.dig(:user_id)).last
     if pm.present? && user.present?
       User.current = user
       pm.create_all_archive_annotations
@@ -59,19 +58,19 @@ class Bot::Keep
       type = Bot::Keep.archiver_to_annotation_type(payload['type'])
       unless link.nil?
         response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
-        em = link.pender_embed
-        data = JSON.parse(em.data['embed'])
+        m = link.metadata_annotation
+        data = JSON.parse(m.get_field_value('metadata_value'))
         data['archives'] ||= {}
         data['archives'][payload['type']] = response
         response.each { |key, value| data[key] = value }
-        em.embed = data.to_json
-        em.save!
+        m.set_fields = { metadata_value: data.to_json }.to_json
+        m.save!
 
         ProjectMedia.where(media_id: link.id).each do |pm|
           next if Bot::Keep.should_skip_project_media?(pm)
-          
+
           annotation = pm.annotations.where(annotation_type: type).last
-          
+
           unless annotation.nil?
             annotation = annotation.load
             annotation.skip_check_ability = true
@@ -105,12 +104,7 @@ class Bot::Keep
     def create_archive_annotation(type)
       return if self.should_skip_create_archive_annotation?(type)
 
-      data = nil
-      begin
-        data = JSON.parse(self.media.pender_embed.data['embed'])
-      rescue
-        data = self.media.pender_data
-      end
+      data = begin JSON.parse(self.media.metadata_annotation.get_field_value('metadata_value')) rescue self.media.pender_data end
 
       return unless data.has_key?('archives')
 

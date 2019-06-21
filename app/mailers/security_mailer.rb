@@ -14,7 +14,7 @@ class SecurityMailer < ApplicationMailer
   	email = user.email
   	@user_agent = UserAgent.parse(activity.user_agent)
     @location = address.compact.join(', ')
-  	@timestamp = activity.created_at.strftime('%A, %d %B %Y %I:%M %p %Z')
+  	@timestamp = activity.created_at
   	@ip = activity.ip
     @platform = @user_agent.os.split.first
   	subject = I18n.t("mail_security.#{type}_subject",

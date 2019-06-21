@@ -1,4 +1,4 @@
-<%= I18n.t("mail_security.greeting", username: @user.name) %>
+<%= I18n.t("mails_notifications.greeting", username: @user.name) %>
 =======================================================
 <%= I18n.t("mail_security.#{@type}", browser: @user_agent.browser, platform: @platform, location: @location) %>
 =======================================================
@@ -6,7 +6,7 @@
 <%= I18n.t("mail_security.#{@type}_text", app_name: CONFIG['app_name'], change_password: t("mail_security.password_text")) %>
 <%= "#{CONFIG['checkdesk_client']}/check/user/password-reset" %>
 
-<%= I18n.t("mail_security.time_h").upcase %> (<%= @timestamp %>)
+<%= I18n.t("mail_security.time_h").upcase %> (<%= I18n.l @timestamp, format: :email %>)
 <%= I18n.t("mail_security.device_h").upcase %> (<%= I18n.t("mail_security.devise_name", browser: @user_agent.browser, platform: @platform) %>)
 <%= I18n.t("mail_security.location_h").upcase %> (<%= @location %>)
 <%= I18n.t("mail_security.location_disclaimer") %>
@@ -22,5 +22,5 @@
 
 ...
 
-<%= strip_tags I18n.t("mail_security.copyright_html", app_name: CONFIG['app_name']) %>
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
 https://meedan.com

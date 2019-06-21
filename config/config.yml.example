@@ -60,8 +60,10 @@ development: &default
   google_credentials_path: '/path/to/credentials.json'
   bitly_key: 'bitly-key'
   failed_attempts: 4
+  vframe_host: http://vframe:5000
   google_client_id:
   google_client_secret:
+  google_auth_redirect_uri:
 
 test:
   <<: *default
@@ -74,6 +76,7 @@ test:
   checkdesk_base_url: http://api.test:13000
   elasticsearch_log: false
   bridge_reader_url_private: http://reader.test:13400
+  vframe_host: http://vframe.test:5000
 
 production:
   <<: *default

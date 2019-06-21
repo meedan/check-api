@@ -156,11 +156,6 @@ fr:
   invalid_id_for_custom_translation_status: L'identifiant de statut est requis et il accepte uniquement les lettres, les chiffres, les tirets et les underscores
   invalid_statuses_format_for_custom_translation_status: 'Les statuts de traduction personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant, description, style et indicateur d''état final.'
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
-  mail_request_to_join: "%{user} demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  approved: acceptée !
-  rejected: rejetée
-  mail_request_to_join_processed: Votre requête pour vous joindre à %{team} sur %{app_name} est %{status}
-  mail_new_account: Votre nouveau compte sur %{app_name}
   slack:
     fields:
       assigned: Affecté à
@@ -203,15 +198,8 @@ fr:
       user_banned: "%{user} a été banni de l'équipe %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name} ! Veuillez confirmer votre e-mail en cliquant ce lien :'
-  mail_view_joined: Votre requête de vous joindre à %{team} a été acceptée ! Visitez %{url} pour commencer à contribuer.
-  mail_view_rejected_to_join: Désolé, votre requête de vous joindre à %{team} n'a pas été approuvée.
-  mail_view_request_to_join: "%{user} (%{handle}) demande à se joindre à l'équipe %{team} sur %{app_name} !"
-  mail_view_process_request: 'Pour traiter cette requête, veuillez vous connecter et visiter :'
-  pender_could_not_parse: Ce n'était pas possible d'analyser ce média
-  mail_duplicate_email_exists: Votre connexion à %{app_name}
-  mail_duplicate_email_exists_body: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_body_both_emails: "<p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p> <p>— L'équipe %{app_name}</p>"
-  mail_duplicate_email_exists_email: e-mail
+  mail_confirm_button: 'Confirmer mon compte'
+  pender_could_not_parse: Il n'a pas été possible d'analyser ce média
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
     actions:
@@ -235,7 +223,6 @@ fr:
           html: Une fois prête, la copie de l'équipe sera disponible à <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: L'équipe %{team} est en cours de suppression
-  reset_password_instructions: "Instructions pour réinitialiser le mot de passe sur %{app_name}"
   email_not_found: Courriel introuvable
   slack_channel_format_wrong: Canal Slack non valide
   translation_status_not_valid: Statut non valide
@@ -304,15 +291,21 @@ fr:
   devise:
     mailer:
       reset_password_instructions:
-        instruction: 'Quelqu''un a demandé un lien pour changer votre mot de passe : veuillez le trouver ci-dessous. <strong>Notez que ce lien expire dans %{expire} heures.</strong>'
+        subject: "Instructions pour réinitialiser le mot de passe de %{app_name}"
+        header_title: Demande de réinitialisation du mot de passe
+        header_text: "Nous avons bien reçu votre demande de réinitialiser votre mot de passe sur %{app_name}."
+        action: Réinitialiser votre mot de passe
+        expiry: Cette demande va expirer dans %{expire} heures.
+        instruction_1: Cliquez ici pour une nouvelle demande.
+        instruction_2: Si vous n'avez pas envoyé cette demande, ou que vous ayez de la difficulté à réinitialiser votre mot de passe, veuillez nous contacter à %{support_email}.
       invitation_instructions:
         subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
         hello: 'Bonjour %{name} '
         someone_invited_you_default:
-          html: "%{name} vous a invité à rejoindre l'équipe %{team}."
+          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}."
         someone_invited_you_custom:
-          html: "%{name} vous a invité à rejoindre l'équipe %{team} avec ce mot :"
-        accept: 'Vous pouvez accepter l''invitation via ce lien : %{url}'
+          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}, disant : "
+        accept: 'Accepter l''invitation'
         accept_until: Cette invitation va expirer le %{due_date}.
         ignore: Si vous ne voulez pas accepter l'invitation, veuillez ignorer ce message.
         app_team: "Équipe %{app}"
@@ -327,55 +320,134 @@ fr:
   error_user_is_not_a_team_member: Désolé, vous ne pouvez assigner des tâches qu'à des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà ce compte
   mail_see_it: 'Vous pouvez le/la visionner à :'
-  mail_subject_assign_verification_status: "[%{team} - %{project}] Un élément vous a été affecté"
-  mail_subject_unassign_verification_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
-  mail_subject_assign_translation_status: "[%{team} - %{project}] Un élément vous a été affecté"
-  mail_subject_unassign_translation_status: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
-  mail_subject_assign_task: "[%{team} - %{project}] Une tâche vous a été affectée"
-  mail_subject_unassign_task: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
-  mail_subject_update_status: "[%{team} - %{project}] Un média a été marqué comme %{status}"
-  mail_assign_verification_status: "%{author} vous a affecté un élément intitulé "
-  mail_unassign_verification_status: "%{author} a annulé votre affectation à l'élément intitulé "
-  mail_assign_translation_status: "%{author} vous a affecté un élément intitulé "
-  mail_unassign_translation_status: "%{author} a annulé votre affectation à l'élément intitulé "
-  mail_assign_task: '%{author} vous a affecté la tâche "%{task}" dans l''élément intitulé '
-  mail_unassign_task: '%{author} a annulé votre affectation à la tâche "%{task}" pour l''élément intitulé '
-  mail_update_status: '%{author} a fixé le statut de "%{title}" à %{status}.'
-  mail_assign_project: "%{author} vous a affecté le projet intitulé "
-  mail_unassign_project: "%{author} a annulé votre affectation au projet intitulé "
-  mail_subject_assign_project: "[%{team} - %{project}] Un projet vous a été affecté"
-  mail_subject_unassign_project: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
-  mail_subject_delete_user: "[%{team}] Un compte a été supprimé"
-  mail_body_delete_user: Un compte d'utilisateur a été supprimé; les éléments associés ont été rattachés à l'usager anonyme %{id}
+  mails_notifications:
+    greeting: Bonjour %{username},
+    greeting_anonymous: Bonjour,
+    project_view: Ouvrir le projet
+    unsubscribe: Se désabonner
+    unsubscribe_link: "%{unsubscribe} de ces notifications"
+    copyright_html: '%{app_name} par <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: Votre nouveau compte sur %{app_name}
+      header_text: |-
+          Votre inscription à %{app_name} est complète !
+          <br>
+          Pour vous connecter, suivez ce lien: %{url}. Utilisez votre courriel et le mot de passe suivant : %{password}
+      login_button: "Se connecter à %{app_name}"
+      footer_text: Merci de nous rejoindre et bonne journée !
+    duplicated:
+      subject: Votre connexion à %{app_name}
+      header_title: Compte déjà existant
+      one_email: |-
+          <p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de vous connecter via un compte %{user_provider} lié à l'adresse %{user_email}. Mais cette adresse est déjà associée à votre compte %{app_name} via %{duplicate_provider}.</p> <p>Quoi faire ? Connectez-vous à %{app_name} via %{duplicate_provider}.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p>
+      both_emails: |-
+          <p>Bonjour, ceci est un rappel pour vous aider à vous connecter à %{app_name}.</p> <p>En bref : Vous avez tenté de créer un nouveau compte %{app_name}, mais votre compte existe déjà.</p> <p>Au lieu de créer un nouveau compte, vous pouvez simplement vous connecter avec votre courriel et mot de passe.</p> <p>Vous serez alors connecté au même compte que vous aviez déjà mis en place. Pour plus d'infos, contactez-nous à %{support_email}. </p>
+      email: e-mail
+    invitation:
+      title: Nouvelle invitation
+    delete_user:
+      subject: "[%{team}] Un compte a été supprimé"
+      header_title: Compte supprimé
+      header_text: Un compte d'utilisateur a été supprimé; les éléments associés ont été attribués à l'usager anonyme %{anonymous} id %{id}
+      anonymous: anonyme
+    admin_mailer:
+      team_download_subject: "[%{team} - %{project}] Instantané des données de l'équipe est prêt au téléchargement"
+      team_dump_title: Données de l'équipe
+      types:
+        dump: 'instantané des données'
+        csv: 'rapport'
+        images: 'archive d''images'
+      team_dump_text: "Vous avez demandé un instantané des données de l'équipe %{team} - voici le lien de téléchargement : %{link}"
+      team_dump_button: Télécharger les données de l'équipe
+      decompress_text: "Le %{type} sera téléchargé en format compressé et chiffré. Pour le décompresser, utilisez le mot-clé %{password}."
+      expire_note: "Notez que ce lien va expirer dans %{days} jours."
+      project_export_csv_subject: "[%{team} - %{project}] Rapport du projet est prêt au téléchargement"
+      project_export_images_subject: "[%{team} - %{project}] Archive des images du projet est prête au téléchargement"
+      project_export_title: Données de projet
+      project_export_button: Télécharger les données de projet
+      project_export_csv_text: "Vous avez demandé un rapport du projet %{project} - voici le lien de téléchargement : %{link}"
+      project_export_images_text: "Vous avez demandé une archive des images du projet %{project} - voici le lien de téléchargement : %{link}"
+      team_import_subject: Le processus d'importation de données a terminé
+      team_import_title: Importation de données
+      team_import_text: "<p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p> <p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p>"
+    task_resolved:
+      subject: "[%{team} - %{project}] Une tâche a été répondue"
+      header_title: Tâches répondues
+      header_text: "%{author} a répondu à une tâche du projet %{project} dans %{team}."
+      section_title: Qui ou quelle est la source de la déclaration ?
+      status: Statut
+      media_h: Média
+    media_status:
+      label: média
+      subject: "[%{team} - %{project}] Un élément a été marqué comme %{status}"
+      header_title: Statut mis à jour
+      header_text: "%{author} a modifié un élément du projet %{project} dans %{team}."
+      section_title: Marqué comme %{status}.
+      added_to: Ajouté à %{app_name}
+      update_h: Dernière mise à jour
+      tasks_h: Tâches complétées
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] Une tâche vous a été affectée"
+      unassign_task_subject: "[%{team} - %{project}] Votre affectation à une tâche a été annulée"
+      assign_project_subject: "[%{team} - %{project}] Un projet vous a été affecté"
+      unassign_project_subject: "[%{team} - %{project}] Votre affectation à un projet a été annulée"
+      assign_media_subject: "[%{team} - %{project}] Un élément vous a été affecté"
+      unassign_media_subject: "[%{team} - %{project}] Votre affectation à un élément a été annulée"
+      assign_project_title: Projet affecté
+      unassign_project_title: Affectation de projet annulée
+      assign_project_text: "%{author} a affecté le projet %{project} dans %{team}."
+      unassign_project_text: "%{author} a annulé l'affectation du projet %{project} dans %{team}."
+      assign_task_title: Tâche affectée
+      unassign_task_title: Affectation de tâche annulée
+      assign_task_text: "%{author} a affecté une tâche du projet %{project} dans %{team}."
+      unassign_task_text: "%{author} a annulé l'affectation d'une tâche du projet %{project} dans %{team}."
+      assign_media_title: Élément affecté
+      unassign_media_title: Affectation d'élément annulée
+      assign_media_text: "%{author} a affecté un élément du projet %{project} dans %{team}."
+      unassign_media_text: "%{author} a annulé l'affectation d'un élément du projet %{project} dans %{team}."
+      assign_log: "%{author} a affecté un.e %{model} à %{username}"
+      unassign_log: "%{author} a annulé l'affectation d'un.e %{model} à %{username}"
+      assign_by: Affecté par
+      unassign_by: Affectation annulée par
+      project_button: Ouvrir la page du projet
+    request_to_join:
+      subject: "Demander à joindre %{team}"
+      team_page: page de l'équipe
+      team_button: Ouvrir la page de l'équipe
+      rejected_subject: Votre demande de vous joindre à %{team} n'a pas été approuvée
+      approved_subject: Bienvenue sur %{team}
+      request_title: "Demander à joindre %{team}"
+      request_text: "%{name} (%{email}) demande à se joindre à %{team} sur %{app_name}. Vous pouvez traiter cette demande à %{url}."
+      approved_title: Bienvenue sur l'équipe %{team}
+      approved_text: "Votre demande de vous joindre à %{team} sur %{app_name} a été acceptée ! Vous pouvez maintenant ouvrir %{url} pour commencer à contribuer."
+      rejected_title: Demande refusée
+      rejected_text: "Désolé, votre demande de vous joindre à %{team} sur %{app_name} n'a pas été approuvée."
   mail_security:
-    device_subject: "Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}"
-    ip_subject: "Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle"
-    failed_subject: "Alerte de sécurité : Tentatives de connexion échouées à %{app_name} "
-    greeting: "Bonjour %{username},"
-    ip: "Vous vous êtes connecté.e de %{location}"
-    device: "Vous vous êtes connecté.e à partir de %{browser} sur %{platform}"
+    device_subject: 'Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}'
+    ip_subject: 'Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle'
+    failed_subject: 'Alerte de sécurité : Tentatives de connexion échouées à %{app_name} '
+    ip: Vous vous êtes connecté.e de %{location}
+    device: Vous vous êtes connecté.e à partir de %{browser} sur %{platform}
     devise_name: "%{browser} sur %{platform}"
-    failed: "Tentatives de connexion échouées détectées"
-    password_text: "réinitialiser votre mot de passe immédiatement."
-    device_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel appareil. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    ip_text: "Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel emplacement. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    failed_text: "Il semble que plusieurs tentatives de connexion à votre compte sur %{app_name} aient été effectuées. Si c'était vous, vous pouvez ignorer ce message. Si ce n'était pas vous, alors vous devriez %{change_password}"
-    time_h: "Date et heure"
-    device_h: "Appareil"
-    location_h: "Emplacement"
+    failed: Tentatives de connexion échouées détectées
+    password_text: réinitialiser votre mot de passe immédiatement.
+    device_text: Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel appareil. Si ce n'était pas vous, alors vous devriez %{change_password}
+    ip_text: Il semble que vous vous soyez connecté.e à votre compte %{app_name} à partir d'un nouvel emplacement. Si ce n'était pas vous, alors vous devriez %{change_password}
+    failed_text: Il semble que plusieurs tentatives de connexion à votre compte sur %{app_name} aient été effectuées. Si c'était vous, vous pouvez ignorer ce message. Si ce n'était pas vous, alors vous devriez %{change_password}
+    time_h: Date et heure
+    device_h: Appareil
+    location_h: Emplacement
     location_disclaimer: "* L'emplacement est approximatif en fonction de l'adresse IP d'origine."
-    ip_h: "Adresse IP"
+    ip_h: Adresse IP
     privacy: "%{manage} vos notifications par e-mail • En savoir plus sur notre %{privacy}"
-    privacy_text: 'politique de confidentialité'
-    manage_text: 'Gérer'
-    privace_manage_plain: "Gérer vos notifications par e-mail"
-    privacy_plain: "En savoir plus sur notre politique de confidentialité "
-    copyright_html: "%{app_name} par <a href=\"https://meedan.com\">Meedan</a>"
+    privacy_text: politique de confidentialité
+    manage_text: Gérer
+    privace_manage_plain: Gérer vos notifications par e-mail
+    privacy_plain: 'En savoir plus sur notre politique de confidentialité '
   archive_keep_backup: Video Vault
   archive_pender_archive: copies d'écran de Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  project_export_email_title_csv: Votre rapport de projet est prêt à télécharger
   workflow_status_not_valid: Statut non valide
   workflow_status_permission_error: Désolé, vous n'êtes pas autorisé à modifier ce statut.
   blank_default_status_for_custom_translation_status: Veuillez fournir une valeur de défaut pour les statuts de traduction personnalisés
@@ -389,60 +461,36 @@ fr:
   only_admins_can_approve_bots: Désolé, seuls les administrateurs système peuvent approuver les bots.
   could_not_save_related_bot_data: Désolé, il n'a pas été possible d'ajouter le bot à cette équipe
   bot_limited_team_not_pro: Désolé, ce bot n'est pas disponible à votre équipe
-  slack_save_task_comment: "*%{user}* a rajouté une note à la tâche *%{task}* pour %{url} dans *%{project}* : %{comment}"
   bot_cant_add_response_to_task: Désolé, un bot n'est pas autorisé à répondre directement à une tâche. Il faut plutôt soumettre une suggestion de réponse
   bot_cant_add_review_to_task: Désolé, les bots ne sont pas autorisés à réviser les tâches.
   task_suggestion_invalid_value: La suggestion de réponse n'est pas correctement formulée.
   tag_text_id_not_found: Désolé, il n'existe pas de tag avec l'identifiant fourni
   annotation_type_language_label: Langage
   smooch_bot_message_confirmed: |-
-      Merci. Votre contribution nous aidera à rechercher la propagation de la désinformation sur WhatsApp durant ces élections.
+      Merci. Votre demande a été ajoutée à notre file de vérification.
 
-      Cet élément a aussi été ajouté à notre file de vérification. Nous tenterons de vous donner une réponse dans les 24 heures, mais notez que nous ne pouvons pas répondre à chaque demande.
-  smooch_bot_message_unconfirmed: Comme vous n'avez pas répondu par 1, nous ne traiterons plus votre message. Merci.
-  smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas encore ce type de message en charge pour la vérification.
+      Nous tenterons de vous envoyer un rapport dans les prochaines 24 heures, mais notez que nous ne pouvons pas répondre à chaque demande.
+  smooch_bot_message_unconfirmed: Comme vous n'avez pas répondu par 1, nous ne traiterons plus votre demande. Merci.
+  smooch_bot_message_type_unsupported: Désolé, nous ne prenons pas ce type de message en charge pour la vérification au temps actuel.
   smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
   smooch_bot_result: |-
-      [Rapport de vérification] Le message que vous nous avez envoyé est marqué comme *%{status}*.
+      [Rapport de vérification] L'élément que vous nous avez envoyé est marqué comme *%{status}*.
 
       Voici les étapes que nous avons suivies pour arriver à cette conclusion: %{url}
   smooch_bot_ask_for_confirmation: |-
-      Merci de nous envoyer ce message.
+      Merci de nous envoyer cette demande. Voulez-vous que nous vérifiions son contenu ?
 
-      Suspectez-vous que ce soit une fausse information liée aux Élections législatives indiennes de 2019 ?
+      Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
+  smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci pour votre patience.
+  smooch_bot_not_final: |-
+      [Rapport de vérification - CORRECTION] L'élément que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*.
 
-      Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à cette requête.
-  smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons pas encore été en mesure de vérifier votre demande. Merci de nous l'avoir soumise. Si vous avez une autre demande à nous soumettre, n'hésitez pas à le faire.
-  smooch_bot_not_final: '[Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*. Il est encore dans notre file pour davantage de vérification.'
+      Il est encore dans notre file pour davantage de vérification.
+  smooch_bot_disabled: Merci pour votre message. Nous ne sommes plus en mesure de répondre aux demandes de vérification, car ce projet est maintenant hors service.
   smooch_bot_result_changed: |-
       [Rapport de vérification - CORRECTION] Le message que vous nous avez envoyé a changé de *%{previous_status}* à *%{status}*.
 
       Voici les étapes que nous avons suivies pour arriver à cette conclusion: %{url}
-  project_export_download_mail_csv: |-
-      Bonjour !
-
-      Vous avez demandé un rapport du projet %{project} - voici le lien pour le télécharger : %{link}
-
-      Le rapport sera téléchargé sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.
-
-      Veuillez noter que le lien ci-dessus expirera dans %{days} jours.
-
-      Amicalement,
-
-      L'équipe %{app}
-  project_export_email_title_images: Les images de votre projet sont prêtes à télécharger
-  project_export_download_mail_images: |-
-      Bonjour !
-
-      Vous avez demandé à télécharger les images du projet %{project} - voici le lien : %{link}
-
-      Les images seront téléchargées sous forme de fichier compressé et chiffré. Pour le décompresser, utilisez le mot de passe %{password}.
-
-      Veuillez noter que le lien ci-dessus expirera dans %{days} jours.
-
-      Amicalement,
-
-      L'équipe %{app}
   permissions_info:
     roles:
       owner:
@@ -510,19 +558,6 @@ fr:
     blank_project: Projet vide non valide
     invalid_annotator: Annotateur non valide %{user}
     invalid_assignee: Membre affecté non valide %{user}
-  mail_subject_assignments_ready: "[%{team} - %{project}] La mise à jour des affectations est terminée"
-  mail_body_assignments_ready_assign: |-
-      Bonjour %{username},
-      Le processus de mise à jour des affectations a terminé avec succès.
-      Le projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches ont été affectés à %{assignee}.
-      — L'équipe %{app_name}
-  mail_body_assignments_ready_unassign: |-
-      Bonjour %{username} ,
-      Le processus de mise à jour des affectations a terminé avec succès.
-      L'affectation du projet %{project_title} (%{project_url}) ainsi que ses éléments et tâches à %{assignee} a été annulée.
-      — L'équipe %{app_name}
-  team_import_completed_subject: Le processus d'importation de données a terminé
-  team_import_completed_mail: "<p>Bonjour,</p><p>Le processus d'importation de données que vous avez lancé sur %{app_name} a terminé. Ouvrez %{worksheet_url} pour revoir l'état de chaque élément à importer.</p><p>Notez que vous pourrez relancer l'importation une fois que les erreurs seront résolues. Les éléments déjà importés ne seront pas dupliqués.</p><p>— L'équipe %{app_name}</p>"
   pender_url_invalid: Lien non valide.
   pender_url_unsafe: Lien non sécurisé.
   verification_status_deadline: Échéance
@@ -539,3 +574,6 @@ fr:
   smooch_requests: Demandes
   smooch_requests_asc: Moins demandés
   smooch_requests_desc: Plus demandés
+  smooch_bot_ask_for_confirmation_checkpoint: Ceci est un message personnalisé pour demander une confirmation avec "1".
+  smooch_bot_message_confirmed_checkpoint: Ceci est un message personnalisé pour indiquer que la demande a été reçue.
+  smooch_bot_message_unconfirmed_checkpoint: Ceci est un message personnalisé pour indiquer que la demande a été ignorée.
