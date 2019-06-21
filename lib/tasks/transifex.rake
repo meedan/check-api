@@ -37,7 +37,6 @@ namespace :transifex do
     begin
       resource = project.resource('api')
       @langs.each do |lang|
-        next if lang == 'en'
         translation = resource.translation(lang).fetch['content']
         path = File.join(Rails.root, 'config', 'locales', "#{lang}.yml")
         file = File.open(path, 'w+')

@@ -87,7 +87,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read accounts" do
     assert_graphql_read('account', 'url')
-    assert_graphql_read('account', 'embed')
+    assert_graphql_read('account', 'metadata')
   end
 
   test "should read account sources" do
@@ -194,7 +194,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
   end
 
-  test "should read project media embed" do
+  test "should read project media metadata" do
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team
@@ -207,22 +207,22 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m
     # Update media title and description with context p
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.embed = info
+    pm1.metadata = info
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.embed= info
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { embed } }"
+    pm2.metadata = info
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    embed = JSON.parse(@response.body)['data']['project_media']['embed']
-    assert_equal 'Title A', embed['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { embed, media { embed } } }"
+    metadata = JSON.parse(@response.body)['data']['project_media']['metadata']
+    assert_equal 'Title A', metadata['title']
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata, media { metadata } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal 'Title B', data['embed']['title']
-    # original embed
-    assert_equal 'test media', data['media']['embed']['title']
+    assert_equal 'Title B', data['metadata']['title']
+    # original metadata
+    assert_equal 'test media', data['media']['metadata']['title']
   end
 
   test "should read project media overridden" do
@@ -236,7 +236,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, media: m
     # Update media title and description
     info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm.embed = info
+    pm.metadata = info
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -871,7 +871,7 @@ class GraphqlControllerTest < ActionController::TestCase
       post :create, query: query, file: file
     end
     assert_response :success
-    data = JSON.parse(Annotation.last.content)
+    data = JSON.parse(Annotation.where(annotation_type: 'comment').last.content)
     assert_match /\.png$/, data['embed']
     assert_match /\.png$/, data['thumbnail']
   end
@@ -1033,6 +1033,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get field value and dynamic annotation(s)" do
     [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     ft1 = create_field_type(field_type: 'select', label: 'Select')
     ft2 = create_field_type(field_type: 'text', label: 'Text')
     at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
@@ -1123,7 +1124,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1140,7 +1141,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,embed,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 

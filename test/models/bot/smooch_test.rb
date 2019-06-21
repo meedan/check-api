@@ -32,6 +32,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
     ]
+    {
+      'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_result_changed' => 'Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_ask_for_confirmation' => 'Message that asks the user to confirm the request to verify an item... should mention that the user needs to sent "1" to confirm',
+      'smooch_bot_message_confirmed' => 'Message that confirms to the user that the request is in the queue to be verified',
+      'smooch_bot_message_type_unsupported' => 'Message that informs the user that the type of message is not supported (for example, audio and video)',
+      'smooch_bot_message_unconfirmed' => 'Message sent when the user does not send "1" to confirm a request',
+      'smooch_bot_not_final' => 'Message when an item was wrongly marked as final, but that status is reverted (placeholder: %{status} (previous final status))',
+      'smooch_bot_meme' => 'Message sent along with a meme (placeholder: %{url} (public URL to verification results))',
+    }.each do |name, label|
+      settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
+    end
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:put, 'https://www.transifex.com/api/2/project/check-2/resource/api/content').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
     @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
@@ -656,7 +671,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       s.status = 'in_progress'
       s.save!
       I18n.expects(:t).with do |first_arg, second_arg|
-        [:smooch_bot_result, :mail_subject_update_status, :error_project_archived].include?(first_arg)
+        [:smooch_bot_result, 'mails_notifications.media_status.subject', :error_project_archived].include?(first_arg)
       end.at_least_once
       I18n.stubs(:t)
       I18n.expects(:t).with('statuses.media.verified.label', { locale: 'en' }).once
@@ -932,6 +947,98 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
     end
+  end
+
+  test "should send strings to Transifex" do
+    t = create_team
+    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+      s = tbi.settings.clone
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      tbi.settings = s
+      assert_nothing_raised do
+        tbi.save!
+      end
+      TeamBotInstallation.stubs(:upload_smooch_strings_to_transifex).raises(StandardError)
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      tbi.settings = s
+      assert_raises StandardError do
+        tbi.save!
+      end
+      TeamBotInstallation.unstub(:upload_smooch_strings_to_transifex)
+    end
+  end
+
+  test "should get message string" do
+    slug = random_string.downcase
+    c1 = 'Here is your meme'
+    c2 = 'Aqui está o seu meme'
+    t = create_team slug: slug
+    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    RequestStore.store[:smooch_bot_settings] = tbi.settings.with_indifferent_access.merge({ team_id: t.id })
+    k = 'smooch_bot_meme'
+    assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
+    assert_equal I18n.t(k, locale: 'pt'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
+    assert_equal c1, Bot::Smooch.i18n_t(k)
+    assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    I18n.stubs(:exists?).with("#{k}_#{slug}").returns(true)
+    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, {}).returns(c1)
+    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
+    assert_equal c1, Bot::Smooch.i18n_t(k)
+    assert_equal c2, Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
+  end
+
+  test "should not accept new requests if bot is disabled" do
+    u = create_user is_admin: true
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    
+    ProjectMedia.delete_all
+    
+    s = @installation.settings.clone.with_indifferent_access
+    s['smooch_disabled'] = true
+    @installation.settings = s
+    @installation.save!
+    @installation = TeamBotInstallation.find(@installation.id)
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    Bot::Smooch.run(payload)
+    send_confirmation(uid)
+    assert_equal 0, ProjectMedia.count
+ 
+    s = @installation.settings.clone.with_indifferent_access
+    s['smooch_disabled'] = false
+    @installation.settings = s
+    @installation.save!
+    @installation = TeamBotInstallation.find(@installation.id)   
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    Bot::Smooch.run(payload)
+    send_confirmation(uid)
+    assert_equal 1, ProjectMedia.count
   end
 
   protected

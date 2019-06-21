@@ -20,7 +20,7 @@ class Account < ActiveRecord::Base
   validate :pender_result_is_a_profile, on: :create, unless: :created_on_registration?
   validates :url, uniqueness: true
 
-  after_create :set_embed_annotation, :create_source, :set_provider
+  after_create :set_metadata_annotation, :create_source, :set_provider
   after_commit :update_elasticsearch_account, on: :update
 
   serialize :omniauth_info
@@ -39,19 +39,17 @@ class Account < ActiveRecord::Base
   end
 
   def data
-    em = self.annotations('embed').last
-    data = JSON.parse(em.embed) unless em.nil?
+    m = self.annotations('metadata').last&.load
+    data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
     data || {}
   end
 
-  def embed
-    em = self.annotations('embed').last
-    embed = JSON.parse(em.data['embed']) unless em.nil?
-    embed
+  def metadata
+    self.data
   end
 
   def image
-    self.embed['picture'] || ''
+    self.metadata['picture'] || ''
   end
 
   def create_source
@@ -80,7 +78,7 @@ class Account < ActiveRecord::Base
   end
 
   def refresh_account=(_refresh)
-    self.refresh_embed_data
+    self.refresh_metadata
     self.sources.each do |s|
       s.updated_at = Time.now
       s.skip_check_ability = true
@@ -108,7 +106,7 @@ class Account < ActiveRecord::Base
 
     unless a.nil?
       a.skip_check_ability = true
-      a.pender_data = a.embed
+      a.pender_data = a.metadata
       a.source = source
       a.disable_account_source_creation = disable_account_source_creation
       a.disable_es_callbacks = disable_es_callbacks
@@ -122,15 +120,18 @@ class Account < ActiveRecord::Base
   end
 
   def set_omniauth_info_as_annotation
-    em = self.annotations('embed').last
-    if em.nil?
-      em = Embed.new
-      em.annotated = self
+    m = self.annotations('metadata').last
+    if m.nil?
+      m = Dynamic.new
+      m.annotation_type = 'metadata'
+      m.annotated = self
+    else
+      m = m.load
     end
-    em.embed_for_registration_account(self.omniauth_info)
+    m.metadata_for_registration_account(self.omniauth_info)
   end
 
-  def refresh_embed_data
+  def refresh_metadata
     if self.created_on_registration?
       self.set_omniauth_info_as_annotation
       self.update_columns(url: self.data['url']) if self.data['url']
@@ -167,7 +168,7 @@ class Account < ActiveRecord::Base
     end unless parents.blank?
   end
 
-  def set_embed_annotation
+  def set_metadata_annotation
     self.created_on_registration ? set_omniauth_info_as_annotation : set_pender_result_as_annotation
   end
 

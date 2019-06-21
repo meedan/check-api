@@ -145,3 +145,31 @@ Dynamic.class_eval do
     { bool: { should: bool } }
   end
 end
+
+ProjectMedia.class_eval do
+
+  def self.field_search_query_type_range(field, range, tzinfo)
+    timezone = ActiveSupport::TimeZone[tzinfo] if tzinfo
+    timezone = timezone ? timezone.formatted_offset : '+00:00'
+
+    {
+      range: {
+        "#{field}": {
+          gte: range[0].strftime("%Y-%m-%d %H:%M"),
+          lte: range[1].strftime("%Y-%m-%d %H:%M"),
+          format: "yyyy-MM-dd' 'HH:mm",
+          time_zone: timezone
+        }
+      }
+    }
+  end
+
+  def self.field_search_query_type_range_created_at(range, timezone)
+    self.field_search_query_type_range(:created_at, range, timezone)
+  end
+
+  def self.field_search_query_type_range_updated_at(range, timezone)
+    self.field_search_query_type_range(:updated_at, range, timezone)
+  end
+
+end

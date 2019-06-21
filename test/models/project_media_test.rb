@@ -210,7 +210,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 4, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 9, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -227,25 +227,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p1, media: m
     pm2 = create_project_media project: p2, media: m
     # fetch data (without overridden)
-    data = pm1.embed
+    data = pm1.metadata
     assert_equal 'test media', data['title']
     assert_equal 'add desc', data['description']
     # Update media title and description for pm1
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.embed= info
-    info = {title: 'Title AA', description: 'Desc AA'}.to_json
-    pm1.embed= info
+    info = { title: 'Title A', description: 'Desc A' }.to_json
+    pm1.metadata = info
+    info = { title: 'Title AA', description: 'Desc AA' }.to_json
+    pm1.metadata = info
     # Update media title and description for pm2
-    info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.embed= info
-    info = {title: 'Title BB', description: 'Desc BB'}.to_json
-    pm2.embed= info
+    info = { title: 'Title B', description: 'Desc B' }.to_json
+    pm2.metadata = info
+    info = { title: 'Title BB', description: 'Desc BB' }.to_json
+    pm2.metadata = info
     # fetch data for pm1
-    data = pm1.embed
+    data = pm1.metadata
     assert_equal 'Title AA', data['title']
     assert_equal 'Desc AA', data['description']
     # fetch data for pm2
-    data = pm2.embed
+    data = pm2.metadata
     assert_equal 'Title BB', data['title']
     assert_equal 'Desc BB', data['description']
   end
@@ -312,7 +312,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
     pm.disable_es_callbacks = true
     pm.save!
-    assert_equal 'rails.png', pm.embed['title']
+    assert_equal 'rails.png', pm.metadata['title']
   end
 
   test "should be unique" do
@@ -345,25 +345,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "org_title", "description":"org_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm = create_project_media url: url, project: p
-    attributes = pm.overridden_embed_attributes
+    attributes = pm.overridden_metadata_attributes
     attributes.each{|k| assert_not pm.overridden[k]}
-    pm.embed={title: 'title'}.to_json
+    pm.metadata = { title: 'title' }.to_json
     assert pm.overridden['title']
-    attributes = pm.overridden_embed_attributes
+    attributes = pm.overridden_metadata_attributes
     attributes.delete('title')
-    attributes.each{|k| assert_not pm.overridden[k]}
-    pm.embed={description: 'description'}.to_json
+    attributes.each{ |k| assert_not pm.overridden[k] }
+    pm.metadata = { description: 'description' }.to_json
     assert pm.overridden['description']
     attributes.delete('description')
-    attributes.each{|k| assert_not pm.overridden[k]}
-    pm.embed={username: 'username'}.to_json
+    attributes.each{ |k| assert_not pm.overridden[k] }
+    pm.metadata = { username: 'username' }.to_json
     assert pm.overridden['username']
     attributes.delete('username')
-    attributes.each{|k| assert_not pm.overridden[k]}
+    attributes.each{ |k| assert_not pm.overridden[k] }
     # Claim media
     pm = create_project_media quote: 'Claim', project: p
-    pm.embed={title: 'title', description: 'description', username: 'username'}.to_json
-    pm.overridden_embed_attributes.each{|k| assert_not pm.overridden[k]}
+    pm.metadata = { title: 'title', description: 'description', username: 'username' }.to_json
+    pm.overridden_metadata_attributes.each{ |k| assert_not pm.overridden[k] }
   end
 
   test "should create auto tasks" do
@@ -469,9 +469,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       f = create_flag annotated: pm
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
       s.status = 'In Progress'; s.save!
-      e = create_embed annotated: pm, title: 'Test'
-      info = { title: 'Foo' }.to_json; pm.embed = info; pm.save!
-      info = { title: 'Bar' }.to_json; pm.embed = info; pm.save!
+      e = create_metadata annotated: pm, title: 'Test'
+      info = { title: 'Foo' }.to_json; pm.metadata = info; pm.save!
+      info = { title: 'Bar' }.to_json; pm.metadata = info; pm.save!
       pm.project_id = p2.id; pm.save!
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
@@ -479,7 +479,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_embed", "update_embed", "update_embed", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 14, pm.get_versions_log_count
       c.destroy
       assert_equal 14, pm.get_versions_log_count
@@ -524,19 +524,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_media url: url
     pm = create_project_media media: m
     t1 = pm.updated_at.to_i
-    em1 = pm.media.pender_embed
+    em1 = pm.media.metadata_annotation
     assert_not_nil em1
-    assert_equal '1', JSON.parse(em1.data['embed'])['foo']
-    assert_equal 1, em1.refreshes_count
+    em1_data = JSON.parse(em1.get_field_value('metadata_value'))
+    assert_equal '1', em1_data['foo']
+    assert_equal 1, em1_data['refreshes_count']
     sleep 2
     pm = ProjectMedia.find(pm.id)
     pm.refresh_media = true
     pm.save!
     t2 = pm.reload.updated_at.to_i
     assert t2 > t1
-    em2 = pm.media.pender_embed
-    assert_equal '2', JSON.parse(em2.data['embed'])['foo']
-    assert_equal 2, em2.refreshes_count
+    em2 = pm.media.metadata_annotation
+    assert_not_nil em2
+    em2_data = JSON.parse(em2.get_field_value('metadata_value'))
+    assert_equal '2', em2_data['foo']
+    assert_equal 2, em2_data['refreshes_count']
     assert_equal em1, em2
   end
 
@@ -899,7 +902,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should have metadata for oEmbed" do
     pm = create_project_media
-    assert_kind_of String, pm.metadata
+    assert_kind_of String, pm.oembed_metadata
   end
 
   test "should clear caches when media is updated" do
@@ -1173,20 +1176,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media project: p, user: u1
       pm = ProjectMedia.find(pm.id)
       info = { title: 'Title' }.to_json
-      pm.embed = info
+      pm.metadata = info
       pm.save!
     end
 
     with_current_user_and_team(u2, t) do
       pm = ProjectMedia.find(pm.id)
       info = { title: 'Title' }.to_json
-      pm.embed = info
+      pm.metadata = info
       pm.save!
     end
 
     assert_nothing_raised do
-      embed = pm.get_annotations('embed').last.load
-      embed.title_is_overridden?
+      metadata = pm.get_annotations('metadata').last.load
+      metadata.title_is_overridden?
     end
   end
 
@@ -1238,7 +1241,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media media: c
     assert_nil pm.reload.description
     info = { description: 'Test 2' }.to_json
-    pm.embed = info
+    pm.metadata = info
     pm.save!
     assert_equal 'Test 2', pm.reload.description
   end
@@ -1479,7 +1482,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update media account when change author_url" do
-    u = create_user
+    u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -1774,5 +1777,35 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media media: nil, url: url
       assert_equal 12, pm.media.pender_error_code
     end
+  end
+
+  test "should get metadata" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'https://twitter.com/test/statuses/123456'
+    response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'title' => 'Media Title', 'description' => 'Media Description' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    l = create_link url: url
+    pm = create_project_media media: l
+    assert_equal 'Media Title', l.metadata['title']
+    assert_equal 'Media Description', l.metadata['description']
+    assert_equal 'Media Title', pm.metadata['title']
+    assert_equal 'Media Description', pm.metadata['description']
+    assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
+      pm.metadata = { title: 'Project Media Title', description: 'Project Media Description' }.to_json
+      pm.save!
+    end
+    l = Media.find(l.id)
+    pm = ProjectMedia.find(pm.id)
+    assert_equal 'Media Title', l.metadata['title']
+    assert_equal 'Media Description', l.metadata['description']
+    assert_equal 'Project Media Title', pm.metadata['title']
+    assert_equal 'Project Media Description', pm.metadata['description']
+  end
+
+  test "should fallback to original URL if Bit.ly raises exception" do
+    pm = create_project_media
+    Bitly.stubs(:client).raises(StandardError)
+    assert_match /medias.html/, pm.embed_url(true)
+    Bitly.unstub(:client)
   end
 end

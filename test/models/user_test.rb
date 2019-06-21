@@ -403,6 +403,7 @@ class UserTest < ActiveSupport::TestCase
       as = create_account_source account: a, source: s
       as.destroy
     end
+    User.current = Team.current = nil
     # other roles should not edit user profile
     create_team_user user: u2, team: t, role: 'journalist'
     js = u2.source
@@ -821,6 +822,8 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'owner'
     # case A (non existing user to one team)
     with_current_user_and_team(u, t) do
       members = [{role: 'contributor', email: 'test1@local.com'}]
@@ -830,8 +833,6 @@ class UserTest < ActiveSupport::TestCase
       assert_equal [iu.read_attribute(:raw_invitation_token)], iu.team_users.map(&:raw_invitation_token)
     end
     # case B (non existing user to multiple teams)
-    t2 = create_team
-    create_team_user team: t2, user: u, role: 'owner'
     u1 = User.where(email: 'test1@local.com').last
     with_current_user_and_team(u, t2) do
       members = [{role: 'contributor', email: 'test1@local.com'}]
@@ -863,6 +864,8 @@ class UserTest < ActiveSupport::TestCase
     end
     # Accept invitation for case A & Case B
     u1_token = u1.reload.read_attribute(:raw_invitation_token)
+    Team.current = nil
+    User.current = nil
     User.accept_team_invitation(u1_token, t.slug)
     assert_not u1.reload.is_invited?(t)
     assert u1.is_invited?(t2)
@@ -920,6 +923,7 @@ class UserTest < ActiveSupport::TestCase
       end
     end
     # B)for new team
+    User.current = Team.current = nil
     t2 = create_team
     create_team_user team: t2, user: u, role: 'owner'
     with_current_user_and_team(u, t2) do
@@ -960,12 +964,14 @@ class UserTest < ActiveSupport::TestCase
       members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
+    User.current = Team.current = nil
     t2 = create_team
     create_team_user team: t2, user: u, role: 'owner'
     with_current_user_and_team(u, t2) do
       members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
+    User.current = Team.current = nil
     user = User.where(email: 'test1@local.com').last
     with_current_user_and_team(u, t) do
       assert_difference 'TeamUser.count', -1 do
@@ -975,6 +981,7 @@ class UserTest < ActiveSupport::TestCase
         User.cancel_user_invitation(u2)
       end
     end
+    User.current = Team.current = nil
     with_current_user_and_team(u, t2) do
       assert_difference ['TeamUser.count', 'User.count'], -1 do
         User.cancel_user_invitation(user)
@@ -1215,6 +1222,7 @@ class UserTest < ActiveSupport::TestCase
       members = [{role: 'contributor', email: email}]
       User.send_user_invitation(members)
     end
+    Team.current = User.current = nil
     u1 = User.where(email: email).last
     assert u1.invited_to_sign_up?
     assert_equal ["invited"], u1.team_users.map(&:status)
@@ -1222,6 +1230,10 @@ class UserTest < ActiveSupport::TestCase
       create_omniauth_user email: email
     end
     assert_equal ["member"], u1.reload.team_users.map(&:status)
+    # try to register with same email
+    assert_raises ActiveRecord::RecordInvalid do
+      create_user email: email
+    end
   end
 
   test "should request to join invited team" do

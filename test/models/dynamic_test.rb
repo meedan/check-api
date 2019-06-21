@@ -298,8 +298,8 @@ class DynamicTest < ActiveSupport::TestCase
   end
 
   test "should not edit same instance concurrently" do
-    create_annotation_type annotation_type: 'metadata'
-    a = create_dynamic_annotation annotation_type: 'metadata'
+    s = create_source
+    a = create_dynamic_annotation annotation_type: 'metadata', annotated: s
     assert_equal 0, a.lock_version
     assert_nothing_raised do
       a.updated_at = Time.now + 1

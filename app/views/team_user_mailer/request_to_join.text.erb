@@ -1,4 +1,24 @@
-<%= I18n.t(:mail_view_request_to_join, user: @requestor.name, handle: @handle, team: @team.name, app_name: CONFIG['app_name']) %>
-=====================================================================
+<%= @info[:greeting] %>
 
-<%= I18n.t(:mail_view_process_request) %> <%= @url %>
+==========================================
+ <%= I18n.t("mails_notifications.request_to_join.request_title", team: @info[:team].name) %>
+==========================================
+
+<%= I18n.t("mails_notifications.request_to_join.request_text",
+			name: @info[:requestor].name,
+			email: @info[:requestor].email,
+			team: @info[:team].name,
+			app_name: CONFIG['app_name'],
+			url: @info[:url]
+		)
+ %>
+
+ ...
+
+ <%= I18n.t("mails_notifications.request_to_join.team_button") %>
+ <%= @info[:url] %>
+
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com

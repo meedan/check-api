@@ -1,14 +1,22 @@
 <%= I18n.t(:"devise.mailer.invitation_instructions.hello", name: @resource.name) %>
 
-<p><%= raw I18n.t(:"devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, team: link_to(@team.name, @url)) %></p>
+==========================================
+<%= @title %>
+==========================================
 
-
+<%= 
+	raw I18n.t("devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", 
+				name: @invited_by,
+				role: @role,
+				team: @team.name
+			) 
+	%>
 <% if @invited_text %>
 	 <%= @invited_text %>
 <% end %>
 
-
 <%= I18n.t(:"devise.mailer.invitation_instructions.accept") %>
+<%= accept_invitation_url(@resource, :invitation_token => @token, :slug => @team.slug) %>
 
 <% if @due_at %>
   <%= t("devise.mailer.invitation_instructions.accept_until", due_date: l(@due_at, format: :'devise.mailer.invitation_instructions.accept_until_format')) %>
@@ -16,4 +24,7 @@
 
 <%= t("devise.mailer.invitation_instructions.ignore") %>
 
-<%= I18n.t(:"devise.mailer.invitation_instructions.app_team", app: CONFIG['app_name']) %>
+...
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+https://meedan.com

@@ -28,19 +28,21 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team current_user: u
     p = create_project team: t
     pm = create_project_media project: p, user: u
-    # create a comment with contributor user
     cu = create_user
     create_team_user team: t, user: cu, role: 'contributor'
+    ju = create_user
+    create_team_user team: t, user: ju, role: 'journalist'
+    
+    # create a comment with contributor user
     with_current_user_and_team(cu, t) do
-      assert_difference 'Comment.count' do
+      assert_difference 'Comment.length' do
         create_comment annotated: pm, annotator: cu
       end
     end
+    
     # create a comment with journalist user
-    ju = create_user
-    create_team_user team: t, user: ju, role: 'journalist'
     with_current_user_and_team(ju, t) do
-      assert_difference 'Comment.count' do
+      assert_difference 'Comment.length' do
         create_comment annotated: pm, current_user: ju, annotator: ju
       end
     end
@@ -439,9 +441,7 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should get team for a source comment" do
     t = create_team
-    s = create_source
-    s.team_id = t.id
-    s.save!
+    s = create_source team: t 
     c = create_comment annotated: s
     assert_equal [t.id], c.get_team
   end

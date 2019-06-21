@@ -131,7 +131,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     u2 = create_user
-    assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
+    assert_difference 'MailWorker.jobs.size', 1 do
       create_team_user team: t, user: u2, status: 'requested'
     end
   end

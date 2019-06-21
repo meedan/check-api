@@ -1,0 +1,14 @@
+
+<%= @info[:description] %>
+<%= I18n.t("mails_notifications.assignment.#{@info[:event_type]}_by") %> (<%= @info[:author] %>)
+<%= I18n.t('activerecord.models.team') %> (<%= @info[:team] %>)
+
+...
+
+<%= I18n.t("mails_notifications.project_view") %>
+<%= @info[:project_url] %>
+
+<%= I18n.t("mails_notifications.unsubscribe_link", unsubscribe: I18n.t("mails_notifications.unsubscribe")) %>
+<%= "#{CONFIG['checkdesk_client']}/check/me/edit" %>
+
+...

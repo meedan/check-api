@@ -201,7 +201,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
 
   test "should create project source when account has empty data" do
     account = create_account
-    account.annotations('embed').last.destroy
+    account.annotations('metadata').last.destroy
 
     ps = ProjectSource.new user: create_user, project: create_project
     ps.disable_es_callbacks = true

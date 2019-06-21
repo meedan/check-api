@@ -59,6 +59,23 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[]) if must_unstub
   end
 
+  def setup_elasticsearch
+    @controller = Api::V1::GraphqlController.new
+    @url = 'https://www.youtube.com/user/MeedanTube'
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    User.unstub(:current)
+    Team.current = nil
+    User.current = nil
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    Rails.stubs(:env).returns('development')
+    RequestStore.store[:disable_es_callbacks] = false
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    sleep 2
+  end
+
   def stub_configs(configs, must_unstub = true)
     CONFIG.each do |k, v|
       CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)
@@ -119,6 +136,10 @@ class ActiveSupport::TestCase
     Team.current = User.current = nil
     Team.unstub(:current)
     User.unstub(:current)
+    Bitly::V3::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ short_url: "http://bit.ly/#{random_string}" }))
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
   end
 
   # This will run after any test
@@ -273,7 +294,8 @@ class ActiveSupport::TestCase
     post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal klass.count, edges.size
+    n = [Comment, Tag, Flag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
+    assert_equal n, edges.size
     edges = edges.collect{ |e| e['node'][field].to_s }
     assert edges.include?(x1.send(field).to_s)
     assert edges.include?(x2.send(field).to_s)
@@ -323,6 +345,7 @@ class ActiveSupport::TestCase
       Annotation.delete_all
       x1 = create_comment(annotated: pm).reload
       x2 = create_comment(annotated: pm).reload
+      Annotation.where("annotation_type != 'comment'").delete_all
     else
       x1 = send("create_#{type}").reload
       x2 = send("create_#{type}").reload
@@ -436,6 +459,7 @@ class ActiveSupport::TestCase
   def create_translation_status_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
     ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
     ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
