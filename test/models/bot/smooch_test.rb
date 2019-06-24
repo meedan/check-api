@@ -890,6 +890,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Bot::Smooch.convert_numbers('')
   end
 
+  test "should get is rtl lang" do
+    I18n.locale = :ar
+    assert Bot::Smooch.is_rtl_lang?
+    I18n.locale = :en
+    assert_not Bot::Smooch.is_rtl_lang?
+  end
+
   test "should support file only if image" do
     assert Bot::Smooch.supported_message?({ 'type' => 'image' })
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })
