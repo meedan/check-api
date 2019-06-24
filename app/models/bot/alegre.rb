@@ -4,20 +4,19 @@ class Bot::Alegre < ActiveRecord::Base
   validates_presence_of :name
 
   def self.run(body)
+    handled = false
     begin
-      pm = ProjectMedia.where(id: body['data']['dbid']).last
-      unless body['event'] != 'create_project_media' or pm.nil?
+      pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
+      if body.dig(:event) == 'create_project_media' && !pm.nil?
         Bot::Alegre.default.get_language(pm)
-        # Bot::Alegre.default.create_empty_mt_annotation(pm)
-        # Bot::Alegre.default.create_similarities_from_alegre(pm)
         Bot::Alegre.default.get_image_similarities(pm)
+        handled = true
       end
-      true
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event #{body['event']}: #{e.message}")
       Airbrake.notify(e) if Airbrake.configuration.api_key
-      false
     end
+    handled
   end
 
   def self.default
@@ -111,13 +110,14 @@ class Bot::Alegre < ActiveRecord::Base
     # Send image to VFRAME to get matches.
     url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
     response = { 'results' => [] }
-    Net::HTTP.start(url.host, url.port) do |http|
+    Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
         'url' => CONFIG['checkdesk_base_url_private'] + pm.media.file.url,
         'context' => self.get_context(pm).to_json,
-        'filter' => { project_id: pm.project.id }.to_json
+        'filter' => { project_id: pm.project.id }.to_json,
+        'threshold' => 1,
+        'limit' => 1
       })
-      http.use_ssl = (url.scheme == 'https')
 
       begin
         response = JSON.parse(http.request(req).body)

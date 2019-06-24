@@ -1,6 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 
-class GreendayUsersControllerTest < ActionController::TestCase
+class GreendayBaseControllerTest < ActionController::TestCase
   def setup
     super
     @controller = Ah::Api::Greenday::V1::BaseController.new

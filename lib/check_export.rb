@@ -187,7 +187,7 @@ module CheckExport
     end
 
     def remove_export_file(filepath)
-      Rails.logger.info "File #{filepath} was removed"
+      Rails.logger.info "[Data Import/Export] File #{filepath} was removed"
       FileUtils.rm_f(filepath)
     end
   end

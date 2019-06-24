@@ -307,10 +307,7 @@ class User < ActiveRecord::Base
       raise e.message
     end
     # notify team(s) owner & privacy
-    user.teams.each do |team|
-      DeleteUserMailer.send_owner_notification(user, team)
-    end
-    DeleteUserMailer.delay.notify_privacy(user) unless CONFIG['privacy_email'].blank?
+    DeleteUserMailer.send_notification(user, user.teams)
   end
 
   def self.set_assignments_progress(user_id, project_media_id)

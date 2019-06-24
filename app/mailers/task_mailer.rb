@@ -11,7 +11,6 @@ class TaskMailer < ApplicationMailer
     object = task.annotated
     project = object.project
     team = project.team
-    created_at = response.created_at
     unless author.nil?
       author_name = author.name
       role = I18n.t("role_" + author.role(object.project.team).to_s)
@@ -30,7 +29,7 @@ class TaskMailer < ApplicationMailer
       response: answer,
       media_title: object.title,
       media_url: object.full_url,
-      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
+      created_at: response.created_at,
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{task.class.name.underscore}"), app: CONFIG['app_name']
       })

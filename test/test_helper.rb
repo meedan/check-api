@@ -59,6 +59,23 @@ class ActiveSupport::TestCase
     CONFIG.unstub(:[]) if must_unstub
   end
 
+  def setup_elasticsearch
+    @controller = Api::V1::GraphqlController.new
+    @url = 'https://www.youtube.com/user/MeedanTube'
+    require 'sidekiq/testing'
+    Sidekiq::Testing.inline!
+    User.unstub(:current)
+    Team.current = nil
+    User.current = nil
+    MediaSearch.delete_index
+    MediaSearch.create_index
+    Rails.stubs(:env).returns('development')
+    RequestStore.store[:disable_es_callbacks] = false
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    sleep 2
+  end
+
   def stub_configs(configs, must_unstub = true)
     CONFIG.each do |k, v|
       CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)

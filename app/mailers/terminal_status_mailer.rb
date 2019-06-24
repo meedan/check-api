@@ -8,8 +8,6 @@ class TerminalStatusMailer < ApplicationMailer
     status = options[:status]
     project = annotated.project
     team = project.team
-    created_at = annotated.created_at
-    updated_at = annotated.updated_at
     image_path = annotated.media.type == 'UploadedImage' ? annotated.media.image_path : ''
     info = {
       team: team.name,
@@ -29,8 +27,8 @@ class TerminalStatusMailer < ApplicationMailer
       resolved_tasks: annotated.tasks_resolved_count,
       type: annotated.class.name.underscore,
       media_type: annotated.media.type.downcase,
-      created_at: created_at.strftime("%B #{created_at.day.ordinalize} %I:%M %p"),
-      updated_at: updated_at.strftime("%B #{updated_at.day.ordinalize} %I:%M %p")
+      created_at: annotated.created_at,
+      updated_at: annotated.updated_at
     }
     subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project.title, status: status)
     recipients = team.recipients(author, ['editor', 'owner'])

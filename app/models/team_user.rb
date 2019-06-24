@@ -160,14 +160,20 @@ class TeamUser < ActiveRecord::Base
 
   def send_email_to_team_owners
     return if self.is_being_copied
-    TeamUserMailer.request_to_join_notification(self.team, self.user, CONFIG['checkdesk_client']) if self.status == 'requested'
+    if self.status == 'requested'
+      options = {
+        team: self.team,
+        user: self.user
+      }
+      MailWorker.perform_in(1.second, 'TeamUserMailer', YAML::dump(options))
+    end
   end
 
   def send_email_to_requestor
     return if self.is_being_copied
     if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
-      TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted, CONFIG['checkdesk_client'])
+      TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted)
     end
   end
 
