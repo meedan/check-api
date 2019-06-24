@@ -522,6 +522,16 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal '', i.original_published_time
   end
 
+  test "should get original published time for times in all formats" do
+    l = create_media
+    time = "2017-07-10T12:10:18+03:00"
+    [time.to_time, time.to_time.to_i, time].each do |t|
+      l.stubs(:metadata).returns({'published_at' => t })
+      assert_equal Time.at(time.to_time.to_i), l.original_published_time
+      l.unstub(:metadata)
+    end
+  end
+
   test "should get media type" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
