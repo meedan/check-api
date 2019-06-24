@@ -2,12 +2,10 @@ class ApplicationMailer < ActionMailer::Base
   default from: CONFIG['default_mail']
   layout 'mailer'
 
+  include CheckI18n
+
   def self.set_template_direction
-    rtl_lang = [
-      'ae', 'ar',  'arc','bcc', 'bqi','ckb', 'dv','fa',
-      'glk', 'he', 'ku', 'mzn','nqo', 'pnb','ps', 'sd', 'ug','ur','yi'
-    ]
-    if rtl_lang.include?(I18n.locale.to_s)
+    if self.is_rtl_lang?
       direction = {
         dir: 'rtl',
         align: 'right',
