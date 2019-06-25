@@ -258,7 +258,7 @@ class BotUser < User
   end
 
   def core?
-    Module.const_defined? "Bot::#{self.identifier.camelize}"
+    begin Module.const_defined?("Bot::#{self.identifier.camelize}") rescue false end
   end
 
   protected
