@@ -30,9 +30,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     l = create_link
@@ -46,9 +46,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     c = create_claim_media
@@ -62,9 +62,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = false
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     l = create_link
@@ -78,9 +78,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     l = create_link

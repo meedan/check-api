@@ -4,7 +4,6 @@ require 'sidekiq/testing'
 class Bot::SlackTest < ActiveSupport::TestCase
   def setup
     super
-    Bot::Slack.delete_all
     @bot = create_slack_bot
     create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
   end

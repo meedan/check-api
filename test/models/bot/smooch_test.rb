@@ -21,7 +21,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @team = create_team
     @project = create_project team_id: @team.id
     @bid = random_string
-    TeamBot.delete_all
+    BotUser.delete_all
     settings = [
       { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
       { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
@@ -47,7 +47,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
     WebMock.stub_request(:put, 'https://www.transifex.com/api/2/project/check-2/resource/api/content').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
       'smooch_bot_id' => @bid,
@@ -58,7 +58,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10
     }
-    @installation = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: @team.id
+    @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
@@ -958,7 +958,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
   test "should send strings to Transifex" do
     t = create_team
-    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
     
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
       s = tbi.settings.clone
@@ -984,7 +984,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     c1 = 'Here is your meme'
     c2 = 'Aqui está o seu meme'
     t = create_team slug: slug
-    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
     RequestStore.store[:smooch_bot_settings] = tbi.settings.with_indifferent_access.merge({ team_id: t.id })
     k = 'smooch_bot_meme'
     assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)

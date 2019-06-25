@@ -594,6 +594,7 @@ en:
   smooch_bot_ask_for_confirmation_checkpoint: This is a custom message asking you to confirm with "1".
   smooch_bot_message_confirmed_checkpoint: This is a custom message to say that your request was received.
   smooch_bot_message_unconfirmed_checkpoint: This is a custom message to say that your message was discarded.
+  bot_request_url_invalid: The bot request URL format is invalid
   smooch_bot_not_final_mantis-7357: Bla
   smooch_bot_disabled_checkpoint: |-
       Thank you for sending this message.

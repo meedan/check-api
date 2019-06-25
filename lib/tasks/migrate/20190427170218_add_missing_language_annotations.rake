@@ -3,7 +3,7 @@ namespace :check do
     task add_missing_language_annotations: :environment do
       RequestStore.store[:skip_notifications] = true
       puts "[#{Time.now}] Adding missing language annotations"
-      teams = TeamBotInstallation.joins(:team_bot).where("identifier=?", "alegre").collect{|t| t.team_id}
+      teams = TeamBotInstallation.joins(:user).where("login = ?", "alegre").collect{|t| t.team_id}
       pms = ProjectMedia.joins(:project).where("team_id IN (?) AND NOT EXISTS (SELECT * FROM annotations WHERE annotated_id=project_medias.id AND annotation_type=?)", teams, "language")
       bot = Bot::Alegre.default
       i = 0

@@ -1559,10 +1559,10 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
-    b = create_bot_user
+    b = create_bot_user team_author_id: create_team.id
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.cannot?(:create, BotUser)
+      assert ability.can?(:create, BotUser)
       assert ability.cannot?(:update, b)
       assert ability.cannot?(:destroy, b)
     end
@@ -1985,16 +1985,16 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "read ability for bot user" do
     t1 = create_team private: false
-    tu1 = create_team_bot bot_user_id: nil, team_author_id: t1.id
-    bu1 = tu1.bot_user
+    tu1 = create_team_bot team_author_id: t1.id
+    bu1 = tu1
 
     t2 = create_team private: true
-    tu2 = create_team_bot bot_user_id: nil, team_author_id: t2.id
-    bu2 = tu2.bot_user
+    tu2 = create_team_bot team_author_id: t2.id
+    bu2 = tu2
 
     t3 = create_team private: true
-    tu3 = create_team_bot bot_user_id: nil, team_author_id: t3.id
-    bu3 = tu3.bot_user
+    tu3 = create_team_bot team_author_id: t3.id
+    bu3 = tu3
 
     u = create_user
     create_team_user user: u, team: t2
@@ -2017,13 +2017,13 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team_id: t.id, user_id: u.id
-    tb1 = create_team_bot approved: false
-    tb2 = create_team_bot approved: true
-    tb3 = create_team_bot approved: false, team_author_id: t.id
+    tb1 = create_team_bot set_approved: false
+    tb2 = create_team_bot set_approved: true
+    tb3 = create_team_bot set_approved: false, team_author_id: t.id
 
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.cannot?(:read, tb1)
+      assert ability.can?(:read, tb1)
       assert ability.can?(:read, tb2)
       assert ability.can?(:read, tb3)
     end

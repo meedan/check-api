@@ -226,9 +226,9 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -251,9 +251,9 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -264,6 +264,7 @@ class AnnotationTest < ActiveSupport::TestCase
     f.value = '{"foo":"bar"}'
     f.save!
     t.set_limits_keep = false
+    User.current = nil
     t.save!
     v = a.reload.get_field('pender_archive_response').reload.value
     pm = ProjectMedia.find(pm.id)

@@ -275,6 +275,6 @@ class Source < ActiveRecord::Base
   end
 
   def notify_team_bots(event)
-    TeamBot.enqueue_event("#{event}_source", self.team_id, self)
+    BotUser.enqueue_event("#{event}_source", self.team_id, self)
   end
 end
