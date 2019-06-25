@@ -18,7 +18,7 @@ module Ah
           def authenticate_montage_user
             header = CONFIG['authorization_header'] || 'X-Token'
             token = request.headers[header].to_s
-            user = User.where(token: token).last
+            user = token.blank? ? nil : User.where(token: token).last
             if user.nil?
               authenticate_api_user!
             else
