@@ -6,7 +6,7 @@ namespace :test do
       raise 'Please run in test environment' unless Rails.env.test?
 
       # Create the bot and install it
-      TeamBot.delete_all
+      BotUser.delete_all
       settings = [
         { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
         { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
@@ -23,7 +23,7 @@ namespace :test do
       secret = random_string
       app_id = random_string(24)
       settings = { 'smooch_project_id' => project.id, 'smooch_bot_id' => random_string, 'smooch_webhook_secret' => secret, 'smooch_app_id' => app_id, 'smooch_secret_key_key_id' => random_string, 'smooch_secret_key_secret' => random_string, 'smooch_template_namespace' => random_string, 'smooch_window_duration' => 10 }
-      installation = create_team_bot_installation team_bot_id: bot.id, settings: settings, team_id: team.id
+      installation = create_team_bot_installation user_id: bot.id, settings: settings, team_id: team.id
       Bot::Smooch.get_installation('smooch_webhook_secret', secret)
       
       # Prepare the numbers

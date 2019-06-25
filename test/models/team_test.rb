@@ -695,7 +695,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.archived = true
       t.save!
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 2, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -708,7 +708,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.name = random_string
       t.save!
-      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -1494,16 +1494,16 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should be related to bots" do
     t = create_team
-    tb1 = create_team_bot approved: true
+    tb1 = create_team_bot set_approved: true
     tb2 = create_team_bot team_author_id: t.id
-    tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb1.id
+    tbi = create_team_bot_installation team_id: t.id, user_id: tb1.id
     assert_equal 2, t.reload.team_bot_installations.count
     assert_equal [tb1, tb2].sort, t.reload.team_bots.sort
     assert_equal [tb2], t.team_bots_created
     t.destroy
     assert_nil TeamBotInstallation.where(id: tbi.id).last
-    assert_nil TeamBot.where(id: tb2.id).last
-    assert_not_nil TeamBot.where(id: tb1.id).last
+    assert_nil BotUser.where(id: tb2.id).last
+    assert_not_nil BotUser.where(id: tb1.id).last
   end
 
   test "should duplicate a team with more projects than its limits" do

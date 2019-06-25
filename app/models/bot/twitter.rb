@@ -1,10 +1,13 @@
-class Bot::Twitter < ActiveRecord::Base
+class Bot::Twitter < BotUser
+  
+  check_settings
+  
   include Bot::SocialBot
 
   attr_accessor :twitter_client
 
   def self.default
-    Bot::Twitter.where(name: 'Twitter Bot').last
+    Bot::Twitter.new
   end
 
   def send_to_twitter_in_background(annotation)

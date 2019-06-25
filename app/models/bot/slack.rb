@@ -1,14 +1,15 @@
-class Bot::Slack < ActiveRecord::Base
-
+class Bot::Slack < BotUser
+  
   check_settings
-
+  
   def self.default
-    Bot::Slack.where(name: 'Slack Bot').last
+    Bot::Slack.first || Bot::Slack.new
   end
 
   def should_notify?(target, model)
     RequestStore.store[:skip_notifications].blank? &&
     !model.skip_notifications && target.present? &&
+    target.respond_to?(:setting) &&
     target.setting(:slack_notifications_enabled).to_i === 1 &&
     User.current.present?
   end

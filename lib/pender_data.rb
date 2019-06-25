@@ -50,7 +50,7 @@ module PenderData
   end
 
   def metadata_annotation
-    pender = Bot::Bot.where(name: 'Pender').last
+    pender = BotUser.where(name: 'Pender').last
     m = Dynamic.where(annotation_type: 'metadata', annotated_type: self.class_name, annotated_id: self.id).first
     if m.nil?
       m = Dynamic.new

@@ -107,7 +107,7 @@ module Api
           ApiKey.current = nil
           user = User.find_with_token(token)
           User.current = user
-          (token && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
+          (!token.blank? && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else
           User.current = key.bot_user
           ApiKey.current = key

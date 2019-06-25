@@ -6,11 +6,11 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
 
   field :json_settings, types.String
 
-  field :team_bot do
-    type -> { TeamBotType }
+  field :bot_user do
+    type -> { BotUserType }
 
     resolve -> (team_bot_installation, _args, _ctx) {
-      RecordLoader.for(TeamBot).load(team_bot_installation.team_bot_id)
+      RecordLoader.for(BotUser).load(team_bot_installation.user_id)
     }
   end
 

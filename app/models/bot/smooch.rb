@@ -1,6 +1,8 @@
 require 'digest'
 
-class Bot::Smooch
+class Bot::Smooch < BotUser
+  
+  check_settings
 
   include CheckI18n
 
@@ -126,7 +128,7 @@ class Bot::Smooch
     private
 
     def upload_smooch_strings_to_transifex
-      if self.team_bot.identifier == 'smooch' && !CONFIG['transifex_user'].blank? && !CONFIG['transifex_password'].blank?
+      if self.bot_user.identifier == 'smooch' && !CONFIG['transifex_user'].blank? && !CONFIG['transifex_password'].blank?
         TeamBotInstallation.delay_for(1.second).lock_and_upload_smooch_strings_to_transifex(self.id)
       end
     end
@@ -210,16 +212,16 @@ class Bot::Smooch
   }
 
   def self.team_has_smooch_bot_installed(pm)
-    bot = TeamBot.where(identifier: 'smooch').last
-    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, team_bot_id: bot.id).last
+    bot = BotUser.where(login: 'smooch').last
+    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
   def self.get_installation(key, value)
-    bot = TeamBot.where(identifier: 'smooch').last
+    bot = BotUser.where(login: 'smooch').last
     return nil if bot.nil?
     smooch_bot_installation = nil
-    TeamBotInstallation.where(team_bot_id: bot.id).each do |installation|
+    TeamBotInstallation.where(user_id: bot.id).each do |installation|
       smooch_bot_installation = installation if installation.settings.with_indifferent_access[key] == value
     end
     settings = smooch_bot_installation&.settings || {}

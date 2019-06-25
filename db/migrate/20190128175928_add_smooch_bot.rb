@@ -13,20 +13,21 @@ class AddSmoochBot < ActiveRecord::Migration
     config = CONFIG['clamav_service_path']
     CONFIG['clamav_service_path'] = nil
 
-    tb = TeamBot.new
-    tb.identifier = 'smooch'
+    Team.current = meedan_team
+    tb = BotUser.new
+    tb.login = 'smooch'
     tb.name = 'Smooch'
-    tb.description = 'A bot that creates items through Smooch.io service.'
+    tb.set_description 'A bot that creates items through Smooch.io service.'
     File.open(File.join(Rails.root, 'public', 'smooch.png')) do |f|
-      tb.file = f
+      tb.image = f
     end
-    tb.request_url = CONFIG['checkdesk_base_url_private'] + '/api/bots/smooch'
-    tb.role = 'editor'
-    tb.version = '0.0.1'
-    tb.source_code_url = 'https://github.com/meedan/check-api/blob/develop/app/models/bot/smooch.rb'
-    tb.team_author_id = meedan_team.id
-    tb.events = []
-    tb.settings = [
+    tb.set_request_url CONFIG['checkdesk_base_url_private'] + '/api/bots/smooch'
+    tb.set_role 'editor'
+    tb.set_version '0.0.1'
+    tb.set_source_code_url 'https://github.com/meedan/check-api/blob/develop/app/models/bot/smooch.rb'
+    tb.set_team_author_id meedan_team.id
+    tb.set_events []
+    tb.set_settings [
       { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
       { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
       { name: 'smooch_secret_key_secret', label: 'Smooch Secret Key: Secret', type: 'string', default: '' },
@@ -36,9 +37,10 @@ class AddSmoochBot < ActiveRecord::Migration
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
     ]
-    tb.approved = true
-    tb.limited = true
+    tb.set_approved true
+    tb.set_limited true
     tb.save!
+    Team.current = nil
     
     CONFIG['clamav_service_path'] = config
 

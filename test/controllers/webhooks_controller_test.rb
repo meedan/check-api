@@ -3,7 +3,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class WebhooksControllerTest < ActionController::TestCase
   def setup
     super
-    TeamBot.delete_all
+    BotUser.delete_all
     @controller = Api::V1::WebhooksController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
     settings = [
@@ -18,7 +18,7 @@ class WebhooksControllerTest < ActionController::TestCase
     ]
     @team = create_team
     @project = create_project team_id: @team.id
-    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: []
+    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: []
     settings = {
       'smooch_project_id' => @project.id,
       'smooch_bot_id' => random_string,
@@ -29,7 +29,7 @@ class WebhooksControllerTest < ActionController::TestCase
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10
     }
-    @installation = create_team_bot_installation team_bot_id: @bot.id, settings: settings, team_id: @team.id
+    @installation = create_team_bot_installation user_id: @bot.id, settings: settings, team_id: @team.id
   end
 
   test "should return error if bot does not exist" do
@@ -65,9 +65,9 @@ class WebhooksControllerTest < ActionController::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -99,9 +99,9 @@ class WebhooksControllerTest < ActionController::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -150,9 +150,9 @@ class WebhooksControllerTest < ActionController::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -181,8 +181,8 @@ class WebhooksControllerTest < ActionController::TestCase
     t = create_team
     t.set_limits_keep = false
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations

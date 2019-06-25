@@ -72,7 +72,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :team_bots, -> { TeamBotType.connection_type } do
+  connection :team_bots, -> { BotUserType.connection_type } do
     resolve ->(team, _args, _ctx) {
       team.team_bots
     }

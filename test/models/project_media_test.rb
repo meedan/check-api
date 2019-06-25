@@ -4,8 +4,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
-    Bot::Alegre.delete_all
     super
+    create_team_bot login: 'keep', name: 'Keep'
   end
 
   test "should create project media" do
@@ -878,7 +878,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_translation_status_stuff
       create_verification_status_stuff(false)
       create_task_status_stuff(false)
-      Bot::Alegre.delete_all
       u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
       c = create_claim_media quote: 'Test'
       t = create_team name: 'Test Team', slug: 'test-team'
@@ -1252,9 +1251,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -1270,9 +1269,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -1300,9 +1299,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = false
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -1320,9 +1319,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -1340,9 +1339,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
@@ -1708,9 +1707,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     l = create_link
     t = create_team
     t.save!
-    TeamBot.delete_all
-    tb = create_team_bot identifier: 'keep', settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], approved: true
-    tbi = create_team_bot_installation team_bot_id: tb.id, team_id: t.id
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     pm = create_project_media project: create_project(team: t), media: l

@@ -68,7 +68,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBot', 'TeamBotInstallation']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation']
 
   config.navigation_static_links = {
     'Web Client' => CONFIG['checkdesk_client'],
@@ -554,70 +554,12 @@ RailsAdmin.config do |config|
     end
   end
 
-  config.model 'TeamBot' do
-    label 'Team Bot'
-    label_plural 'Team Bots'
-
-    list do
-      scopes [nil, :not_approved]
-      field :name
-      field :team_author
-    end
-
-    show do
-      field :name
-      field :identifier
-      field :description
-      field :team_author
-      field :file
-      field :request_url
-      field :version
-      field :source_code_url
-      field :limited
-      field :bot_user
-      field :approved
-      field :api_key do
-        pretty_value do
-          api_key = bindings[:object].api_key
-          "Id: #{api_key.id} Access token: #{api_key.access_token}"
-        end
-      end
-    end
-
-    edit do
-      field :name
-      field :description
-      field :team_author
-      field :file
-      field :request_url
-      field :role, :enum do
-        enum do
-          TeamUser.role_types
-        end
-      end
-      field :version
-      field :source_code_url
-      field :limited
-      field :approved do
-        visible_only_for_admin
-      end
-      field :settings, :yaml do
-        partial "json_editor"
-        help 'Settings'
-      end
-      field :events, :yaml do
-        partial "json_editor"
-        help "Events this bot wants to subscribe to"
-      end
-    end
-  end
-
   config.model 'TeamBotInstallation' do
     label 'Installed Bot'
     label_plural 'Installed Bots'
 
     list do
-      field :team_bot
+      field :bot_user
       field :team
     end
   end

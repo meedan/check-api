@@ -44,7 +44,7 @@ module ProjectMediaCreators
       d.skip_check_ability = true
       d.skip_notifications = true
       d.annotation_type = 'reverse_image'
-      d.annotator = Bot::Bot.where(name: 'Check Bot').last
+      d.annotator = BotUser.where(name: 'Check Bot').last
       d.annotated = self
       d.disable_es_callbacks = Rails.env.to_s == 'test'
       d.set_fields = { reverse_image_path: picture }.to_json

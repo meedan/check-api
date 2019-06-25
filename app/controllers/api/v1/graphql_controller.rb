@@ -112,11 +112,11 @@ module Api
       end
 
       def init_bot_events
-        TeamBot.init_event_queue
+        BotUser.init_event_queue
       end
 
       def trigger_bot_events
-        TeamBot.trigger_events
+        BotUser.trigger_events
       end
     end
   end

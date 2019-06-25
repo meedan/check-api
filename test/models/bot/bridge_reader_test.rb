@@ -2,7 +2,6 @@ require_relative '../../test_helper'
 
 class Bot::BridgeReaderTest < ActiveSupport::TestCase
   def setup
-    Bot::BridgeReader.delete_all
     @bot = create_bridge_reader_bot
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
@@ -10,7 +9,7 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
   end
 
   test "should return default bot" do
-    assert_equal @bot, Bot::BridgeReader.default
+    assert_not_nil Bot::BridgeReader.default
   end
 
   test "should be disabled if there are no configs" do

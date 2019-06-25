@@ -1,20 +1,25 @@
-class Bot::BridgeReader < ActiveRecord::Base
+class Bot::BridgeReader < BotUser
+  
+  check_settings
+  
   require 'check_bridge_embed'
 
   def self.default
-    Bot::BridgeReader.where(name: 'Bridge Reader Bot').last
+    Bot::BridgeReader.new
   end
 
-  def disabled?
-    CONFIG['bridge_reader_url_private'].blank? || CONFIG['bridge_reader_url'].blank? || CONFIG['bridge_reader_token'].blank?
+  def self.notify_embed_system(object, event, item)
+    Bot::BridgeReader.default.notify_embed_system(object, event, item)
   end
-
-  protected
 
   def notify_embed_system(object, event, item)
     return if self.disabled? || object.skip_notifications
     url = object.notification_uri(event)
     Check::BridgeEmbed.notify(object.notify_embed_system_payload(event, item), url)
+  end
+
+  def disabled?
+    CONFIG['bridge_reader_url_private'].blank? || CONFIG['bridge_reader_url'].blank? || CONFIG['bridge_reader_token'].blank?
   end
 
   DynamicAnnotation::Field.class_eval do
@@ -41,15 +46,15 @@ class Bot::BridgeReader < ActiveRecord::Base
     protected
 
     def notify_created
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'created', self.notify_embed_system_created_object)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'created', self.notify_embed_system_created_object)
     end
 
     def notify_updated
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
     end
 
     def notify_destroyed
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'destroyed', nil)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'destroyed', nil)
     end
 
     def should_notify?
@@ -81,11 +86,11 @@ class Bot::BridgeReader < ActiveRecord::Base
     protected
 
     def notify_created
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'created', self.notify_embed_system_created_object)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'created', self.notify_embed_system_created_object)
     end
 
     def notify_updated
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'updated', self.notify_embed_system_updated_object)
     end
 
     def should_notify?
@@ -108,7 +113,7 @@ class Bot::BridgeReader < ActiveRecord::Base
     protected
 
     def notify_destroyed
-      Bot::BridgeReader.default.delay_for(1.second).notify_embed_system(self, 'destroyed', nil)
+      Bot::BridgeReader.delay_for(1.second).notify_embed_system(self, 'destroyed', nil)
     end
 
     def should_notify?

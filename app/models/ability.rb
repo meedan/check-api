@@ -264,17 +264,17 @@ class Ability
 
   def bot_permissions
     # Bots are usually out of a team context, so we need to check based on the attribute values
-    can [:create, :update, :destroy], TeamBot do |obj|
+    can [:create, :update, :destroy], BotUser do |obj|
       is_owner_of_bot_team(obj.team_author_id)
     end
     can [:create, :update, :destroy], TeamBotInstallation do |obj|
       is_owner_of_bot_team(obj.team_id)
     end
     can :destroy, BotUser do |obj|
-      is_owner_of_bot_team(obj&.team_bot&.team_author_id)
+      is_owner_of_bot_team(obj&.team_author_id)
     end
     can :destroy, [ApiKey, Source] do |obj|
-      is_owner_of_bot_team(obj&.bot_user&.team_bot&.team_author_id)
+      is_owner_of_bot_team(obj&.bot_user&.team_author_id)
     end
   end
 
