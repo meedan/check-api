@@ -6,6 +6,8 @@ class CustomFailure < Devise::FailureApp
   end
 end
 
+OmniAuth.config.logger = Rails.logger
+
 Devise.setup do |config|
   config.mailer_sender = CONFIG['default_mail']
   require 'devise/orm/active_record'
