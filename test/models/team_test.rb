@@ -1104,6 +1104,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should copy versions on team duplication and destroy it when embed has previous version" do
+    [DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     t = create_team
     u = create_user
     u.is_admin = true;u.save
