@@ -4,7 +4,11 @@ group :development, :test do
   gem 'byebug'
   gem 'rubocop', '0.49.0'
   gem 'rails-graphql-generator'
+end
+
+group :test do
   gem 'parallel_tests'
+  gem 'minitest-hooks'
 end
 
 group :development do

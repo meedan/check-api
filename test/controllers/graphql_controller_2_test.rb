@@ -177,8 +177,11 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should not create duplicated tag" do
-    authenticate_with_user
-    p = create_project team: @team
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
     pm = create_project_media project: p
     query = 'mutation create { createTag(input: { clientMutationId: "1", tag: "egypt", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '"}) { tag { id } } }'
     post :create, query: query

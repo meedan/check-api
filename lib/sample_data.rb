@@ -208,6 +208,12 @@ module SampleData
     create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
   end
 
+  def create_metadata_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last || create_annotation_type(annotation_type: 'metadata', label: 'Metadata')
+    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
+    DynamicAnnotation::FieldInstance.where(name: 'metadata_value').last || create_field_instance(annotation_type_object: at, name: 'metadata_value', label: 'Metadata Value', field_type_object: ft, optional: false, settings: {})
+  end
+
   def create_task_status_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
