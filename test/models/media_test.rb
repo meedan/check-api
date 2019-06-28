@@ -335,6 +335,19 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [m.id], m.annotations('metadata').map(&:annotated_id)
   end
 
+  test "should handle PenderClient throwing exceptions" do
+    PenderClient::Request.stubs(:get_medias).raises(StandardError)
+    p = create_project
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_raise ActiveRecord::RecordInvalid do
+      m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    end
+    PenderClient::Request.unstub(:get_medias)
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team
@@ -549,7 +562,7 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'uploaded file', f.media_type
     assert_equal '', m.media_type
   end
-  
+
   test "should retry Pender automatically if it fails and not forced" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
