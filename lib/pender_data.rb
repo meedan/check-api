@@ -5,7 +5,13 @@ module PenderData
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
-      result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
+      result = { type: 'error', data: { code: -1 } }.with_indifferent_access
+      begin
+        result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
+      rescue StandardError => e
+        Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
+      end
       if result['type'] == 'error'
         self.pender_error = true
         self.pender_error_code = result['data']['code']
