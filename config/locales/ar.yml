@@ -239,6 +239,7 @@ ar:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا العنصر بعد
   oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا العنصر في %{date}
   oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا العنصر في %{date}
@@ -320,7 +321,7 @@ ar:
         someone_invited_you_default:
           html: "لقد دعاك %{name} للانضمام إلى فريق %{team}بصفه %{role}."
         someone_invited_you_custom:
-          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} بصفه %{role}قائلاً :"
+          html: "لقد دعاك %{name} للانضمام إلى فريق %{team} بصفه %{role} قائلاً :"
         accept: قبول الدعوة
         accept_until: هذه الدعوة سوف تنتهي في %{due_date}.
         ignore: إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة.
@@ -600,3 +601,7 @@ ar:
   smooch_bot_ask_for_confirmation_checkpoint: هذه رسالة مخصصة لطلب التأكيد برقم "١".
   smooch_bot_message_confirmed_checkpoint: هذه رسالة مخصصة لإبلاغك أنه تم استلام طلبك.
   smooch_bot_message_unconfirmed_checkpoint: هذه رسالة مخصصة لإبلاغك أنه تم تجاهل رسالتك.
+  smooch_bot_disabled_checkpoint: |-
+      شكرا لإرسال هذه الرسالة.
+      لا نستطيع إرسال أي من تقرير التحقيق ، حيث أن هذا المشروع لم يعد نشطاً.
+  bot_request_url_invalid: عنوان URL البوت غير صالح
