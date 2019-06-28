@@ -235,6 +235,7 @@ fr:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y à %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Ce média n'a pas encore été vérifié par l'équipe %{team}.
   oembed_disclaimer_in_progress: L'exactitude de ce média est en cours de vérification par l'équipe %{team}depuis le %{date}
   oembed_disclaimer_verified: L'exactitude de ce média a été vérifiée par l'équipe %{team}le %{date}
@@ -577,3 +578,7 @@ fr:
   smooch_bot_ask_for_confirmation_checkpoint: Ceci est un message personnalisé pour demander une confirmation avec "1".
   smooch_bot_message_confirmed_checkpoint: Ceci est un message personnalisé pour indiquer que la demande a été reçue.
   smooch_bot_message_unconfirmed_checkpoint: Ceci est un message personnalisé pour indiquer que la demande a été ignorée.
+  smooch_bot_disabled_checkpoint: |-
+      Merci pour votre message.
+      Nous ne sommes plus en mesure de répondre aux demandes de vérification, car ce projet est maintenant hors service.
+  bot_request_url_invalid: URL du bot non valide

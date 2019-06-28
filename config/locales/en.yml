@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -594,8 +594,7 @@ en:
   smooch_bot_ask_for_confirmation_checkpoint: This is a custom message asking you to confirm with "1".
   smooch_bot_message_confirmed_checkpoint: This is a custom message to say that your request was received.
   smooch_bot_message_unconfirmed_checkpoint: This is a custom message to say that your message was discarded.
-  bot_request_url_invalid: The bot request URL format is invalid
-  smooch_bot_not_final_mantis-7357: Bla
   smooch_bot_disabled_checkpoint: |-
       Thank you for sending this message.
       We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.
+  bot_request_url_invalid: The bot URL is invalid

@@ -293,6 +293,9 @@ ro:
   banned_user: Ne pare rău, contul Dvs a fost interzis pentru %{app_name}. Contactați echipa de suport dacă credeți că s-a produs o eroare.
   devise:
     mailer:
+      reset_password_instructions:
+        subject: "%{app_name} instrucțiuni pentru resetarea parolei"
+        header_title: Solicitarea de resetare a parolei
       invitation_instructions:
         subject: "%{user} v-a invitat să vă alăturați echipei %{team} "
         hello: Salut %{name}
@@ -316,31 +319,105 @@ ro:
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
+    greeting: Salut, %{username},
     project_view: Vizualizare dosar
+    unsubscribe: Anulați abonarea
+    unsubscribe_link: "%{unsubscribe} la aceste înștiințări"
+    copyright_html: '%{app_name} de la <a href="https://meedan.com">Meedan</a>'
+    register:
+      header_text: |-
+          V-ați înregistrat cu succes pe %{app_name}!
+          <br>
+          Pentru a vă conecta pe site este suficient doar să accesați acest link: %{url}. Introduceți această adresă email și această parolă: %{password}
+      login_button: Conectare la %{app_name}
+      footer_text: Vă mulțumim pentru că v-ați alăturăt și vă urăm o zi reușită!
+    duplicated:
+      subject: Metoda dvs. de conectare pentru %{app_name}
+      header_title: Dublează contul
+      one_email: |-
+          <p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să vă conectați la %{app_name} cu un cont pe %{user_provider} legat de %{user_email}.
+          Însă, această adresă de e-mail este deja asociată cu un cont pe%{duplicate_provider} în %{app_name}.</p>
+          <p>Ce trebuie făcut: Conectați-vă cu %{duplicate_provider}.</p>
+          <p>În acest caz vă veți conecta cu ajutorul contului folosit anterior.
+          Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p>
+      both_emails: |-
+          <p>Este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să creați un nou cont bazat pe e-mail pe %{app_name}, însă acest cont deja există.</p>
+          <p>Încercați să vă conectați cu adresa de e-mail și parola dvs în loc să creați un cont nou.</p>
+          <p>Vă veți conecta la contul folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p>
+      email: email
+    delete_user:
+      subject: "[%{team}] A fost șters un utilizator"
+      header_title: Utilizatorul a fost șters
+      header_text: Un cont de utilizator a fost șters și conținutul acestuia a fost desemnat utilizatorului anonim %{anonymous}  %{id}
+    admin_mailer:
+      types:
+        dump: instantaneu de date
+        images: arhiva de imagini
+      team_dump_text: 'Ați solicitat un instantaneu de date pentru echipa %{team} - acesta este link-ul pentru descărcarea lui: %{link}'
+      decompress_text: ' %{type} va fi descărcat sub forma unui fișier comprimat, criptat. Pentru a decomprima fișierul introduceți parola: %{password}.'
+      project_export_csv_subject: "[%{team} - %{project}] Raportul Dvs de dosar este gata pentru a fi descărcat"
+      project_export_images_subject: "[%{team} - %{project}] Arhiva imaginilor din dosar este gata pentru a fi descărcată"
+      project_export_title: Datele dosarului
+      project_export_button: Descarcă datele dosarului
+      project_export_csv_text: 'Ați solicitat un raport pentru dosarul %{project} - acesta este link-ul pentru descărcarea lui: %{link}'
+      project_export_images_text: 'Ați solicitat arhiva imaginilor pentru dosarul %{project} - acesta este link-ul pentru descărcarea acesteia: %{link}'
+      team_import_text: "<p>Activitatea dvs de import de date în %{app_name} s-a finalizat. Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați erorile raportate acolo - elementele importate anterior nu vor fi dublate.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] Sarcină rezolvată"
       header_title: Sarcină rezolvată
       header_text: " %{author} a rezolvat o sarcină în dosarul %{project} din %{team}."
+      section_title: Cine sau ce este sursa declarației?
+      status: Starea
+      media_h: Media
     media_status:
+      label: media
       subject: "[%{team} - %{project}] Statutul unui element media a fost marcat %{status}"
+      header_title: Statut media actualizat
       header_text: " %{author} a actualizat un element media în dosarul %{project} din %{team}."
+      section_title: Marcat ca fiind %{status}.
+      added_to: Adăugat în %{app_name}
+      update_h: Ultima actualizare
       tasks_h: Sarcină finalizată
     assignment:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
+      unassign_task_subject: "[%{team} - %{project}] O sarcină a fost transferată de la Dvs"
+      assign_project_subject: "[%{team} - %{project}] V-a fost desemnat un dosar"
+      unassign_project_subject: "[%{team} - %{project}] Un dosar a fost transferat de la Dvs"
       assign_media_subject: "[%{team} - %{project}] V-a fost desemnat un element media"
+      unassign_media_subject: "[%{team} - %{project}] Un element media a fost transferat de la Dvs"
       assign_project_title: Dosar atribuit
+      unassign_project_title: Dosar transferat
+      assign_project_text: "%{author} a desemnat un dosar %{project} din %{team}."
+      unassign_project_text: "%{author} a transferat un dosar %{project} din %{team}."
       assign_task_title: Sarcină desemnată
+      unassign_task_title: Sarcină transferată
       assign_task_text: "%{author} a desemnat o sarcină în proiectul %{project} din %{team}."
-      unassign_task_text: "%{author} a transferat o sarcină în proiectul %{project} din %{team}."
+      unassign_task_text: "%{author} a transferat o sarcină în dosarul %{project} din %{team}."
+      assign_media_title: Element media atribuit
+      unassign_media_title: Element media transferat
       assign_media_text: "%{author} a desemnat un element media în dosarul %{project} din %{team}."
+      unassign_media_text: "%{author} a desemnat un element media în dosarul %{project} din %{team}."
+      assign_log: "%{author} a atribuit %{model} lui %{username}"
+      unassign_log: "%{author} a transferat %{model} de la %{username}"
+      assign_by: Atribuit de
+      unassign_by: Transferat de către
+      project_button: Treci la pagina dosarului
+    request_to_join:
+      subject: Solicitarea permisiunii de a se alătura echipei %{team}
+      team_button: Treci la pagina echipei
+      rejected_subject: Solicitarea Dvs de a se alătura echipei %{team} nu a fost aprobată
+      approved_text: Solicitarea Dvs de a se alătura echipei %{team} pe %{app_name} a fost aprobată! Acum puteți accesa %{url} pentru a începe să contribuiți.
+      rejected_text: Ne pare rău, solicitarea Dvs de a se alătura echipei %{team} pe %{app_name} nu a fost aprobată.
   mail_security:
     device_subject: 'Avertizare de securitate: Conectare nouă la %{app_name} din %{browser} pe %{platform}'
+    ip_subject: 'Avertizare de securitate: Conectare nouă sau neobișnuită la %{app_name} '
     failed_subject: 'Avertizare de securitate: Încercări ieșuate de a se conecta la %{app_name}'
     ip: V-ați conectat din %{location}
     device: V-ați conectat din %{browser} pe %{platform}
     devise_name: "%{browser} pe %{platform}"
     failed: Au fost identificate încercări de conectare ieșuate
     password_text: resetează parola imediat.
+    device_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} de pe un dispozitiv nou. Dacă nu erați Dvs, ar fi bine să %{change_password}
     ip_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}
     failed_text: Se pare că s-au făcut mai multe încercări de conectare la contul Dvs %{app_name}. Dacă erați Dvs, puteți să ignorați acest mesaj liniștit. Dacă nu erați Dvs, ar fi bine să %{change_password}
     time_h: Ora
@@ -393,6 +470,7 @@ ro:
   smooch_bot_window_closing: Numărul de solicitări transmise prin acest canal este foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim pentru că aveți răbdare.
   smooch_bot_not_final: |-
       [Raport de verificare - CORECTARE] Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru verificări ulterioare.
+  smooch_bot_disabled: Vă mulțumim pentru acest mesaj. Nu putem să transmitem nici un raport de verificare pentru că acest dosar nu mai este activ.
   smooch_bot_result_changed: |-
       [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
 
@@ -480,3 +558,6 @@ ro:
   smooch_requests: Solicitări
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
+  smooch_bot_ask_for_confirmation_checkpoint: Este un mesaj obișnuit prin care se solicită confirmarea cu ”1”.
+  smooch_bot_message_confirmed_checkpoint: Este un mesaj obișnuit, care vă anunță că mesajul Dvs a fost recepționat.
+  smooch_bot_message_unconfirmed_checkpoint: Este un mesaj obișnuit, care vă anunță că mesajul Dvs a fost eliminat.
