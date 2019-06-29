@@ -39,7 +39,7 @@ class Link < Media
   def original_published_time
     published_time = self.metadata['published_at']
     return '' if published_time.to_i.zero?
-    published_time.is_a?(String) ? Time.parse(published_time) : Time.at(published_time)
+    published_time.is_a?(Numeric) ? Time.at(published_time) : Time.parse(published_time)
   end
 
   def media_type

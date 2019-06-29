@@ -538,7 +538,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should get original published time for times in all formats" do
     l = create_media
     time = "2017-07-10T12:10:18+03:00"
-    [time.to_time, time.to_time.to_i, time].each do |t|
+    [time.to_time.to_i, time].each do |t|
       l.stubs(:metadata).returns({'published_at' => t })
       assert_equal Time.at(time.to_time.to_i), l.original_published_time
       l.unstub(:metadata)
