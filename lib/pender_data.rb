@@ -46,7 +46,6 @@ module PenderData
       data = self.pender_data
       m = self.metadata_annotation
       current_data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
-      data['published_at'] = data['published_at'].to_time.to_i unless data['published_at'].nil?
       current_data['refreshes_count'] ||= 0
       current_data['refreshes_count'] += 1
       data['refreshes_count'] = current_data['refreshes_count']
