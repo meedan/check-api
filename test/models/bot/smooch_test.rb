@@ -73,6 +73,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
   def teardown
@@ -1046,6 +1047,97 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     send_confirmation(uid)
     assert_equal 1, ProjectMedia.count
+  end
+
+  test "should change Smooch user state" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    id = random_string
+    phone = random_string
+    name = random_string
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: id, smooch_user_app_id: @app_id, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'reactivate' ; d.save!
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    message = {
+      '_id': random_string,
+      authorId: id,
+      type: 'text',
+      text: random_string
+    }
+    Rails.cache.write("smooch:last_message_from_user:#{id}", message.to_json)
+    d = Dynamic.find(d.id) ; d.action = 'passthru' ; d.save!
+    assert_equal 'waiting_for_confirmation', CheckStateMachine.new(id).state.value
+  end
+
+  test "should save user information" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    Bot::Smooch.unstub(:save_user_information)
+    SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string }] }))
+    SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+      Bot::Smooch.run(payload)
+    end
+    assert_no_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+      Bot::Smooch.run(payload)
+    end
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
+  test "should save last message and ignore if in human mode" do
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    assert_equal 'waiting_for_message', sm.state.value
+    sm.enter_human_mode
+    sm = CheckStateMachine.new(uid)
+    assert_equal 'human_mode', sm.state.value
+    assert_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    assert_not_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
   end
 
   protected
