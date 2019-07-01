@@ -5,6 +5,10 @@ class Api::V1::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
+    user = User.find_by pre_otp_params
+    if user && user.otp_required_for_login
+      render_error(I18n.t(:error_login_2fa), 'LOGIN_2FA_REQUIRED') and return
+    end
     User.current = nil
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
@@ -25,10 +29,16 @@ class Api::V1::SessionsController < Devise::SessionsController
     end
   end
 
+  private
+
+  def pre_otp_params
+    params.require(:api_user).permit(:email)
+  end
+
   protected
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_in_params
-    devise_parameter_sanitizer.permit(:sign_in, keys: [:login, :password])
+    devise_parameter_sanitizer.permit(:sign_in, keys: [:login, :password, :otp_attempt])
   end
 end

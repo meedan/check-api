@@ -328,6 +328,7 @@ en:
     no_invitation: No invitation exists for team %{name}
   error_user_is_not_a_team_member: Sorry, you can only assign to members of this team
   error_login_with_exists_account: Sorry, there is another user who is already using this account
+  error_login_2fa: Sorry, you should fill one time password
   mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},
