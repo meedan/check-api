@@ -448,6 +448,8 @@ class GraphqlCrudOperations
 
       field :locked, types.Boolean
 
+      field :project, ProjectType
+
       instance_eval(&block) if block_given?
     end
   end

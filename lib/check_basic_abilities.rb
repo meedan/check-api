@@ -96,6 +96,8 @@ module CheckBasicAbilities
     cannot :manage, ApiKey
 
     can [:create, :update], LoginActivity
+    
+    cannot :find_by_json_fields, DynamicAnnotation::Field
   end
 
   def annotation_perms_for_all_users
