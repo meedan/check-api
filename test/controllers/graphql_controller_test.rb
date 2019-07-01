@@ -13,6 +13,7 @@ class GraphqlControllerTest < ActionController::TestCase
     Team.current = nil
     create_translation_status_stuff
     create_verification_status_stuff(false)
+    @team = create_team
   end
 
   test "should access GraphQL query if not authenticated" do

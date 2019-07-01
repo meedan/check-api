@@ -8,6 +8,7 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should search media" do
     u = create_user
+    @team = create_team
     p = create_project team: @team
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
@@ -40,6 +41,7 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search media with multiple projects" do
+    @team = create_team
     u = create_user
     p = create_project team: @team
     p2 = create_project team: @team
@@ -77,6 +79,7 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search by dynamic annotation" do
+    @team = create_team
     u = create_user
     p = create_project team: @team
     m1 = create_valid_media
@@ -118,6 +121,7 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should read first response from task" do
     u = create_user
+    @team = create_team
     p = create_project team: @team
     create_team_user user: u, team: @team
     m = create_valid_media
@@ -140,6 +144,7 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should move report to other projects" do
     u = create_user
+    @team = create_team
     p = create_project team: @team
     p2 = create_project team: @team
     create_team_user user: u, team: @team, role: 'owner'

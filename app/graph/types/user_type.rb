@@ -46,9 +46,9 @@ UserType = GraphqlCrudOperations.define_default_type do
   end
 
   field :bot do
-    type TeamBotType
+    type BotUserType
     resolve -> (user, _args, _ctx) do
-      user.team_bot if user.is_bot
+      user if user.is_bot
     end
   end
 

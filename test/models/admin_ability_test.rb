@@ -613,9 +613,8 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, tb1)
       assert ability.can?(:index, tb1)
       assert ability.can?(:read, tb1)
-      assert ability.can?(:destroy, tb1.bot_user)
-      assert ability.can?(:destroy, tb1.bot_user.source)
-      assert ability.can?(:destroy, tb1.bot_user.api_key)
+      assert ability.can?(:destroy, tb1.source)
+      assert ability.can?(:destroy, tb1.api_key)
     end
     with_current_user_and_team(u) do
       ability = AdminAbility.new
@@ -624,9 +623,8 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, tb2)
       assert ability.cannot?(:index, tb2)
       assert ability.cannot?(:read, tb2)
-      assert ability.cannot?(:destroy, tb2.bot_user)
-      assert ability.cannot?(:destroy, tb2.bot_user.source)
-      assert ability.cannot?(:destroy, tb2.bot_user.api_key)
+      assert ability.cannot?(:destroy, tb2.source)
+      assert ability.cannot?(:destroy, tb2.api_key)
     end
   end
 
@@ -652,14 +650,14 @@ class AdminAbilityTest < ActiveSupport::TestCase
   end
 
   test "permissions for approved bots" do
-    tb1 = create_team_bot approved: true
-    tb2 = create_team_bot approved: false
+    tb1 = create_team_bot set_approved: true
+    tb2 = create_team_bot set_approved: false
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, tb1)
       assert ability.cannot?(:update, tb1)
       assert ability.cannot?(:destroy, tb1)
-      assert ability.can?(:index, tb1)
+      assert ability.cannot?(:index, tb1)
       assert ability.cannot?(:read, tb1)
       assert ability.can?(:install, tb1)
     end

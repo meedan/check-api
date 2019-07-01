@@ -2,7 +2,6 @@ require_relative '../../test_helper'
 
 class Bot::BridgeReaderTest < ActiveSupport::TestCase
   def setup
-    Bot::BridgeReader.delete_all
     @bot = create_bridge_reader_bot
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
@@ -10,7 +9,7 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
   end
 
   test "should return default bot" do
-    assert_equal @bot, Bot::BridgeReader.default
+    assert_not_nil Bot::BridgeReader.default
   end
 
   test "should be disabled if there are no configs" do
@@ -20,6 +19,7 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
   end
 
   test "should not notify embed system when project media is updated" do
+    @project = create_project
     pm = create_project_media project: @project
     pm.created_at = DateTime.now - 1.day
     ProjectMedia.any_instance.stubs(:notify_destroyed).never
@@ -28,6 +28,7 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
   end
 
   test "should notify embed system when project media is destroyed" do
+    @project = create_project
     pm = create_project_media project: @project
     Bot::BridgeReader.any_instance.stubs(:notify_embed_system).with(pm, 'destroyed', nil).once
     pm.disable_es_callbacks = true
@@ -36,6 +37,7 @@ class Bot::BridgeReaderTest < ActiveSupport::TestCase
   end
 
   test "should not notify embed system if there are no configs" do
+    @project = create_project
     pm = create_project_media project: @project
     pm.created_at = DateTime.now - 1.day
     Bot::BridgeReader.any_instance.stubs(:notify_embed_system).with(pm, 'updated', { id: pm.id.to_s}).never

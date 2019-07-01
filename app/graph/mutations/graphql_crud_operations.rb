@@ -204,7 +204,7 @@ class GraphqlCrudOperations
   def self.define_optimistic_fields_for_project_media(obj, inputs, _name)
     status = begin JSON.parse(inputs[:set_fields])['verification_status_status'] rescue nil end
     unless status.nil?
-      return obj if TeamBotInstallation.where(team_id: obj.project.team_id, team_bot_id: TeamBot.where(identifier: 'smooch').last&.id.to_i).last.nil?
+      return obj if TeamBotInstallation.where(team_id: obj.project.team_id, user_id: BotUser.where(login: 'smooch').last&.id.to_i).last.nil?
       targets = []
       obj.targets_by_users.find_each do |target|
         target.define_singleton_method(:last_status) { status }

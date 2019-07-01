@@ -64,6 +64,8 @@ development: &default
   google_client_id:
   google_client_secret:
   google_auth_redirect_uri:
+  # for production, don't use a wildcard: set the allowed domains explicitly, as a regular expression, for example: '(https?://.*\.?(meedan.com|meedan.org))'
+  allowed_origins: '.*'
 
 test:
   <<: *default

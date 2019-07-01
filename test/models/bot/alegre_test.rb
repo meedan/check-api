@@ -255,11 +255,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   #   end
   # end
 
-  test "should have profile image" do
-    b = create_alegre_bot
-    assert_kind_of String, b.profile_image
-  end
-
   test "should return true when bot is called successfully" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       AlegreClient::Mock.mock_languages_identification_returns_text_language do
@@ -276,5 +271,24 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         assert !Bot::Alegre.run({ event: 'create_project_media' })
       end
     end
+  end
+
+  test "should capture error when calling bot" do
+    Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
+    assert_nothing_raised do
+      Bot::Alegre.run('test')
+    end
+    Bot::Alegre.any_instance.unstub(:get_language)
+  end
+
+  test "should add relationships" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    pm3 = create_project_media
+    create_relationship source_id: pm3.id, target_id: pm2.id
+    @bot.add_relationships(pm1, [pm2.id])
+    r = Relationship.last
+    assert_equal pm1, r.target
+    assert_equal pm3, r.source
   end
 end

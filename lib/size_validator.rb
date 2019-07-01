@@ -19,6 +19,7 @@ class SizeValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
     if !value.nil? && !value.path.blank?
+      return unless File.exist?(value.path)
       w, h = ::MiniMagick::Image.open(value.path)[:dimensions]
       record.errors[attribute] << I18n.t(:"errors.messages.invalid_size",
         min_width: SizeValidator.config('min_width'),

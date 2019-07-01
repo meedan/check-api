@@ -1,4 +1,7 @@
-class Bot::Keep
+class Bot::Keep < BotUser
+  
+  check_settings
+  
   def self.run(body)
     pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
     user = User.where(id: body.dig(:user_id)).last
@@ -95,8 +98,8 @@ class Bot::Keep
   ProjectMedia.class_eval do
     def should_skip_create_archive_annotation?(type)
       team = self.project.team
-      bot = TeamBot.where(identifier: 'keep').last
-      installation = TeamBotInstallation.where(team_id: team.id, team_bot_id: bot.id).last
+      bot = BotUser.where(login: 'keep').last
+      installation = TeamBotInstallation.where(team_id: team.id, user_id: bot&.id.to_i).last
       getter = "get_archive_#{type}_enabled"
       !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || team.get_limits_keep.to_i == 0 || installation.nil? || !installation.send(getter)
     end

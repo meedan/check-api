@@ -6,6 +6,8 @@ class CustomFailure < Devise::FailureApp
   end
 end
 
+OmniAuth.config.logger = Rails.logger
+
 Devise.setup do |config|
   config.warden do |manager|
     manager.default_strategies(:scope => :user).unshift :two_factor_authenticatable
