@@ -45,7 +45,7 @@ class BotUser < User
   end
 
   def avatar
-    self.profile_image
+    self.source&.image&.to_s
   end
 
   def team_author_id
