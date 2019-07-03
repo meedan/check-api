@@ -7,7 +7,7 @@ class SecurityMailer < ApplicationMailer
     ip_result = Geocoder.search(activity.ip).first
     unless ip_result.blank? || ip_result.data["loc"].blank?
       loc_result = Geocoder.search(ip_result.data["loc"]).first
-      address = [loc_result.city, loc_result.country]
+      address = [loc_result.city, loc_result.country] unless loc_result.nil?
     end
   	@user = user
   	@type = type
