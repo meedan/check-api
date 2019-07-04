@@ -47,11 +47,33 @@ class Bot::Smooch < BotUser
 
   ::Dynamic.class_eval do
     after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
+    after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
 
     private
 
     def send_meme_to_smooch_users
       SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
+    end
+
+    def change_smooch_user_state
+      id = self.get_field_value('smooch_user_id')
+      unless id.blank?
+        sm = CheckStateMachine.new(id)
+        case self.action
+        when 'deactivate'
+          sm.enter_human_mode
+        when 'reactivate'
+          sm.leave_human_mode
+        when 'passthru'
+          app_id = self.get_field_value('smooch_user_app_id')
+          message = Rails.cache.read("smooch:last_message_from_user:#{id}")
+          sm.leave_human_mode
+          unless message.blank?
+            Bot::Smooch.get_installation('smooch_app_id', app_id)
+            Bot::Smooch.process_message(JSON.parse(message), app_id)
+          end
+        end
+      end
     end
   end
 
@@ -111,18 +133,33 @@ class Bot::Smooch < BotUser
         c.client_secret = CONFIG['transifex_password']
       end
       project = ::Transifex::Project.new('check-2')
-      resource = project.resource('api')
-      content = resource.translation('en').fetch['content']
-      yaml = YAML.load(content)
       slug = tbi.team.slug
+      resource_slug = 'api-custom-messages-' + slug
+      resource = yaml = nil
+      
+      begin
+        resource = project.resource(resource_slug)
+        yaml = YAML.load(resource.translation('en').fetch['content'])
+      rescue Transifex::TransifexError
+        resource = nil
+        yaml = { 'en' => {} }
+      end
+
       count = 0
       tbi.settings.each do |key, value|
         if key.to_s =~ /^smooch_message_/ && !value.blank?
           count += 1
-          yaml['en'][key.gsub(/^smooch_message_/, '') + '_' + slug] = value
+          yaml['en'][key.gsub(/^smooch_message_/, 'custom_message_') + '_' + slug] = value
         end
       end
-      resource.content.update(i18n_type: 'YML', content: yaml.to_yaml) if count > 0
+
+      if count > 0
+        if resource.nil?
+          Transifex::Resources.new('check-2').create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
+        else
+          resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
+        end
+      end
     end
 
     private
@@ -286,7 +323,7 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     if team && !config["smooch_message_#{key}"].blank?
-      I18n.exists?("#{key}_#{team.slug}") ? I18n.t("#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      I18n.exists?("custom_message_#{key}_#{team.slug}") ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
@@ -341,10 +378,46 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.save_user_information(app_id, uid)
+    self.get_installation('smooch_app_id', app_id) if self.config.blank?
+    field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last
+    if field.nil?
+      api_client = self.smooch_api_client
+      app_id = self.config['smooch_app_id']
+      api_instance = SmoochApi::AppUserApi.new(api_client)
+      user = api_instance.get_app_user(app_id, uid).appUser.to_hash
+      api_instance = SmoochApi::AppApi.new(api_client)
+      app = api_instance.get_app(app_id)
+
+      data = {
+        id: uid,
+        raw: user,
+        phone: user[:clients][0][:displayName],
+        app_name: app.app.name
+      }
+      
+      a = Dynamic.new
+      a.skip_check_ability = true
+      a.skip_notifications = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.annotation_type = 'smooch_user'
+      a.annotated_type = 'Project'
+      a.annotated_id = self.get_project_id
+      a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
+      a.save!
+    end
+  end
+
   def self.process_message(message, app_id)
     lang = message['language'] = self.get_language(message)
+    Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
     sm = CheckStateMachine.new(message['authorId'])
-    if sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
+    
+    if sm.state.value == 'human_mode'
+      Rails.cache.write("smooch:last_message_from_user:#{message['authorId']}", message.to_json)
+      Rails.logger.info("[Smooch Bot] Ignoring message because conversation for user #{message['authorId']} is in human-mode")
+    
+    elsif sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
       if pm_id.nil?
@@ -406,16 +479,19 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_message_to_user(uid, text, extra = {}, force = false)
-    return if self.config['smooch_disabled'] && !force
+  def self.smooch_api_client
     payload = { scope: 'app' }
-    jwtHeader = { kid: self.config['smooch_secret_key_key_id'] }
-    token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwtHeader
+    jwt_header = { kid: self.config['smooch_secret_key_key_id'] }
+    token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwt_header
     config = SmoochApi::Configuration.new
     config.api_key['Authorization'] = token
     config.api_key_prefix['Authorization'] = 'Bearer'
-    api_client = SmoochApi::ApiClient.new(config)
+    SmoochApi::ApiClient.new(config)
+  end
 
+  def self.send_message_to_user(uid, text, extra = {}, force = false)
+    return if self.config['smooch_disabled'] && !force
+    api_client = self.smooch_api_client
     api_instance = SmoochApi::ConversationApi.new(api_client)
     app_id = self.config['smooch_app_id']
     params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
@@ -428,15 +504,12 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_queue
+  def self.save_message_later(message, app_id)
     mapping = { 'siege' => 'siege' }
     queue = RequestStore.store[:smooch_bot_queue].to_s
-    queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
-  end
-
-  def self.save_message_later(message, app_id)
+    queue = queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
     type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-    SmoochWorker.set(queue: self.get_queue).perform_in(1.second, message.to_json, type, app_id)
+    SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id)
   end
 
   def self.save_message(message_json, app_id)
@@ -485,7 +558,7 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_project_id(_message)
+  def self.get_project_id(_message = nil)
     project_id = self.config['smooch_project_id'].to_i
     raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?
     project_id

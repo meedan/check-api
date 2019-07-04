@@ -1,3 +1,4 @@
+---
 ru:
   statuses:
     ids:
@@ -25,7 +26,7 @@ ru:
         label: В работе
         description: Работа начата, но перевод пока отсутствует
       not_true:
-        label: 'Неправда'
+        label: Неправда
         description: 'Заключение: не соответствует действительности'
       verified:
         label: Подтверждено
@@ -90,7 +91,8 @@ ru:
         description: Перевод был проверен и отмечен как ошибочный
   errors:
     messages:
-      extension_white_list_error: 'файлы %{extension} не разрешены; разрешённые форматы: %{allowed_types}'
+      extension_white_list_error: 'файлы %{extension} не разрешены; разрешённые форматы:
+        %{allowed_types}'
       invalid_size: должен быть между %{min_width}x%{min_height} и %{max_width}x%{max_height}
   activerecord:
     models:
@@ -137,7 +139,7 @@ ru:
               slug_format: только буквы, цифры и дефисы
       messages:
         record_invalid: 'Ошибки проверки: %{errors}'
-        improbable_phone: — неправильный номер
+        improbable_phone: "— неправильный номер"
         too_short:
           one: 'не подходит по длине (минимум: 1 символ)'
           few: 'не подходит по длине (минимум: %{count} символов)'
@@ -145,63 +147,77 @@ ru:
           other: 'не подходит по длине (минимум: %{count} символов)'
   slack_webhook_format_wrong: 'Неверный адрес webhook: он должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
-  invalid_format_for_languages: 'Неправильно указан язык. Корректный формат: [{''id'': ''en'', ''title'': ''English''}]'
+  invalid_format_for_languages: 'Неправильно указан язык. Корректный формат: [{''id'':
+    ''en'', ''title'': ''English''}]'
   invalid_media_item: Извините, этот формат файла не поддерживается
-  invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса по умолчанию
-  invalid_active_status_for_custom_verification_status: Неверный идентификатор активного статуса
+  invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса
+    по умолчанию
+  invalid_active_status_for_custom_verification_status: Неверный идентификатор активного
+    статуса
   invalid_label_for_custom_verification_status: Название статуса обязательно
-  invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_verification_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль и опциональную пометку о завершении работы'
-  invalid_default_status_for_custom_translation_status: Неверный идентификатор статуса по умолчанию
-  invalid_active_status_for_custom_translation_status: Неверный идентификатор активного статуса
+  invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
+    может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
+  invalid_statuses_format_for_custom_verification_status: Дополнительные статусы должны
+    иметь название, идентификатор, описание, стиль и опциональную пометку о завершении
+    работы
+  invalid_default_status_for_custom_translation_status: Неверный идентификатор статуса
+    по умолчанию
+  invalid_active_status_for_custom_translation_status: Неверный идентификатор активного
+    статуса
   invalid_label_for_custom_translation_status: Название статуса обязательно
-  invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_translation_status: 'Дополнительные статусы должны иметь название, идентификатор, описание, стиль и опциональную пометку о завершении работы'
+  invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может
+    содержать строчные латинские буквы, дефисы и подчеркивания
+  invalid_statuses_format_for_custom_translation_status: Дополнительные статусы должны
+    иметь название, идентификатор, описание, стиль и опциональную пометку о завершении
+    работы
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
       assigned: Назначен
       unassigned: Снят с
       required: Обязательно?
-      required_yes: 'Да'
+      required_yes: Да
       project: Проект
       source: Источник
       status: Статус
       status_previous: Предыдущий статус
       related_to: Относится к
-      view_button: '%{type} в %{app}'
+      view_button: "%{type} в %{app}"
       project_source: Источник
       project_media: Материал
       attribution: Ответ от
     messages:
-      task_create: "Добавлен вопрос (%{user}, %{role} %{team})"
-      task_edit: "Отредактирован вопрос (%{user}, %{role} %{team})"
-      task_assign: "Назначен вопрос (%{user}, %{role} %{team})"
-      task_unassign: "Снято назначение вопроса (%{user}, %{role} %{team})"
-      task_answer_create: "Добавлен ответ на вопрос (%{user}, %{role} %{team})"
-      task_answer_edit: "Изменён ответ на вопрос (%{user}, %{role} %{team})"
-      task_comment: "Добавлена заметка к вопросу (%{user}, %{role} %{team})"
-      project_media_comment: "Добавлена заметка к материалу (%{user}, %{role} %{team})"
-      project_media_create: "Добавлен материал (%{user}, %{role} %{team})"
-      project_media_create_related: "Добавлен связанный материал (%{user}, %{role} %{team})"
-      project_media_update: "Отредактирован материал (%{user}, %{role} %{team})"
-      project_media_status: "Изменён статус «%{workflow}» материала (%{user}, %{role} %{team})"
-      project_media_assign: "Назначен материал (%{user}, %{role} %{team})"
-      project_media_unassign: "Снято назначение материала (%{user}, %{role} %{team})"
-      project_source_comment: "Добавлена заметка к источнику (%{user}, %{role} %{team})"
-      project_source_create: "Добавлен источник (%{user}, %{role} %{team})"
-      project_source_update: "Отредактирован источник (%{user}, %{role} %{team})"
-      project_create: "Создан проект (%{user}, %{role} %{team})"
-      project_assign: "Назначен проект (%{user}, %{role} %{team})"
-      project_unassign: "Снято назначение проекта (%{user}, %{role} %{team})"
-      user_member: "Новый участник группы %{team}: %{user}"
-      user_requested: "Новый запрос на вступление в группу %{team}: %{user}"
-      user_invited: "Новое приглашение в группу %{team}: %{user}"
-      user_banned: "Новый бан в группе %{team}: %{user}"
+      task_create: Добавлен вопрос (%{user}, %{role} %{team})
+      task_edit: Отредактирован вопрос (%{user}, %{role} %{team})
+      task_assign: Назначен вопрос (%{user}, %{role} %{team})
+      task_unassign: Снято назначение вопроса (%{user}, %{role} %{team})
+      task_answer_create: Добавлен ответ на вопрос (%{user}, %{role} %{team})
+      task_answer_edit: Изменён ответ на вопрос (%{user}, %{role} %{team})
+      task_comment: Добавлена заметка к вопросу (%{user}, %{role} %{team})
+      project_media_comment: Добавлена заметка к материалу (%{user}, %{role} %{team})
+      project_media_create: Добавлен материал (%{user}, %{role} %{team})
+      project_media_create_related: Добавлен связанный материал (%{user}, %{role}
+        %{team})
+      project_media_update: Отредактирован материал (%{user}, %{role} %{team})
+      project_media_status: Изменён статус «%{workflow}» материала (%{user}, %{role}
+        %{team})
+      project_media_assign: Назначен материал (%{user}, %{role} %{team})
+      project_media_unassign: Снято назначение материала (%{user}, %{role} %{team})
+      project_source_comment: Добавлена заметка к источнику (%{user}, %{role} %{team})
+      project_source_create: Добавлен источник (%{user}, %{role} %{team})
+      project_source_update: Отредактирован источник (%{user}, %{role} %{team})
+      project_create: Создан проект (%{user}, %{role} %{team})
+      project_assign: Назначен проект (%{user}, %{role} %{team})
+      project_unassign: Снято назначение проекта (%{user}, %{role} %{team})
+      user_member: 'Новый участник группы %{team}: %{user}'
+      user_requested: 'Новый запрос на вступление в группу %{team}: %{user}'
+      user_invited: 'Новое приглашение в группу %{team}: %{user}'
+      user_banned: 'Новый бан в группе %{team}: %{user}'
   mail_view_welcome: Добро пожаловать в %{app_name}
-  mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
-  pender_could_not_parse: Не удалось обработать медиа-объект
-  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только членам %{teams} в Slack.
+  mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}!
+    Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
+  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только
+    членам %{teams} в Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -213,12 +229,14 @@ ru:
       delete_tasks:
         done: вопросы удалены
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Вы уверены, что хотите удалить все вопросы в группе <strong>%{team}</strong>? Будут удалены следующие вопросы:'
+          html: 'Вы уверены, что хотите удалить все вопросы в группе <strong>%{team}</strong>?
+            Будут удалены следующие вопросы:'
       duplicate_team:
         menu: Дублировать группу
         done: скопировано
         are_you_sure_you_want_to_copy_team:
-          html: Вы уверены, что хотите скопировать группу <strong>%{team}</strong>? Вместе с группой будут скопированы все связанные данные.
+          html: Вы уверены, что хотите скопировать группу <strong>%{team}</strong>?
+            Вместе с группой будут скопированы все связанные данные.
         the_team_is_being_copied: Группа копируется
         url_when_ready:
           html: 'Когда копия будет готова, она станет доступна по ссылке: <strong>%{copy_url}</strong>'
@@ -229,9 +247,12 @@ ru:
   translation_status_not_valid: Неверный статус
   translation_status_permission_error: Извините, вы не можете изменить этот статус.
   translation_request_id_exists: Запрос на перевод этого сообщения уже существует
-  auto_publisher_added_to_project: Спасибо! Теперь все новые переводы в проекте «%{project}» будут автоматически публиковаться в %{provider}. Если вы больше не хотите получать обновления, свяжитесь с администратором или отключите авторизацию Bridge в настройках %{provider}.
+  auto_publisher_added_to_project: Спасибо! Теперь все новые переводы в проекте «%{project}»
+    будут автоматически публиковаться в %{provider}. Если вы больше не хотите получать
+    обновления, свяжитесь с администратором или отключите авторизацию Bridge в настройках
+    %{provider}.
   invalid_token: Неверный токен
-  viber_screenshot_footer: "Перевод, %{target_language}-%{source_language}: \"%{source_text}\""
+  viber_screenshot_footer: 'Перевод, %{target_language}-%{source_language}: "%{source_text}"'
   time:
     formats:
       oembed: "%B %d, %Y"
@@ -240,7 +261,8 @@ ru:
   oembed_disclaimer_in_progress: Проверка достоверности начата %{date} (%{team})
   oembed_disclaimer_verified: Достоверность подтверждена %{date} (%{team})
   oembed_disclaimer_false: Опровергнуто %{date} (%{team})
-  oembed_disclaimer_not_applicable: Не удалось проверить достоверность на %{date} (%{team})
+  oembed_disclaimer_not_applicable: Не удалось проверить достоверность на %{date}
+    (%{team})
   oembed_source_date: "%{date} в %{provider}"
   role_editor: редактор
   role_owner: администратор
@@ -251,50 +273,57 @@ ru:
   role_: суперадминистратор
   oembed_credit: 'Добавлено: %{user} (%{role}), %{date}'
   oembed_notes_count:
-    one: "Одна заметка"
-    few: "Заметок: %{count}"
-    many: "Заметок: %{count}"
-    other: "Заметок: %{count}"
+    one: Одна заметка
+    few: 'Заметок: %{count}'
+    many: 'Заметок: %{count}'
+    other: 'Заметок: %{count}'
   oembed_completed_tasks_count:
-    one: "Один закрытый вопрос"
-    few: "Закрытых вопросов: %{count}"
-    many: "Закрытых вопросов: %{count}"
-    other: "Закрытых вопросов: %{count}"
+    one: Один закрытый вопрос
+    few: 'Закрытых вопросов: %{count}'
+    many: 'Закрытых вопросов: %{count}'
+    other: 'Закрытых вопросов: %{count}'
   oembed_verification_tasks: Вопросы
   oembed_tasks: Вопросы
   oembed_translations: Переводы
   oembed_expand_all: Раскрыть всё
   oembed_collapse_all: Свернуть всё
   oembed_resolved_tasks_count:
-    one: "Один вопрос с ответом"
-    few: "Вопросов с ответами: %{count}"
-    many: "Вопросов с ответами: %{count}"
-    other: "Вопросов с ответами: %{count}"
+    one: Один вопрос с ответом
+    few: 'Вопросов с ответами: %{count}'
+    many: 'Вопросов с ответами: %{count}'
+    other: 'Вопросов с ответами: %{count}'
   oembed_notes: Заметки
-  pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через пару секунд.
+  pender_conflict: Эта ссылка уже находится в обработке. Попробуйте еще раз через
+    пару секунд.
   duplicate_source: Источник уже существует
   geolocation_invalid_value: Местонахождение должно содержать корректный GeoJSON (http://geojson.org/)
   datetime_invalid_date: Пожалуйста, укажите верную дату
   error_team_archived: Нельзя добавить проект в группу, которая находится в корзине
-  error_project_archived: Нельзя добавить материал к проекту, который находится в корзине
-  error_team_archived_for_source: Нельзя добавить источник в группу, которая находится в корзине
+  error_project_archived: Нельзя добавить материал к проекту, который находится в
+    корзине
+  error_team_archived_for_source: Нельзя добавить источник в группу, которая находится
+    в корзине
   permission_error: Извините, вам не разрешена данная операция
   error_annotated_archived: Извините, нельзя добавить заметку к материалу в корзине
-  only_super_admin_can_do_this: Извините, только суперадминистраторы могут менять эти настройки
+  only_super_admin_can_do_this: Извините, только суперадминистраторы могут менять
+    эти настройки
   max_number_of_team_users_reached: Извините, в этой группе достигнут лимит участников
   max_number_of_projects_reached: Извините, в этой группе достигнут лимит проектов
-  cant_set_custom_statuses: Извините, для данной группы не включены дополнительные статусы
+  cant_set_custom_statuses: Извините, для данной группы не включены дополнительные
+    статусы
   cant_change_custom_statuses: |-
-      Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
-      %{urls} %{others_amount}
+    Извините, нельзя отредактировать дополнительные статусы, поскольку они уже назначены. Статусы %{statuses} используются в следующих материалах:
+    %{urls} %{others_amount}
   cant_create_team_task: Извините, у вашей группы нет доступа к данной функциональности
-  cant_create_media_under_this_team_using_extension: Извините, для данной группы не включено браузерное расширение
+  cant_create_media_under_this_team_using_extension: Извините, для данной группы не
+    включено браузерное расширение
   error_invalid_attribution: Неверное авторство
   account_exists: Такой аккаунт уже существует
   media_exists: Такой материал уже существует
   source_exists: Такой источник уже существует
   email_exists: уже используется
-  banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь с технической поддержкой, если вы считаете, что произошла ошибка.
+  banned_user: Извините, вам был закрыт доступ к %{app_name}. Пожалуйста, свяжитесь
+    с технической поддержкой, если вы считаете, что произошла ошибка.
   devise:
     mailer:
       invitation_instructions:
@@ -311,7 +340,8 @@ ru:
     team_found: Группа не найдена.
     invalid: Некорректный токен приглашения.
     no_invitation: Вы не приглашены в группу %{name}
-  error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам этой группы
+  error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам
+    этой группы
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
   mail_see_it: 'Задачу можно посмотреть по ссылке:'
   mails_notifications:
@@ -341,9 +371,13 @@ ru:
     devise_name: "%{browser} на %{platform}"
     failed: Обнаружены неудачные попытки входа
     password_text: немедленно сбросить пароль.
-    device_text: Кажется, вы недавно выполнили вход в %{app_name} с нового устройства. Если это были не вы, вам нужно %{change_password}
-    ip_text: Кажется, вы недавно выполнили вход в %{app_name} из нового места. Если это были не вы, вам нужно %{change_password}
-    failed_text: Кажется, было выполнено несколько попыток входа в ваш аккаунт %{app_name} подряд. Если это были вы, можно проигнорировать это предупреждение. Если нет, вам нужно %{change_password}
+    device_text: Кажется, вы недавно выполнили вход в %{app_name} с нового устройства.
+      Если это были не вы, вам нужно %{change_password}
+    ip_text: Кажется, вы недавно выполнили вход в %{app_name} из нового места. Если
+      это были не вы, вам нужно %{change_password}
+    failed_text: Кажется, было выполнено несколько попыток входа в ваш аккаунт %{app_name}
+      подряд. Если это были вы, можно проигнорировать это предупреждение. Если нет,
+      вам нужно %{change_password}
     time_h: Время
     device_h: Устройство
     location_h: Местонахождение
@@ -360,28 +394,40 @@ ru:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Неверный статус
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
-  blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение "default" для дополнительных статусов
-  blank_active_status_for_custom_translation_status: Пожалуйста, задайте значение "active" для дополнительных статусов
-  blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение "default" для дополнительных статусов
-  blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение "active" для дополнительных статусов
+  blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение
+    "default" для дополнительных статусов
+  blank_active_status_for_custom_translation_status: Пожалуйста, задайте значение
+    "active" для дополнительных статусов
+  blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение
+    "default" для дополнительных статусов
+  blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение
+    "active" для дополнительных статусов
   bot_name_exists_for_this_team: В этой группе уже есть бот с таким именем
   bot_team_id_doesnt_exist: Извините, группы с таким идентификатором не существует
-  bot_team_id_mandatory_to_create: Извините, нужно выбрать группу, чтобы добавить бота
-  bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не может быть добавлен
-  only_admins_can_approve_bots: Извините, только суперадминистраторы могут одобрять ботов
+  bot_team_id_mandatory_to_create: Извините, нужно выбрать группу, чтобы добавить
+    бота
+  bot_not_approved_for_installation: Извините, этот бот не был одобрен, поэтому не
+    может быть добавлен
+  only_admins_can_approve_bots: Извините, только суперадминистраторы могут одобрять
+    ботов
   could_not_save_related_bot_data: Извините, не удалось добавить бота в эту группу
   bot_limited_team_not_pro: Извините, этот бот не может быть добавлен в данную группу
-  bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо этого можно предложить ответ
+  bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
+    этого можно предложить ответ
   bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
-  task_suggestion_invalid_value: Предлагаемый ответ должен быть представлен в виде объекта JSON с ключами 'suggestion' (ответ на вопрос, публикуемый при принятии предложения) и 'comment' (показывается пользователям)
+  task_suggestion_invalid_value: Предлагаемый ответ должен быть представлен в виде
+    объекта JSON с ключами 'suggestion' (ответ на вопрос, публикуемый при принятии
+    предложения) и 'comment' (показывается пользователям)
   tag_text_id_not_found: Извините, тэга с таким идентификатором не существует
   annotation_type_language_label: Язык
-  smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от вас для верификации. Подробнее: %{url}.'
-  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести верификацию, поскольку этот проект больше не активен.
+  smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от
+    вас для верификации. Подробнее: %{url}.'
+  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести
+    верификацию, поскольку этот проект больше не активен.
   smooch_bot_result_changed: |-
-      [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
+    [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
 
-      Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
+    Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
   permissions_info:
     roles:
       owner:
@@ -391,9 +437,11 @@ ru:
       journalist:
         description: Журналисты проверяют информацию.
       contributor:
-        description: Участники (чаще всего — представители общественности) могут добавлять новую информацию для верификации.
+        description: Участники (чаще всего — представители общественности) могут добавлять
+          новую информацию для верификации.
       annotator:
-        description: Аннотаторы могут просматривать и давать ответы только на те вопросы, которые были им назначены.
+        description: Аннотаторы могут просматривать и давать ответы только на те вопросы,
+          которые были им назначены.
     permissions:
       sections:
         project_management:
@@ -437,9 +485,12 @@ ru:
   team_import:
     invalid_google_spreadsheet_url: 'Неверный URL таблицы: %{spreadsheet_url}'
     not_found_google_spreadsheet_url: 'Таблица не найдена: %{spreadsheet_url}'
-    cannot_authenticate_with_the_credentials: Не удалось авторизоваться в Google Drive с указанными данными. Пожалуйста, свяжитесь со службой поддержки.
-    team_not_present: 'Выбранная группа не найдена при импорте данных. Пожалуйста, свяжитесь со службой поддержки. '
-    user_not_present: Выбранный пользователь не найден при импорте данных. Пожалуйста, свяжитесь со службой поддержки.
+    cannot_authenticate_with_the_credentials: Не удалось авторизоваться в Google Drive
+      с указанными данными. Пожалуйста, свяжитесь со службой поддержки.
+    team_not_present: 'Выбранная группа не найдена при импорте данных. Пожалуйста,
+      свяжитесь со службой поддержки. '
+    user_not_present: Выбранный пользователь не найден при импорте данных. Пожалуйста,
+      свяжитесь со службой поддержки.
     user_not_authorized: Вы не можете импортировать данные в эту группу.
     invalid_project: Неверный проект %{project}
     invalid_user: Неверный пользователь %{user}
@@ -454,7 +505,8 @@ ru:
   verification_status_deadline: Дедлайн
   verification_status_deadline_asc: Сначала ранние
   verification_status_deadline_desc: Сначала поздние
-  cant_mutate_inactive_object: Этот материал находится в обработке и не может быть изменён в настоящий момент. Пожалуйста, попробуйте позже.
+  cant_mutate_inactive_object: Этот материал находится в обработке и не может быть
+    изменён в настоящий момент. Пожалуйста, попробуйте позже.
   embed_expand_all: Раскрыть всё
   embed_collapse_all: Свернуть всё
   embed_tasks: Вопросы
@@ -465,3 +517,33 @@ ru:
   smooch_requests: Запросы
   smooch_requests_asc: Наименее запрашиваемые
   smooch_requests_desc: Самые запрашиваемые
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Спасибо за ваше сообщение!
+
+    Вы подозреваете, что это дезинформация, связанная с выборами 2019 года в Индии?
+
+    Если да, *отправьте 1*. Любой другой ответ завершит беседу.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    Спасибо. Ваше сообщение поможет нам исследовать распространение дезинформации во время выборов через WhatsApp.
+
+    Сообщение также было добавлено в очередь на верификацию. Мы постараемся отправить вам отчёт в течение 24 часов, но, к сожалению, мы можем ответить не на все запросы.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: Поскольку вы не ответили
+    «1», беседа будет завершена. Спасибо.
+  custom_message_smooch_bot_disabled_checkpoint: "Спасибо за ваше сообщение. \nК сожалению,
+    мы не сможем провести верификацию, поскольку проект Checkpoint больше не принимает
+    отчеты о дезинформации во время выборов в Индии."
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Извините, но мы пока
+    не принимаем файлы этого формата для верификации.
+  custom_message_smooch_bot_meme_checkpoint: 'Вот картинка, которую мы создали по
+    материалу, полученному от вас для верификации. Подробнее: %{url}.'
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Отчёт о верификации] Сообщение, которое вы нам отправили, получило отметку «*%{status}*».
+
+    Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
+
+    Вы можете ознакомиться со всеми шагами, предпринятыми для верификации, по ссылке: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[Отчёт о верификации — ИЗМЕНЕНИЕ]
+    Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*».
+    Сообщение возвращено в очередь и ожидает верификации."

@@ -54,6 +54,8 @@ class Ability
 
   def global_api_key_perms
     can :read, :all
+    can :find_by_json_fields, DynamicAnnotation::Field
+    can :update, Dynamic, annotation_type: 'smooch_user'
   end
 
   def annotator_perms

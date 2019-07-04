@@ -657,7 +657,12 @@ module SampleData
     a = Dynamic.new
     a.annotation_type = t
     a.annotator = options.has_key?(:annotator) ? options[:annotator] : create_user
-    a.annotated = options[:annotated] || create_project_media
+    if options[:annotated_id] && options[:annotated_type]
+      a.annotated_id = options[:annotated_id]
+      a.annotated_type = options[:annotated_type]
+    else
+      a.annotated = options[:annotated] || create_project_media
+    end
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
@@ -705,7 +710,7 @@ module SampleData
     #   ...
     # }
     annotation_type_name = annotation_type_label.parameterize.gsub('-', '_')
-    at = create_annotation_type annotation_type: annotation_type_name, label: annotation_type_label
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
     fts = fields.values.collect{ |v| v.first }
     fts.each do |label|
       type = label.parameterize.gsub('-', '_')
@@ -718,7 +723,7 @@ module SampleData
       settings = type[2] || {}
       field_type = type[0].parameterize.gsub('-', '_')
       type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
-      create_field_instance annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings
+      DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
     end
   end
 

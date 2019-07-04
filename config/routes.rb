@@ -90,4 +90,5 @@ Rails.application.routes.draw do
   match '/test/bot' => 'test#new_bot', via: :get
   match '/test/get' => 'test#get', via: :get
   match '/test/archive_project' => 'test#archive_project', via: :get
+  match '/test/dynamic_annotation' => 'test#new_dynamic_annotation', via: :get
 end
