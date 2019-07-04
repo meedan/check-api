@@ -221,7 +221,6 @@ pt:
   mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor
     confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_confirm_button: Confirmar minha conta
-  pender_could_not_parse: Não foi possível analisar esta mídia
   slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name}
     porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
   admin:
@@ -676,3 +675,33 @@ pt:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
   bot_request_url_invalid: URL do bot é invalido
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Obrigado por enviar esta mensagem.
+
+    Você suspeita que seja uma informação errada relacionada às Eleições Gerais Indianas de 2019?
+
+    Para dizer sim, *responda com 1*. Qualquer outra resposta terminará nossa conversa.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    Obrigado. Sua submissão nos ajudará a pesquisar a disseminação de desinformação no WhatsApp durante essas eleições.
+
+    Este item também foi adicionado à nossa fila de verificação. Tentaremos obter um relatório dentro de 24 horas, mas por favor observe que não podemos responder a todas as solicitações.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: Como você não respondeu
+    com 1, não processaremos mais sua mensagem. Obrigado.
+  custom_message_smooch_bot_disabled_checkpoint: |-
+    Obrigado por enviar esta mensagem.
+    Não é possível enviar relatório de verificação porque este projeto não está mais ativo.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Desculpe, ainda não
+    damos suporte a este formato de arquivo para verificação.
+  custom_message_smooch_bot_meme_checkpoint: Aqui está um meme criado com base no
+    item que você solicitou que verificássemos. Saiba mais em %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
+
+    Aqui estão os passos que fizemos para determinar isso: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Relatório de Verificação - CORREÇÃO] A mensagem que você compartilhou conosco mudou de *%{previous_status}* para *%{status}*.
+
+    Aqui estão os passos que fizemos para determinar isso: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[Relatório de Verificação - CORREÇÃO]
+    A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*.
+    Ainda está em nossa fila para verificação adicional."

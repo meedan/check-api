@@ -221,8 +221,6 @@ ar:
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
     أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_confirm_button: أكِّد الحساب
-  pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد
-    المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name}
     حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -664,3 +662,32 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: عنوان URL البوت غير صالح
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    شكرا لإرسال هذه الرسالة.
+
+    هل تشك في أنها معلومات خاطئة تتعلق بالانتخابات العامة الهندية لعام 2019 ؟
+
+    ليقول نعم ، * الرجاء الرد بـ 1 *. أي رد آخر سينهي طلبك.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    شكرا لكم. سوف تساعدنا رسالتك في بحث مدى انتشار المعلومات الخاطئة على WhatsApp خلال هذه الانتخابات.
+
+    تمت إضافة هذا العنصر إلى قائمة انتظار التحقق. سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: نظرًا لأنك لم ترد  بـ
+    1 ، فلن نقوم بمعالجة رسالتك. شكرا لكم.
+  custom_message_smooch_bot_disabled_checkpoint: شكرا لإرسال هذه الرسالة.لا نستطيع
+    إرسال أي من تقرير التحقيق ، حيث أن هذا المشروع لم يعد نشطاً.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: عذرًا ، لا ندعم هذا
+    النوع من الرسائل بعد للتحقق من صحتها.
+  custom_message_smooch_bot_meme_checkpoint: إليك ميم أنشأناه بناء على العنصر الذي
+    أرسلته للتحقق منه. لعرض المزيد %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [تقرير التحقيق] لقد تم  تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
+
+    فيما يلي الخطوات التي اتخذناها لتحديد ذلك : %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [تقرير التحقيق - تصحيح] لقد تغير تصنيف العنصر الذي أرسلته لنا من *%{previous_status}* إلى *%{status}*.
+
+    فيما يلي الخطوات التي اتخذناها لتحديد ذلك : %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[تقرير التحقيق - تصحيح] لقد حدث
+    خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*. ما زال العنصر في قائمة
+    اﻹنتظار للمزيد من التحقق."

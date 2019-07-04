@@ -671,3 +671,32 @@ en:
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
   bot_request_url_invalid: The bot URL is invalid
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Thank you for sending this message.
+    Do you suspect it to be misinformation related to the Indian General Elections 2019?
+    To say yes, *please reply with 1*. Any other response will end our conversation.
+  custom_message_smooch_bot_message_confirmed_checkpoint: Thank you. Your submission
+    will help us research the spread of misinformation on WhatsApp during these elections.
+    This item has also been added to our verification queue. We will try to get you
+    a report within 24 hours, but please note that we are not able to respond to every
+    request.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: Since you didn’t reply
+    with 1, we will not process your message further. Thank you.
+  custom_message_smooch_bot_disabled_checkpoint: |-
+    Thank you for sending this message.
+    We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Sorry, we don't support
+    this type of file format for verification yet.
+  custom_message_smooch_bot_meme_checkpoint: Here's a meme we created based on the
+    item you have requested that we verify. Learn more at %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Verification Report] The message you shared with us is marked *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: '[Verification Report - CORRECTION]
+    The message you shared with us was wrongly marked as *%{status}*. It is still
+    in our queue for further verification."'

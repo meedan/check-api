@@ -217,7 +217,6 @@ ro:
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa
     de e-mail, făcând click pe următorul link:'
-  pender_could_not_parse: Imposibil de analizat acest fișier media
   slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura echipei %{team_name}
     deoarece ea este doar pentru membrii echipei(lor) Slack %{teams}.
   admin:
@@ -656,3 +655,33 @@ ro:
   smooch_requests: Solicitări
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Vă mulțumim pentru că ați transmis acest mesaj.
+
+    Credeți că este vorba de o informație înșelătoare, legată de Alegerile generale din India din 2019?
+
+    Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    Vă mulțumim. Ceea ce ne-ați transmis ne va ajuta să studiem răspândirea informațiilor înșelătoare pe WhatsApp în perioada electorală actuală.
+
+    De asemenea, acest element a fost adăugat în rândul nostru pentru verificare. Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: Deoarece nu ați răspuns
+    cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
+  custom_message_smooch_bot_disabled_checkpoint: Vă mulțumim pentru acest mesaj. Nu
+    putem să transmitem nici un raport de verificare pentru că acest dosar nu mai
+    este activ.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Ne pare rău, deocamdată
+    nu acceptăm acest tip de format de fișiere pentru verificare.
+  custom_message_smooch_bot_meme_checkpoint: Iată un meme, pe care l-am creat în baza
+    elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
+
+    Iată care sunt pașii, pe care le-am făcut pentru a determina acest lucru: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
+
+    Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[Raport de verificare - CORECTARE]
+    Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în
+    coada de așteptare pentru verificări ulterioare."
