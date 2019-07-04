@@ -69,4 +69,19 @@ class AssignmentMailerTest < ActionMailer::TestCase
 
     I18n.unstub(:locale)
   end
+
+  test "should not crash with non-ASCii e-mail" do
+    e = "\u{FEFF}user1@mail.com"
+    u = create_user
+    u2 = create_user email: e
+    p = create_project
+
+    email = AssignmentMailer.notify(:assign_project, u, u2.email, p)
+
+    assert_emails 1 do
+      email.deliver_now
+    end
+    
+    assert_equal ['user1@mail.com'], email.to
+  end
 end

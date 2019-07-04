@@ -44,9 +44,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.each do |name, label|
       settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
     end
+    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
-    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:put, 'https://www.transifex.com/api/2/project/check-2/resource/api/content').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
@@ -993,9 +994,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    I18n.stubs(:exists?).with("#{k}_#{slug}").returns(true)
-    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, {}).returns(c1)
-    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
+    I18n.stubs(:exists?).with("custom_message_#{k}_#{slug}").returns(true)
+    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, {}).returns(c1)
+    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c2, Bot::Smooch.i18n_t(k, { locale: 'pt' })
     I18n.unstub(:t)
@@ -1138,6 +1139,19 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     assert_not_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
+  end
+
+  test "should create Transifex resource if it does not exist" do
+    t = create_team
+    
+    Transifex::Project.any_instance.stubs(:resource).raises(Transifex::TransifexError.new(nil, nil, nil))
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+      s = @settings.clone
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
+    end
+    Transifex::Project.any_instance.unstub(:resource)
   end
 
   protected

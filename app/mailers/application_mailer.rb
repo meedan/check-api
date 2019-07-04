@@ -26,6 +26,7 @@ class ApplicationMailer < ActionMailer::Base
   def mail(options={})
     filter_to_if_user_opted_out(options)
     return if options[:to].empty?
+    options[:to] = [options[:to]].flatten.collect{ |to| to.gsub(/[\u200B-\u200D\uFEFF]/, '') }
     @direction = ApplicationMailer.set_template_direction
     super(options)
   end
