@@ -217,7 +217,6 @@ es:
   mail_view_register: "¡Estás a un solo paso de usar %{app_name}! Por favor, confirma
     tu dirección de correo electrónico haciendo clic en el siguiente enlace:"
   mail_confirm_button: Confirmar mi cuenta
-  pender_could_not_parse: 'No se pudo analizar este ítem '
   slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque
     está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
@@ -674,3 +673,34 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Gracias por enviar este mensaje.
+
+    ¿Sospecha que se trata de información errónea relacionada con las Elecciones Generales de la India 2019?
+
+    Para decir sí, * por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    ¡Gracias! tu solicitud nos ayudará a investigar la propagación de desinformación en WhatsApp durante estas elecciones.
+
+    Esta solicitud también se ha agregado a nuestra cola de verificación. Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: 'Como no respondiste a
+    la pregunta tecleando el número 1,  no procesaremos más tu solicitud. ¡Gracias! '
+  custom_message_smooch_bot_disabled_checkpoint: |-
+    Gracias por enviar este mensaje.
+    No podemos devolver ningún informe de verificación, porque este proyecto ya no está activo.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Lo sentimos, este
+    tipo de formatos todavía no los procesamos. Pero puedes enviarnos textos, imágenes
+    y enlaces para verificarlos. ¡Gracias!
+  custom_message_smooch_bot_meme_checkpoint: Hicimos este meme gracias a la pregunta
+    que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Informe de Verificación] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
+
+    Este es el proceso que seguimos para llegar a esta conclusión: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
+
+    Este es el proceso que seguimos para llegar a esta conclusión: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[Informe de Verificación - CORRECCIÓN]
+    El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
+    Todavía está en nuestra cola de verificación para añadirle información adicional."
