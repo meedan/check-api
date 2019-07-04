@@ -87,14 +87,17 @@ module CheckBasicAbilities
       !obj.team.private || @user.cached_teams.include?(obj.team.id)
     end
 
-    can :read, TeamBot, approved: true
-    can :read, TeamBot, team_author_id: @user.cached_teams
+    can :read, BotUser do |obj|
+      obj.get_approved || @user.cached_teams.include?(obj.team_author_id)
+    end
 
     annotation_perms_for_all_users
 
     cannot :manage, ApiKey
 
     can [:create, :update], LoginActivity
+    
+    cannot :find_by_json_fields, DynamicAnnotation::Field
   end
 
   def annotation_perms_for_all_users

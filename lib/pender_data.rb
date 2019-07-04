@@ -5,7 +5,13 @@ module PenderData
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
-      result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
+      result = { type: 'error', data: { code: -1 } }.with_indifferent_access
+      begin
+        result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
+      rescue StandardError => e
+        Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
+        Airbrake.notify(e) if Airbrake.configuration.api_key
+      end
       if result['type'] == 'error'
         self.pender_error = true
         self.pender_error_code = result['data']['code']
@@ -40,7 +46,6 @@ module PenderData
       data = self.pender_data
       m = self.metadata_annotation
       current_data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
-      data['published_at'] = data['published_at'].to_time.to_i unless data['published_at'].nil?
       current_data['refreshes_count'] ||= 0
       current_data['refreshes_count'] += 1
       data['refreshes_count'] = current_data['refreshes_count']
@@ -50,7 +55,7 @@ module PenderData
   end
 
   def metadata_annotation
-    pender = Bot::Bot.where(name: 'Pender').last
+    pender = BotUser.where(name: 'Pender').last
     m = Dynamic.where(annotation_type: 'metadata', annotated_type: self.class_name, annotated_id: self.id).first
     if m.nil?
       m = Dynamic.new

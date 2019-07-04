@@ -9,34 +9,6 @@ def api_keys_query(table)
      users.id IN (#{get_ids('users')})"
 end
 
-def bot_alegres_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_bots_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_bridge_readers_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_facebooks_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_slacks_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_twitters_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
-def bot_vibers_query(table)
-  "SELECT #{table}.* FROM #{table}"
-end
-
 def dynamic_annotation_annotation_types_query(table, field = '*')
   "SELECT #{table}.#{field} FROM #{table}"
 end
@@ -70,10 +42,6 @@ def sources_query(table, field = '*')
 end
 
 def tag_texts_query(table)
-  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@id}"
-end
-
-def team_bot_installations_query(table)
   "SELECT #{table}.* FROM #{table} WHERE team_id=#{@id}"
 end
 
@@ -111,15 +79,6 @@ def users_query(table, field = '*')
    FROM #{table}
    INNER JOIN
      team_users ON team_users.user_id = #{table}.id
-   WHERE
-     team_id=#{@id}"
-end
-
-def team_bots_query(table, field = '*')
-  "SELECT #{table}.#{field}
-   FROM #{table}
-   INNER JOIN
-     team_bot_installations ON team_bot_installations.team_bot_id = #{table}.id
    WHERE
      team_id=#{@id}"
 end

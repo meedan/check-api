@@ -12,12 +12,25 @@ module TeamAssociations
     has_many :users, through: :team_users
     has_many :contacts, dependent: :destroy
     has_many :sources, dependent: :destroy
-    has_many :team_bot_installations, dependent: :destroy
-    has_many :team_bots, through: :team_bot_installations
-    has_many :team_bots_created, class_name: 'TeamBot', foreign_key: :team_author_id, dependent: :destroy
     has_many :tag_texts, dependent: :destroy
     has_many :team_tasks, dependent: :destroy
 
     has_annotations
+  end
+
+  def team_bot_installations
+    TeamBotInstallation.where(id: self.team_users.where(type: 'TeamBotInstallation').map(&:id))
+  end
+
+  def team_bots
+    BotUser.joins(:team_users).where('team_users.team_id' => self.id, 'team_users.status' => 'member', 'team_users.type' => 'TeamBotInstallation')
+  end
+
+  def team_bots_created
+    bots = []
+    self.team_bots.each do |bot|
+      bots << bot.id if bot.get_team_author_id == self.id
+    end
+    BotUser.where(id: bots.uniq)
   end
 end

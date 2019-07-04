@@ -22,10 +22,14 @@ class AdminAbility
     can [:read, :update, :delete_tasks], Team, id: @teams
     can [:index, :read, :update, :destroy, :export_project], Project, team_id: @teams
     can [:index, :read, :create, :update, :destroy], TeamBotInstallation, team_id: @teams
-    can [:index, :read, :create, :update, :destroy], TeamBot, team_author_id: @teams
-    can :destroy, BotUser, team_bot: { team_author_id: @teams }
-    can :destroy, [ApiKey, Source], bot_user: { team_bot: { team_author_id: @teams } }
-    can [:index, :install], TeamBot, approved: true
+    can [:index, :read], BotUser, team_users: { team_id: @teams }
+    can [:create, :update, :destroy], BotUser do |obj|
+      @teams.include?(obj.team_author_id)
+    end
+    can :destroy, [ApiKey, Source], bot_user: { team_author_id: @teams }
+    can [:install], BotUser do |obj|
+      obj.get_approved
+    end
     can :destroy, ProjectSource, project: { team_id: @teams }
     can :destroy, ProjectMedia do |obj|
       (obj.team ||= obj.project.team) if obj.project

@@ -1,3 +1,4 @@
+---
 ro:
   statuses:
     ids:
@@ -25,7 +26,7 @@ ro:
         label: În lucru
         description: Lucrul a început, însă traduceri încă nu s-au făcut
       not_true:
-        label: 'Fals'
+        label: Fals
         description: 'Concluzia: conținutul elementului este fals'
       verified:
         label: Verificat
@@ -90,8 +91,10 @@ ro:
         description: Traducerea a fost revizuită și a fost identificată o eroare
   errors:
     messages:
-      extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise: %{allowed_types}'
-      invalid_size: trebuie să fie între %{min_width}x%{min_height} și %{max_width}x%{max_height} pixeli
+      extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise:
+        %{allowed_types}'
+      invalid_size: trebuie să fie între %{min_width}x%{min_height} și %{max_width}x%{max_height}
+        pixeli
   activerecord:
     models:
       link: Link
@@ -142,27 +145,39 @@ ro:
           one: este prea scurt (minimul este de 1 caracter)
           few: este prea scurt (minimul este de %{count} caractere)
           other: este prea scurt (minimul este de %{count} de caractere)
-  slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
+    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
-  invalid_format_for_languages: 'Setările de limbă nu sunt valide. Formatul trebuie să fie [{''id'': ''en'', ''title'': ''English''}]'
+  invalid_format_for_languages: 'Setările de limbă nu sunt valide. Formatul trebuie
+    să fie [{''id'': ''en'', ''title'': ''English''}]'
   invalid_media_item: Ne pare rău, nu este un element media valid
-  invalid_default_status_for_custom_verification_status: Identificatorul de stare implicit nu este valid
-  invalid_active_status_for_custom_verification_status: Identificatorul de stare activ nu este valid
+  invalid_default_status_for_custom_verification_status: Identificatorul de stare
+    implicit nu este valid
+  invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
+    nu este valid
   invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
-  invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
-  invalid_statuses_format_for_custom_verification_status: 'Stările de verificare personalizate trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil și semn al stării finale'
-  invalid_default_status_for_custom_translation_status: Identificatorul de stare implicit nu este valid
-  invalid_active_status_for_custom_translation_status: Identificatorul de stare activ nu este valid
+  invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu
+    și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_verification_status: 'Stările de verificare personalizate
+    trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil
+    și semn al stării finale'
+  invalid_default_status_for_custom_translation_status: Identificatorul de stare implicit
+    nu este valid
+  invalid_active_status_for_custom_translation_status: Identificatorul de stare activ
+    nu este valid
   invalid_label_for_custom_translation_status: Eticheta privind starea este obligatorie
-  invalid_id_for_custom_translation_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cratime și caractere de subliniere
-  invalid_statuses_format_for_custom_translation_status: 'Stările personalizate ale traducerii trebuie să fie intrări valide pentru: etichetă, identificator, descriere, stil și semn al stării finale'
-  mail_account_confirmation: "Confirmarea contului %{app_name}"
+  invalid_id_for_custom_translation_status: Identificatorul de stare este obligatoriu
+    și trebuie să conțină doar litere mici, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_translation_status: 'Stările personalizate ale
+    traducerii trebuie să fie intrări valide pentru: etichetă, identificator, descriere,
+    stil și semn al stării finale'
+  mail_account_confirmation: Confirmarea contului %{app_name}
   slack:
     fields:
       assigned: Atribuit lui
       unassigned: Transferat de la
       required: Obligatoriu?
-      required_yes: 'Da'
+      required_yes: Da
       project: Dosar
       source: Sursa
       status: Starea
@@ -182,9 +197,11 @@ ro:
       task_comment: "%{user} (%{role} în %{team}) a adăugat o notă la o Sarcină"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
-      project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type} asociat"
+      project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
+        asociat"
       project_media_update: "%{user} (%{role} în %{team}) a redactat %{type}"
-      project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow} pentru %{type}"
+      project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow}
+        pentru %{type}"
       project_media_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
       project_media_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
       project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
@@ -198,9 +215,10 @@ ro:
       user_invited: "%{user} a fost invitat să se alăture echipei %{team}"
       user_banned: "%{user} a fost interzis în echipa %{team}"
   mail_view_welcome: Bun venit în %{app_name}
-  mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa de e-mail, făcând click pe următorul link:'
-  pender_could_not_parse: Imposibil de analizat acest fișier media
-  slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura echipei %{team_name} deoarece ea este doar pentru membrii echipei(lor) Slack %{teams}.
+  mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa
+    de e-mail, făcând click pe următorul link:'
+  slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura echipei %{team_name}
+    deoarece ea este doar pentru membrii echipei(lor) Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
@@ -212,12 +230,14 @@ ro:
       delete_tasks:
         done: a șters sarcinile
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Sunteți sigur că doriți să ștergeți toate sarcinile în echipa <strong>%{team}</strong>? Vor fi eliminate următoarele sarcini:'
+          html: 'Sunteți sigur că doriți să ștergeți toate sarcinile în echipa <strong>%{team}</strong>?
+            Vor fi eliminate următoarele sarcini:'
       duplicate_team:
         menu: Duplicare echipă
         done: copiat
         are_you_sure_you_want_to_copy_team:
-          html: Sunteți sigur că doriți să copiați echipa <strong>%{team}</strong>? Vor fi copiate și toate datele asociate.
+          html: Sunteți sigur că doriți să copiați echipa <strong>%{team}</strong>?
+            Vor fi copiate și toate datele asociate.
         the_team_is_being_copied: Are loc copierea echipei
         url_when_ready:
           html: După finalizare, copia echipei va fi disponibilă pe <strong>%{copy_url}</strong>
@@ -226,20 +246,29 @@ ro:
   email_not_found: Adresa de e-mail nu a fost găsită
   slack_channel_format_wrong: Canalul Slack nu este valid
   translation_status_not_valid: Starea nu este validă
-  translation_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica această stare
+  translation_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
+    această stare
   translation_request_id_exists: Solicitarea de traducere a acestui mesaj deja există
-  auto_publisher_added_to_project: Mulțumim! Acum toate traducerile noi la dosarul %{project} vor fi publicate  în mod automat  în acest cont pe %{provider}. Dacă vă răzgândiți, contactați administratorul sau pur și simplu retrageți autorizarea Bridge de la %{provider}.
+  auto_publisher_added_to_project: Mulțumim! Acum toate traducerile noi la dosarul
+    %{project} vor fi publicate  în mod automat  în acest cont pe %{provider}. Dacă
+    vă răzgândiți, contactați administratorul sau pur și simplu retrageți autorizarea
+    Bridge de la %{provider}.
   invalid_token: Cod temporar nevalid
-  viber_screenshot_footer: "Traducerea în %{target_language} din %{source_language}: “%{source_text}”"
+  viber_screenshot_footer: 'Traducerea în %{target_language} din %{source_language}:
+    “%{source_text}”'
   time:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
   oembed_disclaimer_undetermined: 'Acest material nu a fost analizat de echipa %{team} '
-  oembed_disclaimer_in_progress: Are loc procesul de stabilire a corectitudinii acestui material de către echipa %{team}, situația la %{date}
-  oembed_disclaimer_verified: Corectitudinea acestui material a fost verificată de echipa %{team} pe %{date}
-  oembed_disclaimer_false: Echipa %{team} pe %{date} a stabilit că materialul dat este un fals
-  oembed_disclaimer_not_applicable: 'Nu a fost posibil pentru echipa %{team} pe %{date} să ajungă la o concluzie privind corectitudinea acestui material '
+  oembed_disclaimer_in_progress: Are loc procesul de stabilire a corectitudinii acestui
+    material de către echipa %{team}, situația la %{date}
+  oembed_disclaimer_verified: Corectitudinea acestui material a fost verificată de
+    echipa %{team} pe %{date}
+  oembed_disclaimer_false: Echipa %{team} pe %{date} a stabilit că materialul dat
+    este un fals
+  oembed_disclaimer_not_applicable: 'Nu a fost posibil pentru echipa %{team} pe %{date}
+    să ajungă la o concluzie privind corectitudinea acestui material '
   oembed_source_date: "%{date} pe %{provider}"
   role_editor: redactor
   role_owner: coordonator
@@ -250,11 +279,11 @@ ro:
   role_: administrator de sistem
   oembed_credit: Adăugat de %{user} (%{role}) %{date}
   oembed_notes_count:
-    one: "O notă"
+    one: O notă
     few: "%{count} note"
     other: "%{count} de note"
   oembed_completed_tasks_count:
-    one: "O sarcină completă"
+    one: O sarcină completă
     few: "%{count} sarcini completate"
     other: "%{count} de sarcini realizate"
   oembed_verification_tasks: Sarcini
@@ -263,7 +292,7 @@ ro:
   oembed_expand_all: Extindeți totul
   oembed_collapse_all: Restrângeți totul
   oembed_resolved_tasks_count:
-    one: "O sarcină rezolvată"
+    one: O sarcină rezolvată
     few: "%{count} sarcini rezolvate"
     other: "%{count} de sarcini rezolvate"
   oembed_notes: Note
@@ -273,37 +302,49 @@ ro:
   datetime_invalid_date: Introduceți o dată validă
   error_team_archived: Ne pare rău, nu puteți adăuga dosare la o echipă eliminată
   error_project_archived: Ne pare rău, nu puteți adăuga elemente la un dosar eliminat
-  error_team_archived_for_source: Ne pare rău, nu puteți adăuga sursă la o echipă eliminată
+  error_team_archived_for_source: Ne pare rău, nu puteți adăuga sursă la o echipă
+    eliminată
   permission_error: Ne pare rău, nu aveți permisiunea de a efectua această operațiune
   error_annotated_archived: Ne pare rău, nu puteți adăuga note la un element eliminat
-  only_super_admin_can_do_this: Ne pare rău, doar administratorul de sistem poate efectua această modificare
-  max_number_of_team_users_reached: Ne pare rău, s-a atins numărul maxim de utilizatori pentru această echipă
-  max_number_of_projects_reached: Ne pare rău, s-a atins numărul maxim de dosar pentru această echipă
-  cant_set_custom_statuses: Ne pare rău, individualizarea statuturilor nu este disponibilă pentru această echipă
+  only_super_admin_can_do_this: Ne pare rău, doar administratorul de sistem poate
+    efectua această modificare
+  max_number_of_team_users_reached: Ne pare rău, s-a atins numărul maxim de utilizatori
+    pentru această echipă
+  max_number_of_projects_reached: Ne pare rău, s-a atins numărul maxim de dosar pentru
+    această echipă
+  cant_set_custom_statuses: Ne pare rău, individualizarea statuturilor nu este disponibilă
+    pentru această echipă
   cant_change_custom_statuses: |-
-      Ne pare rău, nu puteți modifica definițiile statuturilor pentru că unele statuturi s-ar putea pierde. Acești identificatori de statut: %{statuses} sunt folosiți în elementele ce urmează:
-      %{urls} %{others_amount}
+    Ne pare rău, nu puteți modifica definițiile statuturilor pentru că unele statuturi s-ar putea pierde. Acești identificatori de statut: %{statuses} sunt folosiți în elementele ce urmează:
+    %{urls} %{others_amount}
   cant_create_team_task: Ne pare rău, echipa Dvs nu are acces la această caracteristică
-  cant_create_media_under_this_team_using_extension: Ne pare rău, extensia pentru browser nu este disponibilă pentru această echipă
+  cant_create_media_under_this_team_using_extension: Ne pare rău, extensia pentru
+    browser nu este disponibilă pentru această echipă
   error_invalid_attribution: Atribuire nevalidă
   account_exists: Acest cont există deja
   media_exists: Acest material există deja
   source_exists: Această sursă există deja
   email_exists: a fost deja luat
-  banned_user: Ne pare rău, contul Dvs a fost interzis pentru %{app_name}. Contactați echipa de suport dacă credeți că s-a produs o eroare.
+  banned_user: Ne pare rău, contul Dvs a fost interzis pentru %{app_name}. Contactați
+    echipa de suport dacă credeți că s-a produs o eroare.
   devise:
     mailer:
+      reset_password_instructions:
+        subject: "%{app_name} instrucțiuni pentru resetarea parolei"
+        header_title: Solicitarea de resetare a parolei
       invitation_instructions:
         subject: "%{user} v-a invitat să vă alăturați echipei %{team} "
         hello: Salut %{name}
         someone_invited_you_default:
-          html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de %{role}."
+          html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de
+            %{role}."
         someone_invited_you_custom:
-          html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de %{role}, spunând:"
+          html: "%{name} v-a invitat să vă alăturați echipei %{team} în calitate de
+            %{role}, spunând:"
         accept: Acceptă invitația
         accept_until: Invitația dată va expira pe %{due_date}.
         ignore: Dacă nu doriți să acceptați invitația, ignorați acest email.
-        app_team: "Echipa %{app} "
+        app_team: 'Echipa %{app} '
     failure:
       unconfirmed: Vă rugăm să vă accesați emailul pentru a verifica contul Dvs.
   user_invitation:
@@ -312,41 +353,145 @@ ro:
     team_found: Echipa nu a fost găsită.
     invalid: Codul temporar al invitației nu este valid.
     no_invitation: Nu există invitații pentru echipa %{name}
-  error_user_is_not_a_team_member: Ne pare rău, puteți desemna doar pentru membrii echipei date
-  error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt utilizator
+  error_user_is_not_a_team_member: Ne pare rău, puteți desemna doar pentru membrii
+    echipei date
+  error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt
+    utilizator
   mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
+    greeting: Salut, %{username},
     project_view: Vizualizare dosar
+    unsubscribe: Anulați abonarea
+    unsubscribe_link: "%{unsubscribe} la aceste înștiințări"
+    copyright_html: '%{app_name} de la <a href="https://meedan.com">Meedan</a>'
+    register:
+      header_text: |-
+        V-ați înregistrat cu succes pe %{app_name}!
+        <br>
+        Pentru a vă conecta pe site este suficient doar să accesați acest link: %{url}. Introduceți această adresă email și această parolă: %{password}
+      login_button: Conectare la %{app_name}
+      footer_text: Vă mulțumim pentru că v-ați alăturăt și vă urăm o zi reușită!
+    duplicated:
+      subject: Metoda dvs. de conectare pentru %{app_name}
+      header_title: Dublează contul
+      one_email: |-
+        <p>Salut, este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să vă conectați la %{app_name} cu un cont pe %{user_provider} legat de %{user_email}.
+        Însă, această adresă de e-mail este deja asociată cu un cont pe%{duplicate_provider} în %{app_name}.</p>
+        <p>Ce trebuie făcut: Conectați-vă cu %{duplicate_provider}.</p>
+        <p>În acest caz vă veți conecta cu ajutorul contului folosit anterior.
+        Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p>
+      both_emails: |-
+        <p>Este doar o notificare prietenoasă pentru asigurarea faptului că ați reușit să vă conectați la %{app_name}.</p> <p>Ce s-a întâmplat: Ați încercat să creați un nou cont bazat pe e-mail pe %{app_name}, însă acest cont deja există.</p>
+        <p>Încercați să vă conectați cu adresa de e-mail și parola dvs în loc să creați un cont nou.</p>
+        <p>Vă veți conecta la contul folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p>
+      email: email
+    delete_user:
+      subject: "[%{team}] A fost șters un utilizator"
+      header_title: Utilizatorul a fost șters
+      header_text: Un cont de utilizator a fost șters și conținutul acestuia a fost
+        desemnat utilizatorului anonim %{anonymous}  %{id}
+    admin_mailer:
+      types:
+        dump: instantaneu de date
+        images: arhiva de imagini
+      team_dump_text: 'Ați solicitat un instantaneu de date pentru echipa %{team}
+        - acesta este link-ul pentru descărcarea lui: %{link}'
+      decompress_text: " %{type} va fi descărcat sub forma unui fișier comprimat,
+        criptat. Pentru a decomprima fișierul introduceți parola: %{password}."
+      project_export_csv_subject: "[%{team} - %{project}] Raportul Dvs de dosar este
+        gata pentru a fi descărcat"
+      project_export_images_subject: "[%{team} - %{project}] Arhiva imaginilor din
+        dosar este gata pentru a fi descărcată"
+      project_export_title: Datele dosarului
+      project_export_button: Descarcă datele dosarului
+      project_export_csv_text: 'Ați solicitat un raport pentru dosarul %{project}
+        - acesta este link-ul pentru descărcarea lui: %{link}'
+      project_export_images_text: 'Ați solicitat arhiva imaginilor pentru dosarul
+        %{project} - acesta este link-ul pentru descărcarea acesteia: %{link}'
+      team_import_text: "<p>Activitatea dvs de import de date în %{app_name} s-a finalizat.
+        Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma
+        să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați
+        erorile raportate acolo - elementele importate anterior nu vor fi dublate.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] Sarcină rezolvată"
       header_title: Sarcină rezolvată
       header_text: " %{author} a rezolvat o sarcină în dosarul %{project} din %{team}."
+      section_title: Cine sau ce este sursa declarației?
+      status: Starea
+      media_h: Media
     media_status:
+      label: media
       subject: "[%{team} - %{project}] Statutul unui element media a fost marcat %{status}"
-      header_text: " %{author} a actualizat un element media în dosarul %{project} din %{team}."
+      header_title: Statut media actualizat
+      header_text: " %{author} a actualizat un element media în dosarul %{project}
+        din %{team}."
+      section_title: Marcat ca fiind %{status}.
+      added_to: Adăugat în %{app_name}
+      update_h: Ultima actualizare
       tasks_h: Sarcină finalizată
     assignment:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
+      unassign_task_subject: "[%{team} - %{project}] O sarcină a fost transferată
+        de la Dvs"
+      assign_project_subject: "[%{team} - %{project}] V-a fost desemnat un dosar"
+      unassign_project_subject: "[%{team} - %{project}] Un dosar a fost transferat
+        de la Dvs"
       assign_media_subject: "[%{team} - %{project}] V-a fost desemnat un element media"
+      unassign_media_subject: "[%{team} - %{project}] Un element media a fost transferat
+        de la Dvs"
       assign_project_title: Dosar atribuit
+      unassign_project_title: Dosar transferat
+      assign_project_text: "%{author} a desemnat un dosar %{project} din %{team}."
+      unassign_project_text: "%{author} a transferat un dosar %{project} din %{team}."
       assign_task_title: Sarcină desemnată
-      assign_task_text: "%{author} a desemnat o sarcină în proiectul %{project} din %{team}."
-      unassign_task_text: "%{author} a transferat o sarcină în proiectul %{project} din %{team}."
-      assign_media_text: "%{author} a desemnat un element media în dosarul %{project} din %{team}."
+      unassign_task_title: Sarcină transferată
+      assign_task_text: "%{author} a desemnat o sarcină în proiectul %{project} din
+        %{team}."
+      unassign_task_text: "%{author} a transferat o sarcină în dosarul %{project}
+        din %{team}."
+      assign_media_title: Element media atribuit
+      unassign_media_title: Element media transferat
+      assign_media_text: "%{author} a desemnat un element media în dosarul %{project}
+        din %{team}."
+      unassign_media_text: "%{author} a desemnat un element media în dosarul %{project}
+        din %{team}."
+      assign_log: "%{author} a atribuit %{model} lui %{username}"
+      unassign_log: "%{author} a transferat %{model} de la %{username}"
+      assign_by: Atribuit de
+      unassign_by: Transferat de către
+      project_button: Treci la pagina dosarului
+    request_to_join:
+      subject: Solicitarea permisiunii de a se alătura echipei %{team}
+      team_button: Treci la pagina echipei
+      rejected_subject: Solicitarea Dvs de a se alătura echipei %{team} nu a fost
+        aprobată
+      approved_text: Solicitarea Dvs de a se alătura echipei %{team} pe %{app_name}
+        a fost aprobată! Acum puteți accesa %{url} pentru a începe să contribuiți.
+      rejected_text: Ne pare rău, solicitarea Dvs de a se alătura echipei %{team}
+        pe %{app_name} nu a fost aprobată.
   mail_security:
-    device_subject: 'Avertizare de securitate: Conectare nouă la %{app_name} din %{browser} pe %{platform}'
-    failed_subject: 'Avertizare de securitate: Încercări ieșuate de a se conecta la %{app_name}'
+    device_subject: 'Avertizare de securitate: Conectare nouă la %{app_name} din %{browser}
+      pe %{platform}'
+    ip_subject: 'Avertizare de securitate: Conectare nouă sau neobișnuită la %{app_name} '
+    failed_subject: 'Avertizare de securitate: Încercări ieșuate de a se conecta la
+      %{app_name}'
     ip: V-ați conectat din %{location}
     device: V-ați conectat din %{browser} pe %{platform}
     devise_name: "%{browser} pe %{platform}"
     failed: Au fost identificate încercări de conectare ieșuate
     password_text: resetează parola imediat.
-    ip_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}
-    failed_text: Se pare că s-au făcut mai multe încercări de conectare la contul Dvs %{app_name}. Dacă erați Dvs, puteți să ignorați acest mesaj liniștit. Dacă nu erați Dvs, ar fi bine să %{change_password}
+    device_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} de pe
+      un dispozitiv nou. Dacă nu erați Dvs, ar fi bine să %{change_password}
+    ip_text: Se pare că v-ați conectat recent la contul Dvs %{app_name} dintr-o locație
+      nouă. Dacă nu erați Dvs, ar fi bine să %{change_password}
+    failed_text: Se pare că s-au făcut mai multe încercări de conectare la contul
+      Dvs %{app_name}. Dacă erați Dvs, puteți să ignorați acest mesaj liniștit. Dacă
+      nu erați Dvs, ar fi bine să %{change_password}
     time_h: Ora
     device_h: Dispozitiv
     location_h: Locația
-    location_disclaimer: "* Locația a fost stabilită aproximativ, în baza adresei IP de origine."
+    location_disclaimer: "* Locația a fost stabilită aproximativ, în baza adresei
+      IP de origine."
     ip_h: Adresa IP
     privacy: "%{manage} notificările prin email • Aflați mai multe despre %{privacy}"
     privacy_text: Politica de confidențialitate
@@ -358,45 +503,66 @@ ro:
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Starea nu este validă
-  workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica această stare
-  blank_default_status_for_custom_translation_status: Vă rugăm să introduceți o valoare 'implicită' pentru stările personalizate ale traducerii
-  blank_active_status_for_custom_translation_status: Vă rugăm să introduceți o valoare 'activă' pentru stările personalizate ale traducerii
-  blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare 'implicită' pentru stările personalizate ale verificării
-  blank_active_status_for_custom_verification_status: Vă rugăm să introduceți o valoare 'activă' pentru stările personalizate ale verificării
+  workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
+    această stare
+  blank_default_status_for_custom_translation_status: Vă rugăm să introduceți o valoare
+    'implicită' pentru stările personalizate ale traducerii
+  blank_active_status_for_custom_translation_status: Vă rugăm să introduceți o valoare
+    'activă' pentru stările personalizate ale traducerii
+  blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
+    'implicită' pentru stările personalizate ale verificării
+  blank_active_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
+    'activă' pentru stările personalizate ale verificării
   bot_name_exists_for_this_team: În această echipă deja există un robot cu nume introdus
   bot_team_id_doesnt_exist: Ne pare rău, nu există echipe ce au identificatorul introdus
-  bot_team_id_mandatory_to_create: Ne pare rău, pentru a crea un robot trebuie să alegeți o echipă
-  bot_not_approved_for_installation: Ne pare rău, acest robot nu a fost aprobat, deci nu poate fi instalat
-  only_admins_can_approve_bots: Ne pare rău, robotul poate fi aprobat doar de utilizator cu rol de super admin
-  could_not_save_related_bot_data: Ne pare rău, nu am putut adăuga robotul la această echipă
-  bot_limited_team_not_pro: Ne pare rău, acest robot nu este disponibil pentru această echipă
-  bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină direct - rugăm să transmiteți o sugestie de răspuns în loc
+  bot_team_id_mandatory_to_create: Ne pare rău, pentru a crea un robot trebuie să
+    alegeți o echipă
+  bot_not_approved_for_installation: Ne pare rău, acest robot nu a fost aprobat, deci
+    nu poate fi instalat
+  only_admins_can_approve_bots: Ne pare rău, robotul poate fi aprobat doar de utilizator
+    cu rol de super admin
+  could_not_save_related_bot_data: Ne pare rău, nu am putut adăuga robotul la această
+    echipă
+  bot_limited_team_not_pro: Ne pare rău, acest robot nu este disponibil pentru această
+    echipă
+  bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină
+    direct - rugăm să transmiteți o sugestie de răspuns în loc
   bot_cant_add_review_to_task: Ne pare rău, un robot nu poate analiza o sarcină
-  task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu 'suggestion' (sugestie - valoarea, care se copie în răspuns dat la sarcină în caz de accept) și 'comment' (comentariu - afișat pentru utilizatori)
+  task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu 'suggestion'
+    (sugestie - valoarea, care se copie în răspuns dat la sarcină în caz de accept)
+    și 'comment' (comentariu - afișat pentru utilizatori)
   tag_text_id_not_found: Ne pare rău, nu există etichete cu identificator introdus
   annotation_type_language_label: Limba
   smooch_bot_message_confirmed: |-
-      Vă mulțumim. Solicitarea Dvs a fost adăugată în rândul nostru pentru verificare.
+    Vă mulțumim. Solicitarea Dvs a fost adăugată în rândul nostru pentru verificare.
 
-      Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
-  smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
-  smooch_bot_message_type_unsupported: Ne pare rău, deocamdată nu acceptăm acest tip de mesaje pentru verificare.
-  smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
+    Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
+  smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul
+    dvs în continuare. Mulțumim.
+  smooch_bot_message_type_unsupported: Ne pare rău, deocamdată nu acceptăm acest tip
+    de mesaje pentru verificare.
+  smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care
+    ați solicitat verificarea. Aflați mai multe pe %{url}.
   smooch_bot_result: |-
-      [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
+    [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
 
-      Iată care sunt pașii, pe care le-am făcut pentru a determina acest lucru: %{url}
+    Iată care sunt pașii, pe care le-am făcut pentru a determina acest lucru: %{url}
   smooch_bot_ask_for_confirmation: |-
-      Vă mulțumim pentru că ați transmis această solicitare. Doriți ca noi să verificăm conținutul acesteia?
+    Vă mulțumim pentru că ați transmis această solicitare. Doriți ca noi să verificăm conținutul acesteia?
 
-      Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
-  smooch_bot_window_closing: Numărul de solicitări transmise prin acest canal este foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim pentru că aveți răbdare.
-  smooch_bot_not_final: |-
-      [Raport de verificare - CORECTARE] Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru verificări ulterioare.
+    Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
+  smooch_bot_window_closing: Numărul de solicitări transmise prin acest canal este
+    foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim
+    pentru că aveți răbdare.
+  smooch_bot_not_final: "[Raport de verificare - CORECTARE] Mesajul transmis de Dvs
+    a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru
+    verificări ulterioare."
+  smooch_bot_disabled: Vă mulțumim pentru acest mesaj. Nu putem să transmitem nici
+    un raport de verificare pentru că acest dosar nu mai este activ.
   smooch_bot_result_changed: |-
-      [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
+    [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
 
-      Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
+    Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
   permissions_info:
     roles:
       owner:
@@ -406,9 +572,11 @@ ro:
       journalist:
         description: Jurnaliștii verifică informația.
       contributor:
-        description: Contribuitorii pot adăuga noi informații pentru verificare. Deseori sunt membrii publicului,
+        description: Contribuitorii pot adăuga noi informații pentru verificare. Deseori
+          sunt membrii publicului,
       annotator:
-        description: Adnotatorii văd doar sarcinile ce le-au fost desemnate și pot răspunde doar la ele.
+        description: Adnotatorii văd doar sarcinile ce le-au fost desemnate și pot
+          răspunde doar la ele.
     permissions:
       sections:
         project_management:
@@ -450,12 +618,18 @@ ro:
             invite_owner: Invită, aprobă și elimină Coordonatorii echipei
             invite_members: Invită, aprobă și elimină membrii echipei
   team_import:
-    invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic nu este valid
+    invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic
+      nu este valid
     not_found_google_spreadsheet_url: Tabelul electronic nu a fost găsit pe %{spreadsheet_url}
-    cannot_authenticate_with_the_credentials: Nu puteți accesa Google Drive cu acest nume de utilizator și parolă. Vă rygăm să contactați echipa de suport pentru a-i informa despre acest incident.
-    team_not_present: În timpul importului de date echipa actuală nu a fost găsită. Vă rugăm să informați echipa de suport despre acest incident.
-    user_not_present: În timpul importului de date utilizatorul actual nu a fost găsit. Vă rugăm să informați echipa de suport despre acest incident.
-    user_not_authorized: Ne pare rău, nu aveți permisiunea de a importa date în această echipă.
+    cannot_authenticate_with_the_credentials: Nu puteți accesa Google Drive cu acest
+      nume de utilizator și parolă. Vă rygăm să contactați echipa de suport pentru
+      a-i informa despre acest incident.
+    team_not_present: În timpul importului de date echipa actuală nu a fost găsită.
+      Vă rugăm să informați echipa de suport despre acest incident.
+    user_not_present: În timpul importului de date utilizatorul actual nu a fost găsit.
+      Vă rugăm să informați echipa de suport despre acest incident.
+    user_not_authorized: Ne pare rău, nu aveți permisiunea de a importa date în această
+      echipă.
     invalid_project: Dosarul %{project} nu este valid
     invalid_user: Autorul %{user} nu este valid
     invalid_status: Starea %{status} nu este validă
@@ -469,7 +643,8 @@ ro:
   verification_status_deadline: Termen limită
   verification_status_deadline_asc: Scadent cel devreme
   verification_status_deadline_desc: Scadent cel târziu
-  cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune în așteptare, deci nu îl puteți modifica acum. Încercați din nou mai târziu.
+  cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune
+    în așteptare, deci nu îl puteți modifica acum. Încercați din nou mai târziu.
   embed_expand_all: Extindeți totul
   embed_collapse_all: Restrângeți totul
   embed_tasks: Sarcini
@@ -480,3 +655,33 @@ ro:
   smooch_requests: Solicitări
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
+    Vă mulțumim pentru că ați transmis acest mesaj.
+
+    Credeți că este vorba de o informație înșelătoare, legată de Alegerile generale din India din 2019?
+
+    Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
+  custom_message_smooch_bot_message_confirmed_checkpoint: |-
+    Vă mulțumim. Ceea ce ne-ați transmis ne va ajuta să studiem răspândirea informațiilor înșelătoare pe WhatsApp în perioada electorală actuală.
+
+    De asemenea, acest element a fost adăugat în rândul nostru pentru verificare. Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: Deoarece nu ați răspuns
+    cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
+  custom_message_smooch_bot_disabled_checkpoint: Vă mulțumim pentru acest mesaj. Nu
+    putem să transmitem nici un raport de verificare pentru că acest dosar nu mai
+    este activ.
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: Ne pare rău, deocamdată
+    nu acceptăm acest tip de format de fișiere pentru verificare.
+  custom_message_smooch_bot_meme_checkpoint: Iată un meme, pe care l-am creat în baza
+    elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
+  custom_message_smooch_bot_result_checkpoint: |-
+    [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
+
+    Iată care sunt pașii, pe care le-am făcut pentru a determina acest lucru: %{url}
+  custom_message_smooch_bot_result_changed_checkpoint: |-
+    [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
+
+    Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
+  custom_message_smooch_bot_not_final_checkpoint: "[Raport de verificare - CORECTARE]
+    Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în
+    coada de așteptare pentru verificări ulterioare."

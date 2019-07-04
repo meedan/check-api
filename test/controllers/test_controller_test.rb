@@ -365,4 +365,25 @@ class TestControllerTest < ActionController::TestCase
     assert_equal 10, Team.find(id).get_limits_max_projects
     assert_response :success
   end
+
+  test "should create dynamic annotation" do
+    data = { phone: '123', app_name: 'Test' }.to_json
+    p = create_project
+    assert_difference 'Dynamic.count', 2 do
+      get :new_dynamic_annotation, { set_action: 'deactivate', annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+    end
+    assert_equal 'human_mode', CheckStateMachine.new('test').state.value
+    assert_response :success
+  end
+
+  test "should not create dynamic annotation if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    data = { phone: '123', app_name: 'Test' }.to_json
+    p = create_project
+    assert_no_difference 'Dynamic.count' do
+      get :new_dynamic_annotation, { annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+    end
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

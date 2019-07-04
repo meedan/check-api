@@ -13,22 +13,24 @@ class AddKeepBot < ActiveRecord::Migration
     config = CONFIG['clamav_service_path']
     CONFIG['clamav_service_path'] = nil
 
-    tb = TeamBot.new
-    tb.identifier = 'keep'
+    Team.current = meedan_team
+    tb = BotUser.new
+    tb.login = 'keep'
     tb.name = 'Keep'
-    tb.description = 'A bot that archives links to several archiving services.'
+    tb.set_description 'A bot that archives links to several archiving services.'
     File.open(File.join(Rails.root, 'public', 'keep.png')) do |f|
-      tb.file = f
+      tb.image = f
     end
-    tb.request_url = CONFIG['checkdesk_base_url_private'] + '/api/bots/keep'
-    tb.role = 'editor'
-    tb.version = '0.0.1'
-    tb.source_code_url = 'https://github.com/meedan/check-api/blob/develop/app/models/bot/keep.rb'
-    tb.team_author_id = meedan_team.id
-    tb.events = [ { event: 'create_project_media', graphql: 'dbid' } ]
-    tb.approved = true
-    tb.limited = true
+    tb.set_request_url CONFIG['checkdesk_base_url_private'] + '/api/bots/keep'
+    tb.set_role 'editor'
+    tb.set_version '0.0.1'
+    tb.set_source_code_url 'https://github.com/meedan/check-api/blob/develop/app/models/bot/keep.rb'
+    tb.set_team_author_id meedan_team.id
+    tb.set_events [ { event: 'create_project_media', graphql: 'dbid' } ]
+    tb.set_approved true
+    tb.set_limited true
     tb.save!
+    Team.current = nil
     
     CONFIG['clamav_service_path'] = config
 

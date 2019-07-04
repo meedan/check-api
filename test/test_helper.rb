@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'minitest/hooks/test'
 
 SimpleCov.start 'rails' do
   nocov_token 'nocov'
@@ -49,6 +50,7 @@ class ActiveSupport::TestCase
   ActiveRecord::Migration.check_pending!
 
   include SampleData
+  include Minitest::Hooks
 
   def stub_config(key, value, must_unstub = true)
     CONFIG.each do |k, v|
@@ -111,33 +113,37 @@ class ActiveSupport::TestCase
     end
   end
 
-  # This will run before any test
+  # This will run before all tests
 
-  def setup
+  def before_all
+    super
+    create_metadata_stuff
     ApolloTracing.stubs(:start_proxy)
     Pusher::Client.any_instance.stubs(:trigger)
     Pusher::Client.any_instance.stubs(:post)
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
-    [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance, Relationship].each{ |klass| klass.delete_all }
-    FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
-    Rails.application.reload_routes!
+    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+    Bitly::V3::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ short_url: "http://bit.ly/#{random_string}" }))
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
-    with_current_user_and_team(nil, nil) do
-      @team = create_team
-      @project = create_project team: @team
-    end
-    ApiKey.current = User.current = Team.current = nil
-    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+  end
+
+  # This will run before any test
+
+  def setup
+    [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
+    DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
+    DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
+    DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
+    FileUtils.rm_rf(File.join(Rails.root, 'tmp', "cache<%= ENV['TEST_ENV_NUMBER'] %>", '*'))
+    Rails.application.reload_routes!
     I18n.locale = :en
     Sidekiq::Worker.clear_all
     Rails.cache.clear
     RequestStore.unstub(:[])
-    Team.current = User.current = nil
+    ApiKey.current = Team.current = User.current = nil
     Team.unstub(:current)
     User.unstub(:current)
-    Bitly::V3::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ short_url: "http://bit.ly/#{random_string}" }))
-    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
   end

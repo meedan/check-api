@@ -7,7 +7,7 @@ namespace :check do
         'keep' => ['archive_is', 'archive_org', 'pender_archive', 'keep_backup'],
         'alegre' => ['language', 'mt']
       }.each do |bot_identifier, annotation_types|
-        bot = TeamBot.where(identifier: bot_identifier).last.bot_user
+        bot = BotUser.where(identifier: bot_identifier).last
         ids = Annotation.where(annotation_type: annotation_types).where(annotator_id: bot.id).map(&:id)
         puts "[#{Time.now}] Creating versions for #{ids.size} annotations by #{bot_identifier.capitalize} bot"
         versions = []

@@ -32,4 +32,8 @@ module TeamPrivate
   def reset_current_team
     User.where(current_team_id: self.id).each{ |user| user.update_columns(current_team_id: nil) }
   end
+
+  def delete_created_bots
+    self.team_bots_created.map(&:destroy!)
+  end
 end

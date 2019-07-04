@@ -1,8 +1,8 @@
 class AddCustomMessagesSettingsToSmoochBot < ActiveRecord::Migration
   def change
-    tb = TeamBot.where(identifier: 'smooch').last
+    tb = BotUser.where(login: 'smooch').last
     unless tb.nil?
-      settings = tb.settings.clone
+      settings = tb.get_settings.clone
       {
         'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
         'smooch_bot_result_changed' => 'Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))',
@@ -16,7 +16,7 @@ class AddCustomMessagesSettingsToSmoochBot < ActiveRecord::Migration
       }.each do |name, label|
         settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
       end
-      tb.settings = settings
+      tb.set_settings(settings)
       tb.save!
     end
   end

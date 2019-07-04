@@ -45,7 +45,10 @@ namespace :check do
     end
 
     bot_urls.each do |id, url|
-      TeamBot.where(identifier: id).update_all(request_url: url)
+      BotUser.where(login: id).each do |b|
+        b.set_request_url(url)
+        b.save
+      end
     end
     bot_settings.each do |id, settings|
       TeamBotInstallation.where(id: id).update_all(settings: JSON.parse(settings))
@@ -58,6 +61,10 @@ namespace :check do
       a.save!
     end
 
-    TeamBot.update_all(approved: true, limited: false)
+    BotUser.all.each do |b|
+      b.set_approved true
+      b.set_limited false
+      b.save
+    end
   end
 end

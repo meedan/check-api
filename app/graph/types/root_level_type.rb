@@ -80,9 +80,9 @@ RootLevelType = GraphQL::ObjectType.define do
       Contact.all
     }
   end
-  connection :team_bots_approved, TeamBotType.connection_type do
+  connection :team_bots_approved, BotUserType.connection_type do
     resolve ->(_object, _args, _ctx){
-      TeamBot.where(approved: true)
+      BotUser.all.select{ |b| b.get_approved }
     }
   end
 end

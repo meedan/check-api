@@ -3,52 +3,22 @@ require_relative '../test_helper'
 class TeamBotTest < ActiveSupport::TestCase
   def setup
     super
-    TeamBot.delete_all
+    BotUser.delete_all
     Sidekiq::Testing.inline!
     create_annotation_type_and_fields('Team Bot Response', { 'Raw Data' => ['JSON', true], 'Formatted Data' => ['Bot Response Format', false] })
   end
 
   test "should create team bot" do
-    assert_difference 'TeamBot.count' do
+    assert_difference 'BotUser.count' do
       create_team_bot
     end
   end
 
   test "should not create team bot without a name" do
-    assert_no_difference 'TeamBot.count' do
+    assert_no_difference 'BotUser.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_team_bot name: ''
       end
-    end
-  end
-
-  test "should not create team bot without a team" do
-    assert_no_difference 'TeamBot.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_team_bot team_author_id: nil
-      end
-    end
-    tb = create_team_bot
-    assert_nothing_raised do
-      tb.updated_at = Time.now
-      tb.save!
-    end
-  end
-
-  test "should not create team bot with same name and team" do
-    t1 = create_team
-    t2 = create_team
-    assert_difference 'Source.count' do
-      create_team_bot name: 'Bot Test', team_author_id: t1.id, bot_user_id: nil
-    end
-    assert_difference 'Source.count' do
-      create_team_bot name: 'Bot Test', team_author_id: t2.id, bot_user_id: nil
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot name: 'Bot Test', team_author_id: t1.id
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot name: 'Bot Test', team_author_id: t2.id
     end
   end
 
@@ -67,45 +37,26 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should delete team bot when team is deleted" do
     t = create_team
     tb = create_team_bot team_author_id: t.id
-    assert_not_nil TeamBot.where(id: tb.id).last
-    t.destroy
-    assert_nil TeamBot.where(id: tb.id).last
-  end
-
-  test "should belong to a bot user" do
-    bu = create_bot_user
-    tb = create_team_bot bot_user_id: bu.id
-    assert_equal bu, tb.bot_user
-    assert_equal tb, bu.team_bot
+    assert_not_nil BotUser.where(id: tb.id).last
+    t.destroy!
+    assert_nil BotUser.where(id: tb.id).last
   end
 
   test "should not create team bot with invalid request URL" do
-    assert_no_difference 'TeamBot.count' do
+    assert_no_difference 'BotUser.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_team_bot request_url: 'invalid'
+        create_team_bot set_request_url: 'invalid'
       end
       assert_raises ActiveRecord::RecordInvalid do
-        create_team_bot request_url: 'http://foo bar'
+        create_team_bot set_request_url: 'http://foo bar'
       end
     end
   end
 
   test "should not create team bot with invalid event" do
-    assert_no_difference 'TeamBot.count' do
+    assert_no_difference 'BotUser.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_team_bot events: [{ event: 'invalid', graphql: nil }]
-      end
-    end
-  end
-
-  test "should create bot user when team bot is created" do
-    assert_difference 'ApiKey.count' do
-      assert_difference 'BotUser.count' do
-        assert_difference 'TeamBot.count' do
-          assert_difference 'TeamUser.count' do
-            create_team_bot bot_user_id: nil
-          end
-        end
+        create_team_bot set_events: [{ event: 'invalid', graphql: nil }]
       end
     end
   end
@@ -117,7 +68,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        create_team_bot team_author_id: t.id, bot_user_id: nil
+        create_team_bot
       end
     end
   end
@@ -130,7 +81,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id, bot_user_id: nil
+        create_team_bot team_author_id: t.id
       end
     end
   end
@@ -143,7 +94,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id, bot_user_id: nil
+        create_team_bot team_author_id: t.id
       end
     end
   end
@@ -156,7 +107,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id, bot_user_id: nil
+        create_team_bot team_author_id: t.id
       end
     end
   end
@@ -169,7 +120,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t2) do
       assert_raises RuntimeError do
-        create_team_bot team_author_id: t2.id, bot_user_id: nil
+        create_team_bot team_author_id: t.id
       end
     end
   end
@@ -177,13 +128,13 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should notify team bots in background when project media is created or updated" do
     t1 = create_team
     p1 = create_project team: t1
-    tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_project_media', graphql: nil }]
-    tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_project_media', graphql: nil }]
+    tb1a = create_team_bot team_author_id: t1.id, set_events: [{ event: 'create_project_media', graphql: nil }]
+    tb1b = create_team_bot team_author_id: t1.id, set_events: [{ event: 'update_project_media', graphql: nil }]
 
     t2 = create_team
     p2 = create_project team: t2
-    tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_project_media', graphql: nil }]
-    tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_project_media', graphql: nil }]
+    tb2a = create_team_bot team_author_id: t2.id, set_events: [{ event: 'create_project_media', graphql: nil }]
+    tb2b = create_team_bot team_author_id: t2.id, set_events: [{ event: 'update_project_media', graphql: nil }]
 
     #assert_nil tb1a.reload.last_called_at
     #assert_nil tb1b.reload.last_called_at
@@ -228,7 +179,7 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should not notify team bot if object is marked to skip notifications" do
     t = create_team
     p = create_project team: t
-    tb = create_team_bot team_author_id: t.id, events: [{ event: 'create_project_media', graphql: nil }]
+    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: nil }]
     #assert_nil tb.reload.last_called_at
     pm = create_project_media project: p, skip_notifications: true
     #assert_nil tb.reload.last_called_at
@@ -236,12 +187,12 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should notify team bots in background when source is created or updated" do
     t1 = create_team
-    tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_source', graphql: nil }]
-    tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_source', graphql: nil }]
+    tb1a = create_team_bot team_author_id: t1.id, set_events: [{ event: 'create_source', graphql: nil }]
+    tb1b = create_team_bot team_author_id: t1.id, set_events: [{ event: 'update_source', graphql: nil }]
 
     t2 = create_team
-    tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_source', graphql: nil }]
-    tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_source', graphql: nil }]
+    tb2a = create_team_bot team_author_id: t2.id, set_events: [{ event: 'create_source', graphql: nil }]
+    tb2b = create_team_bot team_author_id: t2.id, set_events: [{ event: 'update_source', graphql: nil }]
 
     #assert_nil tb1a.reload.last_called_at
     #assert_nil tb1b.reload.last_called_at
@@ -287,14 +238,14 @@ class TeamBotTest < ActiveSupport::TestCase
     t1 = create_team
     p1 = create_project team: t1
     pm1 = create_project_media project: p1
-    tb1a = create_team_bot team_author_id: t1.id, events: [{ event: 'create_annotation_comment', graphql: nil }]
-    tb1b = create_team_bot team_author_id: t1.id, events: [{ event: 'update_annotation_comment', graphql: nil }]
+    tb1a = create_team_bot team_author_id: t1.id, set_events: [{ event: 'create_annotation_comment', graphql: nil }]
+    tb1b = create_team_bot team_author_id: t1.id, set_events: [{ event: 'update_annotation_comment', graphql: nil }]
 
     t2 = create_team
     p2 = create_project team: t2
     pm2 = create_project_media project: p2
-    tb2a = create_team_bot team_author_id: t2.id, events: [{ event: 'create_annotation_comment', graphql: nil }]
-    tb2b = create_team_bot team_author_id: t2.id, events: [{ event: 'update_annotation_comment', graphql: nil }]
+    tb2a = create_team_bot team_author_id: t2.id, set_events: [{ event: 'create_annotation_comment', graphql: nil }]
+    tb2b = create_team_bot team_author_id: t2.id, set_events: [{ event: 'update_annotation_comment', graphql: nil }]
 
     #assert_nil tb1a.reload.last_called_at
     #assert_nil tb1b.reload.last_called_at
@@ -339,7 +290,7 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should get GraphQL result" do
     t = create_team private: true
     p = create_project team: t
-    tb = create_team_bot team_author_id: t.id, bot_user_id: nil
+    tb = create_team_bot team_author_id: t.id
     pm = create_project_media project: p
     c = create_comment text: 'Test Comment'
     s = create_source name: 'Test Source'
@@ -353,7 +304,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t, title: 'Test Project'
     p2 = create_project team: t, title: 'Another Test Project'
-    tb = create_team_bot team_author_id: t.id, events: [{ event: 'create_project_media', graphql: 'project { title }' }], request_url: 'http://bot'
+    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'project { title }' }], set_request_url: 'http://bot'
     data = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
     WebMock.disable_net_connect!
     WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
@@ -374,11 +325,11 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should call bot over own annotation updates" do
     t = create_team
     p = create_project team: t
-    tb1 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
-    tb2 = create_team_bot team_author_id: t.id, events: [{ event: 'update_annotation_own', graphql: nil }]
+    tb1 = create_team_bot team_author_id: t.id, set_events: [{ event: 'update_annotation_own', graphql: nil }]
+    tb2 = create_team_bot team_author_id: t.id, set_events: [{ event: 'update_annotation_own', graphql: nil }]
     pm = create_project_media project: p
     a1 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json
-    a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb1.bot_user
+    a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb1
 
     a1.updated_at = Time.now
     a1.save!
@@ -394,7 +345,7 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should enqueue bot notifications" do
     t = create_team
     p = create_project team: t, title: 'Test Project'
-    tb = create_team_bot team_author_id: t.id, events: [{ event: 'create_project_media', graphql: 'project { title }' }, { event: 'update_project_media', graphql: 'project { title }' }], request_url: 'http://bot'
+    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'project { title }' }, { event: 'update_project_media', graphql: 'project { title }' }], set_request_url: 'http://bot'
     data_create = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
     data_update = { event: 'update_project_media', data: { project: { title: 'Test Project' } } }
     create_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
@@ -402,7 +353,7 @@ class TeamBotTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!
 
     with_current_user_and_team(nil, nil) do
-      TeamBot.init_event_queue
+      BotUser.init_event_queue
 
       assert_nothing_raised do
         pm = create_project_media project: p
@@ -413,7 +364,7 @@ class TeamBotTest < ActiveSupport::TestCase
       end
 
       assert_nothing_raised do
-        TeamBot.trigger_events
+        BotUser.trigger_events
       end
 
       assert_equal 1, WebMock::RequestRegistry.instance.times_executed(update_stub.request_pattern)
@@ -428,14 +379,12 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should destroy related data when bot is destroyed" do
-    tb = create_team_bot bot_user_id: nil
+    tb = create_team_bot team_author_id: create_team.id
     assert_difference 'Source.count', -1 do
       assert_difference 'TeamUser.count', -1 do
         assert_difference 'ApiKey.count', -1 do
           assert_difference 'BotUser.count', -1 do
-            assert_difference 'TeamBot.count', -1 do
-              tb.destroy!
-            end
+            tb.destroy!
           end
         end
       end
@@ -451,28 +400,22 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_max_number_of_members = 1
     t.save!
-    create_team_bot team_author_id: t.id, bot_user_id: nil
-    assert_raises RuntimeError do
-      create_team_bot team_author_id: t.id, bot_user_id: nil
+    create_team_bot team_author_id: t.id
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team_bot team_author_id: t.id
     end
   end
 
   test "should not be approved by default" do
     tb = create_team_bot
-    assert !tb.approved
-  end
-
-  test "should not create without a team" do
-    assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot team_author_id: nil
-    end
+    assert !tb.get_approved
   end
 
   test "should not associate twice" do
     t = create_team
     assert_difference 'TeamBotInstallation.count' do
       tb = create_team_bot team_author_id: t.id
-      tb = TeamBot.find(tb.id)
+      tb = BotUser.find(tb.id)
       tb.team_author_id = t.id
       tb.updated_at = Time.now
       tb.save!
@@ -482,8 +425,8 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should be related to teams and installations" do
     t1 = create_team
     t2 = create_team
-    tb = create_team_bot team_author_id: t1.id, approved: true
-    tbi = create_team_bot_installation team_id: t2.id, team_bot_id: tb.id
+    tb = create_team_bot team_author_id: t1.id, set_approved: true
+    tbi = create_team_bot_installation team_id: t2.id, user_id: tb.id
     assert_equal 2, tb.team_bot_installations.count
     assert_equal [t1, t2].sort, tb.reload.teams.sort
     assert_difference 'TeamBotInstallation.count', -2 do
@@ -493,7 +436,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should install" do
     t = create_team
-    tb = create_team_bot approved: true
+    tb = create_team_bot set_approved: true
     assert_equal [], t.reload.team_bots
     tb.install_to!(t)
     assert_equal [tb], t.reload.team_bots
@@ -501,7 +444,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should uninstall" do
     t = create_team
-    tb = create_team_bot approved: true
+    tb = create_team_bot set_approved: true
     assert_equal [], t.reload.team_bots
     tb.install_to!(t)
     assert_equal [tb], t.reload.team_bots
@@ -513,13 +456,13 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should approve bot if admin" do
     u = create_user is_admin: true
     tb = create_team_bot
-    assert !tb.approved
+    assert !tb.get_approved
     User.current = u
     assert_nothing_raised do
       tb.approve!
     end
     User.current = nil
-    assert tb.reload.approved
+    assert tb.reload.get_approved
   end
 
   test "should not approve bot if not admin" do
@@ -527,71 +470,71 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
     tb = create_team_bot team_author_id: t.id
-    assert !tb.approved
+    assert !tb.get_approved
     User.current = u
     assert_raises ActiveRecord::RecordInvalid do
       tb.approve!
     end
     User.current = nil
-    assert !tb.reload.approved
+    assert !tb.reload.get_approved
   end
 
   test "should return non-approved bots" do
-    tb1 = create_team_bot approved: false
-    tb2 = create_team_bot approved: true
-    assert_equal [tb1], TeamBot.not_approved.to_a
+    tb1 = create_team_bot set_approved: false
+    tb2 = create_team_bot set_approved: true
+    assert_equal [tb1], BotUser.not_approved.to_a
   end
 
   test "should set version" do
     tb = create_team_bot
-    assert_equal '0.0.1', tb.version
-    tb.version = '0.0.2'
+    assert_equal '0.0.1', tb.get_version
+    tb.set_version '0.0.2'
     tb.save!
-    assert_equal '0.0.2', tb.reload.version
+    assert_equal '0.0.2', tb.reload.get_version
   end
 
   test "should set source code URL" do
     tb = create_team_bot
-    assert_nil tb.source_code_url
-    tb.source_code_url = 'https://github.com/meedan/check-api-bots'
+    assert_nil tb.get_source_code_url
+    tb.set_source_code_url'https://github.com/meedan/check-api-bots'
     tb.save!
-    assert_equal 'https://github.com/meedan/check-api-bots', tb.reload.source_code_url
+    assert_equal 'https://github.com/meedan/check-api-bots', tb.reload.get_source_code_url
   end
 
   test "should not be limited by default" do
     tb = create_team_bot
-    assert !tb.limited
-    tb.limited = true
+    assert !tb.get_limited
+    tb.set_limited true
     tb.save!
-    assert tb.reload.limited
+    assert tb.reload.get_limited
   end
 
   test "should set identifier" do
     t = create_team slug: 'test'
     tb = create_team_bot name: 'My Bot', team_author_id: t.id
-    assert_equal 'bot_test_my_bot', tb.reload.identifier
+    assert_equal 'bot_my_bot', tb.reload.identifier
     tb = create_team_bot name: 'My Bot!', team_author_id: t.id
-    assert_equal 'bot_test_my_bot_1', tb.reload.identifier
+    assert_equal 'bot_my_bot_1', tb.reload.identifier
   end
 
   test "should define bot role" do
-    tb = create_team_bot role: 'journalist', approved: true
-    tu1 = TeamUser.where(team_id: tb.team_author_id, user_id: tb.bot_user_id).last
+    tb = create_team_bot set_role: 'journalist', set_approved: true
+    tu1 = TeamUser.where(team_id: tb.team_author_id, user_id: tb.id).last
     assert_equal 'journalist', tu1.role
-    tbi = create_team_bot_installation team_bot_id: tb.id
-    tu2 = TeamUser.where(team_id: tbi.team_id, user_id: tb.bot_user_id).last
+    tbi = create_team_bot_installation user_id: tb.id
+    tu2 = TeamUser.where(team_id: tbi.team_id, user_id: tb.id).last
     assert_equal 'journalist', tu2.role
-    tb.role = 'contributor'
+    tb.set_role 'contributor'
     tb.save!
     assert_equal 'contributor', tu1.reload.role
     assert_equal 'contributor', tu2.reload.role
   end
 
   test "should return whether bot is installed under current team" do
-    tb1 = create_team_bot approved: true
-    tb2 = create_team_bot approved: true
+    tb1 = create_team_bot set_approved: true
+    tb2 = create_team_bot set_approved: true
     t = create_team
-    create_team_bot_installation team_id: t.id, team_bot_id: tb1.id
+    create_team_bot_installation team_id: t.id, user_id: tb1.id
     User.current = create_user
     Team.current = t
     assert_equal true, tb1.reload.installed
@@ -601,16 +544,16 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should get number of installations" do
-    tb = create_team_bot approved: true
-    assert_equal 1, tb.installations_count
-    4.times { create_team_bot_installation(team_bot_id: tb.id) }
-    assert_equal 5, tb.installations_count
+    tb = create_team_bot set_approved: true
+    assert_equal 1, tb.reload.installations_count
+    4.times { create_team_bot_installation(user_id: tb.id) }
+    assert_equal 5, tb.reload.installations_count
   end
 
   test "should have specific events for task types" do
     Task.task_types.each do |type|
-      assert TeamBot::EVENTS.include?("create_annotation_task_#{type}")
-      assert TeamBot::EVENTS.include?("update_annotation_task_#{type}")
+      assert BotUser::EVENTS.include?("create_annotation_task_#{type}")
+      assert BotUser::EVENTS.include?("update_annotation_task_#{type}")
     end
   end
 
@@ -618,8 +561,8 @@ class TeamBotTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    tb1 = create_team_bot team_author_id: t.id, events: [{ event: 'create_annotation_task_free_text', graphql: nil }]
-    tb2 = create_team_bot team_author_id: t.id, events: [{ event: 'create_annotation_task_datetime', graphql: nil }]
+    tb1 = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_annotation_task_free_text', graphql: nil }]
+    tb2 = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_annotation_task_datetime', graphql: nil }]
 
     #assert_nil tb1.reload.last_called_at
     #assert_nil tb2.reload.last_called_at
@@ -635,9 +578,9 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should have a unique identifier" do
-    create_team_bot identifier: 'test'
+    create_team_bot login: 'test'
     assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot identifier: 'test'
+      create_team_bot login: 'test'
     end
   end
 
@@ -650,42 +593,42 @@ class TeamBotTest < ActiveSupport::TestCase
     tb = nil
     assert_nothing_raised do
       with_current_user_and_team(u, t2) do
-        tb = TeamBot.new({
+        tb = BotUser.new({
           name: random_string,
-          description: random_string,
-          request_url: random_url,
+          set_description: random_string,
+          set_request_url: random_url,
           team_author_id: t1.id,
-          events: [{ event: 'create_project_media', graphql: nil }]
+          set_events: [{ event: 'create_project_media', graphql: nil }]
         });
         File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
-          tb.file = f
+          tb.image = f
         end
         tb.save!
-        tb = TeamBot.find(tb.id)
+        tb = BotUser.find(tb.id)
         tb.updated_at = Time.now
         tb.save!
-        tb = TeamBot.find(tb.id)
+        tb = BotUser.find(tb.id)
         tb.destroy!
       end
     end
   end
 
   test "should have settings" do
-    tb = create_team_bot settings: [{ name: 'foo', label: 'Foo', type: 'string', default: 'Bar' }]
-    assert_equal 4, tb.settings[0].keys.size
+    tb = create_team_bot set_settings: [{ name: 'foo', label: 'Foo', type: 'string', default: 'Bar' }]
+    assert_equal 4, tb.get_settings[0].keys.size
     assert_nothing_raised do
       JSON.parse(tb.settings_as_json_schema)
     end
   end
 
   test "should not make a real HTTP request to a core bot" do
-    b = create_team_bot name: 'Keep', request_url: CONFIG['checkdesk_base_url_private'] + '/foo/bar'
+    b = create_team_bot name: 'Keep', set_request_url: CONFIG['checkdesk_base_url_private'] + '/foo/bar'
     b.call({})
   end
 
   test "should return UI schema for team bot settings" do
     settings = [{ name: 'smooch_message_foo', label: 'Foo', type: 'string', default: '' }]
-    tb = create_team_bot settings: settings
+    tb = create_team_bot set_settings: settings
     assert_match /textarea/, tb.settings_ui_schema
   end
 end

@@ -27,9 +27,6 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have a unique API key" do
     a = create_api_key
-    assert_raises ActiveRecord::RecordInvalid do
-      create_bot_user api_key_id: nil
-    end
     assert_nothing_raised do
       b = create_bot_user api_key_id: a.id
       assert_equal a, b.api_key
@@ -40,8 +37,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should have bot events" do
-    bu = create_bot_user
-    create_team_bot bot_user_id: bu.id, events: [{ event: 'create_project_media', graphql: nil }, { event: 'update_project_media', graphql: nil }]
+    bu = create_team_bot set_events: [{ event: 'create_project_media', graphql: nil }, { event: 'update_project_media', graphql: nil }]
     assert_equal 'create_project_media,update_project_media', bu.bot_events
   end
 
