@@ -133,18 +133,33 @@ class Bot::Smooch < BotUser
         c.client_secret = CONFIG['transifex_password']
       end
       project = ::Transifex::Project.new('check-2')
-      resource = project.resource('api')
-      content = resource.translation('en').fetch['content']
-      yaml = YAML.load(content)
       slug = tbi.team.slug
+      resource_slug = 'api-custom-messages-' + slug
+      resource = yaml = nil
+      
+      begin
+        resource = project.resource(resource_slug)
+        yaml = YAML.load(resource.translation('en').fetch['content'])
+      rescue Transifex::TransifexError
+        resource = nil
+        yaml = { 'en' => {} }
+      end
+
       count = 0
       tbi.settings.each do |key, value|
         if key.to_s =~ /^smooch_message_/ && !value.blank?
           count += 1
-          yaml['en'][key.gsub(/^smooch_message_/, '') + '_' + slug] = value
+          yaml['en'][key.gsub(/^smooch_message_/, 'custom_message_') + '_' + slug] = value
         end
       end
-      resource.content.update(i18n_type: 'YML', content: yaml.to_yaml) if count > 0
+
+      if count > 0
+        if resource.nil?
+          Transifex::Resources.new('check-2').create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
+        else
+          resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
+        end
+      end
     end
 
     private
@@ -308,7 +323,7 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     if team && !config["smooch_message_#{key}"].blank?
-      I18n.exists?("#{key}_#{team.slug}") ? I18n.t("#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      I18n.exists?("custom_message_#{key}_#{team.slug}") ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
