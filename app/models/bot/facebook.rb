@@ -1,8 +1,10 @@
-class Bot::Facebook < ActiveRecord::Base
+class Bot::Facebook < BotUser
+  check_settings
+  
   include Bot::SocialBot
   
   def self.default
-    Bot::Facebook.where(name: 'Facebook Bot').last
+    Bot::Facebook.new
   end
 
   def send_to_facebook_in_background(annotation)

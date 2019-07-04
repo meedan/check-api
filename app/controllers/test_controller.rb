@@ -147,7 +147,7 @@ class TestController < ApplicationController
   end
 
   def new_bot
-    b = create_team_bot name: 'Testing Bot', approved: true
+    b = create_team_bot name: 'Testing Bot', set_approved: true
     render_success 'bot', b
   end
 
@@ -156,6 +156,27 @@ class TestController < ApplicationController
     p.archived = true
     p.save!
     render_success 'project', p
+  end
+
+  def new_dynamic_annotation
+    type = params[:annotation_type]
+    fields = {}
+    set_fields = {}
+    types = params[:types].split(',')
+    n = types.size
+    values = params[:values].split(',', n)
+    params[:fields].split(',', n).each_with_index do |field, i|
+      fields[field] = [types[i], false]
+      set_fields[type + '_' + field] = values[i]
+    end
+    create_annotation_type_and_fields(type, fields)
+    d = create_dynamic_annotation annotated_id: params[:annotated_id], annotated_type: params[:annotated_type], annotation_type: type, set_fields: set_fields.to_json
+    if params[:set_action]
+      d = Dynamic.find(d.id)
+      d.action = params[:set_action]
+      d.save!
+    end
+    render_success 'dynamic_annotation', { graphql_id: d.graphql_id }
   end
 
   protected

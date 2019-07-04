@@ -19,12 +19,14 @@ Ruby Gem: alegre_client,[" (Client)"],MIT,https://github.com/meedan/alegre-clien
 Ruby Gem: apollo-tracing,Ruby implementation of GraphQL trace data in the Apollo Tracing format.,MIT,https://github.com/uniiverse/apollo-tracing-ruby
 Ruby Gem: arel,Arel Really Exasperates Logicians  Arel is a SQL AST manager for Ruby,MIT,https://github.com/rails/arel
 Ruby Gem: ast,A library for working with Abstract Syntax Trees.,MIT,https://whitequark.github.io/ast/
+Ruby Gem: authtrail,Track Devise login activity,MIT,https://github.com/ankane/authtrail
+Ruby Gem: autoprefixer-rails,Parse CSS and add vendor prefixes to CSS rules usingvalues from the Can I Use website.,MIT,https://github.com/ai/autoprefixer-rails
 Ruby Gem: awesome_print,Pretty print Ruby objects with proper indentation and colors,MIT,https://github.com/awesome-print/awesome_print
 Ruby Gem: axiom-types,Abstract types for logic programming,MIT,https://github.com/dkubb/axiom-types
 Ruby Gem: bcrypt,OpenBSD's bcrypt() password hashing algorithm.,MIT,https://github.com/codahale/bcrypt-ruby
 Ruby Gem: binding_of_caller,Retrieve the binding of a method's caller. Can also retrieve bindings even further up the stack.,MIT,http://github.com/banister/binding_of_caller
 Ruby Gem: bitly,Use the bit.ly API to shorten or expand URLs,MIT,http://github.com/philnash/bitly
-Ruby Gem: bootstrap-sass,Twitter's Bootstrap converted to Sass and ready to drop into Rails or Compass,MIT,https://github.com/twbs/bootstrap-sass
+Ruby Gem: bootstrap-sass,bootstrap-sass is a Sass-powered version of Bootstrap 3 ready to drop right into your Sass powered applications.,MIT,https://github.com/twbs/bootstrap-sass
 Ruby Gem: buftok,BufferedTokenizer extracts token delimited entities from a sequence of arbitrary inputs,MIT,https://github.com/sferik/buftok
 Ruby Gem: builder,Builders for MarkUp.,MIT,http://onestepback.org
 Ruby Gem: bundler,The best way to manage your application's dependencies,MIT,http://bundler.io
@@ -66,6 +68,7 @@ Ruby Gem: file_validators,ActiveModel file validators,MIT,https://github.com/mus
 Ruby Gem: filesize,filesize is a small class for handling filesizes with both the SI and binary prefixes allowing conversion from any size to any other size.,MIT,https://github.com/dominikh/filesize
 Ruby Gem: font-awesome-rails,an asset gemification of the font-awesome icon font library,MIT,https://github.com/bokmann/font-awesome-rails
 Ruby Gem: gem-licenses,Attempts to figure out what licenses various gems use.,MIT,http://github.com/dblock/gem-licenses
+Ruby Gem: geocoder,Complete geocoding solution for Ruby.,MIT,http://www.rubygeocoder.com
 Ruby Gem: globalid,Refer to any model with a URI: gid://app/class/id,MIT,http://www.rubyonrails.org
 Ruby Gem: graphiql-rails,A mountable GraphiQL endpoint for Rails,MIT,http://github.com/rmosolgo/graphiql-rails
 Ruby Gem: graphql,A GraphQL language and runtime for Ruby,MIT,http://github.com/rmosolgo/graphql-ruby
@@ -126,6 +129,7 @@ Ruby Gem: oauth,OAuth Core Ruby implementation,MIT,
 Ruby Gem: oauth2,A Ruby wrapper for the OAuth 2.0 protocol.,MIT,http://github.com/intridea/oauth2
 Ruby Gem: omniauth,A generalized Rack framework for multiple-provider authentication.,MIT,https://github.com/omniauth/omniauth
 Ruby Gem: omniauth-facebook,Facebook OAuth2 Strategy for OmniAuth,MIT,https://github.com/mkdynamic/omniauth-facebook
+Ruby Gem: omniauth-google-oauth2,A Google OAuth2 strategy for OmniAuth 1.x,MIT,https://github.com/zquestz/omniauth-google-oauth2
 Ruby Gem: omniauth-oauth,A generic OAuth (1.0/1.0a) strategy for OmniAuth.,MIT,https://github.com/intridea/omniauth-oauth
 Ruby Gem: omniauth-oauth2,An abstract OAuth2 strategy for OmniAuth.,MIT,https://github.com/intridea/omniauth-oauth2
 Ruby Gem: omniauth-slack,OmniAuth strategy for Slack,MIT,https://github.com/kmrshntr/omniauth-slack.git
@@ -176,7 +180,7 @@ Ruby Gem: remotipart,Remotipart is a Ruby on Rails gem enabling remote multipart
 Ruby Gem: representable,Renders and parses JSON/XML/YAML documents from and to Ruby objects. Includes plain properties collections nesting coercion and more.,MIT,https://github.com/trailblazer/representable/
 Ruby Gem: request_store,RequestStore gives you per-request global storage.,MIT,http://github.com/steveklabnik/request_store
 Ruby Gem: request_store-sidekiq,Easily integrate RequestStore with Sidekiq as a middleware,MIT,https://github.com/madebylotus/request_store-sidekiq
-Ruby Gem: responders,A set of Rails responders to dry up your application,MIT,http://github.com/plataformatec/responders
+Ruby Gem: responders,A set of Rails responders to dry up your application,MIT,https://github.com/plataformatec/responders
 Ruby Gem: rest-client,Simple HTTP and REST client for Ruby inspired by microframework syntax for specifying actions.,MIT,https://github.com/rest-client/rest-client
 Ruby Gem: retriable,Retriable is a simple DSL to retry failed code blocks with randomized exponential backoff,MIT,http://github.com/kamui/retriable
 Ruby Gem: rspec-core,rspec-core-3.5.4,MIT,https://github.com/rspec/rspec-core
@@ -188,9 +192,10 @@ Ruby Gem: rubocop,Automatic Ruby code style checking tool.,MIT,http://github.com
 Ruby Gem: ruby-cldr,Ruby library for exporting and using data from CLDR,MIT,http://github.com/svenfuchs/ruby-cldr
 Ruby Gem: ruby-progressbar,Ruby/ProgressBar is a flexible text progress bar library for Ruby.,MIT,https://github.com/jfelchner/ruby-progressbar
 Ruby Gem: safe_yaml,SameYAML provides an alternative implementation of YAML.load suitable for accepting user input in Ruby applications.,MIT,https://github.com/dtao/safe_yaml
-Ruby Gem: sass,A powerful but elegant CSS compiler that makes CSS fun again.,MIT,http://sass-lang.com/
+Ruby Gem: sass,A powerful but elegant CSS compiler that makes CSS fun again.,MIT,https://sass-lang.com/
 Ruby Gem: sass-listen,Fork of guard/listen,MIT,https://github.com/sass/listen
 Ruby Gem: sass-rails,Sass adapter for the Rails asset pipeline.,MIT,https://github.com/rails/sass-rails
+Ruby Gem: sassc,Use libsass with Ruby!,MIT,https://github.com/sass/sassc-ruby
 Ruby Gem: sdoc,rdoc html with javascript search index.,MIT,https://github.com/zzak/sdoc
 Ruby Gem: sidekiq-benchmark,Adds benchmarking methods to Sidekiq workers keeps metrics and adds tab to Web UI to let you browse them.,MIT,https://github.com/kosmatov/sidekiq-benchmark/
 Ruby Gem: sidekiq-status,An extension to the sidekiq message processing to track your jobs,MIT,http://github.com/utgarda/sidekiq-status
@@ -216,6 +221,7 @@ Ruby Gem: uber,Gem-authoring tools like generic builders dynamic options and mor
 Ruby Gem: uglifier,Ruby wrapper for UglifyJS JavaScript compressor,MIT,http://github.com/lautis/uglifier
 Ruby Gem: unf_ext,Unicode Normalization Form support library for CRuby,MIT,https://github.com/knu/ruby-unf_ext
 Ruby Gem: unicode-display_width,Determines the monospace display width of a string in Ruby.,MIT,http://github.com/janlelis/unicode-display_width
+Ruby Gem: useragent,HTTP User Agent parser,MIT,https://github.com/gshutler/useragent
 Ruby Gem: virtus,Attributes on Steroids for Plain Old Ruby Objects,MIT,https://github.com/solnic/virtus
 Ruby Gem: warden,Rack middleware that provides authentication for rack applications,MIT,http://github.com/hassox/warden
 Ruby Gem: web-console,A debugging tool for your Ruby on Rails applications.,MIT,https://github.com/rails/web-console

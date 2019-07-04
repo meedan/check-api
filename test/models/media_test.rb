@@ -335,6 +335,19 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [m.id], m.annotations('metadata').map(&:annotated_id)
   end
 
+  test "should handle PenderClient throwing exceptions" do
+    PenderClient::Request.stubs(:get_medias).raises(StandardError)
+    p = create_project
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_raise ActiveRecord::RecordInvalid do
+      m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    end
+    PenderClient::Request.unstub(:get_medias)
+  end
+
   test "should get permissions" do
     u = create_user
     t = create_team
@@ -522,6 +535,16 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal '', i.original_published_time
   end
 
+  test "should get original published time for times in all formats" do
+    l = create_media
+    time = "2017-07-10T12:10:18+03:00"
+    [time.to_time.to_i, time].each do |t|
+      l.stubs(:metadata).returns({'published_at' => t })
+      assert_equal Time.at(time.to_time.to_i), l.original_published_time
+      l.unstub(:metadata)
+    end
+  end
+
   test "should get media type" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
@@ -539,7 +562,7 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'uploaded file', f.media_type
     assert_equal '', m.media_type
   end
-  
+
   test "should retry Pender automatically if it fails and not forced" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'

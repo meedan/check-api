@@ -51,4 +51,37 @@ class AssignmentMailerTest < ActionMailer::TestCase
 
     assert_equal ['user1@mail.com'], email.to
   end
+
+  test "should notify about project assignment in Arabic" do
+    I18n.stubs(:locale).returns(:ar)
+
+    u = create_user
+    create_user email: 'user1@mail.com'
+    p = create_project
+
+    email = AssignmentMailer.notify(:assign_project, u, 'user1@mail.com', p)
+
+    assert_emails 1 do
+      email.deliver_now
+    end
+
+    assert_equal ['user1@mail.com'], email.to
+
+    I18n.unstub(:locale)
+  end
+
+  test "should not crash with non-ASCii e-mail" do
+    e = "\u{FEFF}user1@mail.com"
+    u = create_user
+    u2 = create_user email: e
+    p = create_project
+
+    email = AssignmentMailer.notify(:assign_project, u, u2.email, p)
+
+    assert_emails 1 do
+      email.deliver_now
+    end
+    
+    assert_equal ['user1@mail.com'], email.to
+  end
 end

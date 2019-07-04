@@ -1,8 +1,7 @@
-class Bot::Alegre < ActiveRecord::Base
-
-  mount_uploader :avatar, ImageUploader
-  validates_presence_of :name
-
+class Bot::Alegre < BotUser
+  
+  check_settings
+  
   def self.run(body)
     handled = false
     begin
@@ -20,11 +19,7 @@ class Bot::Alegre < ActiveRecord::Base
   end
 
   def self.default
-    Bot::Alegre.where(name: 'Alegre Bot').last || Bot::Alegre.new
-  end
-
-  def profile_image
-    CONFIG['checkdesk_base_url'] + self.avatar.url
+    Bot::Alegre.new
   end
 
   def get_language(pm)
@@ -46,7 +41,7 @@ class Bot::Alegre < ActiveRecord::Base
   def save_language(pm, lang)
     annotation = Dynamic.new
     annotation.annotated = pm
-    annotation.annotator = self
+    annotation.annotator = BotUser.where(login: 'alegre').first
     annotation.annotation_type = 'language'
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = { language: lang }.to_json
@@ -82,11 +77,9 @@ class Bot::Alegre < ActiveRecord::Base
     # - If it has no existing relationship, use it.
     parent_id = pm_ids[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
-    if source_ids.length > 0 then
+    if source_ids.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      if source_ids.length > 1 then
-        Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}")
-      end
+      Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}") if source_ids.length > 1
       # Take the first source as the parent.
       parent_id = source_ids[0].source_id
     end

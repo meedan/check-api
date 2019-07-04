@@ -1,10 +1,13 @@
-class Bot::Viber < ActiveRecord::Base
+class Bot::Viber < BotUser
+  
+  check_settings
+  
   attr_accessor :token
 
   include ViberBotScreenshot
 
   def self.default
-    Bot::Viber.where(name: 'Viber Bot').last
+    Bot::Viber.new
   end
 
   def send_message(body)

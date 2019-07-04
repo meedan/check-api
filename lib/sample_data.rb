@@ -208,6 +208,12 @@ module SampleData
     create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
   end
 
+  def create_metadata_stuff
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last || create_annotation_type(annotation_type: 'metadata', label: 'Metadata')
+    ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
+    DynamicAnnotation::FieldInstance.where(name: 'metadata_value').last || create_field_instance(annotation_type_object: at, name: 'metadata_value', label: 'Metadata Value', field_type_object: ft, optional: false, settings: {})
+  end
+
   def create_task_status_stuff(delete_existing = true)
     if delete_existing
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
@@ -536,7 +542,7 @@ module SampleData
   end
 
   def create_bot(options = {})
-    bot = Bot::Bot.new
+    bot = BotUser.new
     bot.name = options[:name] || random_string
     file = 'rails.png'
     if options.has_key?(:avatar)
@@ -544,7 +550,7 @@ module SampleData
     end
     unless file.nil?
       File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
-        bot.avatar = f
+        bot.image = f
       end
     end
     bot.save!
@@ -552,54 +558,28 @@ module SampleData
   end
 
   def create_alegre_bot(options = {})
-    bot = Bot::Alegre.new
-    bot.name = options[:name] || 'Alegre Bot'
-    file = 'rails.png'
-    if options.has_key?(:avatar)
-      file = options[:avatar]
-    end
-    unless file.nil?
-      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
-        bot.avatar = f
-      end
-    end
-    bot.save!
-    bot.reload
+    Bot::Alegre.new
   end
 
   def create_viber_bot(options = {})
-    bot = Bot::Viber.new
-    bot.name = options[:name] || 'Viber Bot'
-    bot.save!
-    bot.reload
+    Bot::Viber.new
   end
 
   def create_twitter_bot(options = {})
-    bot = Bot::Twitter.new
-    bot.name = options[:name] || 'Twitter Bot'
-    bot.save!
-    bot.reload
+    Bot::Twitter.new
   end
 
   def create_facebook_bot(options = {})
-    bot = Bot::Facebook.new
-    bot.name = options[:name] || 'Facebook Bot'
-    bot.save!
-    bot.reload
+    Bot::Facebook.new
   end
 
   def create_slack_bot(options = {})
-    bot = Bot::Slack.new
-    bot.name = options[:name] || 'Slack Bot'
-    bot.save!
-    bot.reload
+    b = create_team_bot(type: 'Bot::Slack')
+    Bot::Slack.find(b.id)
   end
 
   def create_bridge_reader_bot(options = {})
-    bot = Bot::BridgeReader.new
-    bot.name = options[:name] || 'Bridge Reader Bot'
-    bot.save!
-    bot.reload
+    Bot::BridgeReader.new
   end
 
   def create_bounce(options = {})
@@ -677,7 +657,12 @@ module SampleData
     a = Dynamic.new
     a.annotation_type = t
     a.annotator = options.has_key?(:annotator) ? options[:annotator] : create_user
-    a.annotated = options[:annotated] || create_project_media
+    if options[:annotated_id] && options[:annotated_type]
+      a.annotated_id = options[:annotated_id]
+      a.annotated_type = options[:annotated_type]
+    else
+      a.annotated = options[:annotated] || create_project_media
+    end
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
@@ -725,7 +710,7 @@ module SampleData
     #   ...
     # }
     annotation_type_name = annotation_type_label.parameterize.gsub('-', '_')
-    at = create_annotation_type annotation_type: annotation_type_name, label: annotation_type_label
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
     fts = fields.values.collect{ |v| v.first }
     fts.each do |label|
       type = label.parameterize.gsub('-', '_')
@@ -738,7 +723,7 @@ module SampleData
       settings = type[2] || {}
       field_type = type[0].parameterize.gsub('-', '_')
       type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
-      create_field_instance annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings
+      DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
     end
   end
 
@@ -761,20 +746,23 @@ module SampleData
   def create_team_bot(options = {})
     options = {
       name: random_string,
-      description: random_string,
-      request_url: random_url,
+      set_description: random_string,
+      set_request_url: random_url,
       team_author_id: create_team.id,
-      events: [{ event: 'create_project_media', graphql: nil }]
+      set_events: [{ event: 'create_project_media', graphql: nil }]
     }.merge(options)
-    options[:bot_user_id] = create_bot_user.id unless options.has_key?(:bot_user_id)
 
-    tb = TeamBot.new
+    tb = BotUser.new
     options.each do |key, value|
-      tb.send("#{key}=", value) if tb.respond_to?("#{key}=")
+      if key.to_s =~ /^set_/
+        tb.send(key, value)
+      elsif tb.respond_to?("#{key}=")
+        tb.send("#{key}=", value)
+      end
     end
 
     File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
-      tb.file = f
+      tb.image = f
     end
 
     tb.save!
@@ -783,7 +771,7 @@ module SampleData
 
   def create_team_bot_installation(options = {})
     options[:team_id] = create_team.id unless options.has_key?(:team_id)
-    options[:team_bot_id] = create_team_bot(approved: true).id unless options.has_key?(:team_bot_id)
+    options[:user_id] = create_team_bot(set_approved: true).id unless options.has_key?(:user_id)
     tbi = TeamBotInstallation.new
     options.each do |key, value|
       tbi.send("#{key}=", value) if tbi.respond_to?("#{key}=")

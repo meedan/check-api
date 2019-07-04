@@ -246,4 +246,54 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 'America/Bahia', assigns(:context_timezone)
   end
 
+  test "should get dynamic annotation field" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    name = random_string
+    phone = random_string
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    authenticate_with_token
+    query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    assert_equal d.id.to_s, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
+  end
+
+  test "should not get dynamic annotation field if does not have permission" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    name = random_string
+    phone = random_string
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    authenticate_with_user(u)
+    query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+  end
+
+  test "should not get dynamic annotation field if parameters do not match" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    name = random_string
+    phone = random_string
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    authenticate_with_user(u)
+    query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + random_string + '\" } }") { annotation { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+  end
 end

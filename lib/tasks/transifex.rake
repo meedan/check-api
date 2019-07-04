@@ -32,24 +32,20 @@ namespace :transifex do
 
   task download: [:environment, :languages, :login] do
     project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
-    resource = nil
-
-    begin
-      resource = project.resource('api')
-      @langs.each do |lang|
-        translation = resource.translation(lang).fetch['content']
-        path = File.join(Rails.root, 'config', 'locales', "#{lang}.yml")
-        file = File.open(path, 'w+')
-        file.puts translation
-        file.close
-        puts "Downloaded translations from Transifex and saved as #{path}."
+    resource_slugs = project.resources.fetch.select{ |r| r['slug'] =~ /^api/ }.collect{ |r| r['slug'] }
+    @langs.each do |lang|
+      yaml = {}
+      yaml[lang] = {}
+      resource_slugs.each do |slug|
+        resource = project.resource(slug)
+        translations = YAML.load(resource.translation(lang).fetch['content'])
+        yaml[lang].merge!(translations[lang])
       end
-    rescue Transifex::TransifexError => e
-      if e.message == 'Not Found'
-        puts "Tried to download translations, but resource 'API' was not found."
-      else
-        raise e
-      end
+      path = File.join(Rails.root, 'config', 'locales', "#{lang}.yml")
+      file = File.open(path, 'w+')
+      file.puts yaml.to_yaml
+      file.close
+      puts "Downloaded translations from Transifex and saved as #{path}."
     end
   end
 
@@ -82,7 +78,11 @@ namespace :transifex do
     begin
       resource = project.resource('api')
       resource.fetch
-      resource.content.update(i18n_type: 'YML', content: File.read(File.join(Rails.root, 'config', 'locales', 'en.yml')))
+      yaml = { 'en' => {} }
+      YAML.load(File.read(File.join(Rails.root, 'config', 'locales', 'en.yml')))['en'].each do |key, value|
+        yaml['en'][key] = value unless key =~ /^custom_message_/
+      end
+      resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
     rescue Transifex::TransifexError => e
       if e.message == 'Not Found'
         params = { slug: 'api', name: 'API', i18n_type: 'YML', content: File.read(File.join(Rails.root, 'config', 'locales', 'en.yml')) }

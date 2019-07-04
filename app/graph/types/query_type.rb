@@ -100,9 +100,26 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :dynamic_annotation_field do
+    type DynamicAnnotationFieldType
+
+    argument :query, !types.String
+
+    resolve -> (_obj, args, ctx) do
+      ability = ctx[:ability] || Ability.new
+      if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
+        query = JSON.parse(args['query'])
+        json = query.delete('json')
+        obj = DynamicAnnotation::Field.where(query)
+        obj = obj.find_in_json(json) unless json.blank?
+        obj.last
+      end
+    end
+  end
+
   # Getters by ID
 
-  [:source, :user, :task, :team_bot, :tag_text].each do |type|
+  [:source, :user, :task, :tag_text, :bot_user].each do |type|
     field type do
       type "#{type.to_s.camelize}Type".constantize
       description "Information about the #{type} with given id"

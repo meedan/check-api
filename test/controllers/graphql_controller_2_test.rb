@@ -177,8 +177,11 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should not create duplicated tag" do
-    authenticate_with_user
-    p = create_project team: @team
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
     pm = create_project_media project: p
     query = 'mutation create { createTag(input: { clientMutationId: "1", tag: "egypt", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '"}) { tag { id } } }'
     post :create, query: query
@@ -371,10 +374,10 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should get approved bots" do
-    TeamBot.delete_all
+    BotUser.delete_all
     authenticate_with_user
-    tb1 = create_team_bot approved: true
-    tb2 = create_team_bot approved: false
+    tb1 = create_team_bot set_approved: true
+    tb2 = create_team_bot set_approved: false
     query = "query read { root { team_bots_approved { edges { node { dbid } } } } }"
     post :create, query: query
     edges = JSON.parse(@response.body)['data']['root']['team_bots_approved']['edges']
@@ -383,11 +386,11 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should get bot by id" do
     authenticate_with_user
-    tb = create_team_bot approved: true, name: 'My Bot'
-    query = "query read { team_bot(id: #{tb.id}) { name } }"
+    tb = create_team_bot set_approved: true, name: 'My Bot'
+    query = "query read { bot_user(id: #{tb.id}) { name } }"
     post :create, query: query
     assert_response :success
-    name = JSON.parse(@response.body)['data']['team_bot']['name']
+    name = JSON.parse(@response.body)['data']['bot_user']['name']
     assert_equal 'My Bot', name
   end
 
@@ -397,10 +400,10 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
 
-    tb1 = create_team_bot approved: false, name: 'Custom Bot', team_author_id: t.id
-    tb2 = create_team_bot approved: true, name: 'My Bot'
-    tb3 = create_team_bot approved: true, name: 'Other Bot'
-    create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
+    tb1 = create_team_bot set_approved: false, name: 'Custom Bot', team_author_id: t.id
+    tb2 = create_team_bot set_approved: true, name: 'My Bot'
+    tb3 = create_team_bot set_approved: true, name: 'Other Bot'
+    create_team_bot_installation user_id: tb2.id, team_id: t.id
 
     query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
     post :create, query: query
@@ -416,16 +419,16 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
 
-    tb1 = create_team_bot approved: false, name: 'Custom Bot', team_author_id: t.id
-    tb2 = create_team_bot approved: true, name: 'My Bot'
-    tb3 = create_team_bot approved: true, name: 'Other Bot'
-    create_team_bot_installation team_bot_id: tb2.id, team_id: t.id
+    tb1 = create_team_bot set_approved: false, name: 'Custom Bot', team_author_id: t.id
+    tb2 = create_team_bot set_approved: true, name: 'My Bot'
+    tb3 = create_team_bot set_approved: true, name: 'Other Bot'
+    create_team_bot_installation user_id: tb2.id, team_id: t.id
 
-    query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, team_bot { name } } } } } }'
+    query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, bot_user { name } } } } } }'
     post :create, query: query
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['team_bot_installations']['edges']
-    assert_equal ['Custom Bot', 'My Bot'], edges.collect{ |e| e['node']['team_bot']['name'] }.sort
+    assert_equal ['Custom Bot', 'My Bot'], edges.collect{ |e| e['node']['bot_user']['name'] }.sort
     assert_equal ['test', 'test'], edges.collect{ |e| e['node']['team']['slug'] }
   end
 
@@ -433,13 +436,13 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
-    tb = create_team_bot approved: true
+    tb = create_team_bot set_approved: true
 
     authenticate_with_user(u)
 
     assert_equal [], t.team_bots
 
-    query = 'mutation create { createTeamBotInstallation(input: { clientMutationId: "1", team_bot_id: ' + tb.id.to_s + ', team_id: ' + t.id.to_s + ' }) { team { dbid }, team_bot { dbid } } }'
+    query = 'mutation create { createTeamBotInstallation(input: { clientMutationId: "1", user_id: ' + tb.id.to_s + ', team_id: ' + t.id.to_s + ' }) { team { dbid }, bot_user { dbid } } }'
     assert_difference 'TeamBotInstallation.count' do
       post :create, query: query
     end
@@ -447,15 +450,15 @@ class GraphqlController2Test < ActionController::TestCase
 
     assert_equal [tb], t.reload.team_bots
     assert_equal t.id, data['team']['dbid']
-    assert_equal tb.id, data['team_bot']['dbid']
+    assert_equal tb.id, data['bot_user']['dbid']
   end
 
   test "should uninstall bot using mutation" do
     t = create_team slug: 'test'
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
-    tb = create_team_bot approved: true
-    tbi = create_team_bot_installation team_id: t.id, team_bot_id: tb.id
+    tb = create_team_bot set_approved: true
+    tbi = create_team_bot_installation team_id: t.id, user_id: tb.id
 
     authenticate_with_user(u)
 
@@ -1170,11 +1173,11 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should set statuses of related items" do
     Sidekiq::Testing.fake! do
-      TeamBot.delete_all
-      b = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: [], events: []
+      BotUser.delete_all
+      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: [], set_events: []
       u = create_user
       t = create_team
-      create_team_bot_installation team_bot_id: b.id, team_id: t.id
+      create_team_bot_installation user_id: b.id, team_id: t.id
       create_team_user team: t, user: u, role: 'owner'
       p = create_project team: t
       pm1 = create_project_media project: p

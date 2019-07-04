@@ -21,7 +21,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @team = create_team
     @project = create_project team_id: @team.id
     @bid = random_string
-    TeamBot.delete_all
+    BotUser.delete_all
     settings = [
       { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
       { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
@@ -44,10 +44,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.each do |name, label|
       settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
     end
+    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
-    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:put, 'https://www.transifex.com/api/2/project/check-2/resource/api/content').to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    @bot = create_team_bot name: 'Smooch', identifier: 'smooch', approved: true, settings: settings, events: [], request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
       'smooch_bot_id' => @bid,
@@ -58,7 +59,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10
     }
-    @installation = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: @team.id
+    @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
@@ -73,6 +74,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
   def teardown
@@ -890,6 +892,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Bot::Smooch.convert_numbers('')
   end
 
+  test "should get is rtl lang" do
+    I18n.locale = :ar
+    assert Bot::Smooch.is_rtl_lang?
+    I18n.locale = :en
+    assert_not Bot::Smooch.is_rtl_lang?
+  end
+
   test "should support file only if image" do
     assert Bot::Smooch.supported_message?({ 'type' => 'image' })
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })
@@ -951,7 +960,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
   test "should send strings to Transifex" do
     t = create_team
-    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
     
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
       s = tbi.settings.clone
@@ -977,7 +986,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     c1 = 'Here is your meme'
     c2 = 'Aqui está o seu meme'
     t = create_team slug: slug
-    tbi = create_team_bot_installation team_bot_id: @bot.id, settings: @settings, team_id: t.id
+    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
     RequestStore.store[:smooch_bot_settings] = tbi.settings.with_indifferent_access.merge({ team_id: t.id })
     k = 'smooch_bot_meme'
     assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
@@ -985,9 +994,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    I18n.stubs(:exists?).with("#{k}_#{slug}").returns(true)
-    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, {}).returns(c1)
-    I18n.stubs(:t).with("#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
+    I18n.stubs(:exists?).with("custom_message_#{k}_#{slug}").returns(true)
+    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, {}).returns(c1)
+    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c2, Bot::Smooch.i18n_t(k, { locale: 'pt' })
     I18n.unstub(:t)
@@ -1039,6 +1048,110 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     send_confirmation(uid)
     assert_equal 1, ProjectMedia.count
+  end
+
+  test "should change Smooch user state" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    id = random_string
+    phone = random_string
+    name = random_string
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: id, smooch_user_app_id: @app_id, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'reactivate' ; d.save!
+    assert_equal 'waiting_for_message', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'deactivate' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
+    message = {
+      '_id': random_string,
+      authorId: id,
+      type: 'text',
+      text: random_string
+    }
+    Rails.cache.write("smooch:last_message_from_user:#{id}", message.to_json)
+    d = Dynamic.find(d.id) ; d.action = 'passthru' ; d.save!
+    assert_equal 'waiting_for_confirmation', CheckStateMachine.new(id).state.value
+  end
+
+  test "should save user information" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    Bot::Smooch.unstub(:save_user_information)
+    SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string }] }))
+    SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+      Bot::Smooch.run(payload)
+    end
+    assert_no_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+      Bot::Smooch.run(payload)
+    end
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
+  test "should save last message and ignore if in human mode" do
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    assert_equal 'waiting_for_message', sm.state.value
+    sm.enter_human_mode
+    sm = CheckStateMachine.new(uid)
+    assert_equal 'human_mode', sm.state.value
+    assert_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    assert_not_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
+  end
+
+  test "should create Transifex resource if it does not exist" do
+    t = create_team
+    
+    Transifex::Project.any_instance.stubs(:resource).raises(Transifex::TransifexError.new(nil, nil, nil))
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+      s = @settings.clone
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
+    end
+    Transifex::Project.any_instance.unstub(:resource)
   end
 
   protected

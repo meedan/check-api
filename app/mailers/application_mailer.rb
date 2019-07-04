@@ -2,12 +2,10 @@ class ApplicationMailer < ActionMailer::Base
   default from: CONFIG['default_mail']
   layout 'mailer'
 
+  include CheckI18n
+
   def self.set_template_direction
-    rtl_lang = [
-      'ae', 'ar',  'arc','bcc', 'bqi','ckb', 'dv','fa',
-      'glk', 'he', 'ku', 'mzn','nqo', 'pnb','ps', 'sd', 'ug','ur','yi'
-    ]
-    if rtl_lang.include?(I18n.locale.to_s)
+    if self.is_rtl_lang?
       direction = {
         dir: 'rtl',
         align: 'right',
@@ -28,6 +26,7 @@ class ApplicationMailer < ActionMailer::Base
   def mail(options={})
     filter_to_if_user_opted_out(options)
     return if options[:to].empty?
+    options[:to] = [options[:to]].flatten.collect{ |to| to.gsub(/[\u200B-\u200D\uFEFF]/, '') }
     @direction = ApplicationMailer.set_template_direction
     super(options)
   end
