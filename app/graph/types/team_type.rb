@@ -23,14 +23,13 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_status_target_turnaround, types.String
   field :get_disclaimer, types.String
   field :get_embed_tasks, types.String
+  field :get_max_number_of_members, types.String
   field :pusher_channel, types.String
   field :search_id, types.String
   field :search, CheckSearchType
   field :check_search_trash, CheckSearchType
   field :trash_size, JsonStringType
-  field :limits, JsonStringType
   field :public_team_id, types.String
-  field :plan, types.String
   field :used_tags, types.String.to_list_type
   field :permissions_info, JsonStringType
   field :invited_mails, JsonStringType

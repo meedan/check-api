@@ -36,4 +36,8 @@ module TeamPrivate
   def delete_created_bots
     self.team_bots_created.map(&:destroy!)
   end
+
+  def set_default_max_number_of_members
+    self.set_max_number_of_members 5
+  end
 end
