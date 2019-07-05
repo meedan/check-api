@@ -1584,5 +1584,6 @@ class TeamTest < ActiveSupport::TestCase
     t.max_number_of_members = 23
     t.save!
     assert_equal 23, t.reload.get_max_number_of_members
+    assert_equal 23, t.reload.max_number_of_members
   end
 end

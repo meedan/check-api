@@ -109,6 +109,10 @@ class Team < ActiveRecord::Base
     self.send(:set_max_number_of_members, value.to_i)
   end
 
+  def max_number_of_members
+    self.get_max_number_of_members
+  end
+
   def slack_webhook=(webhook)
     self.send(:set_slack_webhook, webhook)
   end
