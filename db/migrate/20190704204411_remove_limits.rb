@@ -6,7 +6,7 @@ class RemoveLimits < ActiveRecord::Migration
         limits = YAML.load(team.limits).with_indifferent_access
         if limits.has_key?('max_number_of_members')
           team.set_max_number_of_members(limits['max_number_of_members'])
-          team.save!
+          team.save(validate: false)
         end
       end
       remove_column :teams, :limits
