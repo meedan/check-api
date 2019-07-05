@@ -263,9 +263,9 @@ class AnnotationTest < ActiveSupport::TestCase
     f = a.get_field('pender_archive_response')
     f.value = '{"foo":"bar"}'
     f.save!
-    t.set_limits_keep = false
     User.current = nil
-    t.save!
+    tbi.set_archive_pender_archive_enabled = false
+    tbi.save!
     v = a.reload.get_field('pender_archive_response').reload.value
     pm = ProjectMedia.find(pm.id)
     pm.reset_archive_response(a)

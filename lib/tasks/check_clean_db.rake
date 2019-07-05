@@ -63,7 +63,6 @@ namespace :check do
 
     BotUser.all.each do |b|
       b.set_approved true
-      b.set_limited false
       b.save
     end
   end

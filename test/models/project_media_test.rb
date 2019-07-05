@@ -1142,19 +1142,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create media through browser extension if team is not allowed to" do
-    t = create_team
-    t.set_limits_browser_extension = false
-    t.save!
-    p = create_project team: t
-    assert_raises ActiveRecord::RecordInvalid do
-      RequestStore.stubs(:[]).with(:task_comment).returns(nil)
-      RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Check-Client' => 'browser-extension' } }))
-      create_project_media project: p
-      RequestStore.unstub(:[])
-    end
-  end
-
   test "should not crash if mapping value is invalid" do
     assert_nothing_raised do
       pm = ProjectMedia.new
@@ -1286,24 +1273,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
-    end
-  end
-
-  test "should not create pender_archive annotation if team is not allowed" do
-    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    l = create_link
-    t = create_team
-    t.set_limits_keep = false
-    t.save!
-    BotUser.delete_all
-    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
-    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
-    tbi.set_archive_pender_archive_enabled = true
-    tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
     assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
@@ -1710,10 +1679,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     BotUser.delete_all
     tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
-    tbi.set_archive_pender_archive_enabled = true
+    tbi.set_archive_pender_archive_enabled = false
     tbi.save!
     pm = create_project_media project: create_project(team: t), media: l
-
     assert pm.should_skip_create_archive_annotation?('pender_archive')
   end
 

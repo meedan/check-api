@@ -100,40 +100,6 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not be installed if limited" do
-    t1 = create_team slug: 'test'
-    t2 = create_team
-    Team.current = t1
-    tb = create_team_bot name: 'Test Bot', set_approved: true, set_limited: true
-    Team.current = nil
-    assert_equal 'bot_test_bot', tb.reload.identifier
-    assert !t2.get_limits_bot_test_bot
-
-    assert_no_difference 'TeamBotInstallation.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_team_bot_installation user_id: tb.id, team_id: t2.id
-      end
-    end
-  end
-
-  test "should be installed if limited" do
-    t1 = create_team slug: 'test'
-    t2 = create_team
-    t2.set_limits_bot_test_bot(true)
-    t2.save!
-    Team.current = t1
-    tb = create_team_bot name: 'Test Bot', set_approved: true, set_limited: true
-    Team.current = nil
-    assert_equal 'bot_test_bot', tb.reload.identifier
-    assert t2.get_limits_bot_test_bot
-
-    assert_difference 'TeamBotInstallation.count' do
-      assert_nothing_raised do
-        create_team_bot_installation user_id: tb.id, team_id: t2.id
-      end
-    end
-  end
-
   test "should have settings" do
     tb = create_team_bot_installation
     assert_equal({}, tb.settings)

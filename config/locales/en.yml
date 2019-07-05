@@ -541,7 +541,6 @@ en:
     be installed
   only_admins_can_approve_bots: Sorry, only super admins can approve bots
   could_not_save_related_bot_data: Sorry, could not add the bot to this team
-  bot_limited_team_not_pro: Sorry, this bot is not available to this team
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
