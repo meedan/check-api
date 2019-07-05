@@ -394,6 +394,7 @@ RailsAdmin.config do |config|
         hide do
           bindings[:object].new_record?
         end
+        visible_only_for_admin
       end
 
       id = CONFIG['default_project_media_workflow']
