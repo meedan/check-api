@@ -1586,4 +1586,25 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 23, t.reload.get_max_number_of_members
     assert_equal 23, t.reload.max_number_of_members
   end
+
+  test "should not crash when emptying trash that has task comments" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project team: t
+      pm = create_project_media project: p
+      tk = create_task annotated: pm
+      create_comment annotated: tk
+      pm.archived = true
+      pm.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      with_current_user_and_team(u, t) do
+        assert_nothing_raised do
+          t.empty_trash = 1
+        end
+      end
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+  end
 end
