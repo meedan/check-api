@@ -1,11 +1,12 @@
 class User < ActiveRecord::Base
   self.inheritance_column = :type
-  attr_accessor :skip_confirmation_mail, :from_omniauth_login, :frozen_account_ids, :frozen_source_id, :two_factor
+  attr_accessor :skip_confirmation_mail, :from_omniauth_login, :frozen_account_ids, :frozen_source_id
 
   include ValidationsHelper
   include UserPrivate
   include UserInvitation
   include UserMultiAuthLogin
+  include UserTwoFactorAuth
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
@@ -18,9 +19,6 @@ class User < ActiveRecord::Base
   has_many :project_medias
   has_many :sources
   has_many :login_activities
-
-  devise :two_factor_authenticatable, :two_factor_backupable,
-         :otp_secret_encryption_key => ENV['TWO_FACTOR_KEY']
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
@@ -122,18 +120,6 @@ class User < ActiveRecord::Base
       user[field] = self.send(field)
     end
     user
-  end
-
-  def two_factor
-    issuer = 'Check-App-2FA'
-    uri = self.otp_provisioning_uri(self.email, issuer: issuer)
-    qrcode = RQRCode::QRCode.new(uri)
-    {
-      enabled: self.otp_required_for_login,
-      qrcode_img: qrcode.as_png,
-      qrcode_svg: qrcode.as_svg(offset: 0, color: '000', shape_rendering: 'crispEdges', module_size: 11),
-      qrcode_html: qrcode.as_html
-    }
   end
 
   def email_required?
@@ -244,12 +230,6 @@ class User < ActiveRecord::Base
 
   def send_failed_login_notifications=(enabled)
     set_user_notification_settings('send_failed_login_notifications', enabled)
-  end
-
-  def two_factor=(enabled)
-    self.otp_required_for_login = enabled
-    self.otp_secret = User.generate_otp_secret if enabled == true
-    self.save!
   end
 
   def profile_image
