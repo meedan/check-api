@@ -354,7 +354,6 @@ module SampleData
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!
-    team.update_columns(limits: { foo: 'bar' })
     team.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     team.reload
   end

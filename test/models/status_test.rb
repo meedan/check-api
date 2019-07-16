@@ -179,12 +179,8 @@ class StatusTest < ActiveSupport::TestCase
   test "should validate status" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media
 
-    assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
-      create_status annotated: pm, status: 'in_progress'
-    end
     assert_raises ActiveRecord::RecordInvalid do
       create_status annotated: pm, status: '1'
     end
@@ -193,16 +189,18 @@ class StatusTest < ActiveSupport::TestCase
     t.set_media_verification_statuses(value)
     t.save!
 
+    pm2 = create_project_media project: p
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
-      create_status annotated: pm, status: '1'
+      create_status annotated: pm2, status: '1'
     end
   end
 
   test "should get default id" do
     t = create_team
+    t2 = create_team
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media media: m, project: p
+    p2 = create_project team: t2
+    pm = create_project_media
 
     assert_equal 'undetermined', Workflow::Workflow.options(pm, 'verification_status')[:default]
 
@@ -210,13 +208,15 @@ class StatusTest < ActiveSupport::TestCase
     t.set_media_verification_statuses(value)
     t.save!
 
+    pm = create_project_media project: p
     assert_equal '1', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
 
     value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', completed: '', description: 'Testing', style: 'bar' }] }
-    t.set_media_verification_statuses(value)
-    t.save!
+    t2.set_media_verification_statuses(value)
+    t2.save!
+    pm2 = create_project_media project: p2
 
-    assert_equal 'first', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
+    assert_equal 'first', Workflow::Workflow.options(pm2.reload, 'verification_status')[:default]
     assert_equal 'undetermined', Workflow::Workflow.options(create_project_media, 'verification_status')[:default]
   end
 

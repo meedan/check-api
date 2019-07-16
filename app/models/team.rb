@@ -22,6 +22,7 @@ class Team < ActiveRecord::Base
       Ability.new
     end
   end
+  before_validation :set_default_max_number_of_members, on: :create
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
   after_destroy :reset_current_team
@@ -102,6 +103,14 @@ class Team < ActiveRecord::Base
 
   def slack_notifications_enabled=(enabled)
     self.send(:set_slack_notifications_enabled, enabled)
+  end
+
+  def max_number_of_members=(value)
+    self.send(:set_max_number_of_members, value.to_i)
+  end
+
+  def max_number_of_members
+    self.get_max_number_of_members
   end
 
   def slack_webhook=(webhook)

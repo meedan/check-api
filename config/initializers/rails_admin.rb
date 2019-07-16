@@ -154,7 +154,7 @@ RailsAdmin.config do |config|
 
   def visible_only_for_allowed_teams(setting, hide_for_new = false)
     hide do
-      bindings[:object].send("get_limits_#{setting}") == false || (hide_for_new && bindings[:object].new_record?)
+      hide_for_new && bindings[:object].new_record?
     end
   end
 
@@ -387,6 +387,15 @@ RailsAdmin.config do |config|
       field :archived do
         visible_only_for_admin
       end
+      field :max_number_of_members do
+        label 'Maximum number of members'
+        formatted_value{ bindings[:object].get_max_number_of_members }
+        help ''
+        hide do
+          bindings[:object].new_record?
+        end
+        visible_only_for_admin
+      end
 
       id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
@@ -414,11 +423,6 @@ RailsAdmin.config do |config|
         formatted_value{ bindings[:object].get_slack_channel }
         help "The Slack channel to which Check should send notifications about events that occur in your team."
         visible_only_for_allowed_teams 'slack_integration', true
-      end
-      field :limits, :yaml do
-        partial "json_editor"
-        help "Select the features that are available to this team."
-        visible_only_for_admin
       end
     end
 

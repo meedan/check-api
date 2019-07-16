@@ -35,10 +35,6 @@ class Bot::Keep < BotUser
     }[type] || type
   end
 
-  def self.should_skip_project_media?(pm)
-    pm&.project&.team&.get_limits_keep == false
-  end
-
   def self.valid_request?(request)
     begin
       payload = request.raw_post
@@ -70,8 +66,6 @@ class Bot::Keep < BotUser
         m.save!
 
         ProjectMedia.where(media_id: link.id).each do |pm|
-          next if Bot::Keep.should_skip_project_media?(pm)
-
           annotation = pm.annotations.where(annotation_type: type).last
 
           unless annotation.nil?
@@ -101,7 +95,7 @@ class Bot::Keep < BotUser
       bot = BotUser.where(login: 'keep').last
       installation = TeamBotInstallation.where(team_id: team.id, user_id: bot&.id.to_i).last
       getter = "get_archive_#{type}_enabled"
-      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || team.get_limits_keep.to_i == 0 || installation.nil? || !installation.send(getter)
+      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || installation.nil? || !installation.send(getter)
     end
 
     def create_archive_annotation(type)

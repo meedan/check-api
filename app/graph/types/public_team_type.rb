@@ -10,5 +10,4 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :avatar, types.String
   field :private, types.Boolean
-  field :plan, types.String
 end
