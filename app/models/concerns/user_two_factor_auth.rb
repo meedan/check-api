@@ -9,29 +9,33 @@ module UserTwoFactorAuth
          :otp_secret_encryption_key => ENV['TWO_FACTOR_KEY']
 
 		def two_factor
-			data = { has_otp: false, otp_required: false, qrcode_svg: '' }
-			if self.encrypted_password?
+			data = {}
+			# enable otp for email based only
+			data[:can_enable_otp] = self.encrypted_password?
+			data[:otp_required] = self.otp_required_for_login
+			if data[:can_enable_otp] && !data[:otp_required]
+				# render qrcode if otp is disabled
 		    issuer = "Meedan-#{CONFIG['app_name']}"
 		    uri = self.otp_provisioning_uri(self.email, issuer: issuer)
 		    qrcode = RQRCode::QRCode.new(uri)
-		    data = {
-		    	has_otp: true,
-		      otp_required: self.otp_required_for_login,
-		      qrcode_svg: qrcode.as_svg(module_size: 4)
-		    }
+		    data[:qrcode_svg] = qrcode.as_svg(module_size: 4)
+		  else
+		  	data[:qrcode_svg] = ''
 	  	end
 	  	data
 	  end
 
 	  def two_factor=(options)
 	  	errors = validate_two_factor(options)
-	  	if errors.blank?
-	    	self.otp_required_for_login = options[:opt_required]
-	    	self.otp_secret = User.generate_otp_secret if options[:opt_required] == true
-	    	self.skip_check_ability = true
-	    	self.save!
-	  	end
-	  	errors
+	  	raise errors.to_json unless errors.blank?
+  		begin
+    		self.otp_required_for_login = options[:otp_required]
+    		self.otp_secret = User.generate_otp_secret if options[:otp_required] == true
+    		self.skip_check_ability = true
+    		self.save!
+    	rescue StandardError => e
+    		raise e.message
+    	end
 	  end
 
 	  def generate_otp_codes
@@ -46,8 +50,9 @@ module UserTwoFactorAuth
 	  def validate_two_factor(options)
 	  	errors = []
 	  	errors << {key: 'password', error: 'invalid'} unless self.valid_password?(options[:password])
-	  	if options[:opt_required] == true
-	  		errors << {key: 'otp', error: 'invalid'} if self.current_otp != options[:qrcode]
+	  	if options[:otp_required] == true
+	  		errors << {key: 'user', error: 'social_account'} unless self.encrypted_password?
+	  		# errors << {key: 'qrcode', error: 'invalid'} if self.current_otp != options[:qrcode]
 	  	end
 	  	errors
 	  end

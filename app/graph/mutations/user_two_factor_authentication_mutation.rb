@@ -14,8 +14,7 @@ UserTwoFactorAuthenticationMutation = GraphQL::Relay::Mutation.define do
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
-      errors = user.two_factor=(inputs)
-      raise errors.to_a unless errors.blank?
+      user.two_factor=(inputs)
       { success: true , user: User.current}
     end
   }
