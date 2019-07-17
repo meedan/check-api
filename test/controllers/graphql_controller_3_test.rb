@@ -296,4 +296,25 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
   end
+
+  test "should handle user 2FA" do
+    u = create_user password: 'test1234'
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    # generate backup codes
+    query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: '1', id: #{u.id} }) { success, codes } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    # Enable/Disable 2FA
+    # TODO : fix this test
+    # query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: '1', id: #{u.id}, otp_required: #{true}, password: 'test1234' }) { success }}"
+    # post :create, query: query, team: t.slug
+    # assert_response :success
+    # assert u.reload.otp_required_for_login?
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: '1', id: #{u.id}, otp_required: #{false}, password: 'test1234' }) { success }}"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not u.reload.otp_required_for_login?
+  end
 end

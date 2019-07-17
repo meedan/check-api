@@ -6,21 +6,22 @@ module UserTwoFactorAuth
   included do
   	attr_accessor :two_factor
   	devise :two_factor_authenticatable, :two_factor_backupable,
-         :otp_secret_encryption_key => ENV['TWO_FACTOR_KEY']
+         :otp_secret_encryption_key => CONFIG['two_factor_key']
 
-		def two_factor
-			data = {}
-			# enable otp for email based only
-			data[:can_enable_otp] = self.encrypted_password?
-			data[:otp_required] = self.otp_required_for_login
-			if data[:can_enable_otp] && !data[:otp_required]
-				# render qrcode if otp is disabled
-		    issuer = "Meedan-#{CONFIG['app_name']}"
-		    uri = self.otp_provisioning_uri(self.email, issuer: issuer)
-		    qrcode = RQRCode::QRCode.new(uri)
-		    data[:qrcode_svg] = qrcode.as_svg(module_size: 4)
-		  else
-		  	data[:qrcode_svg] = ''
+    before_create :set_secret
+
+	  def two_factor
+	  	data = {}
+	  	# enable otp for email based only
+	  	data[:can_enable_otp] = self.encrypted_password?
+	  	data[:otp_required] = self.otp_required_for_login?
+	  	data[:qrcode_svg] = ''
+	  	if data[:can_enable_otp] && !data[:otp_required]
+	  		# render qrcode if otp is disabled
+	  		issuer = "Meedan-#{CONFIG['app_name']}"
+	  		uri = self.otp_provisioning_uri(self.email, issuer: issuer)
+	  		qrcode = RQRCode::QRCode.new(uri)
+	  		data[:qrcode_svg] = qrcode.as_svg(module_size: 4)
 	  	end
 	  	data
 	  end
@@ -28,14 +29,10 @@ module UserTwoFactorAuth
 	  def two_factor=(options)
 	  	errors = validate_two_factor(options)
 	  	raise errors.to_json unless errors.blank?
-  		begin
-    		self.otp_required_for_login = options[:otp_required]
-    		self.otp_secret = User.generate_otp_secret if options[:otp_required] == true
-    		self.skip_check_ability = true
-    		self.save!
-    	rescue StandardError => e
-    		raise e.message
-    	end
+  		self.otp_required_for_login = options[:otp_required]
+  		self.otp_secret = User.generate_otp_secret if options[:otp_required] == true
+  		self.skip_check_ability = true
+  		self.save!
 	  end
 
 	  def generate_otp_codes
@@ -48,13 +45,19 @@ module UserTwoFactorAuth
 	  private
 
 	  def validate_two_factor(options)
+	  	return [{key: 'user', error: 'social_account'}] unless self.encrypted_password?
 	  	errors = []
 	  	errors << {key: 'password', error: 'invalid'} unless self.valid_password?(options[:password])
 	  	if options[:otp_required] == true
-	  		errors << {key: 'user', error: 'social_account'} unless self.encrypted_password?
-	  		# errors << {key: 'qrcode', error: 'invalid'} if self.current_otp != options[:qrcode]
+	  		errors << {key: 'qrcode', error: 'invalid'} if self.current_otp != options[:qrcode]
 	  	end
 	  	errors
+	  end
+
+	  def set_secret
+	  	if self.encrypted_password? && self.otp_secret.nil?
+	  		self.otp_secret = User.generate_otp_secret
+	  	end
 	  end
 
   end

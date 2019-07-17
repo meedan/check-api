@@ -1273,6 +1273,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have 2FA for email based user" do
     u = create_user password: 'test1234'
+    assert_not_nil u.otp_secret
     data = u.two_factor
     assert data[:can_enable_otp]
     assert_not data[:otp_required]
@@ -1282,7 +1283,11 @@ class UserTest < ActiveSupport::TestCase
       u.two_factor=(options)
     end
     options[:password] = 'test1234'
-    # TODO: validate qrcode
+    options[:qrcode] = 'test1234'
+    assert_raise RuntimeError do
+      u.two_factor=(options)
+    end
+    options[:qrcode] = u.current_otp
     assert_nothing_raised do
       u.two_factor=(options)
     end
@@ -1301,4 +1306,5 @@ class UserTest < ActiveSupport::TestCase
       u2.two_factor=(options)
     end
   end
+
 end

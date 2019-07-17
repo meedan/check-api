@@ -8,7 +8,7 @@ GenerateTwoFactorBackupCodesMutation = GraphQL::Relay::Mutation.define do
 
   resolve -> (_root, inputs, _ctx) {
     user = User.where(id: inputs[:id]).last
-    if user.nil?
+    if user.nil? || User.current.id != inputs[:id]
       raise ActiveRecord::RecordNotFound
     else
       codes = user.generate_otp_codes
