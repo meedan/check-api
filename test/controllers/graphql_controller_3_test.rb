@@ -302,11 +302,16 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     authenticate_with_user(u)
-    # generate backup codes
+    # generate backup codes with valid uid
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{u.id} }) { success, codes } }"
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal 5, JSON.parse(@response.body)['data']['generateTwoFactorBackupCodes']['codes'].size
+    # generate backup codes with invalid uid
+    invalid_uid = u.id + rand(10..100)
+    query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
+    post :create, query: query, team: t.slug
+    assert_response 404
     # Enable/Disable 2FA
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
     post :create, query: query, team: t.slug
@@ -316,5 +321,9 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_not u.reload.otp_required_for_login?
+    # Disable with invalid uid
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+    post :create, query: query, team: t.slug
+    assert_response 404
   end
 end
