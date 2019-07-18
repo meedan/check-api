@@ -30,7 +30,6 @@ module UserTwoFactorAuth
 	  	errors = validate_two_factor(options)
 	  	raise errors.to_json unless errors.blank?
   		self.otp_required_for_login = options[:otp_required]
-  		self.otp_secret = User.generate_otp_secret if options[:otp_required] == true
   		self.skip_check_ability = true
   		self.save!
 	  end
@@ -45,11 +44,11 @@ module UserTwoFactorAuth
 	  private
 
 	  def validate_two_factor(options)
-	  	return [{key: 'user', error: 'social_account'}] unless self.encrypted_password?
-	  	errors = []
-	  	errors << {key: 'password', error: 'invalid'} unless self.valid_password?(options[:password])
+	  	return { user: false } unless self.encrypted_password?
+	  	errors = {}
+	  	errors[:password] = false unless self.valid_password?(options[:password])
 	  	if options[:otp_required] == true
-	  		errors << {key: 'qrcode', error: 'invalid'} if self.current_otp != options[:qrcode]
+	  		errors[:qrcode] = false if self.current_otp != options[:qrcode]
 	  	end
 	  	errors
 	  end
