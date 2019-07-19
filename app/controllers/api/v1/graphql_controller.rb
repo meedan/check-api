@@ -19,7 +19,7 @@ module Api
         begin
           result = RelayOnRailsSchema.execute(query_string, variables: query_variables, context: context)
           render json: result
-        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
+        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
           render json: parse_json_exception(e), status: 400
         rescue CheckPermissions::AccessDenied => e
           render json: format_error_message(e), status: 403
