@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   skip_before_filter :verify_authenticity_token
 
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   rescue_from CanCan::AccessDenied do |exception|
     team = Team.current ? Team.current.id : 'empty'
     logger.warn message: "Access denied on #{exception.action} #{exception.subject} - User ID '#{current_api_user.id}' - Is admin? '#{current_api_user.is_admin?}' - Team: '#{team}'"
@@ -44,5 +46,11 @@ class ApplicationController < ActionController::Base
   def render_unauthorized
     render_error 'Unauthorized', 'UNAUTHORIZED', 401
     logger.warn message: 'unauthorized', status: 401
+  end
+
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_in, keys: [:otp_attempt])
   end
 end
