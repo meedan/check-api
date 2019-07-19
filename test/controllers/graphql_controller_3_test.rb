@@ -326,4 +326,18 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response 404
   end
+
+  test "should handle nested error" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+    RelayOnRailsSchema.unstub(:execute)
+  end
 end
