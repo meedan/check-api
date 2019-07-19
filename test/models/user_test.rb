@@ -1270,4 +1270,41 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'owner', tu.role
     assert_equal 'requested', tu.status
   end
+
+  test "should have 2FA for email based user" do
+    u = create_user password: 'test1234'
+    assert_not_nil u.otp_secret
+    data = u.two_factor
+    assert data[:can_enable_otp]
+    assert_not data[:otp_required]
+    assert_not_empty data[:qrcode_svg]
+    options = { otp_required: true, password: 'invalidPassword' }
+    assert_raise RuntimeError do
+      u.two_factor=(options)
+    end
+    options[:password] = 'test1234'
+    options[:qrcode] = 'test1234'
+    assert_raise RuntimeError do
+      u.two_factor=(options)
+    end
+    options[:qrcode] = u.current_otp
+    assert_nothing_raised do
+      u.two_factor=(options)
+    end
+    data = u.reload.two_factor
+    assert data[:otp_required]
+    assert_empty data[:qrcode_svg]
+    # test otp_backup codes
+    codes = u.generate_otp_codes
+    assert_equal 5, codes.size
+    # should not allow user to enable 2FA for social accounts
+    u2 = create_omniauth_user
+    data = u2.two_factor
+    assert_not data[:can_enable_otp]
+    options = { otp_required: true }
+    assert_raise RuntimeError do
+      u2.two_factor=(options)
+    end
+  end
+
 end

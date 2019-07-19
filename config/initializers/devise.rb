@@ -9,6 +9,11 @@ end
 OmniAuth.config.logger = Rails.logger
 
 Devise.setup do |config|
+  config.warden do |manager|
+    manager.default_strategies(:scope => :user).unshift :two_factor_authenticatable
+    manager.default_strategies(:scope => :user).unshift :two_factor_backupable
+  end
+
   config.mailer_sender = CONFIG['default_mail']
   require 'devise/orm/active_record'
   config.case_insensitive_keys = [ :email ]
