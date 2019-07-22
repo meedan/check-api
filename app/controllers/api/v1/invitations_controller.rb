@@ -6,8 +6,13 @@ class Api::V1::InvitationsController < Devise::InvitationsController
     slug = params[:slug]
     resource = User.accept_team_invitation(invitation_token, slug)
     path = if resource.errors.empty?
-             msg = resource.id.nil? ? 'no' : 'yes'
-             "/?invitation_response=success&msg=#{msg}"
+             token = User.generate_password_token(resource.id)
+             if token.nil?
+              url = "/?invitation_response=success&msg=no"
+            else
+              url = "/check/user/password-change?reset_password_token=#{token}"
+            end
+            url
            else
              error_key = resource.errors.messages.keys[0].to_s
              "/?invitation_response=#{error_key}"
