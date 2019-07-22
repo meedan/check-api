@@ -30,6 +30,7 @@ module UserTwoFactorAuth
 	  	errors = validate_two_factor(options)
 	  	raise errors.to_json unless errors.blank?
   		self.otp_required_for_login = options[:otp_required]
+  		self.otp_secret = User.generate_otp_secret unless options[:otp_required]
   		self.skip_check_ability = true
   		self.save!
 	  end
