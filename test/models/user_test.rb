@@ -1271,6 +1271,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'requested', tu.status
   end
 
+  test "should generate password token" do
+    token = User.generate_password_token(nil)
+    assert_nil token
+    u = create_user
+    token = User.generate_password_token(u.id)
+    assert_not_nil token
+  end
+
   test "should have 2FA for email based user" do
     u = create_user password: 'test1234'
     assert_not_nil u.otp_secret
