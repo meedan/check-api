@@ -50,6 +50,10 @@ bn:
 
     এটি নির্ধারণ করতে আমরা যে পদক্ষেপগুলি গ্রহণ করেছি তা এখানে:
     {url}
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 

@@ -217,6 +217,8 @@ ro:
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa
     de e-mail, făcând click pe următorul link:'
+  mail_confirm_button: Confirmă contul meu
+  pender_could_not_parse: Nu se poate analiza acest obiect media.
   slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura echipei %{team_name}
     deoarece ea este doar pentru membrii echipei(lor) Slack %{teams}.
   admin:
@@ -260,6 +262,7 @@ ro:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: 'Acest material nu a fost analizat de echipa %{team} '
   oembed_disclaimer_in_progress: Are loc procesul de stabilire a corectitudinii acestui
     material de către echipa %{team}, situația la %{date}
@@ -332,6 +335,12 @@ ro:
       reset_password_instructions:
         subject: "%{app_name} instrucțiuni pentru resetarea parolei"
         header_title: Solicitarea de resetare a parolei
+        header_text: Am recepționat solicitarea dvs de a vă reseta parola pentru %{app_name}.
+        action: Resetați parola
+        expiry: Solicitarea dată va expira peste %{expire} ore.
+        instruction_1: Click aici pentru a face o solicitare nouă.
+        instruction_2: Dacă nu ați făcut această solicitare sau aveți dificultăți
+          încercând să vă resetați parola, vă rugăm să ne contactați la %{support_email}.
       invitation_instructions:
         subject: "%{user} v-a invitat să vă alăturați echipei %{team} "
         hello: Salut %{name}
@@ -360,11 +369,13 @@ ro:
   mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
     greeting: Salut, %{username},
+    greeting_anonymous: Salut!
     project_view: Vizualizare dosar
     unsubscribe: Anulați abonarea
     unsubscribe_link: "%{unsubscribe} la aceste înștiințări"
     copyright_html: '%{app_name} de la <a href="https://meedan.com">Meedan</a>'
     register:
+      subject: Un nou cont pentru dvs pe %{app_name}
       header_text: |-
         V-ați înregistrat cu succes pe %{app_name}!
         <br>
@@ -385,19 +396,28 @@ ro:
         <p>Încercați să vă conectați cu adresa de e-mail și parola dvs în loc să creați un cont nou.</p>
         <p>Vă veți conecta la contul folosit anterior. Dacă aveți nevoie de ajutor suplimentar, scrieți un mesaj la adresa de e-mail %{support_email}.</p>
       email: email
+    invitation:
+      title: Invitație nouă
     delete_user:
       subject: "[%{team}] A fost șters un utilizator"
       header_title: Utilizatorul a fost șters
       header_text: Un cont de utilizator a fost șters și conținutul acestuia a fost
         desemnat utilizatorului anonim %{anonymous}  %{id}
+      anonymous: anonim
     admin_mailer:
+      team_download_subject: "[%{team}] Instantaneul datelor echipei este gata pentru
+        a fi descărcat"
+      team_dump_title: Datele echipei
       types:
         dump: instantaneu de date
+        csv: raport
         images: arhiva de imagini
       team_dump_text: 'Ați solicitat un instantaneu de date pentru echipa %{team}
         - acesta este link-ul pentru descărcarea lui: %{link}'
+      team_dump_button: Descarcă datele echipei
       decompress_text: " %{type} va fi descărcat sub forma unui fișier comprimat,
         criptat. Pentru a decomprima fișierul introduceți parola: %{password}."
+      expire_note: Atenție! Acest link va expira peste %{days} zile.
       project_export_csv_subject: "[%{team} - %{project}] Raportul Dvs de dosar este
         gata pentru a fi descărcat"
       project_export_images_subject: "[%{team} - %{project}] Arhiva imaginilor din
@@ -408,6 +428,8 @@ ro:
         - acesta este link-ul pentru descărcarea lui: %{link}'
       project_export_images_text: 'Ați solicitat arhiva imaginilor pentru dosarul
         %{project} - acesta este link-ul pentru descărcarea acesteia: %{link}'
+      team_import_subject: Importul de date s-a finalizat
+      team_import_title: Import de date
       team_import_text: "<p>Activitatea dvs de import de date în %{app_name} s-a finalizat.
         Puteți accesa %{worksheet_url} pentru a vedea starea fiecărui element ce urma
         să fie importat.</p> <p>Atenție! Puteți porni importul repetat după ce corectați
@@ -462,11 +484,18 @@ ro:
       project_button: Treci la pagina dosarului
     request_to_join:
       subject: Solicitarea permisiunii de a se alătura echipei %{team}
+      team_page: pagina echipei
       team_button: Treci la pagina echipei
       rejected_subject: Solicitarea Dvs de a se alătura echipei %{team} nu a fost
         aprobată
+      approved_subject: 'Bun venit în %{team} '
+      request_title: Solicitarea permisiunii de a se alătura echipei %{team}
+      request_text: "%{name} (%{email}) dorește să se alăture echipei %{team} pe %{app_name}.
+        Puteți procesa această solicitare accesând %{url}."
+      approved_title: 'Bun venit în echipa %{team} '
       approved_text: Solicitarea Dvs de a se alătura echipei %{team} pe %{app_name}
         a fost aprobată! Acum puteți accesa %{url} pentru a începe să contribuiți.
+      rejected_title: Solicitarea respinsă
       rejected_text: Ne pare rău, solicitarea Dvs de a se alătura echipei %{team}
         pe %{app_name} nu a fost aprobată.
   mail_security:
@@ -522,8 +551,6 @@ ro:
   only_admins_can_approve_bots: Ne pare rău, robotul poate fi aprobat doar de utilizator
     cu rol de super admin
   could_not_save_related_bot_data: Ne pare rău, nu am putut adăuga robotul la această
-    echipă
-  bot_limited_team_not_pro: Ne pare rău, acest robot nu este disponibil pentru această
     echipă
   bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină
     direct - rugăm să transmiteți o sugestie de răspuns în loc
@@ -655,6 +682,14 @@ ro:
   smooch_requests: Solicitări
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
+  bot_request_url_invalid: URL-ul robotului nu este valid
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Rugăm
+    să confirmați cu ”1”.
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Mulțumim!
+    Recepționat.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorăm.
+  custom_message_smooch_bot_disabled_caio: Vai! ne pare rău! Acest robot acum este
+    deactivat :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Vă mulțumim pentru că ați transmis acest mesaj.
 

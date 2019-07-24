@@ -362,7 +362,8 @@ en:
     invalid: Invitation token is invalid.
     no_invitation: No invitation exists for team %{name}
   error_user_is_not_a_team_member: Sorry, you can only assign to members of this team
-  error_login_with_exists_account: Sorry, there is another user who is already using this account
+  error_login_with_exists_account: Sorry, there is another user who is already using
+    this account
   error_login_2fa: Please complete your sign-in by supplying an authentication code.
   mail_see_it: 'You can see it at: '
   mails_notifications:
@@ -670,6 +671,13 @@ en:
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
   bot_request_url_invalid: The bot URL is invalid
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
+    confirm with "1".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
+    we got it.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
+  custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
+    disabled :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?

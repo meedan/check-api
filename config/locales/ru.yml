@@ -216,6 +216,7 @@ ru:
   mail_view_welcome: Добро пожаловать в %{app_name}
   mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}!
     Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
+  pender_could_not_parse: Не удалось обработать медиа-объект.
   slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только
     членам %{teams} в Slack.
   admin:
@@ -257,6 +258,7 @@ ru:
     formats:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y в %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Материал ещё не был проверен (%{team})
   oembed_disclaimer_in_progress: Проверка достоверности начата %{date} (%{team})
   oembed_disclaimer_verified: Достоверность подтверждена %{date} (%{team})
@@ -329,6 +331,7 @@ ru:
       invitation_instructions:
         subject: "%{user} пригласил(а) вас вступить в группу %{team}"
         hello: Здравствуйте, %{name}!
+        accept: Принять приглашение
         accept_until: Приглашение истекает %{due_date}.
         ignore: Если вы не хотите принять приглашение, просто проигнорируйте это письмо.
         app_team: "%{app} Группа"
@@ -346,15 +349,25 @@ ru:
   mail_see_it: 'Задачу можно посмотреть по ссылке:'
   mails_notifications:
     greeting: Здравствуйте, %{username}!
+    greeting_anonymous: Здравствуйте!
+    project_view: Посмотреть проект
     unsubscribe: Отписаться
     copyright_html: '%{app_name} от <a href="https://meedan.com">Meedan</a>'
+    duplicated:
+      email: e-mail
+    admin_mailer:
+      types:
+        images: архив изображений
     task_resolved:
+      section_title: Кто или что является источником высказывания?
       status: Статус
       media_h: Медиа
     media_status:
       label: медиа
       subject: "[%{team} - %{project}] Статус материала изменен: %{status}"
+      section_title: 'Новый статус: %{status}.'
       added_to: Добавлено в %{app_name}
+      update_h: Последнее обновление
     assignment:
       assign_task_subject: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
       unassign_task_subject: "[%{team} - %{project}] С вас был снят вопрос по материалу"
@@ -362,6 +375,12 @@ ru:
       unassign_project_subject: "[%{team} - %{project}] Вы были сняты с проекта"
       assign_media_subject: "[%{team} - %{project}] Вам был назначен материал"
       unassign_media_subject: "[%{team} - %{project}] С вас был снят материал"
+      unassign_project_title: Проект снят
+      unassign_task_title: Задача снята
+      assign_media_title: Материал назначен
+      unassign_media_title: Материал снят
+    request_to_join:
+      team_button: Перейти на страницу группы
   mail_security:
     device_subject: 'Внимание: Новый вход в %{app_name} через %{browser} на %{platform}'
     ip_subject: 'Внимание: Нетипичный вход в %{app_name}'
@@ -411,7 +430,6 @@ ru:
   only_admins_can_approve_bots: Извините, только суперадминистраторы могут одобрять
     ботов
   could_not_save_related_bot_data: Извините, не удалось добавить бота в эту группу
-  bot_limited_team_not_pro: Извините, этот бот не может быть добавлен в данную группу
   bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
     этого можно предложить ответ
   bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
@@ -420,6 +438,8 @@ ru:
     предложения) и 'comment' (показывается пользователям)
   tag_text_id_not_found: Извините, тэга с таким идентификатором не существует
   annotation_type_language_label: Язык
+  smooch_bot_message_unconfirmed: Поскольку вы не ответили «1», запрос будет отменён.
+    Спасибо.
   smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от
     вас для верификации. Подробнее: %{url}.'
   smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести
@@ -517,6 +537,14 @@ ru:
   smooch_requests: Запросы
   smooch_requests_asc: Наименее запрашиваемые
   smooch_requests_desc: Самые запрашиваемые
+  bot_request_url_invalid: Неверный URL бота
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Пожалуйста,
+    подтвердите, отправив «1».
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Спасибо,
+    всё сделаем.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ок, проигнорировано.
+  custom_message_smooch_bot_disabled_caio: Ой! Извините, но сейчас этот бот недоступен
+    :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Спасибо за ваше сообщение!
 
