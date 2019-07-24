@@ -217,6 +217,7 @@ es:
   mail_view_register: "¡Estás a un solo paso de usar %{app_name}! Por favor, confirma
     tu dirección de correo electrónico haciendo clic en el siguiente enlace:"
   mail_confirm_button: Confirmar mi cuenta
+  pender_could_not_parse: 'No se pudo analizar este ítem '
   slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque
     está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
@@ -326,7 +327,7 @@ es:
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor
-    comunícate con soporte técnico  si crees que ha sido un error.
+    comunícate con nuestro equipo de soporte técnico si crees que ha sido un error.
   devise:
     mailer:
       reset_password_instructions:
@@ -362,6 +363,8 @@ es:
     de este equipo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando
     esta cuenta
+  error_login_2fa: 'Por favor completa tu inicio de sesión proporcionando un código
+    de autenticación. '
   mail_see_it: 'Puedes verlo en:'
   mails_notifications:
     greeting: Hola %{username},
@@ -406,10 +409,15 @@ es:
         usuario %{anonymous} %{id}
       anonymous: anónimo
     admin_mailer:
+      team_download_subject: La captura de datos del equipo [%{team}] está lista para
+        ser descargada
       team_dump_title: 'Datos del equipo '
       types:
+        dump: Captura de datos
         csv: informe
         images: archivo de imágenes
+      team_dump_text: 'Solicitaste descargar una captura de datos del proyecto %{project}
+        - aquí está el enlace de descarga: %{link}'
       team_dump_button: 'Descargar los datos del equipo '
       decompress_text: El %{type} se descargará como un archivo comprimido y cifrado.
         Para descomprimirlo, usa esta contraseña %{password}.
@@ -539,7 +547,6 @@ es:
   only_admins_can_approve_bots: Lo sentimos, solo los super admintradores pueden aprobar
     bots
   could_not_save_related_bot_data: Lo sentimos, no se pudo agregar el bot a este equipo
-  bot_limited_team_not_pro: Lo sentimos, este bot no está disponible para este equipo
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
     directamente- por favor, envía una sugerencia de respuesta .
   bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
@@ -638,12 +645,14 @@ es:
     invalid_google_spreadsheet_url: URL de hoja de cálculo inválida %{spreadsheet_url}
     not_found_google_spreadsheet_url: Hoja de cálculo no encontrada en %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: No se pudo autenticar Google Drive con
-      las credenciales actuales. Ponte en contacto con el equipo de soporte técnico
-      para notificarles este incidente.
+      las credenciales actuales. Por favor comunícate con nuestro equipo de soporte
+      técnico para notificarles este incidente.
     team_not_present: El equipo actual no se encontró durante la importación de datos.
-      Notifica al equipo de soporte técnico de este incidente.
+      Por favor comunícate con nuestro equipo de soporte técnico para notificarles
+      este incidente.
     user_not_present: El usuario actual no se encontró durante la importación de datos.
-      Notifica al equipo de soporte técnico de este incidente.
+      Por favor comunícate con nuestro equipo de soporte técnico para notificarles
+      este incidente.
     user_not_authorized: Lo sentimos, no tienes permitido importar data dentro de
       este equipo.
     invalid_project: Proyecto inválido %{project}
@@ -673,6 +682,14 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
+    favor confirma con "1".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Gracias,
+    lo hemos confirmado.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Está
+    bien, no lo tomaremos en cuenta.
+  custom_message_smooch_bot_disabled_caio: "¡Lo sentimos! Este bot está actualmente
+    deshabilitado :( "
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Gracias por enviar este mensaje.
 
