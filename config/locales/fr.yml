@@ -220,6 +220,7 @@ fr:
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name}
     ! Veuillez confirmer votre e-mail en cliquant ce lien :'
   mail_confirm_button: Confirmer mon compte
+  pender_could_not_parse: Il n'a pas été possible d'analyser ce média.
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe
     %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
@@ -373,6 +374,7 @@ fr:
     des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà
     ce compte
+  error_login_2fa: Veuillez compléter votre connexion en fournissant un code d'authentification.
   mail_see_it: 'Vous pouvez le/la visionner à :'
   mails_notifications:
     greeting: Bonjour %{username},
