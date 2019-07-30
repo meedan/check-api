@@ -60,10 +60,5 @@ namespace :check do
       a.access_token = 'devkey'
       a.save!
     end
-
-    BotUser.all.each do |b|
-      b.set_approved true
-      b.save
-    end
   end
 end
