@@ -75,12 +75,30 @@ def project_sources_query(table, field = '*')
 end
 
 def users_query(table, field = '*')
+  users_from_team_query(table, field) + ' UNION ' + users_outside_team_query(table, field)
+end
+
+def users_from_team_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
-   INNER JOIN
-     team_users ON team_users.user_id = #{table}.id
    WHERE
-     team_id=#{@id}"
+     #{table}.id IN (#{get_ids('team_users', 'user_id')})"
+end
+
+def users_outside_team_query(table, field = '*')
+  query = "SELECT DISTINCT #{table}.#{field}
+   FROM #{table}
+   INNER JOIN
+     project_medias ON project_medias.user_id = #{table}.id AND project_medias.id IN (#{get_ids('project_medias')})
+   WHERE
+     #{table}.id NOT IN (#{get_ids('team_users', 'user_id')})"
+  return query unless field == '*'
+  temp_table = "users_outside#{@id}"
+  conn = ActiveRecord::Base.connection
+  conn.execute("CREATE TEMP TABLE #{temp_table} AS #{query}")
+  conn.execute("UPDATE #{temp_table} SET name = 'Anonymous', login = 'Anonymous', token = 'invalid_token', email = NULL, source_id = NULL")
+  "SELECT #{temp_table}.#{field}
+   FROM #{temp_table}"
 end
 
 def medias_query(table, field = '*')
@@ -111,10 +129,10 @@ def annotations_query(table, field = '*', annotation_type = nil, annotated_type 
   unions = []
   annotated_types.each do |annotated_table|
     unions << "SELECT a.#{field} FROM #{table} a WHERE a.annotated_type = '#{annotated_table.classify}' AND a.annotated_id IN (#{get_ids(annotated_table)})"
-    copy_to_file(unions.last, "#{table}_#{annotated_table}") if field == '*'
+    copy_to_file(unions.last, "#{table}_#{annotated_table}", table) if field == '*'
   end
   unions << send('annotations_tasks_query', 'annotations', field)
-  copy_to_file(unions.last, "#{table}_tasks") if field == '*'
+  copy_to_file(unions.last, "#{table}_tasks", table) if field == '*'
   unions.join(' UNION ')
 end
 
@@ -170,15 +188,15 @@ def versions_query(table)
 
   mapping.each_pair do |item_table, item_type|
     select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type='#{item_type}' AND CAST(#{table}.item_id AS INTEGER) IN (#{get_ids(item_table)})"
-    copy_to_file(select_query, "#{table}_#{item_table}")
+    copy_to_file(select_query, "#{table}_#{item_table}", table)
   end
 
   types = (get_annotation_types - get_dynamic_annotation_types).map(&:capitalize).push("'Dynamic'")
   select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type IN (#{types.join(',')}) AND CAST(#{table}.item_id AS INTEGER) IN (#{get_ids('annotations')})"
-  copy_to_file(select_query, "#{table}_annotations")
+  copy_to_file(select_query, "#{table}_annotations", table)
 
   select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type='Team' AND #{table}.item_id='#{@id}'"
-  copy_to_file(select_query, "#{table}_teams")
+  copy_to_file(select_query, "#{table}_teams", table)
 end
 
 def get_dynamic_annotation_types
@@ -191,28 +209,69 @@ def get_annotation_types
   @annotation_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
-def get_ids(table)
-  query = send("#{table}_query", table, 'id')
-  if instance_variable_get("@#{table}_ids").nil?
-    ids = ActiveRecord::Base.connection.execute(query).values.map {|v| v[0] }.join(',')
-    instance_variable_set("@#{table}_ids", ids)
+def get_ids(table, field = 'id')
+  query = send("#{table}_query", table, field)
+  if instance_variable_get("@#{table}_#{field}s").nil?
+    ids = ActiveRecord::Base.connection.execute(query).values.map {|v| v[0] }.concat(['-1']).join(',')
+    instance_variable_set("@#{table}_#{field}s", ids)
   end
-  instance_variable_get("@#{table}_ids")
+  instance_variable_get("@#{table}_#{field}s")
 end
 
-def copy_to_file(select_query, filename)
+def count(query)
+  count_query = query.gsub(/SELECT (.*) FROM/, 'SELECT COUNT(\1) FROM')
+  values = ActiveRecord::Base.connection.execute(count_query).values
+  values.empty? ? 0 : values.first[0].to_i
+end
+
+def primary_key(table)
+  mapping = {
+    dynamic_annotation_annotation_types: 'annotation_type',
+    dynamic_annotation_field_instances: 'name',
+    dynamic_annotation_field_types: 'field_type'
+  }
+  mapping.dig(table.to_sym) || 'id'
+end
+
+def tmp_folder_path
+  return @tmp_folder_path unless @tmp_folder_path.nil?
+  dir = File.join(Rails.root, 'tmp')
+  Dir.mkdir(dir) unless File.exist?(dir)
+
+  foldername = @id.to_s + '_' + Digest::MD5.hexdigest([@id, Time.now.to_i.to_s].join('_')).reverse
+  folder = File.join(dir, foldername)
+  Dir.mkdir(folder) unless File.exist?(folder)
+  @tmp_folder_path = folder
+end
+
+def copy_to_file(select_query, filename, table)
   filename += '.copy'
   begin
-    query = "COPY (#{select_query}) TO STDOUT NULL '*' CSV HEADER"
-    csv = []
-    conn = ActiveRecord::Base.connection.raw_connection
-    conn.copy_data(query) do
-      while row = conn.get_copy_data
-        csv.push(row)
+    filepath = File.join(tmp_folder_path, filename)
+    @files[filename] = filepath
+    total = count(select_query)
+    offset = 0
+    limit = 1000
+    puts "Generating #{filename}..."
+    while offset <= total do
+      paginated_query = select_query + " ORDER BY #{primary_key(table)} ASC LIMIT #{limit} OFFSET #{offset}"
+      query = "COPY (#{paginated_query}) TO STDOUT NULL '*' CSV"
+      query += " HEADER" if offset.zero?
+      offset += limit
+      print "#{offset}/#{total}\r"
+      $stdout.flush
+      csv = []
+      conn = ActiveRecord::Base.connection.raw_connection
+      conn.copy_data(query) do
+        while row = conn.get_copy_data
+          csv.push(row)
+        end
+      end
+      File.open(filepath, 'a') do |file|
+        file.write(csv.join("").force_encoding("UTF-8"))
       end
     end
-    sql_data_as_string = csv.join("")
-    @files[filename] = sql_data_as_string.force_encoding("UTF-8")
+
   rescue Exception => e
     Rails.logger.warn "[Team Export] Could not create #{filename}: #{e.message} #{e.backtrace.join("\n")}"
   end
@@ -230,10 +289,9 @@ def export_zip(slug)
   require 'zip'
   dump_password = SecureRandom.hex
   buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(dump_password)) do |out|
-    @files.each do |filename, content|
-      next if content.nil?
+    @files.each do |filename, filepath|
       out.put_next_entry(filename)
-      out.write content
+      out.write File.read(filepath)
     end
   end
   buffer.rewind
@@ -243,9 +301,9 @@ def export_zip(slug)
 end
 
 namespace :check do
-  # bundle exec rake check:export_team['team_slug','email@example.com']
+  # bundle exec rake check:export_team['team_slug','email@example.com','versions:users']
   desc "export the data of a team to files"
-  task :export_team, [:team, :email] => :environment do |t, args|
+  task :export_team, [:team, :email, :except] => :environment do |t, args|
     team = if args.team.to_i > 0
              Team.find_by_id args.team
            else
@@ -254,29 +312,31 @@ namespace :check do
     return "Could not find a team with id or slug #{args.team}" if team.nil?
     slug, @id = team.slug, team.id
     email = args.email
-    @files = {}
-    tables = ActiveRecord::Base.connection.tables
-    Benchmark.bm(40) do |bm|
-      tables.each do |table|
-        query = "#{table}_query"
-        begin
-          if self.respond_to?(query, table)
-            bm.report("#{table}:") do
-              if ['versions', 'annotations'].include?(table)
-                send(query, table)
-              else
-                copy_to_file(send(query, table), table)
-              end
+    exceptions = args.except ? args.except.split(':') : []
+    puts "Skipping: #{exceptions}" unless exceptions.empty?
+    tables = ActiveRecord::Base.connection.tables - exceptions
+    puts "Dumping #{tables.size} tables."
+    @files ||= {}
+    tables.each do |table|
+      query = "#{table}_query"
+      begin
+        if self.respond_to?(query, table)
+            if ['versions', 'annotations'].include?(table)
+              send(query, table)
+            else
+              copy_to_file(send(query, table), table, table)
             end
-          else
-            puts "Missing query to copy #{table}"
-          end
-        rescue
-          puts "Error dumping table #{table}"
+            ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside#{@id};") if table == 'users'
+        else
+          puts "Missing query to copy #{table}"
         end
+      rescue Exception => e
+        puts "Error dumping table #{table}: #{e.inspect}"
       end
     end
     filename, password = export_zip(slug)
+    FileUtils.remove_dir(tmp_folder_path, true) if File.exist?(tmp_folder_path)
+    puts "#{filename}: #{password}"
     AdminMailer.delay.send_team_download_link(slug, filename, email, password) unless email.blank?
   end
 
