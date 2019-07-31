@@ -1,4 +1,5 @@
 language: ruby
+dist: trusty
 services:
 - postgresql
 before_install:
