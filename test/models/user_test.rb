@@ -1281,8 +1281,9 @@ class UserTest < ActiveSupport::TestCase
 
   test "should have 2FA for email based user" do
     u = create_user password: 'test1234'
-    assert_not_nil u.otp_secret
+    assert_nil u.otp_secret
     data = u.two_factor
+    assert_not_nil u.otp_secret
     assert data[:can_enable_otp]
     assert_not data[:otp_required]
     assert_not_empty data[:qrcode_svg]

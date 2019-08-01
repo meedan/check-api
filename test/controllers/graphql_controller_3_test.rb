@@ -302,6 +302,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     authenticate_with_user(u)
+    u.two_factor
     # generate backup codes with valid uid
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{u.id} }) { success, codes } }"
     post :create, query: query, team: t.slug

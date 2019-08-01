@@ -23,7 +23,8 @@ class SessionsControllerTest < ActionController::TestCase
   test "should require otp_attempt for login using email and 2FA" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
     u.confirm
-    options = { otp_required: true, password: '12345678', qrcode: u.current_otp }
+    u.two_factor
+    options = { otp_required: true, password: '12345678', qrcode: u.reload.current_otp }
     u.two_factor=(options)
     post :create, api_user: { email: 'test@test.com', password: '12345678' }
     assert_response 400
