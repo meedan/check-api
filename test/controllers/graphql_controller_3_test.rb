@@ -340,4 +340,21 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response 400
     RelayOnRailsSchema.unstub(:execute)
   end
+
+  test "should return project medias with provided URL that user has access to" do
+    l = create_valid_media
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media project: p1, media: l
+    pm2 = create_project_media project: p2, media: l
+    pm3 = create_project_media media: l
+    query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+  end
 end

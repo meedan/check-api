@@ -71,6 +71,18 @@ QueryType = GraphQL::ObjectType.define do
   instance_exec ProjectMedia, :project_media, ProjectMediaType , &GraphqlCrudOperations.project_association
 
   instance_exec ProjectSource, :project_source, ProjectSourceType , &GraphqlCrudOperations.project_association
+  
+  connection :project_medias do
+    type ProjectMediaType.connection_type
+    argument :url, !types.String
+    resolve -> (_obj, args, _ctx) {
+      return [] if User.current.nil?
+      m = Link.where(url: args['url']).last
+      return [] if m.nil?
+      tids = User.current.team_ids
+      ProjectMedia.joins(:project).where('project_medias.media_id' => m.id, 'projects.team_id' => tids)
+    }
+  end
 
   field :project do
     type ProjectType
