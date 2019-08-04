@@ -113,7 +113,7 @@ ar:
       project_source: المصدر
     attributes:
       tag:
-        data: الوسم
+        data: العلامة
       uploaded_file:
         file: الملف
       uploaded_image:
@@ -544,7 +544,7 @@ ar:
   bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
   bot_cant_add_review_to_task: عذراً ، البوت لا يمكنه مراجعة المهام
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
-  tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
+  tag_text_id_not_found: عذراً ، لا توجد علامة بهذا المُعَرِّف
   annotation_type_language_label: اللغة
   smooch_bot_message_confirmed: |-
     شكرا لك. تمت إضافة طلبك إلى قائمة انتظار التحقق.
@@ -604,7 +604,7 @@ ar:
             move: نقل العناصر
             change_status: تغيير حالة العناصر
             lock_unlock_status: تأمين وإلغاء تأمين حالة العناصر
-            add_remove_tag: إضافة وحذف الوسوم
+            add_remove_tag: إضافة وحذف العلامات
             send_to_trash: ارسال العناصر إلى سلة المهملات
             empty_trash: إفراغ سلة المهملات
         task_management:

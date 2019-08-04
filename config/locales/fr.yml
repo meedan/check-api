@@ -353,9 +353,9 @@ fr:
         subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
         hello: 'Bonjour %{name} '
         someone_invited_you_default:
-          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}."
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} comme %{role}."
         someone_invited_you_custom:
-          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role},
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} comme %{role},
             disant : "
         accept: Accepter l'invitation
         accept_until: Cette invitation va expirer le %{due_date}.
@@ -692,10 +692,13 @@ fr:
   smooch_requests_asc: Moins demandés
   smooch_requests_desc: Plus demandés
   bot_request_url_invalid: URL du bot non valide
-  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
-  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
-  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
-  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
+    confirm with "1".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
+    we got it.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
+  custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
+    disabled :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Merci de nous envoyer ce message.
 
