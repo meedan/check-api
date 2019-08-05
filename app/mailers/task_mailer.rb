@@ -5,7 +5,7 @@ class TaskMailer < ApplicationMailer
     options = YAML::load(options)
     task = options[:task]
     response = options[:response]
-    answer = options[:answer]
+    answer = options[:answer].gsub(/\n/, '<br/>')
     status = options[:status]
     author = response.annotator
     object = task.annotated
