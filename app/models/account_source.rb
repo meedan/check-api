@@ -1,3 +1,5 @@
+require 'error_codes'
+
 class AccountSource < ActiveRecord::Base
   include CheckElasticSearch
   attr_accessor :url
@@ -37,11 +39,12 @@ class AccountSource < ActiveRecord::Base
       unless ps.blank?
         error = {
           message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
-          code: 'ERR_OBJECT_EXISTS',
+          code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
           data: {
             project_id: ps.project_id,
             type: 'source',
-            id: ps.id
+            id: ps.id,
+            url: ps.full_url,
           }
         }
         raise error.to_json

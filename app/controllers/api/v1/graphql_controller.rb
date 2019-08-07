@@ -43,14 +43,11 @@ module Api
         begin
           error = JSON.parse(e.message)
           json = {
-            error: error['message'],
             errors: [{
               message: error['message'],
-              data: { code: error['code'] }.merge(error['data'])
+              code: error['code'],
+              data: error['data'],
             }],
-            error_info: {
-              code: error['code']
-            }.merge(error['data'])
           }
         rescue
           json = format_error_message(e)
@@ -60,8 +57,11 @@ module Api
 
       def format_error_message(e)
         {
-          error: e.message,
-          errors: [{ message: e.message }]
+          errors: [{
+            message: e.message,
+            code: e.code,
+            data: e.data,
+          }],
         }
       end
 
