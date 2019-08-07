@@ -254,7 +254,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_equal({}, t.settings)
+    assert_equal({ max_number_of_members: 5 }, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
@@ -464,7 +464,7 @@ class TeamTest < ActiveSupport::TestCase
   test "should not save custom verification status if it is not a hash" do
     t = create_team
     value = 'invalid_status'
-    assert_raises ActiveRecord::RecordInvalid do
+    assert_raises TypeError do
       t.set_media_verification_statuses(value)
       t.save!
     end
@@ -567,7 +567,9 @@ class TeamTest < ActiveSupport::TestCase
         active: '1'
     }
     t.media_verification_statuses = value
-    t.save
+    assert_raises NoMethodError do
+      t.save!
+    end
 
     assert Team.find(t.id).media_verification_statuses.nil?
   end
@@ -880,38 +882,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_kind_of String, t.graphql_id
   end
 
-  test "should have limits" do
-    t = Team.new
-    t.name = random_string
-    t.slug = "slug-#{random_number}"
-    t.save!
-    assert_equal Team.plans[:free], t.reload.limits
-  end
-
-  test "should not change limits if not super admin" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      assert_raises ActiveRecord::RecordInvalid do
-        t.limits = { changed: true }
-        t.save!
-      end
-    end
-  end
-
-  test "should change limits if super admin" do
-    t = create_team
-    u = create_user is_admin: true
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      assert_nothing_raised do
-        t.limits = { changed: true }
-        t.save!
-      end
-    end
-  end
-
   test "should not set custom statuses if limited" do
     t = create_team
     t.set_limits_custom_statuses(false)
@@ -953,17 +923,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should have public team alias" do
     t = create_team
     assert_equal t, t.public_team
-  end
-
-  test "should return team plan" do
-    t = create_team
-    t.set_limits_max_number_of_projects = 5
-    t.save!
-    assert_equal 'free', t.plan
-    t = create_team
-    t.limits = {}
-    t.save!
-    assert_equal 'pro', t.plan
   end
 
   test "should duplicate a team and copy team users and contacts" do
@@ -1146,8 +1105,9 @@ class TeamTest < ActiveSupport::TestCase
     team = create_team
     value = { default: '1', active: '1' }
     team.set_media_verification_statuses(value)
-    assert !team.valid?
-    assert !team.errors[:statuses].blank?
+    assert_raises NoMethodError do
+      assert !team.valid?
+    end
     team.save(validate: false)
     assert_equal value, team.get_media_verification_statuses(value)
     RequestStore.store[:disable_es_callbacks] = true
@@ -1508,26 +1468,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil BotUser.where(id: tb1.id).last
   end
 
-  test "should duplicate a team with more projects than its limits" do
-    t = create_team
-    t.update_columns(limits: {})
-    u = create_user is_admin: true
-    6.times do
-      p = create_project team: t
-      pm1 = create_project_media project: p
-      pm2 = create_project_media project: p
-      create_relationship source_id: pm1.id, target_id: pm2.id
-    end
-    t = Team.find(t.id)
-    RequestStore.store[:disable_es_callbacks] = true
-    t2 = Team.duplicate(t, u)
-    assert_not_nil t2
-    assert_equal 6, t2.projects.count
-    assert_equal 12, ProjectMedia.joins(:project).where('projects.team_id' => t2.id).count
-    assert_equal 6, Relationship.joins(source: :project, target: :project).where('projects.team_id' => t2.id).count
-    RequestStore.store[:disable_es_callbacks] = false
-  end
-
   test "should get invited mails" do
     t = create_team
     u = create_user
@@ -1636,5 +1576,35 @@ class TeamTest < ActiveSupport::TestCase
   test "should return search object" do
     t = create_team
     assert_kind_of CheckSearch, t.search
+  end
+
+  test "should set max number of members" do
+    t = create_team
+    assert_equal 5, t.get_max_number_of_members
+    t.max_number_of_members = 23
+    t.save!
+    assert_equal 23, t.reload.get_max_number_of_members
+    assert_equal 23, t.reload.max_number_of_members
+  end
+
+  test "should not crash when emptying trash that has task comments" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p = create_project team: t
+      pm = create_project_media project: p
+      tk = create_task annotated: pm
+      create_comment annotated: tk
+      pm.archived = true
+      pm.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      with_current_user_and_team(u, t) do
+        assert_nothing_raised do
+          t.empty_trash = 1
+        end
+      end
+      RequestStore.store[:disable_es_callbacks] = false
+    end
   end
 end

@@ -67,25 +67,6 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal t, tt.reload.team
   end
 
-  test "should not create if no limit" do
-    t = create_team
-    assert_difference 'TeamTask.count' do
-      create_team_task team_id: t.id
-    end
-    t.set_limits_custom_tasks_list(true)
-    t.save!
-    assert_difference 'TeamTask.count' do
-      create_team_task team_id: t.id
-    end
-    t.set_limits_custom_tasks_list(false)
-    t.save!
-    assert_raises ActiveRecord::RecordInvalid do
-      assert_no_difference 'TeamTask.count' do
-        create_team_task team_id: t.id
-      end
-    end
-  end
-
   test "should access JSON data" do
     tt = create_team_task task_type: 'free_text'
     assert_equal 'free_text', tt.as_json['type']

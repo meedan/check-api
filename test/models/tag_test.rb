@@ -293,4 +293,17 @@ class TagTest < ActiveSupport::TestCase
     t = create_tag
     assert_kind_of Team, t.team
   end
+
+  test "should not crash if tag to be updated does not exist" do
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    tt1 = create_tag_text team_id: t.id, teamwide: true
+    tt2 = create_tag_text team_id: t.id, teamwide: true
+    t1 = create_tag tag: tt1.id, annotated: pm1
+    t2 = create_tag tag: tt1.id, annotated: pm2
+    tt2.delete
+    TagText.update_tags(tt1.id, t.id, tt2.id)
+  end
 end

@@ -148,6 +148,10 @@ ml:
     *%{status}*
 
     എന്നാക്കി മാറ്റിയിരിക്കുന്നു. ഈ നിഗമനത്തിലെത്താന്‍ ഞങ്ങള്‍ സ്വീകരിച്ച മാര്‍ഗ്ഗം ഇതാണ്  3 %{url}.
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: താങ്കളുടെ സന്ദേശത്തിന്
     നന്ദി. ഇത് 2019ലെ ലോക് സഭാ തെരഞ്ഞെടുപ്പുമായി ബന്ധപ്പെട്ട വ്യാജവിവരമാണെന്ന് സംശയമുണ്ടോ
     ? ഉണ്ടെങ്കില്‍ 1 എന്ന് മറുപടി അയക്കകുക. ഇല്ലെങ്കില്‍ ഈ സംഭാഷണം ഇവിടെ അവസാനിപ്പിക്കാം.

@@ -296,4 +296,66 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
   end
+
+  test "should handle user 2FA" do
+    u = create_user password: 'test1234'
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    u.two_factor
+    # generate backup codes with valid uid
+    query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{u.id} }) { success, codes } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 5, JSON.parse(@response.body)['data']['generateTwoFactorBackupCodes']['codes'].size
+    # generate backup codes with invalid uid
+    invalid_uid = u.id + rand(10..100)
+    query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
+    post :create, query: query, team: t.slug
+    assert_response 404
+    # Enable/Disable 2FA
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert u.reload.otp_required_for_login?
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not u.reload.otp_required_for_login?
+    # Disable with invalid uid
+    query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
+    post :create, query: query, team: t.slug
+    assert_response 404
+  end
+
+  test "should handle nested error" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+    RelayOnRailsSchema.unstub(:execute)
+  end
+
+  test "should return project medias with provided URL that user has access to" do
+    l = create_valid_media
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media project: p1, media: l
+    pm2 = create_project_media project: p2, media: l
+    pm3 = create_project_media media: l
+    query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+  end
 end

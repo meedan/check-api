@@ -7,6 +7,7 @@ class TeamUser < ActiveRecord::Base
 
   validates :status, presence: true
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
+  validate :team_is_full, on: :create
   validate :user_is_member_in_slack_team
   
   check_settings
@@ -226,5 +227,16 @@ class TeamUser < ActiveRecord::Base
 
   def update_user_cached_teams_after_destroy
     self.update_user_cached_teams(:remove)
+  end
+
+  def team_is_full
+    if self.team
+      limit = self.team.get_max_number_of_members
+      unless limit.to_i == 0
+        if TeamUser.where(team_id: self.team_id).count >= limit.to_i
+          errors.add(:base, I18n.t(:max_number_of_team_users_reached))
+        end
+      end
+    end
   end
 end

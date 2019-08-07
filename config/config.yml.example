@@ -61,6 +61,7 @@ development: &default
   bitly_key: 'bitly-key'
   failed_attempts: 4
   vframe_host: http://vframe:5000
+  two_factor_key: 'a3ebaae85c248da81427623959753e46b9fcb8a0d630a1e41c1dffe03596bf2ffd9701bf69fa0dd598f3c45103bdba7e956d0d3560916859884de92d1f51fe16'
   google_client_id:
   google_client_secret:
   google_auth_redirect_uri:

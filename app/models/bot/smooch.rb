@@ -388,11 +388,12 @@ class Bot::Smooch < BotUser
       user = api_instance.get_app_user(app_id, uid).appUser.to_hash
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
+      phone = Digest::MD5.hexdigest(user[:clients][0][:displayName])
 
       data = {
         id: uid,
         raw: user,
-        phone: user[:clients][0][:displayName],
+        phone: phone,
         app_name: app.app.name
       }
       

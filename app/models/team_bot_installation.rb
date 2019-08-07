@@ -3,7 +3,6 @@ class TeamBotInstallation < TeamUser
   before_validation :set_role, on: :create
 
   validate :can_be_installed_if_approved, on: :create
-  validate :can_be_installed_if_limited, on: :create
   validate :settings_follow_schema
 
   check_settings
@@ -25,12 +24,6 @@ class TeamBotInstallation < TeamUser
   def can_be_installed_if_approved
     if self.bot_user.present? && !self.bot_user.get_approved && self.team_id != self.bot_user.team_author_id
       errors.add(:base, I18n.t(:bot_not_approved_for_installation))
-    end
-  end
-
-  def can_be_installed_if_limited
-    if self.bot_user.present? && self.bot_user.get_limited && !self.team.send("get_limits_#{self.bot_user.identifier}") && self.bot_user.team_author_id != self.team_id
-      errors.add(:base, I18n.t(:bot_limited_team_not_pro))
     end
   end
 

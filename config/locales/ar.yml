@@ -113,7 +113,7 @@ ar:
       project_source: المصدر
     attributes:
       tag:
-        data: الوسم
+        data: العلامة
       uploaded_file:
         file: الملف
       uploaded_image:
@@ -221,6 +221,8 @@ ar:
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
     أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_confirm_button: أكِّد الحساب
+  pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد
+    المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name}
     حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
@@ -364,6 +366,7 @@ ar:
     no_invitation: لا توجد دعوة للفريق %{name}
   error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
+  error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   mail_see_it: 'تستطيع أن تراه هنا : '
   mails_notifications:
     greeting: مرحباً %{username}
@@ -538,11 +541,10 @@ ar:
   only_admins_can_approve_bots: عذراً ، هذه العملية متاحة للمسؤولين فقط
   could_not_save_related_bot_data: عذراً ، لقد واجهنا خطأ ما اثناء إضافة البوت. من
     فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
-  bot_limited_team_not_pro: عذراً ، البوت غير متاح لهذا الفريق
   bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
   bot_cant_add_review_to_task: عذراً ، البوت لا يمكنه مراجعة المهام
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
-  tag_text_id_not_found: عذراً ، لا يوجد وسم بهذا المُعَرِّف
+  tag_text_id_not_found: عذراً ، لا توجد علامة بهذا المُعَرِّف
   annotation_type_language_label: اللغة
   smooch_bot_message_confirmed: |-
     شكرا لك. تمت إضافة طلبك إلى قائمة انتظار التحقق.
@@ -602,7 +604,7 @@ ar:
             move: نقل العناصر
             change_status: تغيير حالة العناصر
             lock_unlock_status: تأمين وإلغاء تأمين حالة العناصر
-            add_remove_tag: إضافة وحذف الوسوم
+            add_remove_tag: إضافة وحذف العلامات
             send_to_trash: ارسال العناصر إلى سلة المهملات
             empty_trash: إفراغ سلة المهملات
         task_management:
@@ -662,6 +664,13 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: عنوان URL البوت غير صالح
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: رجى
+    التأكيد بإضافة "١".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: شكراً لقد
+    فُهمت.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: شكراً
+    لقد تجاهلت.
+  custom_message_smooch_bot_disabled_caio: مع الأسف! ، هذا البوت معطل حاليا
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     شكرا لإرسال هذه الرسالة.
 

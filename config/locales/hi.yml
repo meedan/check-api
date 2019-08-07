@@ -51,6 +51,10 @@ hi:
   smooch_bot_result_changed: "[सत्यापन रिपोर्ट - सुधार] आपके द्वारा हमारे साथ साझा
     किया संदेश बदल गया है *%{previous_status}* से *%{status}* इसे निर्धारित करने के
     लिए हमने यहां पहल की है:%{url}"
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।

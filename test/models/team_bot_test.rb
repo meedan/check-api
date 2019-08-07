@@ -398,11 +398,12 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should show error if can't create related bot user" do
     t = create_team
-    t.set_limits_max_number_of_members = 1
+    t.set_max_number_of_members = 1
     t.save!
-    create_team_bot team_author_id: t.id
+    tb = create_team_bot set_approved: true
+    create_team_bot_installation team_id: t.id, user_id: tb.id
     assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot team_author_id: t.id
+      create_team_bot_installation team_id: t.id, user_id: tb.id
     end
   end
 

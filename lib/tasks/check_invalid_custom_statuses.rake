@@ -5,18 +5,16 @@ namespace :check do
   task get_invalid_custom_statuses: :environment do
   	teams = []
   	Team.find_each do |t|
-  		if t.get_limits_custom_statuses == true
-  			media_statuses = t.get_media_verification_statuses
-  			unless media_statuses.blank?
-          list = Workflow::Workflow.validate_custom_statuses(t.id, media_statuses)
-					unless list.blank?
-			      urls = list.collect{|l| l[:url]}
-			      statuses = list.collect{|l| l[:status]}.uniq
-			      teams << {team_id: t.id, team_name: t.name, status: statuses, urls: urls}
-			    end
-  			end
-  			print '.'
-  		end	
+  		media_statuses = t.get_media_verification_statuses
+  		unless media_statuses.blank?
+        list = Workflow::Workflow.validate_custom_statuses(t.id, media_statuses)
+				unless list.blank?
+			    urls = list.collect{|l| l[:url]}
+			    statuses = list.collect{|l| l[:status]}.uniq
+			    teams << {team_id: t.id, team_name: t.name, status: statuses, urls: urls}
+			  end
+  		end
+  		print '.'
   	end
 	  unless teams.blank?
 	  	filename = "#{Time.now.to_i}_invalid_custom_statuses"

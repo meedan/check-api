@@ -1,11 +1,12 @@
 language: ruby
+dist: trusty
 services:
 - postgresql
 before_install:
 - export RECORD_RUNTIME=true
 - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
-- sudo rm /etc/apt/sources.list.d/mongodb*
+- sudo rm -f /etc/apt/sources.list.d/mongodb*
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server imagemagick fontconfig libfontconfig
 - mkdir -p /tmp/downloads &&

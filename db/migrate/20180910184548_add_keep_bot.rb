@@ -35,18 +35,10 @@ class AddKeepBot < ActiveRecord::Migration
     CONFIG['clamav_service_path'] = config
 
     Team.find_each do |team|
-      unless team.limits.select{ |key, value| ['keep_screenshot', 'keep_archive_is', 'keep_video_vault'].include?(key.to_s) && value.to_i == 1 }.empty?
-        team.set_limits_keep = true
-        team.skip_notifications = true
-        team.skip_clear_cache = true
-        team.skip_check_ability = true
-        team.save(validate: false)
-      end
-
       team = Team.find(team.id)
 
       unless team.settings.select{ |key, value| key.to_s =~ /^archive_.*_enabled/ && value.to_i == 1 }.empty?
-        tb.install_to!(team) if team.get_limits_keep
+        tb.install_to!(team)
       end
     end
     
