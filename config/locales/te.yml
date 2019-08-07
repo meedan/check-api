@@ -48,6 +48,10 @@ te:
   smooch_bot_result_changed: |-
     [వెరిఫికేషన్ రిపొర్ట్ - దిద్దుబాటు] మీరు పంపిన మెస్సెజ్ %{previous_status}నుంచి
     %{status}అని మారినది. ఈ విధముగా గుర్తించడానికి మేము అనుసరించిన విధానము %{url}
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
+  custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ఈ సందేశము పంపినందుకు
     ధన్యవాదములు. మీరు దీన్ని 2019 ఎన్నికలకు సంబంధించిన తప్పు వార్త అనుకుంటున్నారా?
     ఔను అయితే 1 అని జవాబు ఇవ్వగలరు. వేరొక జవాబు ఏదైనా ఈ సంభాషనను అంతం చేయును.

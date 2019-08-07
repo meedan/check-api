@@ -354,8 +354,7 @@ h4 {
 #media_verification_statuses_editor_holder,
 #source_verification_statuses_editor_holder,
 #media_translation_statuses_editor_holder,
-#source_translation_statuses_editor_holder,
-#limits_editor_holder {
+#source_translation_statuses_editor_holder {
   .control-group:focus {
   }
 
@@ -431,10 +430,6 @@ h4 {
       color: white !important;
     }
   }
-}
-
-#team_limits {
-  height: 280px !important;
 }
 
 .settings-example {

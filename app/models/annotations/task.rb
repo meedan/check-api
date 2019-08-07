@@ -312,11 +312,12 @@ Comment.class_eval do
     return unless self.annotated_type == 'Task'
     RequestStore[:task_comment] = self
     task = self.annotated.reload
+    parent = task.annotated
+    return if parent&.reload&.archived
     task.log_count ||= 0
     task.log_count += value
     task.skip_check_ability = true
     task.save!
-    parent = task.annotated
     unless parent.nil?
       count = parent.reload.cached_annotations_count + value
       parent.update_columns(cached_annotations_count: count)

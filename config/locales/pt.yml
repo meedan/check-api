@@ -221,6 +221,7 @@ pt:
   mail_view_register: 'Você está apenas a um passo de usar o %{app_name}! Por favor
     confirme o seu endereço de e-mail clicando no seguinte link:'
   mail_confirm_button: Confirmar minha conta
+  pender_could_not_parse: Não foi possível analisar esta mídia
   slack_restricted_join_to_members: Lamentamos, mas não pode juntar-se a equipe %{team_name}
     porque o acesso está restrito aos integrantes da(s) equipe(s) %{teams} do Slack.
   admin:
@@ -367,6 +368,7 @@ pt:
     membros desta equipe
   error_login_with_exists_account: Desculpe, existe outro usuário que já está usando
     esta conta
+  error_login_2fa: Por favor complete o processo utilizando o código de autenticação.
   mail_see_it: 'Você pode o ver aqui: '
   mails_notifications:
     greeting: Olá %{username},
@@ -549,7 +551,6 @@ pt:
   only_admins_can_approve_bots: Desculpe, apenas super admins podem aprovar bots
   could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esta
     equipe
-  bot_limited_team_not_pro: Desculpe, este bot não está disponível para esta equipe
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder uma tarefa diretamente
     - por favor adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma sugestão de resposta
@@ -675,6 +676,13 @@ pt:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
   bot_request_url_invalid: URL do bot é invalido
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
+    favor confirme com "1".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Obrigado,
+    recebido.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorado.
+  custom_message_smooch_bot_disabled_caio: Uh-oh! Perdão, mas este bot está desabilitado
+    :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 

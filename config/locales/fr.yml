@@ -220,6 +220,7 @@ fr:
   mail_view_register: 'Il ne vous manque plus qu''une étape pour démarrer sur %{app_name}
     ! Veuillez confirmer votre e-mail en cliquant ce lien :'
   mail_confirm_button: Confirmer mon compte
+  pender_could_not_parse: Il n'a pas été possible d'analyser ce média.
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à l'équipe
     %{team_name} car elle est reservée aux membres de l'équipe Slack %{teams}.
   admin:
@@ -352,9 +353,9 @@ fr:
         subject: "%{user} vous a invité à rejoindre l'équipe %{team}"
         hello: 'Bonjour %{name} '
         someone_invited_you_default:
-          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role}."
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} comme %{role}."
         someone_invited_you_custom:
-          html: "%{user} vous a invité à rejoindre l'équipe %{team} comme %{role},
+          html: "%{name} vous a invité à rejoindre l'équipe %{team} comme %{role},
             disant : "
         accept: Accepter l'invitation
         accept_until: Cette invitation va expirer le %{due_date}.
@@ -373,6 +374,7 @@ fr:
     des membres de cette équipe
   error_login_with_exists_account: Désolé, il existe un autre usager qui utilise déjà
     ce compte
+  error_login_2fa: Veuillez compléter votre connexion en fournissant un code d'authentification.
   mail_see_it: 'Vous pouvez le/la visionner à :'
   mails_notifications:
     greeting: Bonjour %{username},
@@ -561,7 +563,6 @@ fr:
     approuver les bots.
   could_not_save_related_bot_data: Désolé, il n'a pas été possible d'ajouter le bot
     à cette équipe
-  bot_limited_team_not_pro: Désolé, ce bot n'est pas disponible à votre équipe
   bot_cant_add_response_to_task: Désolé, un bot n'est pas autorisé à répondre directement
     à une tâche. Il faut plutôt soumettre une suggestion de réponse
   bot_cant_add_review_to_task: Désolé, les bots ne sont pas autorisés à réviser les
@@ -691,6 +692,13 @@ fr:
   smooch_requests_asc: Moins demandés
   smooch_requests_desc: Plus demandés
   bot_request_url_invalid: URL du bot non valide
+  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
+    confirm with "1".
+  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
+    we got it.
+  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
+  custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
+    disabled :(
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Merci de nous envoyer ce message.
 

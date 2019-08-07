@@ -20,6 +20,17 @@ class SessionsControllerTest < ActionController::TestCase
     assert_equal [true], u.login_activities.map(&:success)
   end
 
+  test "should require otp_attempt for login using email and 2FA" do
+    u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
+    u.confirm
+    u.two_factor
+    options = { otp_required: true, password: '12345678', qrcode: u.reload.current_otp }
+    u.two_factor=(options)
+    post :create, api_user: { email: 'test@test.com', password: '12345678' }
+    assert_response 400
+    assert_nil @controller.current_api_user
+  end
+
   test "should not login if password is wrong" do
     u = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com'
     post :create, api_user: { email: 'test@test.com', password: '12345679' }

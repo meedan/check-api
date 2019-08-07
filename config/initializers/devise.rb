@@ -9,6 +9,11 @@ end
 OmniAuth.config.logger = Rails.logger
 
 Devise.setup do |config|
+  config.warden do |manager|
+    manager.default_strategies(:scope => :user).unshift :two_factor_authenticatable
+    manager.default_strategies(:scope => :user).unshift :two_factor_backupable
+  end
+
   config.mailer_sender = CONFIG['default_mail']
   require 'devise/orm/active_record'
   config.case_insensitive_keys = [ :email ]
@@ -18,6 +23,7 @@ Devise.setup do |config|
   config.reconfirmable = true
   config.password_length = 8..128
   config.reset_password_within = 6.hours
+  config.sign_in_after_reset_password = false
   config.sign_out_via = :delete
   config.omniauth :twitter, CONFIG['twitter_consumer_key'], CONFIG['twitter_consumer_secret']
   config.omniauth :facebook, CONFIG['facebook_app_id'], CONFIG['facebook_app_secret'], scope: 'email,public_profile', info_fields: 'name,email,picture'

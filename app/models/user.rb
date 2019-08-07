@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   include UserPrivate
   include UserInvitation
   include UserMultiAuthLogin
+  include UserTwoFactorAuth
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
@@ -19,7 +20,7 @@ class User < ActiveRecord::Base
   has_many :sources
   has_many :login_activities
 
-  devise :database_authenticatable, :registerable,
+  devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 

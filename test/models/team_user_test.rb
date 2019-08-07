@@ -308,15 +308,15 @@ class TeamUserTest < ActiveSupport::TestCase
 
   test "should not create team user if limit was reached" do
     t = create_team
-    create_team_user team: t, user: create_user
-    t.set_limits_max_number_of_members = 5
+    t.set_max_number_of_members 5
     t.save!
     t = Team.find(t.id)
+    create_team_user team_id: t.id, user_id: create_user.id
     4.times do
-      create_team_user team: t, user: create_user
+      create_team_user team_id: t.id, user_id: create_user.id
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_team_user team: t, user: create_user
+      create_team_user team_id: t.id, user_id: create_user.id
     end
   end
 

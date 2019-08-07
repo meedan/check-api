@@ -58,22 +58,6 @@ class Bot::KeepTest < ActiveSupport::TestCase
     assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
   end
 
-  test "should not create Keep annotations if team is not allowed to" do
-    t = create_team
-    t.set_limits_keep = false
-    t.save!
-    BotUser.delete_all
-    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_keep_backup_enabled', type: 'boolean' }], set_approved: true
-    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
-    tbi.set_archive_keep_backup_enabled = true
-    tbi.save!
-    l = create_link
-    p = create_project team: t
-    pm = create_project_media project: p, media: l
-    pm.create_all_archive_annotations
-    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
-  end
-
   test "should create Keep annotations when bot runs" do
     t = create_team
     t.set_limits_keep = true

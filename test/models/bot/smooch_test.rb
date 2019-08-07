@@ -1142,16 +1142,16 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should create Transifex resource if it does not exist" do
+    require 'transifex'
     t = create_team
-    
-    Transifex::Project.any_instance.stubs(:resource).raises(Transifex::TransifexError.new(nil, nil, nil))
+    ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
       s = @settings.clone
       s['smooch_message_smooch_bot_meme'] = random_string
       s['smooch_message_smooch_bot_not_final'] = random_string
       create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
     end
-    Transifex::Project.any_instance.unstub(:resource)
+    ::Transifex::Project.any_instance.unstub(:resource)
   end
 
   protected

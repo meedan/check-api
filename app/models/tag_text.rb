@@ -33,9 +33,11 @@ class TagText < ActiveRecord::Base
   end
 
   def self.update_tags(id, team_id, new_id = nil)
+    tag_id = new_id
+    tag_id = nil if !tag_id.nil? && TagText.where(id: tag_id).last.nil?
     TagText.tags(id, team_id).find_each do |tag|
       tag.updated_at = Time.now
-      tag.tag = new_id unless new_id.nil?
+      tag.tag = tag_id unless tag_id.nil?
       tag.save!
     end
   end

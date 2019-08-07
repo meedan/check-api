@@ -2,7 +2,7 @@ module Workflow
   module Concerns
     module TeamConcern
       Team.class_eval do
-        validate :change_custom_media_statuses, if: proc { |t| t.get_limits_custom_statuses == true && t.changes.dig('settings') }
+        validate :change_custom_media_statuses, if: proc { |t| t.changes.dig('settings') }
         validate :custom_statuses_format, unless: proc { |t| t.settings.nil? || !t.changes.dig('settings') }
 
         ::Workflow::Workflow.workflow_ids.each do |id|
