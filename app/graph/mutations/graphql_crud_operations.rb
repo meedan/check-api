@@ -19,7 +19,7 @@ class GraphqlCrudOperations
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
         parent = self.define_optimistic_fields(parent, inputs, parent_name)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -35,9 +35,11 @@ class GraphqlCrudOperations
       ret[:user] = User.current
     end
 
-    if obj.is_a?(Task)
-      version = obj.first_response_version
-      ret["first_response_versionEdge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
+    if obj.is_a?(Task) || obj.is_a?(Comment)
+      mapping = { 'Task' => 'first_response_version', 'Comment' => 'comment_version' }
+      method = mapping[obj.class_name]
+      version = obj.send(method)
+      ret["#{method}Edge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
     end
 
     ret = ret.merge(GraphqlCrudOperations.get_affected_ids(obj))
@@ -263,7 +265,8 @@ class GraphqlCrudOperations
         return_field :dynamicEdge, DynamicType.edge_type
       end
 
-      return_field(:first_response_versionEdge, VersionType.edge_type) if type.to_s == 'task'
+      version_edge_name = { 'task' => 'first_response', 'comment' => 'comment' }[type.to_s]
+      return_field("#{version_edge_name}_versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s)
 
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
@@ -296,7 +299,7 @@ class GraphqlCrudOperations
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
       parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent)
-      parentclass = 'Version' if parent == 'first_response_version'
+      parentclass = 'Version' if ['first_response_version', 'comment_version'].include?(parent)
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields
