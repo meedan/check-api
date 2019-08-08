@@ -117,7 +117,7 @@ class Source < ActiveRecord::Base
   end
 
   def image
-    custom = self.file&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    custom = self.public_path
     custom || self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
   end
 
