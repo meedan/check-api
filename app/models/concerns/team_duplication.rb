@@ -59,8 +59,7 @@ module TeamDuplication
       [:logo, :lead_image, :file].each do |image|
         next unless original.respond_to?(image) && original.respond_to?("#{image}=") && original.send(image)
         [original.send(image)].flatten.each do |img|
-          img_path = img.path
-          File.open(img_path) { |f| copy.send("#{image}=", f) } if img_path && File.exist?(img_path)
+          copy.send("#{image}=", open(img.url)) if img.url =~ /^#{CONFIG['storage']['endpoint']}/
         end
       end
     end

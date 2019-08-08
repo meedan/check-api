@@ -569,25 +569,25 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     field_names.each{ |fn| fields["memebuster_#{fn}".to_sym] = random_string }
     a = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: fields.to_json
     pa1 = a.get_field_value('memebuster_published_at')
-    filepath = File.join(Rails.root, 'public', 'memebuster', "#{a.id}.png")
-    assert !File.exist?(filepath)
+    filepath = "memebuster/#{a.id}.png"
+    assert !CheckS3.exist?(filepath)
     a = Dynamic.find(a.id)
     a.action = 'save'
     a.set_fields = { memebuster_operation: 'save' }.to_json
     a.save!
-    assert !File.exist?(filepath)
+    assert !CheckS3.exist?(filepath)
     a = Dynamic.find(a.id)
     a.action = 'publish'
     a.set_fields = { memebuster_operation: 'publish' }.to_json
     a.save!
     assert_not_equal '', a.reload.get_field_value('memebuster_status')
-    assert File.exist?(filepath)
+    assert CheckS3.exist?(filepath)
     pa2 = a.get_field_value('memebuster_published_at')
     assert_not_equal pa1.to_s, pa2.to_s
 
     uid = random_string
-    FileUtils.rm_f(filepath)
-    assert !File.exist?(filepath)
+    CheckS3.delete(filepath)
+    assert !CheckS3.exist?(filepath)
     messages = [
       {
         '_id': random_string,
@@ -611,13 +611,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
-    assert File.exist?(filepath)
+    assert CheckS3.exist?(filepath)
 
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'in_progress'
     s.save!
 
-    assert !File.exist?(filepath)
+    assert !CheckS3.exist?(filepath)
     assert_equal 'In Progress', a.reload.get_field_value('memebuster_status')
 
     child2 = create_project_media project: @project

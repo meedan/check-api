@@ -23,6 +23,6 @@ module HasImage
   end
 
   def image_path(version = nil)
-    CONFIG['checkdesk_base_url'] + self.file_url(version)
+    self.file_url(version).to_s.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
   end
 end

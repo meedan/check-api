@@ -67,6 +67,13 @@ development: &default
   google_auth_redirect_uri:
   # for production, don't use a wildcard: set the allowed domains explicitly, as a regular expression, for example: '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
+  storage:
+    endpoint:
+    public_endpoint:
+    access_key:
+    secret_key:
+    bucket:
+    bucket_region:
 
 test:
   <<: *default

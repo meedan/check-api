@@ -4,7 +4,7 @@ class AdminMailer < ApplicationMailer
   def send_download_link(type, obj, email, password)
     if obj.is_a?(Project)
       return unless !email.blank?
-      link = obj.export_filepath(type).gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
+      link = CheckS3.public_url(obj.export_filepath(type))
       Rails.logger.info "[Data Import/Export] Sending e-mail to #{email} with download link #{link} related to project #{obj.title}"
       @project = obj.title
       @team = obj.team.name
@@ -28,7 +28,7 @@ class AdminMailer < ApplicationMailer
   end
 
   def send_team_download_link(slug, link, email, password)
-    @link = link.gsub(/^.*\/public/, CONFIG['checkdesk_base_url'])
+    @link = CheckS3.public_url(link)
     Rails.logger.info "[Data Import/Export] Sending e-mail to #{email} with download link #{@link} related to team #{slug}"
     @team = slug
     @days = CONFIG['export_download_expiration_days'] || 7

@@ -113,9 +113,9 @@ module CheckExport
     require 'open-uri'
     output = {}
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
-      path = pm.media.file.path
+      path = pm.media.picture
       key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
-      output[key] = File.read(path)
+      output[key] = open(path).read
     end
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
@@ -141,7 +141,7 @@ module CheckExport
       end
     end
     buffer.rewind
-    File.write(self.export_filepath(type), buffer.read)
+    CheckS3.write(self.export_filepath(type), 'application/zip', buffer.read)
   end
 
   def export_password
@@ -159,9 +159,7 @@ module CheckExport
   end
 
   def export_filepath(type)
-    dir = File.join(Rails.root, 'public', 'project_export')
-    Dir.mkdir(dir) unless File.exist?(dir)
-    File.join(dir, self.export_filename(type) + '.zip')
+    'project_export/' + self.export_filename(type) + '.zip'
   end
 
   def export_to_csv_in_background(user = nil, last_id = 0)
@@ -187,8 +185,8 @@ module CheckExport
     end
 
     def remove_export_file(filepath)
+      CheckS3.delete(filepath)
       Rails.logger.info "[Data Import/Export] File #{filepath} was removed"
-      FileUtils.rm_f(filepath)
     end
   end
 end

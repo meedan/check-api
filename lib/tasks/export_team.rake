@@ -278,11 +278,8 @@ def copy_to_file(select_query, filename, table)
 end
 
 def dump_filepath(slug)
-  dir = File.join(Rails.root, 'public', 'team_dump')
-  Dir.mkdir(dir) unless File.exist?(dir)
-
   filename = slug + '_' + Digest::MD5.hexdigest([slug, Time.now.to_i.to_s].join('_')).reverse
-  File.join(dir, filename + '.zip')
+  'team_dump/' + filename + '.zip'
 end
 
 def export_zip(slug)
@@ -296,7 +293,7 @@ def export_zip(slug)
   end
   buffer.rewind
   filename = dump_filepath(slug)
-  File.write(filename, buffer.read)
+  CheckS3.write(filename, 'application/zip', buffer.read)
   [filename, dump_password]
 end
 

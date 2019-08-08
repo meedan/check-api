@@ -97,7 +97,7 @@ class Bot::Smooch < BotUser
     def reset_meme
       meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
       unless meme.nil?
-        FileUtils.rm_f(meme.memebuster_filepath)
+        CheckS3.delete(meme.memebuster_filepath)
         status = ::Workflow::Workflow.get_status(self.annotation.annotated, 'verification_status', self.value)
         meme.set_fields = {
           memebuster_status: ::Bot::Smooch.get_status_label(self.annotation.annotated, self.value, I18n.locale),

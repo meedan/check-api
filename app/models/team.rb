@@ -1,7 +1,7 @@
 class Team < ActiveRecord::Base
   
   before_destroy :delete_created_bots
-
+  
   include ValidationsHelper
   include DestroyLater
   include TeamValidations
@@ -15,6 +15,7 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
+  before_validation :set_default_max_number_of_members, on: :create
 
   after_find do |team|
     if User.current
@@ -22,7 +23,6 @@ class Team < ActiveRecord::Base
       Ability.new
     end
   end
-  before_validation :set_default_max_number_of_members, on: :create
   after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
   after_destroy :reset_current_team
@@ -34,7 +34,9 @@ class Team < ActiveRecord::Base
   end
 
   def avatar
-    CONFIG['checkdesk_base_url'] + self.logo.url
+    custom = begin self.logo.file.public_url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']) rescue nil end
+    default = CONFIG['checkdesk_base_url'] + self.logo.url
+    custom || default
   end
 
   def url
