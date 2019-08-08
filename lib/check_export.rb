@@ -179,7 +179,8 @@ module CheckExport
     def export_project(type, klass, id, email, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
       obj = klass.constantize.find(id)
       obj.export_zip(type, last_id, annotation_types)
-      AdminMailer.delay.send_download_link(type, obj, email, obj.export_password) unless email.blank?
+      link = CheckS3.public_url(obj.export_filepath(type))
+      AdminMailer.delay.send_download_link(type, obj, link, email, obj.export_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
       klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
     end
