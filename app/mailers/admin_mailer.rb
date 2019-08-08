@@ -1,10 +1,9 @@
 class AdminMailer < ApplicationMailer
   layout nil
 
-  def send_download_link(type, obj, email, password)
+  def send_download_link(type, obj, link, email, password)
     if obj.is_a?(Project)
       return unless !email.blank?
-      link = CheckS3.public_url(obj.export_filepath(type))
       Rails.logger.info "[Data Import/Export] Sending e-mail to #{email} with download link #{link} related to project #{obj.title}"
       @project = obj.title
       @team = obj.team.name
