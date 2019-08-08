@@ -53,9 +53,9 @@ class Project < ActiveRecord::Base
   end
 
   def avatar
-    custom = self.lead_image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
-    default = CONFIG['checkdesk_base_url'] + self.lead_image.url
-    custom || default
+    # We are not really using now, so just return the default image
+    # self.lead_image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    CONFIG['checkdesk_base_url'] + self.lead_image.url
   end
 
   def as_json(options = {})
