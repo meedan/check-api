@@ -23,7 +23,7 @@ namespace :check do
       end
       puts
       puts "[#{Time.now}] Done!"
-      # Rails.cache.delete('check:migrate:s3')
+      Rails.cache.delete('check:migrate:s3')
     end
   end
 end
