@@ -11,19 +11,26 @@ namespace :check do
       end
       puts "[#{Time.now}] Moving #{n} files to S3..."
       i = 0
+      j = 0
+      k = 0
       Dir.glob("#{root}/uploads/**/*").select do |f|
         if File.file?(f)
           i += 1
           path = f.gsub(/^#{root}\//, '')
           type = MIME::Types.type_for(f).first.content_type
-          CheckS3.write(path, type, File.read(f))
-          print "#{i}/#{n}\r"
+          content = File.read(f)
+          if CheckS3.exist?(path) && CheckS3.get(path).etag.gsub('"', '') === Digest::MD5.hexdigest(content)
+            k += 1
+          else
+            CheckS3.write(path, type, content)
+            j += 1
+          end
+          print "#{i} processed, #{j} uploaded, #{k} skipped, #{n} total\r"
           $stdout.flush
         end
       end
       puts
       puts "[#{Time.now}] Done!"
-      Rails.cache.delete('check:migrate:s3')
     end
   end
 end
