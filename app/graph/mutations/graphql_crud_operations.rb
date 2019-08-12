@@ -36,7 +36,6 @@ class GraphqlCrudOperations
     end
 
     if [Comment, Task].include?(obj.class) && obj.annotated_type == 'ProjectMedia'
-      puts 'HERE'
       mapping = { 'Task' => 'first_response_version', 'Comment' => 'comment_version' }
       method = mapping[obj.class_name]
       version = obj.send(method)
