@@ -35,7 +35,8 @@ class GraphqlCrudOperations
       ret[:user] = User.current
     end
 
-    if obj.is_a?(Task) || obj.is_a?(Comment)
+    if [Comment, Task].include?(obj.class) && obj.annotated_type == 'ProjectMedia'
+      puts 'HERE'
       mapping = { 'Task' => 'first_response_version', 'Comment' => 'comment_version' }
       method = mapping[obj.class_name]
       version = obj.send(method)
