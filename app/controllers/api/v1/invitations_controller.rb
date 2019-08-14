@@ -8,9 +8,9 @@ class Api::V1::InvitationsController < Devise::InvitationsController
     path = if resource.errors.empty?
              token = User.generate_password_token(resource.id)
              if token.nil?
-              url = "/?invitation_response=success&msg=no"
+               url = "/?invitation_response=success&msg=no"
              else
-              url = "/check/user/password-change?reset_password_token=#{token}"
+               url = "/check/user/password-change?reset_password_token=#{token}"
              end
              url
            else

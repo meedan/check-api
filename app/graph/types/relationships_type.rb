@@ -29,7 +29,7 @@ RelationshipsType = GraphQL::ObjectType.define do
 
   connection :targets, -> { RelationshipsTargetType.connection_type } do
     argument :filters, types.String
-    
+
     resolve ->(obj, args, _ctx) {
       project_media = ProjectMedia.find(obj.project_media_id)
       filters = args['filters'].blank? ? nil : JSON.parse(args['filters'])

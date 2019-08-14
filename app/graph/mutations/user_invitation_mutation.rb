@@ -2,7 +2,7 @@ UserInvitationMutation = GraphQL::Relay::Mutation.define do
   name 'UserInvitation'
 
   input_field :invitation, types.String
-  
+
   input_field :members, !JsonStringType
 
   return_field :success, JsonStringType

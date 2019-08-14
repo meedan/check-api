@@ -4,7 +4,7 @@ module UserPrivate
   extend ActiveSupport::Concern
 
   private
-  
+
   def create_source_and_account
     source = Source.new
     source.user = self

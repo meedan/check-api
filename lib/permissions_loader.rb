@@ -28,7 +28,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
     archived_owned.each { |obj| obj.cached_permissions ||= archived_owned.first.cached_permissions; fulfill(obj.id, obj) }
     owned.each { |obj| obj.cached_permissions ||= owned.first.cached_permissions; fulfill(obj.id, obj) }
     archived.each { |obj| obj.cached_permissions ||= archived.first.cached_permissions; fulfill(obj.id, obj) }
-    other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) } 
+    other.each { |obj| obj.cached_permissions ||= other.first.cached_permissions; fulfill(obj.id, obj) }
   end
 
   def archived_and_owned?(obj)
@@ -53,7 +53,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
     owned = []
     other = []
     team = objs.first.project.team
-    
+
     objs.each do |obj|
       obj.team = team
       if archived_and_owned?(obj)

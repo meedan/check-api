@@ -124,7 +124,7 @@ def relationships_query(table, field = '*')
      #{table}.source_id IN (#{get_ids('project_medias')})"
 end
 
-def annotations_query(table, field = '*', annotation_type = nil, annotated_type = nil)
+def annotations_query(table, field = '*', _annotation_type = nil, annotated_type = nil)
   annotated_types = annotated_type.nil? ? ['accounts', 'sources', 'medias', 'project_medias', 'project_sources'] : [annotated_type]
   unions = []
   annotated_types.each do |annotated_table|
@@ -300,7 +300,7 @@ end
 namespace :check do
   # bundle exec rake check:export_team['team_slug','email@example.com','versions:users']
   desc "export the data of a team to files"
-  task :export_team, [:team, :email, :except] => :environment do |t, args|
+  task :export_team, [:team, :email, :except] => :environment do |_t, args|
     team = if args.team.to_i > 0
              Team.find_by_id args.team
            else
@@ -318,11 +318,11 @@ namespace :check do
       query = "#{table}_query"
       begin
         if self.respond_to?(query, table)
-            if ['versions', 'annotations'].include?(table)
-              send(query, table)
-            else
-              copy_to_file(send(query, table), table, table)
-            end
+          if ['versions', 'annotations'].include?(table)
+            send(query, table)
+          else
+            copy_to_file(send(query, table), table, table)
+          end
             ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside#{@id};") if table == 'users'
         else
           puts "Missing query to copy #{table}"
@@ -348,7 +348,7 @@ namespace :check do
   end
 
   desc "import team files to database"
-  task :import_team, [:folder_path] => :environment do |t, args|
+  task :import_team, [:folder_path] => :environment do |_t, args|
     @path = args.folder_path
     conn = ActiveRecord::Base.connection
     tables = conn.tables
