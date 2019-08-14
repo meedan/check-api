@@ -32,8 +32,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def related_to_team?(team)
-    (self.team ||= self.project.team) if self.project
-    self.team == team
+   (self.team ||= self.project.team) if self.project
+   self.team == team
   end
 
   def user_id_callback(value, _mapping_ids = nil)
