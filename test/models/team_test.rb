@@ -201,9 +201,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should generate thumbnails for logo" do
     t = create_team logo: 'rails.png'
-    assert File.exist? t.logo.path
     assert_match /rails\.png$/, t.logo.path
-    assert File.exist? t.logo.thumbnail.path
     assert_match /thumbnail_rails\.png$/, t.logo.thumbnail.path
   end
 
@@ -1187,7 +1185,7 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title('Project')
     copy_pm = copy_p.project_medias.first
     copy_comment = copy_pm.get_annotations('comment').first.load
-    assert File.exist?(copy_comment.file.path)
+    assert_match /^http/, copy_comment.file.file.public_url
   end
 
   test "should skip validation on team with big image" do
@@ -1606,5 +1604,10 @@ class TeamTest < ActiveSupport::TestCase
       end
       RequestStore.store[:disable_es_callbacks] = false
     end
+  end
+
+  test "should upload image to S3" do
+    t = create_team
+    assert_match /#{Regexp.escape(CONFIG['storage']['public_endpoint'])}/, t.avatar
   end
 end

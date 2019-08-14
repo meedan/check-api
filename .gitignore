@@ -44,3 +44,4 @@ public/memebuster/*
 !public/memebuster/default-template.svg
 tmp/parallel_runtime_test.log
 public/memebuster
+public/team_dump

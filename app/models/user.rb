@@ -105,8 +105,14 @@ class User < ActiveRecord::Base
     a = self.get_social_accounts_for_login
     a = a.first unless a.nil?
     image = a.omniauth_info.dig('info', 'image') if !a.nil? && !a.omniauth_info.nil?
-    avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
+    avatar = image ? image.gsub(/^http:/, 'https:') : self.avatar
     self.source.set_avatar(avatar)
+  end
+
+  def avatar
+    custom = self.reload.image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    default = CONFIG['checkdesk_base_url'] + self.image.url
+    custom || default
   end
 
   def as_json(_options = {})
