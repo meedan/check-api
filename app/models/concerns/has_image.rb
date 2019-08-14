@@ -5,7 +5,7 @@ module HasImage
 
   included do
     include HasFile
-    
+
     mount_uploader :file, ImageUploader
     validates :file, size: true, allow_blank: true
   end

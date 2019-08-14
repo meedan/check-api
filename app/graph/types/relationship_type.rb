@@ -11,4 +11,4 @@ RelationshipType = GraphQL::ObjectType.define do
 
   field :target, ProjectMediaType
   field :source, ProjectMediaType
-end 
+end

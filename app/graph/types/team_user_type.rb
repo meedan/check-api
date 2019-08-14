@@ -10,7 +10,7 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
   field :role, types.String
   field :permissions, types.String
   field :assignments_progress, JsonStringType
-  
+
   field :team do
     type TeamType
 

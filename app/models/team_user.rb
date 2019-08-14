@@ -9,7 +9,7 @@ class TeamUser < ActiveRecord::Base
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
   validate :team_is_full, on: :create
   validate :user_is_member_in_slack_team
-  
+
   check_settings
 
   before_validation :check_existing_invitation, :set_role_default_value, on: :create
@@ -112,7 +112,7 @@ class TeamUser < ActiveRecord::Base
       required_tasks_count = 0
       answered_tasks_count = 0
       Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).each do |task|
-        if task.required_for_user(self.user_id) 
+        if task.required_for_user(self.user_id)
           required_tasks_count += 1
           answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == self.user_id }.any?
         end

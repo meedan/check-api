@@ -18,4 +18,4 @@ module Montage::Collection
       project_id: self.project_id
     }
   end
-end 
+end
