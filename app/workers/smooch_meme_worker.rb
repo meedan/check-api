@@ -1,6 +1,6 @@
 class SmoochMemeWorker
   include Sidekiq::Worker
-  
+
   sidekiq_options queue: 'smooch', retry: 3
   sidekiq_retries_exhausted { |msg| retry_callback(msg) }
 

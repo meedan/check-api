@@ -2,7 +2,7 @@ require 'active_support/concern'
 
 module TeamAssociations
   extend ActiveSupport::Concern
-  
+
   included do
     has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
 

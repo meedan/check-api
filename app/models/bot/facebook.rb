@@ -1,8 +1,8 @@
 class Bot::Facebook < BotUser
   check_settings
-  
+
   include Bot::SocialBot
-  
+
   def self.default
     Bot::Facebook.new
   end
@@ -39,12 +39,12 @@ class Bot::Facebook < BotUser
       #   link: self.embed_url,
       #   access_token: auth['token']
       # }
-      # 
+      #
       # response = Net::HTTP.post_form(uri, data)
       # 'https://facebook.com/' + JSON.parse(response.body)['id'].to_s
       # ---
       # For now, our solution is to show a link to share it manually
-      
+
       url = self.embed_url
       description = self.text
       "javascript:window.open('https://www.facebook.com/sharer.php?u=#{url}&description=#{description}', 'Share', 'width=600, height=600');"

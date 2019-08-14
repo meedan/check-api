@@ -19,7 +19,7 @@ namespace :check do
           path = f.gsub(/^#{root}\//, '')
           type = MIME::Types.type_for(f).first.content_type
           content = File.read(f)
-          if CheckS3.exist?(path) && CheckS3.get(path).etag.gsub('"', '') === Digest::MD5.hexdigest(content)
+          if CheckS3.exist?(path) && CheckS3.get(path).etag.delete('"') === Digest::MD5.hexdigest(content)
             k += 1
           else
             CheckS3.write(path, type, content)

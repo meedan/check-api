@@ -4,7 +4,7 @@ Dynamic.class_eval do
   def title=(title)
     self.set_metadata_field('title', title)
   end
-  
+
   def description=(description)
     self.set_metadata_field('description', description)
   end

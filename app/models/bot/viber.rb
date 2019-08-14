@@ -1,7 +1,7 @@
 class Bot::Viber < BotUser
-  
+
   check_settings
-  
+
   attr_accessor :token
 
   include ViberBotScreenshot

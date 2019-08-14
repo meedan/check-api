@@ -1,9 +1,9 @@
 class AssignmentMailer < ApplicationMailer
   layout nil
-    
+
   def notify(event, author, recipient, assigned)
     return unless should_notify?(recipient, assigned)
-    
+
     if assigned.is_a?(Annotation)
       annotation = assigned
       project_media = annotation.annotated
@@ -17,7 +17,7 @@ class AssignmentMailer < ApplicationMailer
         title = task.label
         description = task.description
       end
-      # add more info related to media 
+      # add more info related to media
       image_path = project_media.media.type == 'UploadedImage' ? project_media.media.image_path : ''
       media_link = project_media.media.url
       updated_at = project_media.updated_at

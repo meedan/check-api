@@ -46,11 +46,11 @@ namespace :check do
         es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id], data: { doc: fields } } }
       end
 
-      puts "[#{Time.now}] Calling ElasticSearch..."      
+      puts "[#{Time.now}] Calling ElasticSearch..."
       response = client.bulk body: es_body
       puts "[#{Time.now}] Done!"
       puts "[#{Time.now}] Errors? #{response['errors']}"
- 
+
       n = ProjectSource.count
       puts "[#{Time.now}] Re-indexing #{n} project sources"
       es_body = []
@@ -71,7 +71,7 @@ namespace :check do
         es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id], data: { doc: fields } } }
       end
 
-      puts "[#{Time.now}] Calling ElasticSearch..."      
+      puts "[#{Time.now}] Calling ElasticSearch..."
       response = client.bulk body: es_body
       puts "[#{Time.now}] Done!"
       puts "[#{Time.now}] Errors? #{response['errors']}"

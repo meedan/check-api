@@ -50,9 +50,9 @@ end
 def select_accounts(condition)
   accounts = []
   Account.find_each do |a|
-   data = a.data
+    data = a.data
    if (match_conditions(data) || @conditions.empty?) && send(condition, data)
-      accounts << a
+     accounts << a
     end
   end
   puts "#{accounts.size} accounts match the criteria"
@@ -178,7 +178,7 @@ namespace :check do
   task :update_accounts_through_embed => :environment do |t, args|
     parse_conditions args.extras, t.name
     select_embeds.each do |account|
-     update_account account
+      update_account account
     end
     puts "#{@accounts} accounts were changed."
   end
@@ -188,7 +188,7 @@ namespace :check do
   task :update_accounts_and_sources_through_embed => :environment do |t, args|
     parse_conditions args.extras, t.name
     select_embeds.each do |account|
-     update_account account, true
+      update_account account, true
     end
     puts "#{@accounts} accounts were changed and #{@sources} sources were changed."
   end
@@ -198,7 +198,7 @@ namespace :check do
   task :update_accounts_without_data => :environment do |t, args|
     parse_conditions args.extras, t.name
     select_accounts('without_data').each do |account|
-     update_account account
+      update_account account
     end
     puts "#{@accounts} accounts were changed."
   end
@@ -227,7 +227,7 @@ namespace :check do
 
   # bundle exec rake check:update_all_accounts
   desc "update all accounts where url returned by Pender is different"
-  task :update_all_accounts => :environment do |t|
+  task :update_all_accounts => :environment do |_t|
     Account.find_each do |account|
       print '.'
       begin
@@ -242,7 +242,7 @@ namespace :check do
   # bundle exec rake check:update_accounts_from_file[filename]
   # format of lines on file `<old url> => <new url>``
   desc "update accounts listed on a file"
-  task :update_accounts_from_file => :environment do |t, args|
+  task :update_accounts_from_file => :environment do |_t, args|
     mapping = file_to_hashes(args.extras.first)
     mapping.each do |original, updated|
       account = Account.find_by_url(original)

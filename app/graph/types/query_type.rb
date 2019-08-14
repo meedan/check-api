@@ -71,7 +71,7 @@ QueryType = GraphQL::ObjectType.define do
   instance_exec ProjectMedia, :project_media, ProjectMediaType , &GraphqlCrudOperations.project_association
 
   instance_exec ProjectSource, :project_source, ProjectSourceType , &GraphqlCrudOperations.project_association
-  
+
   connection :project_medias do
     type ProjectMediaType.connection_type
     argument :url, !types.String

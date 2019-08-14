@@ -3,7 +3,7 @@ class TagText < ActiveRecord::Base
 
   before_validation :normalize_tag
   before_validation :merge_tags, on: :update
-  
+
   validates :text, uniqueness: { scope: :team_id }, unless: proc { |tag_text| tag_text.marked_for_deletion }
   validates_presence_of :text
   validates_presence_of :team_id

@@ -1,7 +1,7 @@
 class Team < ActiveRecord::Base
-  
+
   before_destroy :delete_created_bots
-  
+
   include ValidationsHelper
   include DestroyLater
   include TeamValidations

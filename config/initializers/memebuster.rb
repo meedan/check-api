@@ -20,7 +20,7 @@ Dynamic.class_eval do
       filename = self.memebuster_filename
       filepath = 'memebuster/' + filename
       url = nil
-      
+
       if !CheckS3.exist?(filepath) || force
         team = self.annotated&.project&.team
         return if team.nil?
@@ -48,23 +48,23 @@ Dynamic.class_eval do
         team_url.content = team.url
         team_image = doc.at_css('#teamAvatar')
         team_image['xlink:href'] = team.avatar
-        
+
         temp_name = 'temp-' + SecureRandom.hex(16) + self.id.to_s
         temp = File.join(Rails.root, 'public', 'memebuster', temp_name)
         output = File.open("#{temp}.svg", 'w+')
         output.puts doc.to_s
         output.close
-        
+
         screenshot = Webshot::Screenshot.instance
         screenshot.capture "#{CONFIG['checkdesk_base_url_private']}/memebuster/#{temp_name}.svg", "#{temp}.png", width: 500, height: 500
-      
+
         CheckS3.write(filepath, 'image/png', File.read("#{temp}.png"))
-        url = CheckS3.public_url(filepath) 
-        
+        url = CheckS3.public_url(filepath)
+
         FileUtils.rm_f "#{temp}.svg"
         FileUtils.rm_f "#{temp}.png"
       end
-      
+
       url
     end
   end

@@ -19,7 +19,7 @@ class CcDeville
     code = response.code.to_i
     Rails.logger.info "[cc-deville] Response for `DELETE /purge?url=#{url}` was #{code}"
     code
-  end 
+  end
 
   private
 

@@ -1,5 +1,5 @@
 class TerminalStatusMailer < ApplicationMailer
-	layout nil
+  layout nil
 
   def self.send_notification(options)
     options = YAML::load(options)
@@ -38,9 +38,9 @@ class TerminalStatusMailer < ApplicationMailer
     end
   end
 
-	def notify(recipient, info, subject)
+  def notify(recipient, info, subject)
     self.set_template_var(info, recipient)
     mail(to: recipient, email_type: 'terminal_status', subject: subject)
-	end
+  end
 
 end
