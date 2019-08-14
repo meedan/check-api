@@ -1,7 +1,7 @@
 require 'uri'
 
 module URI
-  
+
   # We need to also support "track" and "id" from Media Fragments 1.0 URI Advanced (https://www.w3.org/TR/media-frags/#mf-advanced)
   FRAGMENT_NAMES = ['t', 'xywh']
 
