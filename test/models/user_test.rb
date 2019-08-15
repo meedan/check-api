@@ -1326,7 +1326,11 @@ class UserTest < ActiveSupport::TestCase
       User.reset_change_password(options)
     end
     options[:id] = u.id
-    assert_not u.reload.valid_password?('test5678')
+    assert u.reload.valid_password?('test1234')
+    assert_raises RuntimeError do
+      User.reset_change_password(options)
+    end
+    assert u.reload.valid_password?('test1234')
     options[:current_password] = 'test1234'
     User.reset_change_password(options)
     assert u.reload.valid_password?('test5678')

@@ -434,8 +434,8 @@ class User < ActiveRecord::Base
       if user.nil? || User.current.id != inputs[:id]
         raise ActiveRecord::RecordNotFound
       else
-        if !inputs[:current_password].blank? && !user.valid_password?(inputs[:current_password])
-          user.errors.add(:invalid_password, I18n.t(:errors.messages.invalid_password))
+        if user.encrypted_password? && !user.valid_password?(inputs[:current_password])
+          raise I18n.t(:"errors.messages.invalid_password")
         end
         user.reset_password(inputs[:password], inputs[:password_confirmation])
       end
