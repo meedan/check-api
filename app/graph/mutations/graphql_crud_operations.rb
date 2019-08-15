@@ -10,7 +10,7 @@ class GraphqlCrudOperations
     name = obj.class_name.underscore
     { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, inputs, parents))
   end
-  
+
   def self.define_returns(obj, inputs, parents)
     ret = {}
     name = obj.class_name.underscore
@@ -92,7 +92,7 @@ class GraphqlCrudOperations
         self.send_bulk_pusher_notification("bulk_#{operation}_update", channels)
         self.send("#{operation}_from_single_id", id, attrs, {}, [])
       rescue
-        Rails.logger.info "Bulk-action #{operation} failed for id #{id}" 
+        Rails.logger.info "Bulk-action #{operation} failed for id #{id}"
       end
     end
     self.freeze_or_unfreeze_objects(ids_list, false)
@@ -182,11 +182,11 @@ class GraphqlCrudOperations
     if inputs[:ids] && name =~ /^check_search/
       obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
     end
-    
+
     if name == 'project_media'
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
-     
+
     obj.define_singleton_method(:number_of_results) { 0 } if inputs['empty_trash']
 
     obj

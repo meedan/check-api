@@ -1,7 +1,7 @@
 class SmoochPingWorker
   include Sidekiq::Worker
   include Sidekiq::Status::Worker
-  
+
   sidekiq_options queue: 'smooch_ping', retry: 0
 
   def perform(uid, app_id)

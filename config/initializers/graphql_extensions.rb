@@ -9,7 +9,7 @@ module GraphQL
         parent_connection = GraphQL::Relay::RelationConnection.new(relation, {})
         self.new(child_node, parent_connection)
       end
-      
+
       def self.not_part_of_relation(relation, child_node)
         relation.nil? || (relation.is_a?(Array) ? !relation.include?(child_node) : relation.where(id: child_node.id).count == 0)
       end

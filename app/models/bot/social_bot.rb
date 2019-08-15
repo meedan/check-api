@@ -16,7 +16,7 @@ module Bot
       return if self.published_to?(provider)
 
       link = yield
-      
+
       self.store_id(provider, link)
     end
 

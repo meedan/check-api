@@ -1,13 +1,13 @@
 Dynamic.class_eval do
 
   # How a field should be RENDERED ON A SEARCH FORM of a given team
-  
+
   def self.field_search_json_schema_type_language(team = nil)
     languages = []
     team.projects.find_each { |project| languages << project.get_languages unless project.get_languages.blank? }
     keys = languages.flatten.uniq
     include_other = true
-    
+
     if keys.empty?
       include_other = false
       joins = "INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON a.annotated_type = 'ProjectMedia' AND pm.id = a.annotated_id INNER JOIN projects p ON pm.project_id = p.id"
@@ -17,11 +17,11 @@ Dynamic.class_eval do
         keys << code
       end
     end
-    
+
     keys = keys.sort
     labels = []
     keys.each{ |code| labels << CheckCldr.language_code_to_name(code) }
-    
+
     if include_other
       keys << "not:#{keys.join(',')}"
       labels << I18n.t(:other_language)
@@ -42,13 +42,13 @@ Dynamic.class_eval do
   end
 
   # How a field should be INDEXED BY ELASTICSEARCH
-  
+
   def get_elasticsearch_options_dynamic_annotation_verification_status
     deadline = self.get_field_value(:deadline).to_i
     data = { deadline: deadline, indexable: deadline }
     { keys: [:deadline, :indexable], data: data }
   end
-  
+
   def get_elasticsearch_options_dynamic_annotation_language
     code = self.get_field_value(:language)
     data = { language: code, indexable: code }

@@ -1,6 +1,6 @@
 namespace :check do
-	# bundle exec rake check:migrate_task_answer_notes
-	# convert task answer notes to task comments
+  # bundle exec rake check:migrate_task_answer_notes
+  # convert task answer notes to task comments
   desc "Convert task answer notes to task comments"
   task migrate_task_answer_notes: :environment do
     RequestStore.store[:skip_notifications] = true

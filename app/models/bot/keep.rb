@@ -1,7 +1,7 @@
 class Bot::Keep < BotUser
-  
+
   check_settings
-  
+
   def self.run(body)
     pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
     user = User.where(id: body.dig(:user_id)).last

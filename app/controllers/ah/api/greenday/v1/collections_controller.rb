@@ -1,6 +1,6 @@
 class Ah::Api::Greenday::V1::CollectionsController < Ah::Api::Greenday::V1::BaseController
   before_action :check_if_project_exists, only: [:update, :show, :add_batch]
-  
+
   def update
     return if @project.nil?
     data = JSON.parse(request.raw_post)

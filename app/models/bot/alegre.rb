@@ -1,7 +1,7 @@
 class Bot::Alegre < BotUser
-  
+
   check_settings
-  
+
   def self.run(body)
     handled = false
     begin
