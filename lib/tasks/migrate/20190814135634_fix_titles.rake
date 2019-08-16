@@ -1,8 +1,8 @@
 namespace :check do
   namespace :migrate do
-    task fix_descriptions: :environment do
-      last_id = Rails.cache.read('check:migrate:fix_descriptions:last_id')
-      raise "No last_id found in cache for check:fix_descriptions! Aborting." if last_id.nil?
+    task fix_titles: :environment do
+      last_id = Rails.cache.read('check:migrate:fix_titles:last_id')
+      raise "No last_id found in cache for check:fix_titles! Aborting." if last_id.nil?
 
       i = 0
       total = 0
@@ -13,16 +13,16 @@ namespace :check do
         begin
           changed = false
           o = JSON.parse(v['object_after'])['data']
-          if o['description'] != o['embed']['description']
+          if o['title'] != o['embed']['title']
             d = Dynamic.find(v.item_id)
             data = JSON.parse(d.get_field_value('metadata_value'))
-            if o['description'] != data['description']
+            if o['title'] != data['title']
 
-              data['description'] = o['description']
+              data['title'] = o['title']
               d.set_fields = { metadata_value: data.to_json }.to_json
               d.skip_notifications = true
               d.save(validate: false)
-
+              
               changed = true
               total += 1
               puts "#{i}/#{n}) Changing"
@@ -35,8 +35,8 @@ namespace :check do
         end
       end
       puts "Done. #{total} changed."
-
-      Rails.cache.delete('check:migrate:fix_descriptions:last_id')
+      
+      Rails.cache.delete('check:migrate:fix_titles:last_id')
     end
   end
 end

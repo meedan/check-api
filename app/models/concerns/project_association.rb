@@ -54,7 +54,7 @@ module ProjectAssociation
     after_commit :destroy_elasticsearch_media , on: :destroy
 
     def get_versions_log
-      PaperTrail::Version.where(associated_type: self.class.name, associated_id: self.id).order('created_at DESC')
+      PaperTrail::Version.where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
     end
 
     def get_versions_log_count

@@ -13,7 +13,7 @@ module ActiveRecordExtensions
     validate :cant_mutate_if_inactive
     # after_find :check_read_ability
   end
-  
+
   module ClassMethods
     def permissioned
       klass = self.to_s.gsub(/::ActiveRecord.*$/, '')

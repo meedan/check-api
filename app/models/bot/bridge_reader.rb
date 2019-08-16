@@ -1,7 +1,7 @@
 class Bot::BridgeReader < BotUser
-  
+
   check_settings
-  
+
   require 'check_bridge_embed'
 
   def self.default

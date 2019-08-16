@@ -8,7 +8,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_out('user')
     User.current = nil
-    WebMock.disable_net_connect!
+    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
     Sidekiq::Testing.fake!
   end
 

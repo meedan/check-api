@@ -100,11 +100,20 @@ class UploadedImageTest < ActiveSupport::TestCase
 
   test "should return public_path as media url" do
     t = create_uploaded_image
-    assert_equal "#{CONFIG['checkdesk_base_url']}#{t.file.url}", t.media_url
+    assert_equal t.file.url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']), t.media_url
     assert_equal t.public_path, t.media_url
   end
 
   test "should return a list of white-listed extensions" do
     assert_kind_of Array, ImageUploader.new.extension_white_list
+  end
+
+  test "should work on S3" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    i = create_uploaded_image
+    pm = create_project_media media: i
+    assert_match /^http/, pm.media.picture
   end
 end

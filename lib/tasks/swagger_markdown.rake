@@ -26,7 +26,7 @@ namespace :swagger do
           api[:operations].each do |op|
 
             next if op[:response_messages].first[:responseModel].nil?
-        
+
             apicall = "#{op[:method].upcase} /#{api[:path]}"
 
             output.puts
@@ -51,7 +51,7 @@ namespace :swagger do
               example = r[:responseModel]
 
               output.puts "#{r[:code]}: #{r[:message]}"
-              
+
               app = ActionDispatch::Integration::Session.new(Rails.application)
               response = app.send(op[:method], '/' + api[:path], example[:query], example[:headers])
               json = app.body.chomp

@@ -6,7 +6,7 @@ namespace :check do
       puts "[#{Time.now}] Starting to convert #{total} embed annotations into metadata annotations..."
 
       LIMIT = 1000
-      
+
       sum = 0
       n = Annotation.where(annotation_type: 'embed').limit(LIMIT).count
       nv = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
@@ -20,14 +20,14 @@ namespace :check do
           i += 1
           print "#{i}/#{n}\r"
           $stdout.flush
-          
+
           data = a.data || {}
           data = data.with_indifferent_access
           embed = data['embed'] || {}
           embed = begin JSON.parse(embed) rescue {} end
           data = data.merge(embed)
           data.delete('embed')
-          json = data.to_json.gsub("\u0000", '').gsub("\\u0000", '')
+          json = data.to_json.delete("\u0000").gsub("\\u0000", '')
 
           field = DynamicAnnotation::Field.new({
             annotation_id: a.id,
@@ -44,7 +44,7 @@ namespace :check do
 
           id = a.id
         end
-        
+
         puts "[#{Time.now}] Bulk-importing #{fields.size} fields..."
         DynamicAnnotation::Field.import(fields, recursive: false, validate: false)
 
@@ -54,7 +54,7 @@ namespace :check do
         puts "[#{Time.now}] Updating #{nv} versions..."
         vid = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).last&.id&.to_i
         PaperTrail::Version.where(item_type: 'Embed').where("id <= #{vid}").update_all(item_type: 'Annotation')
-      
+
         n = Annotation.where(annotation_type: 'embed').limit(LIMIT).count
         nv = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
       end

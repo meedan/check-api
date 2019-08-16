@@ -1,7 +1,7 @@
 require 'digest'
 
 class Bot::Smooch < BotUser
-  
+
   check_settings
 
   include CheckI18n
@@ -97,7 +97,7 @@ class Bot::Smooch < BotUser
     def reset_meme
       meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
       unless meme.nil?
-        FileUtils.rm_f(meme.memebuster_filepath)
+        CheckS3.delete(meme.memebuster_filepath)
         status = ::Workflow::Workflow.get_status(self.annotation.annotated, 'verification_status', self.value)
         meme.set_fields = {
           memebuster_status: ::Bot::Smooch.get_status_label(self.annotation.annotated, self.value, I18n.locale),
@@ -136,7 +136,7 @@ class Bot::Smooch < BotUser
       slug = tbi.team.slug
       resource_slug = 'api-custom-messages-' + slug
       resource = yaml = nil
-      
+
       begin
         resource = project.resource(resource_slug)
         yaml = YAML.load(resource.translation('en').fetch['content'])
@@ -396,7 +396,7 @@ class Bot::Smooch < BotUser
         phone: phone,
         app_name: app.app.name
       }
-      
+
       a = Dynamic.new
       a.skip_check_ability = true
       a.skip_notifications = true
@@ -413,11 +413,11 @@ class Bot::Smooch < BotUser
     lang = message['language'] = self.get_language(message)
     Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
     sm = CheckStateMachine.new(message['authorId'])
-    
+
     if sm.state.value == 'human_mode'
       Rails.cache.write("smooch:last_message_from_user:#{message['authorId']}", message.to_json)
       Rails.logger.info("[Smooch Bot] Ignoring message because conversation for user #{message['authorId']} is in human-mode")
-    
+
     elsif sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
