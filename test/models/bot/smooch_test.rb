@@ -13,7 +13,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}/
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
     Sidekiq::Testing.inline!
     @app_id = random_string
     @msg_id = random_string
@@ -940,7 +940,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
     end
-    
+
     payload[:messages][0][:text] = url
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
@@ -948,7 +948,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
     end
-    
+
     payload[:messages][0][:text] = random_string
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
     assert Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
@@ -961,7 +961,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should send strings to Transifex" do
     t = create_team
     tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
-    
+
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
       s = tbi.settings.clone
       s['smooch_message_smooch_bot_meme'] = random_string
@@ -1026,9 +1026,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-    
+
     ProjectMedia.delete_all
-    
+
     s = @installation.settings.clone.with_indifferent_access
     s['smooch_disabled'] = true
     @installation.settings = s
@@ -1038,12 +1038,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     send_confirmation(uid)
     assert_equal 0, ProjectMedia.count
- 
+
     s = @installation.settings.clone.with_indifferent_access
     s['smooch_disabled'] = false
     @installation.settings = s
     @installation.save!
-    @installation = TeamBotInstallation.find(@installation.id)   
+    @installation = TeamBotInstallation.find(@installation.id)
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     Bot::Smooch.run(payload)
     send_confirmation(uid)
