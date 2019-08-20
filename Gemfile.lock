@@ -400,7 +400,7 @@ GEM
     net-http-digest_auth (1.4.1)
     net-http-persistent (2.9.4)
     netrc (0.11.0)
-    nokogiri (1.10.3)
+    nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     ntlm-http (0.1.1)
     numerizer (0.1.1)
@@ -790,7 +790,7 @@ DEPENDENCIES
   minitest-retry
   mocha
   multi_json (= 1.12.2)
-  nokogiri (= 1.10.3)
+  nokogiri (= 1.10.4)
   omniauth-facebook
   omniauth-google-oauth2
   omniauth-slack
