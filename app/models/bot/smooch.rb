@@ -278,7 +278,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.webhook(request)
-    # TODO This should be packaged as an event "invoke_webhook" + data payload
+    # FIXME This should be packaged as an event "invoke_webhook" + data payload
     Bot::Smooch.run(request.body.read)
   end
 
@@ -371,8 +371,8 @@ class Bot::Smooch < BotUser
 
   def self.discard_or_process_message(message, app_id)
     if self.config['smooch_disabled']
-      lang = message['language'] = self.get_language(message)
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_disabled, { locale: lang }), {}, true)
+      message['language'] = self.get_language(message)
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_disabled, { locale: message['language'] }), {}, true)
     else
       self.process_message(message, app_id)
     end
@@ -380,6 +380,7 @@ class Bot::Smooch < BotUser
 
   def self.save_user_information(app_id, uid)
     self.get_installation('smooch_app_id', app_id) if self.config.blank?
+    # FIXME Shouldn't we make sure this is an annotation in the right project?
     field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last
     if field.nil?
       api_client = self.smooch_api_client
@@ -404,46 +405,82 @@ class Bot::Smooch < BotUser
       a.annotation_type = 'smooch_user'
       a.annotated_type = 'Project'
       a.annotated_id = self.get_project_id
-      a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
+      a.set_fields = {
+        smooch_user_data: data.to_json,
+        smooch_user_id: uid,
+        smooch_user_app_id: app_id
+      }.to_json
       a.save!
     end
   end
 
+  def self.tos_required(uid)
+    return Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+  end
+
+  def self.tos_accept_user_information(uid, timestamp)
+    Rails.cache.write("smooch:last_accepted_terms:#{uid}", timestamp)
+  end
+
+  def self.process_message_confirmation(message, app_id, sm)
+    return if self.banned_message?(message)
+    hash = self.message_hash(message)
+    pm_id = Rails.cache.read("smooch:message:#{hash}")
+    if pm_id.nil?
+      sm.send_message_new
+      sm.message = message.to_json
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: message['language'] }))
+    else
+      sm.send_message_existing
+      self.save_message_later(message, app_id)
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
+    end
+  end
+
   def self.process_message(message, app_id)
-    lang = message['language'] = self.get_language(message)
+    if message['language'].nil?
+      message['language'] = self.get_language(message)
+    end
     Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
+    if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").nil?
+      Rails.cache.write("smooch:last_accepted_terms:#{message['authorId']}", 0)
+    end
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'human_mode'
       Rails.cache.write("smooch:last_message_from_user:#{message['authorId']}", message.to_json)
       Rails.logger.info("[Smooch Bot] Ignoring message because conversation for user #{message['authorId']} is in human-mode")
 
-    elsif sm.state.value == 'waiting_for_message' && !self.banned_message?(message)
-      hash = self.message_hash(message)
-      pm_id = Rails.cache.read("smooch:message:#{hash}")
-      if pm_id.nil?
-        sm.send_message_new
+    elsif sm.state.value == 'waiting_for_message'
+      if self.tos_required(message['authorId'])
+        sm.request_tos
         sm.message = message.to_json
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: lang }))
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
       else
-        sm.send_message_existing
-        self.save_message_later(message, app_id)
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: lang }))
+        self.process_message_confirmation(message, app_id, sm)
+      end
+
+    elsif sm.state.value == 'waiting_for_tos'
+      if self.convert_numbers(message['text']) == 1
+        self.tos_accept_user_information(message['authorId'], message['received'])
+        self.process_message_confirmation(JSON.parse(sm.message.value), app_id, sm)
+      else
+        sm.reject_tos
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: message['language'] }))
       end
 
     elsif sm.state.value == 'waiting_for_confirmation'
       sm.confirm_message
       saved_message = JSON.parse(sm.message.value)
-      lang = saved_message['language']
       if self.convert_numbers(message['text']) == 1
         if self.supported_message?(saved_message)
           self.save_message_later(saved_message, app_id)
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: lang }))
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
         else
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: lang }))
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: saved_message['language'] }))
         end
       else
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: lang }))
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: saved_message['language'] }))
       end
     end
 
@@ -698,9 +735,8 @@ class Bot::Smooch < BotUser
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
         next if self.config['smooch_disabled']
-        lang = data['language']
-        status_label = self.get_status_label(pm, status, lang)
-        response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: lang, status: status_label }))
+        status_label = self.get_status_label(pm, status, data['language'])
+        response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: data['language'], status: status_label }))
         self.save_smooch_response(response, pm)
       end
     end
