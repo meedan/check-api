@@ -570,9 +570,14 @@ pt:
     [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
 
     Aqui estão os passos que fizemos para determinar isso: %{url}
-  smooch_bot_ask_for_confirmation: Obrigado por enviar esta mensagem. Você quer verificar
-    o conteúdo dela? Para sim, *por favor responda com 1*. Qualquer outra resposta
-    terminará nossa conversa.
+  smooch_bot_ask_for_confirmation: |-
+    Obrigado por enviar esta mensagem. Você quer verificar o conteúdo dela?
+
+    Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
+  smooch_bot_ask_for_tos: |-
+    Por favor leia os Termos do Serviço em %{tos}. Aceita aos termos?
+
+    Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
   smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e
     ainda não conseguimos resolver a sua solicitação. Obrigado pela sua paciência.
   smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você
