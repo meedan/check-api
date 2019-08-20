@@ -39,7 +39,7 @@ class AccountSource < ActiveRecord::Base
       unless ps.blank?
         error = {
           message: I18n.t(:account_exists, project_id: ps.project_id, project_source_id: ps.id),
-          code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
+          code: LapisConstants::ErrorCodes::DUPLICATED,
           data: {
             project_id: ps.project_id,
             type: 'source',

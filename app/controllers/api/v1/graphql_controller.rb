@@ -1,3 +1,5 @@
+require 'error_codes'
+
 module Api
   module V1
     class GraphqlController < Api::V1::BaseApiController
@@ -56,11 +58,16 @@ module Api
       end
 
       def format_error_message(e)
+        mapping = {
+          CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::UNAUTHORIZED,
+          ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
+          ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT
+        }
         {
           errors: [{
             message: e.message,
-            code: e.code,
-            data: e.data,
+            code: mapping[e.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
+            data: {},
           }],
         }
       end
