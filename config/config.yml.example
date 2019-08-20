@@ -69,6 +69,21 @@ development: &default
   # for production, don't use a wildcard: set the allowed domains explicitly, as a regular expression, for example: '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
   storage:
+    # If you are using Amazon S3, the user should have permissions like the one below and the bucket must be publicly readable
+    # {
+    #   "Version": "2012-10-17",
+    #   "Statement": [
+    #     {
+    #       "Sid": "VisualEditor0",
+    #       "Effect": "Allow",
+    #       "Action": "s3:*",
+    #       "Resource": [
+    #         "arn:aws:s3:::bucket-name/*",
+    #         "arn:aws:s3:::bucket-name"
+    #       ]
+    #     }
+    #   ]
+    # }
     endpoint:
     public_endpoint:
     access_key:

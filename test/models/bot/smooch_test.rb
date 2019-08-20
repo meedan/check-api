@@ -947,7 +947,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     payload[:messages][0][:text] = random_string
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
@@ -956,7 +955,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     payload[:messages][0][:text] = url
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
@@ -964,7 +962,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     payload[:messages][0][:text] = random_string
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
@@ -1083,9 +1080,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       type: 'text',
       text: random_string
     }
-    Rails.cache.write("smooch:last_message_from_user:#{id}", message.to_json)
-    d = Dynamic.find(d.id) ; d.action = 'passthru' ; d.save!
-    assert_equal 'waiting_for_tos', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'send test' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
   end
 
   test "should save user information" do
@@ -1130,7 +1126,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     sm.enter_human_mode
     sm = CheckStateMachine.new(uid)
     assert_equal 'human_mode', sm.state.value
-    assert_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
     messages = [
       {
         '_id': random_string,
@@ -1152,7 +1147,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert_not_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
   end
 
   test "should create Transifex resource if it does not exist" do
