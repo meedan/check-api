@@ -70,10 +70,10 @@ COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 USER root
 
 # link config files
-RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
+# RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
 # persist these directories
-RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
-    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
+# RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
+#    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
 
 RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 
