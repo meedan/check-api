@@ -35,7 +35,7 @@ class CheckStateMachine
     end
 
     event :enter_human_mode do
-      transitions :from => [:human_mode, :waiting_for_message, :waiting_for_confirmation], :to => :human_mode
+      transitions :from => [:human_mode, :waiting_for_message, :waiting_for_confirmation, :waiting_for_tos], :to => :human_mode
     end
 
     event :leave_human_mode do
