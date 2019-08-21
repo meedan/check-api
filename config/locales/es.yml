@@ -570,9 +570,11 @@ es:
 
     Este es el proceso que seguimos para llegar a esta conclusión: %{url}
   smooch_bot_ask_for_confirmation: |-
-    Gracias por enviar este mensaje.
+    Gracias por enviar este mensaje. ¿Quieres que verifiquemos este contenido?
 
-    ¿Quieres que verifiquemos este contenido?
+    Para decir sí, *por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
+  smooch_bot_ask_for_tos: |-
+    Por favor lea los Términos del Servicio en %{tos}. ¿Acepta los términos?
 
     Para decir sí, *por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido en este
