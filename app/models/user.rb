@@ -264,6 +264,7 @@ class User < ActiveRecord::Base
   def self.terms_last_updated_at_by_page(page)
     mapping = {
       tos: 'tos_url',
+      tos_smooch: 'tos_smooch_url',
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
