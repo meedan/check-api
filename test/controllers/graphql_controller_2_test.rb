@@ -1,4 +1,5 @@
 require_relative '../test_helper'
+require 'error_codes'
 
 class GraphqlController2Test < ActionController::TestCase
   def setup
@@ -88,12 +89,13 @@ class GraphqlController2Test < ActionController::TestCase
       post :create, query: query, team: t.slug
       assert_response 400
       ret = JSON.parse(@response.body)
-      assert_includes ret.keys, 'error'
-      assert_equal 'ERR_OBJECT_EXISTS', ret['error_info']['code']
-      assert_kind_of Integer, ret['error_info']['project_id']
-      assert_kind_of Integer, ret['error_info']['id']
-      assert_equal 'source', ret['error_info']['type']
-      assert_equal ret['errors'].first.keys.sort, ['data', 'message']
+      assert_includes ret.keys, 'errors'
+      error_info = ret['errors'].first
+      assert_equal error_info.keys.sort, ['code', 'data', 'message'].sort
+      assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
+      assert_kind_of Integer, error_info['data']['project_id']
+      assert_kind_of Integer, error_info['data']['id']
+      assert_equal 'source', error_info['data']['type']
     end
   end
 
@@ -604,8 +606,9 @@ class GraphqlController2Test < ActionController::TestCase
       sleep 1
       assert_response 400
       response = JSON.parse(@response.body)
-      assert_includes response.keys, 'error'
-      assert_equal 'INVALID_VALUE', response['error_info']['code']
+      assert_includes response.keys, 'errors'
+      error_info = response['errors'].first
+      assert_equal 'INVALID_VALUE', error_info['code']
     end
   end
 
@@ -621,8 +624,9 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response 400
     response = JSON.parse(@response.body)
-    assert_equal 'INVALID_VALUE', response['error_info']['code']
-    assert_match /File not found/, response['error_info']['error_message']
+    error_info = response['errors'].first
+    assert_equal 'INVALID_VALUE', error_info['code']
+    assert_match /File not found/, error_info['data']['error_message']
   end
 
   test "should import spreadsheet if inputs are valid" do
