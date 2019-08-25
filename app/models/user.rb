@@ -429,6 +429,23 @@ class User < ActiveRecord::Base
     u
   end
 
+  def self.reset_change_password(inputs)
+    if inputs[:reset_password_token].blank?
+      user = User.where(id: inputs[:id]).last
+      if user.nil? || User.current.id != inputs[:id]
+        raise ActiveRecord::RecordNotFound
+      else
+        if user.encrypted_password? && !user.valid_password?(inputs[:current_password])
+          raise I18n.t(:"errors.messages.invalid_password")
+        end
+        user.reset_password(inputs[:password], inputs[:password_confirmation])
+      end
+    else
+      user = User.reset_password_by_token(inputs)
+    end
+    user
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/user_private.rb
