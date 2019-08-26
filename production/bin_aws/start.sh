@@ -64,6 +64,9 @@ echo "starting sidekiq"
 # su ${DEPLOYUSER} -c "bundle exec sidekiq -L log/sidekiq.log -d"
 su ${DEPLOYUSER} -c "bundle exec sidekiq &"
 
+echo "compiling assets"
+su ${DEPLOYUSER} -c "bundle exec rake assets:precompile"
+
 echo "starting nginx"
 echo "--STARTUP FINISHED--"
 nginx
