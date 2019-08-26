@@ -1316,4 +1316,31 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should reset or change user password" do
+    u = create_user password: 'test1234'
+    rand_id = u.id + rand(100)
+    options = { id: rand_id, current_password: 'invalidpassword', password: 'test5678', password_confirmation: 'test5678' }
+    User.stubs(:current).returns(u)
+    # test change password
+    assert_raises ActiveRecord::RecordNotFound do
+      User.reset_change_password(options)
+    end
+    options[:id] = u.id
+    assert u.reload.valid_password?('test1234')
+    assert_raises RuntimeError do
+      User.reset_change_password(options)
+    end
+    assert u.reload.valid_password?('test1234')
+    options[:current_password] = 'test1234'
+    User.reset_change_password(options)
+    assert u.reload.valid_password?('test5678')
+    # test reset password
+    token = User.generate_password_token(u.id)
+    options[:reset_password_token] = token
+    options[:password] = options[:password_confirmation] = 'test1289'
+    User.reset_change_password(options)
+    assert u.reload.valid_password?('test1289')
+    User.unstub(:current)
+  end
+
 end
