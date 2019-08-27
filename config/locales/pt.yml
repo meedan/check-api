@@ -93,6 +93,7 @@ pt:
         description: A tradução foi revisada e erros foram encontrados
   errors:
     messages:
+      invalid_password: Senha inválida
       extension_white_list_error: 'Não pode ter o tipo %{extension}, tipos permitidos:
         %{allowed_types}'
       invalid_size: Deve ter entre %{min_width} x %{min_height} e %{max_width} x %{max_height}
@@ -153,9 +154,9 @@ pt:
     ter o formato [{''id'': ''en'',''title'': ''English''}]'
   invalid_media_item: Desculpe, este não é um item de mídia válido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão
-    é inválido
+    inválido
   invalid_active_status_for_custom_verification_status: Identificador de status ativo
-    é inválido
+    inválido
   invalid_label_for_custom_verification_status: Título de status é obrigatório
   invalid_id_for_custom_verification_status: Identificador de status é obrigatório
     e aceita apenas letras, números, hífens e underscores
@@ -165,7 +166,7 @@ pt:
   invalid_default_status_for_custom_translation_status: Identificador de status padrão
     é inválido
   invalid_active_status_for_custom_translation_status: Identificador de status ativo
-    é inválido
+    inválido
   invalid_label_for_custom_translation_status: Título de status é obrigatório
   invalid_id_for_custom_translation_status: Identificador de status é obrigatório
     e aceita apenas letras, números, hífens e underscores
@@ -249,8 +250,8 @@ pt:
     flash:
       delete_team_scheduled: A equipe %{team} está sendo excluída
   email_not_found: E-mail não encontrado
-  slack_channel_format_wrong: O canal do Slack é inválido
-  translation_status_not_valid: O status é inválido
+  slack_channel_format_wrong: Canal do Slack inválido
+  translation_status_not_valid: Status inválido
   translation_status_permission_error: Desculpe, você não tem permissão para fazer
     essa alteração de status
   translation_request_id_exists: Já existe uma solicitação de tradução para esta mensagem
@@ -362,7 +363,7 @@ pt:
     invited: Este usuário já foi convidado para esta equipe.
     member: Este usuário já é um membro da equipe.
     team_found: Equipe não encontrada.
-    invalid: Código de convite é inválido.
+    invalid: Código de convite inválido.
     no_invitation: Não tem convite para a equipe %{name}
   error_user_is_not_a_team_member: Desculpe, você pode somente atribuir tarefas a
     membros desta equipe
@@ -531,7 +532,7 @@ pt:
   archive_pender_archive: capturas de tela com Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: O status é inválido
+  workflow_status_not_valid: Status inválido
   workflow_status_permission_error: Desculpe, você não tem permissão para mudar este
     status.
   blank_default_status_for_custom_translation_status: Por favor, forneça um valor
@@ -655,15 +656,15 @@ pt:
       Por favor, notifique a equipe de suporte sobre este incidente.
     user_not_authorized: Desculpe, você não tem permissão para importar dados nessa
       equipe
-    invalid_project: O projeto %{project}é inválido
-    invalid_user: O usuário %{user}é inválido
-    invalid_status: Status é inválido %{status}
+    invalid_project: Projeto inválido %{project}
+    invalid_user: Usuário inválido %{user}
+    invalid_status: Status inválido %{status}
     blank_user: Autor não pode ficar em branco
     blank_annotator: Anotador não pode ficar em branco
     blank_project: Projeto não pode ficar em branco
-    invalid_annotator: O anotador é inválido %{user}
+    invalid_annotator: Anotador inválido %{user}
     invalid_assignee: Atribuição inválida %{user}
-  pender_url_invalid: Este link é inválido.
+  pender_url_invalid: Link inválido.
   pender_url_unsafe: Este link é inseguro.
   verification_status_deadline: Prazo
   verification_status_deadline_asc: Prazo mais curto
@@ -680,7 +681,7 @@ pt:
   smooch_requests: Solicitações
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
-  bot_request_url_invalid: URL do bot é invalido
+  bot_request_url_invalid: URL do bot inválido
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
     favor confirme com "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Obrigado,
@@ -718,3 +719,4 @@ pt:
   custom_message_smooch_bot_not_final_checkpoint: "[Relatório de Verificação - CORREÇÃO]
     A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*.
     Ainda está em nossa fila para verificação adicional."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

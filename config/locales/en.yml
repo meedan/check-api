@@ -98,7 +98,7 @@ en:
         description: Translation has been reviewed and an error was found
   errors:
     messages:
-      invalid_password: 'Invalid password'
+      invalid_password: Invalid password
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
@@ -712,3 +712,4 @@ en:
   custom_message_smooch_bot_not_final_checkpoint: '[Verification Report - CORRECTION]
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
+  custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
