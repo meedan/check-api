@@ -19,7 +19,7 @@ namespace :lapis do
       version_file = File.join(basedir, 'version.rb')
       current_version = '0.1.0'
       new_version = '0.0.1'
-      if File.exists?(version_file)
+      if File.exist?(version_file)
         number = File.readlines(version_file)[1].gsub(/[^0-9\.]/, '').gsub('0.0.', '').to_i
         new_version = '0.0.' + (number + 1).to_s
       end
@@ -53,61 +53,61 @@ namespace :lapis do
       docs = Swagger::Docs::Generator.generate_docs(Swagger::Docs::Config.registered_apis)[version][:processed]
 
       docs.each do |doc|
-       doc[:apis].each do |api|
+        doc[:apis].each do |api|
 
-         api[:path].gsub!(/^\//, '')
+          api[:path].gsub!(/^\//, '')
 
-         path = api[:path].gsub(/^api\//, '').gsub('/', '_')
+          path = api[:path].gsub(/^api\//, '').tr('/', '_')
 
-         api[:operations].each do |op|
+          api[:operations].each do |op|
 
-           next if op[:response_messages].first[:responseModel].nil?
+            next if op[:response_messages].first[:responseModel].nil?
 
-           apicall = "#{op[:method].upcase} /#{api[:path]}"
-           method = "#{op[:method]}_#{path}"
-           request_methods_sigs << "#{method} (`#{apicall}`)"
+            apicall = "#{op[:method].upcase} /#{api[:path]}"
+            method = "#{op[:method]}_#{path}"
+            request_methods_sigs << "#{method} (`#{apicall}`)"
 
-           request_methods << %{
-    # #{apicall}
-    def self.#{method}(host = nil, params = {}, token = '', headers = {})
-      request('#{op[:method]}', host, '/#{api[:path]}', params, token, headers)
-    end
-           }
+            request_methods << %{
+     # #{apicall}
+     def self.#{method}(host = nil, params = {}, token = '', headers = {})
+       request('#{op[:method]}', host, '/#{api[:path]}', params, token, headers)
+     end
+            }
 
-           op[:response_messages].each do |r|
+            op[:response_messages].each do |r|
 
-             status = r[:code]
-             status == :ok if status == :success
-             status = Rack::Utils.status_code(status)
+              status = r[:code]
+              status == :ok if status == :success
+              status = Rack::Utils.status_code(status)
 
-             mock_method = "mock_#{path}_returns_#{r[:message].parameterize.gsub('-', '_')}"
-             mock_methods_sigs << mock_method
-             example = r[:responseModel]
-             app = ActionDispatch::Integration::Session.new(Rails.application)
-             response = app.send(op[:method], '/' + api[:path], example[:query], example[:headers])
-             json = app.body.chomp
-             object = nil
-             begin
-               object = JSON.parse(json)
-             rescue
-             end
+              mock_method = "mock_#{path}_returns_#{r[:message].parameterize.tr('-', '_')}"
+              mock_methods_sigs << mock_method
+              example = r[:responseModel]
+              app = ActionDispatch::Integration::Session.new(Rails.application)
+              response = app.send(op[:method], '/' + api[:path], example[:query], example[:headers])
+              json = app.body.chomp
+              object = nil
+              begin
+                object = JSON.parse(json)
+              rescue
+              end
 
-             mock_methods << %{
-    def self.#{mock_method}(host = nil)
-      WebMock.disable_net_connect!
-      host ||= #{gem_camel_name}.host
-      WebMock.stub_request(:#{op[:method]}, host + '/#{api[:path]}')
-      .with(#{example})
-      .to_return(body: '#{json}', status: #{status})
-      @data = #{object.inspect}
-      yield
-      WebMock.allow_net_connect!
-    end
-             }
+              mock_methods << %{
+     def self.#{mock_method}(host = nil)
+       WebMock.disable_net_connect!
+       host ||= #{gem_camel_name}.host
+       WebMock.stub_request(:#{op[:method]}, host + '/#{api[:path]}')
+       .with(#{example})
+       .to_return(body: '#{json}', status: #{status})
+       @data = #{object.inspect}
+       yield
+       WebMock.allow_net_connect!
+     end
+              }
 
-           end
-         end
-       end
+            end
+          end
+        end
       end
 
       # Get exposed functions
@@ -129,7 +129,7 @@ namespace :lapis do
           if tags.include?('@expose')
             exposed_methods_signs << dump[1]
             body = HTMLEntities.new.decode(m.markup_code.gsub(/<span class=\"ruby-comment\">.*<\/span>/, '').gsub(/<[^>]*>/, '').gsub("\n", "\n    ").gsub(/ def /, ' def self.'))
-            exposed_gems += body.scan(/\srequire ['"]([^'"]+)['"]/).flatten 
+            exposed_gems += body.scan(/\srequire ['"]([^'"]+)['"]/).flatten
             exposed_methods_bodies << body
           end
         end

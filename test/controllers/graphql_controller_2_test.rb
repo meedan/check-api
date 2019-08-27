@@ -73,7 +73,7 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should parse JSON exception" do
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
 
       u = create_user
       t = create_team
@@ -1213,12 +1213,10 @@ class GraphqlController2Test < ActionController::TestCase
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     post :create, query: query, team: team.slug, file: file
     team.reload
-    assert File.exist?(team.logo.path)
     assert_match /rails\.png$/, team.logo.url
 
     post :create, query: query, team: team.slug, file: 'undefined'
     team.reload
-    assert File.exist?(team.logo.path)
     assert_match /rails\.png$/, team.logo.url
   end
 

@@ -1,7 +1,7 @@
 class Bot::Twitter < BotUser
-  
+
   check_settings
-  
+
   include Bot::SocialBot
 
   attr_accessor :twitter_client

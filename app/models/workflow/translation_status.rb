@@ -23,12 +23,12 @@ class Workflow::TranslationStatus < Workflow::Base
       end
     end
   end
-   
+
   # Custom methods
 
   DynamicAnnotation::Field.class_eval do
     attr_accessor :translation_published_to_social_media
-    
+
     protected
 
     def respond_to_user_success
@@ -65,7 +65,7 @@ class Workflow::TranslationStatus < Workflow::Base
       end
     end
   end # DynamicAnnotation::Field.class_eval
-  
+
   Dynamic.class_eval do
     def self.respond_to_user(tid, success, token)
       request = Dynamic.where(id: tid).last

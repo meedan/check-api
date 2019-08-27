@@ -1,6 +1,6 @@
 namespace :test do
   namespace :data do
-    task smooch: :environment do |task|
+    task smooch: :environment do |_task|
       require 'sample_data'
       include SampleData
 
@@ -12,7 +12,7 @@ namespace :test do
       secret = 'test'
       app_id = 'get one on Smooch page'
       puts "[#{Time.now}] Please use smooch_webhook_secret '#{secret}' and smooch_app_id '#{app_id}' on your Smooch Bot settings"
-      
+
       # Prepare the numbers
       times = concurrency * repeats
       puts "[#{Time.now}] Running for #{concurrency} concurrent users, #{repeats} times (total: #{times} requests)"
@@ -92,7 +92,7 @@ namespace :test do
       file.close
 
       # Run Siege
-      
+
       puts "[#{Time.now}] Running Siege"
       sh "siege --concurrent=#{concurrency} --reps=#{repeats} --content-type='application/json' --header='X-Check-Smooch-Queue: siege' --header='X-API-Key: #{secret}' --file=#{filepath} 2>&1"
       puts "[#{Time.now}] Siege ran"

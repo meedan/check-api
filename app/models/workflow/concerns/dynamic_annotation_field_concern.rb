@@ -3,11 +3,11 @@ module Workflow
     module DynamicAnnotationFieldConcern
       DynamicAnnotation::Field.class_eval do
         attr_accessor :previous_status
-        
+
         before_validation :normalize_workflow_status
         validate :workflow_status_is_valid
         validate :can_set_workflow_status, unless: proc { |x| x.skip_check_ability }
-        
+
         def previous_value
           self.value_was.nil? ? self.value : self.value_was
         end
@@ -30,7 +30,7 @@ module Workflow
           define_method "field_formatter_name_#{id}_status" do
             value = nil
             self.workflow_options[:statuses].each do |option|
-              value = option[:label] if option[:id] == self.value 
+              value = option[:label] if option[:id] == self.value
             end
             value || self.value.titleize
           end

@@ -6,12 +6,12 @@ class ApiKey < ActiveRecord::Base
   before_validation :calculate_expiration_date, on: :create
 
   has_one :bot_user
-  
+
   # Reimplement this method in your application
   def self.applications
     [nil]
   end
-  
+
   validates :application, inclusion: { in: proc { ApiKey.applications } }
 
   def self.current

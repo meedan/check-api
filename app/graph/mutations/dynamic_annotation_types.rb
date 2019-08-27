@@ -2,15 +2,15 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
   klass = type.camelize
   Object.class_eval <<-TES
     DynamicAnnotation#{klass} = Dynamic unless defined?(DynamicAnnotation#{klass})
-    
+
     module DynamicAnnotation#{klass}Mutations
       fields = { action: 'str' }
       ['annotated_id', 'annotated_type', 'set_attribution'].each do |name|
         fields[name] = 'str'
       end
-      
+
       create_fields = fields.merge({ set_fields: '!str' })
-      
+
       update_fields = fields.merge({
         set_fields: 'str',
         lock_version: 'int',

@@ -4,7 +4,7 @@ class AdminMailerTest < ActionMailer::TestCase
   test "should send download link" do
     p = create_project
     requestor = create_user
-    email = AdminMailer.send_download_link(:csv, p, requestor.email, 'password')
+    email = AdminMailer.send_download_link(:csv, p, random_url, requestor.email, 'password')
     assert_emails 1 do
       email.deliver_now
     end
@@ -30,7 +30,7 @@ class AdminMailerTest < ActionMailer::TestCase
     create_team_user team: t, user: invited, role: 'owner', status: 'invited'
     create_team_user team: t, user: banned, role: 'owner', status: 'banned'
 
-    email = AdminMailer.send_download_link(:csv, p, requestor.email, 'password')
+    email = AdminMailer.send_download_link(:csv, p, random_url, requestor.email, 'password')
     assert_emails 1 do
       email.deliver_now
     end

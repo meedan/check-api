@@ -1,7 +1,7 @@
 # :nocov:
 module GraphqlDoc
   extend ActiveSupport::Concern
- 
+
   included do
     swagger_controller :graphql, 'GraphQL'
 

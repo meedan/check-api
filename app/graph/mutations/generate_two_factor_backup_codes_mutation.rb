@@ -2,7 +2,7 @@ GenerateTwoFactorBackupCodesMutation = GraphQL::Relay::Mutation.define do
   name 'GenerateTwoFactorBackupCodes'
 
   input_field :id, !types.Int
-  
+
   return_field :success, types.Boolean
   return_field :codes, JsonStringType
 

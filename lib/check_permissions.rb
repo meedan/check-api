@@ -55,7 +55,7 @@ module CheckPermissions
   end
 
   def set_custom_permissions(ability = nil)
-   self.respond_to?(:custom_permissions) ? self.custom_permissions(ability) : {}
+    self.respond_to?(:custom_permissions) ? self.custom_permissions(ability) : {}
   end
 
   def get_create_permissions
@@ -121,7 +121,7 @@ module CheckPermissions
 
   def check_ability
     unless self.skip_check_ability or User.current.nil?
-      op = self.get_operation 
+      op = self.get_operation
       raise "No permission to #{op} #{self.class.name}" unless self.ability.can?(op, self)
     end
   end

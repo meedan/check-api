@@ -2,7 +2,7 @@ require 'active_support/concern'
 
 module ProjectMediaCreators
   extend ActiveSupport::Concern
-  
+
   private
 
   def set_project_source

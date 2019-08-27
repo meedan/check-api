@@ -175,7 +175,7 @@ module TeamImport
     end
 
     def get_flexible_columns(worksheet)
-       @notes = []
+      @notes = []
        @tasks = {}
        for col in FLEXIBLE_COLS..worksheet.num_cols
          col_title = worksheet[1, col]

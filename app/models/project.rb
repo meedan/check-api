@@ -53,6 +53,8 @@ class Project < ActiveRecord::Base
   end
 
   def avatar
+    # We are not really using now, so just return the default image
+    # self.lead_image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
     CONFIG['checkdesk_base_url'] + self.lead_image.url
   end
 

@@ -1,7 +1,7 @@
 class Bot::Slack < BotUser
-  
+
   check_settings
-  
+
   def self.default
     Bot::Slack.first || Bot::Slack.new
   end

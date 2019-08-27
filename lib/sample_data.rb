@@ -107,7 +107,7 @@ module SampleData
     confirm = options.has_key?(:confirm) ? options[:confirm] : true
     if confirm
       u.skip_check_ability = true
-      u.confirm 
+      u.confirm
     end
 
     u.reload
@@ -116,7 +116,7 @@ module SampleData
   def create_omniauth_user(options = {})
     u_current = User.current
     url = if options.has_key?(:url)
-      options[:url]
+            options[:url]
     else
       pender_url = CONFIG['pender_url_private'] + '/api/medias'
       url = random_url
@@ -556,28 +556,28 @@ module SampleData
     bot.reload
   end
 
-  def create_alegre_bot(options = {})
+  def create_alegre_bot(_options = {})
     Bot::Alegre.new
   end
 
-  def create_viber_bot(options = {})
+  def create_viber_bot(_options = {})
     Bot::Viber.new
   end
 
-  def create_twitter_bot(options = {})
+  def create_twitter_bot(_options = {})
     Bot::Twitter.new
   end
 
-  def create_facebook_bot(options = {})
+  def create_facebook_bot(_options = {})
     Bot::Facebook.new
   end
 
-  def create_slack_bot(options = {})
+  def create_slack_bot(_options = {})
     b = create_team_bot(type: 'Bot::Slack')
     Bot::Slack.find(b.id)
   end
 
-  def create_bridge_reader_bot(options = {})
+  def create_bridge_reader_bot(_options = {})
     Bot::BridgeReader.new
   end
 
@@ -708,19 +708,19 @@ module SampleData
     #   Name => [Type Label, optional = true, settings (optional)],
     #   ...
     # }
-    annotation_type_name = annotation_type_label.parameterize.gsub('-', '_')
+    annotation_type_name = annotation_type_label.parameterize.tr('-', '_')
     at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
     fts = fields.values.collect{ |v| v.first }
     fts.each do |label|
-      type = label.parameterize.gsub('-', '_')
+      type = label.parameterize.tr('-', '_')
       DynamicAnnotation::FieldType.where(field_type: type).last || create_field_type(field_type: type, label: label)
     end
     fields.each do |label, type|
       field_label = annotation_type_label + ' ' + label
-      field_name = annotation_type_name + '_' + label.parameterize.gsub('-', '_')
+      field_name = annotation_type_name + '_' + label.parameterize.tr('-', '_')
       optional = type[1].nil? ? true : type[1]
       settings = type[2] || {}
-      field_type = type[0].parameterize.gsub('-', '_')
+      field_type = type[0].parameterize.tr('-', '_')
       type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
       DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
     end

@@ -46,17 +46,17 @@ module Montage::Project
       current_user_info: team_user.as_current_user_info,
       description: self.description,
       id: self.id,
-      modified: self.modified, 
+      modified: self.modified,
       name: self.name,
       owner: {
         email: owner&.email,
-        first_name: owner&.first_name, 
-        id: owner&.id, 
-        last_name: owner&.last_name, 
+        first_name: owner&.first_name,
+        id: owner&.id,
+        last_name: owner&.last_name,
         profile_img_url: owner&.profile_img_url
-      }, 
-      privacy_project: self.privacy_project, 
-      privacy_tags: self.privacy_tags, 
+      },
+      privacy_project: self.privacy_project,
+      privacy_tags: self.privacy_tags,
       video_tag_instance_count: self.video_tag_instance_count
     }
   end

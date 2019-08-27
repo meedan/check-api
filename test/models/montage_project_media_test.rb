@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class MontageProjectMediaTest < ActiveSupport::TestCase
   def setup
     super
-    WebMock.disable_net_connect!
+    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
   end
 
   test "should return number of duplicates" do

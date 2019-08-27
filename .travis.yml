@@ -7,6 +7,7 @@ before_install:
 - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
+- docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get -qq update
 - sudo apt-get install wget openjdk-7-jre redis-server imagemagick fontconfig libfontconfig
 - mkdir -p /tmp/downloads &&

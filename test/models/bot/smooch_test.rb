@@ -13,7 +13,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}/
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
     Sidekiq::Testing.inline!
     @app_id = random_string
     @msg_id = random_string
@@ -74,6 +74,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    WebMock.stub_request(:get, "https://meedan.com/en/check/check_message_tos.html").to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
@@ -283,6 +284,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
             }.to_json
 
             assert Bot::Smooch.run(message)
+            sm = CheckStateMachine.new(uid)
+            if sm.state.value == 'waiting_for_tos'
+              assert send_confirmation(uid)
+            end
             assert Bot::Smooch.run(ignore)
             assert Bot::Smooch.run(message)
             assert send_confirmation(uid)
@@ -349,6 +354,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload1)
     assert_nil Rails.cache.read(key)
     assert send_confirmation(uid)
+    assert send_confirmation(uid)
     job = Rails.cache.read(key)
     assert_not_nil job
     Bot::Smooch.run(payload1)
@@ -401,6 +407,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
     assert send_confirmation(uid)
 
     pm = ProjectMedia.last
@@ -493,6 +500,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 0, ProjectMedia.count
 
       assert send_confirmation(uid)
+      assert send_confirmation(uid)
       assert_not_nil Rails.cache.read(key)
       assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 1, SmoochWorker.jobs.size
@@ -559,6 +567,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
+    assert send_confirmation(uid)
     pm = ProjectMedia.last
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     s = pm.last_status_obj
@@ -569,25 +578,25 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     field_names.each{ |fn| fields["memebuster_#{fn}".to_sym] = random_string }
     a = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: fields.to_json
     pa1 = a.get_field_value('memebuster_published_at')
-    filepath = File.join(Rails.root, 'public', 'memebuster', "#{a.id}.png")
-    assert !File.exist?(filepath)
+    filepath = "memebuster/#{a.id}.png"
+    assert !CheckS3.exist?(filepath)
     a = Dynamic.find(a.id)
     a.action = 'save'
     a.set_fields = { memebuster_operation: 'save' }.to_json
     a.save!
-    assert !File.exist?(filepath)
+    assert !CheckS3.exist?(filepath)
     a = Dynamic.find(a.id)
     a.action = 'publish'
     a.set_fields = { memebuster_operation: 'publish' }.to_json
     a.save!
     assert_not_equal '', a.reload.get_field_value('memebuster_status')
-    assert File.exist?(filepath)
+    assert CheckS3.exist?(filepath)
     pa2 = a.get_field_value('memebuster_published_at')
     assert_not_equal pa1.to_s, pa2.to_s
 
     uid = random_string
-    FileUtils.rm_f(filepath)
-    assert !File.exist?(filepath)
+    CheckS3.delete(filepath)
+    assert !CheckS3.exist?(filepath)
     messages = [
       {
         '_id': random_string,
@@ -609,15 +618,16 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
-    assert File.exist?(filepath)
+    assert CheckS3.exist?(filepath)
 
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'in_progress'
     s.save!
 
-    assert !File.exist?(filepath)
+    assert !CheckS3.exist?(filepath)
     assert_equal 'In Progress', a.reload.get_field_value('memebuster_status')
 
     child2 = create_project_media project: @project
@@ -662,6 +672,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
     assert send_confirmation(uid)
 
     Sidekiq::Testing.fake! do
@@ -838,6 +849,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
+    assert send_confirmation(uid)
     pm = ProjectMedia.last
     with_current_user_and_team(u, @team) do
       s = pm.last_verification_status_obj
@@ -935,23 +947,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     payload[:messages][0][:text] = random_string
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
+      assert send_confirmation(uid)
     end
-    
+
     payload[:messages][0][:text] = url
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert !Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
     end
-    
+
     payload[:messages][0][:text] = random_string
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
-    assert Bot::Smooch.banned_message?(messages[0].with_indifferent_access)
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
       assert send_confirmation(uid)
@@ -961,7 +971,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should send strings to Transifex" do
     t = create_team
     tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
-    
+
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
       s = tbi.settings.clone
       s['smooch_message_smooch_bot_meme'] = random_string
@@ -1026,9 +1036,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         'conversationStarted': true
       }
     }.to_json
-    
+
     ProjectMedia.delete_all
-    
+
     s = @installation.settings.clone.with_indifferent_access
     s['smooch_disabled'] = true
     @installation.settings = s
@@ -1038,14 +1048,15 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     send_confirmation(uid)
     assert_equal 0, ProjectMedia.count
- 
+
     s = @installation.settings.clone.with_indifferent_access
     s['smooch_disabled'] = false
     @installation.settings = s
     @installation.save!
-    @installation = TeamBotInstallation.find(@installation.id)   
+    @installation = TeamBotInstallation.find(@installation.id)
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     Bot::Smooch.run(payload)
+    send_confirmation(uid)
     send_confirmation(uid)
     assert_equal 1, ProjectMedia.count
   end
@@ -1069,9 +1080,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       type: 'text',
       text: random_string
     }
-    Rails.cache.write("smooch:last_message_from_user:#{id}", message.to_json)
-    d = Dynamic.find(d.id) ; d.action = 'passthru' ; d.save!
-    assert_equal 'waiting_for_confirmation', CheckStateMachine.new(id).state.value
+    d = Dynamic.find(d.id) ; d.action = 'send test' ; d.save!
+    assert_equal 'human_mode', CheckStateMachine.new(id).state.value
   end
 
   test "should save user information" do
@@ -1116,7 +1126,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     sm.enter_human_mode
     sm = CheckStateMachine.new(uid)
     assert_equal 'human_mode', sm.state.value
-    assert_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
     messages = [
       {
         '_id': random_string,
@@ -1138,7 +1147,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert_not_nil Rails.cache.read("smooch:last_message_from_user:#{uid}")
   end
 
   test "should create Transifex resource if it does not exist" do
@@ -1159,6 +1167,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   def run_concurrent_requests
     threads = []
     uid = random_string
+    Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     CheckStateMachine.new(random_string)
     Bot::Smooch.stubs(:config).returns(@settings)
     @success = 0
@@ -1212,7 +1221,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
-          text: '1'
+          text: '1',
+          received: Time.now.to_i
         }
       ],
       appUser: {

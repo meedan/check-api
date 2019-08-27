@@ -25,4 +25,4 @@ BotUserType = GraphqlCrudOperations.define_default_type do
       RecordLoader.for(Team).load(bot.team_author_id.to_i)
     }
   end
-end 
+end

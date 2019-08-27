@@ -105,8 +105,14 @@ class User < ActiveRecord::Base
     a = self.get_social_accounts_for_login
     a = a.first unless a.nil?
     image = a.omniauth_info.dig('info', 'image') if !a.nil? && !a.omniauth_info.nil?
-    avatar = image ? image.gsub(/^http:/, 'https:') : CONFIG['checkdesk_base_url'] + self.image.url
+    avatar = image ? image.gsub(/^http:/, 'https:') : self.avatar
     self.source.set_avatar(avatar)
+  end
+
+  def avatar
+    custom = self.reload.image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    default = CONFIG['checkdesk_base_url'] + self.image.url
+    custom || default
   end
 
   def as_json(_options = {})
@@ -258,6 +264,7 @@ class User < ActiveRecord::Base
   def self.terms_last_updated_at_by_page(page)
     mapping = {
       tos: 'tos_url',
+      tos_smooch: 'tos_smooch_url',
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
@@ -420,6 +427,23 @@ class User < ActiveRecord::Base
       u = a.user unless a.nil?
     end
     u
+  end
+
+  def self.reset_change_password(inputs)
+    if inputs[:reset_password_token].blank?
+      user = User.where(id: inputs[:id]).last
+      if user.nil? || User.current.id != inputs[:id]
+        raise ActiveRecord::RecordNotFound
+      else
+        if user.encrypted_password? && !user.valid_password?(inputs[:current_password])
+          raise I18n.t(:"errors.messages.invalid_password")
+        end
+        user.reset_password(inputs[:password], inputs[:password_confirmation])
+      end
+    else
+      user = User.reset_password_by_token(inputs)
+    end
+    user
   end
 
   # private

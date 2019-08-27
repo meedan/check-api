@@ -22,7 +22,7 @@ namespace :check do
               d.set_fields = { metadata_value: data.to_json }.to_json
               d.skip_notifications = true
               d.save(validate: false)
-              
+
               changed = true
               total += 1
               puts "#{i}/#{n}) Changing"
@@ -35,7 +35,7 @@ namespace :check do
         end
       end
       puts "Done. #{total} changed."
-      
+
       Rails.cache.delete('check:migrate:fix_image_title:last_id')
     end
   end

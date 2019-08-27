@@ -1,7 +1,7 @@
 class SmoochWorker
   include Sidekiq::Worker
   include Sidekiq::Benchmark::Worker
-  
+
   sidekiq_options queue: 'smooch', retry: 10
 
   sidekiq_retry_in { |_count, _exception| 20 }

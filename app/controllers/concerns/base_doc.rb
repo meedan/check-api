@@ -1,7 +1,7 @@
 # :nocov:
 module BaseDoc
   extend ActiveSupport::Concern
- 
+
   included do
     swagger_controller '/', 'BaseApi'
 
