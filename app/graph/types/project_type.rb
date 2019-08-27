@@ -18,7 +18,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :search, CheckSearchType
   field :auto_tasks, JsonStringType
   field :team, TeamType
-  
+
   field :assignments_count, types.Int do
     resolve ->(project, _args, _ctx) {
       project.reload.assignments_count

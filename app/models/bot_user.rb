@@ -26,7 +26,7 @@ class BotUser < User
   before_validation :create_api_key, on: :create
   after_create :add_to_team
   after_update :update_role_if_changed
-  
+
   validates_uniqueness_of :login
   validates :api_key_id, presence: true, uniqueness: true
   validate :request_url_format
@@ -37,7 +37,7 @@ class BotUser < User
   belongs_to :source, dependent: :destroy
 
   devise
-  
+
   check_settings
 
   def identifier

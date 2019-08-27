@@ -21,4 +21,4 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
       RecordLoader.for(Team).load(team_bot_installation.team_id)
     }
   end
-end 
+end

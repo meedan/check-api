@@ -1,6 +1,6 @@
 namespace :check do
-	# bundle exec rake check:create_es_data_from_pg
-	# will create ES from PG
+  # bundle exec rake check:create_es_data_from_pg
+  # will create ES from PG
   desc "Create ES data from PG"
   task create_es_data_from_pg: :environment do
     failed = false

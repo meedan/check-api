@@ -588,6 +588,10 @@ fr:
     Merci de nous envoyer cette demande. Voulez-vous que nous vérifiions son contenu ?
 
     Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
+  smooch_bot_ask_for_tos: |-
+    Veuillez lire les conditions d'utilisation à %{tos}. Les acceptez-vous ?
+
+    Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
   smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons
     pas encore été en mesure de vérifier votre demande. Merci pour votre patience.
   smooch_bot_not_final: |-

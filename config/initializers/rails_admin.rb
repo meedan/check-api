@@ -81,7 +81,7 @@ RailsAdmin.config do |config|
 
   config.navigation_static_label = 'External Tools'
 
-  def annotation_config(type, specific_data = [])
+  def annotation_config(_type, specific_data = [])
     list do
       field :annotation_type
       field :annotated do
@@ -96,7 +96,7 @@ RailsAdmin.config do |config|
             path = bindings[:view].show_path(model_name: bindings[:object].annotator_type, id: bindings[:object].annotator_id)
             bindings[:view].tag(:a, href: path) << "#{bindings[:object].annotator_type} ##{bindings[:object].annotator_id}"
           else
-           ''
+            ''
           end
         end
       end
@@ -121,7 +121,7 @@ RailsAdmin.config do |config|
       specific_data.each do |field|
         configure field do
           visible true
-         end
+        end
       end
       exclude_fields :data
     end
@@ -130,11 +130,11 @@ RailsAdmin.config do |config|
 
   def media_config
     edit do
-     field :type, :enum do
-       enum do
-         Media.types
-       end
-     end
+      field :type, :enum do
+        enum do
+          Media.types
+        end
+      end
      include_all_fields
     end
   end
@@ -152,7 +152,7 @@ RailsAdmin.config do |config|
     end
   end
 
-  def visible_only_for_allowed_teams(setting, hide_for_new = false)
+  def visible_only_for_allowed_teams(_setting, hide_for_new = false)
     hide do
       hide_for_new && bindings[:object].new_record?
     end
@@ -328,7 +328,7 @@ RailsAdmin.config do |config|
     show do
       id = CONFIG['default_project_media_workflow']
       configure "get_media_#{id.pluralize}", :json do
-        label "Media #{id.pluralize.gsub('_', ' ')}"
+        label "Media #{id.pluralize.tr('_', ' ')}"
       end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
@@ -400,7 +400,7 @@ RailsAdmin.config do |config|
       id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial "json_editor"
-        help "A list of custom #{id.pluralize.gsub('_', ' ')} for items that match your team's guidelines."
+        help "A list of custom #{id.pluralize.tr('_', ' ')} for items that match your team's guidelines."
         visible_only_for_allowed_teams 'custom_statuses'
       end
 
@@ -485,7 +485,7 @@ RailsAdmin.config do |config|
           bindings[:view]._current_user.is_admin? && bindings[:object].encrypted_password?
         end
         formatted_value do
-         ''
+          ''
         end
       end
       field :email

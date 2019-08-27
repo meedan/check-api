@@ -57,7 +57,7 @@ module Workflow
               type.schema.each do |fi|
                 fields[fi.name.to_sym] = fi.name == "#{workflow_id}_status" ? ::Workflow::Workflow.options(self, workflow_id)[:default] : fi.default_value
               end
-      
+
               next if self.project.team.is_being_copied
 
               user = User.current

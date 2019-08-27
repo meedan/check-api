@@ -1,7 +1,7 @@
 class Bot::Alegre < BotUser
-  
+
   check_settings
-  
+
   def self.run(body)
     handled = false
     begin
@@ -105,7 +105,7 @@ class Bot::Alegre < BotUser
     response = { 'results' => [] }
     Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
-        'url' => CONFIG['checkdesk_base_url_private'] + pm.media.file.url,
+        'url' => pm.media.picture,
         'context' => self.get_context(pm).to_json,
         'filter' => { project_id: pm.project.id }.to_json,
         'threshold' => 1,

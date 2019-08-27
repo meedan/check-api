@@ -889,7 +889,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
       ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar')
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar').gsub('bucket-name', CONFIG['storage']['bucket'])
       actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar')
 
       assert_equal expected, actual
@@ -1734,7 +1734,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media with unsafe URL" do
-    WebMock.disable_net_connect!
+    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
     url = 'http://unsafe.com/'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"error","data":{"code":12}}'

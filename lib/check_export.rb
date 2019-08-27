@@ -113,9 +113,9 @@ module CheckExport
     require 'open-uri'
     output = {}
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'UploadedImage', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
-      path = pm.media.file.path
+      path = pm.media.picture
       key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
-      output[key] = File.read(path)
+      output[key] = open(path).read
     end
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
@@ -141,7 +141,7 @@ module CheckExport
       end
     end
     buffer.rewind
-    File.write(self.export_filepath(type), buffer.read)
+    CheckS3.write(self.export_filepath(type), 'application/zip', buffer.read)
   end
 
   def export_password
@@ -159,9 +159,7 @@ module CheckExport
   end
 
   def export_filepath(type)
-    dir = File.join(Rails.root, 'public', 'project_export')
-    Dir.mkdir(dir) unless File.exist?(dir)
-    File.join(dir, self.export_filename(type) + '.zip')
+    'project_export/' + self.export_filename(type) + '.zip'
   end
 
   def export_to_csv_in_background(user = nil, last_id = 0)
@@ -181,14 +179,15 @@ module CheckExport
     def export_project(type, klass, id, email, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
       obj = klass.constantize.find(id)
       obj.export_zip(type, last_id, annotation_types)
-      AdminMailer.delay.send_download_link(type, obj, email, obj.export_password) unless email.blank?
+      link = CheckS3.public_url(obj.export_filepath(type))
+      AdminMailer.delay.send_download_link(type, obj, link, email, obj.export_password) unless email.blank?
       days = CONFIG['export_download_expiration_days'] || 7
       klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
     end
 
     def remove_export_file(filepath)
+      CheckS3.delete(filepath)
       Rails.logger.info "[Data Import/Export] File #{filepath} was removed"
-      FileUtils.rm_f(filepath)
     end
   end
 end

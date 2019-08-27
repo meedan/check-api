@@ -11,7 +11,7 @@ module ProjectMediaAssociations
     belongs_to :user
     has_many :target_relationships, class_name: 'Relationship', foreign_key: 'target_id'
     has_many :source_relationships, class_name: 'Relationship', foreign_key: 'source_id'
-    has_many :sources, through: :target_relationships, source: :source 
+    has_many :sources, through: :target_relationships, source: :source
     has_many :targets, through: :source_relationships, source: :target
     has_annotations
   end

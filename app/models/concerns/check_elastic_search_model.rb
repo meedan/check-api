@@ -58,7 +58,7 @@ module CheckElasticSearchModel
   end
 
   def self.get_index_alias
-     self.get_index_name_prefix + '_alias'
+    self.get_index_name_prefix + '_alias'
   end
 
   def self.reindex_es_data

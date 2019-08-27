@@ -1,6 +1,6 @@
 namespace :test do
   namespace :load do
-    task :smooch, [:concurrency, :repeats] => [:environment] do |task, args|
+    task :smooch, [:concurrency, :repeats] => [:environment] do |_task, args|
       require 'sample_data'
       include SampleData
       raise 'Please run in test environment' unless Rails.env.test?
@@ -25,7 +25,7 @@ namespace :test do
       settings = { 'smooch_project_id' => project.id, 'smooch_bot_id' => random_string, 'smooch_webhook_secret' => secret, 'smooch_app_id' => app_id, 'smooch_secret_key_key_id' => random_string, 'smooch_secret_key_secret' => random_string, 'smooch_template_namespace' => random_string, 'smooch_window_duration' => 10 }
       installation = create_team_bot_installation user_id: bot.id, settings: settings, team_id: team.id
       Bot::Smooch.get_installation('smooch_webhook_secret', secret)
-      
+
       # Prepare the numbers
 
       project_id = project.id
@@ -111,7 +111,7 @@ namespace :test do
       file.close
 
       # Run Siege and monitor Sidekiq
-      
+
       pool = []
       Sidekiq::Queue.new('smooch').clear
       siege = ''
@@ -138,7 +138,7 @@ namespace :test do
       end
 
       diff = 0
-      
+
       pool << Thread.new do
         FileUtils.rm_f '/tmp/siege.txt'
         sh "siege --concurrent=#{concurrency} --reps=#{repeats} --content-type='application/json' --header='X-API-Key: #{secret}' --file=#{filepath} --log=/tmp/siege.log 2>&1 | tee -a /tmp/siege.txt"
@@ -182,13 +182,13 @@ namespace :test do
         after = Time.now.to_i
         diff = after - before + 1
       end
-      
+
       pool.each(&:join)
 
       FileUtils.rm_f filepath
 
       # Report results
-      
+
       siege_output = File.read('/tmp/siege.txt')
       successful_transactions = siege_output[/Successful transactions:\s*(.*)/, 1].to_i
       failed_transactions = siege_output[/Failed transactions:\s*(.*)/, 1].to_i
