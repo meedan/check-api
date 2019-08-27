@@ -45,10 +45,10 @@ module UserTwoFactorAuth
 
     def validate_two_factor(options)
       return { user: false } unless self.encrypted_password?
-      errors = {}
-      errors[:password] = false unless self.valid_password?(options[:password])
+      errors = []
+      errors << { field: 'password', valid: false } unless self.valid_password?(options[:password])
       if options[:otp_required] == true
-        errors[:qrcode] = false if self.current_otp != options[:qrcode]
+        errors << { field: 'qrcode', valid: false } if self.current_otp != options[:qrcode]
       end
       errors
     end
