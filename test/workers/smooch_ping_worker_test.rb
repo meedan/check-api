@@ -4,7 +4,7 @@ class SmoochPingWorkerTest < ActiveSupport::TestCase
   def setup
     super
     require 'sidekiq/testing'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}/
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
     SmoochApi::ConversationApi.any_instance.stubs(:post_message)
     @project = create_project
     @bid = random_string
