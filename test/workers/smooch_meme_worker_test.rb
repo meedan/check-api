@@ -4,7 +4,7 @@ class SmoochMemeWorkerTest < ActiveSupport::TestCase
   def setup
     super
     require 'sidekiq/testing'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}/
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
     field_names = ['image', 'overlay', 'published_at', 'headline', 'body', 'status', 'operation', 'last_error']
     fields = {}
     field_names.each{ |fn| fields[fn] = ['text', false] }
