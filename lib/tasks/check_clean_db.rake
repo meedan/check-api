@@ -29,6 +29,8 @@ namespace :check do
     end
 
     User.find_each do |u|
+      # reset encrypted for 2FA
+      u.update_columns(encrypted_otp_secret: '', encrypted_otp_secret_iv: '', encrypted_otp_secret_salt: '')
       unless u.email =~ /@meedan\./ || exceptions.include?(u.email)
         u.update_columns(email: '', encrypted_password: '')
       end
