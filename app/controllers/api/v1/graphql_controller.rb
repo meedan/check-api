@@ -70,8 +70,8 @@ module Api
         message = e.message.kind_of?(Array) ? e.message : [e.message]
         message.each do |i|
           errors << {
-            message: message,
-            code: mapping[i.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
+            message: i,
+            code: mapping[e.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
             data: {},
           }
         end
