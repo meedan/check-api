@@ -43,14 +43,17 @@ module Api
       def parse_json_exception(e)
         json = nil
         begin
-          error = JSON.parse(e.message)
-          json = {
-            errors: [{
-              message: error['message'],
-              code: error['code'],
-              data: error['data'],
-            }],
-          }
+          errors = []
+          message = JSON.parse(e.message)
+          message = message.kind_of?(Array) ? message : [message]
+          message.each do |i|
+            errors << {
+              message: i['message'],
+              code: i['code'],
+              data: i['data'],
+            }
+          end
+          json = { errors: errors }
         rescue
           json = format_error_message(e)
         end
@@ -63,13 +66,16 @@ module Api
           ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT
         }
-        {
-          errors: [{
-            message: e.message,
-            code: mapping[e.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
+        errors = []
+        message = e.message.kind_of?(Array) ? e.message : [e.message]
+        message.each do |i|
+          errors << {
+            message: message,
+            code: mapping[i.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
             data: {},
-          }],
-        }
+          }
+        end
+        { errors: errors }
       end
 
       private
