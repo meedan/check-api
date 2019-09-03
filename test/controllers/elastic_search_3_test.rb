@@ -185,15 +185,27 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({}.to_json)
     assert_equal 0, result.sources.count
     assert_equal 3, result.medias.count
-    result = CheckSearch.new({ show: ['medias'] }.to_json)
+    # filter by claims
+    result = CheckSearch.new({ show: ['claims'] }.to_json)
     assert_equal 0, result.sources.count
-    assert_equal 3, result.medias.count
+    assert_equal 1, result.medias.count
+    # filter by links
+    result = CheckSearch.new({ show: ['links'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
+    # filter by images
+    result = CheckSearch.new({ show: ['images'] }.to_json)
+    assert_equal 0, result.sources.count
+    assert_equal 1, result.medias.count
     result = CheckSearch.new({ show: ['sources'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 0, result.medias.count
-    result = CheckSearch.new({ show: ['sources', 'medias'] }.to_json)
+    result = CheckSearch.new({ show: ['sources', 'claims', 'links', 'images'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 3, result.medias.count
+    result = CheckSearch.new({ show: ['sources', 'claims'] }.to_json)
+    assert_equal p.sources.count, result.sources.count
+    assert_equal 1, result.medias.count
     Team.current = nil
   end
 

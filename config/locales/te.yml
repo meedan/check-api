@@ -80,3 +80,4 @@ te:
   custom_message_smooch_bot_not_final_checkpoint: "[వెరిఫికేషన్ రిపొర్ట్ - దిద్దుబాటు]
     మీరు పంపిన మెస్సెజ్ %{status}అని తప్పుగా మార్క్ చేయబడినది. మీ మెస్సెజ్ ఇంకా మా
     క్యూ-లైన్ లొ వెరిఫికేషన్ కొరకు ఉంచబడినది.  "
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

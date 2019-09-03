@@ -91,6 +91,7 @@ es:
         description: La traducción fue revisada y se encontraron errores
   errors:
     messages:
+      invalid_password: Contraseña inválida
       extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos:
         %{allowed_types}'
       invalid_size: debe ser entre %{min_width}x%{min_height} y %{max_width}x%{max_height}
@@ -723,3 +724,4 @@ es:
   custom_message_smooch_bot_not_final_checkpoint: "[Informe de Verificación - CORRECCIÓN]
     El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

@@ -9,10 +9,12 @@ class CheckSearch
     @options['sort'] ||= 'recent_added'
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] ||= ['medias']
+    @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 20
     @options['esoffset'] ||= 0
   end
+
+  MEDIA_TYPES = %w[claims links images]
 
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
@@ -45,7 +47,7 @@ class CheckSearch
   end
 
   def medias
-    return [] unless @options['show'].include?('medias') && index_exists?
+    return [] unless !media_types_filter.blank? && index_exists?
     return @medias if @medias
     if should_hit_elasticsearch?
       query = medias_build_search_query
@@ -97,7 +99,12 @@ class CheckSearch
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    !(status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    query_all_media_types = MEDIA_TYPES.size == media_types_filter.size ? true : false
+    !(query_all_media_types && status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
+  end
+
+  def media_types_filter
+    MEDIA_TYPES & @options['show']
   end
 
   def get_pg_results(associated_type = 'ProjectMedia')
@@ -240,8 +247,10 @@ class CheckSearch
 
     unless @options['show'].blank?
       types_mapping = {
-        'medias' => ['Link', 'Claim', 'UploadedImage'],
-        'sources' => ['Source']
+        'sources' => ['Source'],
+        'claims' => ['Claim'],
+        'links' => 'Link',
+        'images' => 'UploadedImage'
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       doc_c << { terms: { 'associated_type': types } }

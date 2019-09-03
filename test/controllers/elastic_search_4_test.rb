@@ -308,26 +308,30 @@ class ElasticSearch4Test < ActionController::TestCase
   end
 
   test "should always hit ElasticSearch" do
+    c = create_claim_media
+    c2 = create_claim_media
+    m = create_valid_media
     t1 = create_team
     p1a = create_project team: t1
     p1b = create_project team: t1
-    pm1a = create_project_media project: p1a, disable_es_callbacks: false
+    pm1a = create_project_media project: p1a, media: c, disable_es_callbacks: false
     ps1a = create_project_source project: p1a, disable_es_callbacks: false
     sleep 1
-    pm1b = create_project_media project: p1b, disable_es_callbacks: false
+    pm1b = create_project_media project: p1b, media: c2, disable_es_callbacks: false
 
     t2 = create_team
     p2a = create_project team: t2
     p2b = create_project team: t2
-    pm2a = create_project_media project: p2a, disable_es_callbacks: false
+    pm2a = create_project_media project: p2a, media: m, disable_es_callbacks: false
     sleep 1
     pm2b = create_project_media project: p2b, disable_es_callbacks: false
 
     Team.current = t1
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
     assert_equal [], CheckSearch.new('{}').sources
-    assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['medias', 'sources']}.to_json).sources.sort
+    assert_equal p1a.project_sources.sort, CheckSearch.new({ projects: [p1a.id], show: ['sources']}.to_json).sources.sort
     assert_equal 2, CheckSearch.new('{}').project_medias.count
+    assert_equal 1, CheckSearch.new({ projects: [p1a.id], show: ['claims']}.to_json).project_medias.count
     assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
     assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
     assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias

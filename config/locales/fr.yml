@@ -92,6 +92,7 @@ fr:
         description: Traduction revue avec des erreurs signalées
   errors:
     messages:
+      invalid_password: Mot de passe non valide
       extension_white_list_error: est d'un type %{extension} qui est interdit, seuls
         sont acceptés %{allowed_types}
       invalid_size: doit avoir des dimensions entre %{min_width}x%{min_height} et
@@ -733,3 +734,4 @@ fr:
   custom_message_smooch_bot_not_final_checkpoint: "[Rapport de vérification - CORRECTION]
     Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*.
     Il est encore dans notre file pour davantage de vérification."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''
