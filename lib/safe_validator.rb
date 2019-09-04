@@ -1,6 +1,6 @@
 class SafeValidator < ActiveModel::EachValidator
   def virus_found?(file)
-    io = StringIO.new(File.read(file.file.file))
+    io = begin StringIO.new(File.read(file.file.file)) rescue StringIO.new(file.file.read) end
     client = ClamAV::Client.new
     response = client.execute(ClamAV::Commands::InstreamCommand.new(io))
     response.class.name == 'ClamAV::VirusResponse'
