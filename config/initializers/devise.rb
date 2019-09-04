@@ -5,11 +5,13 @@ class CustomFailure < Devise::FailureApp
     http_auth
   end
 
+  protected
+
   def http_auth_body
     {
       errors: [{
         message: i18n_message,
-        code: LapisConstants::ErrorCodes::const_get('AUTH'),
+        code: LapisConstants::ErrorCodes::const_get('UNAUTHORIZED'),
         data: {},
       }],
     }.to_json
