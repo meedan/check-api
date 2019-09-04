@@ -11,7 +11,7 @@ class DeviseMailerTest < ActionMailer::TestCase
       email.deliver_now
     end
 
-    assert_equal [CONFIG['default_mail']], email.from
+    assert_match email.from.first, CONFIG['default_mail']
     assert_equal ['test@mail.com'], email.to
     assert_match "confirmation_token=#{u.confirmation_token}", email.body.parts.first.to_s
   end
@@ -23,7 +23,7 @@ class DeviseMailerTest < ActionMailer::TestCase
     assert_emails 1 do
       email.deliver_now
     end
-    assert_equal [CONFIG['default_mail']], email.from
+    assert_match email.from.first, CONFIG['default_mail']
     assert_equal ['test@mail.com'], email.to
   end
 
