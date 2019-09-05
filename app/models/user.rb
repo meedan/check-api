@@ -190,8 +190,9 @@ class User < ActiveRecord::Base
 
   # Whether two users are members of any same team
   def is_a_colleague_of?(user)
-    results = TeamUser.find_by_sql(['SELECT COUNT(*) AS count FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = :user1 AND tu2.user_id = :user2 AND tu1.status = :status AND tu2.status = :status', { user1: self.id, user2: user.id, status: 'member' }])
-    results.first.count.to_i >= 1
+    params = ['SELECT COUNT(*) AS number_of_common_teams FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = ? AND tu2.user_id = ? AND tu1.status = ? AND tu2.status = ?', self.id, user.id, 'member', 'member']
+    results = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, params))
+    results[0]['number_of_common_teams'].to_i >= 1
   end
 
   def self.current
