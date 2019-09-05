@@ -14,6 +14,7 @@ class CheckS3Test < ActiveSupport::TestCase
 
   test "should manage files in S3" do
     path = 'test/test.txt'
+    CheckS3.delete(path) if CheckS3.exist?(path)
     assert !CheckS3.exist?(path)
     assert_nil CheckS3.read(path)
     assert_nil CheckS3.get(path)

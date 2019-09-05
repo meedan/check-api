@@ -4,6 +4,7 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
+    WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias?url=https://www.youtube.com/user/MeedanTube').to_return(body: '{"type":"media","data":{"url":"' + @url + '/","type":"profile"}}')
     s = create_source
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
@@ -97,7 +98,7 @@ class AccountTest < ActiveSupport::TestCase
 
   test "should not duplicate account url" do
     a = Account.new
-    a.url = @account.url
+    a.url = @url
     assert_not a.save
   end
 
