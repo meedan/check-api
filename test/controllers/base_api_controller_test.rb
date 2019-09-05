@@ -82,7 +82,8 @@ class BaseApiControllerTest < ActionController::TestCase
     get :me
     assert_response 400
     response = JSON.parse(@response.body)
-    assert_equal 'Error message', response['data']['message']
+    error_info = response['errors'].first
+    assert_equal 'Error message', error_info['message']
   end
 
   test "should return warning from session" do
@@ -93,7 +94,8 @@ class BaseApiControllerTest < ActionController::TestCase
     get :me
     assert_response 400
     response = JSON.parse(@response.body)
-    assert_equal 'Warning message', response['data']['message']
+    error_info = response['errors'].first
+    assert_equal 'Warning message', error_info['message']
   end
 
   test "should not return error from session" do

@@ -69,7 +69,6 @@ class SessionsControllerTest < ActionController::TestCase
     delete :destroy
     assert_response 400
     assert_not_nil @controller.current_api_user
-    assert_equal 'error', JSON.parse(@response.body)['type']
   end
 
 

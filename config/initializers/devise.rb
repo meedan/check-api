@@ -4,6 +4,19 @@ class CustomFailure < Devise::FailureApp
   def respond
     http_auth
   end
+
+  protected
+
+  def http_auth_body
+    {
+      errors: [{
+        message: i18n_message,
+        code: LapisConstants::ErrorCodes::const_get('UNAUTHORIZED'),
+        data: {},
+      }],
+    }.to_json
+  end
+
 end
 
 OmniAuth.config.logger = Rails.logger
