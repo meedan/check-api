@@ -1,3 +1,5 @@
+require 'error_codes'
+
 module Api
   module V1
     class GraphqlController < Api::V1::BaseApiController
@@ -41,17 +43,17 @@ module Api
       def parse_json_exception(e)
         json = nil
         begin
-          error = JSON.parse(e.message)
-          json = {
-            error: error['message'],
-            errors: [{
-              message: error['message'],
-              data: { code: error['code'] }.merge(error['data'])
-            }],
-            error_info: {
-              code: error['code']
-            }.merge(error['data'])
-          }
+          errors = []
+          message = JSON.parse(e.message)
+          message = message.kind_of?(Array) ? message : [message]
+          message.each do |i|
+            errors << {
+              message: i['message'],
+              code: i['code'],
+              data: i['data'],
+            }
+          end
+          json = { errors: errors }
         rescue
           json = format_error_message(e)
         end
@@ -59,10 +61,21 @@ module Api
       end
 
       def format_error_message(e)
-        {
-          error: e.message,
-          errors: [{ message: e.message }]
+        mapping = {
+          CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::UNAUTHORIZED,
+          ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
+          ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT
         }
+        errors = []
+        message = e.message.kind_of?(Array) ? e.message : [e.message]
+        message.each do |i|
+          errors << {
+            message: i,
+            code: mapping[e.class] || ::LapisConstants::ErrorCodes::UNKNOWN,
+            data: {},
+          }
+        end
+        { errors: errors }
       end
 
       private

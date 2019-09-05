@@ -45,10 +45,19 @@ module UserTwoFactorAuth
 
     def validate_two_factor(options)
       return { user: false } unless self.encrypted_password?
-      errors = {}
-      errors[:password] = false unless self.valid_password?(options[:password])
-      if options[:otp_required] == true
-        errors[:qrcode] = false if self.current_otp != options[:qrcode]
+      errors = []
+      errors << {
+        message: I18n.t(:"errors.messages.invalid_password"),
+        code: LapisConstants::ErrorCodes::const_get('INVALID_VALUE'),
+        data: { field: 'password', valid: false }
+      } unless self.valid_password?(options[:password])
+
+      if options[:otp_required] == true && self.current_otp != options[:qrcode]
+        errors << {
+          message: I18n.t(:"errors.messages.invalid_qrcode"),
+          code: LapisConstants::ErrorCodes::const_get('INVALID_VALUE'),
+          data: { field: 'qrcode', valid: false }
+        }
       end
       errors
     end
