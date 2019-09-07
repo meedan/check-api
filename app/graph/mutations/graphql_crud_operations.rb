@@ -115,7 +115,7 @@ class GraphqlCrudOperations
       params = {}
       inputs.keys.each{ |k| params[k] = inputs[k] }
       ret = { affectedIds: inputs[:ids] }.merge(returns)
-      self.freeze_or_unfreeze_objects(inputs[:ids], true)
+      self.freeze_or_unfreeze_objects(inputs[:ids], true) unless inputs[:no_freeze]
       channels = self.target_pusher_channels(obj, operation)
       self.send_bulk_pusher_notification("bulk_#{operation}_start", channels)
       self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current&.id, Team.current&.id)
@@ -247,6 +247,7 @@ class GraphqlCrudOperations
 
       input_field :id, types.ID
       input_field :ids, types[types.ID]
+      input_field :no_freeze, types.Boolean
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize

@@ -1776,4 +1776,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_match /medias.html/, pm.embed_url(true)
     Bitly.unstub(:client)
   end
+
+  test "should clone project media to another project" do
+    m = create_media
+    pm = create_project_media
+    p = create_project
+    assert_difference 'ProjectMedia.count' do
+      pm.copy_to_project_id = p.id
+      pm.save!
+      assert_equal p, pm.copied_to_project
+    end
+  end
 end
