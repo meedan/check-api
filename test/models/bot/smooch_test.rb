@@ -1087,34 +1087,36 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should save user information" do
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     Bot::Smooch.unstub(:save_user_information)
-    SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string }] }))
     SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
-    uid = random_string
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text',
-        text: random_string
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
-      Bot::Smooch.run(payload)
-    end
-    assert_no_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
-      Bot::Smooch.run(payload)
+    { 'whatsapp' => '', 'messenger' => 'http://facebook.com/psid=1234', 'twitter' => 'http://twitter.com/profile_images/1234/image.jpg', 'other' => '' }.each do |platform, url|
+      SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+        Bot::Smooch.run(payload)
+      end
+      assert_no_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+        Bot::Smooch.run(payload)
+      end
     end
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
