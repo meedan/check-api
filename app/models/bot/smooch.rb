@@ -387,12 +387,26 @@ class Bot::Smooch < BotUser
       user = api_instance.get_app_user(app_id, uid).appUser.to_hash
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
-      phone = Digest::MD5.hexdigest(user[:clients][0][:displayName])
+
+      # This identifier is used on the Slack side in order to connect a Slack conversation to a Smooch user
+
+      identifier = case user[:clients][0][:platform]
+                   when 'whatsapp'
+                     user[:clients][0][:displayName]
+                   when 'messenger'
+                     user[:clients][0][:info][:avatarUrl].match(/psid=([0-9]+)/)[1]
+                   when 'twitter'
+                     user[:clients][0][:info][:avatarUrl].match(/profile_images\/([0-9]+)\//)[1]
+                   else
+                     uid
+                   end
+
+      identifier = Digest::MD5.hexdigest(identifier)
 
       data = {
         id: uid,
         raw: user,
-        phone: phone,
+        identifier: identifier,
         app_name: app.app.name
       }
 
