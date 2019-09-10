@@ -40,7 +40,7 @@ module TeamDuplication
     end
 
     def self.log_error(e, t)
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Airbrake.notify(e, parameters: { team_id: t.id }) if Airbrake.configuration.api_key
       Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
 
