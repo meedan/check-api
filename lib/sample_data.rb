@@ -414,6 +414,10 @@ module SampleData
     c.reload
   end
 
+  def create_uploaded_video(options = { file: 'rails.avi' })
+    create_media(options.merge({ type: 'UploadedVideo' }))
+  end
+
   def create_source(options = {})
     source = Source.new
     source.name = options[:name] || random_string
