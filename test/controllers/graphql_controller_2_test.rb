@@ -1179,7 +1179,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should set statuses of related items" do
     Sidekiq::Testing.fake! do
       BotUser.delete_all
-      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: [], set_events: []
+      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: []
       u = create_user
       t = create_team
       create_team_bot_installation user_id: b.id, team_id: t.id

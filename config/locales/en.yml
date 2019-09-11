@@ -677,6 +677,7 @@ en:
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
   bot_request_url_invalid: The bot URL is invalid
+  smooch_twitter_success: Success! Now the DMs received by this Twitter account will be handled by the Smooch Bot.
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
     confirm with "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
