@@ -7,7 +7,8 @@ module TaskMutations
     description: 'str',
     jsonoptions: 'str',
     annotated_id: 'str',
-    annotated_type: 'str'
+    annotated_type: 'str',
+    json_schema: 'str'
   }
 
   update_fields = {
@@ -18,7 +19,8 @@ module TaskMutations
     status: 'str',
     accept_suggestion: 'int',
     reject_suggestion: 'int',
-    assigned_to_ids: 'str'
+    assigned_to_ids: 'str',
+    json_schema: 'str'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'first_response_version'])

@@ -206,7 +206,7 @@ class BotUser < User
     schema.to_json
   end
 
-  def settings_as_json_schema
+  def settings_as_json_schema(validate = false)
     return nil if self.get_settings.blank?
     properties = {}
     self.get_settings.each do |setting|
@@ -221,6 +221,7 @@ class BotUser < User
         title: s[:label],
         default: default
       }
+      properties[s[:name]][:enum] = Team.current&.team_tasks.to_a.collect{ |t| { key: t.id, value: t.label } } if !validate && s[:name] == 'smooch_task'
     end
     { type: 'object', properties: properties }.to_json
   end

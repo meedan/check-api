@@ -622,6 +622,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert CheckS3.exist?(filepath)
+    assert_not_nil Bot::Smooch.get_meme(pm).memebuster_png_path
 
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'in_progress'
@@ -1162,6 +1163,49 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
     end
     ::Transifex::Project.any_instance.unstub(:resource)
+  end
+
+  test "should use custom embed URL from task answer" do
+    create_task_status_stuff
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tt = create_team_task team_id: @team.id
+    RequestStore.store[:smooch_bot_settings] = { smooch_task: tt.id }.with_indifferent_access
+    pm = create_project_media
+    t = create_task annotated: pm, team_task_id: tt.id
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'https://custom.url' }.to_json }.to_json
+    t.save!
+    assert_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
+    assert_no_match /bit\.ly/, Bot::Smooch.embed_url(pm)
+  end
+
+  test "should not use custom embed URL from task answer if there is no team task" do
+    create_task_status_stuff
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tt = create_team_task team_id: @team.id
+    RequestStore.store[:smooch_bot_settings] = { smooch_task: nil }.with_indifferent_access
+    pm = create_project_media
+    t = create_task annotated: pm, team_task_id: tt.id
+    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'https://custom.url' }.to_json }.to_json
+    t.save!
+    assert_not_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
+    assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
+  end
+
+  test "should not use custom embed URL from task answer if task is not resolved" do
+    create_task_status_stuff
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tt = create_team_task team_id: @team.id
+    RequestStore.store[:smooch_bot_settings] = { smooch_task: tt.id }.with_indifferent_access
+    pm = create_project_media
+    t = create_task annotated: pm, team_task_id: tt.id
+    assert_not_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
+    assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
 
   protected

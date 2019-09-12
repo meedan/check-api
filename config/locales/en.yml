@@ -715,3 +715,4 @@ en:
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
   custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
+  invalid_task_answer: Sorry, the format of this task answer is not valid
