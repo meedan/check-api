@@ -22,6 +22,7 @@ module ProjectMediaCreators
       t.required = task.required
       t.description = task.description
       t.team_task_id = task.id
+      t.json_schema = task.json_schema
       t.options = task.options unless task.options.blank?
       t.annotator = User.current
       t.annotated = self

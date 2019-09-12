@@ -824,7 +824,14 @@ class Bot::Smooch < BotUser
 
   def self.embed_url(pm)
     pm = Bot::Smooch.get_parent(pm) || pm
-    pm.embed_url
+    team_task_id = self.config['smooch_task'].to_i
+    custom_url = nil
+    if team_task_id > 0
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id).each do |t|
+        custom_url = t.first_response if t.team_task_id.to_i == team_task_id && t.status == 'resolved'
+      end
+    end
+    custom_url || pm.embed_url
   end
 
   def self.send_meme_to_user(uid, pm, lang)
