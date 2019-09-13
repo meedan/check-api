@@ -84,3 +84,12 @@ bn:
     যে বার্তাটি আমাদের সাথে ভাগ করেছেন তা ভুলভাবে * {status} * হিসাবে চিহ্নিত হয়েছে।
     এটা এখনও আরও যাচাইয়ের জন্য আমাদের সারিতে আছে।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''
