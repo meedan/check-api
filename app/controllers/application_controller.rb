@@ -33,11 +33,11 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error(message, code, status = 400)
-    render json: { type: 'error',
-                   data: {
+    render json: { errors: [{
                      message: message,
-                     code: LapisConstants::ErrorCodes::const_get(code)
-                   }
+                     code: LapisConstants::ErrorCodes::const_get(code),
+                     data: {},
+                   }],
                  },
                  status: status
     logger.error message: message, status: 400

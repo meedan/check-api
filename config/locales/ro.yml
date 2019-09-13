@@ -720,3 +720,4 @@ ro:
   custom_message_smooch_bot_not_final_checkpoint: "[Raport de verificare - CORECTARE]
     Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în
     coada de așteptare pentru verificări ulterioare."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

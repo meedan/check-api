@@ -10,7 +10,7 @@ class RegistrationMailerTest < ActionMailer::TestCase
       email.deliver_now
     end
 
-    assert_equal [CONFIG['default_mail']], email.from
+    assert_match email.from.first, CONFIG['default_mail']
     assert_equal ['test@localhost'], email.to
     assert_match /12345678/, email.body.parts.first.to_s
   end
@@ -21,7 +21,7 @@ class RegistrationMailerTest < ActionMailer::TestCase
     assert_emails 1 do
       email.deliver_now
     end
-    assert_equal [CONFIG['default_mail']], email.from
+    assert_match email.from.first, CONFIG['default_mail']
     assert_equal ['test@localhost'], email.to
   end
 

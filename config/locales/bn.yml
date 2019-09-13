@@ -83,3 +83,4 @@ bn:
   custom_message_smooch_bot_not_final_checkpoint: "[যাচাইকরণ প্রতিবেদন - সংশোধন] আপনি
     যে বার্তাটি আমাদের সাথে ভাগ করেছেন তা ভুলভাবে * {status} * হিসাবে চিহ্নিত হয়েছে।
     এটা এখনও আরও যাচাইয়ের জন্য আমাদের সারিতে আছে।"
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

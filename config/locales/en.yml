@@ -98,7 +98,8 @@ en:
         description: Translation has been reviewed and an error was found
   errors:
     messages:
-      invalid_password: 'Invalid password'
+      invalid_password: Invalid password
+      invalid_qrcode: Invalid validation code
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
@@ -676,6 +677,7 @@ en:
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
   bot_request_url_invalid: The bot URL is invalid
+  smooch_twitter_success: Success! Now the DMs received by this Twitter account will be handled by the Smooch Bot.
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
     confirm with "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
@@ -712,3 +714,5 @@ en:
   custom_message_smooch_bot_not_final_checkpoint: '[Verification Report - CORRECTION]
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
+  custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
+  invalid_task_answer: Sorry, the format of this task answer is not valid
