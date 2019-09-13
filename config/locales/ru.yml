@@ -575,3 +575,4 @@ ru:
   custom_message_smooch_bot_not_final_checkpoint: "[Отчёт о верификации — ИЗМЕНЕНИЕ]
     Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*».
     Сообщение возвращено в очередь и ожидает верификации."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

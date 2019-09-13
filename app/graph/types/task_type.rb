@@ -1,4 +1,4 @@
-TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', description: 'str' }) do
+TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', description: 'str', json_schema: 'str' }) do
   field :first_response do
     type AnnotationType
 

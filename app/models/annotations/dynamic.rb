@@ -32,11 +32,12 @@ class Dynamic < ActiveRecord::Base
   def slack_params_task_response
     response = self.values(['response'], '')['response']
     task = Task.find(self.annotated_id)
+    event = self.previous_changes.keys.include?('id') ? 'answer_create' : 'answer_edit'
     task.slack_params.merge({
       description: Bot::Slack.to_slack(response, false),
       attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence,
       task: task,
-      event: self.versions.count > 1 ? 'answer_edit' : 'answer_create'
+      event: event
     })
   end
 

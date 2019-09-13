@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'error_codes'
 
 module ProjectAssociation
   extend ActiveSupport::Concern
@@ -114,7 +115,7 @@ module ProjectAssociation
       unless obj.nil?
         error = {
           message: I18n.t("#{obj_name}_exists", project_id: obj.project_id, id: obj.id),
-          code: 'ERR_OBJECT_EXISTS',
+          code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
           data: {
             project_id: obj.project_id,
             type: obj_name,

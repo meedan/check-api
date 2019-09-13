@@ -889,7 +889,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
       ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
 
-      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar').gsub('bucket-name', CONFIG['storage']['bucket'])
+      endpoint = CONFIG['storage']['public_endpoint'] || CONFIG['storage']['endpoint']
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar').gsub('bucket-name', CONFIG['storage']['bucket']).gsub('http://localhost:9000', endpoint)
       actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar')
 
       assert_equal expected, actual
@@ -1774,5 +1775,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Bitly.stubs(:client).raises(StandardError)
     assert_match /medias.html/, pm.embed_url(true)
     Bitly.unstub(:client)
+  end
+
+  test "should clone project media to another project" do
+    m = create_media
+    pm = create_project_media
+    p = create_project
+    assert_difference 'ProjectMedia.count' do
+      pm.copy_to_project_id = p.id
+      pm.save!
+      assert_equal p, pm.copied_to_project
+    end
   end
 end

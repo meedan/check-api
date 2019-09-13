@@ -29,6 +29,9 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
 
+  field :json_schema
+  validate :json_schema_is_valid
+
   def status=(value)
     a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
     a = a.nil? ? nil : (a.load || a)
@@ -298,6 +301,13 @@ class Task < ActiveRecord::Base
           TeamUser.delay_for(1.second).set_assignments_progress(user.id, team_id)
         end
       end
+    end
+  end
+
+  def json_schema_is_valid
+    unless self.json_schema.blank?
+      metaschema = JSON::Validator.validator_for_name('draft4').metaschema
+      errors.add(:json_schema, 'must be a valid JSON Schema') unless JSON::Validator.validate(metaschema, self.json_schema)
     end
   end
 end

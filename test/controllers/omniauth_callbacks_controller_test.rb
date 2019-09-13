@@ -218,6 +218,12 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     assert_redirected_to '/close.html'
   end
 
+  test "should setup Twitter authentication" do
+    request.env['omniauth.strategy'] = OpenStruct.new(options: {})
+    get :setup
+    assert_response 404
+  end
+
   def teardown
     OmniAuth.config.test_mode = false
   end

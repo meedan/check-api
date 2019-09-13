@@ -92,6 +92,7 @@ ar:
         description: تمت المراجعة وهناك أخطاء يجب تصحيحها
   errors:
     messages:
+      invalid_password: كلمة المرور غير صالحة
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات
         المسموحة هي: %{allowed_types}'
       invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height}
@@ -704,3 +705,4 @@ ar:
   custom_message_smooch_bot_not_final_checkpoint: "[تقرير التحقيق - تصحيح] لقد حدث
     خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*. ما زال العنصر في قائمة
     اﻹنتظار للمزيد من التحقق."
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''

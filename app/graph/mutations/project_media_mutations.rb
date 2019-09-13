@@ -14,6 +14,7 @@ module ProjectMediaMutations
     media_id: 'int',
     project_id: 'int',
     previous_project_id: 'int',
+    copy_to_project_id: 'int',
     refresh_media: 'int',
     update_mt: 'int',
     archived: 'int',

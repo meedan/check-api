@@ -115,6 +115,7 @@ class Bot::Smooch < BotUser
   end
 
   TeamBotInstallation.class_eval do
+    after_create :save_twitter_token_and_authorization_url
     after_save :upload_smooch_strings_to_transifex
 
     def self.lock_and_upload_smooch_strings_to_transifex(id)
@@ -173,6 +174,14 @@ class Bot::Smooch < BotUser
       if self.bot_user.identifier == 'smooch' && !CONFIG['transifex_user'].blank? && !CONFIG['transifex_password'].blank?
         TeamBotInstallation.delay_for(1.second).lock_and_upload_smooch_strings_to_transifex(self.id)
       end
+    end
+
+    def save_twitter_token_and_authorization_url
+      return unless self.bot_user.identifier == 'smooch'
+      token = SecureRandom.hex
+      self.set_smooch_authorization_token = token
+      self.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+      self.save!
     end
   end
 
@@ -387,12 +396,26 @@ class Bot::Smooch < BotUser
       user = api_instance.get_app_user(app_id, uid).appUser.to_hash
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
-      phone = Digest::MD5.hexdigest(user[:clients][0][:displayName])
+
+      # This identifier is used on the Slack side in order to connect a Slack conversation to a Smooch user
+
+      identifier = case user[:clients][0][:platform]
+                   when 'whatsapp'
+                     user[:clients][0][:displayName]
+                   when 'messenger'
+                     user[:clients][0][:info][:avatarUrl].match(/psid=([0-9]+)/)[1]
+                   when 'twitter'
+                     user[:clients][0][:info][:avatarUrl].match(/profile_images\/([0-9]+)\//)[1]
+                   else
+                     uid
+                   end
+
+      identifier = Digest::MD5.hexdigest(identifier)
 
       data = {
         id: uid,
         raw: user,
-        phone: phone,
+        identifier: identifier,
         app_name: app.app.name
       }
 
@@ -410,10 +433,6 @@ class Bot::Smooch < BotUser
       }.to_json
       a.save!
     end
-  end
-
-  def self.tos_required(uid)
-    return Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
   end
 
   def self.tos_accept_user_information(uid, timestamp)
@@ -458,7 +477,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_message_waiting_for_message(sm, message, app_id)
-    if self.tos_required(message['authorId'])
+    if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
       sm.request_tos
       sm.message = message.to_json
       self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
@@ -805,7 +824,14 @@ class Bot::Smooch < BotUser
 
   def self.embed_url(pm)
     pm = Bot::Smooch.get_parent(pm) || pm
-    pm.embed_url
+    team_task_id = self.config['smooch_task'].to_i
+    custom_url = nil
+    if team_task_id > 0
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id).each do |t|
+        custom_url = t.first_response if t.team_task_id.to_i == team_task_id && t.status == 'resolved'
+      end
+    end
+    custom_url || pm.embed_url
   end
 
   def self.send_meme_to_user(uid, pm, lang)

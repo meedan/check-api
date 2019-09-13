@@ -1,4 +1,5 @@
 require_relative '../test_helper'
+require 'error_codes'
 
 class GraphqlController2Test < ActionController::TestCase
   def setup
@@ -74,6 +75,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should parse JSON exception" do
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+      WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias?url=https://www.youtube.com/user/MeedanTube').to_return(body: '{"type":"media","data":{"url":"' + @url + '/","type":"profile"}}')
 
       u = create_user
       t = create_team
@@ -88,12 +90,13 @@ class GraphqlController2Test < ActionController::TestCase
       post :create, query: query, team: t.slug
       assert_response 400
       ret = JSON.parse(@response.body)
-      assert_includes ret.keys, 'error'
-      assert_equal 'ERR_OBJECT_EXISTS', ret['error_info']['code']
-      assert_kind_of Integer, ret['error_info']['project_id']
-      assert_kind_of Integer, ret['error_info']['id']
-      assert_equal 'source', ret['error_info']['type']
-      assert_equal ret['errors'].first.keys.sort, ['data', 'message']
+      assert_includes ret.keys, 'errors'
+      error_info = ret['errors'].first
+      assert_equal error_info.keys.sort, ['code', 'data', 'message'].sort
+      assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
+      assert_kind_of Integer, error_info['data']['project_id']
+      assert_kind_of Integer, error_info['data']['id']
+      assert_equal 'source', error_info['data']['type']
     end
   end
 
@@ -604,8 +607,9 @@ class GraphqlController2Test < ActionController::TestCase
       sleep 1
       assert_response 400
       response = JSON.parse(@response.body)
-      assert_includes response.keys, 'error'
-      assert_equal 'INVALID_VALUE', response['error_info']['code']
+      assert_includes response.keys, 'errors'
+      error_info = response['errors'].first
+      assert_equal 'INVALID_VALUE', error_info['code']
     end
   end
 
@@ -621,8 +625,9 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response 400
     response = JSON.parse(@response.body)
-    assert_equal 'INVALID_VALUE', response['error_info']['code']
-    assert_match /File not found/, response['error_info']['error_message']
+    error_info = response['errors'].first
+    assert_equal 'INVALID_VALUE', error_info['code']
+    assert_match /File not found/, error_info['data']['error_message']
   end
 
   test "should import spreadsheet if inputs are valid" do
@@ -1174,7 +1179,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should set statuses of related items" do
     Sidekiq::Testing.fake! do
       BotUser.delete_all
-      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: [], set_events: []
+      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: []
       u = create_user
       t = create_team
       create_team_bot_installation user_id: b.id, team_id: t.id
