@@ -93,6 +93,7 @@ ar:
   errors:
     messages:
       invalid_password: كلمة المرور غير صالحة
+      invalid_qrcode: رمز التحقق غير صالح
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات
         المسموحة هي: %{allowed_types}'
       invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height}
@@ -120,7 +121,7 @@ ar:
       uploaded_image:
         file: الصورة
       team:
-        slug: المسار
+        slug: رابط الفريق
       source:
         name: الاسم
       contact:
@@ -669,6 +670,9 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: عنوان URL البوت غير صالح
+  smooch_twitter_success: تم بنجاح ! الآن سيتم التعامل مع الرسائل المباشرة التي تلقاها
+    حساب تويتر هذا بواسطة بوت Smooch.
+  invalid_task_answer: " عذراً ، تنسيق هذه الاجابة غير صحيح"
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: رجى
     التأكيد بإضافة "١".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: شكراً لقد
@@ -706,3 +710,12 @@ ar:
     خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*. ما زال العنصر في قائمة
     اﻹنتظار للمزيد من التحقق."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''
