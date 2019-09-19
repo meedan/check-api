@@ -7,7 +7,7 @@ module HasVideo
     include HasFile
 
     mount_uploader :file, VideoUploader
-    validates :file, size: true, allow_blank: true
+    # validates :file, size: true, allow_blank: true
   end
 
   def set_success(format, opts)

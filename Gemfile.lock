@@ -160,6 +160,8 @@ GEM
     carrierwave-video (0.6.0)
       carrierwave
       streamio-ffmpeg
+    carrierwave-video-thumbnailer (0.1.4)
+      carrierwave
     chartkick (3.2.0)
     chronic_duration (0.10.6)
       numerizer (~> 0.1.1)
@@ -759,6 +761,7 @@ DEPENDENCIES
   cancancan (~> 1.10)
   carrierwave (~> 1.0)
   carrierwave-video
+  carrierwave-video-thumbnailer
   clamav-client
   codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)

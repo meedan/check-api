@@ -13,7 +13,7 @@ class Media < ActiveRecord::Base
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
 
   def self.types
-    %w(Link Claim UploadedFile UploadedImage)
+    %w(Link Claim UploadedFile UploadedImage UploadedVideo)
   end
 
   validates_inclusion_of :type, in: Media.types
