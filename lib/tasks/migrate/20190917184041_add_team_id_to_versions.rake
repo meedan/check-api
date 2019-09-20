@@ -1,15 +1,26 @@
 namespace :check do
   namespace :migrate do
-    task add_team_id_to_versions: :environment do
+    task :add_team_id_to_versions, [:mapping_cache_json_file, :last_cached_version_id] => :environment do |t, args|
       last_id = Rails.cache.read('check:migrate:versions_team_id:last_id')
       raise "Cache key check:migrate:versions_team_id:last_id not found! Aborting." if last_id.nil?
 
       puts "[#{Time.now}] Grouping versions by team..."
+
       # Key: Team ID, Value: Version ID to be updated
       mapping = {}
-      n = Version.where('id <= ?', last_id).count
+
+      if args.mapping_cache_json_file
+        mapping = JSON.parse(File.read(args.mapping_cache_json_file))
+      end
+
+      first_id = 0
+      if args.last_cached_version_id
+        first_id = args.last_cached_version_id
+      end
+
+      n = Version.where('id <= ?', last_id).where('id > ?', first_id).count
       i = 0
-      Version.where('id <= ?', last_id).find_each(batch_size: 10000).each do |version|
+      Version.where('id <= ?', last_id).where('id > ?', first_id).find_each(batch_size: 10000).each do |version|
         i += 1
         print "#{i}/#{n} versions processed...\r"
         $stdout.flush
@@ -21,6 +32,13 @@ namespace :check do
         next if team_id.nil?
         mapping[team_id] ||= []
         mapping[team_id] << version.id
+      end
+
+      unless args.mapping_cache_json_file
+        puts "[#{Time.now}] Saving mapping to external file..."
+        f = File.open('versions-team-ids.json', 'w+')
+        f.puts(mapping.to_json)
+        f.close
       end
 
       puts "[#{Time.now}] Now let's update the team_id of each version..."
