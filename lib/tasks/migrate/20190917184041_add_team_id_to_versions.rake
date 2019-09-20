@@ -20,7 +20,7 @@ namespace :check do
 
       n = Version.where('id <= ?', last_id).where('id > ?', first_id).count
       i = 0
-      Version.where('id <= ?', last_id).where('id > ?', first_id).find_each(batch_size: 10000).each do |version|
+      Version.where('id <= ?', last_id).where('id > ?', first_id).find_each(batch_size: 1000).each do |version|
         i += 1
         print "#{i}/#{n} versions processed...\r"
         $stdout.flush
@@ -47,7 +47,7 @@ namespace :check do
       i = 0
       mapping.each do |team_id, version_ids|
         i += 1
-        version_ids.each_slice(10000).to_a.each do |some_version_ids|
+        version_ids.each_slice(1000).to_a.each do |some_version_ids|
           Version.where(id: some_version_ids).update_all(team_id: team_id)
         end
         print "#{i}/#{n} teams processed...\r"
@@ -61,8 +61,8 @@ namespace :check do
       mapping.keys.each do |team_id|
         i += 1
         while ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id = #{team_id}")[0]['count'].to_i > 0
-          ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p#{team_id}\" (SELECT * FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
-          ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
+          ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p#{team_id}\" (SELECT * FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 1000)")
+          ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 1000)")
         end
         print "#{i}/#{n} teams processed...\r"
         $stdout.flush
@@ -71,8 +71,8 @@ namespace :check do
       puts "[#{Time.now}] Now let's move the items without team_id to the partition zero..."
 
       while ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id IS NULL")[0]['count'].to_i > 0
-        ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p0\" (SELECT * FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
-        ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
+        ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p0\" (SELECT * FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 1000)")
+        ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 1000)")
       end
       
       puts "[#{Time.now}] Done!"
