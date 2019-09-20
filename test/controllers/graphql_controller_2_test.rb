@@ -519,14 +519,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal 'bar', data['custom_tags']['edges'][0]['node']['text']
   end
 
-  test "should get tag from version" do
-    create_version
-    query = 'query read { root { versions { edges { node { tag { dbid } } } } } }'
-    post :create, query: query
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['root']['versions']['edges'][0]['node']['tag']
-  end
-
   test "should get team tasks" do
     t = create_team
     p = create_project team: t

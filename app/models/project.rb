@@ -4,7 +4,7 @@ class Project < ActiveRecord::Base
   include DestroyLater
   include AssignmentConcern
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
   has_many :project_sources, dependent: :destroy
@@ -240,7 +240,7 @@ class Project < ActiveRecord::Base
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    v = self.versions.last
+    v = self.versions.from_partition(self.team_id).last
     unless v.nil? || v.changeset['team_id'].blank?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}

@@ -80,7 +80,7 @@ module AnnotationBase
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }, class_name: 'Version'
 
     has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 
@@ -169,8 +169,8 @@ module AnnotationBase
     end
   end
 
-  def versions(options = {})
-    PaperTrail::Version.where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
+  def annotation_versions(options = {})
+    Version.from_partition(self.team_id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
@@ -246,6 +246,10 @@ module AnnotationBase
       team = [obj.team.id] unless obj.team.nil?
     end
     team
+  end
+
+  def team_id
+    self.get_team.last.to_i
   end
 
   def current_team

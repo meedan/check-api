@@ -729,7 +729,8 @@ class Bot::Smooch < BotUser
     begin
       finals = ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].select{ |s| s['completed'].to_i == 1 }.collect{ |s| s['id'].gsub(/^not_true$/, 'false') }
       previous_final_statuses = []
-      pm.last_verification_status_obj.get_field('verification_status_status').versions.each do |v|
+      f = pm.last_verification_status_obj.get_field('verification_status_status')
+      Version.from_partition(pm.project.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).each do |v|
         status = YAML.load(JSON.parse(v.object_after)['value']).to_s
         previous_final_statuses << status if finals.include?(status)
       end

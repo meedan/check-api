@@ -3,7 +3,7 @@ class Media < ActiveRecord::Base
 
   attr_accessor :project_id, :project_object, :disable_es_callbacks
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at]
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], class_name: 'Version'
   belongs_to :account
   belongs_to :user
   has_many :project_medias, dependent: :destroy
