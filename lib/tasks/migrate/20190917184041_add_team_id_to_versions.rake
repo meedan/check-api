@@ -9,7 +9,7 @@ namespace :check do
       mapping = {}
       n = Version.where('id <= ?', last_id).count
       i = 0
-      Version.where('id <= ?', last_id).find_each(batch_size: 100000).each do |version|
+      Version.where('id <= ?', last_id).find_each(batch_size: 10000).each do |version|
         i += 1
         print "#{i}/#{n} versions processed...\r"
         $stdout.flush
@@ -29,7 +29,9 @@ namespace :check do
       i = 0
       mapping.each do |team_id, version_ids|
         i += 1
-        Version.where(id: version_ids).update_all(team_id: team_id)
+        version_ids.each_slice(10000).to_a.each do |some_version_ids|
+          Version.where(id: some_version_ids).update_all(team_id: team_id)
+        end
         print "#{i}/#{n} teams processed...\r"
         $stdout.flush
       end
