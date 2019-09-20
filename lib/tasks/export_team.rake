@@ -174,29 +174,8 @@ def login_activities_query(table, field = '*')
 end
 
 def versions_query(table)
-  mapping = {
-    'dynamic_annotation_fields': 'DynamicAnnotation::Field',
-    'accounts': 'Account',
-    'assignments': 'Assignment',
-    'medias': 'Media',
-    'project_medias': 'ProjectMedia',
-    'project_sources': 'ProjectSource',
-    'projects': 'Project',
-    'relationships': 'Relationship',
-    'sources': 'Source'
-  }
-
-  mapping.each_pair do |item_table, item_type|
-    select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type='#{item_type}' AND CAST(#{table}.item_id AS INTEGER) IN (#{get_ids(item_table)})"
-    copy_to_file(select_query, "#{table}_#{item_table}", table)
-  end
-
-  types = (get_annotation_types - get_dynamic_annotation_types).map(&:capitalize).push("'Dynamic'")
-  select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type IN (#{types.join(',')}) AND CAST(#{table}.item_id AS INTEGER) IN (#{get_ids('annotations')})"
-  copy_to_file(select_query, "#{table}_annotations", table)
-
-  select_query = "SELECT #{table}.* FROM #{table} WHERE #{table}.item_type='Team' AND #{table}.item_id='#{@id}'"
-  copy_to_file(select_query, "#{table}_teams", table)
+  select_query = "SELECT * FROM #{table}.p#{@id}"
+  copy_to_file(select_query, table, table)
 end
 
 def get_dynamic_annotation_types

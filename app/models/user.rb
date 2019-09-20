@@ -357,7 +357,7 @@ class User < ActiveRecord::Base
       assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
     end
     Annotation.where(annotator_id: user.id, annotator_type: 'User').update_all(annotator_id: self.id)
-    PaperTrail::Version.where(whodunnit: user.id).update_all(whodunnit: self.id)
+    merged_tu.map(&:team_id).uniq.each{ |team_id| Version.from_partition(team_id).where(whodunnit: user.id).update_all(whodunnit: self.id) }
     # update cached teams and encrypted_password for merged user
     columns = {}
     if !self.encrypted_password? && user.encrypted_password?

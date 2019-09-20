@@ -6,7 +6,7 @@ namespace :check do
       raise "No last_id found in cache for check:migrate:add_user_id_to_relationship! Aborting." if last_id.nil?
 
       # Get the user id from the paper trail and store it in the object itself.
-      rel = PaperTrail::Version.where(item_type: 'Relationship').where('id < ?', last_id)
+      rel = Version.where(item_type: 'Relationship').where('id < ?', last_id)
       n = rel.count
       i = 0
       rel.find_each do |v|

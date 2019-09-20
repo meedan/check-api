@@ -1742,10 +1742,10 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, c2)
       assert ability.can?(:destroy, c2)
       c.destroy!
-      v = PaperTrail::Version.last
+      v = Version.last
       assert ability.can?(:destroy, v)
       c2.destroy!
-      v = PaperTrail::Version.last
+      v = Version.last
       assert ability.can?(:destroy, v)
     end
   end

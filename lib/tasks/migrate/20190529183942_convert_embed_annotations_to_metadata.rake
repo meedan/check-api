@@ -9,7 +9,7 @@ namespace :check do
 
       sum = 0
       n = Annotation.where(annotation_type: 'embed').limit(LIMIT).count
-      nv = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
+      nv = Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
       while n > 0 || nv > 0
         puts "[#{Time.now}] Starting to convert #{n} embed annotations into metadata annotations, #{sum} converted, #{total - sum} remaining..."
         sum += n
@@ -52,15 +52,15 @@ namespace :check do
         Annotation.where(annotation_type: 'embed').where("id <= #{id}").update_all(annotation_type: 'metadata', data: {})
 
         puts "[#{Time.now}] Updating #{nv} versions..."
-        vid = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).last&.id&.to_i
-        PaperTrail::Version.where(item_type: 'Embed').where("id <= #{vid}").update_all(item_type: 'Annotation')
+        vid = Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).last&.id&.to_i
+        Version.where(item_type: 'Embed').where("id <= #{vid}").update_all(item_type: 'Annotation')
 
         n = Annotation.where(annotation_type: 'embed').limit(LIMIT).count
-        nv = PaperTrail::Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
+        nv = Version.where(item_type: 'Embed').order('id ASC').limit(LIMIT).count
       end
 
       puts "[#{Time.now}] Done! Verifying (the queries below should return zero results)..."
-      puts "[#{Time.now}] Embed annotations: #{Annotation.where(annotation_type: 'embed').count} Embed versions: #{PaperTrail::Version.where(item_type: 'Embed').count}"
+      puts "[#{Time.now}] Embed annotations: #{Annotation.where(annotation_type: 'embed').count} Embed versions: #{Version.where(item_type: 'Embed').count}"
       RequestStore.store[:skip_notifications] = false
     end
   end

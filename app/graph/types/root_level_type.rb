@@ -70,11 +70,6 @@ RootLevelType = GraphQL::ObjectType.define do
       Tag.all_sorted
     }
   end
-  connection :versions, VersionType.connection_type do
-    resolve ->(_object, _args, _ctx){
-      PaperTrail::Version.all
-    }
-  end
   connection :contacts, ContactType.connection_type do
     resolve ->(_object, _args, _ctx){
       Contact.all

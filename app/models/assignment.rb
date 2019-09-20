@@ -13,7 +13,7 @@ class Assignment < ActiveRecord::Base
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
-  has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }
+  has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, class_name: 'Version'
 
   def version_metadata(_changes)
     meta = { user_name: self.user&.name }
@@ -29,6 +29,10 @@ class Assignment < ActiveRecord::Base
     return [] if assigned.nil?
     return [assigned.team&.id] if assigned.is_a?(Project)
     assigned.get_team if assigned.is_annotation?
+  end
+
+  def team_id
+    self.get_team&.last
   end
 
   protected

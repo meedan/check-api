@@ -1,4 +1,5 @@
 class Team < ActiveRecord::Base
+  after_create :create_team_partition, :add_user_to_team
 
   before_destroy :delete_created_bots
 
@@ -23,8 +24,8 @@ class Team < ActiveRecord::Base
       Ability.new
     end
   end
-  after_create :add_user_to_team
   after_update :archive_or_restore_projects_if_needed
+  before_destroy :destroy_versions
   after_destroy :reset_current_team
 
   check_settings

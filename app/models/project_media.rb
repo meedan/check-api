@@ -290,7 +290,7 @@ class ProjectMedia < ActiveRecord::Base
       r.target = project_media
       r.destroy
       User.current = nil
-      v = r.versions.where(event_type: 'destroy_relationship').last
+      v = r.versions.from_partition(project_media.project.team_id).where(event_type: 'destroy_relationship').last
       unless v.nil?
         v.meta = r.version_metadata
         v.save!

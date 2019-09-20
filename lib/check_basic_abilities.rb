@@ -47,7 +47,7 @@ module CheckBasicAbilities
   # Extra permissions for all users
   def extra_perms_for_all_users
     can :create, [User, AccountSource]
-    can :create, PaperTrail::Version
+    can :create, Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams
     can_list Team, { inactive: false }

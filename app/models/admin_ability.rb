@@ -48,7 +48,7 @@ class AdminAbility
       !(obj.annotation.get_team & @teams).empty?
     end
 
-    can :create, PaperTrail::Version
+    can :create, Version
 
     Workflow::Workflow.workflows.each{ |w| instance_exec(&w.workflow_admin_permissions) if w.respond_to?(:workflow_admin_permissions) }
   end
