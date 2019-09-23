@@ -414,7 +414,7 @@ module SampleData
     c.reload
   end
 
-  def create_uploaded_video(options = { file: 'rails.avi' })
+  def create_uploaded_video(options = { file: 'rails.mp4' })
     create_media(options.merge({ type: 'UploadedVideo' }))
   end
 

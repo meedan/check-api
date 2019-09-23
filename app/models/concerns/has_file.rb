@@ -11,6 +11,10 @@ module HasFile
     true
   end
 
+  def image_path(version = nil)
+    self.file_url(version).to_s.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+  end
+
   module ClassMethods
     def max_size
       ENV['MAX_UPLOAD_SIZE'] ? Filesize.from("#{ENV['MAX_UPLOAD_SIZE']}B").to_f : (CONFIG['uploaded_file_max_size'] || 1.megabyte)

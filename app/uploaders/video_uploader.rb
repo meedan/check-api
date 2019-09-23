@@ -2,6 +2,8 @@ class VideoUploader < FileUploader
   include CarrierWave::Video
   include CarrierWave::Video::Thumbnailer
 
+  storage :file
+
   process encode_video: [:mp4, callbacks: { after_transcode: :set_success } ]
 
   version :thumb do
@@ -16,7 +18,15 @@ class VideoUploader < FileUploader
     %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.png}
   end
 
-  def extension_white_list
+  def full_filename(for_file)
+    super.chomp(File.extname(super)) + '.mp4'
+  end
+
+  def filename
+    original_filename.chomp(File.extname(original_filename)) + '.mp4'
+  end
+
+  def extension_whitelist
     VideoUploader.upload_extensions
   end
 
