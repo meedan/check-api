@@ -295,9 +295,9 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get log" do
-    s = create_source
     u = create_user
     t = create_team
+    s = create_source team: t
     p = create_project team: t
     p2 = create_project team: t
     create_team_user user: u, team: t, role: 'owner'
@@ -308,7 +308,7 @@ class SourceTest < ActiveSupport::TestCase
       c = create_comment annotated: ps
       tg = create_tag annotated: ps
       f = create_flag annotated: ps
-      s.name = 'update name'; s.skip_check_ability = true;s.save!;
+      s.name = 'update name'; s.skip_check_ability = true; s.save!
       c2 = create_comment annotated: ps2
       f2 = create_flag annotated: ps2
       assert_equal ["create_comment", "create_tag", "create_flag", "update_source", "create_comment", "create_flag"].sort, s.get_versions_log.map(&:event_type).sort

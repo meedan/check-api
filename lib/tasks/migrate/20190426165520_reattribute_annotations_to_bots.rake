@@ -14,7 +14,7 @@ namespace :check do
         i = 0
         Annotation.where(annotation_type: annotation_types).where(['annotator_id IS NULL OR annotator_id != ?', bot.id]).find_each do |a|
           i += 1
-          versions << PaperTrail::Version.new({
+          versions << Version.new({
             item_type: 'Dynamic',
             item_id: a.id.to_s,
             event: 'update',
@@ -31,11 +31,11 @@ namespace :check do
           print "#{i}/#{n}\r"
           $stdout.flush
           if i % 10000 == 0
-            PaperTrail::Version.import versions, recursive: false, validate: false
+            Version.import versions, recursive: false, validate: false
             versions = []
           end
         end
-        PaperTrail::Version.import(versions, recursive: false, validate: false) if versions.size > 0
+        Version.import(versions, recursive: false, validate: false) if versions.size > 0
         puts "[#{Time.now}] Done!"
         puts "[#{Time.now}] Attributing #{n} annotations to #{bot_identifier.capitalize} bot"
         Annotation.where(annotation_type: annotation_types).where(['annotator_id IS NULL OR annotator_id != ?', bot.id]).update_all({ annotator_type: 'BotUser', annotator_id: bot.id })

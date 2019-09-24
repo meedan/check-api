@@ -496,7 +496,7 @@ module SampleData
   def create_version(options = {})
     User.current = options[:user] || create_user
     t = create_team
-    v = t.versions.last
+    v = t.versions.from_partition(t.id).last
     User.current = nil
     v
   end

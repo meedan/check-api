@@ -107,6 +107,9 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_equal 'bar', tb.get_foo
     assert_equal({ 'foo': 'bar' }, tb.settings)
     assert_kind_of String, tb.json_settings
+    b = create_team_bot login: 'smooch', set_approved: true
+    tb = create_team_bot_installation user_id: b.id
+    assert_not_equal({}, tb.settings)
   end
 
   test "should follow schema" do

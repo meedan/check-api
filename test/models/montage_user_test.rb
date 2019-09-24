@@ -48,7 +48,7 @@ class MontageUserTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
-    p = create_project
+    p = create_project team: t
     pm = create_project_media project: p
     3.times { create_tag(annotated: pm) }
     3.times { create_tag }

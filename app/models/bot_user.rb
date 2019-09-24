@@ -133,7 +133,7 @@ class BotUser < User
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error performing GraphQL query: #{e.message}")
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Airbrake.notify(e, parameters: { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query, result: result }) if Airbrake.configuration.api_key
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
@@ -155,7 +155,7 @@ class BotUser < User
       end
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Airbrake.notify(e, parameters: { bot: self.id, uri: uri, data: data }) if Airbrake.configuration.api_key
       User.current = nil
     end
   end
@@ -201,16 +201,18 @@ class BotUser < User
     self.get_settings.each do |setting|
       s = setting.with_indifferent_access
       schema[s[:name]] = { 'ui:widget' => 'textarea' } if s[:name] =~ /^smooch_message_/
+      schema[s[:name]] = { 'ui:options' => { 'disabled' => true } } if s[:type] == 'readonly'
     end
     schema.to_json
   end
 
-  def settings_as_json_schema
+  def settings_as_json_schema(validate = false)
     return nil if self.get_settings.blank?
     properties = {}
     self.get_settings.each do |setting|
       s = setting.with_indifferent_access
       type = s[:type]
+      next if type == 'hidden'
       default = s[:default]
       default = default.to_i if type == 'number'
       default = (default == 'true' ? true : false) if type == 'boolean'
@@ -219,6 +221,7 @@ class BotUser < User
         title: s[:label],
         default: default
       }
+      properties[s[:name]][:enum] = Team.current&.team_tasks.to_a.collect{ |t| { key: t.id, value: t.label } } if !validate && s[:name] == 'smooch_task'
     end
     { type: 'object', properties: properties }.to_json
   end

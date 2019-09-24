@@ -93,6 +93,7 @@ fr:
   errors:
     messages:
       invalid_password: Mot de passe non valide
+      invalid_qrcode: Code de validation invalide
       extension_white_list_error: est d'un type %{extension} qui est interdit, seuls
         sont acceptés %{allowed_types}
       invalid_size: doit avoir des dimensions entre %{min_width}x%{min_height} et
@@ -120,7 +121,7 @@ fr:
       uploaded_image:
         file: L'image
       team:
-        slug: Le chemin
+        slug: URL de l'équipe
       source:
         name: Le nom
       contact:
@@ -697,6 +698,9 @@ fr:
   smooch_requests_asc: Moins demandés
   smooch_requests_desc: Plus demandés
   bot_request_url_invalid: URL du bot non valide
+  smooch_twitter_success: Succès ! À présent, les DM reçus par ce compte Twitter seront
+    gérés par le bot Smooch.
+  invalid_task_answer: Désolé, le format de cette réponse n'est pas valide
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
     confirm with "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
@@ -735,3 +739,12 @@ fr:
     Le message que vous nous avez envoyé a été incorrectement marqué comme  *%{status}*.
     Il est encore dans notre file pour davantage de vérification."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

@@ -92,6 +92,7 @@ es:
   errors:
     messages:
       invalid_password: Contraseña inválida
+      invalid_qrcode: Código de validación inválido
       extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos:
         %{allowed_types}'
       invalid_size: debe ser entre %{min_width}x%{min_height} y %{max_width}x%{max_height}
@@ -119,7 +120,7 @@ es:
       uploaded_image:
         file: Imagen
       team:
-        slug: Slug
+        slug: URL del equipo
       source:
         name: Nombre
       contact:
@@ -685,6 +686,9 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  smooch_twitter_success: "¡Éxito! Ahora los mensajes recibidos por esta cuenta de
+    Twitter serán manejados por el Smooch Bot."
+  invalid_task_answer: Lo sentimos, el formato de esta respuesta de tarea no es válido
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
     favor confirma con "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Gracias,
@@ -725,3 +729,12 @@ es:
     El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

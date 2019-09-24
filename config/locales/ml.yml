@@ -117,8 +117,6 @@ ml:
         file: ഫയല്‍
       uploaded_image:
         file: ചിത്രം
-      team:
-        slug: സ്ലഗ്
       source:
         name: പേര്
       contact:
@@ -179,3 +177,12 @@ ml:
     താങ്കളയച്ച സന്ദേശം *1%{status} * എന്ന് തെറ്റായി അടയാളപ്പെടുത്തിയതാണ്. അത് ഇപ്പോഴും
     പരിശോധനക്കായുള്ള വരിയിലാണ്. "
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

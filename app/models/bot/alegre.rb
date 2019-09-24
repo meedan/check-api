@@ -13,7 +13,7 @@ class Bot::Alegre < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event #{body['event']}: #{e.message}")
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Airbrake.notify(e, parameters: { bot: self.name, body: body }) if Airbrake.configuration.api_key
     end
     handled
   end
@@ -103,10 +103,11 @@ class Bot::Alegre < BotUser
     # Send image to VFRAME to get matches.
     url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
     response = { 'results' => [] }
+    context = self.get_context(pm).to_json
     Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
         'url' => pm.media.picture,
-        'context' => self.get_context(pm).to_json,
+        'context' => context,
         'filter' => { project_id: pm.project.id }.to_json,
         'threshold' => 1,
         'limit' => 1
@@ -116,7 +117,7 @@ class Bot::Alegre < BotUser
         response = JSON.parse(http.request(req).body)
       rescue StandardError => e
         Rails.logger.error("[Alegre Bot] Bad response from VFRAME: #{e.message}")
-        Airbrake.notify(e) if Airbrake.configuration.api_key
+        Airbrake.notify(e, parameters: { bot_id: bot.id, vframe_url: url, context: context }) if Airbrake.configuration.api_key
       end
     end
     pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}

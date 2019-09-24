@@ -1,4 +1,26 @@
 GIT
+  remote: https://github.com/arp/activerecord-redshift-adapter.git
+  revision: 734e34e5ea88c040e665144f579ecb0664d75efc
+  branch: rails4-compatibility
+  specs:
+    activerecord-redshift-adapter (0.9.12)
+      activerecord (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      arel (>= 3.0.0)
+      pg
+
+GIT
+  remote: https://github.com/dkhofer/partitioned.git
+  revision: 4ff50a00a1b0957cd0116569b78ef0d0b522f652
+  branch: rails-4-2
+  specs:
+    partitioned (2.1.0)
+      activerecord (~> 4.2.1)
+      activerecord-redshift-adapter
+      bulk_data_methods
+      pg
+
+GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 1d1837136eba5723132eebbd8c0176860c184e0c
   specs:
@@ -144,6 +166,9 @@ GEM
       sassc (>= 2.0.0)
     buftok (0.2.0)
     builder (3.2.3)
+    bulk_data_methods (1.1.2)
+      activerecord (>= 3.0.0)
+      pg
     byebug (9.0.6)
     cancancan (1.16.0)
     capybara (2.18.0)
@@ -749,6 +774,7 @@ DEPENDENCIES
   aasm
   activejob (= 4.2.11.1)
   activerecord-import
+  activerecord-redshift-adapter!
   airbrake (= 4.3.3)
   alegre_client!
   apollo-tracing (= 1.5.0)
@@ -812,6 +838,7 @@ DEPENDENCIES
   omniauth-twitter
   paper_trail
   parallel_tests
+  partitioned!
   peek-rblineprof
   pender_client!
   pg (~> 0.15)

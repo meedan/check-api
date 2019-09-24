@@ -116,8 +116,6 @@ ru:
         file: Файл
       uploaded_image:
         file: Изображение
-      team:
-        slug: Идентификатор
       source:
         name: Имя
       contact:
@@ -576,3 +574,12 @@ ru:
     Сообщение, которое вы нам отправили, было некорректно отмечено как «*%{status}*».
     Сообщение возвращено в очередь и ожидает верификации."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

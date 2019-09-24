@@ -29,6 +29,9 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
 
+  field :json_schema
+  validate :json_schema_is_valid
+
   def status=(value)
     a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: self.id).last
     a = a.nil? ? nil : (a.load || a)
@@ -71,7 +74,7 @@ class Task < ActiveRecord::Base
     if params.nil?
       params = self.slack_params
       if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
-        event = self.versions.count > 1 ? 'edit' : 'create'
+        event = self.annotation_versions.count > 1 ? 'edit' : 'create'
       elsif !params[:assignment_event].blank?
         event = params[:assignment_event]
       else
@@ -213,7 +216,7 @@ class Task < ActiveRecord::Base
     return nil if @response.nil?
     @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
     return nil if @field.nil?
-    PaperTrail::Version.where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
+    Version.from_partition(self.team_id).where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
   end
 
   def first_response
@@ -228,7 +231,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    PaperTrail::Version.where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
+    Version.from_partition(self.team_id).where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
   end
 
   def reject_suggestion=(version_id)
@@ -258,7 +261,7 @@ class Task < ActiveRecord::Base
     response.save!
 
     # Save review information in version
-    version = PaperTrail::Version.where(id: version_id).last
+    version = Version.from_partition(self.team_id).where(id: version_id).last
     version.update_column(:meta, review) unless version.nil?
 
     # Update number of suggestions
@@ -300,6 +303,13 @@ class Task < ActiveRecord::Base
       end
     end
   end
+
+  def json_schema_is_valid
+    unless self.json_schema.blank?
+      metaschema = JSON::Validator.validator_for_name('draft4').metaschema
+      errors.add(:json_schema, 'must be a valid JSON Schema') unless JSON::Validator.validate(metaschema, self.json_schema)
+    end
+  end
 end
 
 Comment.class_eval do
@@ -335,7 +345,7 @@ Comment.class_eval do
   end
 end
 
-PaperTrail::Version.class_eval do
+Version.class_eval do
   after_create :increment_task_suggestions_count
 
   private

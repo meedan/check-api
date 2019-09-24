@@ -64,4 +64,27 @@ class AdminControllerTest < ActionController::TestCase
     get :slack_user, uid: 'U123'
     assert_response 401
   end
+
+  test "should not use Twitter credentials for Smooch bot if token is invalid" do
+    b = create_team_bot login: 'smooch'
+    tbi = create_team_bot_installation
+    session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }
+    get :save_twitter_credentials_for_smooch_bot, id: tbi.id, token: random_string
+    assert_response 401
+  end
+
+  test "should not use Twitter credentials for Smooch bot" do
+    Bot::Smooch.stubs(:smooch_api_client).returns(nil)
+    SmoochApi::IntegrationApi.any_instance.expects(:create_integration).once
+    b = create_team_bot login: 'smooch'
+    t = random_string
+    tbi = create_team_bot_installation
+    tbi.set_smooch_authorization_token = t
+    tbi.save!
+    session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }
+    get :save_twitter_credentials_for_smooch_bot, id: tbi.id, token: t
+    assert_response :success
+    Bot::Smooch.unstub(:smooch_api_client)
+    SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
+  end
 end

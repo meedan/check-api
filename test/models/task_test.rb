@@ -496,7 +496,93 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal 0, pm.assignments_progress[:answered]
       assert_equal 1, pm.assignments_progress[:total]
       assert_not_nil tk.first_response_version
-      assert_kind_of PaperTrail::Version, tk.first_response_version
+      assert_kind_of Version, tk.first_response_version
+    end
+  end
+
+  test "should define a JSON schema" do
+    t = create_task
+
+    assert_raises ActiveRecord::RecordInvalid do
+      t.json_schema = { not: 'a valid schema' }
+      t.save!
+    end
+
+    schema = {
+      type: 'object',
+      required: ['bar'],
+      properties: {
+        foo: { type: 'integer' },
+        bar: { type: 'string' }
+      }
+    }
+
+    t.json_schema = schema
+    t.save!
+
+    assert JSON::Validator.validate(t.reload.json_schema, { foo: 12, bar: 'test' })
+    assert !JSON::Validator.validate(t.reload.json_schema, { foo: 12 })
+
+    schema = {
+      type: 'string',
+    }
+
+    t.json_schema = schema
+    t.save!
+
+    assert JSON::Validator.validate(t.reload.json_schema, 'string')
+    assert !JSON::Validator.validate(t.reload.json_schema, 123)
+
+    schema = {
+      type: 'string',
+      pattern: '^[a-z]*$'
+    }
+
+    t.json_schema = schema
+    t.save!
+
+    assert JSON::Validator.validate(t.reload.json_schema, 'string')
+    assert !JSON::Validator.validate(t.reload.json_schema, 'STRING')
+
+    schema = {
+      type: 'string',
+      pattern: '^https?://[^.]+\.[^.]+.*$'
+    }
+
+    t.json_schema = schema
+    t.save!
+
+    assert JSON::Validator.validate(t.reload.json_schema, 'https://meedan.com')
+    assert !JSON::Validator.validate(t.reload.json_schema, 'Foo Bar')
+  end
+
+  test "should validate task answer against JSON schema" do
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
+
+    schema = {
+      type: 'string',
+      pattern: '^https?://[^.]+\.[^.]+.*$'
+    }
+
+    tk = create_task json_schema: schema
+    tk.save!
+    tk = Task.find(tk.id)
+    
+    assert_nothing_raised do
+      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'https://meedan.com' }.to_json }.to_json
+      tk.save!
+
+      d = Dynamic.find(tk.response.id)
+      d.set_fields = { response_free_text: 'https://checkmedia.org' }.to_json
+      d.save!
+    end
+
+    assert_raises ActiveRecord::RecordInvalid do
+      d = Dynamic.find(tk.response.id)
+      d.set_fields = { response_free_text: 'Foo Bar' }.to_json
+      d.save!
     end
   end
 end

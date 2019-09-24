@@ -28,7 +28,7 @@ class TeamBotInstallation < TeamUser
   end
 
   def settings_follow_schema
-    errors.add(:settings, 'must follow the schema') if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank? && !JSON::Validator.validate(JSON.parse(self.bot_user.settings_as_json_schema), self.settings)
+    errors.add(:settings, 'must follow the schema') if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank? && !JSON::Validator.validate(JSON.parse(self.bot_user.settings_as_json_schema(true)), self.settings)
   end
 
   def apply_default_settings

@@ -4,7 +4,7 @@ module TeamAssociations
   extend ActiveSupport::Concern
 
   included do
-    has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+    has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
 
     has_many :projects, dependent: :destroy
     has_many :accounts, dependent: :destroy

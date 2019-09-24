@@ -12,10 +12,10 @@ module TeamDuplication
       @cloned_versions = []
       begin
         ActiveRecord::Base.transaction do
-          PaperTrail::Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
+          Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
           team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
-            @cloned_versions << copy if original.is_a?(PaperTrail::Version)
-            self.set_mapping(original, copy) unless original.is_a?(PaperTrail::Version)
+            @cloned_versions << copy if original.is_a?(Version)
+            self.set_mapping(original, copy) unless original.is_a?(Version)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
             self.update_project_source(copy) if original.is_a? ProjectSource
@@ -27,10 +27,10 @@ module TeamDuplication
           @copy_team = team
           self.copy_annotations
           self.update_relationships
-          self.copy_versions(@mapping[:"PaperTrail::Version"])
+          self.copy_versions(@mapping[:"Version"])
           self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
-          PaperTrail::Version.set_callback(:create, :after, :increment_project_association_annotations_count)
+          Version.set_callback(:create, :after, :increment_project_association_annotations_count)
           team
         end
       rescue StandardError => e
@@ -40,7 +40,7 @@ module TeamDuplication
     end
 
     def self.log_error(e, t)
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      Airbrake.notify(e, parameters: { team_id: t.id }) if Airbrake.configuration.api_key
       Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
 
@@ -103,7 +103,8 @@ module TeamDuplication
     def self.copy_versions(versions_mapping)
       return if versions_mapping.blank?
       versions_mapping.each_pair do |original, copy|
-        log = PaperTrail::Version.find(original).dup
+        log = Version.find(original).dup
+        log.team_id = @copy_team.id
         log.is_being_copied = true
         log.associated_id = copy.id unless log.associated_id.blank?
         item = @mapping.dig(log.item_type.to_sym, log.item_id.to_i)
@@ -156,7 +157,7 @@ module TeamDuplication
     def self.create_copy_version(pm_mapping, user)
       return if pm_mapping.blank? || user.nil?
       pm_mapping.each_pair do |original, copy|
-        v = PaperTrail::Version.new
+        v = Version.new
         v.item_id, v.item_type = copy.id, copy.class_name
         v.associated_id, v.associated_type = copy.id, copy.class_name
         v.event = 'copy'

@@ -14,7 +14,7 @@ namespace :check do
         puts "[#{Time.now}] Getting annotations that already have versions"
         vids = []
         i = 0
-        PaperTrail::Version.where(item_type: 'Dynamic', item_id: ids, whodunnit: bot.id.to_s).find_each do |v|
+        Version.where(item_type: 'Dynamic', item_id: ids, whodunnit: bot.id.to_s).find_each do |v|
           i += 1
           print "#{i}\r"
           $stdout.flush
@@ -28,7 +28,7 @@ namespace :check do
           print "#{i}/#{n}\r"
           $stdout.flush
           unless vids.include?(a.id)
-            versions << PaperTrail::Version.new({
+            versions << Version.new({
               item_type: 'Dynamic',
               item_id: a.id.to_s,
               event: 'update',
@@ -46,7 +46,7 @@ namespace :check do
         end
         if versions.size > 0
           puts "[#{Time.now}] Bulk-importing #{versions.size} versions..."
-          PaperTrail::Version.import(versions, recursive: false, validate: false)
+          Version.import(versions, recursive: false, validate: false)
         end
         puts "[#{Time.now}] Done!"
       end
