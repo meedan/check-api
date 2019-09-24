@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -570,10 +570,13 @@ en:
     Thank you for sending this request. Do you want us to verify its content?
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
-  smooch_bot_ask_for_tos: |-
-    Please read the Terms of Service at %{tos}. Do you accept them?
+  smooch_bot_tos: |-
+    Thanks for reaching out to Check Message!
 
-    To say yes, *please reply with 1*. Any other response will end our conversation.
+    You can use this service to request verification, fact-checks, and investigation of news and information.
+    Check Message is provided to you under these Terms of Service: %{tos}.
+    By continuing to use this service, *you agree to be bound by these terms*.
+    You should discontinue your use of Check Message if you do not agree.
   smooch_bot_window_closing: The volume of requests on this channel is very high,
     and we haven't been able to resolve your request yet. Thank you for your patience.
   smooch_bot_not_final: |-
