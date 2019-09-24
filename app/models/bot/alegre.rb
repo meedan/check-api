@@ -117,7 +117,7 @@ class Bot::Alegre < BotUser
         response = JSON.parse(http.request(req).body)
       rescue StandardError => e
         Rails.logger.error("[Alegre Bot] Bad response from VFRAME: #{e.message}")
-        self.class.notify_error(e, { bot_id: bot.id, vframe_url: url, context: context }, RequestStore[:request] )
+        self.class.notify_error(e, { bot_id: self.id, vframe_url: url, context: context }, RequestStore[:request] )
       end
     end
     pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}
