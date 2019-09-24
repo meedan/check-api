@@ -455,7 +455,7 @@ class Bot::Smooch < BotUser
       return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
       if self.tos_required?(message['authorId'])
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_tos, { locale: message['language'] }))
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
         self.tos_sent(message['authorId'], Time.now.to_i)
       end
 
