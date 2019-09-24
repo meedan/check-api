@@ -14,7 +14,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
   end
 
-  MEDIA_TYPES = %w[claims links images]
+  MEDIA_TYPES = %w[claims links images videos]
 
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
@@ -250,7 +250,8 @@ class CheckSearch
         'sources' => ['Source'],
         'claims' => ['Claim'],
         'links' => 'Link',
-        'images' => 'UploadedImage'
+        'images' => 'UploadedImage',
+        'videos' => 'UploadedVideo'
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       doc_c << { terms: { 'associated_type': types } }
