@@ -576,10 +576,10 @@ pt:
     Obrigado por enviar esta mensagem. Você quer verificar o conteúdo dela?
 
     Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
-  smooch_bot_ask_for_tos: |-
-    Por favor leia os Termos do Serviço em %{tos}. Aceita aos termos?
+  smooch_bot_tos: |-
+    Obrigado por entrar em contato com a Check Message!
 
-    Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
+    Você pode usar este serviço para solicitar verificação, verificação de fatos e investigação de notícias e informações. Check Message é fornecida a você sob estes Termos de Serviço: %{tos}. Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Você deve parar de usar a Check Message se não concordar.
   smooch_bot_window_closing: O volume de solicitações neste canal é muito alto, e
     ainda não conseguimos resolver a sua solicitação. Obrigado pela sua paciência.
   smooch_bot_not_final: "[Relatório de Verificação - CORREÇÃO] A mensagem que você
