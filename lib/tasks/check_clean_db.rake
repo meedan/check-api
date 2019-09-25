@@ -36,6 +36,12 @@ namespace :check do
       end
     end
 
+    Account.where.not(email: ['', nil]).find_each do |a|
+      unless a.email =~ /@meedan\./ || exceptions.include?(a.email)
+        a.update_columns(email: '', provider: '')
+      end
+    end
+
     Project.find_each do |p|
       if !p.settings.blank? && p.get_slack_notifications_enabled == "1"
         slack_settings.each do |k, v|

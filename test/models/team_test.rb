@@ -1259,12 +1259,12 @@ class TeamTest < ActiveSupport::TestCase
   test "should notify Airbrake when duplication raises error" do
     team = create_team
     RequestStore.store[:disable_es_callbacks] = true
-    Airbrake.configuration.stubs(:api_key).returns('token')
+    Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).once
     Team.any_instance.stubs(:save).with(validate: false).raises(RuntimeError)
 
     assert_nil Team.duplicate(team)
-    Airbrake.configuration.unstub(:api_key)
+    Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
     Team.any_instance.unstub(:save)
     RequestStore.store[:disable_es_callbacks] = false
@@ -1402,7 +1402,7 @@ class TeamTest < ActiveSupport::TestCase
     pm = nil
     with_current_user_and_team(u, team) do
       pm = create_project_media user: u, team: team, project: project
-      pm.archived = true;pm.save
+      pm.archived = true ; pm.save
     end
     Team.current = User.current = nil
     RequestStore.store[:disable_es_callbacks] = true
@@ -1609,5 +1609,16 @@ class TeamTest < ActiveSupport::TestCase
   test "should upload image to S3" do
     t = create_team
     assert_match /#{Regexp.escape(CONFIG['storage']['public_endpoint'])}/, t.avatar
+  end
+
+  test "should be able to create partitions in parallel" do
+    threads = []
+    threads << Thread.start do
+      create_team
+    end
+    threads << Thread.start do
+      create_team
+    end
+    threads.map(&:join)
   end
 end

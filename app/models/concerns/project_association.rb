@@ -28,7 +28,7 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid)
       obj = self.find_by_id objid
-      if obj && (obj.project_id == pid || obj.versions.where_object(project_id: pid).exists?)
+      if obj && (obj.project_id == pid || obj.versions.from_partition(obj.project.team_id).where_object(project_id: pid).exists?)
         return obj.id
       else
         key = self.to_s == 'ProjectMedia' ? :media_id : :source_id
@@ -54,7 +54,7 @@ module ProjectAssociation
     after_commit :destroy_elasticsearch_media , on: :destroy
 
     def get_versions_log
-      PaperTrail::Version.where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
+      Version.from_partition(self.project.team_id).where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
     end
 
     def get_versions_log_count

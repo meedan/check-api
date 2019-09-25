@@ -1742,10 +1742,10 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, c2)
       assert ability.can?(:destroy, c2)
       c.destroy!
-      v = PaperTrail::Version.last
+      v = Version.last
       assert ability.can?(:destroy, v)
       c2.destroy!
-      v = PaperTrail::Version.last
+      v = Version.last
       assert ability.can?(:destroy, v)
     end
   end
@@ -2227,6 +2227,46 @@ class AbilityTest < ActiveSupport::TestCase
       end
       query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"project_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
       assert_equal query, queries.first
+    end
+  end
+
+  test "should be able to leave team" do
+    TeamUser.role_types.each do |role|
+      puts role
+      User.current = Team.current = nil
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user user: u, team: t, status: 'member', role: role
+      tu2 = create_team_user user: u, team: t2, status: 'requested', role: role
+      with_current_user_and_team(u, t) do
+        if role != 'owner' && role != 'editor'
+          assert_raises RuntimeError do
+            tu = TeamUser.find(tu.id)
+            tu.role = 'journalist'
+            tu.save!
+          end
+        end
+        assert_nothing_raised do
+          tu = TeamUser.find(tu.id)
+          tu.status = 'banned'
+          tu.save!
+        end
+      end
+      with_current_user_and_team(u, t2) do
+        if role != 'owner' && role != 'editor'
+          assert_raises RuntimeError do
+            tu2 = TeamUser.find(tu2.id)
+            tu2.status = 'member'
+            tu2.save!
+          end
+          assert_raises RuntimeError do
+            tu = TeamUser.find(tu.id)
+            tu.user_id = create_user.id
+            tu.save!
+          end
+        end
+      end
     end
   end
 end

@@ -66,7 +66,7 @@ class Comment < ActiveRecord::Base
   end
 
   def comment_version
-    PaperTrail::Version.where(item_type: 'Comment', item_id: self.id.to_s, event_type: 'create_comment').first
+    Version.from_partition(self.team_id).where(item_type: 'Comment', item_id: self.id.to_s, event_type: 'create_comment').first
   end
 
   protected

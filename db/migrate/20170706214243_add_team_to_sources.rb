@@ -1,6 +1,7 @@
 class AddTeamToSources < ActiveRecord::Migration
   def change
-    add_reference :sources, :team, index: true, foreign_key: true
+    add_column :sources, :team_id, :integer
+    add_index :sources, :team_id
     Source.find_each do |s|
       u = s.user
       t = u.teams.first unless u.nil?

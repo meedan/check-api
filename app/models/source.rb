@@ -7,7 +7,7 @@ class Source < ActiveRecord::Base
   include ValidationsHelper
   include CustomLock
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   has_many :project_sources
   has_many :account_sources, dependent: :destroy
   has_many :projects, through: :project_sources
@@ -150,7 +150,7 @@ class Source < ActiveRecord::Base
   end
 
   def get_versions_log
-    PaperTrail::Version.where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
+    Version.from_partition(self.team_id).where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
   end
 
   def get_versions_log_count

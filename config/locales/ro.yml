@@ -117,8 +117,6 @@ ro:
         file: Fișier
       uploaded_image:
         file: Imagine
-      team:
-        slug: Slug
       source:
         name: Nume
       contact:
@@ -721,3 +719,12 @@ ro:
     Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în
     coada de așteptare pentru verificări ulterioare."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

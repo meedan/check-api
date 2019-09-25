@@ -80,7 +80,7 @@ class Ability
     end
 
     can_list [TeamUser, Assignment], user_id: @user.id
-    can_list PaperTrail::Version, whodunnit: @user.id.to_s
+    can_list Version, whodunnit: @user.id.to_s
     can_list User, id: @user.id
     can_list Task, { 'joins' => :assignments, 'assignments.user_id' => @user.id }
     can_list ProjectMedia, id: pmids
@@ -99,7 +99,6 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
-    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
     can :export_project, Project, team_id: @context_team.id
@@ -120,7 +119,7 @@ class Ability
     can :destroy, DynamicAnnotation::Field do |obj|
       obj.annotation.get_team.include?(@context_team.id)
     end
-    can :destroy, PaperTrail::Version do |obj|
+    can :destroy, Version do |obj|
       teams = []
       v_obj = begin obj.item_type.constantize.find(obj.item_id) rescue nil end
       v_obj_parent = begin obj.associated_type.constantize.find(obj.associated_id) rescue nil end
@@ -140,7 +139,6 @@ class Ability
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
-    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:update, :destroy], Relationship, { source: { project: { team_id: @context_team.id } }, target: { project: { team_id: @context_team.id } }}
@@ -241,7 +239,7 @@ class Ability
     can :update, DynamicAnnotation::Field do |obj|
       obj.annotation.get_team.include?(@context_team.id) and !obj.annotation.annotated_is_archived?
     end
-    can :destroy, PaperTrail::Version do |obj|
+    can :destroy, Version do |obj|
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.project.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end

@@ -358,4 +358,15 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
+
+  test "should change role of bot" do
+    u = create_user is_admin: true
+    i = create_team_bot_installation
+    authenticate_with_user(u)
+
+    id = Base64.encode64("TeamUser/#{i.id}")
+    query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "journalist" }) { team_user { id } } }'
+    post :create, query: query, team: i.team.slug
+    assert_response :success
+  end
 end

@@ -34,6 +34,10 @@ module Montage::User
   end
 
   def tags_added
-    PaperTrail::Version.where(whodunnit: self.id.to_s, event_type: 'create_tag').count
+    total = 0
+    self.teams.each do |team|
+      total += Version.from_partition(team.id).where(whodunnit: self.id.to_s, event_type: 'create_tag').count
+    end
+    total
   end
 end
