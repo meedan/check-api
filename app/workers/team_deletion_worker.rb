@@ -1,5 +1,6 @@
 class TeamDeletionWorker
   include Sidekiq::Worker
+  include ErrorNotification
 
   def perform(team_id, user_id)
     team = Team.find_by_id(team_id)
@@ -7,7 +8,7 @@ class TeamDeletionWorker
     begin
       team.destroy!
     rescue StandardError => e
-      Airbrake.notify(e, parameters: { team_id: team_id, user_id: user_id })
+      Team.notify_error(e, { team_id: team_id, user_id: user_id }, RequestStore[:request] )
     end
   end
 

@@ -1,4 +1,5 @@
 class BotUser < User
+  include ErrorNotification
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
   if ActiveRecord::Base.connection.table_exists?(:dynamic_annotation_annotation_types)
@@ -133,7 +134,7 @@ class BotUser < User
       JSON.parse(result.to_json)['data']['node']
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error performing GraphQL query: #{e.message}")
-      Airbrake.notify(e, parameters: { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query, result: result }) if Airbrake.configuration.api_key
+      self.class.notify_error(e, { bot_user: self.id, team_id: team.id, object_class: klass, object_id: object.id, query: query, result: result }, RequestStore[:request] )
       { error: "Error performing GraphQL query" }.with_indifferent_access
     end
   end
@@ -155,7 +156,7 @@ class BotUser < User
       end
     rescue StandardError => e
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
-      Airbrake.notify(e, parameters: { bot: self.id, uri: uri, data: data }) if Airbrake.configuration.api_key
+      self.class.notify_error(e, { bot: self.id, uri: uri, data: data })
       User.current = nil
     end
   end

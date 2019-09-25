@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   include UserInvitation
   include UserMultiAuthLogin
   include UserTwoFactorAuth
+  include ErrorNotification
 
   belongs_to :source
   has_many :team_users, dependent: :destroy
@@ -280,7 +281,7 @@ class User < ActiveRecord::Base
       tos > pp ? tos : pp
     rescue
       e = StandardError.new('Could not read the last time that terms of service or privacy policy were updated')
-      Airbrake.notify(e) if Airbrake.configuration.api_key
+      self.notify_error(e, {}, RequestStore[:request])
       0
     end
   end

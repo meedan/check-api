@@ -314,7 +314,7 @@ class Bot::Smooch < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
-      Airbrake.notify(e, parameters: { bot: self.name, body: body }) if Airbrake.configuration.api_key
+      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
     end
@@ -540,7 +540,7 @@ class Bot::Smooch < BotUser
       api_instance.post_message(app_id, uid, message_post_body)
     rescue SmoochApi::ApiError => e
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      Airbrake.notify(e, parameters: { smooch_app_id: app_id, uid: uid, body: params }) if Airbrake.configuration.api_key
+      self.notify_error(e, { smooch_app_id: app_id, uid: uid, body: params }, RequestStore[:request] )
     end
   end
 
