@@ -11,7 +11,7 @@ if File.exist?(file)
 
   Sidekiq.configure_server do |config|
     config.redis = redis_config
-    config.error_handlers << Proc.new { |e, context| Airbrake.notify(e, parameters: context) if Airbrake.configuration.api_key }
+    config.error_handlers << Proc.new { |e, context| Airbrake.notify(e, context) if Airbrake.configured? }
     config.server_middleware do |chain|
       chain.add ::Middleware::Sidekiq::Server::Retry
     end

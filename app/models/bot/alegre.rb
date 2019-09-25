@@ -13,7 +13,7 @@ class Bot::Alegre < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event #{body['event']}: #{e.message}")
-      Airbrake.notify(e, parameters: { bot: self.name, body: body }) if Airbrake.configuration.api_key
+      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
     end
     handled
   end
@@ -117,7 +117,7 @@ class Bot::Alegre < BotUser
         response = JSON.parse(http.request(req).body)
       rescue StandardError => e
         Rails.logger.error("[Alegre Bot] Bad response from VFRAME: #{e.message}")
-        Airbrake.notify(e, parameters: { bot_id: bot.id, vframe_url: url, context: context }) if Airbrake.configuration.api_key
+        self.class.notify_error(e, { bot_id: self.id, vframe_url: url, context: context }, RequestStore[:request] )
       end
     end
     pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}

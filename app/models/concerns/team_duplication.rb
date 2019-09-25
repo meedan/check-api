@@ -2,6 +2,7 @@ require 'active_support/concern'
 
 module TeamDuplication
   extend ActiveSupport::Concern
+  include ErrorNotification
 
   included do
     attr_accessor :mapping, :original_team, :copy_team
@@ -40,7 +41,7 @@ module TeamDuplication
     end
 
     def self.log_error(e, t)
-      Airbrake.notify(e, parameters: { team_id: t.id }) if Airbrake.configuration.api_key
+      self.notify_error(e, { team_id: t.id }, RequestStore[:request])
       Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
 

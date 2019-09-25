@@ -39,7 +39,7 @@ gem 'mocha'
 gem 'simplecov', '0.13.0', require: false, group: :test
 gem 'simplecov-console', require: false, group: :test
 gem 'railroady'
-gem 'airbrake', '4.3.3'
+gem 'airbrake', '9.4.4'
 gem 'codeclimate-test-reporter', '1.0.8', group: :test, require: nil
 gem 'awesome_print', require: false, group: :development
 gem 'gem-licenses'
