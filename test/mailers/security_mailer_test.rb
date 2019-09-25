@@ -23,5 +23,16 @@ class SecurityMailerTest < ActionMailer::TestCase
       email.deliver_now
     end
     Geocoder.unstub(:search)
+    # should not notify if email empty
+    user.update_columns(email: '')
+    email = SecurityMailer.notify(user, 'ip', la)
+    assert_emails 0 do
+      email.deliver_now
+    end
+    user.update_columns(email: nil)
+    email = SecurityMailer.notify(user, 'ip', la)
+    assert_emails 0 do
+      email.deliver_now
+    end
   end
 end

@@ -496,7 +496,7 @@ class TaskTest < ActiveSupport::TestCase
       assert_equal 0, pm.assignments_progress[:answered]
       assert_equal 1, pm.assignments_progress[:total]
       assert_not_nil tk.first_response_version
-      assert_kind_of PaperTrail::Version, tk.first_response_version
+      assert_kind_of Version, tk.first_response_version
     end
   end
 

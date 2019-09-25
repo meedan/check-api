@@ -6,10 +6,10 @@ namespace :check do
 
       i = 0
       total = 0
-      n = PaperTrail::Version.joins("INNER JOIN annotations a ON a.id::text = versions.item_id AND versions.item_type = 'Annotation' INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' AND a.annotation_type = 'metadata' INNER JOIN medias m ON m.id = pm.media_id AND m.type = 'UploadedImage'").where('pm.id <= ?', last_id).group('pm.id, versions.id').count.size
-      PaperTrail::Version.select('MAX(versions.id) AS maxvid').joins("INNER JOIN annotations a ON a.id::text = versions.item_id AND versions.item_type = 'Annotation' INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' AND a.annotation_type = 'metadata' INNER JOIN medias m ON m.id = pm.media_id AND m.type = 'UploadedImage'").where('pm.id <= ?', last_id).group('versions.item_id').each do |v|
+      n = Version.joins("INNER JOIN annotations a ON a.id::text = versions.item_id AND versions.item_type = 'Annotation' INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' AND a.annotation_type = 'metadata' INNER JOIN medias m ON m.id = pm.media_id AND m.type = 'UploadedImage'").where('pm.id <= ?', last_id).group('pm.id, versions.id').count.size
+      Version.select('MAX(versions.id) AS maxvid').joins("INNER JOIN annotations a ON a.id::text = versions.item_id AND versions.item_type = 'Annotation' INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' AND a.annotation_type = 'metadata' INNER JOIN medias m ON m.id = pm.media_id AND m.type = 'UploadedImage'").where('pm.id <= ?', last_id).group('versions.item_id').each do |v|
         i += 1
-        v = PaperTrail::Version.find(v.maxvid)
+        v = Version.find(v.maxvid)
         begin
           changed = false
           o = JSON.parse(v['object_after'])['data']

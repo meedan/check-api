@@ -222,11 +222,12 @@ class RelationshipTest < ActiveSupport::TestCase
   test "should have versions" do
     u = create_user is_admin: true
     t = create_team
+    p = create_project team: t
     r = create_relationship
     assert_empty r.versions
-    so = create_project_media
+    so = create_project_media project: p
     n = so.cached_annotations_count
-    ta = create_project_media
+    ta = create_project_media project: p
     
     with_current_user_and_team(u, t) do
       r = create_relationship source_id: so.id, target_id: ta.id
@@ -244,7 +245,7 @@ class RelationshipTest < ActiveSupport::TestCase
       ta.destroy
     end
     
-    v2 = PaperTrail::Version.where(event_type: 'destroy_relationship').last
+    v2 = Version.where(item_type: 'Relationship', item_id: r.id.to_s, event_type: 'destroy_relationship').last
     assert_not_equal v, v2
     assert_equal so.id, v2.associated_id
     assert_equal 'ProjectMedia', v2.associated_type

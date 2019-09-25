@@ -40,4 +40,16 @@ module TeamPrivate
   def set_default_max_number_of_members
     self.set_max_number_of_members 5
   end
+
+  def create_team_partition
+    if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
+      ActiveRecord::Base.connection_pool.with_connection do
+        ActiveRecord::Base.connection.execute("CREATE TABLE \"versions_partitions\".\"p#{self.id}\" (CHECK(team_id = #{self.id})) INHERITS (versions)")
+      end
+    end
+  end
+
+  def destroy_versions
+    Version.from_partition(self.id).where(team_id: self.id).destroy_all
+  end
 end

@@ -91,7 +91,8 @@ es:
         description: La traducción fue revisada y se encontraron errores
   errors:
     messages:
-      invalid_password: Contraseña inválida
+      invalid_password: Contraseña incorrecta
+      invalid_qrcode: Código de validación incorrecto
       extension_white_list_error: 'no puede tener tipo  %{extension}, tipos permitidos:
         %{allowed_types}'
       invalid_size: debe ser entre %{min_width}x%{min_height} y %{max_width}x%{max_height}
@@ -119,7 +120,7 @@ es:
       uploaded_image:
         file: Imagen
       team:
-        slug: Slug
+        slug: URL del equipo
       source:
         name: Nombre
       contact:
@@ -232,13 +233,13 @@ es:
       delete_tasks:
         done: eliminó las tareas
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "¿Estás segura o seguro que quieres eliminar todas las tareas del
-            equipo <strong>%{team}</strong>? Las siguientes tareas se eliminarán:"
+          html: "¿Estás seguro(a) que quieres eliminar todas las tareas del equipo
+            <strong>%{team}</strong>? Las siguientes tareas se eliminarán:"
       duplicate_team:
         menu: Duplicar equipo
         done: 'copiado '
         are_you_sure_you_want_to_copy_team:
-          html: "¿Estás segura o seguro que quieres copiar el equipo <strong>%{team}</strong>?
+          html: "¿Estás seguro(a) que quieres copiar el equipo <strong>%{team}</strong>?
             Todos los datos relacionados también serán copiados."
         the_team_is_being_copied: El equipo está siendo duplicado
         url_when_ready:
@@ -333,14 +334,14 @@ es:
     mailer:
       reset_password_instructions:
         subject: "%{app_name} instrucciones para restablecer la contraseña"
-        header_title: Solicitud de restablecimiento de contraseña
+        header_title: Solicitar restablecer contraseña
         header_text: Hemos recibido tu solicitud para restablecer tu contraseña de
           %{app_name}.
-        action: Reestablecer tu contraseña
+        action: Restablecer tu contraseña
         expiry: 'Esta solicitud caducará en %{expire} horas. '
         instruction_1: 'Has click aquí para generar una nueva solicitud. '
         instruction_2: Si tu no has hecho esta solicitud, o estás teniendo dificultades
-          restableciendo tu contraseña, ponte en contacto con nosotros %{support_email}
+          para restablecer tu contraseña, ponte en contacto con nosotros %{support_email}
       invitation_instructions:
         subject: "%{user} ha sido invitado a unirse al equipo %{team}"
         hello: "¡Hola %{name}!"
@@ -390,15 +391,15 @@ es:
       subject: Tu método de inicio de sesión para %{app_name}
       header_title: Cuenta duplicada
       one_email: |-
-        <p>Hola, este es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name}. </p>
+        <p>Hola, este es un mensaje de ayuda para tu inicio de sesión en %{app_name}. </p>
         <p> Lo que sucedió fue que intentaste ingresar a %{app_name} con una cuenta de %{user_provider} asociada a %{user_email}. Pero esta dirección de correo electrónico ya está asociada con esta cuenta de%{duplicate_provider} en %{app_name} .</p>
-        <p> Lo qué debes hacer a continuación es: inicia sesión con %{duplicate_provider}. </p>
+        <p> Lo que debes hacer a continuación es iniciar sesión con %{duplicate_provider}. </p>
         <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente.
         Si necesita ayuda adicional, ponte en contacto con nosotros %{support_email} .</p>
       both_emails: |-
-        <p>Hola, esto es solo un recordatorio amistoso para ayudarte a iniciar sesión en %{app_name} .</p>
-        <p>Lo que sucedió fue que intentaste crear una nueva cuenta en %{app_name},  con un correo electrónico que está asociado a una cuenta que ya existe. </p>
-        <p>  Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente.
+        <p>Hola, este es un mensaje de ayuda para tu inicio de sesión en %{app_name} .</p>
+        <p>Lo que sucedió fue que intentaste crear una cuenta nueva en %{app_name}, con un correo electrónico que está asociado a una cuenta que ya existe. </p>
+        <p> Intenta iniciar sesión con tu correo electrónico y contraseña, en lugar de crear una nueva cuenta. </p> <p> Entonces iniciarás sesión con la cuenta que estabas utilizando anteriormente.
         Si necesita ayuda adicional, ponte en contacto con nosotros%{support_email}. </p>
       email: correo electrónico
     invitation:
@@ -406,15 +407,15 @@ es:
     delete_user:
       subject: "[%{team}] Un usuario fue eliminado"
       header_title: Usuario eliminado
-      header_text: Una cuenta de usuario se eliminó y su contenido se reasignó a un
-        usuario %{anonymous} %{id}
+      header_text: Una cuenta de usuario se eliminó y su contenido se reasignó a %{id}
+        %{anonymous}
       anonymous: anónimo
     admin_mailer:
       team_download_subject: La captura de datos del equipo [%{team}] está lista para
         ser descargada
       team_dump_title: 'Datos del equipo '
       types:
-        dump: Captura de datos
+        dump: captura de datos
         csv: informe
         images: archivo de imágenes
       team_dump_text: 'Solicitaste descargar una captura de datos del proyecto %{project}
@@ -437,8 +438,8 @@ es:
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}.
         Puedes mirar %{worksheet_url} para revisar el estado de cada ítem a importar.</p><p>
-        Nota que puedes reiniciar la importación después de corregir cualquier error
-        que se informe allí - los ítems previamente- importados no se duplicarán.
+        Recuerda que puedes reiniciar la importación después de corregir cualquier
+        error que se informe allí - los ítems previamente- importados no se duplicarán.
         </p>"
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
@@ -464,7 +465,7 @@ es:
       assign_media_subject: "[%{team} - %{project}] Se te ha asignado un  ítem"
       unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
       assign_project_title: 'Proyecto asignado '
-      unassign_project_title: 'Proyecto sin asignar '
+      unassign_project_title: Proyecto sin asignar
       assign_project_text: "%{author} asignó un proyecto %{project} en %{team}."
       unassign_project_text: "%{author} desasignó un proyecto %{project} en %{team}. "
       assign_task_title: 'Tarea asignada '
@@ -573,11 +574,11 @@ es:
   smooch_bot_ask_for_confirmation: |-
     Gracias por enviar este mensaje. ¿Quieres que verifiquemos este contenido?
 
-    Para decir sí, *por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
-  smooch_bot_ask_for_tos: |-
-    Por favor lea los Términos del Servicio en %{tos}. ¿Acepta los términos?
+    Para decir sí, *por favor responde con 1*. Cualquier otra respuesta terminará con nuestra conversación.
+  smooch_bot_tos: |-
+    ¡Gracias por comunicarse con Check Message!
 
-    Para decir sí, *por favor responde con 1 *. Cualquier otra respuesta terminará con nuestra conversación.
+    Puede utilizar este servicio para solicitar la verificación de hechos e investigación de noticias e información. Check Message se proporciona bajo de estos términos de servicio: %{tos}. Al continuar utilizando este servicio, *usted acepta estar sujeto a estos términos*. Debe dejar de usar Check Message si no está de acuerdo.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido en este
     canal es bastante alto y aún no hemos podido resolver tu solicitud. \nGracias
     por tu paciencia."
@@ -685,6 +686,10 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  smooch_twitter_success: "¡Listo! De ahora en adelante todos los mensajes que recibirás
+    en esta cuenta de Twitter serán manejados por el Bot de Smooch."
+  invalid_task_answer: 'Lo sentimos, por el momento las respuestas a las tareas no
+    soportan este tipo de formato '
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
     favor confirma con "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Gracias,
@@ -692,7 +697,7 @@ es:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Está
     bien, no lo tomaremos en cuenta.
   custom_message_smooch_bot_disabled_caio: "¡Lo sentimos! Este bot está actualmente
-    deshabilitado :( "
+    inhabilitado :( "
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Gracias por enviar este mensaje.
 
@@ -724,4 +729,13 @@ es:
   custom_message_smooch_bot_not_final_checkpoint: "[Informe de Verificación - CORRECCIÓN]
     El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional."
-  custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_ask_for_tos_checkpoint: Hola y por favor lee %{tos}
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''

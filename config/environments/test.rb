@@ -53,4 +53,8 @@ Rails.application.configure do
 
   # https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
   config.action_mailer.default_url_options = {:host => 'http://localhost:13000'}
+
+  # Log errors to stdout during testing.
+  config.logger = Logger.new(STDOUT)
+  config.log_level = :ERROR
 end

@@ -17,7 +17,7 @@ class Relationship < ActiveRecord::Base
   after_update :propagate_inversion, :reset_counters
   after_destroy :decrement_counters, :unindex_source
 
-  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }
+  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',

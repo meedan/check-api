@@ -80,7 +80,7 @@ module CheckPermissions
       create[obj].each do |data|
         model = data.new
 
-        if model.respond_to?(:team_id) and Team.current.present?
+        if model.respond_to?('team_id=') and Team.current.present?
           model.team_id = Team.current.id
         end
 

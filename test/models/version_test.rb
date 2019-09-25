@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class PaperTrailTest < ActiveSupport::TestCase
+class VersionTest < ActiveSupport::TestCase
   test "should have item" do
     v = create_version
     assert_kind_of Team, v.item
@@ -79,7 +79,7 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should get task" do
-    PaperTrail::Version.delete_all
+    Version.delete_all
     v = create_version
     assert_nil v.task
     at = create_annotation_type annotation_type: 'response'
@@ -87,10 +87,13 @@ class PaperTrailTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
     t = create_task
+    u = create_user is_admin: true
+    User.current = u
     t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
-    PaperTrail::Version.where(item_type: 'DynamicAnnotation::Field').each do |version|
-      assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /^task_response/
+    Version.from_partition(t.team_id).where(item_type: 'DynamicAnnotation::Field').each do |version|
+      assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
     end
+    User.current = nil
   end
 
   test "should get changes as JSON" do
@@ -130,7 +133,7 @@ class PaperTrailTest < ActiveSupport::TestCase
   end
 
   test "should not raise error when deserialize and change is a hash" do
-    pt = PaperTrail::Version.new
+    pt = Version.new
     data1 = [nil, "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\nlabel: Who is who?\ntype: free_text\nrequired: false\ndescription: ''\nstatus: unresolved\nslug: who_is_who\n"]
     data2 = [{}, {"text"=>"In a separate news report, Davao City Vice Mayor Paolo Duterte also denied the allegations, calling the witness a \"madman\"."}]
     [data1, data2].each do |data|
@@ -142,4 +145,37 @@ class PaperTrailTest < ActiveSupport::TestCase
     end
   end
 
+  test "should return nil item if type is not valid" do
+    v = create_version
+    v.item_type = 'Test'
+    assert_nil v.item
+  end
+
+  test "should return dbid" do
+    v = create_version
+    assert_equal v.id, v.dbid
+  end
+
+  test "should get source" do
+    v = create_version
+    assert_nil v.source
+  end
+
+  test "should get associated GraphQL ID" do
+    v = create_version
+    assert_kind_of String, v.associated_graphql_id
+  end
+
+  test "should get project media" do
+    v = create_version
+    assert_nil v.project_media
+  end
+
+  test "should get associated" do
+    v = create_version
+    pm = create_project_media
+    v.associated_type = 'ProjectMedia'
+    v.associated_id = pm.id
+    assert_equal pm, v.associated
+  end
 end

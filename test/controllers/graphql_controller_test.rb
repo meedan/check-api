@@ -472,12 +472,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_destroy('annotation')
   end
 
-  test "should read versions" do
-    u = create_user
-    create_team_user user: u
-    assert_graphql_read('version', 'dbid')
-  end
-
   test "should get source by id" do
     assert_graphql_get_by_id('source', 'name', 'Test')
   end
@@ -663,7 +657,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_comment annotated: pm, annotator: u
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id }, teams(first: 2) { edges { node { slug } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id }, tag { id }, teams(first: 2) { edges { node { slug } } } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size

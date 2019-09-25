@@ -1,5 +1,6 @@
 class AddTeamToAccounts < ActiveRecord::Migration
   def change
-    add_reference :accounts, :team, index: true, foreign_key: true
+    add_column :accounts, :team_id, :integer
+    add_index :accounts, :team_id
   end
 end

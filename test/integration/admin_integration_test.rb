@@ -256,7 +256,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     sign_in @admin_user
     team = create_team
     Team.any_instance.stubs(:destroy!).raises(ActiveRecord::RecordInvalid)
-    Airbrake.configuration.stubs(:api_key).returns('token')
+    Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).once
     RequestStore.store[:disable_es_callbacks] = true
 
@@ -270,7 +270,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     end
     RequestStore.store[:disable_es_callbacks] = false
     Team.any_instance.unstub(:destroy!)
-    Airbrake.configuration.unstub(:api_key)
+    Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
   end
 
