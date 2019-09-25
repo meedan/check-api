@@ -185,14 +185,6 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
-
-    assert_raise RuntimeError do
-      with_current_user_and_team(u, t) do
-        tu.role = 'editor'
-        tu.save!
-      end
-    end
-
     u2 = create_user
     tu2 = create_team_user team: t, user: u2, role: 'owner'
 
@@ -200,6 +192,15 @@ class TeamUserTest < ActiveSupport::TestCase
       with_current_user_and_team(u, t) do
         tu2.role = 'editor'
         tu2.save!
+      end
+    end
+
+    u3 = create_user
+    tu3 = create_team_user team: t, user: u3, role: 'journalist'
+    assert_raise RuntimeError do
+      with_current_user_and_team(u3, t) do
+        tu.role = 'editor'
+        tu.save!
       end
     end
   end
