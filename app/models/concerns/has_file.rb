@@ -17,11 +17,16 @@ module HasFile
 
   module ClassMethods
     def max_size
-      ENV['MAX_UPLOAD_SIZE'] ? Filesize.from("#{ENV['MAX_UPLOAD_SIZE']}B").to_f : (CONFIG['uploaded_file_max_size'] || 1.megabyte)
+      if (self.name == 'UploadedVideo')
+        size = ENV['MAX_VIDEO_SIZE'] ? Filesize.from("#{ENV['MAX_VIDEO_SIZE']}B").to_f : (CONFIG['video_file_max_size'] || 20.megabyte)
+      else
+        size = ENV['MAX_UPLOAD_SIZE'] ? Filesize.from("#{ENV['MAX_UPLOAD_SIZE']}B").to_f : (CONFIG['uploaded_file_max_size'] || 1.megabyte)
+      end
+      size
     end
 
     def max_size_readable
-      Filesize.new(UploadedFile.max_size, Filesize::SI).pretty
+      Filesize.new(self.max_size, Filesize::SI).pretty
     end
   end
 
@@ -30,6 +35,5 @@ module HasFile
     # Mount the FileUploader on the client site instead when you need it.
     validates :file, safe: true, allow_blank: true
     validates :file, presence: true, if: proc { |object| object.file_mandatory? }
-    validates :file, file_size: { less_than: UploadedFile.max_size, message: "size should be less than #{UploadedFile.max_size_readable}" }, allow_blank: true
   end
 end

@@ -7,11 +7,7 @@ module HasVideo
     include HasFile
 
     mount_uploader :file, VideoUploader
-    # validates :file, size: true, allow_blank: true
-  end
-
-  def set_success(format, opts)
-    # TODO: mark success operation
+    validates :file, file_size: { less_than: UploadedVideo.max_size, message: "size should be less than #{UploadedVideo.max_size_readable}" }, allow_blank: true
   end
 
   def video_path

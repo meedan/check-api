@@ -25,6 +25,6 @@ class UploadedVideoTest < ActiveSupport::TestCase
 
   test "should create thumbnail" do
     v = create_uploaded_video
-    assert_not_nil v.file.thumbnail
+    assert_not_nil v.file.thumb
   end
 end

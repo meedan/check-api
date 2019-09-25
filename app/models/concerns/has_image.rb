@@ -7,7 +7,7 @@ module HasImage
     include HasFile
 
     mount_uploader :file, ImageUploader
-    validates :file, size: true, allow_blank: true
+    validates :file, file_size: { less_than: UploadedImage.max_size, message: "size should be less than #{UploadedImage.max_size_readable}" }, allow_blank: true
   end
 
   def embed_path
