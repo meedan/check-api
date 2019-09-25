@@ -2231,33 +2231,41 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "should be able to leave team" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    tu = create_team_user user: u, team: t, status: 'member', role: 'contributor'
-    tu2 = create_team_user user: u, team: t2, status: 'requested', role: 'contributor'
-    with_current_user_and_team(u, t) do
-      assert_raises RuntimeError do
-        tu = TeamUser.find(tu.id)
-        tu.role = 'journalist'
-        tu.save!
+    TeamUser.role_types.each do |role|
+      puts role
+      User.current = Team.current = nil
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user user: u, team: t, status: 'member', role: role
+      tu2 = create_team_user user: u, team: t2, status: 'requested', role: role
+      with_current_user_and_team(u, t) do
+        if role != 'owner' && role != 'editor'
+          assert_raises RuntimeError do
+            tu = TeamUser.find(tu.id)
+            tu.role = 'journalist'
+            tu.save!
+          end
+        end
+        assert_nothing_raised do
+          tu = TeamUser.find(tu.id)
+          tu.status = 'banned'
+          tu.save!
+        end
       end
-      assert_nothing_raised do
-        tu = TeamUser.find(tu.id)
-        tu.status = 'banned'
-        tu.save!
-      end
-    end
-    with_current_user_and_team(u, t2) do
-      assert_raises RuntimeError do
-        tu2 = TeamUser.find(tu2.id)
-        tu2.status = 'member'
-        tu2.save!
-      end
-      assert_raises RuntimeError do
-        tu = TeamUser.find(tu.id)
-        tu.user_id = create_user.id
-        tu.save!
+      with_current_user_and_team(u, t2) do
+        if role != 'owner' && role != 'editor'
+          assert_raises RuntimeError do
+            tu2 = TeamUser.find(tu2.id)
+            tu2.status = 'member'
+            tu2.save!
+          end
+          assert_raises RuntimeError do
+            tu = TeamUser.find(tu.id)
+            tu.user_id = create_user.id
+            tu.save!
+          end
+        end
       end
     end
   end
