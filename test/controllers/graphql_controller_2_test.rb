@@ -1258,4 +1258,16 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['target_project_media']['id']
     assert_nil Relationship.where(id: r.id).last
   end
+
+  test "should get version from global id" do
+    authenticate_with_user
+    v = create_version
+    t = Team.last
+    id = Base64.encode64("Version/#{v.id}")
+    q = assert_queries 9 do
+      post :create, query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug
+    end
+    assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
+    assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1  ORDER BY \"versions\".\"id\" DESC LIMIT 1")
+  end
 end
