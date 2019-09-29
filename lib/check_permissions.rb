@@ -34,6 +34,9 @@ module CheckPermissions
       elsif self.name == 'ProjectMedia'
         pm = self.find(id)
         pm.project.inactive ? nil : pm
+      elsif self.name == 'Version'
+        tid = Team.current&.id.to_i
+        self.from_partition(tid).where(id: id).last
       else
         self.find(id)
       end
