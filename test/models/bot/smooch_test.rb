@@ -1204,6 +1204,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     I18n.stubs(:t).with(:custom_message_smooch_bot_ask_for_confirmation_reverso, { locale: 'es' }).returns('')
     assert_equal 'Custom Message', ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: 'es' })
     I18n.unstub(:t)
+    I18n.unstub(:exists?)
     Bot::Smooch.unstub(:config)
   end
 
