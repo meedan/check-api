@@ -337,7 +337,7 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     if team && !config["smooch_message_#{key}"].blank?
-      I18n.exists?("custom_message_#{key}_#{team.slug}") ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      (I18n.exists?("custom_message_#{key}_#{team.slug}") && !I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options).blank?) ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
