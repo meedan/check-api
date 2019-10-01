@@ -1195,6 +1195,19 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
 
+  test "should never return an empty string" do
+    t = create_team slug: 'reverso'
+    settings = @settings.clone.merge({ 'team_id' => t.id, 'smooch_message_smooch_bot_ask_for_confirmation' => 'Custom Message' })
+    Bot::Smooch.stubs(:config).returns(settings)
+    I18n.stubs(:t).with(:smooch_bot_ask_for_confirmation, { locale: 'es' }).returns('Default Message')
+    I18n.stubs(:exists?).with('custom_message_smooch_bot_ask_for_confirmation_reverso').returns(true)
+    I18n.stubs(:t).with(:custom_message_smooch_bot_ask_for_confirmation_reverso, { locale: 'es' }).returns('')
+    assert_equal 'Custom Message', ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: 'es' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
+    Bot::Smooch.unstub(:config)
+  end
+
   protected
 
   def run_concurrent_requests
