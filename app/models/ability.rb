@@ -99,7 +99,6 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
     can :update, TeamUser, team_id: @context_team.id
-    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
     can :export_project, Project, team_id: @context_team.id
@@ -140,7 +139,6 @@ class Ability
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
-    cannot :update, TeamUser, team_id: @context_team.id, user_id: @user.id
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:update, :destroy], Relationship, { source: { project: { team_id: @context_team.id } }, target: { project: { team_id: @context_team.id } }}

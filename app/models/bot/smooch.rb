@@ -314,7 +314,7 @@ class Bot::Smooch < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
-      Airbrake.notify(e, parameters: { bot: self.name, body: body }) if Airbrake.configuration.api_key
+      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
     end
@@ -337,7 +337,7 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     if team && !config["smooch_message_#{key}"].blank?
-      I18n.exists?("custom_message_#{key}_#{team.slug}") ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      (I18n.exists?("custom_message_#{key}_#{team.slug}") && !I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options).blank?) ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
@@ -426,41 +426,21 @@ class Bot::Smooch < BotUser
       a.annotation_type = 'smooch_user'
       a.annotated_type = 'Project'
       a.annotated_id = self.get_project_id
-      a.set_fields = {
-        smooch_user_data: data.to_json,
-        smooch_user_id: uid,
-        smooch_user_app_id: app_id
-      }.to_json
+      a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
       a.save!
     end
   end
 
-  def self.tos_accept_user_information(uid, timestamp)
-    Rails.cache.write("smooch:last_accepted_terms:#{uid}", timestamp)
+  def self.tos_required?(uid)
+    return Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
   end
 
-  def self.process_message_confirmation(message, app_id, sm)
-    # For now we only reject messages that match the following:
-    # - the number 1
-    # - user is banned
-    return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
-
-    hash = self.message_hash(message)
-    pm_id = Rails.cache.read("smooch:message:#{hash}")
-    if pm_id.nil?
-      sm.send_message_new
-      sm.message = message.to_json
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: message['language'] }))
-    else
-      sm.send_message_existing
-      self.save_message_later(message, app_id)
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
-    end
+  def self.tos_sent(uid, timestamp)
+    Rails.cache.write("smooch:last_accepted_terms:#{uid}", timestamp)
   end
 
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
-
     Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
     if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").nil?
       Rails.cache.write("smooch:last_accepted_terms:#{message['authorId']}", 0)
@@ -469,46 +449,44 @@ class Bot::Smooch < BotUser
 
     if sm.state.value == 'human_mode'
       Rails.logger.info("[Smooch Bot] Ignoring message because conversation for user #{message['authorId']} is in human-mode")
-    elsif ['waiting_for_message', 'waiting_for_tos', 'waiting_for_confirmation'].include?(sm.state.value)
-      self.send("process_message_#{sm.state.value}", sm, message, app_id)
+      return
+
+    elsif sm.state.value == 'waiting_for_message'
+      return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+
+      if self.tos_required?(message['authorId'])
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
+        self.tos_sent(message['authorId'], Time.now.to_i)
+      end
+
+      hash = self.message_hash(message)
+      pm_id = Rails.cache.read("smooch:message:#{hash}")
+      if pm_id.nil?
+        sm.send_message_new
+        sm.message = message.to_json
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: message['language'] }))
+      else
+        sm.send_message_existing
+        self.save_message_later(message, app_id)
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
+      end
+
+    elsif sm.state.value == 'waiting_for_confirmation'
+      sm.confirm_message
+      saved_message = JSON.parse(sm.message.value)
+      if self.convert_numbers(message['text']) == 1
+        if self.supported_message?(saved_message)
+          self.save_message_later(saved_message, app_id)
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
+        else
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: saved_message['language'] }))
+        end
+      else
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: saved_message['language'] }))
+      end
     end
 
     self.schedule_reminder_job(message['authorId'], app_id, sm)
-  end
-
-  def self.process_message_waiting_for_message(sm, message, app_id)
-    if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
-      sm.request_tos
-      sm.message = message.to_json
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
-    else
-      self.process_message_confirmation(message, app_id, sm)
-    end
-  end
-
-  def self.process_message_waiting_for_tos(sm, message, app_id)
-    if self.convert_numbers(message['text']) == 1
-      self.tos_accept_user_information(message['authorId'], message['received'])
-      self.process_message_confirmation(JSON.parse(sm.message.value), app_id, sm)
-    else
-      sm.reject_tos
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: message['language'] }))
-    end
-  end
-
-  def self.process_message_waiting_for_confirmation(sm, message, app_id)
-    sm.confirm_message
-    saved_message = JSON.parse(sm.message.value)
-    if self.convert_numbers(message['text']) == 1
-      if self.supported_message?(saved_message)
-        self.save_message_later(saved_message, app_id)
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
-      else
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: saved_message['language'] }))
-      end
-    else
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: saved_message['language'] }))
-    end
   end
 
   def self.schedule_reminder_job(uid, app_id, sm)
@@ -562,7 +540,7 @@ class Bot::Smooch < BotUser
       api_instance.post_message(app_id, uid, message_post_body)
     rescue SmoochApi::ApiError => e
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      Airbrake.notify(e, parameters: { smooch_app_id: app_id, uid: uid, body: params }) if Airbrake.configuration.api_key
+      self.notify_error(e, { smooch_app_id: app_id, uid: uid, body: params }, RequestStore[:request] )
     end
   end
 

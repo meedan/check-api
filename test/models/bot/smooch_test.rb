@@ -284,10 +284,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
             }.to_json
 
             assert Bot::Smooch.run(message)
-            sm = CheckStateMachine.new(uid)
-            if sm.state.value == 'waiting_for_tos'
-              assert send_confirmation(uid)
-            end
             assert Bot::Smooch.run(ignore)
             assert Bot::Smooch.run(message)
             assert send_confirmation(uid)
@@ -354,7 +350,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload1)
     assert_nil Rails.cache.read(key)
     assert send_confirmation(uid)
-    assert send_confirmation(uid)
     job = Rails.cache.read(key)
     assert_not_nil job
     Bot::Smooch.run(payload1)
@@ -407,7 +402,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     assert send_confirmation(uid)
 
     pm = ProjectMedia.last
@@ -500,7 +494,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 0, ProjectMedia.count
 
       assert send_confirmation(uid)
-      assert send_confirmation(uid)
       assert_not_nil Rails.cache.read(key)
       assert_equal 1, SmoochPingWorker.jobs.size
       assert_equal 1, SmoochWorker.jobs.size
@@ -567,7 +560,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     s = pm.last_status_obj
@@ -618,7 +610,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm2 = ProjectMedia.last
     assert_equal pm, pm2
     assert CheckS3.exist?(filepath)
@@ -673,7 +664,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     assert send_confirmation(uid)
 
     Sidekiq::Testing.fake! do
@@ -850,7 +840,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     assert send_confirmation(uid)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     with_current_user_and_team(u, @team) do
       s = pm.last_verification_status_obj
@@ -950,7 +939,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
-      assert send_confirmation(uid)
       assert send_confirmation(uid)
     end
 
@@ -1057,7 +1045,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @installation = TeamBotInstallation.find(@installation.id)
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     Bot::Smooch.run(payload)
-    send_confirmation(uid)
     send_confirmation(uid)
     assert_equal 1, ProjectMedia.count
   end
@@ -1208,12 +1195,24 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
 
+  test "should never return an empty string" do
+    t = create_team slug: 'reverso'
+    settings = @settings.clone.merge({ 'team_id' => t.id, 'smooch_message_smooch_bot_ask_for_confirmation' => 'Custom Message' })
+    Bot::Smooch.stubs(:config).returns(settings)
+    I18n.stubs(:t).with(:smooch_bot_ask_for_confirmation, { locale: 'es' }).returns('Default Message')
+    I18n.stubs(:exists?).with('custom_message_smooch_bot_ask_for_confirmation_reverso').returns(true)
+    I18n.stubs(:t).with(:custom_message_smooch_bot_ask_for_confirmation_reverso, { locale: 'es' }).returns('')
+    assert_equal 'Custom Message', ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: 'es' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
+    Bot::Smooch.unstub(:config)
+  end
+
   protected
 
   def run_concurrent_requests
     threads = []
     uid = random_string
-    Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     CheckStateMachine.new(random_string)
     Bot::Smooch.stubs(:config).returns(@settings)
     @success = 0
@@ -1267,8 +1266,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           '_id': random_string,
           authorId: uid,
           type: 'text',
-          text: '1',
-          received: Time.now.to_i
+          text: '1'
         }
       ],
       appUser: {

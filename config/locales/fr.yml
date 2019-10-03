@@ -590,10 +590,10 @@ fr:
     Merci de nous envoyer cette demande. Voulez-vous que nous vérifiions son contenu ?
 
     Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
-  smooch_bot_ask_for_tos: |-
-    Veuillez lire les conditions d'utilisation à %{tos}. Les acceptez-vous ?
+  smooch_bot_tos: |-
+    Merci d'avoir contacté Check Message!
 
-    Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
+    Vous pouvez utiliser ce service pour demander une vérification des faits ou une enquête sur des nouvelles et des informations. Le message de vérification vous est fourni en vertu des présentes conditions d'utilisation: %{tos}. En continuant à utiliser ce service, *vous acceptez d'être lié par les présentes conditions*. Si vous n'êtes pas d'accord, veuillez cesser d'utiliser Check Message.
   smooch_bot_window_closing: Dû à l'important volume des demandes reçues, nous n'avons
     pas encore été en mesure de vérifier votre demande. Merci pour votre patience.
   smooch_bot_not_final: |-
