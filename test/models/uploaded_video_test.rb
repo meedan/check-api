@@ -7,7 +7,7 @@ class UploadedVideoTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not upload a file that is not a video" do
+  test "should upload allowed extensions only" do
     assert_no_difference 'UploadedImage.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_uploaded_video file: 'rails.flv'
@@ -26,5 +26,6 @@ class UploadedVideoTest < ActiveSupport::TestCase
   test "should create thumbnail" do
     v = create_uploaded_video
     assert_not_nil v.file.thumb
+    assert_not_nil v.file.embed
   end
 end
