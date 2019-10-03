@@ -33,7 +33,7 @@ namespace :transifex do
   task download: [:environment, :languages, :login] do
     project = Transifex::Project.new(TRANSIFEX_PROJECT_SLUG)
     resource_slugs = project.resources.fetch.select{ |r| r['slug'] =~ /^api/ }.collect{ |r| r['slug'] }
-    @langs.each do |lang|
+    @langs.select{|l| l != 'en'}.each do |lang|
       yaml = {}
       yaml[lang] = {}
       resource_slugs.each do |slug|
