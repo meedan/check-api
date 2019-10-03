@@ -15,6 +15,9 @@ module HasFile
     self.file_url(version).to_s.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
   end
 
+  def file_path
+  end
+
   module ClassMethods
     def max_size
       if (self.name == 'UploadedVideo')

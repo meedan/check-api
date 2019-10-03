@@ -15,7 +15,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :thumbnail_path, types.String
   field :picture, types.String
   field :type, types.String
-  field :video_path, types.String
+  field :file_path, types.String
 
   field :account do
     type -> { AccountType }

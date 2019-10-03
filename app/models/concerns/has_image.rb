@@ -22,6 +22,4 @@ module HasImage
     true
   end
 
-  def video_path
-  end
 end

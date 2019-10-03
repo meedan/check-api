@@ -2,30 +2,40 @@ class VideoUploader < FileUploader
   include CarrierWave::Video
   include CarrierWave::Video::Thumbnailer
   include CarrierWave::MiniMagick
+  # include ::CarrierWave::Backgrounder::Delay
 
   storage :file
 
   version :thumb do
-    process thumbnail: [{format: 'png', quality: 10}]
+    s = CONFIG['image_thumbnail_size'] || [100, 100]
+    process thumbnail: [{format: 'jpg', size: "#{s.first}x#{s.last}", quality: 10, logger: Rails.logger}]
   
     def full_filename for_file
-      png_name for_file, version_name
+      jpg_name for_file, version_name
     end
+
+  end
+
+  version :embed do
+    s = CONFIG['image_embed_size'] || [800, 600]
+    process thumbnail: [{format: 'jpg', size: "#{s.first}x#{s.last}", quality: 10, logger: Rails.logger}]
+  
+    def full_filename for_file
+      jpg_name for_file, version_name
+    end
+
   end
   
-  def png_name for_file, version_name
-    %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.png}
+  def jpg_name for_file, version_name
+    %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.jpg}
   end
 
-  # version :embed, from_version: :thumb do
-  #   process resize_to_fit: CONFIG['image_embed_size'] || [800, 600]
-  # end
-
-  def extension_whitelist
+  def extension_white_list
     VideoUploader.upload_extensions
   end
 
   def self.upload_extensions
     %w(avi mp4)
   end
+
 end
