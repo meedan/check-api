@@ -688,6 +688,7 @@ ro:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorăm.
   custom_message_smooch_bot_disabled_caio: Vai! ne pare rău! Acest robot acum este
     deactivat :(
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Vă mulțumim pentru că ați transmis acest mesaj.
 
@@ -728,3 +729,4 @@ ro:
   custom_message_smooch_bot_not_final_reverso: ''
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
+  custom_message_smooch_bot_ask_for_tos_reverso: ''
