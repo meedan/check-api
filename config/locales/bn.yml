@@ -54,6 +54,7 @@ bn:
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 
@@ -93,3 +94,4 @@ bn:
   custom_message_smooch_bot_not_final_reverso: ''
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
+  custom_message_smooch_bot_ask_for_tos_reverso: ''
