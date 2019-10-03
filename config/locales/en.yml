@@ -570,7 +570,7 @@ en:
     Thank you for sending this request. Do you want us to verify its content?
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
-  smooch_bot_tos: |-
+  smooch_bot_ask_for_tos: |-
     Thanks for reaching out to Check Message!
 
     You can use this service to request verification, fact-checks, and investigation of news and information. Check Message is provided to you under these Terms of Service: %{tos}. By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of Check Message if you do not agree.
@@ -687,6 +687,8 @@ en:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'By continuing, you agree
+    to the TOS: %{tos}'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -748,3 +750,10 @@ en:
   custom_message_smooch_bot_window_closing_reverso: El volumen de pedidos a nuestra
     redacción es enorme, por lo que aún no podemos resolver tu consulta. Gracias por
     escribirnos.
+  custom_message_smooch_bot_ask_for_tos_reverso: Hola, ¿cómo estás? Gracias por ponerte
+    en contacto con Reverso, un proyecto colaborativo impulsado por Chequeado, AFP,
+    FirstDraft y Pop-Up Newsroom. Para contestarte más rápido estamos probando Check
+    Message, un servicio de Meedan. Por favor, leé sus Términos de Servicio en %{tos}.
+    Si continuás usando este servicio reconocés que aceptás estos Términos y estás
+    de acuerdo en vincularte a los mismos. Si no estás de acuerdo (o no podés cumplir)
+    con los Términos, debés dejar de utilizar el servicio.
