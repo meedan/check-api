@@ -990,6 +990,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     k = 'smooch_bot_meme'
     assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
     assert_equal I18n.t(k, locale: 'pt'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    t.set_language = 'fr'
+    t.save!
+    assert_equal I18n.t(k, locale: 'fr'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    t.settings.delete(:language)
+    t.save!
     RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
