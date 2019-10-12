@@ -24,7 +24,7 @@ build_qa:
     - d=configurator/check/qa/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
     - docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
-    - docker run  $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA "bundle exec rake db:migrate"
+    - docker run  $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA /bin/bash -c "bundle exec rake db:migrate"
   only:
     - develop
 
