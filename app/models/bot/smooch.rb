@@ -134,26 +134,26 @@ class Bot::Smooch < BotUser
 
     def self.upload_smooch_strings_to_transifex(tbi)
       require 'transifex'
-      ::Transifex.configure do |c|
+      Transifex.configure do |c|
         c.client_login = CONFIG['transifex_user']
         c.client_secret = CONFIG['transifex_password']
       end
-      project = ::Transifex::Project.new('check-2')
+      project = Transifex::Project.new(CONFIG['transifex_project'])
       slug = tbi.team.slug
       resource_slug = 'api-custom-messages-' + slug
-      resource = yaml = nil
+      resource = nil
+      yaml = { 'en' => {} }
 
       begin
         resource = project.resource(resource_slug)
-        yaml = YAML.load(resource.translation('en').fetch['content'])
+        resource.fetch
       rescue Transifex::TransifexError
         resource = nil
-        yaml = { 'en' => {} }
       end
 
       count = 0
       tbi.settings.each do |key, value|
-        if key.to_s =~ /^smooch_message_/ && !value.blank?
+        if tbi.get_smooch_localize_messages && key.to_s =~ /^smooch_message_/ && !value.blank?
           count += 1
           yaml['en'][key.gsub(/^smooch_message_/, 'custom_message_') + '_' + slug] = value
         end
@@ -161,10 +161,12 @@ class Bot::Smooch < BotUser
 
       if count > 0
         if resource.nil?
-          Transifex::Resources.new('check-2').create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
+          Transifex::Resources.new(CONFIG['transifex_project']).create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
         else
           resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
         end
+      elsif resource
+        resource.delete
       end
     end
 

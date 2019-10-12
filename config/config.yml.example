@@ -39,6 +39,7 @@ development: &default
   clamav_service_path:
   transifex_user:
   transifex_password:
+  transifex_project:
   locale:
   alegre_host:
   alegre_token:
@@ -55,7 +56,10 @@ development: &default
   export_download_expiration_days: 7
   pg_hero_enabled: true
   tos_url: 'https://meedan.com/en/check/check_tos.html'
-  tos_smooch_url: 'https://meedan.com/en/check/check_message_tos.html'
+  tos_smooch_url:
+    lang:
+      en: 'https://meedan.com/en/check/check_message_tos.html'
+      es: 'https://meedan.com/es/check/check_message_tos.html'
   privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
   privacy_email: ''
   google_credentials_path: '/path/to/credentials.json'
