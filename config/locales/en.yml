@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added to Check, no work has started
@@ -570,7 +570,7 @@ en:
     Thank you for sending this request. Do you want us to verify its content?
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
-  smooch_bot_tos: |-
+  smooch_bot_ask_for_tos: |-
     Thanks for reaching out to Check Message!
 
     You can use this service to request verification, fact-checks, and investigation of news and information. Check Message is provided to you under these Terms of Service: %{tos}. By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of Check Message if you do not agree.
@@ -680,71 +680,3 @@ en:
   smooch_twitter_success: Success! Now the DMs received by this Twitter account will
     be handled by the Smooch Bot.
   invalid_task_answer: Sorry, the format of this task answer is not valid
-  custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
-    confirm with "1".
-  custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
-    we got it.
-  custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
-  custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
-    disabled :(
-  custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
-    Thank you for sending this message.
-    Do you suspect it to be misinformation related to the Indian General Elections 2019?
-    To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_checkpoint: Thank you. Your submission
-    will help us research the spread of misinformation on WhatsApp during these elections.
-    This item has also been added to our verification queue. We will try to get you
-    a report within 24 hours, but please note that we are not able to respond to every
-    request.
-  custom_message_smooch_bot_message_unconfirmed_checkpoint: Since you didn’t reply
-    with 1, we will not process your message further. Thank you.
-  custom_message_smooch_bot_disabled_checkpoint: |-
-    Thank you for sending this message.
-    We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.
-  custom_message_smooch_bot_message_type_unsupported_checkpoint: Sorry, we don't support
-    this type of file format for verification yet.
-  custom_message_smooch_bot_meme_checkpoint: Here's a meme we created based on the
-    item you have requested that we verify. Learn more at %{url}.
-  custom_message_smooch_bot_result_checkpoint: |-
-    [Verification Report] The message you shared with us is marked *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_result_changed_checkpoint: |-
-    [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_not_final_checkpoint: '[Verification Report - CORRECTION]
-    The message you shared with us was wrongly marked as *%{status}*. It is still
-    in our queue for further verification."'
-  custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
-  custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
-    y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
-  custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue
-    incorrectamente tratado como %{previous_status}. \n\nEste pedido que nos hiciste
-    ya fue verificado y nos dio %{status}. Acá te pasamos el link a la verificación:
-    %{url}"
-  custom_message_smooch_bot_ask_for_confirmation_reverso: |
-    Hola, cómo va?
-
-    Gracias por enviarnos este mensaje.
-
-    ¿Sospechás que se trata de una desinformación relacionada con las elecciones?
-
-    Si tu respuesta es sí, por favor respondenos con el número 1.
-  custom_message_smooch_bot_message_confirmed_reverso: |-
-    Muchas gracias. Tu colaboración nos ayuda a combatir la difusión de desinformaciones en WhatsApp durante estas elecciones.
-
-    Este pedido ya fue sumado a los temas que trata la redacción. Trataremos de avisarte en las próximas 24 horas, pero por favor tené en cuenta que por el volumen de pedidos que estamos teniendo quizás no llegaremos a chequear lo que nos pediste.
-  custom_message_smooch_bot_message_type_unsupported_reverso: Perdonanos, pero por
-    ahora no podemos chequear este tipo de archivos porque es imposible verificar
-    la validez o falsedad con las técnicas que utilizamos en nuestro método de verificación.
-  custom_message_smooch_bot_message_unconfirmed_reverso: Si no respondiste con 1,
-    va a ser difícil que la Redacción tome tu pedido. Gracias por escribirno.
-  custom_message_smooch_bot_not_final_reverso: Disculpas. El mensaje que nos enviaste
-    fue incorrectamente tratado como %{status}. Corregiremos nuestro error y recibirás
-    pronto el reporte correcto.
-  custom_message_smooch_bot_meme_reverso: "Acá te enviamos un Meme que creamos, basado
-    en el tema de tu consulta que ya verificamos. \nVer más en: %{url}"
-  custom_message_smooch_bot_window_closing_reverso: El volumen de pedidos a nuestra
-    redacción es enorme, por lo que aún no podemos resolver tu consulta. Gracias por
-    escribirnos.

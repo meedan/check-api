@@ -576,7 +576,7 @@ pt:
     Obrigado por enviar esta mensagem. Você quer verificar o conteúdo dela?
 
     Para sim, *por favor responda com 1*. Qualquer outra resposta terminará nossa conversa.
-  smooch_bot_tos: |-
+  smooch_bot_ask_for_tos: |-
     Obrigado por entrar em contato com a Check Message!
 
     Você pode usar este serviço para solicitar verificação, verificação de fatos e investigação de notícias e informações. Check Message é fornecida a você sob estes Termos de Serviço: %{tos}. Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Você deve parar de usar a Check Message se não concordar.
@@ -693,6 +693,7 @@ pt:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorado.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Perdão, mas este bot está desabilitado
     :(
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
@@ -733,3 +734,4 @@ pt:
   custom_message_smooch_bot_not_final_reverso: ''
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
+  custom_message_smooch_bot_ask_for_tos_reverso: ''

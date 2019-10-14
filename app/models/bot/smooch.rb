@@ -134,26 +134,26 @@ class Bot::Smooch < BotUser
 
     def self.upload_smooch_strings_to_transifex(tbi)
       require 'transifex'
-      ::Transifex.configure do |c|
+      Transifex.configure do |c|
         c.client_login = CONFIG['transifex_user']
         c.client_secret = CONFIG['transifex_password']
       end
-      project = ::Transifex::Project.new('check-2')
+      project = Transifex::Project.new(CONFIG['transifex_project'])
       slug = tbi.team.slug
       resource_slug = 'api-custom-messages-' + slug
-      resource = yaml = nil
+      resource = nil
+      yaml = { 'en' => {} }
 
       begin
         resource = project.resource(resource_slug)
-        yaml = YAML.load(resource.translation('en').fetch['content'])
+        resource.fetch
       rescue Transifex::TransifexError
         resource = nil
-        yaml = { 'en' => {} }
       end
 
       count = 0
       tbi.settings.each do |key, value|
-        if key.to_s =~ /^smooch_message_/ && !value.blank?
+        if tbi.get_smooch_localize_messages && key.to_s =~ /^smooch_message_/ && !value.blank?
           count += 1
           yaml['en'][key.gsub(/^smooch_message_/, 'custom_message_') + '_' + slug] = value
         end
@@ -161,10 +161,12 @@ class Bot::Smooch < BotUser
 
       if count > 0
         if resource.nil?
-          Transifex::Resources.new('check-2').create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
+          Transifex::Resources.new(CONFIG['transifex_project']).create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
         else
           resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
         end
+      elsif resource
+        resource.delete
       end
     end
 
@@ -336,6 +338,8 @@ class Bot::Smooch < BotUser
   def self.i18n_t(key, options = {})
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
+    # Override reply language with team language if present
+    options.merge!({ locale: team.get_language }) if team && team.get_language
     if team && !config["smooch_message_#{key}"].blank?
       (I18n.exists?("custom_message_#{key}_#{team.slug}") && !I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options).blank?) ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
@@ -455,7 +459,7 @@ class Bot::Smooch < BotUser
       return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
       if self.tos_required?(message['authorId'])
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_tos, { locale: message['language'], tos: CONFIG['tos_smooch_url'] }))
+        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
         self.tos_sent(message['authorId'], Time.now.to_i)
       end
 
