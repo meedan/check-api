@@ -12,7 +12,7 @@ module HasVideo
   end
 
   def file_path
-  	"#{CONFIG['checkdesk_base_url']}/#{self.file_url}"
+    "#{CONFIG['checkdesk_base_url']}/#{self.file_url}"
   end
 
   def thumbnail_path

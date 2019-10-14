@@ -17,12 +17,11 @@ module HasFile
 
   module ClassMethods
     def max_size
+      options = { var_name: 'MAX_UPLOAD_SIZE', config_name: 'uploaded_file_max_size', size: 1.megabyte}
       if (self.name == 'UploadedVideo')
-        size = ENV['MAX_VIDEO_SIZE'] ? Filesize.from("#{ENV['MAX_VIDEO_SIZE']}B").to_f : (CONFIG['video_file_max_size'] || 20.megabyte)
-      else
-        size = ENV['MAX_UPLOAD_SIZE'] ? Filesize.from("#{ENV['MAX_UPLOAD_SIZE']}B").to_f : (CONFIG['uploaded_file_max_size'] || 1.megabyte)
+        options = { var_name: 'MAX_VIDEO_SIZE', config_name: 'video_file_max_size', size: 20.megabyte }
       end
-      size
+      ENV[options[:var_name]] ? Filesize.from("#{ENV[options[:var_name]]}B").to_f : (CONFIG[options[:config_name]] || options[:size])
     end
 
     def max_size_readable
