@@ -1,6 +1,4 @@
 class FileUploader < CarrierWave::Uploader::Base
-	include ::CarrierWave::Backgrounder::Delay
-
   storage :fog
 
   def store_dir

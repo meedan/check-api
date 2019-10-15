@@ -15,6 +15,14 @@ module HasFile
     self.file_url(version).to_s.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
   end
 
+  def file_path
+    self.image_path
+  end
+
+  def embed_path
+    self.image_path('embed')
+  end
+
   module ClassMethods
     def max_size
       options = { var_name: 'MAX_UPLOAD_SIZE', config_name: 'uploaded_file_max_size', size: 1.megabyte}

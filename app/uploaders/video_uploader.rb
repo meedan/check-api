@@ -2,8 +2,7 @@ class VideoUploader < FileUploader
   include CarrierWave::Video
   include CarrierWave::Video::Thumbnailer
   include CarrierWave::MiniMagick
-
-  storage :file
+  include ::CarrierWave::Backgrounder::Delay
 
   version :thumb do
     s = CONFIG['image_thumbnail_size'] || [100, 100]
