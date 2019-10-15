@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/EDealerDirect/carrierwave_backgrounder
+  revision: 6369dccbe80b939a9beb2fd25ae6565908142f00
+  specs:
+    carrierwave_backgrounder (0.4.2)
+      carrierwave (>= 0.5, < 2.0)
+      mime-types (>= 3.0.0)
+
+GIT
   remote: https://github.com/arp/activerecord-redshift-adapter.git
   revision: 734e34e5ea88c040e665144f579ecb0664d75efc
   branch: rails4-compatibility
@@ -188,7 +196,6 @@ GEM
       streamio-ffmpeg
     carrierwave-video-thumbnailer (0.1.4)
       carrierwave
-    carrierwave_backgrounder (0.0.2)
     chartkick (3.2.0)
     chronic_duration (0.10.6)
       numerizer (~> 0.1.1)
@@ -791,7 +798,7 @@ DEPENDENCIES
   carrierwave (~> 1.0)
   carrierwave-video
   carrierwave-video-thumbnailer
-  carrierwave_backgrounder
+  carrierwave_backgrounder!
   clamav-client
   codeclimate-test-reporter (= 1.0.8)
   coffee-rails (~> 4.1.0)
