@@ -123,6 +123,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     messages = [
       {
         '_id': random_string,
+        authorId: id2,
+        type: 'audio',
+        text: random_string,
+        mediaUrl: random_url
+      },
+      {
+        '_id': random_string,
         authorId: id,
         type: 'text',
         text: 'This is a test claim'

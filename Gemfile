@@ -132,6 +132,6 @@ gem 'therubyracer'
 gem 'execjs'
 gem 'carrierwave-video'
 gem 'carrierwave-video-thumbnailer'
-gem 'carrierwave_backgrounder', git: 'https://github.com/EDealerDirect/carrierwave_backgrounder'
+gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
 gem 'activerecord-redshift-adapter',  git: 'https://github.com/arp/activerecord-redshift-adapter.git', branch: "rails4-compatibility"
 gem 'partitioned', git: 'https://github.com/dkhofer/partitioned.git', branch: 'rails-4-2'

@@ -3,6 +3,12 @@ require 'active_support/concern'
 module HasImage
   extend ActiveSupport::Concern
 
+  module ClassMethods
+    def max_size
+      ENV['MAX_UPLOAD_SIZE'] ? Filesize.from("#{ENV['MAX_UPLOAD_SIZE']}B").to_f : (CONFIG['uploaded_file_max_size'] || 1.megabyte)
+    end
+  end
+
   included do
     include HasFile
 

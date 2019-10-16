@@ -24,14 +24,6 @@ module HasFile
   end
 
   module ClassMethods
-    def max_size
-      options = { var_name: 'MAX_UPLOAD_SIZE', config_name: 'uploaded_file_max_size', size: 1.megabyte}
-      if (self.name == 'UploadedVideo')
-        options = { var_name: 'MAX_VIDEO_SIZE', config_name: 'video_file_max_size', size: 20.megabyte }
-      end
-      ENV[options[:var_name]] ? Filesize.from("#{ENV[options[:var_name]]}B").to_f : (CONFIG[options[:config_name]] || options[:size])
-    end
-
     def max_size_readable
       Filesize.new(self.max_size, Filesize::SI).pretty
     end

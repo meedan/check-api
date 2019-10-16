@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/EDealerDirect/carrierwave_backgrounder
-  revision: 6369dccbe80b939a9beb2fd25ae6565908142f00
-  specs:
-    carrierwave_backgrounder (0.4.2)
-      carrierwave (>= 0.5, < 2.0)
-      mime-types (>= 3.0.0)
-
-GIT
   remote: https://github.com/arp/activerecord-redshift-adapter.git
   revision: 734e34e5ea88c040e665144f579ecb0664d75efc
   branch: rails4-compatibility
@@ -40,6 +32,14 @@ GIT
   ref: a78f321
   specs:
     alegre_client (0.0.11)
+
+GIT
+  remote: https://github.com/meedan/carrierwave_backgrounder
+  revision: 518cfd659719a282fcc9d343f6437cb3526f337d
+  specs:
+    carrierwave_backgrounder (0.4.2)
+      carrierwave (>= 0.5, < 2.0)
+      mime-types (>= 3.0.0)
 
 GIT
   remote: https://github.com/meedan/graphiql-rails.git
@@ -419,13 +419,13 @@ GEM
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     metaclass (0.0.4)
-    mime-types (3.2.2)
+    mime-types (3.3)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2018.0812)
+    mime-types-data (3.2019.1009)
     mini_magick (4.3.3)
     mini_mime (1.0.1)
     mini_portile2 (2.4.0)
-    minitest (5.11.3)
+    minitest (5.12.2)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
     minitest-retry (0.1.9)

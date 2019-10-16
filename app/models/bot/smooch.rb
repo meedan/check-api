@@ -565,12 +565,12 @@ class Bot::Smooch < BotUser
          when 'text'
            self.save_text_message(message)
          when 'image'
-           self.save_image_message(message)
+           self.save_media_message(message)
          when 'video'
-           self.save_image_message(message, 'video')
+           self.save_media_message(message, 'video')
          when 'file'
            m = message['mediaType'].to_s.match(/^(image|video)\//)
-           m.nil? ? return : self.save_image_message(message, m[1])
+           m.nil? ? return : self.save_media_message(message, m[1])
          else
            return
          end
@@ -681,7 +681,7 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.save_image_message(message, type='image')
+  def self.save_media_message(message, type='image')
     open(message['mediaUrl']) do |f|
       text = message['text']
 

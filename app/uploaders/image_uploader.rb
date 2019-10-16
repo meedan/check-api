@@ -9,7 +9,7 @@ class ImageUploader < FileUploader
     process resize_to_fit: CONFIG['image_embed_size'] || [800, 600]
   end
 
-  def default_url(*args)
+  def default_url
     "/images/#{model.class.to_s.underscore}.png"
   end
 

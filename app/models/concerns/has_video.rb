@@ -3,6 +3,12 @@ require 'active_support/concern'
 module HasVideo
   extend ActiveSupport::Concern
 
+  module ClassMethods
+    def max_size
+      ENV['MAX_VIDEO_SIZE'] ? Filesize.from("#{ENV['MAX_VIDEO_SIZE']}B").to_f : (CONFIG['video_file_max_size'] || 20.megabyte)
+    end
+  end
+
   included do
     include HasFile
 
