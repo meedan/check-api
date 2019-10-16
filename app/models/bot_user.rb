@@ -222,10 +222,15 @@ class BotUser < User
       properties[s[:name]] = {
         type: type,
         title: s[:label],
-        default: default
       }
+      if type == 'array'
+        properties[s[:name]][:items] = s[:items]
+      else
+        properties[s[:name]][:default] = default
+      end
       properties[s[:name]][:enum] = Team.current&.team_tasks.to_a.collect{ |t| { key: t.id, value: t.label } } if !validate && s[:name] == 'smooch_task'
     end
+    properties.deep_reject_key!(:enum) if validate
     { type: 'object', properties: properties }.to_json
   end
 
@@ -318,7 +323,9 @@ class BotUser < User
         label = s['label']
         type = s['type']
         default = s['default']
-        settings << { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+        setting = { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+        setting['items'] = s['items'] unless s['items'].blank?
+        settings << setting
       end
       self.set_settings(settings)
     end
