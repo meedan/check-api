@@ -2,21 +2,22 @@ module SmoochRules
   extend ActiveSupport::Concern
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'matches_regexp']
-  ACTIONS = ['send_to_trash', 'move_to_project']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter']
 
   module Rules
-    def has_less_than_x_words(_pm, message, value)
-      message['text'].split(/\s+/).size <= value.to_i
+    def has_less_than_x_words(pm, message, value)
+      pm.report_type == 'claim' && message['text'].split(/\s+/).size <= value.to_i
     end
 
-    def contains_keyword(_pm, message, value)
+    def contains_keyword(pm, message, value)
+      return false unless pm.report_type == 'claim'
       words = message['text'].split(/\s+/)
       keywords = value.to_s.split(',')
       !(words & keywords).empty?
     end
 
-    def matches_regexp(_pm, message, value)
-      !message['text'].match(/#{Regexp.new(value)}/).nil?
+    def matches_regexp(pm, message, value)
+      pm.report_type == 'claim' && !message['text'].match(/#{Regexp.new(value)}/).nil?
     end
   end
 
@@ -27,10 +28,15 @@ module SmoochRules
     end
 
     def move_to_project(pm, _message, value)
-      if value
-        pm.project_id = value.to_i
+      project = Project.where(team_id: self.config['team_id'].to_i, id: value.to_i).last
+      unless project.nil?
+        pm.project_id = project.id
         pm.save!
       end
+    end
+
+    def ban_submitter(_pm, message, _value)
+      self.ban_user(message)
     end
   end
   

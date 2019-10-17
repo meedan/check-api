@@ -53,7 +53,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
                     "enum": [
                       { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
                       { "key": "matches_regexp", "value": "Message matches this regular expression" },
-                      { "key": "is_similar_to_existing_image", "value": "Image is similar to existing image" },
                       { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
                     ]
                   },
@@ -77,7 +76,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
                     "enum": [
                       { "key": "send_to_trash", "value": "Send to trash" },
                       { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
-                      { "key": "relate_to_existing", "value": "Relate to existing content" }
+                      { "key": "ban_submitter", "value": "Ban submitting user" }
                     ]
                   },
                   "smooch_action_value": {
@@ -1337,6 +1336,24 @@ class Bot::SmoochTest < ActiveSupport::TestCase
             "smooch_action_value": ""
           }
         ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "matches_regexp",
+            "smooch_rule_value": "bad word"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "send_to_trash",
+            "smooch_action_value": ""
+          },
+          {
+            "smooch_action_definition": "ban_submitter",
+            "smooch_action_value": ""
+          }
+        ]
       }
     ]
     @installation.settings = s2
@@ -1445,6 +1462,33 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: [random_string, random_string, random_string, 'bad word', random_string, random_string].join(' ')
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert_nil Rails.cache.read("smooch:banned:#{uid}")
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert pm.archived
+    assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
 
     @installation.settings = s1
     @installation.save!

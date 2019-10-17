@@ -24,7 +24,6 @@ class AddRulesAndActionsSettingToSmoochBot < ActiveRecord::Migration
                     "enum": [
                       { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
                       { "key": "matches_regexp", "value": "Message matches this regular expression" },
-                      { "key": "is_similar_to_existing_image", "value": "Image is similar to existing image" },
                       { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
                     ]
                   },
@@ -48,7 +47,7 @@ class AddRulesAndActionsSettingToSmoochBot < ActiveRecord::Migration
                     "enum": [
                       { "key": "send_to_trash", "value": "Send to trash" },
                       { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
-                      { "key": "relate_to_existing", "value": "Relate to existing content" }
+                      { "key": "ban_submitter", "value": "Ban submitting user" }
                     ]
                   },
                   "smooch_action_value": {

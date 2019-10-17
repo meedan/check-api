@@ -654,17 +654,18 @@ class Bot::Smooch < BotUser
 
   def self.save_text_message(message)
     text = message['text']
+    project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
 
     begin
       url = self.extract_url(text)
       if url.nil?
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last
         if pm.nil?
           pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
           pm.is_being_created = true
         end
       else
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last
         if pm.nil?
           pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
           pm.is_being_created = true
@@ -684,6 +685,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_image_message(message)
+    project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
+    
     open(message['mediaUrl']) do |f|
       text = message['text']
 
@@ -691,7 +694,7 @@ class Bot::Smooch < BotUser
       hash = Digest::MD5.hexdigest(data)
       filepath = File.join(Rails.root, 'tmp', "#{hash}.jpeg")
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => message['project_id']).last
+      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => project_ids).last
       if pm.nil?
         m = UploadedImage.new
         File.open(filepath) do |f2|
