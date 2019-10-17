@@ -316,7 +316,6 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
-      raise e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
