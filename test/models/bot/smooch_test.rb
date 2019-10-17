@@ -31,7 +31,65 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
-      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false }
+      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false },
+      {
+        "name": "smooch_rules_and_actions",
+        "label": "Rules and Actions",
+        "type": "array",
+        "items": {
+          "title": "Rules and Actions",
+          "type": "object",
+          "properties": {
+            "smooch_rules": {
+              "title": "Rules",
+              "type": "array",
+              "items": {
+                "title": "Rule",
+                "type": "object",
+                "properties": {
+                  "smooch_rule_definition": {
+                    "title": "Rule Definition",
+                    "type": "string",
+                    "enum": [
+                      { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
+                      { "key": "matches_regexp", "value": "Message matches this regular expression" },
+                      { "key": "is_similar_to_existing_image", "value": "Image is similar to existing image" },
+                      { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
+                    ]
+                  },
+                  "smooch_rule_value": {
+                    "title": "Value",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "smooch_actions": {
+              "title": "Actions",
+              "type": "array",
+              "items": {
+                "title": "Action",
+                "type": "object",
+                "properties": {
+                  "smooch_action_definition": {
+                    "title": "Action Definition",
+                    "type": "string",
+                    "enum": [
+                      { "key": "send_to_trash", "value": "Send to trash" },
+                      { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
+                      { "key": "relate_to_existing", "value": "Relate to existing content" }
+                    ]
+                  },
+                  "smooch_action_value": {
+                    "title": "Value",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     ]
     {
       'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
@@ -1226,6 +1284,170 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     I18n.unstub(:t)
     I18n.unstub(:exists?)
     Bot::Smooch.unstub(:config)
+  end
+
+  test "should route to project based on rules" do
+    s1 = @installation.settings.clone
+    s2 = @installation.settings.clone
+    p1 = create_project team: @team
+    p2 = create_project team: @team
+    s2['smooch_rules_and_actions'] = [
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "contains_keyword",
+            "smooch_rule_value": "hi,hello,sorry,please"
+          },
+          {
+            "smooch_rule_definition": "has_less_than_x_words",
+            "smooch_rule_value": "5"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "move_to_project",
+            "smooch_action_value": p1.id.to_s
+          }
+        ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "has_less_than_x_words",
+            "smooch_rule_value": "2"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "move_to_project",
+            "smooch_action_value": p2.id.to_s
+          }
+        ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "matches_regexp",
+            "smooch_rule_value": "^[0-9]+$"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "send_to_trash",
+            "smooch_action_value": ""
+          }
+        ]
+      }
+    ]
+    @installation.settings = s2
+    @installation.save!
+    uid = random_string
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: ([random_string] * 10).join(' ')
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal @project.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: ([random_string] * 4).join(' ') + ' please'
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal p1.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal p2.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_number.to_s 
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert pm.archived
+
+    @installation.settings = s1
+    @installation.save!
   end
 
   protected

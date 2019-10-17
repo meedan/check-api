@@ -5,6 +5,7 @@ class Bot::Smooch < BotUser
   check_settings
 
   include CheckI18n
+  include SmoochRules
 
   ::Workflow::VerificationStatus.class_eval do
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
@@ -315,6 +316,7 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
+      raise e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
@@ -591,6 +593,8 @@ class Bot::Smooch < BotUser
       a.save!
     end
     Rails.cache.write(key, hash)
+    
+    self.apply_rules_and_actions(pm, message) if pm.is_being_created
 
     self.send_results_if_item_is_finished(pm, message)
   end
@@ -602,7 +606,7 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_project_id(_message = nil)
+  def self.get_project_id(message = nil)
     project_id = self.config['smooch_project_id'].to_i
     raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?
     project_id
@@ -658,11 +662,13 @@ class Bot::Smooch < BotUser
         pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
         if pm.nil?
           pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+          pm.is_being_created = true
         end
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
         if pm.nil?
           pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
+          pm.is_being_created = true
           pm.metadata = { description: text }.to_json if text != url
         elsif text != url
           Comment.create! annotated: pm, text: text, force_version: true
@@ -694,6 +700,7 @@ class Bot::Smooch < BotUser
         end
         m.save!
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
+        pm.is_being_created = true
         pm.metadata = { description: text }.to_json unless text.blank?
       elsif !text.blank?
         Comment.create! annotated: pm, text: text, force_version: true
