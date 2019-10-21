@@ -24,6 +24,10 @@ module HasFile
   end
 
   module ClassMethods
+    def get_max_size(options)
+      options[:env] ? Filesize.parse_from("#{options[:env]}B").to_f : (options[:config] || options[:default])
+    end
+
     def max_size_readable
       Filesize.new(self.max_size, Filesize::SI).pretty
     end
@@ -35,4 +39,10 @@ module HasFile
     validates :file, safe: true, allow_blank: true
     validates :file, presence: true, if: proc { |object| object.file_mandatory? }
   end
+end
+
+class Filesize
+   def self.parse_from(arg)
+     self.from(arg)
+   end
 end
