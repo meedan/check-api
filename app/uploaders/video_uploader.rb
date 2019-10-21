@@ -4,25 +4,18 @@ class VideoUploader < FileUploader
   include CarrierWave::MiniMagick
   include ::CarrierWave::Backgrounder::Delay
 
-  version :thumb do
-    s = CONFIG['image_thumbnail_size'] || [100, 100]
-    process thumbnail: [{format: 'jpg', size: "#{s.first}x#{s.last}", quality: 10, logger: Rails.logger}]
+  def self.define_version(name, size)
+    version name do
+      process thumbnail: [{ format: 'jpg', size: "#{size.first}x#{size.last}", quality: 10, logger: Rails.logger }]
 
-    def full_filename for_file
-      jpg_name for_file, version_name
+      def full_filename(for_file)
+        jpg_name for_file, version_name
+      end
     end
-
   end
 
-  version :embed do
-    s = CONFIG['image_embed_size'] || [800, 600]
-    process thumbnail: [{format: 'jpg', size: "#{s.first}x#{s.last}", quality: 10, logger: Rails.logger}]
-
-    def full_filename for_file
-      jpg_name for_file, version_name
-    end
-
-  end
+  define_version :thumb, (CONFIG['image_thumbnail_size'] || [100, 100])
+  define_version :embed, (CONFIG['image_embed_size'] || [800, 600])
 
   def jpg_name for_file, version_name
     %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.jpg}
@@ -35,5 +28,4 @@ class VideoUploader < FileUploader
   def self.upload_extensions
     %w(mp4 webm mov m4v)
   end
-
 end
