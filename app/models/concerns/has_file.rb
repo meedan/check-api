@@ -42,7 +42,7 @@ module HasFile
 end
 
 class Filesize
-   def self.parse_from(arg)
-     self.from(arg)
-   end
+  def self.parse_from(arg)
+    self.from(arg)
+  end
 end
