@@ -8,7 +8,7 @@ class VideoUploader < FileUploader
     version name do
       process thumbnail: [{ format: 'jpg', size: "#{size.first}x#{size.last}", quality: 10, logger: Rails.logger }]
 
-      def full_filename(for_file)
+      define_method :full_filename do |for_file|
         jpg_name for_file, version_name
       end
     end
