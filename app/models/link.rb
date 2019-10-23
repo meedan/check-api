@@ -46,6 +46,12 @@ class Link < Media
     self.get_saved_pender_data['provider']
   end
 
+  def self.normalized(url)
+    l = Link.new url: url
+    l.valid?
+    l.url
+  end
+
   private
 
   def set_account
