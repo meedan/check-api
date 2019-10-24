@@ -18,5 +18,8 @@ for d in ${PERSIST_DIRS}; do
     fi
 done
 
+echo "starting static files server"
+su ${DEPLOYUSER} -c "bundle exec ruby bin/static-files-server &"
+
 echo "starting sidekiq"
 su ${DEPLOYUSER} -c "bundle exec sidekiq -L ${LOGFILE} | tee ${LOGFILE}"
