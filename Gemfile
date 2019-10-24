@@ -130,7 +130,6 @@ gem 'fog-aws'
 gem 'aws-sdk-s3'
 gem 'therubyracer'
 gem 'execjs'
-gem 'carrierwave-video'
 gem 'carrierwave-video-thumbnailer'
 gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
 gem 'activerecord-redshift-adapter',  git: 'https://github.com/arp/activerecord-redshift-adapter.git', branch: "rails4-compatibility"

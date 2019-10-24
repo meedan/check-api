@@ -8,3 +8,4 @@
   - ["smooch", 2]
   - ["smooch_ping", 2]
   - ["pusher", 1]
+  - ["carrierwave", 1]

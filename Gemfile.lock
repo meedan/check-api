@@ -191,9 +191,6 @@ GEM
       activemodel (>= 4.0.0)
       activesupport (>= 4.0.0)
       mime-types (>= 1.16)
-    carrierwave-video (0.6.0)
-      carrierwave
-      streamio-ffmpeg
     carrierwave-video-thumbnailer (0.1.4)
       carrierwave
     chartkick (3.2.0)
@@ -703,8 +700,6 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.3.13)
-    streamio-ffmpeg (3.0.2)
-      multi_json (~> 1.8)
     swagger-docs (0.1.9)
       activesupport (>= 3, < 5)
       rails (>= 3, < 5)
@@ -796,7 +791,6 @@ DEPENDENCIES
   byebug
   cancancan (~> 1.10)
   carrierwave (~> 1.0)
-  carrierwave-video
   carrierwave-video-thumbnailer
   carrierwave_backgrounder!
   clamav-client

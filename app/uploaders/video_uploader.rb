@@ -1,7 +1,5 @@
 class VideoUploader < FileUploader
-  include CarrierWave::Video
   include CarrierWave::Video::Thumbnailer
-  include CarrierWave::MiniMagick
   include ::CarrierWave::Backgrounder::Delay
 
   def self.define_version(name, size)

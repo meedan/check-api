@@ -30,6 +30,9 @@ class Media < ActiveRecord::Base
     self.projects.map(&:team)
   end
 
+  def file_path
+  end
+
   def embed_path
     ''
   end
