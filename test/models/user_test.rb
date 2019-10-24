@@ -1018,7 +1018,7 @@ class UserTest < ActiveSupport::TestCase
     result = User.accept_team_invitation('invalidtoken', t.slug)
     assert_not_empty result.errors
     # Accept with expired token
-    old_date = invitation_date - 2.day
+    old_date = invitation_date - User.invite_for - 1.day
     tu.update_column(:created_at, old_date)
     result = User.accept_team_invitation(token, t.slug)
     assert_not_empty result.errors
@@ -1264,8 +1264,8 @@ class UserTest < ActiveSupport::TestCase
       User.send_user_invitation(members)
     end
     tu = u2.team_users.where(team_id: t2.id).last
-    # # expire invitation
-    old_date = tu.created_at - 2.day
+    # expire invitation
+    old_date = tu.created_at - User.invite_for - 1.day
     tu.update_column(:created_at, old_date)
     with_current_user_and_team(u2, t2) do
       create_team_user team: t2, user: u2, status: 'requested'
