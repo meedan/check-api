@@ -43,12 +43,12 @@ deploy_qa:
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install ecs-deploy==1.7.0
-    - pip install docutils==0.14
-    - pip install awscli==1.16.201
     - ecs deploy ecs-qa  qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600
     - ecs deploy ecs-qa  qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
     - echo "Running Migrations"
+    - pip install docutils==0.14
+    - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
     - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
@@ -96,12 +96,12 @@ deploy_live:
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install ecs-deploy==1.7.0
-    - pip install docutils==0.14
-    - pip install awscli==1.16.201
     - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
     - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
     - echo "new Image was deployed $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
     - echo "Running Migrations"
+    - pip install docutils==0.14
+    - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
     - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
