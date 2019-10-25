@@ -1,12 +1,14 @@
 module TagMutations
   create_fields = {
     tag: '!str',
+    fragment: 'str',
     annotated_id: 'str',
     annotated_type: 'str'
   }
 
   update_fields = {
     tag: 'str',
+    fragment: 'str',
     annotated_id: 'str',
     annotated_type: 'str'
   }

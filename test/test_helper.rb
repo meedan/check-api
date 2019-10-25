@@ -55,10 +55,13 @@ class ActiveSupport::TestCase
   def stub_config(key, value, must_unstub = true)
     CONFIG.each do |k, v|
       CONFIG.stubs(:[]).with(k).returns(v) if k != key
+      CONFIG.stubs(:has_key?).with(k).returns(true)
     end
     CONFIG.stubs(:[]).with(key).returns(value)
+    CONFIG.stubs(:has_key?).with(key).returns(true)
     yield if block_given?
     CONFIG.unstub(:[]) if must_unstub
+    CONFIG.unstub(:has_key?) if must_unstub
   end
 
   def setup_elasticsearch
