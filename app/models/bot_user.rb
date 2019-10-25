@@ -143,6 +143,7 @@ class BotUser < User
     begin
       if self.core?
         User.current = self
+        Team.current = data[:team]
         bot = "Bot::#{self.identifier.camelize}".constantize
         bot.run(data.with_indifferent_access) unless bot.blank?
       else
@@ -158,6 +159,7 @@ class BotUser < User
       Rails.logger.error("[BotUser] Error calling bot #{self.identifier}: #{e.message}")
       self.class.notify_error(e, { bot: self.id, uri: uri, data: data })
       User.current = nil
+      Team.current = nil
     end
   end
 

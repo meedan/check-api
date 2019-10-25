@@ -40,7 +40,8 @@
         <% end %>
         <div id="oembed__content">
         <%
-          meme = @project_media.get_dynamic_annotation('memebuster')&.memebuster_url
+          meme_annotation = @project_media.get_dynamic_annotation('memebuster')
+          meme = (meme_annotation && CheckS3.exist?(meme_annotation.memebuster_filepath)) ? meme_annotation.memebuster_url : nil
           picture = @project_media.media.picture
         %>
         <% if meme %>

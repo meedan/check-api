@@ -85,4 +85,4 @@ RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 EXPOSE 3300
 
 WORKDIR ${DEPLOYDIR}
-CMD ["/opt/bin/start.sh"]
+ENTRYPOINT ["/opt/bin/start.sh"]

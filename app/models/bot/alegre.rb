@@ -106,7 +106,7 @@ class Bot::Alegre < BotUser
     context = self.get_context(pm).to_json
     Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
       req = Net::HTTP::Post::Multipart.new(url, {
-        'url' => pm.media.picture,
+        'url' => pm.media.file.file.public_url,
         'context' => context,
         'filter' => { project_id: pm.project.id }.to_json,
         'threshold' => 1,

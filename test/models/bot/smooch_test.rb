@@ -30,7 +30,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
       { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
-      { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
+      { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
+      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false }
     ]
     {
       'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
@@ -48,6 +49,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
     WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
     WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:delete, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: 'ok')
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
@@ -57,7 +59,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_secret_key_key_id' => random_string,
       'smooch_secret_key_secret' => random_string,
       'smooch_template_namespace' => random_string,
-      'smooch_window_duration' => 10
+      'smooch_window_duration' => 10,
+      'smooch_localize_messages' => true
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
@@ -961,7 +964,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     t = create_team
     tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
 
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
       s = tbi.settings.clone
       s['smooch_message_smooch_bot_meme'] = random_string
       s['smooch_message_smooch_bot_not_final'] = random_string
@@ -990,6 +993,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     k = 'smooch_bot_meme'
     assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
     assert_equal I18n.t(k, locale: 'pt'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    t.set_language = 'fr'
+    t.save!
+    assert_equal I18n.t(k, locale: 'fr'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
+    t.settings.delete(:language)
+    t.save!
     RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
     assert_equal c1, Bot::Smooch.i18n_t(k)
     assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
@@ -1143,13 +1151,25 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     require 'transifex'
     t = create_team
     ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string }) do
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
       s = @settings.clone
       s['smooch_message_smooch_bot_meme'] = random_string
       s['smooch_message_smooch_bot_not_final'] = random_string
       create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
     end
     ::Transifex::Project.any_instance.unstub(:resource)
+  end
+
+  test "should delete Transifex resource if no localization setting" do
+    require 'transifex'
+    t = create_team
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
+      s = @settings.clone
+      s['smooch_message_smooch_bot_meme'] = random_string
+      s['smooch_message_smooch_bot_not_final'] = random_string
+      s['smooch_localize_messages'] = false
+      create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
+    end
   end
 
   test "should use custom embed URL from task answer" do

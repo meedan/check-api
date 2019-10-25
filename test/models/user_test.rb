@@ -630,7 +630,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_omniauth_user provider: 'facebook', uid: '1062518227129764', email: 'user@fb.com', url: url1
     account = u.get_social_accounts_for_login({provider: 'facebook', uid: '1062518227129764'}).first
     assert_equal '1062518227129764', account.uid
-    
+
     assert_equal url1, account.url
 
     url2 = 'https://www.facebook.com/100001147915899'
@@ -677,9 +677,9 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, TeamUser.where(user_id: id).count
   end
 
-  test "should create account with omniauth data" do 
+  test "should create account with omniauth data" do
     info = {
-      "nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"", 
+      "nickname"=>"daniela", "team"=>"meedan", "user"=>"daniela", "name"=>"daniela feitosa", "description"=>"",
       "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"
     }
     url = "https://meedan.slack.com/team/daniela"
@@ -751,7 +751,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get profile image if user has no source" do
-    u = create_user 
+    u = create_user
     assert_not_nil u.source
     u.update_columns(source_id: nil)
     assert_nothing_raised do
@@ -780,6 +780,10 @@ class UserTest < ActiveSupport::TestCase
 
   test "should return the last time that the terms of service were updated" do
     assert User.terms_last_updated_at_by_page(:tos) > 0
+  end
+
+  test "should return the last time that the Smooch terms of service were updated" do
+    assert User.terms_last_updated_at_by_page(:tos_smooch) > 0
   end
 
   test "should return the last time that the terms of privacy were updated" do
@@ -1014,7 +1018,7 @@ class UserTest < ActiveSupport::TestCase
     result = User.accept_team_invitation('invalidtoken', t.slug)
     assert_not_empty result.errors
     # Accept with expired token
-    old_date = invitation_date - 2.day
+    old_date = invitation_date - User.invite_for - 1.day
     tu.update_column(:created_at, old_date)
     result = User.accept_team_invitation(token, t.slug)
     assert_not_empty result.errors
@@ -1260,8 +1264,8 @@ class UserTest < ActiveSupport::TestCase
       User.send_user_invitation(members)
     end
     tu = u2.team_users.where(team_id: t2.id).last
-    # # expire invitation
-    old_date = tu.created_at - 2.day
+    # expire invitation
+    old_date = tu.created_at - User.invite_for - 1.day
     tu.update_column(:created_at, old_date)
     with_current_user_and_team(u2, t2) do
       create_team_user team: t2, user: u2, status: 'requested'
