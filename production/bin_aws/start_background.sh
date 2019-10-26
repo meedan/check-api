@@ -18,6 +18,9 @@ for d in ${PERSIST_DIRS}; do
     fi
 done
 
+echo "create the temporary directory"
+su ${DEPLOYUSER} -c "mkdir -p /app/current/tmp"
+
 echo "starting static files server"
 su ${DEPLOYUSER} -c "bundle exec ruby bin/static-files-server &"
 
