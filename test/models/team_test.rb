@@ -878,6 +878,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get GraphQL id" do
     t = create_team
     assert_kind_of String, t.graphql_id
+    assert_kind_of String, t.team_graphql_id
+    assert_equal t.graphql_id, t.team_graphql_id
   end
 
   test "should not set custom statuses if limited" do
