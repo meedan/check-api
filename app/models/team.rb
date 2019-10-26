@@ -72,6 +72,10 @@ class Team < ActiveRecord::Base
     self.projects.order('title ASC')
   end
 
+  def team_graphql_id
+    Base64.encode64("Team/#{self.id}")
+  end
+
   # FIXME Source should be using concern HasImage
   # which automatically adds a member attribute `file`
   # which is used by GraphqlCrudOperations
