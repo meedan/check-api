@@ -24,6 +24,6 @@ class VideoUploader < FileUploader
   end
 
   def self.upload_extensions
-    %w(mp4 webm mov m4v)
+    %w(mp4 ogg ogv webm mov m4v)
   end
 end
