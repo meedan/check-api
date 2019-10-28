@@ -690,6 +690,8 @@ ro:
   custom_message_smooch_bot_not_final_afp-checamos: ''
   custom_message_smooch_bot_meme_afp-checamos: ''
   custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
@@ -700,18 +702,18 @@ ro:
   custom_message_smooch_bot_meme_africa-check: ''
   custom_message_smooch_bot_ask_for_tos_africa-check: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
+  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: Ne pare rău,
     momentan nu acceptăm mesajele video și audio încărcate direct pe WhatsApp.
+  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
+  custom_message_smooch_bot_not_final_boom-factcheck: ''
   custom_message_smooch_bot_meme_boom-factcheck: Iată un meme, pe care l-am creat
     în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe
     %{url}.
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
-  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
-  custom_message_smooch_bot_not_final_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Rugăm
     să confirmați cu ”1”.
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Mulțumim!
@@ -750,6 +752,16 @@ ro:
     Mesajul transmis de Dvs a fost marcat greșit ca fiind *%{status}*. Este încă în
     coada de așteptare pentru verificări ulterioare."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_ask_for_confirmation_india-today: ''
+  custom_message_smooch_bot_message_confirmed_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_unconfirmed_india-today: ''
+  custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
+  custom_message_smooch_bot_window_closing_india-today: ''
+  custom_message_smooch_bot_disabled_india-today: ''
+  custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''

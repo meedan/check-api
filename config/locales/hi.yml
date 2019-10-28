@@ -60,6 +60,8 @@ hi:
   custom_message_smooch_bot_not_final_afp-checamos: ''
   custom_message_smooch_bot_meme_afp-checamos: ''
   custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
@@ -75,19 +77,6 @@ hi:
     आपने जो सामग्री साझा की थी उसे *%{status}* चिन्हित किया गया है.
 
     यह हमारी जांच प्रणाली रही है: %{url}
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: माफ़ करें, हम
-    व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
-    असमर्थ हैं.
-  custom_message_smooch_bot_meme_boom-factcheck: हमनें आपके निवेदन पर आधारित एक मीम
-    बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक जानने
-    के लिए इस लिंक पर जाएं %{url}
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'इस सेवा का इस्तेमाल आप सूचनाओं/समाचार
-    की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं |
-    चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलभ्ध है: %{tos}. यदि आप सेवा जारी
-    रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो चेक मैसेज
-    की सेवा समाप्त कर सकते हैं.
-
-'
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
     इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
     हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचित को रोक देगा.
@@ -95,6 +84,9 @@ hi:
     शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
 
     हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में शक्षम नहीं हैं.
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: माफ़ करें, हम
+    व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
+    असमर्थ हैं.
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 न भेजने पर आपका
     यह निवेदन यहीं समाप्त होता है. धन्यवाद.
   custom_message_smooch_bot_not_final_boom-factcheck: |
@@ -103,12 +95,22 @@ hi:
      जो सामग्री आपने साझा की थी किसी गड़बड़ के चलते ग़लती से यह चिन्हित हो गयी है: *%{status}*
 
     यह सामग्री अब भी जांच के अंतर्गत है.
+  custom_message_smooch_bot_meme_boom-factcheck: हमनें आपके निवेदन पर आधारित एक मीम
+    बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक जानने
+    के लिए इस लिंक पर जाएं %{url}
   custom_message_smooch_bot_window_closing_boom-factcheck: |2
 
     इस प्रणाली में तथ्यों की जांच के निवेदन ज़्यादा होने के कारण आपके निवेदन का समाधान अब तक नहीं हो पाया है. आपके धैर्य के लिए धन्यवाद.
   custom_message_smooch_bot_disabled_boom-factcheck: सन्देश भेजने के लिए धन्यवाद.
     हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
     हो चुकी है.
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'इस सेवा का इस्तेमाल आप सूचनाओं/समाचार
+    की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं |
+    चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलभ्ध है: %{tos}. यदि आप सेवा जारी
+    रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो चेक मैसेज
+    की सेवा समाप्त कर सकते हैं.
+
+'
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
@@ -141,6 +143,88 @@ hi:
     द्वारा हमारे साथ साझा किया गया संदेश गलत तरीके से चिह्नित किया गया था। *%{status}*
     आगे के सत्यापन के लिए यह अभी भी हमारी पंक्ति में है।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_india-today: |-
+    बधाई हो, जो मैसेज आपने हमें भेजा था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*.
+
+
+
+    इस रिपोर्ट को तैयार करने के लिए हमने इस तरीके से जांच की: %{url}
+
+
+
+    आजतक फैक्ट-चेक से संपर्क करने के लिए एक बार फिर से आपका शुक्रिया.
+  custom_message_smooch_bot_ask_for_confirmation_india-today: |-
+    आज तक फैक्ट-चेक तक अपनी बात पहुंचाने के लिए आपका धन्यवाद.
+
+
+    अगर आप चाहते हैं  कि हम इस मैसेज की सच्चाई का पता लगाएं,  तो *कृपया 1 लिख कर हमें भेजें*. कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
+  custom_message_smooch_bot_message_confirmed_india-today: |-
+    धन्यवाद, आपका मैसेज हम जांच करने के फैक्ट-चेक टीम को भेज रहे हैं.
+
+
+    अगर आपके मैसेज के बारे में हम रिपोर्ट प्रकाशित करते हैं तो आप अगले 48 घंटे के भीतर उसे यहां देख सकते हैं. 
+
+    https://aajtak.intoday.in/fact-check.html
+
+
+    लेकिन माफ करें, हर मैजेस का जवाब देना या उस पर रिपोर्ट छापना संभव नहीं है.
+  custom_message_smooch_bot_message_type_unsupported_india-today: |-
+    ओह ! अगर आपने हमें वीडियो भेजा है जो कृपया उसका लिंक भेजने की कोशिश करें. 
+
+
+    इस तरह की फाइल को समझ पाना इस समय हमारे लिए मुश्किल है.
+  custom_message_smooch_bot_message_unconfirmed_india-today: |-
+    माफ करें, ये नंबर सिर्फ आज तक फैक्ट-चेक के लिए है.
+
+
+    अगर आप इंडिया टुडे की फैक्ट- चेक स्टोरी देखना चाहते हैं तो यहां जाएं
+
+     https://aajtak.intoday.in/fact-check.html
+  custom_message_smooch_bot_not_final_india-today: |-
+    ओह ! लगता है हमारे कंप्यूटर जी ने ज़रा जल्दबाजी कर दी. ग़लती से आपके सन्देश का निष्कर्ष यह भेजा *%{status}*.
+
+
+    आपके मैसेज पर हम अभी भी काम कर रहे हैं.  जो रिपोर्ट आपको मिली है उसे अभी नज़रअंदाज़ कर दें और फाइनल रिपोर्ट का इंतज़ार करें.
+
+
+    तब तक आप देखें की इंडिया टुडे फैक्ट चेक की टीम ने ऐसे ही किन बातों की सच्चाई पता लगाई.
+
+
+    https://www.indiatoday.in/fact-check
+  custom_message_smooch_bot_meme_india-today: 'ये हैं आपके भेजे मैसेज की रिपोर्ट कुछ
+    नए अंदाज़ में.  अगर ये आपको पसंद आये तो अपने दोस्तों के साथ शेयर करें. इसके बारे
+    में और जानें यहाँ पर %{url}.
+
+'
+  custom_message_smooch_bot_window_closing_india-today: |-
+    अरे, कुछ सब्र करें भाई ! 
+
+    फैक्ट-चेक करने में समय लगता है.
+
+
+    अभी तो हम आपके पहले भेजे मैसेज को ही देख रहे हैं.
+
+
+    तब तक आप देखिए कि हम ऐसे ही किन अफ़वाहों का पर्दाफ़ाश कर चुके हैं.
+
+    https://aajtak.intoday.in/fact-check.html
+  custom_message_smooch_bot_disabled_india-today: |-
+    आज तक फैक्ट चेक से संपर्क करने के लिए आपका धन्यवाद.
+
+
+    लेकिन, माफ कीजिए, अभी हम आपको जवाब नहीं दे सकते.
+
+
+    आप चाहें तो तमाम  ताज़ातरीन फैक्ट चेक स्टोरी यहां देख सकते हैं.  
+
+    https://aajtak.intoday.in/fact-check.html
+  custom_message_smooch_bot_ask_for_tos_india-today: |-
+    इस व्हाट्सऐप टिपलाइन का सॉफ्टवेर चेक मेसेज आपको इन नियमों के तहत पहुँचाया गया है. %{tos} इस सेवा को जारी रखकर *आप इन शर्तों को स्वीकार करते हैं*. यदि आपको यह स्वीकार नहीं है तो आप चेक मेसेज का इस्तेमाल समाप्त कर सकते हैं.
+
+
+    इस बीच, ऐसे ही जिन अफ़वाहों  के बारे में हमने पता लगाया है, उसके बारे में आप यहां पढ़ सकते हैं.
+
+       https://aajtak.intoday.in/fact-check.html
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
