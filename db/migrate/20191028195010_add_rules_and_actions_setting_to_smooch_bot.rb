@@ -5,21 +5,21 @@ class AddRulesAndActionsSettingToSmoochBot < ActiveRecord::Migration
       settings = tb.get_settings.clone || []
       settings << {
         "name": "smooch_rules_and_actions",
-        "label": "Rules and Actions",
+        "label": "Rules",
         "type": "array",
         "items": {
-          "title": "Rules and Actions",
+          "title": "Rules",
           "type": "object",
           "properties": {
             "smooch_rules": {
-              "title": "Rules",
+              "title": "Conditions",
               "type": "array",
               "items": {
-                "title": "Rule",
+                "title": "Condition",
                 "type": "object",
                 "properties": {
                   "smooch_rule_definition": {
-                    "title": "Rule Definition",
+                    "title": "Condition Definition",
                     "type": "string",
                     "enum": [
                       { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
