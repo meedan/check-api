@@ -122,7 +122,9 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
+    @video_url = 'https://smooch.com/video/test.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
@@ -176,6 +178,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     id2 = random_string
     id3 = random_string
     messages = [
+      {
+        '_id': random_string,
+        authorId: id2,
+        type: 'audio',
+        text: random_string,
+        mediaUrl: random_url
+      },
       {
         '_id': random_string,
         authorId: id,
@@ -267,7 +276,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'video',
         text: random_string,
-        mediaUrl: random_url
+        mediaUrl: @video_url
       },
       {
         '_id': random_string,
@@ -298,15 +307,23 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id3,
         type: 'text',
         text: 'This #teamtag is another #hashtag CLAIM'
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'file',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaType: 'video/mp4'
       }
     ]
 
     create_tag_text text: 'teamtag', team_id: @team.id, teamwide: true
     create_tag_text text: 'montag', team_id: @team.id, teamwide: true
 
-    assert_difference 'ProjectMedia.count', 5 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
-        assert_difference 'Comment.length', 8 do
+    assert_difference 'ProjectMedia.count', 6 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
+        assert_difference 'Comment.length', 9 do
           messages.each do |message|
             uid = message[:authorId]
 
@@ -961,10 +978,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_not Bot::Smooch.is_rtl_lang?
   end
 
-  test "should support file only if image" do
+  test "should support file only if image or video" do
     assert Bot::Smooch.supported_message?({ 'type' => 'image' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'video' })
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })
     assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
   end
 

@@ -17,8 +17,10 @@ QueryType = GraphQL::ObjectType.define do
         version: VERSION,
         id: 1,
         type: 'About',
-        upload_max_size: UploadedFile.max_size_readable,
+        upload_max_size: UploadedImage.max_size_readable,
         upload_extensions: ImageUploader.upload_extensions.join(', '),
+        video_max_size: UploadedVideo.max_size_readable,
+        video_extensions: VideoUploader.upload_extensions.join(', '),
         upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
         upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json
@@ -78,6 +80,7 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, args, _ctx) {
       return [] if User.current.nil?
       m = Link.where(url: args['url']).last
+      m = Link.where(url: Link.normalized(args['url'])).last if m.nil?
       return [] if m.nil?
       tids = User.current.team_ids
       ProjectMedia.joins(:project).where('project_medias.media_id' => m.id, 'projects.team_id' => tids)

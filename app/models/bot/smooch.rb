@@ -515,10 +515,10 @@ class Bot::Smooch < BotUser
 
   def self.supported_message?(message)
     case message['type']
-    when 'text', 'image'
+    when 'text', 'image', 'video'
       return true
     when 'file'
-      return message['mediaType'].to_s =~ /^image\//
+      return message['mediaType'].to_s =~ /^(image|video)\//
     else
       return false
     end
@@ -566,9 +566,12 @@ class Bot::Smooch < BotUser
          when 'text'
            self.save_text_message(message)
          when 'image'
-           self.save_image_message(message)
+           self.save_media_message(message)
+         when 'video'
+           self.save_media_message(message, 'video')
          when 'file'
-           message['mediaType'].to_s =~ /^image\// ? self.save_image_message(message) : return
+           m = message['mediaType'].to_s.match(/^(image|video)\//)
+           m.nil? ? return : self.save_media_message(message, m[1])
          else
            return
          end
@@ -684,19 +687,19 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.save_image_message(message)
-    project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
-    
+  def self.save_media_message(message, type='image')
     open(message['mediaUrl']) do |f|
       text = message['text']
 
       data = f.read
       hash = Digest::MD5.hexdigest(data)
-      filepath = File.join(Rails.root, 'tmp', "#{hash}.jpeg")
+      filename = type == 'image' ? "#{hash}.jpeg" : "#{hash}.mp4"
+      filepath = File.join(Rails.root, 'tmp', filename)
+      media_type = type == 'image' ? 'UploadedImage' : 'UploadedVideo'
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => project_ids).last
+      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
       if pm.nil?
-        m = UploadedImage.new
+        m = media_type.constantize.new
         File.open(filepath) do |f2|
           m.file = f2
         end
