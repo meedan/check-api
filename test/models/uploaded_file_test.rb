@@ -24,4 +24,9 @@ class UploadedFileTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should get file max size" do
+    s =  UploadedFile.get_max_size({env: "1000000"})
+    assert_equal Float, s.class
+  end
 end
