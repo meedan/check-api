@@ -14,7 +14,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
   end
 
-  MEDIA_TYPES = %w[claims links images]
+  MEDIA_TYPES = %w[claims links images videos]
 
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
@@ -49,7 +49,7 @@ class CheckSearch
   def medias
     return [] unless !media_types_filter.blank? && index_exists?
     return @medias if @medias
-    if should_hit_elasticsearch?
+    if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query
       @ids = medias_get_search_result(query).map(&:annotated_id).uniq
       results = ProjectMedia.where(id: @ids)
@@ -67,7 +67,7 @@ class CheckSearch
   def sources
     return [] unless @options['show'].include?('sources') && index_exists?
     return @sources if @sources
-    if should_hit_elasticsearch?
+    if should_hit_elasticsearch?('ProjectSource')
       query = medias_build_search_query('ProjectSource')
       @ids = medias_get_search_result(query).map(&:annotated_id).uniq
       results = ProjectSource.where({ id: @ids })
@@ -88,19 +88,22 @@ class CheckSearch
 
   def number_of_items(collection, associated_type)
     return collection.size if collection.is_a?(Array)
-    return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?
+    return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
     user = User.current
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
 
-  def should_hit_elasticsearch?
+  def should_hit_elasticsearch?(associated_type)
     status_blank = true
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    query_all_media_types = MEDIA_TYPES.size == media_types_filter.size ? true : false
-    !(query_all_media_types && status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    query_all_types = true
+    if associated_type == 'ProjectMedia'
+      query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
+    end
+    !(query_all_types && status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -250,7 +253,8 @@ class CheckSearch
         'sources' => ['Source'],
         'claims' => ['Claim'],
         'links' => 'Link',
-        'images' => 'UploadedImage'
+        'images' => 'UploadedImage',
+        'videos' => 'UploadedVideo'
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       doc_c << { terms: { 'associated_type': types } }

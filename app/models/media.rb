@@ -13,7 +13,7 @@ class Media < ActiveRecord::Base
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
 
   def self.types
-    %w(Link Claim UploadedFile UploadedImage)
+    %w(Link Claim UploadedFile UploadedImage UploadedVideo)
   end
 
   validates_inclusion_of :type, in: Media.types
@@ -28,6 +28,9 @@ class Media < ActiveRecord::Base
 
   def get_team_objects
     self.projects.map(&:team)
+  end
+
+  def file_path
   end
 
   def embed_path
