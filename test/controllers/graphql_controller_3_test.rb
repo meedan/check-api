@@ -369,4 +369,23 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: i.team.slug
     assert_response :success
   end
+
+  test "should return project medias when provided URL is not normalized and it exists on db" do
+    url = 'http://www.atarde.uol.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+    url_normalized = 'http://www.atarde.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url_normalized + '","type":"item"}}')
+    m = create_media url: url
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p, media: m
+    query = "query GetById { project_medias(url: \"#{url}\", first: 10000) { edges { node { dbid } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
 end

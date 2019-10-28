@@ -26,8 +26,8 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
 COPY . /app
 
 # startup
-COPY ./docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-background.sh
 EXPOSE 3000
 ENTRYPOINT ["tini", "--"]
-CMD ["/docker-entrypoint.sh"]
+CMD ["/app/docker-entrypoint.sh"]

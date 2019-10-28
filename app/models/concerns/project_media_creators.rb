@@ -90,12 +90,8 @@ module ProjectMediaCreators
   end
 
   def create_link
-    m = Link.new
-    m.url = self.url
-    # call m.valid? to get normalized URL before caling 'find_or_create_by'
-    m.valid?
-    m = Link.find_or_create_by(url: m.url)
-    m
+    url = Link.normalized(self.url)
+    Link.find_or_create_by(url: url)
   end
 
   def create_media

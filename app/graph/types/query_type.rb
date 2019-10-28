@@ -80,6 +80,7 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, args, _ctx) {
       return [] if User.current.nil?
       m = Link.where(url: args['url']).last
+      m = Link.where(url: Link.normalized(args['url'])).last if m.nil?
       return [] if m.nil?
       tids = User.current.team_ids
       ProjectMedia.joins(:project).where('project_medias.media_id' => m.id, 'projects.team_id' => tids)
