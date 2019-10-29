@@ -59,6 +59,8 @@ bn:
   custom_message_smooch_bot_not_final_afp-checamos: ''
   custom_message_smooch_bot_meme_afp-checamos: ''
   custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
@@ -71,32 +73,32 @@ bn:
   custom_message_smooch_bot_result_boom-factcheck: |
     [ভেরিফিকেশান রিপোর্ট]
     আপনি যে বার্তাটি আমাদের সাথে শেয়ার করেছেন তা *%{status}* চিহ্নিত করা হয়েছে। এটিকে নির্ণয় করতে আমরা নীচের ধাপগুলি অনুসরণ  করি: %{url}
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: দুঃখিত, এই পরিসেবা
-    সরাসরি হোয়াটসঅ্যাপে আপলোড করা ভিডিও এবং অডিও বার্তা সাপোর্ট করে না।
-  custom_message_smooch_bot_meme_boom-factcheck: আপনি যা যাচাই করতে চেয়েছিলেন এবং
-    আমরা যা যাচাই করেছি তার ভিত্তিতে এই মিমটি তৈরি করা হয়েছে। আরও জানতে এখানে ক্লিক
-    করুন %{url}
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: "চেক মেসেজের সাথে যোগাযোগ
-    করার জন্য ধন্যবাদ!\nআপনি এই পরিসেবা ব্যবহার করতে পারেন ফ্যাক্ট চেক এবং খবর ও তথ্যের
-    অনুসন্ধানের জন্য।\nচেক মেসেজের পরিসেবা এই নিয়ম ও শর্তের  অন্তর্গত: %{tos}: \nএই
-    পরিসেবা চালু রাখলে ধরে নেওয়া হবে আপনার তরফ থেকে ওই শর্তগুলিতে সম্মতি দেওয়া হচ্ছে।\nআপনি
-    যদি এই শর্তপূরণ না করতে চান\nতাহলে এই পরিসেবা গ্রহণ থেকে বিরত হতে পারেন।\n"
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
     তথ্য যাচাই অনুরোধের জন্য ধন্যবাদ। আপনি কি বিষয়টি যাচাই করতে চান?
     হ্যাঁ বলার জন্যে, *উত্তরে 1 লিখুন*; অন্য কিছু প্রত্যুত্তর এলে এখানেই আমাদের কথোপকথন সমাপ্ত হবে।
   custom_message_smooch_bot_message_confirmed_boom-factcheck: |
     ধন্যবাদ, আপনার অনুরোধ যাচাইয়ের জন্য তৈরি।
     আমরা আপনাকে পরবর্তী ২৪ ঘন্টার মধ্যে প্রত্যুত্তর দেওয়ার চেষ্টা করছি। দয়া করে মনে রাখবেন আমরা প্রতিটি অনুরোধের প্রতুত্তর দিতে সক্ষম নই ।
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: দুঃখিত, এই পরিসেবা
+    সরাসরি হোয়াটসঅ্যাপে আপলোড করা ভিডিও এবং অডিও বার্তা সাপোর্ট করে না।
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 রিপ্লাই না দেওয়ার
     জন্য আপনার এই নিবেদন এখানেই সমাপ্ত হল।  ধন্যবাদ।
   custom_message_smooch_bot_not_final_boom-factcheck: "[ভেরিফিকেশান রিপোর্ট -  সংশোধন]\n\nআপনি
     যে বার্তা আমাদের পাঠিয়েছিলেন তা ভুলবশত এভাবে *%{status}*  \n\nচিহ্নিত করা হয়েছে।
     এটি এখনও তদন্তাধীন।\n"
+  custom_message_smooch_bot_meme_boom-factcheck: আপনি যা যাচাই করতে চেয়েছিলেন এবং
+    আমরা যা যাচাই করেছি তার ভিত্তিতে এই মিমটি তৈরি করা হয়েছে। আরও জানতে এখানে ক্লিক
+    করুন %{url}
   custom_message_smooch_bot_window_closing_boom-factcheck: |2
 
     এই মাধ্যমে অনুরোধের ভার প্রচুর হওয়ায় এখনও আমরা আপনার অনুরোধ সমাধান করতে পারিনি। আপনার ধৈর্যের জন্য ধন্যবাদ।
   custom_message_smooch_bot_disabled_boom-factcheck: 'এই বার্তাটি পাঠানোর জন্য ধন্যবাদ।
     এই প্রকল্পটির মেয়াদোত্তীর্ণ হওয়ার কারণে আমরা যাচাইয়ের প্রত্যুত্তর দিতে অসক্ষম। '
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: "চেক মেসেজের সাথে যোগাযোগ
+    করার জন্য ধন্যবাদ!\nআপনি এই পরিসেবা ব্যবহার করতে পারেন ফ্যাক্ট চেক এবং খবর ও তথ্যের
+    অনুসন্ধানের জন্য।\nচেক মেসেজের পরিসেবা এই নিয়ম ও শর্তের  অন্তর্গত: %{tos}: \nএই
+    পরিসেবা চালু রাখলে ধরে নেওয়া হবে আপনার তরফ থেকে ওই শর্তগুলিতে সম্মতি দেওয়া হচ্ছে।\nআপনি
+    যদি এই শর্তপূরণ না করতে চান\nতাহলে এই পরিসেবা গ্রহণ থেকে বিরত হতে পারেন।\n"
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
@@ -131,6 +133,16 @@ bn:
     যে বার্তাটি আমাদের সাথে ভাগ করেছেন তা ভুলভাবে * {status} * হিসাবে চিহ্নিত হয়েছে।
     এটা এখনও আরও যাচাইয়ের জন্য আমাদের সারিতে আছে।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_ask_for_confirmation_india-today: ''
+  custom_message_smooch_bot_message_confirmed_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_unconfirmed_india-today: ''
+  custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
+  custom_message_smooch_bot_window_closing_india-today: ''
+  custom_message_smooch_bot_disabled_india-today: ''
+  custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
