@@ -209,6 +209,14 @@ class BotUser < User
     schema.to_json
   end
 
+  def get_default_from_setting(s)
+    type = s[:type]
+    default = s[:default]
+    default = default.to_i if type == 'number'
+    default = (default == 'true') if type == 'boolean'
+    default
+  end
+
   def settings_as_json_schema(validate = false)
     return nil if self.get_settings.blank?
     properties = {}
@@ -216,16 +224,19 @@ class BotUser < User
       s = setting.with_indifferent_access
       type = s[:type]
       next if type == 'hidden'
-      default = s[:default]
-      default = default.to_i if type == 'number'
-      default = (default == 'true' ? true : false) if type == 'boolean'
+      default = self.get_default_from_setting(s)
       properties[s[:name]] = {
         type: type,
         title: s[:label],
-        default: default
       }
+      if type == 'array'
+        properties[s[:name]][:items] = s[:items]
+      else
+        properties[s[:name]][:default] = default
+      end
       properties[s[:name]][:enum] = Team.current&.team_tasks.to_a.collect{ |t| { key: t.id, value: t.label } } if !validate && s[:name] == 'smooch_task'
     end
+    properties.deep_reject_key!(:enum) if validate
     { type: 'object', properties: properties }.to_json
   end
 
@@ -318,7 +329,9 @@ class BotUser < User
         label = s['label']
         type = s['type']
         default = s['default']
-        settings << { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+        setting = { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+        setting['items'] = s['items'] unless s['items'].blank?
+        settings << setting
       end
       self.set_settings(settings)
     end
