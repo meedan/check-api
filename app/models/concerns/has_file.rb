@@ -23,6 +23,10 @@ module HasFile
     self.image_path('embed')
   end
 
+  def media_url
+    self.public_path
+  end
+
   module ClassMethods
     def get_max_size(options)
       options[:env] ? Filesize.parse_from("#{options[:env]}B").to_f : (options[:config] || options[:default])
