@@ -9,7 +9,7 @@ ENV MALLOC_ARENA_MAX 2
 
 # install dependencies
 RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y  ffmpeg gstreamer0.10-ffmpeg ffmpegthumbnailer libpq-dev imagemagick inkscape graphviz siege apache2-utils fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts inotify-tools --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y ffmpeg gstreamer0.10-ffmpeg ffmpegthumbnailer libpq-dev imagemagick inkscape graphviz siege apache2-utils fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts inotify-tools --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # phantomjs
 RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
