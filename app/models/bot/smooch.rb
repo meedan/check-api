@@ -595,8 +595,8 @@ class Bot::Smooch < BotUser
       a.save!
     end
     Rails.cache.write(key, hash)
-    
-    self.apply_rules_and_actions(pm, message) if pm.is_being_created
+
+    self.apply_rules_and_actions(pm, message)
 
     self.send_results_if_item_is_finished(pm, message)
   end
@@ -608,7 +608,7 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_project_id(message = nil)
+  def self.get_project_id(_message = nil)
     project_id = self.config['smooch_project_id'].to_i
     raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?
     project_id

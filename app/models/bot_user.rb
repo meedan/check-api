@@ -209,6 +209,14 @@ class BotUser < User
     schema.to_json
   end
 
+  def get_default_from_setting(s)
+    type = s[:type]
+    default = s[:default]
+    default = default.to_i if type == 'number'
+    default = (default == 'true') if type == 'boolean'
+    default
+  end
+
   def settings_as_json_schema(validate = false)
     return nil if self.get_settings.blank?
     properties = {}
@@ -216,9 +224,7 @@ class BotUser < User
       s = setting.with_indifferent_access
       type = s[:type]
       next if type == 'hidden'
-      default = s[:default]
-      default = default.to_i if type == 'number'
-      default = (default == 'true' ? true : false) if type == 'boolean'
+      default = self.get_default_from_setting(s)
       properties[s[:name]] = {
         type: type,
         title: s[:label],

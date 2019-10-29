@@ -39,12 +39,13 @@ module SmoochRules
       self.ban_user(message)
     end
   end
-  
+
   module ClassMethods
     include ::SmoochRules::Rules
     include ::SmoochRules::Actions
 
     def apply_rules_and_actions(pm, message)
+      return unless pm.is_being_created
       config = self.config || {}
       all_rules_and_actions = config[:smooch_rules_and_actions] || []
       all_rules_and_actions.each do |rules_and_actions|
