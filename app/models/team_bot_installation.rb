@@ -41,6 +41,7 @@ class TeamBotInstallation < TeamUser
         default = s[:default]
         default = default.to_i if type == 'number'
         default = (default == 'true') if type == 'boolean'
+        default ||= [] if type == 'array'
         settings[s[:name]] = default
       end
       self.settings = settings
