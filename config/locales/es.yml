@@ -699,6 +699,8 @@ es:
   custom_message_smooch_bot_not_final_afp-checamos: ''
   custom_message_smooch_bot_meme_afp-checamos: ''
   custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
@@ -709,15 +711,15 @@ es:
   custom_message_smooch_bot_meme_africa-check: ''
   custom_message_smooch_bot_ask_for_tos_africa-check: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
+  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Por
     favor confirma con "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Gracias,
@@ -758,6 +760,16 @@ es:
     El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional."
   custom_message_smooch_bot_ask_for_tos_checkpoint: Hola y por favor lee %{tos}
+  custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_ask_for_confirmation_india-today: ''
+  custom_message_smooch_bot_message_confirmed_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_unconfirmed_india-today: ''
+  custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
+  custom_message_smooch_bot_window_closing_india-today: ''
+  custom_message_smooch_bot_disabled_india-today: ''
+  custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
