@@ -40,7 +40,7 @@ module ProjectMediaCreators
   def create_reverse_image_annotation
     return if self.project.team.is_being_copied
     picture = self.media.picture
-    unless picture.blank?
+    if self.media.type == 'UploadedImage' && !picture.blank?
       d = Dynamic.new
       d.skip_check_ability = true
       d.skip_notifications = true
