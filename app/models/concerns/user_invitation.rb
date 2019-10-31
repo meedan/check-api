@@ -71,7 +71,7 @@ module UserInvitation
           inv_user = self.accept_team_user_invitation(tu, token, options)
           invitable.id = inv_user.id unless inv_user.nil?
         else
-          invitable.errors.add(:invalid_invitation, I18n.t(:"user_invitation.invalid"))
+          invitable.errors.add(:invitation_expired, I18n.t(:"user_invitation.invalid"))
         end
       end
       invitable
