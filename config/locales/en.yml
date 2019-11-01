@@ -363,7 +363,6 @@ en:
     team_found: Team not found.
     invalid: Invitation token is invalid.
     no_invitation: No invitation exists for team %{name}
-    invitation_accepted: Invitation already accepted
   error_user_is_not_a_team_member: Sorry, you can only assign to members of this team
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
@@ -764,6 +763,9 @@ en:
     The item that you shared with us is marked *%{status}*.
 
     For more information: %{url}
+  custom_message_smooch_bot_result_changed_boom-factcheck: "[Verification Report -
+    CORRECTION]\n\nThe message you shared with us has changed from *%{previous_status}*
+    to *%{status}*.\n\nHere are the steps we took to determine this: %{url}\n \n"
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
     Thank you for sending this request. Do you want us to verify its content?
 
@@ -804,6 +806,50 @@ en:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
+  custom_message_smooch_bot_result_check-message-demo: |
+    [Verification Report]
+
+    The item that you shared with us is marked *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_result_changed_check-message-demo: |
+    [Verification Report - CORRECTION]
+
+    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
+    Thank you for sending this request. Do you want us to verify its content?
+
+    To say yes, *please reply with 1*. Any other response will end our conversation.
+  custom_message_smooch_bot_message_confirmed_check-message-demo: |
+    Thank you. Your request has been added to our verification queue.
+
+    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |
+    Sorry, we don't support this type of message for verification at this time.
+    The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Since you didn't
+    reply with 1, we will not process your request further. Thank you.
+  custom_message_smooch_bot_not_final_check-message-demo: |
+    [Verification Report - CORRECTION]
+
+    The message you shared with us was wrongly marked as *%{status}*.
+
+    It is still in our queue for further verification.
+  custom_message_smooch_bot_meme_check-message-demo: Here's a meme we created based
+    on the item you have requested that we verify. Learn more at %{url}.
+  custom_message_smooch_bot_window_closing_check-message-demo: The volume of requests
+    on this channel is very high, and we haven't been able to resolve your request
+    yet. Thank you for your patience.
+  custom_message_smooch_bot_disabled_check-message-demo: Thank you for sending this
+    message. We are unable to send back any verification reports because this project
+    is no longer active.
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'You can use this service
+    to request verification, fact-checks, and investigation of news and information.
+    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
+    to use this service, *you agree to be bound by these terms*. You should discontinue
+    your use of Check Message if you do not agree.'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -838,6 +884,12 @@ en:
     Fact Check report you wanted. \n\n*%{status}*\n\nHere are the steps we took to
     determine this: %{url}\n\nThanks again for reaching out to us. Help us fight the
     fake by sharing it. "
+  custom_message_smooch_bot_result_changed_india-today: |
+    [Verification Report - CORRECTION]
+
+    Oops! The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
   custom_message_smooch_bot_ask_for_confirmation_india-today: "Thank you for reaching
     out to India Today Fact Check. \n\nIs this a request to verify the content of
     the message you’ve sent?  \n\nPlease press 1 to Confirm. "
@@ -859,10 +911,10 @@ en:
   custom_message_smooch_bot_meme_india-today: "Hey, how do you like this? \n\nA meme,
     based on your verification request.\n"
   custom_message_smooch_bot_window_closing_india-today: |-
-    Hey, fact check takes time! We’re still looking into your last request.
+    Thank you for your patience. However, please understand it's not possible for us to process all the requests that we get due to very high volume.
 
-    Thanks for your patience.
-    Meanwhile, have a look at the other fake news we busted recently: https://www.indiatoday.in/fact-check
+    You can read our latest Fact Check stories at :
+    https://www.indiatoday.in/fact-check
   custom_message_smooch_bot_disabled_india-today: "Thanks for reaching out to India
     Today Fact Check.\n\nBut sorry, we’re not able to respond back currently. \n\nBut
     you can check latest fact check stories here: https://www.indiatoday.in/fact-check"

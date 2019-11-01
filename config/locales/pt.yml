@@ -707,6 +707,7 @@ pt:
   custom_message_smooch_bot_meme_africa-check: ''
   custom_message_smooch_bot_ask_for_tos_africa-check: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
@@ -723,6 +724,17 @@ pt:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorado.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Perdão, mas este bot está desabilitado
     :(
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
@@ -755,6 +767,7 @@ pt:
     Ainda está em nossa fila para verificação adicional."
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
   custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: ''
   custom_message_smooch_bot_ask_for_confirmation_india-today: ''
   custom_message_smooch_bot_message_confirmed_india-today: ''
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
