@@ -73,6 +73,14 @@ bn:
   custom_message_smooch_bot_result_boom-factcheck: |
     [ভেরিফিকেশান রিপোর্ট]
     আপনি যে বার্তাটি আমাদের সাথে শেয়ার করেছেন তা *%{status}* চিহ্নিত করা হয়েছে। এটিকে নির্ণয় করতে আমরা নীচের ধাপগুলি অনুসরণ  করি: %{url}
+  custom_message_smooch_bot_result_changed_boom-factcheck: |+
+    (সংশোধিত যাচাই রিপোর্ট)
+
+    আপনি যে বার্তাটি শেয়ার করেছেন তা বদলানো হয়েছে %{previous-status} থেকে %{previous-status}
+
+    এটি চিহ্নিত করতে আমরা নীচের ধাপগুলি অনুসরণ করি: %{url}
+
+
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
     তথ্য যাচাই অনুরোধের জন্য ধন্যবাদ। আপনি কি বিষয়টি যাচাই করতে চান?
     হ্যাঁ বলার জন্যে, *উত্তরে 1 লিখুন*; অন্য কিছু প্রত্যুত্তর এলে এখানেই আমাদের কথোপকথন সমাপ্ত হবে।
@@ -103,6 +111,17 @@ bn:
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 
@@ -134,6 +153,7 @@ bn:
     এটা এখনও আরও যাচাইয়ের জন্য আমাদের সারিতে আছে।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
   custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: ''
   custom_message_smooch_bot_ask_for_confirmation_india-today: ''
   custom_message_smooch_bot_message_confirmed_india-today: ''
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
