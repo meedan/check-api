@@ -7,19 +7,46 @@ module Api
 
       skip_before_filter :authenticate_from_token!
 
-      before_action :start_apollo_if_needed, only: [:create]
-      before_action :authenticate_graphql_user, only: [:create]
+      before_action :start_apollo_if_needed, only: [:create, :batch]
+      before_action :authenticate_graphql_user, only: [:create, :batch]
       before_action :set_current_user, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
       def create
-        query_string = params[:query]
+        parse_graphql_result do |context|
+          query_string = params[:query]
+          query_variables = prepare_query_variables(params[:variables])
+          RelayOnRailsSchema.execute(query_string, variables: query_variables, context: context)
+        end
+      end
+
+      def batch
+        parse_graphql_result do |context|
+          queries = params[:_json].map do |param|
+            {
+              query: param[:query],
+              variables: prepare_query_variables(param[:variables]),
+              context: context.merge({ id: param[:id] })
+            }
+          end
+          results = []
+          RelayOnRailsSchema.multiplex(queries).each do |result|
+            results << {
+              id: result.query.context[:id],
+              payload: result.to_h
+            }
+          end
+          results
+        end
+      end
+
+      protected
+
+      def parse_graphql_result
         context = { ability: @ability, file: request.params[:file] }
-        query_variables = ensure_hash(params[:variables]) || {}
-        query_variables = {} if query_variables == 'null'
         begin
-          result = RelayOnRailsSchema.execute(query_string, variables: query_variables, context: context)
+          result = yield(context)
           render json: result
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
           render json: parse_json_exception(e), status: 400
@@ -32,7 +59,11 @@ module Api
         end
       end
 
-      protected
+      def prepare_query_variables(vars)
+        query_variables = ensure_hash(vars) || {}
+        query_variables = {} if query_variables == 'null'
+        query_variables
+      end
 
       # If the request wasn't `Content-Type: application/json`, parse the variables
       def ensure_hash(variables_param)

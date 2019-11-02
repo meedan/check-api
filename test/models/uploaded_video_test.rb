@@ -30,5 +30,6 @@ class UploadedVideoTest < ActiveSupport::TestCase
     assert_not_nil v.embed_path
     assert_not_nil v.file.thumb
     assert_not_nil v.file.embed
+    assert_not_nil v.picture
   end
 end
