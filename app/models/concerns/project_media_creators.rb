@@ -73,9 +73,8 @@ module ProjectMediaCreators
 
   protected
 
-  def create_video_or_image
-    extname = File.extname(self.file.path).delete('.')
-    m = VideoUploader.upload_extensions.include?(extname) ? UploadedVideo.new : UploadedImage.new
+  def create_video_or_image(media_type)
+    m = media_type.constantize.new
     m.file = self.file
     m.save!
     m
@@ -96,11 +95,12 @@ module ProjectMediaCreators
 
   def create_media
     m = nil
-    if !self.file.blank?
-      m = self.create_video_or_image
-    elsif !self.quote.blank?
+    case media_type
+    when 'UploadedImage', 'UploadedVideo'
+      m = self.create_video_or_image(media_type)
+    when 'Claim'
       m = self.create_claim
-    else
+    when 'Link'
       m = self.create_link
     end
     m
