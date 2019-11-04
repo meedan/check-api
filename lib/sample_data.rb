@@ -483,6 +483,8 @@ module SampleData
   def create_project_media(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
+    options[:media_type] = 'Link' unless options[:url].blank?
+    options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
     options[:project] = create_project unless options.has_key?(:project)
     options[:media] = create_valid_media unless options.has_key?(:media)

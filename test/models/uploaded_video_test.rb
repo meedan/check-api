@@ -19,6 +19,7 @@ class UploadedVideoTest < ActiveSupport::TestCase
     pm = ProjectMedia.new
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.mp4'))
+    pm.media_type = 'UploadedVideo'
     pm.disable_es_callbacks = true
     pm.save!
   end

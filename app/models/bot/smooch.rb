@@ -664,13 +664,13 @@ class Bot::Smooch < BotUser
       if url.nil?
         pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text, media_type: 'Claim')
           pm.is_being_created = true
         end
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
+          pm = ProjectMedia.create!(project_id: message['project_id'], url: url, media_type: 'Link')
           pm.is_being_created = true
           pm.metadata = { description: text }.to_json if text != url
         elsif text != url

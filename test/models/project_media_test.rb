@@ -311,6 +311,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.project_id = create_project.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
     pm.disable_es_callbacks = true
+    pm.media_type = 'UploadedImage'
     pm.save!
     assert_equal 'rails.png', pm.metadata['title']
   end
@@ -1036,6 +1037,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = ProjectMedia.new
     pm.project = p
     pm.url = url
+    pm.media_type = 'Link'
     assert !pm.valid?
     assert pm.errors.messages.values.flatten.include?('This link is already being parsed, please try again in a few seconds.')
   end
@@ -1511,6 +1513,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_difference 'ProjectMedia.count' do
       pm = ProjectMedia.new
       pm.url = url
+      pm.media_type = 'Link'
       pm.project = create_project
       pm.save!
     end
