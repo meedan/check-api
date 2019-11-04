@@ -73,7 +73,7 @@ module ProjectMediaCreators
 
   protected
 
-  def create_video_or_image(media_type)
+  def create_video_or_image(media_type = 'UploadedImage')
     m = media_type.constantize.new
     m.file = self.file
     m.save!
