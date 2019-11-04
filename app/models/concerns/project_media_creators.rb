@@ -95,7 +95,8 @@ module ProjectMediaCreators
 
   def create_media
     m = nil
-    case media_type
+    self.set_media_type if self.media_type.blank?
+    case self.media_type
     when 'UploadedImage', 'UploadedVideo'
       m = self.create_video_or_image(media_type)
     when 'Claim'
@@ -104,6 +105,14 @@ module ProjectMediaCreators
       m = self.create_link
     end
     m
+  end
+
+  def set_media_type
+    if !self.url.blank?
+      self.media_type = 'Link'
+    elsif !self.quote.blank?
+      self.media_type = 'Claim'
+    end
   end
 
   def set_jsonld_response(task)
