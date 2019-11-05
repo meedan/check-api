@@ -1,11 +1,12 @@
 class Ability
   include CheckBasicAbilities
 
-  def initialize(user = nil)
+  def initialize(user = nil, team = nil)
     alias_action :create, :update, :destroy, :to => :cud
     @user = User.current ||= user || User.new
     @api_key = ApiKey.current
-    @context_team = Team.current ||= @user.current_team || Team.new
+    Team.current ||= (@user.current_team || Team.new)
+    @context_team = team || Team.current
     # Define User abilities
     if @user.is_admin?
       global_admin_perms
@@ -17,19 +18,19 @@ class Ability
       if @user.id
         authenticated_perms
       end
-      if @user.role? :annotator
+      if @user.role?(:annotator, @context_team)
         annotator_perms
       end
-      if @user.role? :contributor
+      if @user.role?(:contributor, @context_team)
         contributor_perms
       end
-      if @user.role? :journalist
+      if @user.role?(:journalist, @context_team)
         journalist_perms
       end
-      if @user.role? :editor
+      if @user.role?(:editor, @context_team)
         editor_perms
       end
-      if @user.role? :owner
+      if @user.role?(:owner, @context_team)
         owner_perms
       end
       unless @api_key.nil?

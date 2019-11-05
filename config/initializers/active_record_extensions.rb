@@ -15,11 +15,11 @@ module ActiveRecordExtensions
   end
 
   module ClassMethods
-    def permissioned
+    def permissioned(team = nil)
       klass = self.to_s.gsub(/::ActiveRecord.*$/, '')
       all_params = RequestStore.store[:graphql_connection_params] || {}
       user = User.current || User.new
-      team = Team.current || Team.new
+      team ||= (Team.current || Team.new)
       params = all_params["#{user.id}:#{team.id}"] ||= {}
       query = all
       if params[klass]
