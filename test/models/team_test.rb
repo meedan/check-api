@@ -97,7 +97,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should create version when team is updated" do
-    User.current = create_user
+    User.current = create_user(is_admin: true)
     t = create_team
     t.logo = random_string
     t.save!

@@ -27,7 +27,7 @@ class Ah::Api::Greenday::V1::ProjectsController < Ah::Api::Greenday::V1::BaseCon
     team.slug = Team.slug_from_name(data['name']) + '-' + Time.now.to_i.to_s
     team.save!
     # FIXME: Montage supports videos without a collection, but Check doesn't support project medias without a project... that's why we create a project by default
-    Project.create!(title: team.name, team_id: team.id)
+    Project.create!(title: team.name, team_id: team.id, skip_check_ability: true)
     team = team.extend(Montage::Project)
     team_user = TeamUser.where(team_id: team.id, user_id: User.current&.id).last.extend(Montage::ProjectUser)
     json = team.team_as_montage_project_json(team_user)
