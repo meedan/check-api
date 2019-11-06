@@ -676,7 +676,7 @@ fr:
     invalid_user: Auteur non valide %{user}
     invalid_status: Statut non valide %{status}
     blank_user: Auteur vide non valide
-    blank_annotator: Annotateur video non valide
+    blank_annotator: Annotateur vide non valide
     blank_project: Projet vide non valide
     invalid_annotator: Annotateur non valide %{user}
     invalid_assignee: Membre affecté non valide %{user}
@@ -739,17 +739,6 @@ fr:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
-  custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
-  custom_message_smooch_bot_disabled_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Merci de nous envoyer ce message.
 
