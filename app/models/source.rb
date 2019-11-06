@@ -149,7 +149,7 @@ class Source < ActiveRecord::Base
     end
   end
 
-  def get_versions_log
+  def get_versions_log(_event_types = nil, _field_names = nil, _annotation_types = nil)
     Version.from_partition(self.team_id).where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
   end
 
