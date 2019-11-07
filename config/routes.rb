@@ -26,7 +26,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      scope ':pattern', constraints: { pattern: /me|graphql|users\/sign_out|users\/sign_in|users/ } do
+      scope ':pattern', constraints: { pattern: /me|graphql|graphql\/batch|users\/sign_out|users\/sign_in|users/ } do
         match '/' => 'base_api#options', via: [:options]
       end
       match '/options' => 'base_api#options', via: [:options]
@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       post 'log', to: 'base_api#log'
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]
+      match '/graphql/batch' => 'graphql#batch', via: [:post]
       match '/search' => 'search#create', via: [:post]
       match '/admin/project/:id/add_publisher/:provider' => 'admin#add_publisher_to_project', via: [:get]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]

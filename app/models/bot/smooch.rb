@@ -5,6 +5,7 @@ class Bot::Smooch < BotUser
   check_settings
 
   include CheckI18n
+  include SmoochRules
 
   ::Workflow::VerificationStatus.class_eval do
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
@@ -514,10 +515,10 @@ class Bot::Smooch < BotUser
 
   def self.supported_message?(message)
     case message['type']
-    when 'text', 'image'
+    when 'text', 'image', 'video'
       return true
     when 'file'
-      return message['mediaType'].to_s =~ /^image\//
+      return message['mediaType'].to_s =~ /^(image|video)\//
     else
       return false
     end
@@ -559,15 +560,19 @@ class Bot::Smooch < BotUser
   def self.save_message(message_json, app_id)
     message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
+    Team.current = Team.where(id: self.config['team_id']).last
     message['project_id'] = self.get_project_id(message)
 
     pm = case message['type']
          when 'text'
            self.save_text_message(message)
          when 'image'
-           self.save_image_message(message)
+           self.save_media_message(message)
+         when 'video'
+           self.save_media_message(message, 'video')
          when 'file'
-           message['mediaType'].to_s =~ /^image\// ? self.save_image_message(message) : return
+           m = message['mediaType'].to_s.match(/^(image|video)\//)
+           m.nil? ? return : self.save_media_message(message, m[1])
          else
            return
          end
@@ -591,6 +596,8 @@ class Bot::Smooch < BotUser
       a.save!
     end
     Rails.cache.write(key, hash)
+
+    self.apply_rules_and_actions(pm, message)
 
     self.send_results_if_item_is_finished(pm, message)
   end
@@ -651,18 +658,21 @@ class Bot::Smooch < BotUser
 
   def self.save_text_message(message)
     text = message['text']
+    project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
 
     begin
       url = self.extract_url(text)
       if url.nil?
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => message['project_id']).last
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text)
+          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text, media_type: 'Claim')
+          pm.is_being_created = true
         end
       else
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => message['project_id']).last
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], url: url)
+          pm = ProjectMedia.create!(project_id: message['project_id'], url: url, media_type: 'Link')
+          pm.is_being_created = true
           pm.metadata = { description: text }.to_json if text != url
         elsif text != url
           Comment.create! annotated: pm, text: text, force_version: true
@@ -678,22 +688,25 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.save_image_message(message)
+  def self.save_media_message(message, type='image')
     open(message['mediaUrl']) do |f|
       text = message['text']
 
       data = f.read
       hash = Digest::MD5.hexdigest(data)
-      filepath = File.join(Rails.root, 'tmp', "#{hash}.jpeg")
+      filename = type == 'image' ? "#{hash}.jpeg" : "#{hash}.mp4"
+      filepath = File.join(Rails.root, 'tmp', filename)
+      media_type = type == 'image' ? 'UploadedImage' : 'UploadedVideo'
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => 'UploadedImage', 'medias.file' => "#{hash}.jpeg", 'project_medias.project_id' => message['project_id']).last
+      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
       if pm.nil?
-        m = UploadedImage.new
+        m = media_type.constantize.new
         File.open(filepath) do |f2|
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
+        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type)
+        pm.is_being_created = true
         pm.metadata = { description: text }.to_json unless text.blank?
       elsif !text.blank?
         Comment.create! annotated: pm, text: text, force_version: true
@@ -712,7 +725,7 @@ class Bot::Smooch < BotUser
       finals = ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].select{ |s| s['completed'].to_i == 1 }.collect{ |s| s['id'].gsub(/^not_true$/, 'false') }
       previous_final_statuses = []
       f = pm.last_verification_status_obj.get_field('verification_status_status')
-      Version.from_partition(pm.project.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).each do |v|
+      Version.from_partition(pm.project.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).order('id ASC').each do |v|
         status = YAML.load(JSON.parse(v.object_after)['value']).to_s
         previous_final_statuses << status if finals.include?(status)
       end

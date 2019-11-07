@@ -57,7 +57,7 @@
                           <%= 
                            raw I18n.t("devise.mailer.invitation_instructions.someone_invited_you_#{@invited_type}.html", name: @invited_by, role: @role, team: link_to(@team.name, @url))
                           %>
-                          <% if @invited_text %>
+                          <% if !@invited_text.blank? %>
                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                               <tr>
                                 <td style="border-collapse: collapse; font-size: 15px; line-height: 1; text-decoration: none !important;">&nbsp;</td>

@@ -20,8 +20,8 @@ class Team < ActiveRecord::Base
 
   after_find do |team|
     if User.current
-      Team.current = team
-      Ability.new
+      Team.current ||= team
+      Ability.new(User.current, team)
     end
   end
   after_update :archive_or_restore_projects_if_needed
@@ -46,7 +46,7 @@ class Team < ActiveRecord::Base
   end
 
   def members_count
-    self.team_users.where(status: 'member').permissioned.count
+    self.team_users.where(status: 'member').permissioned(self).count
   end
 
   def projects_count

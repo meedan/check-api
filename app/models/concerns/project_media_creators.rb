@@ -38,7 +38,7 @@ module ProjectMediaCreators
   end
 
   def create_reverse_image_annotation
-    return if self.project.team.is_being_copied
+    return if self.project.team.is_being_copied || self.media.type == 'UploadedVideo'
     picture = self.media.picture
     unless picture.blank?
       d = Dynamic.new
@@ -73,8 +73,8 @@ module ProjectMediaCreators
 
   protected
 
-  def create_image
-    m = UploadedImage.new
+  def create_video_or_image(media_type = 'UploadedImage')
+    m = media_type.constantize.new
     m.file = self.file
     m.save!
     m
@@ -95,14 +95,24 @@ module ProjectMediaCreators
 
   def create_media
     m = nil
-    if !self.file.blank?
-      m = self.create_image
-    elsif !self.quote.blank?
+    self.set_media_type if self.media_type.blank?
+    case self.media_type
+    when 'UploadedImage', 'UploadedVideo'
+      m = self.create_video_or_image(media_type)
+    when 'Claim'
       m = self.create_claim
-    else
+    when 'Link'
       m = self.create_link
     end
     m
+  end
+
+  def set_media_type
+    if !self.url.blank?
+      self.media_type = 'Link'
+    elsif !self.quote.blank?
+      self.media_type = 'Claim'
+    end
   end
 
   def set_jsonld_response(task)

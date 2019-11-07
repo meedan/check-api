@@ -164,4 +164,106 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_nil tbi.get_archive_archive_org_enabled
     assert_nil tbi.get_archive_keep_backup_enabled
   end
+
+  test "should follow nested schema" do
+    schema = [{
+      "name": "smooch_rules_and_actions",
+      "label": "Rules and Actions",
+      "type": "array",
+      "items": {
+        "title": "Rules and Actions",
+        "type": "object",
+        "properties": {
+          "smooch_rules": {
+            "title": "Rules",
+            "type": "array",
+            "items": {
+              "title": "Rule",
+              "type": "object",
+              "properties": {
+                "smooch_rule_definition": {
+                  "title": "Rule Definition",
+                  "type": "string",
+                  "enum": [
+                    { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
+                    { "key": "matches_regexp", "value": "Message matches this regular expression" },
+                    { "key": "is_similar_to_existing_image", "value": "Image is similar to existing image" },
+                    { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
+                  ]
+                },
+                "smooch_rule_value": {
+                  "title": "Value",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "smooch_actions": {
+            "title": "Actions",
+            "type": "array",
+            "items": {
+              "title": "Action",
+              "type": "object",
+              "properties": {
+                "smooch_action_definition": {
+                  "title": "Action Definition",
+                  "type": "string",
+                  "enum": [
+                    { "key": "send_to_trash", "value": "Send to trash" },
+                    { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
+                    { "key": "relate_to_existing", "value": "Relate to existing content" }
+                  ]
+                },
+                "smooch_action_value": {
+                  "title": "Value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }]
+    tb = create_team_bot set_settings: schema, set_approved: true
+    s = {
+      "smooch_rules_and_actions": [
+        {
+          "smooch_rules": [
+            {
+              "smooch_rule_definition": "contains_keyword",
+              "smooch_rule_value": "hi,hello,sorry,please"
+            },
+            {
+              "smooch_rule_definition": "has_less_than_x_words",
+              "smooch_rule_value": "5"
+            }
+          ],
+          "smooch_actions": [
+            {
+              "smooch_action_definition": "move_to_project",
+              "smooch_action_value": "2"
+            }
+          ]
+        },
+        {
+          "smooch_rules": [
+            {
+              "smooch_rule_definition": "has_less_than_x_words",
+              "smooch_rule_value": "2"
+            }
+          ],
+          "smooch_actions": [
+            {
+              "smooch_action_definition": "move_to_project",
+              "smooch_action_value": "2"
+            }
+          ]
+        }
+      ]
+    }
+    assert_nothing_raised do
+      create_team_bot_installation(user_id: tb.id, settings: s)
+      create_team_bot_installation(user_id: tb.id, json_settings: s.to_json)
+    end
+  end
 end

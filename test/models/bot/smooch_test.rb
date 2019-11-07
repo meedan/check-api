@@ -31,7 +31,64 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
-      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false }
+      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false },
+      {
+        "name": "smooch_rules_and_actions",
+        "label": "Rules and Actions",
+        "type": "array",
+        "items": {
+          "title": "Rules and Actions",
+          "type": "object",
+          "properties": {
+            "smooch_rules": {
+              "title": "Rules",
+              "type": "array",
+              "items": {
+                "title": "Rule",
+                "type": "object",
+                "properties": {
+                  "smooch_rule_definition": {
+                    "title": "Rule Definition",
+                    "type": "string",
+                    "enum": [
+                      { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
+                      { "key": "matches_regexp", "value": "Message matches this regular expression" },
+                      { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
+                    ]
+                  },
+                  "smooch_rule_value": {
+                    "title": "Value",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "smooch_actions": {
+              "title": "Actions",
+              "type": "array",
+              "items": {
+                "title": "Action",
+                "type": "object",
+                "properties": {
+                  "smooch_action_definition": {
+                    "title": "Action Definition",
+                    "type": "string",
+                    "enum": [
+                      { "key": "send_to_trash", "value": "Send to trash" },
+                      { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
+                      { "key": "ban_submitter", "value": "Ban submitting user" }
+                    ]
+                  },
+                  "smooch_action_value": {
+                    "title": "Value",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     ]
     {
       'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
@@ -63,9 +120,14 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_localize_messages' => true
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
+    create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
+    @media_url_2 = 'https://smooch.com/image/test2.jpeg'
+    @video_url = 'https://smooch.com/video/test.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
@@ -119,6 +181,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     id2 = random_string
     id3 = random_string
     messages = [
+      {
+        '_id': random_string,
+        authorId: id2,
+        type: 'audio',
+        text: random_string,
+        mediaUrl: random_url
+      },
       {
         '_id': random_string,
         authorId: id,
@@ -210,7 +279,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'video',
         text: random_string,
-        mediaUrl: random_url
+        mediaUrl: @video_url
       },
       {
         '_id': random_string,
@@ -241,15 +310,23 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id3,
         type: 'text',
         text: 'This #teamtag is another #hashtag CLAIM'
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'file',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaType: 'video/mp4'
       }
     ]
 
     create_tag_text text: 'teamtag', team_id: @team.id, teamwide: true
     create_tag_text text: 'montag', team_id: @team.id, teamwide: true
 
-    assert_difference 'ProjectMedia.count', 5 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 11 do
-        assert_difference 'Comment.length', 8 do
+    assert_difference 'ProjectMedia.count', 6 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
+        assert_difference 'Comment.length', 9 do
           messages.each do |message|
             uid = message[:authorId]
 
@@ -904,10 +981,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_not Bot::Smooch.is_rtl_lang?
   end
 
-  test "should support file only if image" do
+  test "should support file only if image or video" do
     assert Bot::Smooch.supported_message?({ 'type' => 'image' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'video' })
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })
     assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
   end
 
@@ -1226,6 +1305,242 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     I18n.unstub(:t)
     I18n.unstub(:exists?)
     Bot::Smooch.unstub(:config)
+  end
+
+  test "should route to project based on rules" do
+    s1 = @installation.settings.clone
+    s2 = @installation.settings.clone
+    p1 = create_project team: @team
+    p2 = create_project team: @team
+    s2['smooch_rules_and_actions'] = [
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "contains_keyword",
+            "smooch_rule_value": "hi,hello,sorry,please"
+          },
+          {
+            "smooch_rule_definition": "has_less_than_x_words",
+            "smooch_rule_value": "5"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "move_to_project",
+            "smooch_action_value": p1.id.to_s
+          }
+        ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "has_less_than_x_words",
+            "smooch_rule_value": "2"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "move_to_project",
+            "smooch_action_value": p2.id.to_s
+          }
+        ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "matches_regexp",
+            "smooch_rule_value": "^[0-9]+$"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "send_to_trash",
+            "smooch_action_value": ""
+          }
+        ]
+      },
+      {
+        "smooch_rules": [
+          {
+            "smooch_rule_definition": "matches_regexp",
+            "smooch_rule_value": "bad word"
+          }
+        ],
+        "smooch_actions": [
+          {
+            "smooch_action_definition": "send_to_trash",
+            "smooch_action_value": ""
+          },
+          {
+            "smooch_action_definition": "ban_submitter",
+            "smooch_action_value": ""
+          }
+        ]
+      }
+    ]
+    @installation.settings = s2
+    @installation.save!
+    uid = random_string
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: ([random_string] * 10).join(' ')
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal @project.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: ([random_string] * 4).join(' ') + ' please'
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal p1.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert_equal p2.id, pm.project_id
+    assert !pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_number.to_s 
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert pm.archived
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: [random_string, random_string, random_string, 'bad word', random_string, random_string].join(' ')
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert_nil Rails.cache.read("smooch:banned:#{uid}")
+    assert Bot::Smooch.run(payload)
+    assert send_confirmation(uid)
+    pm = ProjectMedia.last
+    assert pm.archived
+    assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
+
+    @installation.settings = s1
+    @installation.save!
+  end
+
+  test "should create media" do
+    Sidekiq::Testing.inline! do
+      json_message = {
+        type: 'image',
+        text: random_string,
+        mediaUrl: @media_url_2,
+        mediaType: 'image/jpeg',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        mediaSize: random_number,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+        language: 'en'
+      }.to_json
+      assert_difference 'ProjectMedia.count' do
+        SmoochWorker.perform_async(json_message, 'image', @app_id)
+      end
+    end
   end
 
   protected

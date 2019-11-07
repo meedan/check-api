@@ -62,14 +62,16 @@ module UserInvitation
         invitable.errors.add(:invalid_team, I18n.t(:"user_invitation.team_found"))
       else
         invitation_token = Devise.token_generator.digest(self, :invitation_token, token)
-        tu = TeamUser.where(team_id: t.id, status: 'invited', invitation_token: invitation_token).last
+        tu = TeamUser.where(team_id: t.id, status: ['invited', 'member'], invitation_token: invitation_token).last
         if tu.nil?
           invitable.errors.add(:no_invitation, I18n.t(:"user_invitation.no_invitation", { name: t.name }))
+        elsif tu.status == 'member'
+          invitable.errors.add(:invitation_accepted, I18n.t(:"user_invitation.invitation_accepted"))
         elsif tu.invitation_period_valid?
           inv_user = self.accept_team_user_invitation(tu, token, options)
           invitable.id = inv_user.id unless inv_user.nil?
         else
-          invitable.errors.add(:invalid_invitation, I18n.t(:"user_invitation.invalid"))
+          invitable.errors.add(:invitation_expired, I18n.t(:"user_invitation.invalid"))
         end
       end
       invitable
@@ -135,7 +137,7 @@ module UserInvitation
 
     def self.accept_team_user_invitation(tu, token, options)
       tu.invitation_accepted_at = Time.now.utc
-      tu.invitation_token = nil
+      # tu.invitation_token = nil
       tu.raw_invitation_token = nil
       tu.status = 'member'
       tu.skip_check_ability = true

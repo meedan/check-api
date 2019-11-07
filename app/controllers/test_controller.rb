@@ -188,6 +188,7 @@ class TestController < ApplicationController
     pm.project_id = params[:project_id]
     pm.quote = params[:quote] if type == 'claim'
     pm.url = params[:url] if type == 'link'
+    pm.media_type = type.camelize
     pm.save!
     User.current = nil
     Team.current = nil

@@ -20,14 +20,18 @@ class InvitationsControllerTest < ActionController::TestCase
     token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
     assert_redirected_to "#{CONFIG['checkdesk_client']}/?invitation_response=success&msg=no"
-    assert_nil tu.reload.invitation_token
+    assert_equal 'member', tu.reload.status
+    assert_nil tu.reload.raw_invitation_token
+    get :edit, invitation_token: token, slug: t.slug
+    assert_redirected_to "#{CONFIG['checkdesk_client']}/#{t.slug}"
     User.current = nil
     u2 = User.where(email: 'test2@local.com').last
     tu =  u2.team_users.last
     token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
     assert_equal "#{CONFIG['checkdesk_client']}/check/user/password-change", @response.location.split("?").first
-    assert_nil tu.reload.invitation_token
+    assert_equal 'member', tu.reload.status
+    assert_nil tu.reload.raw_invitation_token
   end
 
   test "should not accept invalid invitation" do
