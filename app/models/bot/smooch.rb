@@ -560,6 +560,7 @@ class Bot::Smooch < BotUser
   def self.save_message(message_json, app_id)
     message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
+    Team.current = Team.where(id: self.config['team_id']).last
     message['project_id'] = self.get_project_id(message)
 
     pm = case message['type']
@@ -704,7 +705,7 @@ class Bot::Smooch < BotUser
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], media: m)
+        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type)
         pm.is_being_created = true
         pm.metadata = { description: text }.to_json unless text.blank?
       elsif !text.blank?

@@ -120,10 +120,13 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_localize_messages' => true
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
+    create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
+    @media_url_2 = 'https://smooch.com/image/test2.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -1511,6 +1514,33 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     @installation.settings = s1
     @installation.save!
+  end
+
+  test "should create media" do
+    Sidekiq::Testing.inline! do
+      json_message = {
+        type: 'image',
+        text: random_string,
+        mediaUrl: @media_url_2,
+        mediaType: 'image/jpeg',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        mediaSize: random_number,
+        '_id': random_string,
+        source: {
+          originalMessageId: random_string,
+          originalMessageTimestamp: 1573082582,
+          type: 'whatsapp',
+          integrationId: random_string
+        },
+        language: 'en'
+      }.to_json
+      assert_difference 'ProjectMedia.count' do
+        SmoochWorker.perform_async(json_message, 'image', @app_id)
+      end
+    end
   end
 
   protected
