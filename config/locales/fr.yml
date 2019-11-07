@@ -676,7 +676,7 @@ fr:
     invalid_user: Auteur non valide %{user}
     invalid_status: Statut non valide %{status}
     blank_user: Auteur vide non valide
-    blank_annotator: Annotateur video non valide
+    blank_annotator: Annotateur vide non valide
     blank_project: Projet vide non valide
     invalid_annotator: Annotateur non valide %{user}
     invalid_assignee: Membre affecté non valide %{user}

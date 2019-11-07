@@ -388,4 +388,20 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
+  test "should send GraphQL queries in batch" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t1 = create_team slug: 'batch-1', name: 'Batch 1'
+    t2 = create_team slug: 'batch-2', name: 'Batch 2'
+    t3 = create_team slug: 'batch-3', name: 'Batch 3'
+    post :batch, _json: [
+      { query: 'query { team(slug: "batch-1") { name } }', variables: {}, id: 'q1' },
+      { query: 'query { team(slug: "batch-2") { name } }', variables: {}, id: 'q2' },
+      { query: 'query { team(slug: "batch-3") { name } }', variables: {}, id: 'q3' }
+    ]
+    result = JSON.parse(@response.body)
+    assert_equal 'Batch 1', result.find{ |t| t['id'] == 'q1' }['payload']['data']['team']['name']
+    assert_equal 'Batch 2', result.find{ |t| t['id'] == 'q2' }['payload']['data']['team']['name']
+    assert_equal 'Batch 3', result.find{ |t| t['id'] == 'q3' }['payload']['data']['team']['name']
+  end
 end

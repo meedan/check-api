@@ -295,7 +295,7 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'contributor'
     authenticate_with_user(u)
-    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
     assert_difference 'Relationship.count' do
       post :create, query: query, team: t
     end
@@ -1264,7 +1264,7 @@ class GraphqlController2Test < ActionController::TestCase
     v = create_version
     t = Team.last
     id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 9 do
+    q = assert_queries 10 do
       post :create, query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug
     end
     assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')

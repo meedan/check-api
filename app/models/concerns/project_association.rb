@@ -53,8 +53,12 @@ module ProjectAssociation
     after_commit :update_elasticsearch_data, on: :update
     after_commit :destroy_elasticsearch_media , on: :destroy
 
-    def get_versions_log
-      Version.from_partition(self.project.team_id).where(associated_type: self.class.name, associated_id: self.id).order('created_at ASC')
+    def get_versions_log(event_types = nil, field_names = nil, annotation_types = nil)
+      log = Version.from_partition(self.project.team_id).where(associated_type: self.class.name, associated_id: self.id)
+      log = log.where(event_type: event_types) unless event_types.blank?
+      log = log.where('version_field_name(event_type, object_after) IN (?)', field_names.concat([''])) unless field_names.blank?
+      log = log.where('version_annotation_type(event_type, object_after) IN (?)', annotation_types.concat([''])) unless annotation_types.blank?
+      log.order('created_at ASC')
     end
 
     def get_versions_log_count

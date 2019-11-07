@@ -125,9 +125,9 @@ class GraphqlControllerTest < ActionController::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('project_media', { project_id: p.id, url: url })
+    assert_graphql_create('project_media', { project_id: p.id, url: url, media_type: 'Link' })
     # create claim report
-    assert_graphql_create('project_media', { project_id: p.id, quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
+    assert_graphql_create('project_media', { project_id: p.id, media_type: 'Claim', quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
   end
 
   test "should create project media" do
@@ -776,7 +776,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation create { createProjectMedia(input: { url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     assert_difference 'UploadedImage.count' do
       post :create, query: query, file: file
     end
@@ -1053,7 +1053,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
     p = create_project team: @team
     fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
-    query = 'mutation create { createProjectMedia(input: { url: "", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
