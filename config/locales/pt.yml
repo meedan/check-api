@@ -103,8 +103,9 @@ pt:
     models:
       link: Link
       claim: Afirmação
-      uploaded_image: Imagem
       uploaded_file: Arquivo
+      uploaded_image: Imagem
+      uploaded_video: Vídeo
       task: Tarefa
       comment: Nota
       project_media: Item
@@ -121,6 +122,8 @@ pt:
         file: Arquivo
       uploaded_image:
         file: Imagem
+      uploaded_video:
+        file: Vídeo
       team:
         slug: URL da equipe
       source:

@@ -99,8 +99,8 @@ ro:
     models:
       link: Link
       claim: Declarația
-      uploaded_image: Imagine
       uploaded_file: Fișier
+      uploaded_image: Imagine
       task: Sarcină
       comment: Notă
       project_media: Element

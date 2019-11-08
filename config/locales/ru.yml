@@ -98,8 +98,8 @@ ru:
     models:
       link: Ссылка
       claim: Высказывание
-      uploaded_image: Изображение
       uploaded_file: Файл
+      uploaded_image: Изображение
       task: Вопрос
       comment: Заметка
       project_media: Материал

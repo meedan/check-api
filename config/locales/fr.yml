@@ -102,8 +102,9 @@ fr:
     models:
       link: Lien
       claim: Déclaration
-      uploaded_image: Image
       uploaded_file: Fichier
+      uploaded_image: Image
+      uploaded_video: Vidéo
       task: Tâche
       comment: Note
       project_media: Élément
@@ -120,6 +121,8 @@ fr:
         file: Le fichier
       uploaded_image:
         file: L'image
+      uploaded_video:
+        file: Vidéo
       team:
         slug: URL de l'équipe
       source:
@@ -415,8 +418,8 @@ fr:
     delete_user:
       subject: "[%{team}] Un compte a été supprimé"
       header_title: Compte supprimé
-      header_text: Un compte d'utilisateur a été supprimé; les éléments associés ont
-        été attribués à l'usager anonyme %{anonymous} id %{id}
+      header_text: 'Un compte d''utilisateur a été supprimé; les éléments associés
+        ont été attribués à l''usager anonyme %{anonymous} #%{id}'
       anonymous: anonyme
     admin_mailer:
       team_download_subject: "[%{team} - %{project}] Instantané des données de l'équipe
