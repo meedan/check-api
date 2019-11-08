@@ -107,8 +107,9 @@ en:
     models:
       link: Link
       claim: Claim
-      uploaded_image: Image
       uploaded_file: File
+      uploaded_image: Image
+      uploaded_video: Video
       task: Task
       comment: Note
       project_media: Item
@@ -125,6 +126,8 @@ en:
         file: File
       uploaded_image:
         file: Image
+      uploaded_video:
+        file: Video
       team:
         slug: Team URL
       source:
