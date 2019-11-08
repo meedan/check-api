@@ -102,8 +102,9 @@ fr:
     models:
       link: Lien
       claim: Déclaration
-      uploaded_image: Image
       uploaded_file: Fichier
+      uploaded_image: Image
+      uploaded_video: Vidéo
       task: Tâche
       comment: Note
       project_media: Élément
@@ -120,6 +121,8 @@ fr:
         file: Le fichier
       uploaded_image:
         file: L'image
+      uploaded_video:
+        file: Vidéo
       team:
         slug: URL de l'équipe
       source:
@@ -415,8 +418,8 @@ fr:
     delete_user:
       subject: "[%{team}] Un compte a été supprimé"
       header_title: Compte supprimé
-      header_text: Un compte d'utilisateur a été supprimé; les éléments associés ont
-        été attribués à l'usager anonyme %{anonymous} id %{id}
+      header_text: 'Un compte d''utilisateur a été supprimé; les éléments associés
+        ont été attribués à l''usager anonyme %{anonymous} #%{id}'
       anonymous: anonyme
     admin_mailer:
       team_download_subject: "[%{team} - %{project}] Instantané des données de l'équipe
@@ -739,6 +742,17 @@ fr:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Merci de nous envoyer ce message.
 

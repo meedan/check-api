@@ -99,8 +99,8 @@ ml:
     models:
       link: 'ലിങ്ക് '
       claim: അവകാശവാദം
-      uploaded_image: ചിത്രം
       uploaded_file: ഫയല്‍
+      uploaded_image: ചിത്രം
       task: ജോലി
       comment: നോട്ട്
       project_media: തരം
