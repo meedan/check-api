@@ -102,8 +102,9 @@ ar:
     models:
       link: رابط
       claim: إدعاء
-      uploaded_image: صورة
       uploaded_file: ملف
+      uploaded_image: صورة
+      uploaded_video: فيديو
       task: المهمة
       comment: ملحوظة
       project_media: العنصر
@@ -120,6 +121,8 @@ ar:
         file: الملف
       uploaded_image:
         file: الصورة
+      uploaded_video:
+        file: فيديو
       team:
         slug: رابط الفريق
       source:
