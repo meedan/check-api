@@ -721,6 +721,49 @@ en:
     para solicitar verificações, checagens de fatos e informações. A verificação de
     mensagens é fornecida sob estes Termos de Serviço:%{tos}. Ao continuar, *você
     concorda com estes termos*. Caso discorde, você pode interromper o uso.
+  custom_message_smooch_bot_result_afp-fact-check: |
+    [Verification Report]
+
+    The item that you shared with us is marked *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_result_changed_afp-fact-check: |
+    [Verification Report - CORRECTION]
+
+    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
+  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: |
+    Thank you for sending this request. Do you want us to verify its content?
+
+    To say yes, *please reply with 1*. Any other response will end our conversation.
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: |
+    Thank you. Your request has been added to our verification queue.
+
+    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
+  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: Sorry, we don't
+    support this type of message for verification at this time.
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Since you didn't reply
+    with 1, we will not process your request further. Thank you.
+  custom_message_smooch_bot_not_final_afp-fact-check: |
+    [Verification Report - CORRECTION]
+
+    The message you shared with us was wrongly marked as *%{status}*.
+
+    It is still in our queue for further verification.
+  custom_message_smooch_bot_meme_afp-fact-check: Here's a meme we created based on
+    the item you have requested that we verify. Learn more at %{url}.
+  custom_message_smooch_bot_window_closing_afp-fact-check: The volume of requests
+    on this channel is very high, and we haven't been able to resolve your request
+    yet. Thank you for your patience.
+  custom_message_smooch_bot_disabled_afp-fact-check: Thank you for sending this message.
+    We are unable to send back any verification reports because this project is no
+    longer active.
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'You can use this service
+    to request verification, fact-checks, and investigation of news and information.
+    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
+    to use this service, *you agree to be bound by these terms*. You should discontinue
+    your use of Check Message if you do not agree.'
   custom_message_smooch_bot_ask_for_confirmation_africa-check: |-
     Hello! Thank you for sending Africa Check this message.
 
