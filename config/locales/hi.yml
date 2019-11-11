@@ -62,6 +62,51 @@ hi:
   custom_message_smooch_bot_window_closing_afp-checamos: ''
   custom_message_smooch_bot_disabled_afp-checamos: ''
   custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-fact-check: |
+    [वेरिफिकेशन रिपोर्ट]
+    आपने जो सामग्री साझा की थी उसे *%{status}* चिन्हित किया गया है.
+
+
+    यह हमारी जांच प्रणाली रही है: %{url}
+  custom_message_smooch_bot_result_changed_afp-fact-check: |
+    [रिपोर्ट में सुधार]
+
+    आपके द्वारा भेजे सन्देश में सुधार हुआ है और उसका निष्कर्ष *%{previous_status}* *%{status}* में हुआ है 
+
+
+    यह हमारी जांच प्रणाली रही है: %{url}
+  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: |
+    इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
+
+    हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचीत को रोक देगा.
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: |
+    शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
+
+    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में सक्षम नहीं हैं.
+  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: माफ़ करें, हम
+    व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
+    असमर्थ हैं.
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: 1 न भेजने पर आपका
+    यह निवेदन यहीं समाप्त होता है. धन्यवाद.
+  custom_message_smooch_bot_not_final_afp-fact-check: |
+    [वेरिफिकेशन रिपोर्ट - सुधार] जो सामग्री आपने साझा की थी ग़लती से यह चिन्हित हो गयी है: *%{status}*
+
+
+    यह सामग्री अब भी जांच के अंतर्गत है.
+  custom_message_smooch_bot_meme_afp-fact-check: हमने आपके निवेदन पर आधारित एक मीम
+    बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक जानने
+    के लिए इस लिंक पर जाएं %{url}
+  custom_message_smooch_bot_window_closing_afp-fact-check: इस नंबर पर तथ्यों की जांच
+    के निवेदन ज़्यादा होने के कारण आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं. आपके
+    धैर्य के लिए धन्यवाद.
+  custom_message_smooch_bot_disabled_afp-fact-check: सन्देश भेजने के लिए धन्यवाद.
+    हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
+    हो चुकी है.
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'इस सेवा का इस्तेमाल आप सूचनाओं/समाचार
+    की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं |
+    चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. यदि आप सेवा जारी
+    रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो चेक मैसेज
+    की सेवा समाप्त कर सकते हैं.'
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
@@ -124,7 +169,8 @@ hi:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_result_check-message-demo: |
-    [वेरिफिकेशन रिपोर्ट] आपने जो सामग्री साझा की थी उसे *%{status}* चिन्हित किया गया है.
+    [वेरिफिकेशन रिपोर्ट]
+    आपने जो सामग्री साझा की थी उसे *%{status}* चिन्हित किया गया है.
 
 
     यह हमारी जांच प्रणाली रही है: %{url}
@@ -135,15 +181,14 @@ hi:
 
 
     यह हमारी जांच प्रणाली रही है: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: '1 न भेजने पर
-    आपका यह निवेदन यहीं समाप्त होता है. धन्यवाद.
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
+    इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
 
-'
+    हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचीत को रोक देगा.
   custom_message_smooch_bot_message_confirmed_check-message-demo: |
     शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
 
-
-    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में शक्षम नहीं हैं.
+    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में सक्षम नहीं हैं.
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: |
     माफ़ करें, हम व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में असमर्थ हैं.
 
@@ -151,24 +196,22 @@ hi:
   custom_message_smooch_bot_message_unconfirmed_check-message-demo: 1 न भेजने पर आपका
     यह निवेदन यहीं समाप्त होता है. धन्यवाद.
   custom_message_smooch_bot_not_final_check-message-demo: |
-    [वेरिफिकेशन रिपोर्ट - सुधार] जो सामग्री आपने साझा की थी किसी गड़बड़ के चलते ग़लती से यह चिन्हित हो गयी है: *%{status}*
+    [वेरिफिकेशन रिपोर्ट - सुधार] जो सामग्री आपने साझा की थी ग़लती से यह चिन्हित हो गयी है: *%{status}*
 
 
     यह सामग्री अब भी जांच के अंतर्गत है.
-  custom_message_smooch_bot_meme_check-message-demo: हमनें आपके निवेदन पर आधारित एक
+  custom_message_smooch_bot_meme_check-message-demo: हमने आपके निवेदन पर आधारित एक
     मीम बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक
-    जानने के लिए इस लिंक पर जाएं %{url}.
-  custom_message_smooch_bot_window_closing_check-message-demo: सन्देश भेजने के लिए
-    धन्यवाद. हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना
-    अब समाप्त हो चुकी है.
-  custom_message_smooch_bot_disabled_check-message-demo: |-
-    इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
-
-
-    हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचित को रोक देगा.
+    जानने के लिए इस लिंक पर जाएं %{url}
+  custom_message_smooch_bot_window_closing_check-message-demo: इस नंबर पर तथ्यों की
+    जांच के निवेदन ज़्यादा होने के कारण आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं.
+    आपके धैर्य के लिए धन्यवाद.
+  custom_message_smooch_bot_disabled_check-message-demo: सन्देश भेजने के लिए धन्यवाद.
+    हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
+    हो चुकी है.
   custom_message_smooch_bot_ask_for_tos_check-message-demo: 'इस सेवा का इस्तेमाल आप
     सूचनाओं/समाचार की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए
-    कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलभ्ध है: %{tos}. यदि
+    कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. यदि
     आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं
     तो चेक मैसेज की सेवा समाप्त कर सकते हैं.'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
