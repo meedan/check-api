@@ -7,7 +7,7 @@ credentials = {
   region:                CONFIG['storage']['bucket_region'],
   host:                  URI(CONFIG['storage']['endpoint']).host,
   endpoint:              CONFIG['storage']['endpoint'],
-  path_style:            true
+  path_style:            CONFIG['storage']['path_style'] || true
 }
 
 bucket_name = CONFIG['storage']['bucket']
