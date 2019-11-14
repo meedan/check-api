@@ -105,5 +105,18 @@ class LoginActivityTest < ActiveSupport::TestCase
     end
   end
 
+  test "should store original ip" do
+    user = create_user
+    ip = random_ip
+    RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ headers: { 'X-Forwarded-For' => ip } }))
+    la = create_login_activity user: user, success: true
+    assert_equal ip, la.ip
+    # security notification should based on original ip
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      create_login_activity user: user, success: true
+    end
+    RequestStore.unstub(:[])
+  end
+
   
 end

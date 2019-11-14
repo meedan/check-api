@@ -6,6 +6,8 @@ module Api
       include SlackAuthentication
       include GoogleAuthentication
 
+      before_action :store_request
+
       def logout
         sign_out current_api_user
         User.current = nil
@@ -15,6 +17,12 @@ module Api
 
       def failure
         redirect_to '/close.html'
+      end
+
+      private
+
+      def store_request
+        RequestStore[:request] = request
       end
 
       protected
