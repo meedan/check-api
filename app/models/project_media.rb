@@ -17,6 +17,7 @@ class ProjectMedia < ActiveRecord::Base
 
   after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
   after_commit :create_relationship, :copy_to_project, on: [:update, :create]
+  after_commit :apply_rules_and_actions, on: [:create]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 

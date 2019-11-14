@@ -683,6 +683,7 @@ en:
   smooch_twitter_success: Success! Now the DMs received by this Twitter account will
     be handled by the Smooch Bot.
   invalid_task_answer: Sorry, the format of this task answer is not valid
+  team_rules_locked: Rules for this team are locked because a previous update is still in progress... please come back later
   custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
     item que você compartilhou conosco foi classificado como *%{status} *.\n\nVeja
     as etapas que seguimos para chegar a esta conclusão: %{url}\n"
