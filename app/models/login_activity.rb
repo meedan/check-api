@@ -23,7 +23,7 @@ class LoginActivity < ActiveRecord::Base
   def set_original_ip
     unless RequestStore[:request].blank?
       original_ip = RequestStore[:request].headers['X-Forwarded-For'].to_s
-      self.ip = original_ip unless original_ip.blank?
+      self.ip = original_ip.split(',').first unless original_ip.blank?
     end
   end
 
