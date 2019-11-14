@@ -404,4 +404,18 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 'Batch 2', result.find{ |t| t['id'] == 'q2' }['payload']['data']['team']['name']
     assert_equal 'Batch 3', result.find{ |t| t['id'] == 'q3' }['payload']['data']['team']['name']
   end
+
+  test "should update tag" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'journalist'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    tg = create_tag annotated: pm
+    id = Base64.encode64("Tag/#{tg.id}")
+    query = 'mutation update { updateTag(input: { clientMutationId: "1", id: "' + id + '", fragment: "t=1,2" }) { tag { id } } }'
+    post :create, query: query
+    assert_response :success
+  end
 end
