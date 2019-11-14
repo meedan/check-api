@@ -1,5 +1,6 @@
 class Api::V1::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
+  before_action :store_request
 
   include SessionsDoc
 
@@ -34,6 +35,10 @@ class Api::V1::SessionsController < Devise::SessionsController
 
   def pre_otp_params
     params.require(:api_user).permit(:email)
+  end
+
+  def store_request
+    RequestStore[:request] = request
   end
 
   protected
