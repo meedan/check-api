@@ -1,4 +1,6 @@
 class TeamTask < ActiveRecord::Base
+  attr_accessor :t_changes
+
   validates_presence_of :label, :team_id
   validates :task_type, included: { values: Task.task_types }
 
@@ -7,6 +9,9 @@ class TeamTask < ActiveRecord::Base
   serialize :mapping
 
   belongs_to :team
+
+  before_update :set_task_changes
+  after_update :update_teamwide_tasks
 
   def as_json(_options = {})
     super.merge({
@@ -37,5 +42,28 @@ class TeamTask < ActiveRecord::Base
 
   def type=(value)
     self.task_type = value
+  end
+
+  private
+
+  def set_task_changes
+    self.t_changes = {
+      label: self.label_changed?,
+      description: self.description_changed?,
+      required: self.required_changed?,
+      options: self.options_changed?
+    }
+  end
+
+  def update_teamwide_tasks
+    tasks = Annotation.where(annotation_type: 'task').select{|t| t.team_task_id == self.id}
+    tasks = tasks.map(&:load)
+    tasks = tasks.select{|t| t.status == 'unresolved'}
+    tasks.each do |t|
+      t.label = self.label
+      t.description = self.description
+      t.options = self.options
+      t.save!
+    end
   end
 end
