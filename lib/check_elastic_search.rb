@@ -1,9 +1,11 @@
 module CheckElasticSearch
 
   def create_elasticsearch_doc_bg(_options)
+    doc_id = Base64.encode64("#{self.class.name}/#{self.id}")
+    return if doc_exists?(doc_id)
     p = self.project
     ms = MediaSearch.new
-    ms.id = Base64.encode64("#{self.class.name}/#{self.id}")
+    ms.id = doc_id
     unless p.nil?
       ms.team_id = p.team_id
       ms.project_id = p.id

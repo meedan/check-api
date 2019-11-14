@@ -1,0 +1,87 @@
+{
+  "type": "object",
+  "properties": {
+    "rules": {
+      "type": "array",
+      "title": "Rules",
+      "items": {
+        "title": "Rules",
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "A unique name that identifies what this rule does",
+            "type": "string"
+          },
+          "project_ids": {
+            "title": "Project IDs (leave empty to apply to all projects under that team)",
+            "type": "string"
+          },
+          "rules": {
+            "title": "Conditions",
+            "type": "array",
+            "items": {
+              "title": "Condition",
+              "type": "object",
+              "properties": {
+                "rule_definition": {
+                  "title": "Condition Definition",
+                  "type": "string",
+                  "enum": [
+                    {
+                      "key": "has_less_than_x_words",
+                      "value": "Message has less than this number of words"
+                    },
+                    {
+                      "key": "matches_regexp",
+                      "value": "Message matches this regular expression"
+                    },
+                    {
+                      "key": "contains_keyword",
+                      "value": "Message contains at least one of the following keywords (separated by commas)"
+                    }
+                  ]
+                },
+                "rule_value": {
+                  "title": "Value",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "actions": {
+            "title": "Actions",
+            "type": "array",
+            "items": {
+              "title": "Action",
+              "type": "object",
+              "properties": {
+                "action_definition": {
+                  "title": "Action Definition",
+                  "type": "string",
+                  "enum": [
+                    {
+                      "key": "send_to_trash",
+                      "value": "Send to trash"
+                    },
+                    {
+                      "key": "move_to_project",
+                      "value": "Move to project (please provide project ID)"
+                    },
+                    {
+                      "key": "ban_submitter",
+                      "value": "Ban submitting user"
+                    }
+                  ]
+                },
+                "action_value": {
+                  "title": "Value",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

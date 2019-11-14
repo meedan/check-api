@@ -10,6 +10,7 @@ class Team < ActiveRecord::Base
   include TeamPrivate
   include TeamDuplication
   include TeamImport
+  include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied
 
@@ -158,6 +159,10 @@ class Team < ActiveRecord::Base
     list.each do |task|
       self.add_auto_task = task
     end
+  end
+
+  def rules=(rules)
+    self.send(:set_rules, JSON.parse(rules))
   end
 
   def search_id

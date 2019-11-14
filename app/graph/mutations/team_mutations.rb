@@ -19,6 +19,7 @@ module TeamMutations
     add_auto_task: 'json',
     add_media_verification_statuses: 'json',
     set_team_tasks: 'json',
+    rules: 'str',
     disclaimer: 'str',
     embed_tasks: 'str',
     remove_auto_task: 'str', # label

@@ -1623,4 +1623,8 @@ class TeamTest < ActiveSupport::TestCase
     end
     threads.map(&:join)
   end
+
+  test "should return rules as JSON schema" do
+    assert_kind_of Hash, create_team.rules_json_schema
+  end
 end
