@@ -55,5 +55,5 @@ end
 AuthTrail.geocode = false
 
 AuthTrail.exclude_method = lambda do |info|
-  info[:context].start_with?("api/v1/graphql") || info[:failure_reason] == 'unconfirmed'
+  (!info[:context].nil? && info[:context].start_with?("api/v1/graphql")) || info[:failure_reason] == 'unconfirmed'
 end
