@@ -36,7 +36,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :dynamic_search_fields_json_schema, JsonStringType
   field :invited_mails, JsonStringType
   field :get_rules, JsonStringType
-  field :rules_json_schema, JsonStringType
+  field :rules_json_schema, types.String
   field :rules_search_fields_json_schema, JsonStringType
 
   connection :team_users, -> { TeamUserType.connection_type } do

@@ -439,20 +439,21 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.tos_required?(uid)
-    return Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+  def self.send_tos_if_needed(message)
+    uid = message['authorId']
+    if Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
+      Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
+    end
   end
 
-  def self.tos_sent(uid, timestamp)
-    Rails.cache.write("smooch:last_accepted_terms:#{uid}", timestamp)
+  def self.message_should_be_ignored(message)
+    self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
   end
 
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
     Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
-    if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").nil?
-      Rails.cache.write("smooch:last_accepted_terms:#{message['authorId']}", 0)
-    end
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'human_mode'
@@ -460,12 +461,9 @@ class Bot::Smooch < BotUser
       return
 
     elsif sm.state.value == 'waiting_for_message'
-      return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+      return if self.message_should_be_ignored(message)
 
-      if self.tos_required?(message['authorId'])
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
-        self.tos_sent(message['authorId'], Time.now.to_i)
-      end
+      self.send_tos_if_needed(message)
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")

@@ -7,7 +7,7 @@ module TeamRules
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter']
 
-  RULES_JSON_SCHEMA = JSON.parse(File.read(File.join(Rails.root, 'public', 'rules_json_schema.json')))
+  RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
   RULES_JSON_SCHEMA_VALIDATOR = JSON.parse(File.read(File.join(Rails.root, 'public', 'rules_json_schema_validator.json')))
 
   module Rules
@@ -57,7 +57,7 @@ module TeamRules
     after_save :update_rules_index
 
     def self.rule_id(rule)
-      rule.with_indifferent_access[:name].parameterize.gsub('-', '_')
+      rule.with_indifferent_access[:name].parameterize.tr('-', '_')
     end
   end
 
@@ -107,7 +107,7 @@ module TeamRules
     self.get_rules.each do |rule|
       id = Team.rule_id(rule)
       properties[:rules][:properties][id] = { type: 'string', title: rule.with_indifferent_access[:name] }
-    end 
+    end
     { type: 'object', properties: properties }
   end
 
