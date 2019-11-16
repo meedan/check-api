@@ -1625,6 +1625,6 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should return rules as JSON schema" do
-    assert_kind_of Hash, create_team.rules_json_schema
+    assert_not_nil create_team.rules_json_schema
   end
 end

@@ -103,7 +103,11 @@ class CheckSearch
     if associated_type == 'ProjectMedia'
       query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     end
-    !(query_all_types && status_blank && @options['tags'].blank? && @options['keyword'].blank? && @options['rules'].blank? && @options['dynamic'].blank? && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    filters_blank = true
+    ['tags', 'keyword', 'rules', 'dynamic'].each do |filter|
+      filters_blank = false unless @options[filter].blank?
+    end
+    !(query_all_types && status_blank && filters_blank && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter

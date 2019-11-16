@@ -9,8 +9,8 @@ credentials = {
 }
 
 if Rails.env.development? || Rails.env.test?
-   credentials[:endpoint] = CONFIG['storage']['endpoint']
-   credentials[:host] = URI(CONFIG['storage']['endpoint']).host
+  credentials[:endpoint] = CONFIG['storage']['endpoint']
+  credentials[:host] = URI(CONFIG['storage']['endpoint']).host
 end
 
 bucket_name = CONFIG['storage']['bucket']
