@@ -684,14 +684,16 @@ en:
     be handled by the Smooch Bot.
   invalid_task_answer: Sorry, the format of this task answer is not valid
   team_rule_name: A unique name that identifies what this rule does
-  team_rule_project_ids: Project IDs (leave empty to apply to all projects under that team)
+  team_rule_project_ids: Project IDs (leave empty to apply to all projects under that
+    team)
   team_rules: Rules
   team_rule_conditions: Conditions
   team_rule_condition: Condition
   team_rule_condition_definition: Condition Definition
   team_rule_has_less_than_x_words: Message has less than this number of words
   team_rule_matches_regexp: Message matches this regular expression
-  team_rule_contains_keyword: Message contains at least one of the following keywords (separated by commas)
+  team_rule_contains_keyword: Message contains at least one of the following keywords
+    (separated by commas)
   team_rule_value: Value
   team_rule_actions: Actions
   team_rule_action: Action
