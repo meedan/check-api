@@ -3,78 +3,78 @@
   "properties": {
     "rules": {
       "type": "array",
-      "title": "Rules",
+      "title": "%{team_rules}",
       "items": {
-        "title": "Rules",
+        "title": "%{team_rules}",
         "type": "object",
         "properties": {
           "name": {
-            "title": "A unique name that identifies what this rule does",
+            "title": "%{team_rule_name}",
             "type": "string"
           },
           "project_ids": {
-            "title": "Project IDs (leave empty to apply to all projects under that team)",
+            "title": "%{team_rule_project_ids}",
             "type": "string"
           },
           "rules": {
-            "title": "Conditions",
+            "title": "%{team_rule_conditions}",
             "type": "array",
             "items": {
-              "title": "Condition",
+              "title": "%{team_rule_condition}",
               "type": "object",
               "properties": {
                 "rule_definition": {
-                  "title": "Condition Definition",
+                  "title": "%{team_rule_condition_definition}",
                   "type": "string",
                   "enum": [
                     {
                       "key": "has_less_than_x_words",
-                      "value": "Message has less than this number of words"
+                      "value": "%{team_rule_has_less_than_x_words}"
                     },
                     {
                       "key": "matches_regexp",
-                      "value": "Message matches this regular expression"
+                      "value": "%{team_rule_matches_regexp}"
                     },
                     {
                       "key": "contains_keyword",
-                      "value": "Message contains at least one of the following keywords (separated by commas)"
+                      "value": "%{team_rule_contains_keyword}"
                     }
                   ]
                 },
                 "rule_value": {
-                  "title": "Value",
+                  "title": "%{team_rule_value}",
                   "type": "string"
                 }
               }
             }
           },
           "actions": {
-            "title": "Actions",
+            "title": "%{team_rule_actions}",
             "type": "array",
             "items": {
-              "title": "Action",
+              "title": "%{team_rule_action}",
               "type": "object",
               "properties": {
                 "action_definition": {
-                  "title": "Action Definition",
+                  "title": "%{team_rule_action_definition}",
                   "type": "string",
                   "enum": [
                     {
                       "key": "send_to_trash",
-                      "value": "Send to trash"
+                      "value": "%{team_rule_send_to_trash}"
                     },
                     {
                       "key": "move_to_project",
-                      "value": "Move to project (please provide project ID)"
+                      "value": "%{team_rule_move_to_project}"
                     },
                     {
                       "key": "ban_submitter",
-                      "value": "Ban submitting user"
+                      "value": "%{team_rule_ban_submitter}"
                     }
                   ]
                 },
                 "action_value": {
-                  "title": "Value",
+                  "title": "%{team_rule_value}",
                   "type": "string"
                 }
               }

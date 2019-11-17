@@ -62,7 +62,7 @@ module TeamRules
   end
 
   def rules_json_schema
-    RULES_JSON_SCHEMA
+    RULES_JSON_SCHEMA.gsub(/%{([^}]+)}/) { I18n.t(Regexp.last_match[1]) }
   end
 
   def apply_rules(pm)
