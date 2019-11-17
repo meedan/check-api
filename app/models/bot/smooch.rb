@@ -5,7 +5,10 @@ class Bot::Smooch < BotUser
   check_settings
 
   include CheckI18n
-  include SmoochRules
+
+  ::ProjectMedia.class_eval do
+    attr_accessor :smooch_message
+  end
 
   ::Workflow::VerificationStatus.class_eval do
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
@@ -436,20 +439,21 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.tos_required?(uid)
-    return Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+  def self.send_tos_if_needed(message)
+    uid = message['authorId']
+    if Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
+      Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
+    end
   end
 
-  def self.tos_sent(uid, timestamp)
-    Rails.cache.write("smooch:last_accepted_terms:#{uid}", timestamp)
+  def self.message_should_be_ignored(message)
+    self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
   end
 
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
     Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
-    if Rails.cache.read("smooch:last_accepted_terms:#{message['authorId']}").nil?
-      Rails.cache.write("smooch:last_accepted_terms:#{message['authorId']}", 0)
-    end
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'human_mode'
@@ -457,12 +461,9 @@ class Bot::Smooch < BotUser
       return
 
     elsif sm.state.value == 'waiting_for_message'
-      return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+      return if self.message_should_be_ignored(message)
 
-      if self.tos_required?(message['authorId'])
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
-        self.tos_sent(message['authorId'], Time.now.to_i)
-      end
+      self.send_tos_if_needed(message)
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
@@ -597,8 +598,6 @@ class Bot::Smooch < BotUser
     end
     Rails.cache.write(key, hash)
 
-    self.apply_rules_and_actions(pm, message)
-
     self.send_results_if_item_is_finished(pm, message)
   end
 
@@ -665,13 +664,13 @@ class Bot::Smooch < BotUser
       if url.nil?
         pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text, media_type: 'Claim')
+          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text, media_type: 'Claim', smooch_message: message)
           pm.is_being_created = true
         end
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last
         if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], url: url, media_type: 'Link')
+          pm = ProjectMedia.create!(project_id: message['project_id'], url: url, media_type: 'Link', smooch_message: message)
           pm.is_being_created = true
           pm.metadata = { description: text }.to_json if text != url
         elsif text != url
@@ -688,7 +687,7 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.save_media_message(message, type='image')
+  def self.save_media_message(message, type = 'image')
     open(message['mediaUrl']) do |f|
       text = message['text']
 
@@ -705,7 +704,7 @@ class Bot::Smooch < BotUser
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type)
+        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
         pm.metadata = { description: text }.to_json unless text.blank?
       elsif !text.blank?

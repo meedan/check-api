@@ -92,7 +92,7 @@ gem 'rails_admin_material'
 gem 'apollo-tracing', '1.5.0'
 gem 'rubyzip', '1.2.2'
 gem 'rack-protection', '1.5.5'
-gem 'loofah', '2.2.3'
+gem 'loofah', '2.3.1'
 gem 'deep_cloneable', '~> 2.3.0'
 gem 'test_after_commit', group: :test
 gem 'rails-html-sanitizer', '1.0.4'

@@ -693,6 +693,24 @@ es:
     en esta cuenta de Twitter serán manejados por el Bot de Smooch."
   invalid_task_answer: 'Lo sentimos, por el momento las respuestas a las tareas no
     soportan este tipo de formato '
+  team_rule_name: Un nombre único que identifica lo que hace esta regla
+  team_rule_project_ids: IDs de proyectos (dejar en blanco para aplicar a todos los
+    proyectos del equipo)
+  team_rules: Reglas
+  team_rule_conditions: Condiciones
+  team_rule_condition: Condición
+  team_rule_condition_definition: Definición de condición
+  team_rule_has_less_than_x_words: El mensaje contiene menos de este número de palabras
+  team_rule_matches_regexp: El mensaje coincide con esta expresión regular
+  team_rule_contains_keyword: El mensaje contiene una o más de estas palabras clave
+    (separadas por comas)
+  team_rule_value: Valor
+  team_rule_actions: Acciones
+  team_rule_action: Acción
+  team_rule_action_definition: Definición de acción
+  team_rule_send_to_trash: Enviar a la papelera
+  team_rule_move_to_project: Mover al proyecto (proporcione el ID de proyecto)
+  team_rule_ban_submitter: Prohibir el usuario
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
@@ -704,6 +722,17 @@ es:
   custom_message_smooch_bot_window_closing_afp-checamos: ''
   custom_message_smooch_bot_disabled_afp-checamos: ''
   custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-fact-check: ''
+  custom_message_smooch_bot_result_changed_afp-fact-check: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
+  custom_message_smooch_bot_not_final_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: ''
+  custom_message_smooch_bot_window_closing_afp-fact-check: ''
+  custom_message_smooch_bot_disabled_afp-fact-check: ''
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_unconfirmed_africa-check: ''
