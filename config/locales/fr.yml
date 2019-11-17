@@ -704,6 +704,24 @@ fr:
   smooch_twitter_success: Succès ! À présent, les DM reçus par ce compte Twitter seront
     gérés par le bot Smooch.
   invalid_task_answer: Désolé, le format de cette réponse n'est pas valide
+  team_rule_name: Un nom unique qui décrit cette règle
+  team_rule_project_ids: IDs des projets (laisser vide pour appliquer à tous les projets
+    de l'équipe)
+  team_rules: Règles
+  team_rule_conditions: Conditions
+  team_rule_condition: Condition
+  team_rule_condition_definition: Définition de la condition
+  team_rule_has_less_than_x_words: Le message contient moins que ce nombre de mots
+  team_rule_matches_regexp: Le message correspond à cette expression régulière
+  team_rule_contains_keyword: Le message contient un ou plus des mots-clés suivants
+    (séparés par des virgules)
+  team_rule_value: Valeur
+  team_rule_actions: Actions
+  team_rule_action: Action
+  team_rule_action_definition: Définition de l'action
+  team_rule_send_to_trash: Envoyer à la corbeille
+  team_rule_move_to_project: Déplacer vers un projet (fournir l'ID du projet)
+  team_rule_ban_submitter: Exclure l'utilisateur
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''

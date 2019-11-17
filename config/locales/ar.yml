@@ -676,6 +676,24 @@ ar:
   smooch_twitter_success: تم بنجاح ! الآن سيتم التعامل مع الرسائل المباشرة التي تلقاها
     حساب تويتر هذا بواسطة بوت Smooch.
   invalid_task_answer: " عذراً ، تنسيق هذه الاجابة غير صحيح"
+  team_rule_name: اسم فريد يصف القاعدة
+  team_rule_project_ids: معرفات المشروعات (اتركه فارغا للتطبيق على جميع المشاريع في
+    هذا الفريق)
+  team_rules: القواعد
+  team_rule_conditions: "‏‏الشروط"
+  team_rule_condition: "‏‏الشرط"
+  team_rule_condition_definition: تعريف ‏‏الشرط
+  team_rule_has_less_than_x_words: الرسالة تحتوي على عدد من الكلمات أقل من اﻵتي
+  team_rule_matches_regexp: الرسالة تطابق التعبير القياسي الآتي
+  team_rule_contains_keyword: الرسالة تحتوي على كلمة واحدة على الأقل من الكلمات الأساسية
+    اﻵتية (مفصولة بفواصل)
+  team_rule_value: القيمة
+  team_rule_actions: الإجراءات
+  team_rule_action: "‏‏الإجراء"
+  team_rule_action_definition: تعريف ‏‏الإجراء
+  team_rule_send_to_trash: ارسال إلى سلة المهملات
+  team_rule_move_to_project: نقل إلى مشروع (توفير معرِّف المشروع)
+  team_rule_ban_submitter: منع المستخدم
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
