@@ -12,7 +12,7 @@ if Rails.env.development? || Rails.env.test?
   credentials[:endpoint] = CONFIG['storage']['endpoint']
   credentials[:host] = URI(CONFIG['storage']['endpoint']).host
 else
-  credentials[:asset_host] = CONFIG['storage']['asset_host']
+  config.asset_host = CONFIG['storage']['asset_host']
 end
 
 bucket_name = CONFIG['storage']['bucket']
