@@ -23,7 +23,7 @@ CarrierWave.configure do |config|
   config.fog_directory  = bucket_name
   config.fog_public = true
   config.storage = :fog
-  config.asset_host = asset_host if defined? asset_host 
+  config.asset_host = asset_host if asset_host 
 end
 
 connection = Fog::Storage.new(credentials)
