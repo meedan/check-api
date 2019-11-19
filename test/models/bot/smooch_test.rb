@@ -1465,7 +1465,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_number.to_s 
+        text: random_number.to_s
       }
     ]
     payload = {
@@ -1590,25 +1590,26 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   def send_confirmation(uid)
-    confirmation = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: [
-        {
-          '_id': random_string,
-          authorId: uid,
-          type: 'text',
-          text: '1'
-        }
-      ],
-      appUser: {
-        '_id': uid,
-        'conversationStarted': true
-      }
-    }.to_json
-    Bot::Smooch.run(confirmation)
+    # confirmation = {
+    #   trigger: 'message:appUser',
+    #   app: {
+    #     '_id': @app_id
+    #   },
+    #   version: 'v1.1',
+    #   messages: [
+    #     {
+    #       '_id': random_string,
+    #       authorId: uid,
+    #       type: 'text',
+    #       text: '1'
+    #     }
+    #   ],
+    #   appUser: {
+    #     '_id': uid,
+    #     'conversationStarted': true
+    #   }
+    # }.to_json
+    # Bot::Smooch.run(confirmation)
+    true
   end
 end

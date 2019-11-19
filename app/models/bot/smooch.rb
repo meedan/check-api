@@ -457,7 +457,7 @@ class Bot::Smooch < BotUser
       return
 
     elsif sm.state.value == 'waiting_for_message'
-      return if self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
       if self.tos_required?(message['authorId'])
         self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
@@ -469,29 +469,17 @@ class Bot::Smooch < BotUser
       if pm_id.nil?
         sm.send_message_new
         sm.message = message.to_json
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: message['language'] }))
+        if self.supported_message?(message)
+          self.save_message_later(message, app_id)
+        else
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: message['language'] }))
+        end
       else
         sm.send_message_existing
         self.save_message_later(message, app_id)
         self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
       end
-
-    elsif sm.state.value == 'waiting_for_confirmation'
-      sm.confirm_message
-      saved_message = JSON.parse(sm.message.value)
-      if self.convert_numbers(message['text']) == 1
-        if self.supported_message?(saved_message)
-          self.save_message_later(saved_message, app_id)
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
-        else
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: saved_message['language'] }))
-        end
-      else
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: saved_message['language'] }))
-      end
     end
-
-    self.schedule_reminder_job(message['authorId'], app_id, sm)
   end
 
   def self.schedule_reminder_job(uid, app_id, sm)
