@@ -100,7 +100,7 @@ class UploadedImageTest < ActiveSupport::TestCase
 
   test "should return public_path as media url" do
     t = create_uploaded_image
-    assert_equal t.file.url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']), t.media_url
+    assert_equal t.file.url, t.media_url
     assert_equal t.public_path, t.media_url
   end
 

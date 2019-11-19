@@ -36,7 +36,7 @@ class Team < ActiveRecord::Base
   end
 
   def avatar
-    custom = begin self.logo.file.public_url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']) rescue nil end
+    custom = begin self.logo.file.public_url rescue nil end
     default = CONFIG['checkdesk_base_url'] + self.logo.url
     custom || default
   end

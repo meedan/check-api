@@ -1610,7 +1610,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should upload image to S3" do
     t = create_team
-    assert_match /#{Regexp.escape(CONFIG['storage']['public_endpoint'])}/, t.avatar
+    assert_match /#{Regexp.escape(CONFIG['storage']['asset_host'])}/, t.avatar
   end
 
   test "should be able to create partitions in parallel" do

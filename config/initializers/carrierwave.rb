@@ -1,4 +1,4 @@
-CONFIG['storage']['public_endpoint'] ||= CONFIG['storage']['endpoint']
+CONFIG['storage']['asset_host'] ||= "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}"
 
 credentials = {
   provider:              'AWS',
@@ -11,8 +11,6 @@ credentials = {
 if Rails.env.development? || Rails.env.test?
   credentials[:endpoint] = CONFIG['storage']['endpoint']
   credentials[:host] = URI(CONFIG['storage']['endpoint']).host
-else
-  asset_host = CONFIG['storage']['asset_host']
 end
 
 bucket_name = CONFIG['storage']['bucket']
@@ -23,7 +21,7 @@ CarrierWave.configure do |config|
   config.fog_directory  = bucket_name
   config.fog_public = true
   config.storage = :fog
-  config.asset_host = asset_host if asset_host 
+  config.asset_host = CONFIG['storage']['asset_host']
 end
 
 connection = Fog::Storage.new(credentials)
