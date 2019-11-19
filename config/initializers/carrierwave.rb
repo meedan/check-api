@@ -5,13 +5,10 @@ credentials = {
   aws_access_key_id:     CONFIG['storage']['access_key'],
   aws_secret_access_key: CONFIG['storage']['secret_key'],
   region:                CONFIG['storage']['bucket_region'],
-  path_style:            CONFIG['storage']['path_style'].nil? ? true : CONFIG['storage']['path_style']
+  path_style:            CONFIG['storage']['path_style'].nil? ? true : CONFIG['storage']['path_style'],
+  endpoint:              CONFIG['storage']['endpoint'],
+  host:                  URI(CONFIG['storage']['endpoint']).host
 }
-
-if Rails.env.development? || Rails.env.test?
-  credentials[:endpoint] = CONFIG['storage']['endpoint']
-  credentials[:host] = URI(CONFIG['storage']['endpoint']).host
-end
 
 bucket_name = CONFIG['storage']['bucket']
 
