@@ -93,11 +93,12 @@ development: &default
     #   ]
     # }
     endpoint:
-    public_endpoint:
+    asset_host:
     access_key:
     secret_key:
     bucket:
     bucket_region:
+    path_style:
 
 test:
   <<: *default

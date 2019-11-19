@@ -28,7 +28,7 @@ class CheckS3
   end
 
   def self.public_url(path)
-    begin Aws::S3::Object.new(CONFIG['storage']['bucket'], path).public_url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']) rescue nil end
+    begin Aws::S3::Object.new(CONFIG['storage']['bucket'], path).public_url rescue nil end
   end
 
   def self.get(path)

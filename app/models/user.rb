@@ -111,7 +111,7 @@ class User < ActiveRecord::Base
   end
 
   def avatar
-    custom = self.reload.image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    custom = self.reload.image&.file&.public_url&.to_s
     default = CONFIG['checkdesk_base_url'] + self.image.url
     custom || default
   end
