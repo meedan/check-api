@@ -23,6 +23,39 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :is_bot, types.Boolean
   field :is_active, types.Boolean
   field :two_factor, JsonStringType
+  field :settings, JsonStringType
+  field :accepted_terms, types.Boolean
+  field :last_accepted_terms_at, types.String
+  field :team_ids, types[types.Int]
+  field :user_teams, types.String
+
+  field :source_id do
+    type types.Int
+    resolve -> (user, _args, _ctx) do
+      user.source.id
+    end
+  end
+
+  field :token do
+    type types.String
+    resolve -> (user, _args, _ctx) do
+      user.token if user == User.current
+    end
+  end
+
+  field :is_admin do
+    type types.Boolean
+    resolve -> (user, _args, _ctx) do
+      user.is_admin if user == User.current
+    end
+  end
+
+  field :current_project do
+    type ProjectType
+    resolve -> (user, _args, _ctx) do
+      user.current_project
+    end
+  end
 
   field :confirmed do
     type types.Boolean

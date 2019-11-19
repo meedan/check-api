@@ -56,7 +56,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, query: 'query Query { me { name, bot { id } } }'
+    post :create, query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }'
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
