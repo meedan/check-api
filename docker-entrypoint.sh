@@ -3,6 +3,14 @@
 # Wait for Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
+if [[ -z ${GH_TOKEN+x} || -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
+	echo "GH_TOKEN, DEPLOY_ENV and APP must be in the environment. Exiting."
+	exit 1
+fi
+
+if [ ! -d "configurator" ]; then git clone https://${GH_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
+d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+
 # Rake tasks
 if [ "$RAILS_ENV" == "test" ]
 then
@@ -13,8 +21,6 @@ bundle exec rake db:migrate
 export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
-git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-d=configurator/check/local/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
 # App server
 mkdir -p /app/tmp/pids

@@ -46,3 +46,4 @@ tmp/parallel_runtime_test.log
 public/memebuster
 public/team_dump
 .idea
+configurator/*
