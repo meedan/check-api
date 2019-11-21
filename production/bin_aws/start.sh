@@ -18,6 +18,15 @@ function config_replace() {
     fi
 }
 
+if [[ -z ${GH_TOKEN+x} || -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
+	echo "GH_TOKEN, DEPLOY_ENV and APP must be in the environment. Exiting."
+	exit 1
+fi
+
+if [ ! -d "configurator" ]; then git clone https://${GH_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
+d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+
+
 # sed in environmental variables
 for ENV in $( env | cut -d= -f1); do
     config_replace "$ENV" "${!ENV}" /etc/nginx/sites-available/${APP}
@@ -55,10 +64,10 @@ if [ -n "${PRIMARY}" ]; then
 fi
 
 # compile assets in the background, particularly the admin interface
-su ${DEPLOYUSER} -c "nice bundle exec rake assets:precompile" &
+#su ${DEPLOYUSER} -c "nice bundle exec rake assets:precompile" &
 
 echo "tailing ${LOGFILE}"
-tail -f $LOGFILE &
+tail -f ${LOGFILE} &
 
 echo "compiling assets"
 su ${DEPLOYUSER} -c "bundle exec rake assets:precompile"
