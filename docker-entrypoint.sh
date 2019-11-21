@@ -13,6 +13,9 @@ bundle exec rake db:migrate
 export SECRET_KEY_BASE=$(bundle exec rake secret)
 bundle exec rake lapis:api_keys:create_default
 
+git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+d=configurator/check/local/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+
 # App server
 mkdir -p /app/tmp/pids
 rm -f /app/tmp/pids/server-$RAILS_ENV.pid
