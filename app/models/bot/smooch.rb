@@ -482,19 +482,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.schedule_reminder_job(uid, app_id, sm)
-    return if self.config['smooch_window_duration'].to_i == 0
-
-    # Cancel previous reminder.
-    self.cancel_reminder_job(uid)
-
-    # Don't schedule a reminder if we're waiting for confirmation, because it will confuse users.
-    if sm.state.value == 'waiting_for_message'
-      job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
-      Rails.cache.write("smooch:reminder:#{uid}", job_id)
-    end
-  end
-
   def self.get_text_from_message(message)
     text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
     text = message['text'] if text.blank?
@@ -766,18 +753,7 @@ class Bot::Smooch < BotUser
     Team.current = nil
   end
 
-  def self.cancel_reminder_job(uid)
-    key = 'smooch:reminder:' + uid
-    job_id = Rails.cache.read(key)
-    unless job_id.nil?
-      Sidekiq::Status.cancel(job_id)
-      Rails.cache.delete(key)
-    end
-  end
-
   def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
-    self.cancel_reminder_job(uid)
-
     extra = {
       metadata: {
         id: pm.id
