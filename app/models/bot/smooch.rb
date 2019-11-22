@@ -448,7 +448,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.message_should_be_ignored(message)
-    self.convert_numbers(message['text']) == 1 || !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+    !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
   end
 
   def self.process_message(message, app_id)
@@ -470,41 +470,17 @@ class Bot::Smooch < BotUser
       if pm_id.nil?
         sm.send_message_new
         sm.message = message.to_json
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: message['language'] }))
+        if self.supported_message?(message)
+          self.save_message_later(message, app_id)
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
+        else
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: message['language'] }))
+        end
       else
         sm.send_message_existing
         self.save_message_later(message, app_id)
         self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
       end
-
-    elsif sm.state.value == 'waiting_for_confirmation'
-      sm.confirm_message
-      saved_message = JSON.parse(sm.message.value)
-      if self.convert_numbers(message['text']) == 1
-        if self.supported_message?(saved_message)
-          self.save_message_later(saved_message, app_id)
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
-        else
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: saved_message['language'] }))
-        end
-      else
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_unconfirmed, { locale: saved_message['language'] }))
-      end
-    end
-
-    self.schedule_reminder_job(message['authorId'], app_id, sm)
-  end
-
-  def self.schedule_reminder_job(uid, app_id, sm)
-    return if self.config['smooch_window_duration'].to_i == 0
-
-    # Cancel previous reminder.
-    self.cancel_reminder_job(uid)
-
-    # Don't schedule a reminder if we're waiting for confirmation, because it will confuse users.
-    if sm.state.value == 'waiting_for_message'
-      job_id = SmoochPingWorker.perform_in(self.config['smooch_window_duration'].to_i.hours, uid, app_id)
-      Rails.cache.write("smooch:reminder:#{uid}", job_id)
     end
   end
 
@@ -777,18 +753,7 @@ class Bot::Smooch < BotUser
     Team.current = nil
   end
 
-  def self.cancel_reminder_job(uid)
-    key = 'smooch:reminder:' + uid
-    job_id = Rails.cache.read(key)
-    unless job_id.nil?
-      Sidekiq::Status.cancel(job_id)
-      Rails.cache.delete(key)
-    end
-  end
-
   def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
-    self.cancel_reminder_job(uid)
-
     extra = {
       metadata: {
         id: pm.id
