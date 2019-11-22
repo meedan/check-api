@@ -1,5 +1,5 @@
 class Project < ActiveRecord::Base
-
+  include CheckNotifications::Pusher
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
@@ -30,7 +30,7 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  notifies_pusher on: :create, event: 'project_created', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
+  notifies_pusher on: :save, event: 'project_updated', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
 
   check_settings
 

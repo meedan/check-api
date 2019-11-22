@@ -14,7 +14,7 @@ class TagText < ActiveRecord::Base
 
   belongs_to :team
 
-  notifies_pusher on: :save,
+  notifies_pusher on: [:save, :destroy],
                   event: 'tagtext_updated',
                   targets: proc { |t| [t.team] },
                   data: proc { |t| t.to_json }
