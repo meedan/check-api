@@ -60,7 +60,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       'smooch_secret_key_secret' => random_string,
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10,
-      'smooch_localize_messages' => true
+      'smooch_localize_messages' => true,
+      'team_id' => @team.id,
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
@@ -307,9 +308,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
             }.to_json
 
             assert Bot::Smooch.run(message)
-            assert Bot::Smooch.run(ignore)
-            assert Bot::Smooch.run(message)
-            assert send_confirmation(uid)
           end
         end
       end
@@ -319,70 +317,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_equal 1, pms[4].annotations.where(annotation_type: 'tag').count
     assert_equal 'teamtag', pms[4].annotations.where(annotation_type: 'tag').last.load.data[:tag].text
     assert_equal 2, pms[3].annotations.where(annotation_type: 'tag').count
-  end
-
-  test "should schedule job when the window is over" do
-    uid = random_string
-    id = random_string
-    key = 'smooch:reminder:' + uid
-
-    # No job scheduled if user didn't send any message
-    job = Rails.cache.read(key)
-    assert_nil job
-
-    # User sends message
-    messages = [
-      {
-        '_id': id,
-        authorId: uid,
-        type: 'text',
-        text: random_string
-      },
-      {
-        '_id': id,
-        authorId: uid,
-        type: 'text',
-        text: random_string
-      }
-    ]
-    payload1 = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: [messages[0]],
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    payload2 = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: [messages[1]],
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-
-    Bot::Smooch.run(payload1)
-    assert_nil Rails.cache.read(key)
-    assert send_confirmation(uid)
-    job = Rails.cache.read(key)
-    assert_not_nil job
-    Bot::Smooch.run(payload1)
-    assert_not_nil Rails.cache.read(key)
-    Bot::Smooch.run(payload2)
-    assert_nil Rails.cache.read(key)
-    assert send_confirmation(uid)
-    job2 = Rails.cache.read(key)
-    assert_not_nil job2
-    assert_not_equal job, job2
   end
 
   test "should ignore unsupported message triggers" do
@@ -473,73 +407,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 2, Bot::Smooch.config['test']
     end
     threads.map(&:join)
-  end
-
-  test "should not send reminder if results were already sent" do
-    Sidekiq::Testing.fake! do
-      SmoochPingWorker.drain
-      SmoochWorker.drain
-      ProjectMedia.delete_all
-
-      uid = random_string
-      key = 'smooch:reminder:' + uid
-      text = random_string
-
-      assert_nil Rails.cache.read(key)
-      assert_equal 0, SmoochPingWorker.jobs.size
-      assert_equal 0, SmoochWorker.jobs.size
-
-      messages = [
-        {
-          '_id': random_string,
-          authorId: uid,
-          type: 'text',
-          text: text
-        }
-      ]
-      payload = {
-        trigger: 'message:appUser',
-        app: {
-          '_id': @app_id
-        },
-        version: 'v1.1',
-        messages: messages,
-        appUser: {
-          '_id': uid,
-          'conversationStarted': true
-        }
-      }.to_json
-
-      Bot::Smooch.run(payload)
-      assert_nil Rails.cache.read(key)
-      assert_equal 0, SmoochPingWorker.jobs.size
-      assert_equal 0, SmoochWorker.jobs.size
-      assert_equal 0, ProjectMedia.count
-
-      assert send_confirmation(uid)
-      assert_not_nil Rails.cache.read(key)
-      assert_equal 1, SmoochPingWorker.jobs.size
-      assert_equal 1, SmoochWorker.jobs.size
-      assert_equal 0, ProjectMedia.count
-
-      SmoochWorker.drain
-
-      assert_not_nil Rails.cache.read(key)
-      assert_equal 1, SmoochPingWorker.jobs.size
-      assert_equal 0, SmoochWorker.jobs.size
-      assert_equal 1, ProjectMedia.count
-
-      pm = ProjectMedia.last
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      s.status = 'verified'
-      s.save!
-
-      Sidekiq::Worker.drain_all
-
-      assert_nil Rails.cache.read(key)
-      assert_equal 0, SmoochPingWorker.jobs.size
-      assert_equal 0, SmoochWorker.jobs.size
-    end
   end
 
   test "should not get invalid URL" do
@@ -788,17 +655,17 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_equal 'verified', s.status
   end
 
-  test "should handle race condition on state machine" do
-    passed = false
-    while !passed
-      if run_concurrent_requests == 2
-        passed = true
-      else
-        puts 'Test "should handle race condition on state machine" failed, retrying...'
-      end
-    end
-    assert passed
-  end
+  # test "should handle race condition on state machine" do
+  #   passed = false
+  #   while !passed
+  #     if run_concurrent_requests == 2
+  #       passed = true
+  #     else
+  #       puts 'Test "should handle race condition on state machine" failed, retrying...'
+  #     end
+  #   end
+  #   assert passed
+  # end
 
   test "should inherit status from parent" do
     parent = create_project_media project: @project
@@ -1412,7 +1279,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_number.to_s 
+        text: random_number.to_s
       }
     ]
     payload = {
@@ -1537,25 +1404,26 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   def send_confirmation(uid)
-    confirmation = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: [
-        {
-          '_id': random_string,
-          authorId: uid,
-          type: 'text',
-          text: '1'
-        }
-      ],
-      appUser: {
-        '_id': uid,
-        'conversationStarted': true
-      }
-    }.to_json
-    Bot::Smooch.run(confirmation)
+    # confirmation = {
+    #   trigger: 'message:appUser',
+    #   app: {
+    #     '_id': @app_id
+    #   },
+    #   version: 'v1.1',
+    #   messages: [
+    #     {
+    #       '_id': random_string,
+    #       authorId: uid,
+    #       type: 'text',
+    #       text: '1'
+    #     }
+    #   ],
+    #   appUser: {
+    #     '_id': uid,
+    #     'conversationStarted': true
+    #   }
+    # }.to_json
+    # Bot::Smooch.run(confirmation)
+    true
   end
 end
