@@ -471,6 +471,7 @@ class Bot::Smooch < BotUser
         sm.message = message.to_json
         if self.supported_message?(message)
           self.save_message_later(message, app_id)
+          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: saved_message['language'] }))
         else
           self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: message['language'] }))
         end
