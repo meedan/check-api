@@ -17,8 +17,8 @@ module TeamRules
 
     def contains_keyword(pm, value)
       return false unless pm.report_type == 'claim'
-      words = pm.text.split(/\s+/)
-      keywords = value.to_s.split(',')
+      words = pm.text.split(/\s+/).map(&:downcase)
+      keywords = value.to_s.split(',').map(&:strip).map(&:downcase)
       !(words & keywords).empty?
     end
 
