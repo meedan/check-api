@@ -32,63 +32,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
       { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
       { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false },
-      {
-        "name": "smooch_rules_and_actions",
-        "label": "Rules and Actions",
-        "type": "array",
-        "items": {
-          "title": "Rules and Actions",
-          "type": "object",
-          "properties": {
-            "smooch_rules": {
-              "title": "Rules",
-              "type": "array",
-              "items": {
-                "title": "Rule",
-                "type": "object",
-                "properties": {
-                  "smooch_rule_definition": {
-                    "title": "Rule Definition",
-                    "type": "string",
-                    "enum": [
-                      { "key": "has_less_than_x_words", "value": "Message has less than this number of words" },
-                      { "key": "matches_regexp", "value": "Message matches this regular expression" },
-                      { "key": "contains_keyword", "value": "Message contains at least one of the following keywords (separated by commas)" }
-                    ]
-                  },
-                  "smooch_rule_value": {
-                    "title": "Value",
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "smooch_actions": {
-              "title": "Actions",
-              "type": "array",
-              "items": {
-                "title": "Action",
-                "type": "object",
-                "properties": {
-                  "smooch_action_definition": {
-                    "title": "Action Definition",
-                    "type": "string",
-                    "enum": [
-                      { "key": "send_to_trash", "value": "Send to trash" },
-                      { "key": "move_to_project", "value": "Move to project (please provide project ID)" },
-                      { "key": "ban_submitter", "value": "Ban submitting user" }
-                    ]
-                  },
-                  "smooch_action_value": {
-                    "title": "Value",
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     ]
     {
       'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
@@ -1175,78 +1118,82 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should route to project based on rules" do
-    s1 = @installation.settings.clone
-    s2 = @installation.settings.clone
+    s1 = @team.settings.clone
+    s2 = @team.settings.clone
     p1 = create_project team: @team
     p2 = create_project team: @team
-    s2['smooch_rules_and_actions'] = [
+    s2['rules'] = [
       {
-        "smooch_rules": [
+        "name": "Rule 1",
+        "rules": [
           {
-            "smooch_rule_definition": "contains_keyword",
-            "smooch_rule_value": "hi,hello,sorry,please"
+            "rule_definition": "contains_keyword",
+            "rule_value": "hi,hello, sorry, Please"
           },
           {
-            "smooch_rule_definition": "has_less_than_x_words",
-            "smooch_rule_value": "5"
+            "rule_definition": "has_less_than_x_words",
+            "rule_value": "5"
           }
         ],
-        "smooch_actions": [
+        "actions": [
           {
-            "smooch_action_definition": "move_to_project",
-            "smooch_action_value": p1.id.to_s
+            "action_definition": "move_to_project",
+            "action_value": p1.id.to_s
           }
         ]
       },
       {
-        "smooch_rules": [
+        "name": "Rule 2",
+        "rules": [
           {
-            "smooch_rule_definition": "has_less_than_x_words",
-            "smooch_rule_value": "2"
+            "rule_definition": "has_less_than_x_words",
+            "rule_value": "2"
           }
         ],
-        "smooch_actions": [
+        "actions": [
           {
-            "smooch_action_definition": "move_to_project",
-            "smooch_action_value": p2.id.to_s
+            "action_definition": "move_to_project",
+            "action_value": p2.id.to_s
           }
         ]
       },
       {
-        "smooch_rules": [
+        "name": "Rule 3",
+        "rules": [
           {
-            "smooch_rule_definition": "matches_regexp",
-            "smooch_rule_value": "^[0-9]+$"
+            "rule_definition": "matches_regexp",
+            "rule_value": "^[0-9]+$"
           }
         ],
-        "smooch_actions": [
+        "actions": [
           {
-            "smooch_action_definition": "send_to_trash",
-            "smooch_action_value": ""
+            "action_definition": "send_to_trash",
+            "action_value": ""
           }
         ]
       },
       {
-        "smooch_rules": [
+        "name": "Rule 4",
+        "rules": [
           {
-            "smooch_rule_definition": "matches_regexp",
-            "smooch_rule_value": "bad word"
+            "rule_definition": "matches_regexp",
+            "rule_value": "bad word"
           }
         ],
-        "smooch_actions": [
+        "actions": [
           {
-            "smooch_action_definition": "send_to_trash",
-            "smooch_action_value": ""
+            "action_definition": "send_to_trash",
+            "action_value": ""
           },
           {
-            "smooch_action_definition": "ban_submitter",
-            "smooch_action_value": ""
+            "action_definition": "ban_submitter",
+            "action_value": ""
           }
         ]
       }
     ]
-    @installation.settings = s2
-    @installation.save!
+    @team.settings = s2
+    @team.save!
     uid = random_string
 
     messages = [
@@ -1280,7 +1227,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: ([random_string] * 4).join(' ') + ' please'
+        text: ([random_string] * 4).join(' ') + ' pLease?'
       }
     ]
     payload = {
@@ -1379,8 +1326,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert pm.archived
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
 
-    @installation.settings = s1
-    @installation.save!
+    @team.settings = s1
+    @team.save!
   end
 
   test "should create media" do

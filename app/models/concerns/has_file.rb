@@ -4,7 +4,7 @@ module HasFile
   extend ActiveSupport::Concern
 
   def public_path
-    self.file&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    self.file&.file&.public_url&.to_s
   end
 
   def file_mandatory?
@@ -12,7 +12,7 @@ module HasFile
   end
 
   def image_path(version = nil)
-    self.file_url(version).to_s.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    self.file_url(version).to_s
   end
 
   def file_path
