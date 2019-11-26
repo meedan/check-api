@@ -1627,4 +1627,13 @@ class TeamTest < ActiveSupport::TestCase
   test "should return rules as JSON schema" do
     assert_not_nil create_team.rules_json_schema
   end
+
+  test "should match keyword with rule" do
+    t = create_team
+    p = create_project team: t
+    ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
+      pm = create_project_media quote: text, project: p
+      assert t.contains_keyword(pm, 'hospital')
+    end
+  end
 end
