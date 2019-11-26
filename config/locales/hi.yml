@@ -82,7 +82,7 @@ hi:
   custom_message_smooch_bot_message_confirmed_afp-fact-check: |
     शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
 
-    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में सक्षम नहीं हैं.
+    हम आपको इसका विवरण भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में सक्षम नहीं हैं.
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: माफ़ करें, हम
     व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
     असमर्थ हैं.
@@ -102,20 +102,10 @@ hi:
   custom_message_smooch_bot_disabled_afp-fact-check: सन्देश भेजने के लिए धन्यवाद.
     हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
     हो चुकी है.
-  custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'इस सेवा का इस्तेमाल आप सूचनाओं/समाचार
-    की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं |
-    चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. यदि आप सेवा जारी
-    रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो चेक मैसेज
-    की सेवा समाप्त कर सकते हैं.'
-  custom_message_smooch_bot_ask_for_confirmation_africa-check: ''
-  custom_message_smooch_bot_message_confirmed_africa-check: ''
-  custom_message_smooch_bot_message_unconfirmed_africa-check: ''
-  custom_message_smooch_bot_window_closing_africa-check: ''
-  custom_message_smooch_bot_result_africa-check: ''
-  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
-  custom_message_smooch_bot_not_final_africa-check: ''
-  custom_message_smooch_bot_meme_africa-check: ''
-  custom_message_smooch_bot_ask_for_tos_africa-check: ''
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: |
+    इस सेवा का इस्तेमाल आप सूचनाओं/समाचार की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. 
+
+    यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
   custom_message_smooch_bot_result_boom-factcheck: |
     [वेरिफिकेशन रिपोर्ट]
 
@@ -133,10 +123,9 @@ hi:
   custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
     इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
     हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचित को रोक देगा.
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: |
-    शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
-
-    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में शक्षम नहीं हैं.
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: "शुभकानाएं! आपकी आग्रह
+    की गयी सामग्री हमें मिल गयी है. हम इसकी जांच आपको जल्द से जल्द जवाब भेजेंगे. .\n\nपर
+    ध्यान रखें कि हम हर निवेदन का जवाब नहीं दे पायेंगे \n\n"
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: माफ़ करें, हम
     व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
     असमर्थ हैं.
@@ -157,13 +146,11 @@ hi:
   custom_message_smooch_bot_disabled_boom-factcheck: सन्देश भेजने के लिए धन्यवाद.
     हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
     हो चुकी है.
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'इस सेवा का इस्तेमाल आप सूचनाओं/समाचार
-    की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं |
-    चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलभ्ध है: %{tos}. यदि आप सेवा जारी
-    रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो चेक मैसेज
-    की सेवा समाप्त कर सकते हैं.
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: |+
+    इस सेवा का इस्तेमाल आप सूचनाओं/समाचार की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. 
 
-'
+    यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
+
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
@@ -303,11 +290,7 @@ hi:
 
 '
   custom_message_smooch_bot_window_closing_india-today: |-
-    फैक्ट-चेक करने में समय लगता है.
-
-
-    अभी तो हम आपके पहले भेजे मैसेज को ही देख रहे हैं.
-
+    आपके धैर्य के लिए शुक्रिया. कृपया ध्यान दें कि सभी संदेशों की जांच करना संभव नहीं है क्योंकि हमारे पास बहुत ज्यादा संख्या में सन्देश आते हैं. 
 
     तब तक आप देखिए कि हम ऐसे ही किन अफ़वाहों का पर्दाफ़ाश कर चुके हैं.
 
@@ -323,10 +306,11 @@ hi:
 
     https://aajtak.intoday.in/fact-check.html
   custom_message_smooch_bot_ask_for_tos_india-today: |-
-    इस व्हाट्सऐप टिपलाइन का सॉफ्टवेर चेक मेसेज आपको इन नियमों के तहत पहुँचाया गया है. %{tos} इस सेवा को जारी रखकर *आप इन शर्तों को स्वीकार करते हैं*. यदि आपको यह स्वीकार नहीं है तो आप चेक मेसेज का इस्तेमाल समाप्त कर सकते हैं.
+    इस टिपलाइन का सॉफ्टवेर चेक मेसेज आपको इन नियमों के तहत पहुँचाया गया है. %{tos} इस सेवा को जारी रखकर *आप इन शर्तों को स्वीकार करते हैं*. 
 
+    यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
 
-    इस बीच, ऐसे ही जिन अफ़वाहों  के बारे में हमने पता लगाया है, उसके बारे में आप यहां पढ़ सकते हैं.
+    हमारे ताज़ा फैक्ट चेक आप यहां पढ़ सकते हैं.
 
        https://aajtak.intoday.in/fact-check.html
   custom_message_smooch_bot_result_reverso: ''
