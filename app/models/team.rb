@@ -10,6 +10,7 @@ class Team < ActiveRecord::Base
   include TeamPrivate
   include TeamDuplication
   include TeamImport
+  include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied
 
@@ -35,7 +36,7 @@ class Team < ActiveRecord::Base
   end
 
   def avatar
-    custom = begin self.logo.file.public_url.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint']) rescue nil end
+    custom = begin self.logo.file.public_url rescue nil end
     default = CONFIG['checkdesk_base_url'] + self.logo.url
     custom || default
   end
@@ -158,6 +159,10 @@ class Team < ActiveRecord::Base
     list.each do |task|
       self.add_auto_task = task
     end
+  end
+
+  def rules=(rules)
+    self.send(:set_rules, JSON.parse(rules))
   end
 
   def search_id

@@ -1610,7 +1610,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should upload image to S3" do
     t = create_team
-    assert_match /#{Regexp.escape(CONFIG['storage']['public_endpoint'])}/, t.avatar
+    assert_match /#{Regexp.escape(CONFIG['storage']['asset_host'])}/, t.avatar
   end
 
   test "should be able to create partitions in parallel" do
@@ -1622,5 +1622,18 @@ class TeamTest < ActiveSupport::TestCase
       create_team
     end
     threads.map(&:join)
+  end
+
+  test "should return rules as JSON schema" do
+    assert_not_nil create_team.rules_json_schema
+  end
+
+  test "should match keyword with rule" do
+    t = create_team
+    p = create_project team: t
+    ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
+      pm = create_project_media quote: text, project: p
+      assert t.contains_keyword(pm, 'hospital')
+    end
   end
 end

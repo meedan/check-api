@@ -115,7 +115,7 @@ module AnnotationBase
 
     def annotated_is_not_archived
       annotated = self.annotated ? self.annotated.reload : nil
-      if annotated && annotated.respond_to?(:archived) && annotated.archived
+      if annotated && annotated.respond_to?(:archived) && annotated.archived && self.annotator_type != 'BotUser'
         errors.add(:base, I18n.t(:error_annotated_archived))
       end
     end

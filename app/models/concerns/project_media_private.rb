@@ -83,4 +83,8 @@ module ProjectMediaPrivate
   def notify_team_bots(event)
     BotUser.enqueue_event("#{event}_project_media", self.project.team_id, self)
   end
+
+  def apply_rules_and_actions
+    self.project&.team&.apply_rules_and_actions(self)
+  end
 end

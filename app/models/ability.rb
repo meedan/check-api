@@ -181,7 +181,7 @@ class Ability
     can :update, Flag, ['annotation_type = ?', 'flag'] do |flag|
       flag.get_team.include?(@context_team.id) and (flag.annotator_id.to_i == @user.id) and !flag.annotated_is_archived?
     end
-    can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
+    can [:create, :update], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
     end
     %w(annotation comment).each do |annotation_type|

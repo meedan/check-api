@@ -683,6 +683,24 @@ en:
   smooch_twitter_success: Success! Now the DMs received by this Twitter account will
     be handled by the Smooch Bot.
   invalid_task_answer: Sorry, the format of this task answer is not valid
+  team_rule_name: A unique name that identifies what this rule does
+  team_rule_project_ids: Project IDs (leave empty to apply to all projects under that
+    team)
+  team_rules: Rules
+  team_rule_conditions: Conditions
+  team_rule_condition: Condition
+  team_rule_condition_definition: Condition Definition
+  team_rule_has_less_than_x_words: Message has less than this number of words
+  team_rule_matches_regexp: Message matches this regular expression
+  team_rule_contains_keyword: Message contains at least one of the following keywords
+    (separated by commas)
+  team_rule_value: Value
+  team_rule_actions: Actions
+  team_rule_action: Action
+  team_rule_action_definition: Action Definition
+  team_rule_send_to_trash: Send to trash
+  team_rule_move_to_project: Move to project (please provide project ID)
+  team_rule_ban_submitter: Ban submitting user
   custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
     item que você compartilhou conosco foi classificado como *%{status} *.\n\nVeja
     as etapas que seguimos para chegar a esta conclusão: %{url}\n"
@@ -696,10 +714,10 @@ en:
     Agradecemos o contato. Deseja verificar este conteúdo?
 
     Para dizer sim, *responda com o número 1*. Qualquer outra resposta irá encerrar nossa conversa.
-  custom_message_smooch_bot_message_confirmed_afp-checamos: |
-    Agradecemos o contato. A sua solicitação foi adicionada à nossa fila de verificação.
+  custom_message_smooch_bot_message_confirmed_afp-checamos: |-
+    Obrigada, sua solicitação foi recebida e enviaremos um relatório o mais breve possível.
 
-    Tentaremos enviar um relatório dentro de 24 horas, mas podemos  não conseguir responder a todos os pedidos.
+    Por favor, entenda que não podemos responder a todas as solicitações.
   custom_message_smooch_bot_message_type_unsupported_afp-checamos: Desculpe, no momento
     não oferecemos suporte para esse tipo de mensagem.
   custom_message_smooch_bot_message_unconfirmed_afp-checamos: Como você não respondeu
@@ -717,10 +735,10 @@ en:
     sugestão. Se quiser nos enviar outra mensagem, fique à vontade.
   custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
     possível enviar nenhum resultado porque este projeto não está mais ativo.
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: Você pode utilizar este serviço
-    para solicitar verificações, checagens de fatos e informações. A verificação de
-    mensagens é fornecida sob estes Termos de Serviço:%{tos}. Ao continuar, *você
-    concorda com estes termos*. Caso discorde, você pode interromper o uso.
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: |
+    Check Message, é o software utilizado nesta linha de verificação, e é fornecido sob estes Termos de Serviço:% {tos}.
+
+    Ao continuar a usar este serviço, * você concorda em cumprir estes termos *. Caso discorde você pode interromper o uso.
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
@@ -737,10 +755,11 @@ en:
     Thank you for sending this request. Do you want us to verify its content?
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_afp-fact-check: |
-    Thank you. Your request has been added to our verification queue.
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: |+
+    Thank you. Your request has been received and we will send you a report as soon as possible.
 
-    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
+    Please note that we are not able to respond to every request.
+
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: Sorry, we don't
     support this type of message for verification at this time.
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Since you didn't reply
@@ -759,50 +778,10 @@ en:
   custom_message_smooch_bot_disabled_afp-fact-check: Thank you for sending this message.
     We are unable to send back any verification reports because this project is no
     longer active.
-  custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'You can use this service
-    to request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.'
-  custom_message_smooch_bot_ask_for_confirmation_africa-check: |-
-    Hello! Thank you for sending Africa Check this message.
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: |
+    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
-    Do you think it’s false or misleading?
-
-    To say yes, please reply with 1. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_africa-check: "Thank you! Your submission
-    will help us understand and fight the spread of false information on WhatsApp
-    in Africa. \n\nThis item has been added to our verification queue. If we fact-check
-    it you will get an instant notification. Please note that we are not able to respond
-    to every request.\n"
-  custom_message_smooch_bot_message_unconfirmed_africa-check: "Since you didn’t reply
-    with 1, we will not process your message further. \n\nRemember, you can send us
-    any message, image or video you want fact-checked!\n"
-  custom_message_smooch_bot_window_closing_africa-check: |
-    We've received a lot of requests on our fact-checking tipline and haven't been able to check yours.
-
-    If you have another message to submit while you wait, please do so.
-  custom_message_smooch_bot_result_africa-check: "*Check Report*  \nWe have fact-checked
-    the message you shared with us and rated it: %{status}.\n\nFind out how we reached
-    that conclusion here: %{url}.\n"
-  custom_message_smooch_bot_message_type_unsupported_africa-check: |
-    Sorry, we don't support this type of file format for verification yet.
-
-    Try sending us another message to be fact-checked.
-  custom_message_smooch_bot_not_final_africa-check: Oops! The message you sent us
-    was incorrectly marked %{status}. The status has changed and you will receive
-    the updated report shortly.
-  custom_message_smooch_bot_meme_africa-check: |
-    Here's a meme we made based on the item you asked us to verify. Learn more here: %{url}.
-
-    Forward this to your WhatsApp groups to set the record straight!
-  custom_message_smooch_bot_ask_for_tos_africa-check: 'You can use this service to
-    request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.
-
-'
+    By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
   custom_message_smooch_bot_result_boom-factcheck: |
     [Verification Report]
 
@@ -816,10 +795,11 @@ en:
     Thank you for sending this request. Do you want us to verify its content?
 
     To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: |
-    Thank you. Your request has been added to our verification queue.
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: |+
+    Thank you. Your request has been received and we will send you a report as soon as possible.
 
-    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
+    Please note that we are not able to respond to every request.
+
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: Sorry, we don’t
     support video and audio messages uploaded directly on WhatsApp.
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: Since you didn't reply
@@ -838,13 +818,11 @@ en:
   custom_message_smooch_bot_disabled_boom-factcheck: Thank you for sending this message.
     We are unable to send back any verification reports because this project is no
     longer active.
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'You can use this service
-    to request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: |+
+    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
-'
+    By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
+
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: Please
     confirm with "1".
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: Thanks,
@@ -965,7 +943,9 @@ en:
     Today Fact Check.\n\nBut sorry, we’re not able to respond back currently. \n\nBut
     you can check latest fact check stories here: https://www.indiatoday.in/fact-check"
   custom_message_smooch_bot_ask_for_tos_india-today: |-
-    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}. By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of Check Message if you do not agree.
+    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
+
+    By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
 
     You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado

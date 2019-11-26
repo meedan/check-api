@@ -1,6 +1,7 @@
 class LoginActivity < ActiveRecord::Base
   belongs_to :user, polymorphic: true
   after_create :send_security_notification
+  before_create :set_original_ip
 
   def should_notify?(user, type)
     notify = false
@@ -18,6 +19,13 @@ class LoginActivity < ActiveRecord::Base
   end
 
   private
+
+  def set_original_ip
+    unless RequestStore[:request].blank?
+      original_ip = RequestStore[:request].headers['X-Forwarded-For'].to_s
+      self.ip = original_ip.split(',').first unless original_ip.blank?
+    end
+  end
 
   def send_security_notification
     user = get_user
