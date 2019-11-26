@@ -1,5 +1,5 @@
 class Project < ActiveRecord::Base
-
+  include CheckNotifications::Pusher
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
@@ -30,7 +30,7 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  notifies_pusher on: :create, event: 'project_created', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
+  notifies_pusher on: :save, event: 'project_updated', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
 
   check_settings
 
@@ -54,7 +54,7 @@ class Project < ActiveRecord::Base
 
   def avatar
     # We are not really using now, so just return the default image
-    # self.lead_image&.file&.public_url&.to_s&.gsub(/^#{Regexp.escape(CONFIG['storage']['endpoint'])}/, CONFIG['storage']['public_endpoint'])
+    # self.lead_image&.file&.public_url&.to_s
     CONFIG['checkdesk_base_url'] + self.lead_image.url
   end
 
