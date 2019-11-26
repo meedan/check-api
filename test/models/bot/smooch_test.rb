@@ -1128,7 +1128,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         "rules": [
           {
             "rule_definition": "contains_keyword",
-            "rule_value": "hi,hello,sorry,please"
+            "rule_value": "hi,hello, sorry, Please"
           },
           {
             "rule_definition": "has_less_than_x_words",
@@ -1227,7 +1227,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: ([random_string] * 4).join(' ') + ' please'
+        text: ([random_string] * 4).join(' ') + ' pLease'
       }
     ]
     payload = {
