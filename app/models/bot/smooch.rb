@@ -358,8 +358,9 @@ class Bot::Smooch < BotUser
     pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
+      lang = 'en' if lang == 'und'
       status = self.get_status_label(pm, pm.last_verification_status, lang)
-      fallback = ::Bot::Smooch.i18n_t(:smooch_bot_result, { locale: lang, status: status, url: Bot::Smooch.embed_url(pm) })
+      fallback = ::Bot::Smooch.i18n_t(:smooch_bot_result, { status: status, url: Bot::Smooch.embed_url(pm), locale: lang })
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{Bot::Smooch.embed_url(pm)})")
     end
   end
