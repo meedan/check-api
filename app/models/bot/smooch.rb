@@ -309,7 +309,7 @@ class Bot::Smooch < BotUser
       case json['trigger']
       when 'message:appUser'
         json['messages'].each do |message|
-          self.discard_or_process_message(message, json['app']['_id'])
+          self.group_messages(message, json['app']['_id'])
         end
         true
       when 'message:delivery:failure'
@@ -323,6 +323,51 @@ class Bot::Smooch < BotUser
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
+    end
+  end
+
+  def self.get_redis_client
+    Redis.new(REDIS_CONFIG)
+  end
+
+  def self.group_messages(message, app_id)
+    sm = CheckStateMachine.new(message['authorId'])
+    return if sm.state.value == 'human_mode'
+    self.send_tos_if_needed(message)
+    redis = self.get_redis_client
+    uid = message['authorId']
+    key = "smooch:bundle:#{uid}"
+    self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
+    redis.rpush(key, message.to_json)
+    self.delay_for(30.seconds, { queue: 'smooch', retry: 5 }).process_messages(uid, message['_id'], app_id)
+  end
+
+  def self.process_messages(uid, id, app_id)
+    redis = self.get_redis_client
+    key = "smooch:bundle:#{uid}"
+    list = redis.lrange(key, 0, redis.llen(key))
+    unless list.empty?
+      last = JSON.parse(list.last)
+      if last['_id'] == id
+        self.get_installation('smooch_app_id', app_id) if self.config.blank?
+        bundle = last.clone
+        text = []
+        media = nil
+        list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
+          next unless self.supported_message?(message)
+          if media.nil?
+            media = message['mediaUrl']
+            bundle['type'] = message['type']
+            bundle['mediaUrl'] = media
+          else
+            text << message['mediaUrl'].to_s
+          end
+          text << message['text'].to_s
+        end
+        bundle['text'] = text.reject{ |t| t.blank? }.join("\n")
+        self.discard_or_process_message(bundle, app_id)
+        redis.del(key)
+      end
     end
   end
 
@@ -454,17 +499,10 @@ class Bot::Smooch < BotUser
 
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
-    Bot::Smooch.delay_for(1.second).save_user_information(app_id, message['authorId'])
     sm = CheckStateMachine.new(message['authorId'])
 
-    if sm.state.value == 'human_mode'
-      Rails.logger.info("[Smooch Bot] Ignoring message because conversation for user #{message['authorId']} is in human-mode")
-      return
-
-    elsif sm.state.value == 'waiting_for_message'
+    if sm.state.value == 'waiting_for_message'
       return if self.message_should_be_ignored(message)
-
-      self.send_tos_if_needed(message)
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
