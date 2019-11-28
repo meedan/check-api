@@ -678,17 +678,9 @@ class Bot::Smooch < BotUser
       url = self.extract_url(text)
       pm = nil
       if url.nil?
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last
-        if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], quote: text, media_type: 'Claim', smooch_message: message)
-          pm.is_being_created = true
-        end
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Claim', { quote: text })
       else
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last
-        if pm.nil?
-          pm = ProjectMedia.create!(project_id: message['project_id'], url: url, media_type: 'Link', smooch_message: message)
-          pm.is_being_created = true
-        end
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Link', { url: url })
       end
       Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) if text != url && !text.blank?
 
@@ -699,6 +691,12 @@ class Bot::Smooch < BotUser
       self.ban_user(message)
       nil
     end
+  end
+
+  def self.create_project_media(message, type, extra)
+    pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
+    pm.is_being_created = true
+    pm
   end
 
   def self.save_media_message(message, type = 'image')
