@@ -270,7 +270,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     assert_difference 'ProjectMedia.count', 6 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
-        assert_difference 'Comment.length', 9 do
+        assert_difference 'Comment.length', 19 do
           messages.each do |message|
             uid = message[:authorId]
 
@@ -1409,10 +1409,10 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       end
       pm = ProjectMedia.last
       assert_no_match /#{@media_url}/, pm.text
-      assert_match /#{@media_url_2}/, pm.description
+      assert_match /#{@media_url_2}/, pm.comments.last.text
       assert_equal 'UploadedImage', pm.media.type
-      assert_match /foo/, pm.description
-      assert_match /bar/, pm.description
+      assert_match /foo/, pm.comments.last.text
+      assert_match /bar/, pm.comments.last.text
     end
   end
 
