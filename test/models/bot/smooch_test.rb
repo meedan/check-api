@@ -1357,6 +1357,65 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should bundle messages" do
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'foo',
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'image',
+          text: 'first image',
+          mediaUrl: @media_url
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'image',
+          text: 'second image',
+          mediaUrl: @media_url_2
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'bar'
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'ProjectMedia.count' do
+        Sidekiq::Worker.drain_all
+      end
+      pm = ProjectMedia.last
+      assert_no_match /#{@media_url}/, pm.text
+      assert_match /#{@media_url_2}/, pm.description
+      assert_equal 'UploadedImage', pm.media.type
+      assert_match /foo/, pm.description
+      assert_match /bar/, pm.description
+    end
+  end
+
   protected
 
   def run_concurrent_requests
