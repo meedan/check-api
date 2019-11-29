@@ -403,7 +403,7 @@ class Bot::Smooch < BotUser
     pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
-      lang = 'en' if lang == 'und'
+      lang = 'en' if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
       status = self.get_status_label(pm, pm.last_verification_status, lang)
       fallback = ::Bot::Smooch.i18n_t(:smooch_bot_result, { status: status, url: Bot::Smooch.embed_url(pm), locale: lang })
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{Bot::Smooch.embed_url(pm)})")
@@ -413,7 +413,7 @@ class Bot::Smooch < BotUser
   def self.get_language(message)
     text = message['text'].to_s
     lang = text.blank? ? nil : Bot::Alegre.default.get_language_from_alegre(text)
-    lang = 'en' if lang.blank? || !I18n.available_locales.include?(lang.to_sym)
+    lang = 'en' if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
     lang
   end
 
