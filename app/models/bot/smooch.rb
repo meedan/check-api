@@ -682,7 +682,7 @@ class Bot::Smooch < BotUser
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Link', { url: url })
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) if text != url && !text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) if text != url && !text.blank?
 
       self.add_hashtags(text, pm)
 
@@ -719,7 +719,7 @@ class Bot::Smooch < BotUser
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) unless text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) unless text.blank?
       FileUtils.rm_f filepath
 
       self.add_hashtags(text, pm)

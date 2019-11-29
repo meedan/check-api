@@ -1357,6 +1357,32 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should create media with unstarted status" do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
+    pm = ProjectMedia.last
+    assert_equal 'undetermined', pm.last_verification_status
+  end
+
   test "should bundle messages" do
     Sidekiq::Testing.fake! do
       uid = random_string
