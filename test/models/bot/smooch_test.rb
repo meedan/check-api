@@ -359,7 +359,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
 
     pm = ProjectMedia.last
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -449,7 +448,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     s = pm.last_status_obj
@@ -554,7 +552,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
 
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
 
     Sidekiq::Testing.fake! do
       pm = ProjectMedia.last
@@ -640,7 +637,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }.to_json
 
       assert Bot::Smooch.run(payload)
-      assert send_confirmation(uid)
     end
   end
 
@@ -729,7 +725,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     with_current_user_and_team(u, @team) do
       s = pm.last_verification_status_obj
@@ -831,21 +826,18 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
-      assert send_confirmation(uid)
     end
 
     payload[:messages][0][:text] = url
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
-      assert send_confirmation(uid)
     end
 
     payload[:messages][0][:text] = random_string
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
     assert_no_difference 'ProjectMedia.count' do
       assert Bot::Smooch.run(payload.to_json)
-      assert send_confirmation(uid)
     end
   end
 
@@ -932,7 +924,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @installation = TeamBotInstallation.find(@installation.id)
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     Bot::Smooch.run(payload)
-    send_confirmation(uid)
     assert_equal 0, ProjectMedia.count
 
     s = @installation.settings.clone.with_indifferent_access
@@ -942,7 +933,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @installation = TeamBotInstallation.find(@installation.id)
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     Bot::Smooch.run(payload)
-    send_confirmation(uid)
     assert_equal 1, ProjectMedia.count
   end
 
@@ -1217,7 +1207,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert_equal @project.id, pm.project_id
     assert !pm.archived
@@ -1243,7 +1232,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert_equal p1.id, pm.project_id
     assert !pm.archived
@@ -1269,7 +1257,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert_equal p2.id, pm.project_id
     assert !pm.archived
@@ -1295,7 +1282,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert pm.archived
 
@@ -1321,7 +1307,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     }.to_json
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert Bot::Smooch.run(payload)
-    assert send_confirmation(uid)
     pm = ProjectMedia.last
     assert pm.archived
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
@@ -1442,6 +1427,36 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not crash on und language annotation" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
+    bot = create_alegre_bot
+    pm = create_project_media
+    bot.save_language(pm, 'und')
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      message: {
+        '_id': random_string,
+        authorId: random_string,
+        type: random_string,
+        text: random_string,
+      },
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.with_indifferent_access
+    Rails.cache.write('smooch:response:' + payload['message']['_id'], pm.id)
+    assert_nothing_raised do
+      Bot::Smooch.resend_message_after_window(payload.to_json)
+    end
+  end
+
   protected
 
   def run_concurrent_requests
@@ -1480,35 +1495,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       Bot::Smooch.singleton_class.send(:alias_method, :send_message_to_user, :send_message_to_user_mock_backup)
       @success += 1 if response
     end
-    threads << Thread.start do
-      @success += 1 if send_confirmation(uid)
-    end
     threads.map(&:join)
     Bot::Smooch.unstub(:config)
     @success
-  end
-
-  def send_confirmation(uid)
-    # confirmation = {
-    #   trigger: 'message:appUser',
-    #   app: {
-    #     '_id': @app_id
-    #   },
-    #   version: 'v1.1',
-    #   messages: [
-    #     {
-    #       '_id': random_string,
-    #       authorId: uid,
-    #       type: 'text',
-    #       text: '1'
-    #     }
-    #   ],
-    #   appUser: {
-    #     '_id': uid,
-    #     'conversationStarted': true
-    #   }
-    # }.to_json
-    # Bot::Smooch.run(confirmation)
-    true
   end
 end
