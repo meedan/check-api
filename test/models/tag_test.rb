@@ -148,12 +148,16 @@ class TagTest < ActiveSupport::TestCase
     s1 = create_project_source
     s2 = create_project_source
     p = create_project
-    assert_difference 'Tag.length', 4 do
+    assert_difference 'Tag.length', 8 do
       assert_nothing_raised do
         create_tag tag: 'foo', annotated: s1
         create_tag tag: 'foo', annotated: s2
         create_tag tag: 'bar', annotated: s1
         create_tag tag: 'bar', annotated: s2
+        create_tag tag: 'foo', annotated: s1, fragment: 't=1'
+        create_tag tag: 'foo', annotated: s2, fragment: 't=2'
+        create_tag tag: 'bar', annotated: s1, fragment: 't=3'
+        create_tag tag: 'bar', annotated: s2, fragment: 't=4'
       end
     end
     assert_no_difference 'Tag.length' do
