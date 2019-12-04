@@ -2,6 +2,7 @@
 
 # start_background.sh
 
+
 LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
 
 echo "setting permissions for ${LOGFILE}"
