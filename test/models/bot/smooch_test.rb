@@ -1457,6 +1457,62 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should delete cache entries when user annotation is deleted" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    Bot::Smooch.unstub(:save_user_information)
+    SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+    { 'whatsapp' => '', 'messenger' => 'http://facebook.com/psid=1234', 'twitter' => 'http://twitter.com/profile_images/1234/image.jpg', 'other' => '' }.each do |platform, url|
+      SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      redis = Bot::Smooch.get_redis_client
+      assert_equal 0, redis.llen("smooch:bundle:#{uid}")
+      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_nil Rails.cache.read("smooch:banned:#{uid}")
+      assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+        Bot::Smooch.run(payload)
+      end
+      pm = ProjectMedia.last
+      assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_not_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
+      sm = CheckStateMachine.new(uid)
+      sm.enter_human_mode
+      sm = CheckStateMachine.new(uid)
+      assert_equal 'human_mode', sm.state.value
+      Bot::Smooch.ban_user({ 'authorId' => uid }) 
+      assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
+      a = Dynamic.where(annotation_type: 'smooch_user').last
+      assert_not_nil a
+      a.destroy!
+      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_nil Rails.cache.read("smooch:banned:#{uid}")
+      assert_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
+      sm = CheckStateMachine.new(uid)
+      assert_equal 'waiting_for_message', sm.state.value   
+      assert_equal 0, redis.llen("smooch:bundle:#{uid}")
+    end
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
   protected
 
   def run_concurrent_requests

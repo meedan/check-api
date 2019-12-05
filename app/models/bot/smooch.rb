@@ -52,8 +52,21 @@ class Bot::Smooch < BotUser
   ::Dynamic.class_eval do
     after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
+    before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
+
+    scope :smooch_user, -> { where(annotation_type: 'smooch_user').joins(:fields).where('dynamic_annotation_fields.field_name' => 'smooch_user_data') }
 
     private
+
+    def delete_smooch_cache_keys
+      uid = self.get_field_value('smooch_user_id')
+      unless uid.blank?
+        ["smooch:bundle:#{uid}", "smooch:last_accepted_terms:#{uid}", "smooch:banned:#{uid}"].each { |key| Rails.cache.delete(key) }
+        Rails.cache.delete_matched("smooch:request:#{uid}:*")
+        sm = CheckStateMachine.new(uid)
+        sm.leave_human_mode if sm.state.value == 'human_mode'
+      end
+    end
 
     def send_meme_to_smooch_users
       SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
