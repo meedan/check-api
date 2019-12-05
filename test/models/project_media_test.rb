@@ -1722,6 +1722,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     ps.delete
     assert_nil pm.reload.project_source
+    # check that cache store valid source id
+    pm = create_project_media media: create_valid_media, project: p
+    pm2 = create_project_media media: create_valid_media, project: p
+    pm3 = create_project_media media: create_valid_media, project: p
+    pm4 = create_project_media media: create_valid_media, project: p
+    pms = [pm, pm2, pm3, pm4]
+    pms.each do |obj|
+      obj.project_source
+      cache_key = "project_source_id_cache_for_project_media_#{obj.id}"
+      assert Rails.cache.exist?(cache_key)
+      assert_equal obj.get_project_source(p.id), Rails.cache.read(cache_key)
+    end
   end
 
   # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca644ecf023ba001260e71d
