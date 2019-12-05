@@ -3,6 +3,13 @@ require 'active_support/concern'
 module ProjectMediaPrivate
   extend ActiveSupport::Concern
 
+  def get_project_source(pid)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
+    ProjectSource.where(project_id: pid, source_id: sources).first
+  end
+
   private
 
   def move_media_sources
@@ -20,13 +27,6 @@ module ProjectMediaPrivate
         end
       end
     end
-  end
-
-  def get_project_source(pid)
-    sources = []
-    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
-    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
-    ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
   def project_is_not_archived
