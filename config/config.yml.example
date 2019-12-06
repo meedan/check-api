@@ -29,6 +29,7 @@ development: &default
   pusher_key:
   pusher_secret:
   pusher_cluster:
+  video_file_max_size:
   uploaded_file_max_size:
   image_min_width:
   image_max_width:
