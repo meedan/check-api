@@ -18,7 +18,6 @@ function config_replace() {
     fi
 }
 
-
 if [[ -z ${GITHUB_TOKEN+x} || -z ${DEPLOY_ENV+x} || -z ${APP+x} || -z ${RAILS_ENV+x}  ]]; then
 	echo "GITHUB_TOKEN, DEPLOY_ENV, APP and RAILS_ENV must be in the environment. Exiting."
 	exit 1
