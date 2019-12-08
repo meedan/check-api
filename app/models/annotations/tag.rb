@@ -7,7 +7,7 @@ class Tag < ActiveRecord::Base
   before_validation :get_tag_text_reference
 
   validates_presence_of :tag
-  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id], message: :already_exists }, if: lambda { |t| t.id.blank? }
+  validates :data, uniqueness: { scope: [:annotated_type, :annotated_id, :fragment], message: :already_exists }, if: lambda { |t| t.id.blank? }
   validate :tag_text_exists
 
   after_commit :add_elasticsearch_tag, on: :create

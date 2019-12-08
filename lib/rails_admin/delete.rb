@@ -23,9 +23,7 @@ module RailsAdmin
         register_instance_option :controller do
           proc do
             RailsAdmin::MainController.class_eval { respond_to :html, :js }
-            if request.get? # DELETE
-              respond_with(@object)
-            elsif request.delete? # DESTROY
+            if (@object.is_a?(Dynamic) && @object.annotation_type == 'smooch_user') || request.delete? # DESTROY
               RequestStore.store[:ability] = :admin
 
               redirect_path = nil
@@ -46,7 +44,8 @@ module RailsAdmin
               end
 
               redirect_to redirect_path
-
+            elsif request.get? # DELETE
+              respond_with(@object)
             end
           end
         end
