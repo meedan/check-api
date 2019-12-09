@@ -163,7 +163,7 @@ class ActiveSupport::TestCase
     RequestStore.clear!
   end
 
-  def assert_queries(num = 1, operator = '=', &block)
+  def assert_queries(num = 1, operator = '=', test = true, &block)
     old = ActiveRecord::Base.connection.query_cache_enabled
     ActiveRecord::Base.connection.enable_query_cache!
     queries  = []
@@ -174,17 +174,22 @@ class ActiveSupport::TestCase
     queries
   ensure
     ActiveRecord::Base.connection.disable_query_cache! unless old
-    msg = "#{queries.size} expected to be #{operator} #{num}.#{queries.size == 0 ? '' : "\nQueries:\n#{queries.join("\n")}"}"
-    if operator == '='
-      assert_equal num, queries.size, msg
-    elsif operator == '<'
-      assert queries.size < num, msg
-    elsif operator == '<='
-      assert queries.size <= num, msg
-    elsif operator == '>='
-      assert queries.size >= num, msg
-    elsif operator == '>'
-      assert queries.size > num, msg
+    debug = "Total of #{queries.size} Queries:\n#{queries.join("\n")}"
+    msg = "#{queries.size} expected to be #{operator} #{num}. " + debug
+    if test
+      if operator == '='
+        assert_equal num, queries.size, msg
+      elsif operator == '<'
+        assert queries.size < num, msg
+      elsif operator == '<='
+        assert queries.size <= num, msg
+      elsif operator == '>='
+        assert queries.size >= num, msg
+      elsif operator == '>'
+        assert queries.size > num, msg
+      end
+    else
+      puts debug
     end
   end
 

@@ -16,6 +16,19 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :report_type, types.String
   field :target_languages, types.String
   field :title, types.String
+  field :description, types.String
+  field :picture, types.String
+  field :virality, types.Int
+  field :demand, types.Int
+  field :linked_items_count, types.Int
+  field :last_seen, types.String
+  field :status, types.String
+
+  field :type, types.String  do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.type
+    }
+  end
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {

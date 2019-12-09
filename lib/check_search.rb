@@ -124,11 +124,14 @@ class CheckSearch
       archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
       filters = filters.merge({
         archived: archived,
-        inactive: false
+        inactive: false,
+        sources_count: 0
       })
       build_search_range_filter(:pg, filters)
     end
-    associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+    relation = associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+    relation = relation.includes(:media) if associated_type == 'ProjectMedia'
+    relation
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
@@ -139,6 +142,7 @@ class CheckSearch
       archived = @options.has_key?('archived') ? @options['archived'].to_i : 0
       conditions << { term: { archived: archived } }
       conditions << { term: { inactive: 0 } }
+      conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
       conditions.concat build_search_range_filter(:es)

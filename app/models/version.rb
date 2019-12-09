@@ -244,6 +244,7 @@ class Version < Partitioned::ByForeignKey
   def change_project_association_annotations_count(value)
     if !self.associated_type.nil? && !self.associated_id.nil? && self.event_type != 'create_dynamicannotationfield'
       associated = self.associated_type.singularize.camelize.constantize
+      return if associated == NilClass
       pa = associated.find_by(id: self.associated_id)
       if pa
         return unless pa.respond_to?(:cached_annotations_count)
