@@ -193,7 +193,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       # update required (False => True)
       tt.required = true; tt.save!
       assert pm2_tt.reload.required
-      assert_not pm3_tt.reload.required
+      assert pm3_tt.reload.required
       # test add/remove projects
       tt.json_project_ids = [p.id].to_json
       tt.save!

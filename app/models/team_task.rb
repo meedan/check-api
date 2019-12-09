@@ -43,25 +43,20 @@ class TeamTask < ActiveRecord::Base
   end
 
   def update_teamwide_tasks_bg(options, projects)
-    all_tasks = TeamTask.get_teamwide_tasks(self.id)
-    # tasks with zero answer
-    t_zero_ans = all_tasks.select{|t| t.responses.count == 0}
-    # Items related to removed projects
-    t_zero_ans = handle_removed_projects(t_zero_ans,  projects[:removed]) unless projects[:removed].blank?
+    # get project medias for deleted projects
+    pm_ids = handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
     # update tasks with zero answer
-    update_tasks_with_zero_answer(t_zero_ans, options)
+    update_tasks_with_zero_answer(options, pm_ids)
     # handle tasks with answers
-    t_with_ans = all_tasks - t_zero_ans
-    update_tasks_with_answer(t_with_ans) if options[:required]
+    update_tasks_with_answer if options[:required]
     # items related to added projects
-    handle_added_projects(projects[:added], t_with_ans) unless projects[:added].blank?
+    handle_added_projects(projects[:added]) unless projects[:added].blank?
   end
 
   def self.destroy_teamwide_tasks_bg(id)
-    all_tasks = TeamTask.get_teamwide_tasks(id)
-    # tasks with zero answer
-    t_zero_ans = all_tasks.select{|t| t.responses.count == 0}
-    t_zero_ans.each{|t| t.destroy}
+    TeamTask.get_teamwide_tasks_zero_answers(id).find_each do |t|
+      t.destroy
+    end
   end
 
   private
@@ -86,52 +81,112 @@ class TeamTask < ActiveRecord::Base
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id)
   end
 
-  def self.get_teamwide_tasks(id)
-    tasks = Annotation.where(annotation_type: 'task').select{|t| t.team_task_id == id}
-    tasks = tasks.map(&:load)
-    tasks
+  def handle_removed_projects(projects)
+    ProjectMedia.where(project: projects).map(&:id)
   end
 
-  def handle_removed_projects(tasks, projects)
-    pm_ids = ProjectMedia.where(project: projects).map(&:id)
-    removed_items = tasks.select{|t| pm_ids.include?(t.annotated_id)}
-    # updat tasks with zero answers list
-    tasks = tasks - removed_items
-    removed_items.each{|t| t.destroy}
-    tasks
-  end
-
-  def update_tasks_with_zero_answer(tasks, options)
+  def update_tasks_with_zero_answer(options, pm_ids)
     # collect updated fields with new values
     colums = {}
     options.each do |k, _v|
       colums[k] = self.read_attribute(k)
     end
+    pm_ids ||= []
+    excluded_ids = []
     # working with required options (F => T)
     if self.required? && options[:required]
-      excluded_tasks = tasks.select{|t| t.status == 'unresolved' && t.annotated.is_finished? }
-      t_without_terminal = tasks - excluded_tasks
-      t_without_terminal.each{|t| t.update(colums)}
+      # Get tasks that are unresolved AND their item is at a terminal status
       colums.delete_if{|k, _v| k == :required}
-      tasks = excluded_tasks
+      unless colums.blank?
+        get_teamwide_tasks_unresolved_with_terminal.find_each do |t|
+          excluded_ids << t.id
+          if pm_ids.include?(t.annotated_id)
+            t.destroy
+          else
+            t.update(colums)
+          end
+        end
+      end
     end
-    # other columns (title/description/options) than required field
-    tasks.each do |t|
-      t.update(colums)
-    end unless colums.blank?
+    colums[:required] = self.read_attribute(:required) if options[:required]
+    # get tasks with zero ansers expect unresolved and their item in terminal status
+    # and apply updates for (title/description/options) only
+    TeamTask.get_teamwide_tasks_zero_answers(self.id, excluded_ids).find_each do |t|
+      if pm_ids.include?(t.annotated_id)
+        t.destroy
+      else
+        t.update(colums)
+      end
+    end
   end
 
-  def update_tasks_with_answer(tasks)
-    # remove tasks for terminal items
-    tasks = tasks - tasks.select{|t| t.status == 'unresolved' && t.annotated.is_finished? } if self.required?
-    tasks.each{|t| t.update({required: self.required})}
+  def update_tasks_with_answer
+    excluded_ids = []
+    if self.required?
+      excluded_ids = get_teamwide_tasks_unresolved_with_terminal.map(&:id)
+    end
+    get_teamwide_tasks_with_answers.find_each do |t|
+      t.update({required: self.required?}) unless excluded_ids.include?(t.id)
+    end
   end
 
-  def handle_added_projects(projects, _tasks)
-    project_medias = ProjectMedia.where(project: projects).to_a
-    project_medias.delete_if {|pm| pm.is_finished? } if self.required?
-    project_medias.each do |pm|
+  def handle_added_projects(projects)
+    excluded_ids = []
+    if self.required?
+      # Get items in termainl status
+      team_statuses = team.final_media_statuses.map(&:to_yaml)
+      excluded_ids =
+      ProjectMedia.where(project: projects)
+      .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
+        AND s2.annotated_id = project_medias.id")
+      .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+        ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
+          AND f2.value IN (?)
+          AND f2.annotation_id = s2.id",
+          team_statuses])
+        ).map(&:id)
+    end
+    ProjectMedia.where(project: projects).where.not(id: excluded_ids).find_each do |pm|
       pm.create_auto_tasks
     end
+  end
+
+  def self.get_teamwide_tasks_zero_answers(id, excluded_ids = [])
+    Task.where('annotations.annotation_type' => 'task')
+    .where.not(id: excluded_ids)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id)
+    .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+    .where('responses.id' => nil)
+  end
+
+  def get_teamwide_tasks_with_answers
+    Task.where('annotations.annotation_type' => 'task')
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+    .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+  end
+
+  def get_teamwide_tasks_unresolved_with_terminal
+    team_statuses = team.final_media_statuses.map(&:to_yaml)
+    Task.where('annotations.annotation_type' => 'task')
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+    .joins("INNER JOIN annotations s ON s.annotation_type = 'task_status' AND s.annotated_id = annotations.id")
+    .joins("INNER JOIN dynamic_annotation_fields f ON f.field_name = 'task_status_status'
+      AND f.value LIKE '%unresolved%'
+      AND f.annotation_id = s.id")
+    .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia'
+      AND annotations.annotated_id = pm.id")
+    .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
+      AND s2.annotated_id = pm.id")
+    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+      ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
+        AND f2.value IN (?)
+        AND f2.annotation_id = s2.id",
+        team_statuses]))
   end
 end
