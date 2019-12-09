@@ -72,17 +72,18 @@ module ProjectAssociation
     end
 
     def update_elasticsearch_data
-      return if self.disable_es_callbacks
+      return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(project_id team_id)
       data = {
         'project_id' => self.project_id,
         'team_id' => self.project.team_id
       }
       if self.class_name == 'ProjectMedia'
-        keys.concat(%w(archived inactive))
+        keys.concat(%w(archived inactive sources_count))
         data = data.merge({
           'archived' => self.archived.to_i,
           'inactive' => self.inactive.to_i,
+          'sources_count' => self.sources_count
         })
       end
       options = { keys: keys, data: data, parent: self }

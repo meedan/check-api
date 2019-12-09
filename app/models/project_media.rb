@@ -9,6 +9,7 @@ class ProjectMedia < ActiveRecord::Base
   include Versioned
   include ValidationsHelper
   include ProjectMediaPrivate
+  include ProjectMediaCachedFields
 
   validates_presence_of :media, :project
 
@@ -111,12 +112,8 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
-  def title
-    self.metadata.dig('title') || self.media.quote
-  end
-
-  def description
-    self.metadata.dig('description') || (self.media.type == 'Claim' ? nil : self.text)
+  def picture
+    self.media&.picture&.to_s
   end
 
   def get_annotations(type = nil)
@@ -251,6 +248,15 @@ class ProjectMedia < ActiveRecord::Base
     ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
   end
 
+  def related_items_ids
+    parent = Relationship.where(target_id: self.id).last&.source || self
+    ids = [parent.id]
+    Relationship.where(source_id: parent.id).find_each do |r|
+      ids << r.target_id
+    end
+    ids.uniq.sort
+  end
+
   def encode_with(coder)
     extra = { 'related_to_id' => self.related_to_id }
     coder['extra'] = extra
@@ -344,6 +350,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.translation_status = ts.load.status unless ts.nil?
     ms.archived = self.archived.to_i
     ms.inactive = self.inactive.to_i
+    ms.sources_count = self.sources_count.to_i
   end
 
   # private

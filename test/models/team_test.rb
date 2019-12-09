@@ -1446,7 +1446,7 @@ class TeamTest < ActiveSupport::TestCase
 
       assert_equal 2, Relationship.count
       assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
-      version =  copy_pm1.reload.get_versions_log.first.reload
+      version =  copy_pm1.reload.get_versions_log[2].reload
       changes = version.get_object_changes
       assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
       assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']

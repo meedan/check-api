@@ -5,6 +5,7 @@ module ActiveRecordExtensions
     include CheckPermissions
     include CheckNotifications::Pusher
     include CheckSettings
+    include CheckCachedFields
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache
 
