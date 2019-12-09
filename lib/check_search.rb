@@ -139,7 +139,7 @@ class CheckSearch
     conditions << { term: { annotated_type: associated_type.downcase } }
     conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
     if associated_type == 'ProjectMedia'
-      archived = @options.has_key?('archived') ? @options['archived'].to_i : 0
+      archived = @options['archived'].to_i
       conditions << { term: { archived: archived } }
       conditions << { term: { inactive: 0 } }
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
