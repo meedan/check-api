@@ -35,11 +35,15 @@ deploy_qa:
   tags:
     - meedan
     - meedan-labs
+  environment:
+    name: qa
+    url: https://qa.checkmedia.org
   variables:
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
     GITHUB_TOKEN: $GITHUB_TOKEN
+    DEPLOY_ENV: $CI_ENVIRONMENT_NAME
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install ecs-deploy==1.7.0
@@ -88,11 +92,15 @@ deploy_live:
   tags:
     - meedan
     - meedan-labs
+  environment:
+    name: live
+    url: https://www.checkmedia.org
   variables:
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
     GITHUB_TOKEN: $GITHUB_TOKEN
+    DEPLOY_ENV: $CI_ENVIRONMENT_NAME
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install ecs-deploy==1.7.0
