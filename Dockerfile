@@ -2,7 +2,7 @@ FROM meedan/ruby
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
-ENV RAILS_ENV "${APP_RAILS_ENV}"
+ENV RAILS_ENV development
 
 # https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
 ENV MALLOC_ARENA_MAX 2
