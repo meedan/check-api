@@ -17,6 +17,8 @@ function config_replace() {
 	sed -i'.bak' -e ${CMD} ${FILE}
     fi
 }
+#since GITHUB_TOKEN environment variable is a json object, we need parse the value
+#This function is here dure to a limitation by "secrets manager" 
 function getParsedGithubToken(){
     
   echo $GITHUB_TOKEN | python -c 'import sys, json; print(json.load(sys.stdin)["GITHUB_TOKEN"])'
