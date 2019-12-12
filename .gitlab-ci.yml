@@ -70,7 +70,7 @@ build_live:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-   - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master
 
