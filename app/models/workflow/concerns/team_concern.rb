@@ -63,6 +63,12 @@ module Workflow
           changed
         end
 
+        def final_media_statuses
+          pm = ProjectMedia.new(project: Project.new(team_id: self.id))
+          statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
+          statuses.select{ |st| st.with_indifferent_access['completed'].to_i == 1 }.collect{ |st| st.with_indifferent_access['id'] }
+        end
+
         protected
 
         def validate_statuses(statuses, id)
