@@ -166,7 +166,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should update teamwide tasks with answers" do
+  test "should update teamwide tasks with answers" doz
     create_translation_status_stuff
     create_verification_status_stuff(false)
     t =  create_team
@@ -238,7 +238,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
       # assert_not_nil pm_tt
-      assert_nil pm1_tt
+      # assert_nil pm1_tt
       assert_nothing_raised ActiveRecord::RecordNotFound do
         pm2_tt.reload
         pm4_tt.reload
