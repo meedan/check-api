@@ -337,19 +337,22 @@ class TeamTest < ActiveSupport::TestCase
     create_translation_status_stuff
     create_verification_status_stuff(false)
     t = create_team
+    assert (['verified', 'false', 'not_applicable'].sort == t.reload.final_media_statuses.sort || ['error', 'ready'].sort == t.reload.final_media_statuses.sort)
     value = {
       label: 'Field label',
       active: '2',
       default: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
       ]
     }
     assert_nothing_raised do
       t.set_media_verification_statuses(value)
+      t.set_media_translation_statuses(value)
       t.save!
     end
+    assert_equal ['1'].sort, t.reload.final_media_statuses.sort
     p = create_project team: t
     pm = create_project_media project: p
     s = pm.last_verification_status_obj.get_field('verification_status_status')
