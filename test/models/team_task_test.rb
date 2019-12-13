@@ -166,7 +166,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should update teamwide tasks with answers" doz
+  test "should update teamwide tasks with answers" do
     create_translation_status_stuff
     create_verification_status_stuff(false)
     t =  create_team
