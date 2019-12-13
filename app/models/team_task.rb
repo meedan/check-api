@@ -97,14 +97,12 @@ class TeamTask < ActiveRecord::Base
     if self.required? && options[:required]
       # Get tasks that are unresolved AND their item is at a terminal status
       colums.delete_if{|k, _v| k == :required}
-      unless colums.blank?
-        get_teamwide_tasks_unresolved_with_terminal.find_each do |t|
-          excluded_ids << t.id
-          if pm_ids.include?(t.annotated_id)
-            t.destroy
-          else
-            t.update(colums)
-          end
+      get_teamwide_tasks_unresolved_with_terminal.find_each do |t|
+        excluded_ids << t.id
+        if pm_ids.include?(t.annotated_id)
+          t.destroy
+        elsif !colums.blank?
+          t.update(colums)
         end
       end
     end
@@ -114,7 +112,7 @@ class TeamTask < ActiveRecord::Base
     TeamTask.get_teamwide_tasks_zero_answers(self.id, excluded_ids).find_each do |t|
       if pm_ids.include?(t.annotated_id)
         t.destroy
-      else
+      elsif !colums.blank?
         t.update(colums)
       end
     end
