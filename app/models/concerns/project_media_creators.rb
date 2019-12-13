@@ -3,13 +3,6 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  private
-
-  def set_project_source
-    return if self.project.team.is_being_copied
-    self.create_project_source
-  end
-
   def create_auto_tasks
     return if self.project.team.is_being_copied
     self.set_tasks_responses ||= {}
@@ -35,6 +28,13 @@ module ProjectMediaCreators
       self.set_jsonld_response(task) unless task.mapping.blank?
     end
     self.respond_to_auto_tasks(created)
+  end
+
+  private
+
+  def set_project_source
+    return if self.project.team.is_being_copied
+    self.create_project_source
   end
 
   def create_reverse_image_annotation
