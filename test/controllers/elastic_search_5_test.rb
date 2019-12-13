@@ -12,6 +12,18 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
+  test "should search for parent items only" do
+    pm1 = create_project_media disable_es_callbacks: false
+    pm2 = create_project_media disable_es_callbacks: false
+    sleep 2
+    result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    sleep 2
+    result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id], result.medias.map(&:id)
+  end
+
   test "should set type automatically for media" do
     m = create_media_search
     assert_equal 'mediasearch', m.annotation_type
@@ -338,7 +350,7 @@ class ElasticSearch5Test < ActionController::TestCase
     r1 = create_relationship source_id: s.id, target_id: t1.id
     r2 = create_relationship source_id: s.id, target_id: t2.id
     sleep 1
-    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    result = CheckSearch.new({ keyword: 'target', include_related_items: true }.to_json)
     assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
     r1.destroy
     r2.destroy

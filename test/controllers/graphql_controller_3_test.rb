@@ -148,7 +148,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm1e.id, target_id: pm1f.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"include_related_items\":true}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t1.slug
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
@@ -417,5 +417,72 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'mutation update { updateTag(input: { clientMutationId: "1", id: "' + id + '", fragment: "t=1,2" }) { tag { id } } }'
     post :create, query: query
     assert_response :success
+  end
+
+  test "should retrieve information for grid" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+
+    m = create_uploaded_image
+    pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
+    info = { title: random_string, description: random_string }.to_json; pm.metadata = info; pm.save!
+    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
+    pm2 = create_project_media project: p
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
+    info = { title: 'Title Test', description: 'Description Test' }.to_json; pm.metadata = info; pm.save!
+
+    sleep 10
+
+    query = '
+      query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") {
+        id
+        number_of_results
+        medias(first: 1) {
+          edges {
+            node {
+              id
+              dbid
+              picture
+              title
+              description
+              virality
+              demand
+              linked_items_count
+              type
+              status
+              first_seen: created_at
+              last_seen
+            }
+          }
+        }
+      }}
+    '
+
+    assert_queries 16, '=' do
+      post :create, query: query, team: 'team'
+    end
+    
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['search']
+    assert_equal 1, result['number_of_results']
+    assert_equal 1, result['medias']['edges'].size
+    result['medias']['edges'].each do |pm_node|
+      pm = pm_node['node']
+      assert_equal 'Title Test', pm['title']
+      assert_equal 'Description Test', pm['description']
+      assert_equal 0, pm['virality']
+      assert_equal 1, pm['linked_items_count']
+      assert_equal 'UploadedImage', pm['type']
+      assert_not_equal pm['first_seen'], pm['last_seen']
+      assert_equal 2, pm['demand']
+    end
   end
 end

@@ -1802,4 +1802,150 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal p, pm.copied_to_project
     end
   end
+
+  test "should cache demand" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.demand) }
+    pm2 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm2.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal(3, pm.demand) }
+    assert_queries(0, '=') { assert_equal(3, pm2.demand) }
+    pm3 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm3.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
+    assert_queries(0, '=') { assert_equal(2, pm3.demand) }
+    create_relationship source_id: pm.id, target_id: pm3.id
+    assert_queries(0, '=') { assert_equal(5, pm.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm3.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
+    assert_queries(0, '=') { assert_equal(6, pm.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm3.demand) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(4, pm.demand) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(4, pm3.demand) }
+    assert_queries(0, '>') { assert_equal(4, pm.demand(true)) }
+    assert_queries(0, '>') { assert_equal(2, pm2.demand(true)) }
+    assert_queries(0, '>') { assert_equal(4, pm3.demand(true)) }
+  end
+
+  test "should cache number of linked items" do
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
+    pm2 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+    create_relationship source_id: pm.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    pm3 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    r = create_relationship source_id: pm.id, target_id: pm3.id
+    assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
+  end
+
+  test "should cache number of requests" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(2, pm.requests_count) }
+    assert_queries(0, '>') { assert_equal(2, pm.requests_count(true)) }
+  end
+
+  test "should cache last seen" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { pm.last_seen }
+    assert_equal pm.created_at.to_i, pm.last_seen
+    assert_queries(0, '>') do
+      assert_equal pm.created_at.to_i, pm.last_seen(true)
+    end
+    sleep 1
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    pm2 = create_project_media
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
+    assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
+  end
+
+  test "should cache status" do
+    create_verification_status_stuff(false)
+    pm = create_project_media
+    assert pm.respond_to?(:status)
+    assert_queries 0, '=' do
+      assert_equal 'undetermined', pm.status
+    end
+    s = pm.last_verification_status_obj
+    s.status = 'verified'
+    s.save!
+    assert_queries 0, '=' do
+      assert_equal 'verified', pm.status
+    end
+    assert_queries(0, '>') do
+      assert_equal 'verified', pm.status(true)
+    end
+  end
+
+  test "should cache title" do
+    pm = create_project_media
+    pm.metadata = { title: 'Title 1' }.to_json
+    pm.save!
+    assert pm.respond_to?(:title)
+    assert_queries 0, '=' do
+      assert_equal 'Title 1', pm.title
+    end
+    pm = create_project_media
+    pm.metadata = { title: 'Title 2' }.to_json
+    pm.save!
+    assert_queries 0, '=' do
+      assert_equal 'Title 2', pm.title
+    end
+    assert_queries(0, '>') do
+      assert_equal 'Title 2', pm.title(true)
+    end
+  end
+
+  test "should cache description" do
+    pm = create_project_media
+    pm.metadata = { description: 'Description 1' }.to_json
+    pm.save!
+    assert pm.respond_to?(:description)
+    assert_queries 0, '=' do
+      assert_equal 'Description 1', pm.description
+    end
+    pm = create_project_media
+    pm.metadata = { description: 'Description 2' }.to_json
+    pm.save!
+    assert_queries 0, '=' do
+      assert_equal 'Description 2', pm.description
+    end
+    assert_queries(0, '>') do
+      assert_equal 'Description 2', pm.description(true)
+    end
+  end
 end
