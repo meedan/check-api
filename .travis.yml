@@ -63,7 +63,6 @@ env:
 matrix:
   include:
   - env: APP=check
-  - env: APP=bridge
   # Load testing
   - env: APP=check
     if: commit_message =~ /\[load test\]/
