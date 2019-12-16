@@ -708,13 +708,18 @@ module SampleData
     t
   end
 
-  def create_annotation_type_and_fields(annotation_type_label, fields)
+  def create_annotation_type_and_fields(annotation_type_label, fields, options = {})
     # annotation_type_label = 'Annotation Type'
     # fields = {
     #   Name => [Type Label, optional = true, settings (optional)],
     #   ...
     # }
     annotation_type_name = annotation_type_label.parameterize.tr('-', '_')
+    if Bot::Keep.archiver_annotation_types.include?(annotation_type_name)
+      field_name_prefix = annotation_type_name
+      annotation_type_name = 'archiver'
+      annotation_type_label = 'Archiver'
+    end
     at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
     fts = fields.values.collect{ |v| v.first }
     fts.each do |label|
@@ -723,7 +728,7 @@ module SampleData
     end
     fields.each do |label, type|
       field_label = annotation_type_label + ' ' + label
-      field_name = annotation_type_name + '_' + label.parameterize.tr('-', '_')
+      field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
       optional = type[1].nil? ? true : type[1]
       settings = type[2] || {}
       field_type = type[0].parameterize.tr('-', '_')
