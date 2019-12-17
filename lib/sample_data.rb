@@ -708,7 +708,7 @@ module SampleData
     t
   end
 
-  def create_annotation_type_and_fields(annotation_type_label, fields, options = {})
+  def create_annotation_type_and_fields(annotation_type_label, fields)
     # annotation_type_label = 'Annotation Type'
     # fields = {
     #   Name => [Type Label, optional = true, settings (optional)],
