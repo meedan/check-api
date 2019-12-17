@@ -42,7 +42,7 @@ RUN sed -i "s/ddDEPLOYUSERdd/checkdeploy/g" /etc/nginx/sites-available/${APP} \
     && rm /etc/nginx/sites-enabled/default
 
 # CMD and helper scripts
-COPY --chown=root:root production/bin /opt/bin
+COPY --chown=root:root production/bin_aws /opt/bin
 
 #
 # code deployment
@@ -71,10 +71,10 @@ COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 USER root
 
 # link config files
-RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
+# RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
 # persist these directories
-RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
-    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
+# RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
+#    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
 
 RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 
@@ -86,4 +86,4 @@ RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 EXPOSE 3300
 
 WORKDIR ${DEPLOYDIR}
-CMD ["/opt/bin/start.sh"]
+ENTRYPOINT ["/opt/bin/start.sh"]
