@@ -120,7 +120,7 @@ module CheckExport
     ProjectMedia.order(:id).joins(:media).where('medias.type' => 'Link', 'project_id' => self.id).find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
-        screenshot_url = JSON.parse(pm.get_annotations('pender_archive').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
+        screenshot_url = JSON.parse(pm.get_annotations('archiver').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
         output[key] = open(screenshot_url).read
       rescue
         output[key] = nil
