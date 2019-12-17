@@ -38,6 +38,18 @@
                     {
                       "key": "contains_keyword",
                       "value": "%{team_rule_contains_keyword}"
+                    },
+                    {
+                      "key": "type_is",
+                      "value": "%{team_rule_type_is}"
+                    },
+                    {
+                      "key": "tagged_as",
+                      "value": "%{team_rule_tagged_as}"
+                    },
+                    {
+                      "key": "status_is",
+                      "value": "%{team_rule_status_is}"
                     }
                   ]
                 },

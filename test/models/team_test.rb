@@ -1636,7 +1636,133 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
       pm = create_project_media quote: text, project: p
-      assert t.contains_keyword(pm, 'hospital')
+      assert t.contains_keyword(pm, nil, 'hospital')
     end
+  end
+
+  test "should match rule based on status" do
+    create_verification_status_stuff
+    create_task_status_stuff(false)
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "status_is",
+          "rule_value": "in_progress"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0
+    s = pm1.last_status_obj
+    s.status = 'in_progress'
+    s.save!
+    pm2 = create_project_media project: p0
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p0.id, pm2.reload.project_id
+  end
+
+  test "should match rule based on tag" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "tagged_as",
+          "rule_value": "foo"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "tagged_as",
+          "rule_value": "bar"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p2.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0
+    create_tag tag: 'foo', annotated: pm1
+    pm2 = create_project_media project: p0
+    create_tag tag: 'bar', annotated: pm2
+    pm3 = create_project_media project: p0
+    create_tag tag: 'test', annotated: pm2
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p0.id, pm3.reload.project_id
+  end
+
+  test "should match rule based on item type" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    p4 = create_project team: t
+    rules = []
+    { 'claim' => p1, 'uploadedvideo' => p2, 'uploadedimage' => p3, 'link' => p4 }.each do |type, p|
+      rules << {
+        "name": random_string,
+        "project_ids": "",
+        "rules": [
+          {
+            "rule_definition": "type_is",
+            "rule_value": type
+          }
+        ],
+        "actions": [
+          {
+            "action_definition": "move_to_project",
+            "action_value": p.id.to_s
+          }
+        ]
+      }
+    end
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media media: create_claim_media, project: p0
+    pm2 = create_project_media media: create_uploaded_video, project: p0
+    pm3 = create_project_media media: create_uploaded_image, project: p0
+    pm4 = create_project_media media: create_link, project: p0
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p3.id, pm3.reload.project_id
+    assert_equal p4.id, pm4.reload.project_id
   end
 end
