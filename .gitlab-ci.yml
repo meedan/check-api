@@ -23,7 +23,7 @@ build_qa:
     - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
     - d=configurator/check/qa/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
     - > 
-      if docker image list | grep -q ; then 
+      if docker image list | grep -q "$CI_COMMIT_SHA"; then 
         echo "This commit is already build. No need to rebuild it"; 
       else    
         docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
