@@ -74,11 +74,11 @@ class TeamTask < ActiveRecord::Base
       removed: self.project_ids_was - self.project_ids,
     }
     update_tasks = !options.blank? || projects.any?{|_k, v| !v.blank?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(options), YAML::dump(projects)) if update_tasks
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects)) if update_tasks
   end
 
   def delete_teamwide_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id)
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, User.current)
   end
 
   def handle_removed_projects(projects)
@@ -137,8 +137,16 @@ class TeamTask < ActiveRecord::Base
           team_statuses])
         ).map(&:id)
     end
-    ProjectMedia.where(project: projects).where.not(id: excluded_ids).find_each do |pm|
-      pm.create_auto_tasks
+    ProjectMedia.where(project: projects)
+    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+        ["LEFT JOIN annotations s ON s.annotated_id = project_medias.id
+          AND task_team_task_id(s.annotation_type, s.data) = ?",
+          self.id])
+        )
+    .where.not(id: excluded_ids)
+    .where('s.id' => nil)
+    .find_each do |pm|
+      pm.create_auto_tasks([self])
     end
   end
 
