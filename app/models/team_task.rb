@@ -138,7 +138,11 @@ class TeamTask < ActiveRecord::Base
         ).map(&:id)
     end
     ProjectMedia.where(project: projects)
-    .joins("LEFT JOIN annotations s ON s.annotation_type = 'task' AND s.annotated_id = project_medias.id")
+    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+        ["LEFT JOIN annotations s ON s.annotated_id = project_medias.id
+          AND task_team_task_id(s.annotation_type, s.data) = ?",
+          self.id])
+        )
     .where.not(id: excluded_ids)
     .where('s.id' => nil)
     .find_each do |pm|
