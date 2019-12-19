@@ -198,9 +198,17 @@ class Team < ActiveRecord::Base
 
   def trash_size
     {
-      project_media: self.trash.count,
+      project_media: self.trash_count,
       annotation: self.trash.sum(:cached_annotations_count)
     }
+  end
+
+  def trash_count
+    self.trash.count
+  end
+
+  def medias_count
+    ProjectMedia.joins(:project).where({ 'projects.team_id' => self.id, 'project_medias.archived' => false }).count
   end
 
   def check_search_team

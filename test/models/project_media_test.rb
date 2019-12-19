@@ -1999,4 +1999,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal 'Description 2', pm.description(true)
     end
   end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal t, pm.reload.team
+    t2 = create_team
+    pm.team = t2
+    assert_equal t2, pm.team
+    assert_equal t, ProjectMedia.find(pm.id).team
+  end
 end

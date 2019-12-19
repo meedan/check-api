@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -31,6 +31,14 @@ class ProjectMedia < ActiveRecord::Base
 
   def report_type
     self.media.class.name.downcase
+  end
+
+  def team
+    @team || self.project&.team
+  end
+
+  def team=(team)
+    @team = team
   end
 
   def related_to_team?(team)

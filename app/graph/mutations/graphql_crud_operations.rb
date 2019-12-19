@@ -187,7 +187,14 @@ class GraphqlCrudOperations
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
 
-    obj.define_singleton_method(:number_of_results) { 0 } if inputs['empty_trash']
+    if inputs['empty_trash']
+      obj.define_singleton_method(:number_of_results) { 0 }
+      if obj.is_a?(Team)
+        public_team = obj.public_team
+        public_team.define_singleton_method(:trash_count) { 0 }
+        obj.define_singleton_method(:public_team) { public_team }
+      end
+    end
 
     obj
   end

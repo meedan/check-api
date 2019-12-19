@@ -859,4 +859,12 @@ class ProjectTest < ActiveSupport::TestCase
       assert_equal n, Assignment.count
     end
   end
+
+  test "should not include trashed items in medias count" do
+    p = create_project
+    create_project_media project: p
+    create_project_media project: p
+    create_project_media project: p, archived: 1
+    assert_equal 2, p.reload.medias_count
+  end
 end
