@@ -747,12 +747,14 @@ class ProjectTest < ActiveSupport::TestCase
       l1 = create_link
       pm3 = create_project_media media: l1, project: p
       pm3.create_all_archive_annotations
-      f = DynamicAnnotation::Field.last
+      archiver = Annotation.where(annotation_type: 'archiver', annotated_id: pm3.id).last
+      f = DynamicAnnotation::Field.where(field_name: "pender_archive_response", annotation_id: archiver.id).last
       f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
       f.save!
       l2 = create_link
       pm4 = create_project_media media: l2, project: p
       pm4.create_all_archive_annotations
+
       assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
     Team.any_instance.unstub(:get_limits_keep)

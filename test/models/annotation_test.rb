@@ -234,13 +234,13 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
-    a = pm.get_annotations('pender_archive').last.load
+    a = pm.get_annotations('archiver').last.load
     f = a.get_field('pender_archive_response')
     f.value = '{"foo":"bar"}'
     f.save!
     v = a.reload.get_field('pender_archive_response').reload.value
     assert_not_equal "{}", v
-    pm.reset_archive_response(a)
+    pm.reset_archive_response(a, 'pender_archive')
     v = a.reload.get_field('pender_archive_response').reload.value
     assert_equal "{}", v
   end
@@ -259,7 +259,7 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
-    a = pm.get_annotations('pender_archive').last.load
+    a = pm.get_annotations('archiver').last.load
     f = a.get_field('pender_archive_response')
     f.value = '{"foo":"bar"}'
     f.save!
@@ -268,7 +268,7 @@ class AnnotationTest < ActiveSupport::TestCase
     tbi.save!
     v = a.reload.get_field('pender_archive_response').reload.value
     pm = ProjectMedia.find(pm.id)
-    pm.reset_archive_response(a)
+    pm.reset_archive_response(a, 'pender_archive')
     v = a.reload.get_field('pender_archive_response').reload.value
     assert_equal '{"foo":"bar"}', v
   end

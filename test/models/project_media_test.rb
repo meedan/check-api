@@ -544,6 +544,47 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal em1, em2
   end
 
+  test "should create or reset archive response when refresh media" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.set_limits_keep = true
+    t.save!
+    tb = BotUser.where(name: 'Keep').last
+    tb.set_settings = [{ name: 'archive_pender_archive_enabled', type: 'boolean' }]
+    tb.set_approved = true
+    tb.save!
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.refresh_media = true
+        pm.skip_check_ability = true
+        pm.save!
+      end
+    end
+    a = pm.get_annotations('archiver').last.load
+    f = a.get_field('pender_archive_response')
+    f.value = '{"foo":"bar"}'
+    f.save!
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_not_equal "{}", v
+
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.refresh_media = true
+        pm.skip_check_ability = true
+        pm.save!
+      end
+    end
+
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_equal "{}", v
+  end
+
   test "should get user id for migration" do
     pm = ProjectMedia.new
     assert_nil pm.send(:user_id_callback, 'test@test.com')
@@ -1248,8 +1289,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1266,8 +1309,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: c, project: p
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1278,8 +1323,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1298,8 +1345,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
     Link.any_instance.unstub(:pender_embed)
     Media.any_instance.unstub(:pender_embed)
@@ -1320,8 +1369,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)

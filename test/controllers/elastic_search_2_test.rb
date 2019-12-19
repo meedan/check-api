@@ -191,7 +191,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 4, ElasticSearchWorker.jobs.size
     # destroy comment
     ElasticSearchWorker.clear
     c.destroy

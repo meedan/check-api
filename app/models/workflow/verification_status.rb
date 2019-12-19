@@ -3,6 +3,7 @@ class Workflow::VerificationStatus < Workflow::Base
   check_default_project_media_workflow if CONFIG['app_name'] == 'Check'
 
   check_workflow from: :any, to: :terminal, actions: [:send_terminal_notification_if_can_complete_media, :reset_deadline]
+  check_workflow from: :any, to: :any, actions: [:apply_rules]
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
   check_workflow on: :commit, actions: :save_deadline, events: [:create, :update]
 
@@ -126,6 +127,12 @@ class Workflow::VerificationStatus < Workflow::Base
       deadline = status.get_field('deadline')
       deadline.delete unless deadline.blank?
       status.save!
+    end
+
+    def apply_rules
+      status = self.annotation&.load
+      team = Team.where(id: status.get_team.last.to_i).last
+      team.apply_rules_and_actions(status.annotated, self) if !team.nil? && status.annotated_type == 'ProjectMedia'
     end
   end
 end

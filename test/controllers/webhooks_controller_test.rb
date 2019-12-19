@@ -73,7 +73,7 @@ class WebhooksControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
     payload = { type: 'screenshot', url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
@@ -83,7 +83,7 @@ class WebhooksControllerTest < ActionController::TestCase
     post :index, name: :keep
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal 'http://pender/screenshot.png', f['screenshot_url']
     Team.any_instance.unstub(:get_limits_keep)
   end
@@ -107,7 +107,7 @@ class WebhooksControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
 
     payload = { url: 'http://anothertest.com', screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
@@ -117,7 +117,7 @@ class WebhooksControllerTest < ActionController::TestCase
     post :index, name: :keep
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
-    f = JSON.parse(pm.get_annotations('pender_archive').last.load.get_field_value('pender_archive_response'))
+    f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
     Team.any_instance.unstub(:get_limits_keep)
   end
@@ -158,7 +158,8 @@ class WebhooksControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media media: l, project: p
     pm.create_all_archive_annotations
-    a = pm.get_annotations('pender_archive').last
+    archiver = pm.get_annotations('archiver').last
+    a = DynamicAnnotation::Field.where(field_name: 'pender_archive_response', annotation_id: archiver.id).last
     a.destroy
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json

@@ -13,6 +13,7 @@ class Tag < ActiveRecord::Base
   after_commit :add_elasticsearch_tag, on: :create
   after_commit :update_elasticsearch_tag, on: :update
   after_commit :destroy_elasticsearch_tag, on: :destroy
+  after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_tags_count
   after_destroy :destroy_tag_text_if_empty_and_not_teamwide
 
@@ -29,7 +30,7 @@ class Tag < ActiveRecord::Base
   end
 
   def team
-    Team.find(self.get_team.first)
+    Team.where(id: self.get_team.first).last
   end
 
   private
@@ -73,5 +74,10 @@ class Tag < ActiveRecord::Base
   def update_tags_count
     tag_text = self.tag_text_object
     tag_text.update_column(:tags_count, tag_text.calculate_tags_count) unless tag_text.nil?
+  end
+
+  def apply_rules_and_actions
+    team = self.team
+    team.apply_rules_and_actions(self.annotated, self) if !team.nil? && self.annotated_type == 'ProjectMedia'
   end
 end
