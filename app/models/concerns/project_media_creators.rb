@@ -3,10 +3,12 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_auto_tasks
+  def create_auto_tasks(tasks = [])
     return if self.project.team.is_being_copied
     self.set_tasks_responses ||= {}
-    tasks = self.project.nil? ? [] : self.project.auto_tasks
+    if tasks.blank?
+      tasks = self.project.nil? ? [] : self.project.auto_tasks
+    end
     created = []
     tasks.each do |task|
       t = Task.new
