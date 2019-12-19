@@ -38,6 +38,16 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_rules, JsonStringType
   field :rules_json_schema, types.String
   field :rules_search_fields_json_schema, JsonStringType
+  field :medias_count, types.Int
+  field :trash_count, types.Int
+
+  field :public_team do
+    type PublicTeamType
+
+    resolve -> (team, _args, _ctx) do
+      team
+    end
+  end
 
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {

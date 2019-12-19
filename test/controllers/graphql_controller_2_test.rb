@@ -19,7 +19,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should have a different id for public team" do
     authenticate_with_user
     t = create_team slug: 'team', name: 'Team'
-    post :create, query: 'query PublicTeam { public_team { id } }', team: 'team'
+    post :create, query: 'query PublicTeam { public_team { id, trash_count, pusher_channel } }', team: 'team'
     assert_response :success
     assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
   end
@@ -143,7 +143,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not get private team by slug" do
     authenticate_with_user
     create_team slug: 'team', name: 'Team', private: true
-    post :create, query: 'query Team { team(slug: "team") { name } }'
+    post :create, query: 'query Team { team(slug: "team") { name, public_team { id } } }'
     assert_response 403
     assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
   end
@@ -427,7 +427,7 @@ class GraphqlController2Test < ActionController::TestCase
     tb3 = create_team_bot set_approved: true, name: 'Other Bot'
     create_team_bot_installation user_id: tb2.id, team_id: t.id
 
-    query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug }, bot_user { name } } } } } }'
+    query = 'query read { team(slug: "test") { team_bot_installations { edges { node { team { slug, public_team { id } }, bot_user { name } } } } } }'
     post :create, query: query
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['team_bot_installations']['edges']
@@ -1269,5 +1269,20 @@ class GraphqlController2Test < ActionController::TestCase
     end
     assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
     assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1  ORDER BY \"versions\".\"id\" DESC LIMIT 1")
+  end
+
+  test "should empty trash" do
+    u = create_user
+    team = create_team
+    create_team_user team: team, user: u, role: 'owner'
+    p = create_project team: team
+    create_project_media archived: true, project: p
+    assert_equal 1, team.reload.trash_count
+    id = team.graphql_id
+    authenticate_with_user(u)
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", empty_trash: 1 }) { public_team { trash_count } } }'
+    post :create, query: query, team: team.slug
+    assert_response :success
+    assert_equal 0, JSON.parse(@response.body)['data']['updateTeam']['public_team']['trash_count']
   end
 end

@@ -1765,4 +1765,21 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal p3.id, pm3.reload.project_id
     assert_equal p4.id, pm4.reload.project_id
   end
+
+  test "should return number of items in trash and outside trash" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_project_media project: p1
+    create_project_media project: p1
+    create_project_media project: p1, archived: 1
+    create_project_media project: p2
+    create_project_media project: p2
+    create_project_media project: p2, archived: 1
+    create_project_media
+    create_project_media
+    create_project_media archived: 1
+    assert_equal 2, t.reload.trash_count
+    assert_equal 4, t.reload.medias_count
+  end
 end
