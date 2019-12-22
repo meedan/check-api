@@ -69,9 +69,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @media_url = 'https://smooch.com/image/test.jpeg'
     @media_url_2 = 'https://smooch.com/image/test2.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
+    @video_ur_2 = 'https://smooch.com/video/test2.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/test2.mp4').to_return(status: 200, body: '', headers: {})
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
@@ -1511,6 +1513,29 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
     end
     Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
+  test "should detect media type" do
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'file',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaType: 'image/jpeg',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_difference 'ProjectMedia.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      message['mediaUrl'] = @video_ur_2
+      assert_raises 'ActiveRecord::RecordInvalid' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+    end
   end
 
   protected

@@ -600,6 +600,7 @@ class Bot::Smooch < BotUser
          when 'video'
            self.save_media_message(message, 'video')
          when 'file'
+           self.detect_media_type(message)
            m = message['mediaType'].to_s.match(/^(image|video)\//)
            m.nil? ? return : self.save_media_message(message, m[1])
          else
@@ -710,6 +711,15 @@ class Bot::Smooch < BotUser
     pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
+  end
+
+  def self.detect_media_type(message)
+    begin
+      m_type = MimeMagic.by_magic(open(message['mediaUrl']))
+      message['mediaType'] = m_type.type
+    rescue
+      nil
+    end
   end
 
   def self.save_media_message(message, type = 'image')
