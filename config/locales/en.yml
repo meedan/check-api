@@ -697,7 +697,7 @@ en:
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Video
-  team_rule_contains_keyword: Claim contains one or more of the keywords
+  team_rule_contains_keyword: 'Claims contains one or more of the keywords (comma separated)'
   team_rule_select_type: Select type
   team_rule_tagged_as: Claim is tagged as
   team_rule_select_tag: Select tag
