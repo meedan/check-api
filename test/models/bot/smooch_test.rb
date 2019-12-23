@@ -69,11 +69,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     @media_url = 'https://smooch.com/image/test.jpeg'
     @media_url_2 = 'https://smooch.com/image/test2.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
-    @video_ur_2 = 'https://smooch.com/video/test2.mp4'
+    @video_ur_2 = 'https://smooch.com/video/fake-video.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
-    WebMock.stub_request(:get, 'https://smooch.com/video/test2.mp4').to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
@@ -1486,7 +1486,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           'conversationStarted': true
         }
       }.to_json
-      redis = Bot::Smooch.get_redis_client
+      redis = Redis.new(REDIS_CONFIG)
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
       assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
