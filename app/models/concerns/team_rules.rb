@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'matches_regexp', 'type_is', 'tagged_as', 'status_is']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
   RULES_JSON_SCHEMA_VALIDATOR = JSON.parse(File.read(File.join(Rails.root, 'public', 'rules_json_schema_validator.json')))
@@ -47,17 +47,25 @@ module TeamRules
       pm.save!
     end
 
+    def ban_submitter(pm, _value)
+      ::Bot::Smooch.ban_user(pm.smooch_message)
+    end
+
     def move_to_project(pm, value)
+      self.copy_or_move_to_project(pm, value, 'project_id')
+    end
+
+    def copy_to_project(pm, value)
+      self.copy_or_move_to_project(pm, value, 'copy_to_project_id')
+    end
+
+    def copy_or_move_to_project(pm, value, attr)
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.find(pm.id)
-        pm.project_id = project.id
+        pm.send("#{attr}=", project.id)
         pm.save!
       end
-    end
-
-    def ban_submitter(pm, _value)
-      ::Bot::Smooch.ban_user(pm.smooch_message)
     end
   end
 
@@ -77,18 +85,19 @@ module TeamRules
   def rules_json_schema
     json_schema = RULES_JSON_SCHEMA.gsub(/%{([^}]+)}/) { I18n.t(Regexp.last_match[1]) }
     schema = JSON.parse(json_schema)
-    projects = self.projects.collect{ |p| { key: p.id, value: p.title } }
+    projects = self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } }
     types = ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } }
     tags = self.tag_texts.collect{ |t| { key: t.text, value: t.text } }
     pm = ProjectMedia.new(project: Project.new(team_id: self.id))
     statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
 
-    schema['properties']['rules']['items']['properties']['project_ids']['enum'] = [{ key: '', value: I18n.t(:team_rule_all_lists) }].concat(projects);
+    schema['properties']['rules']['items']['properties']['project_ids']['enum'] = [{ key: '0', value: I18n.t(:team_rule_all_items) }].concat(projects);
 
     {
       'actions' => {
-        'action_value_move_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects }
+        'action_value_move_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects },
+        'action_value_copy_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects }
       },
       'rules' => {
         'rule_value_type_is' => { title: I18n.t(:team_rule_select_type), type: 'string', enum: types },
@@ -118,6 +127,7 @@ module TeamRules
   end
 
   def apply_rules_and_actions(pm, obj = nil)
+    return if pm.skip_rules
     matched_rules_ids = []
     self.apply_rules(pm, obj) do |rules_and_actions|
       rules_and_actions[:actions].each do |action|
