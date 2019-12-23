@@ -204,6 +204,6 @@ module ProjectMediaCreators
   end
 
   def copy_to_project
-    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications) if self.copy_to_project_id
+    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
   end
 end

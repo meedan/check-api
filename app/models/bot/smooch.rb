@@ -339,15 +339,11 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_redis_client
-    Redis.new(REDIS_CONFIG)
-  end
-
   def self.group_messages(message, app_id)
     sm = CheckStateMachine.new(message['authorId'])
     return if sm.state.value == 'human_mode'
     self.send_tos_if_needed(message)
-    redis = self.get_redis_client
+    redis = Redis.new(REDIS_CONFIG)
     uid = message['authorId']
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
@@ -356,7 +352,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_messages(uid, id, app_id)
-    redis = self.get_redis_client
+    redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     list = redis.lrange(key, 0, redis.llen(key))
     unless list.empty?

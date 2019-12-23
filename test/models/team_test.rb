@@ -1782,4 +1782,35 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, t.reload.trash_count
     assert_equal 4, t.reload.medias_count
   end
+
+  test "should be copied to another project as a result of a rule" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "contains_keyword",
+          "rule_value": "test"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
+    m = create_claim_media quote: 'this is a test'
+    create_project_media project: p0, media: m
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
+  end
 end
