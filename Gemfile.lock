@@ -174,7 +174,7 @@ GEM
       autoprefixer-rails (>= 5.2.1)
       sassc (>= 2.0.0)
     buftok (0.2.0)
-    builder (3.2.3)
+    builder (3.2.4)
     bulk_data_methods (1.1.2)
       activerecord (>= 3.0.0)
       pg
@@ -419,10 +419,11 @@ GEM
     mime-types (3.3)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
+    mimemagic (0.3.3)
     mini_magick (4.3.3)
     mini_mime (1.0.1)
     mini_portile2 (2.4.0)
-    minitest (5.12.2)
+    minitest (5.13.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
     minitest-retry (0.1.9)
@@ -831,6 +832,7 @@ DEPENDENCIES
   jwt
   logstash-logger
   loofah (= 2.3.1)
+  mimemagic (~> 0.3.3)
   mini_magick (= 4.3.3)
   minitest-hooks
   minitest-retry
