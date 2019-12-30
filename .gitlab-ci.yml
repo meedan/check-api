@@ -50,8 +50,8 @@ deploy_qa:
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
     #checks if travis tests passed on develop branch
-    rules: 
-    - if: '(curl -q "https://api.travis-ci.org/repos/10142761/branches/develop?access_token=$TRAVIS_API_TOKEN" | grep '"state":"passed"')'
+  rules: 
+    - if: (curl -q "https://api.travis-ci.org/repos/10142761/branches/develop?access_token=$TRAVIS_API_TOKEN" | grep '"state":"passed"')
       when: manual # the job is only allowed to be manually ran if the condition is met
   only:
     - develop
