@@ -103,6 +103,8 @@ en:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
+      image_too_large: Sorry, we don't support images larger than %{max_size} at the moment.
+      video_too_large: Sorry, we don't support videos larger than %{max_size} at the moment.
   activerecord:
     models:
       link: Link

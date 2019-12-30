@@ -739,9 +739,12 @@ class Bot::Smooch < BotUser
         File.open(filepath) do |f2|
           m.file = f2
         end
-        m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
-        pm.is_being_created = true
+        if m.save
+          pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
+          pm.is_being_created = true
+        else
+          ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], m.errors.messages[:file]) unless m.errors.messages[:file].blank?
+        end
       end
       Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) unless text.blank?
       FileUtils.rm_f filepath
