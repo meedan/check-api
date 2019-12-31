@@ -115,6 +115,7 @@ class Bot::Slack < BotUser
   def get_team(model, project)
     t = model.team if model.respond_to?(:team)
     t ||= project.team unless project.nil?
+    t = Team.find(model.get_team.last) if t.nil? && model.is_annotation?
     t
   end
 

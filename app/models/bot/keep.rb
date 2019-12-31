@@ -92,7 +92,7 @@ class Bot::Keep < BotUser
 
   ProjectMedia.class_eval do
     def should_skip_create_archive_annotation?(type)
-      team = self.project.team
+      team = self.team
       bot = BotUser.where(login: 'keep').last
       installation = TeamBotInstallation.where(team_id: team.id, user_id: bot&.id.to_i).last
       getter = "get_archive_#{type}_enabled"
