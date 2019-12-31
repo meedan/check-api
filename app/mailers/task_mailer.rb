@@ -19,8 +19,8 @@ class TaskMailer < ApplicationMailer
     info = {
       author: author_name,
       profile_image: profile_image,
-      project: object.project.title,
-      project_url: object.project.url,
+      project: object.project&.title&.to_s,
+      project_url: object.project&.url&.to_s,
       role: role,
       team: team.name,
       title: task.label,
@@ -34,7 +34,7 @@ class TaskMailer < ApplicationMailer
         type: I18n.t("activerecord.models.#{task.class.name.underscore}"), app: CONFIG['app_name']
       })
     }
-    subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project.title)
+    subject = I18n.t("mails_notifications.task_resolved.subject", team: team.name, project: project&.title&.to_s)
 
     recipients = team.recipients(author, ['owner'])
     # get assigner email
