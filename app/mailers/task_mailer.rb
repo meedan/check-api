@@ -10,10 +10,10 @@ class TaskMailer < ApplicationMailer
     author = response.annotator
     object = task.annotated
     project = object.project
-    team = project.team
+    team = object.team
     unless author.nil?
       author_name = author.name
-      role = I18n.t("role_" + author.role(object.project.team).to_s)
+      role = I18n.t("role_" + author.role(object.team).to_s)
       profile_image = author.profile_image
     end
     info = {

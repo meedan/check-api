@@ -96,7 +96,7 @@
       <% end %>
 
       <div id="oembed__footer">
-        <% team = @project_media.project.team %>
+        <% team = @project_media.team %>
         <p><img src="<%= team.avatar %>" alt="" /> <span id="oembed__team-name" dir="auto"><%= team.name %></span></p>
         <p class="oembed__linkify" id="oembed__team-disclaimer" dir="auto"><%= team.get_disclaimer %></p>
         <p class="oembed__linkify" id="oembed__team-link"><%= team.url %></p>

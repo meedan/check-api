@@ -253,7 +253,10 @@ module AnnotationBase
   end
 
   def current_team
-    self.annotated.project.team if self.annotated_type === 'ProjectMedia' && self.annotated.project
+    team = nil
+    team = self.annotated.project.team if self.annotated_type === 'ProjectMedia' && self.annotated.project
+    team = self.annotated.team if self.annotated_type === 'ProjectMedia' && self.annotated.team
+    team
   end
 
   # Supports only media for the time being
