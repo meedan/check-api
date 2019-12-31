@@ -11,34 +11,28 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
 
-  validates_presence_of :media, :project
+  validates_presence_of :media
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
+  before_validation :set_team_id, on: :create
+  after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
   after_commit :create_relationship, :copy_to_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
+  after_commit :update_project_media_project, on: [:update]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.project.team] },
-                  bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.project.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.team, pm.copied_to_project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
   def report_type
     self.media.class.name.downcase
-  end
-
-  def team
-    @team || self.project&.team
-  end
-
-  def team=(team)
-    @team = team
   end
 
   def related_to_team?(team)
@@ -193,7 +187,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    "#{self.project.url}/media/#{self.id}"
+    self.project ? "#{self.project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 
   def update_mt=(_update)

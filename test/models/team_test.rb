@@ -303,7 +303,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "invite Members"].sort
+    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser", "create User", "create Contact", "invite Members"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
@@ -1415,6 +1415,7 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title(project.title)
     copy_pm = copy_p.project_medias.first
     assert_equal pm.versions.map(&:event_type).sort, copy_pm.versions.map(&:event_type).sort
+    assert_equal pm.versions.count, copy_pm.versions.count
     assert_equal pm.get_versions_log.count, copy_pm.get_versions_log.count
 
     assert_nothing_raised do

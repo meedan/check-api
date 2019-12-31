@@ -185,11 +185,18 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m
     m2 = create_valid_media
     pm3 = create_project_media project: p, media: m2
+    
     query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+    
     query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
+
+    query = "query GetById { project_media(ids: \"#{pm3.id},0,#{@team.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']

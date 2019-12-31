@@ -821,4 +821,16 @@ module SampleData
     la.save!
     la.reload
   end
+
+  def create_project_media_project(options = {})
+    pmp = ProjectMediaProject.new
+    pmp.disable_es_callbacks = true
+    options.each do |key, value|
+      pmp.send("#{key}=", value) if pmp.respond_to?("#{key}=")
+    end
+    pmp.project_media = create_project_media if pmp.project_media.nil?
+    pmp.project = create_project if pmp.project.nil?
+    pmp.save!
+    pmp.reload
+  end
 end

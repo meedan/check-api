@@ -125,12 +125,9 @@ class ElasticSearch5Test < ActionController::TestCase
       result = MediaSearch.find(get_es_id(pm))
       p.destroy
       assert_equal 0, ProjectMedia.where(project_id: id).count
-      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 1, ProjectMedia.where(project_id: nil).count
+      assert_equal 3, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
-      sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        MediaSearch.find(get_es_id(pm))
-      end
     end
   end
 
@@ -176,12 +173,14 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 1
     id = get_es_id(ps)
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
     ps.project = p2; ps.save!
     sleep 1
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p2.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p2.id
     assert_equal ms.team_id.to_i, t.id
   end
 

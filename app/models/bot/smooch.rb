@@ -283,7 +283,7 @@ class Bot::Smooch < BotUser
 
   def self.team_has_smooch_bot_installed(pm)
     bot = BotUser.where(login: 'smooch').last
-    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, user_id: bot&.id.to_i).last
+    tbi = TeamBotInstallation.where(team_id: pm.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
