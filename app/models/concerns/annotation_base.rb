@@ -296,18 +296,23 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
+  def team_for_slack_params(object)
+    object.project ? object.project.team : object.team
+  end
+
   def slack_params
     object = self.project_media || self.project_source
     item = self.annotated_type == 'ProjectSource' ? object.source.name : object.title
     item_type = self.annotated_type == 'ProjectSource' ? 'source' : object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
     user = User.current or self.annotator
+    team = self.team_for_slack_params(object)
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
       project: Bot::Slack.to_slack(object.project&.title&.to_s),
-      role: I18n.t("role_" + user.role(object.project.team).to_s),
-      team: Bot::Slack.to_slack(object.project.team.name),
+      role: I18n.t("role_" + user.role(team).to_s),
+      team: Bot::Slack.to_slack(team.name),
       item: Bot::Slack.to_slack_url(object.full_url, item),
       type: I18n.t("activerecord.models.#{annotation_type}"),
       parent_type: I18n.t("activerecord.models.#{item_type}"),
