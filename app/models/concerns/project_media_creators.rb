@@ -3,8 +3,13 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
+  def get_team_for_auto_tasks
+    self.team || self.project&.team
+  end
+
   def create_auto_tasks(tasks = [])
-    return if self.project.team.is_being_copied
+    team = self.get_team_for_auto_tasks
+    return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
       tasks = self.project.nil? ? [] : self.project.auto_tasks
@@ -35,12 +40,14 @@ module ProjectMediaCreators
   private
 
   def set_project_source
-    return if self.project.team.is_being_copied
+    team = self.team || self.project&.team
+    return if team.nil? || team.is_being_copied
     self.create_project_source
   end
 
   def create_reverse_image_annotation
-    return if self.project.team.is_being_copied || self.media.type == 'UploadedVideo'
+    team = self.team || self.project&.team
+    return if team.nil? || team.is_being_copied || self.media.type == 'UploadedVideo'
     picture = self.media.picture
     unless picture.blank?
       d = Dynamic.new
@@ -169,6 +176,7 @@ module ProjectMediaCreators
   end
 
   def create_project_source
+    return if self.project_id.blank?
     a = self.media.account
     source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
     if source.nil?

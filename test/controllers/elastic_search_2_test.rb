@@ -70,13 +70,15 @@ class ElasticSearch2Test < ActionController::TestCase
     sleep 1
     id = get_es_id(pm)
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
     pm.project = p2; pm.save!
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p2.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p2.id
     assert_equal ms.team_id.to_i, t.id
   end
 

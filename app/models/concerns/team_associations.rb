@@ -14,6 +14,7 @@ module TeamAssociations
     has_many :sources, dependent: :destroy
     has_many :tag_texts, dependent: :destroy
     has_many :team_tasks, dependent: :destroy
+    has_many :project_medias, dependent: :destroy
 
     has_annotations
   end

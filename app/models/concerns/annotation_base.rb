@@ -241,7 +241,7 @@ module AnnotationBase
     team = []
     obj = self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
-    obj = obj.project if obj.respond_to?(:project)
+    obj = obj.project if obj.respond_to?(:project) && obj.project
     if !obj.nil? && obj.respond_to?(:team)
       team = [obj.team.id] unless obj.team.nil?
     end

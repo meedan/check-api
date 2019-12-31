@@ -466,7 +466,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 16, '=' do
+    assert_queries 17, '=' do
       post :create, query: query, team: 'team'
     end
     
@@ -484,5 +484,93 @@ class GraphqlController3Test < ActionController::TestCase
       assert_not_equal pm['first_seen'], pm['last_seen']
       assert_equal 2, pm['demand']
     end
+  end
+
+  test "should get items that belong to multiple lists (from PostgreSQL)" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    
+    pm1 = create_project_media project: p1, disable_es_callbacks: false
+    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
+
+    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
+
+    pm3 = create_project_media project: p1, disable_es_callbacks: false
+    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
+
+    sleep 10
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p1.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p3.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm2.id, pm3.id].sort, results
+  end
+
+  test "should get items that belong to multiple lists (from ElasticSearch)" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    
+    pm1 = create_project_media project: p1, media: create_claim_media(quote: 'test 1'), disable_es_callbacks: false
+    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
+
+    pm2 = create_project_media project: p2, media: create_claim_media(quote: 'test 2'), disable_es_callbacks: false
+    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
+
+    pm3 = create_project_media project: p1, media: create_claim_media(quote: 'test 3'), disable_es_callbacks: false
+    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
+
+    sleep 10
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p1.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p3.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm2.id, pm3.id].sort, results
   end
 end

@@ -208,7 +208,7 @@ class Team < ActiveRecord::Base
   end
 
   def medias_count
-    ProjectMedia.joins(:project).where({ 'projects.team_id' => self.id, 'project_medias.archived' => false }).count
+    ProjectMedia.where({ team_id: self.id, archived: false }).count
   end
 
   def check_search_team

@@ -692,9 +692,9 @@ class ProjectTest < ActiveSupport::TestCase
       end
       RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
-      assert_nil ProjectMedia.where(id: pm2.id).last
-      assert_nil ProjectMedia.where(id: pm3.id).last
-      assert_nil Comment.where(id: c.id).last
+      assert_not_nil ProjectMedia.where(id: pm2.id, project_id: nil).last
+      assert_not_nil ProjectMedia.where(id: pm3.id, project_id: nil).last
+      assert_not_nil Comment.where(id: c.id).last
       assert_not_nil ProjectSource.where(id: ps1.id).last
       assert_nil ProjectSource.where(id: ps2.id).last
     end

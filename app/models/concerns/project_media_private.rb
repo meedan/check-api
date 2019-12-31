@@ -81,10 +81,26 @@ module ProjectMediaPrivate
   end
 
   def notify_team_bots(event)
-    BotUser.enqueue_event("#{event}_project_media", self.project.team_id, self)
+    BotUser.enqueue_event("#{event}_project_media", self.team_id, self)
   end
 
   def apply_rules_and_actions
     self.project&.team&.apply_rules_and_actions(self, nil)
+  end
+
+  def set_team_id
+    self.team_id = self.project.team_id if self.team_id.blank? && !self.project_id.blank?
+    self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
+  end
+
+  def create_project_media_project
+    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.project_id.blank?
+  end
+
+  def update_project_media_project
+    if self.previous_changes.keys.include?('project_id')
+      self.project_media_projects.where(project_id: self.previous_changes['project_id'][0]).each{ |x| x.destroy! }
+      ProjectMediaProject.create! project_media_id: self.id, project_id: self.previous_changes['project_id'][1]
+    end
   end
 end

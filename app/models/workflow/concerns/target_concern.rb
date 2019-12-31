@@ -58,7 +58,7 @@ module Workflow
                 fields[fi.name.to_sym] = fi.name == "#{workflow_id}_status" ? ::Workflow::Workflow.options(self, workflow_id)[:default] : fi.default_value
               end
 
-              next if self.project.team.is_being_copied
+              next if self.team.is_being_copied
 
               user = User.current
               User.current = nil

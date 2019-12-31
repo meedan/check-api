@@ -14,13 +14,14 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :project_media_projects, :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
             @cloned_versions << copy if original.is_a?(Version)
             self.set_mapping(original, copy) unless original.is_a?(Version)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
-            self.update_project_source(copy) if original.is_a? ProjectSource
+            self.update_project_source(copy) if original.is_a?(ProjectSource)
             self.flag_relationships(original, copy)
+            self.flag_project_medias(original, copy)
           end
           team.slug = team.generate_copy_slug
           team.is_being_copied = true
@@ -28,6 +29,7 @@ module TeamDuplication
           @copy_team = team
           self.copy_annotations
           self.update_relationships
+          self.update_project_medias
           self.copy_versions(@mapping[:"Version"])
           self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
@@ -48,6 +50,11 @@ module TeamDuplication
     def self.flag_relationships(original, copy)
       original.is_being_copied = true if original.is_a?(Relationship)
       copy.is_being_copied = true if copy.is_a?(Relationship)
+    end
+
+    def self.flag_project_medias(original, copy)
+      original.team.is_being_copied = true if original.is_a?(ProjectMedia)
+      copy.team.is_being_copied = true if copy.is_a?(ProjectMedia)
     end
 
     def self.set_mapping(object, copy)
@@ -194,6 +201,12 @@ module TeamDuplication
       end
     end
 
+    def self.update_project_medias
+      return if @mapping[:ProjectMedia].blank?
+      @mapping[:ProjectMedia].each_value do |copy|
+        copy.update_column(:team_id, @copy_team.id)
+      end
+    end
   end
 
   def generate_copy_slug

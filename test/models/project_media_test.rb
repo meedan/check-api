@@ -41,9 +41,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should have a project and media" do
-    assert_no_difference 'ProjectMedia.count' do
-      assert_raise ActiveRecord::RecordInvalid do
+  test "should have a media not not necessarily a project" do
+    assert_difference 'ProjectMedia.count' do
+      assert_nothing_raised do
         create_project_media project: nil
       end
       assert_raise ActiveRecord::RecordInvalid do
@@ -442,10 +442,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p
-      assert ProjectMedia.belonged_to_project(pm.id, p.id)
+      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
       pm.project = p2; pm.save!
       assert_equal p2, pm.project
-      assert ProjectMedia.belonged_to_project(pm.id, p.id)
+      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
     end
   end
 
@@ -2009,5 +2009,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.team = t2
     assert_equal t2, pm.team
     assert_equal t, ProjectMedia.find(pm.id).team
+  end
+
+  test "should query media" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_project_media
+    create_project_media team_id: t.id, project: p1
+    create_project_media team_id: t.id, archived: true
+    create_project_media team_id: t.id, inactive: true
+    pm = create_project_media team_id: t.id, project: p1
+    create_relationship source_id: pm.id, target_id: create_project_media.id
+    create_project_media_project project_media: pm, project: p2
+    assert_equal 2, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
+    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
+    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
   end
 end

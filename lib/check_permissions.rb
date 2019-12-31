@@ -33,7 +33,7 @@ module CheckPermissions
         self.where(id: id, inactive: false).last
       elsif self.name == 'ProjectMedia'
         pm = self.find(id)
-        pm.project.inactive ? nil : pm
+        pm.project&.inactive ? nil : pm
       elsif self.name == 'Version'
         tid = Team.current&.id.to_i
         self.from_partition(tid).where(id: id).last
@@ -63,7 +63,7 @@ module CheckPermissions
 
   def get_create_permissions
     {
-      'Team' => [Project, Account, TeamUser, User, Contact, TagText],
+      'Team' => [Project, Account, TeamUser, User, Contact, TagText, ProjectMedia],
       'Account' => [Media, Link, Claim],
       'Media' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
       'Link' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
