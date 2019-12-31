@@ -56,7 +56,7 @@ class ProjectMedia < ActiveRecord::Base
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
       role: I18n.t('role_' + user.role(self.project.team).to_s),
-      project: Bot::Slack.to_slack(self.project.title),
+      project: Bot::Slack.to_slack(self.project&.title&.to_s),
       team: Bot::Slack.to_slack(self.project.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),

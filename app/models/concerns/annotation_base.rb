@@ -305,7 +305,7 @@ module AnnotationBase
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
-      project: Bot::Slack.to_slack(object.project.title),
+      project: Bot::Slack.to_slack(object.project&.title&.to_s),
       role: I18n.t("role_" + user.role(object.project.team).to_s),
       team: Bot::Slack.to_slack(object.project.team.name),
       item: Bot::Slack.to_slack_url(object.full_url, item),
