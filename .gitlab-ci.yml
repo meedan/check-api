@@ -40,6 +40,7 @@ deploy_qa:
     GITHUB_TOKEN: $GITHUB_TOKEN
   script:
     - apk add --no-cache curl jq python py-pip git
+    - curl -q "https://api.travis-ci.org/repos/10142761/branches/develop?access_token=$TRAVIS_API_TOKEN" | grep '"state":"passed"'
     - pip install ecs-deploy==1.7.0
     - ecs deploy ecs-qa  qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600
     - ecs deploy ecs-qa  qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600
