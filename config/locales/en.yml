@@ -565,6 +565,7 @@ en:
     your request further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of message
     for verification at this time.
+  smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size} at the moment.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-

@@ -68,10 +68,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     @media_url_2 = 'https://smooch.com/image/test2.jpeg'
+    @media_url_3 = 'https://smooch.com/image/large-image.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
     @video_ur_2 = 'https://smooch.com/video/fake-video.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/large-image.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
     @link_url = random_url
@@ -789,12 +791,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should support file only if image or video" do
-    assert Bot::Smooch.supported_message?({ 'type' => 'image' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'video' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'text' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })
-    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'image' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'video' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })[:type]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:type]
+    # should not supoort invalid size
+    large_image =  UploadedImage.max_size + random_number
+    large_video =  UploadedVideo.max_size + random_number
+    assert !Bot::Smooch.supported_message?({ 'type' => 'image', 'mediaSize' => large_image })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'video', 'mediaSize' => large_video })[:size]
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg', 'mediaSize' => large_image })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4', 'mediaSize' => large_video })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:size]
   end
 
   test "should ban user that sends unsafe URL" do
@@ -1534,6 +1545,80 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       message['mediaUrl'] = @video_ur_2
       assert_raises 'ActiveRecord::RecordInvalid' do
         Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+    end
+  end
+
+  test "should not save larger files" do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'image',
+        text: random_string,
+        mediaUrl: @media_url_3,
+        mediaSize: UploadedImage.max_size + random_number
+      },
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'file',
+        mediaType: 'image/jpeg',
+        text: random_string,
+        mediaUrl: @media_url_2,
+        mediaSize: UploadedImage.max_size + random_number
+      },
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'video',
+        mediaType: 'video/mp4',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaSize: UploadedVideo.max_size + random_number
+      }
+
+    ]
+    assert_no_difference 'ProjectMedia.count', 0 do
+      assert_no_difference 'Annotation.where(annotation_type: "smooch").count', 0 do
+        messages.each do |message|
+          uid = message[:authorId]
+
+          message = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [message],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
+
+          ignore = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [
+              {
+                '_id': random_string,
+                authorId: uid,
+                type: 'text',
+                text: '2'
+              }
+            ],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
+
+          assert Bot::Smooch.run(message)
+        end
       end
     end
   end
