@@ -138,7 +138,7 @@
           <tr>
             <th class="footer" style="font-weight: normal; padding: 0;" align="<%= @direction[:align] %>">
               <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
-                <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
+                <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") unless @info[:project_url].blank? %>
                  • 
                 <%= I18n.t("mails_notifications.unsubscribe_link", 
                     unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CONFIG['checkdesk_client']}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
