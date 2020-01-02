@@ -283,7 +283,7 @@ class Bot::Smooch < BotUser
 
   def self.team_has_smooch_bot_installed(pm)
     bot = BotUser.where(login: 'smooch').last
-    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, user_id: bot&.id.to_i).last
+    tbi = TeamBotInstallation.where(team_id: pm.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
@@ -773,7 +773,7 @@ class Bot::Smooch < BotUser
       finals = ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].select{ |s| s['completed'].to_i == 1 }.collect{ |s| s['id'].gsub(/^not_true$/, 'false') }
       previous_final_statuses = []
       f = pm.last_verification_status_obj.get_field('verification_status_status')
-      Version.from_partition(pm.project.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).order('id ASC').each do |v|
+      Version.from_partition(pm.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).order('id ASC').each do |v|
         status = YAML.load(JSON.parse(v.object_after)['value']).to_s
         previous_final_statuses << status if finals.include?(status)
       end

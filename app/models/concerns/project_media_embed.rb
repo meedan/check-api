@@ -48,7 +48,7 @@ module ProjectMediaEmbed
   end
 
   def author_role
-    role = self.user.nil? ? '' : self.user.role(self.project.team).to_s
+    role = self.user.nil? ? '' : self.user.role(self.team).to_s
     role.blank? ? 'none' : role
   end
 
@@ -65,7 +65,7 @@ module ProjectMediaEmbed
   end
 
   def completed_tasks_to_show
-    tasks_to_show = self.project.team.get_embed_tasks.to_s.split(',').map(&:to_i)
+    tasks_to_show = self.team.get_embed_tasks.to_s.split(',').map(&:to_i)
     self.all_tasks.select{ |t| t.status == 'resolved' && (t.team_task_id.blank? || tasks_to_show.include?(t.team_task_id.to_i)) }.reverse
   end
 
@@ -176,7 +176,7 @@ module ProjectMediaEmbed
   end
 
   def last_status_html
-    custom_statuses = self.project.team.get_media_statuses
+    custom_statuses = self.team.get_media_statuses
     if custom_statuses.nil?
       "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
     else

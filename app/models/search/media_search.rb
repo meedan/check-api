@@ -3,7 +3,7 @@ class MediaSearch
   include CheckElasticSearchModel
 
   attribute :team_id, Integer
-  attribute :project_id, Integer
+  attribute :project_id, Array, mapping: { type: 'integer' }
   attribute :annotated_type, String, mapping: { type: 'text' }
   attribute :annotated_id, Integer
   attribute :associated_type, String, mapping: { type: 'keyword' }

@@ -12,6 +12,7 @@ class CheckSearch
     @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 20
     @options['esoffset'] ||= 0
+    Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
   end
 
   MEDIA_TYPES = %w[claims links images videos]
@@ -117,21 +118,35 @@ class CheckSearch
   def get_pg_results(associated_type = 'ProjectMedia')
     sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
     sort = { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+    relation = if associated_type == 'ProjectMedia'
+                 get_pg_results_for_media
+               elsif associated_type == 'ProjectSource'
+                 get_pg_results_for_source
+               end
+    relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+  end
+
+  def get_pg_results_for_media
+    filters = {}
+    filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
+    filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
+    filters = filters.merge({
+      archived: archived,
+      inactive: false,
+      sources_count: 0
+    })
+    build_search_range_filter(:pg, filters)
+    relation = ProjectMedia.where(filters).distinct('project_medias.id').includes(:media)
+    relation = relation.joins(:project_media_projects) unless @options['projects'].blank?
+    relation
+  end
+
+  def get_pg_results_for_source
     filters = {}
     filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    filters['project_id'] = @options['projects'] unless @options['projects'].blank?
-    if associated_type == 'ProjectMedia'
-      archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
-      filters = filters.merge({
-        archived: archived,
-        inactive: false,
-        sources_count: 0
-      })
-      build_search_range_filter(:pg, filters)
-    end
-    relation = associated_type.constantize.joins(:project).where(filters).order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
-    relation = relation.includes(:media) if associated_type == 'ProjectMedia'
-    relation
+    filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    ProjectSource.where(filters).joins(:project)
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')

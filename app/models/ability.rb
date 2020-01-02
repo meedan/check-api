@@ -210,6 +210,9 @@ class Ability
     can :create, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
+    can [:create, :destroy], ProjectMediaProject do |obj|
+      obj.project && obj.project.team_id == @context_team.id
+    end
     can :update, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
     end

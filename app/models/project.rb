@@ -9,8 +9,9 @@ class Project < ActiveRecord::Base
   belongs_to :team
   has_many :project_sources, dependent: :destroy
   has_many :sources , through: :project_sources
-  has_many :project_medias, dependent: :destroy
+  has_many :project_medias, dependent: :nullify
   has_many :medias , through: :project_medias
+  has_many :project_media_projects, dependent: :destroy
 
   mount_uploader :lead_image, ImageUploader
 
@@ -78,7 +79,7 @@ class Project < ActiveRecord::Base
   end
 
   def medias_count
-    self.project_medias.where(archived: 0).count
+    ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => self.id }).count
   end
 
   def slack_notifications_enabled=(enabled)
@@ -198,6 +199,14 @@ class Project < ActiveRecord::Base
 
   def self.archive_or_restore_project_medias_if_needed(archived, project_id)
     ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  end
+
+  def self.current
+    RequestStore.store[:project]
+  end
+
+  def self.current=(project)
+    RequestStore.store[:project] = project
   end
 
   def is_being_copied

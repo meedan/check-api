@@ -5,7 +5,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :media_id, types.Int
-  field :project_id, types.Int
   field :user_id, types.Int
   field :url, types.String
   field :quote, types.String
@@ -87,7 +86,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   #     end
   #   }
   # end
-  { media: :account, project: :team }.each do |key, value|
+  { media: :account }.each do |key, value|
     type = "#{value.to_s.capitalize}Type".constantize
     field value do
       type -> { type }
@@ -100,11 +99,27 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :team do
+    type -> { TeamType }
+
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Team).load(project_media.team_id)
+    }
+  end
+
+  field :project_id do
+    type types.Int
+
+    resolve -> (project_media, _args, _ctx) {
+      Project.current ? Project.current.id : project_media.project_id
+    }
+  end
+
   field :project do
     type -> { ProjectType }
 
     resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Project).load(project_media.project_id)
+      Project.current || RecordLoader.for(Project).load(project_media.project_id)
     }
   end
 

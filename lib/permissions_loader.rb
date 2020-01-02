@@ -52,7 +52,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
     archived_owned = []
     owned = []
     other = []
-    team = objs.first.project.team
+    team = objs.first.team
 
     objs.each do |obj|
       obj.team = team
