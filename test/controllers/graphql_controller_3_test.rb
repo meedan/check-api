@@ -573,4 +573,37 @@ class GraphqlController3Test < ActionController::TestCase
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
     assert_equal [pm2.id, pm3.id].sort, results
   end
+
+  test "should create project media project" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+
+    query = 'mutation addToList { createProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
+    assert_difference 'ProjectMediaProject.count' do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+    assert_equal [p1.id, p2.id].sort, pm.reload.project_ids.sort
+  end
+
+  test "should destroy project media project" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    query = 'mutation removeFromList { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    assert_difference 'ProjectMediaProject.count', -1 do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+    assert_nil pm.reload.project_id
+  end
 end

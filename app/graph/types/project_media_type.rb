@@ -305,5 +305,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :project_ids, JsonStringType
+
   # End of fields
 end

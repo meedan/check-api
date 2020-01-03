@@ -35,6 +35,10 @@ class CheckSearch
     []
   end
 
+  def projects
+    []
+  end
+
   def id
     CheckSearch.id(@options['input'])
   end

@@ -867,4 +867,21 @@ class ProjectTest < ActiveSupport::TestCase
     create_project_media project: p, archived: 1
     assert_equal 2, p.reload.medias_count
   end
+
+  test "should nullify project medias project_id when project is deleted" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    assert_not_nil pm1.reload.project_id
+    with_current_user_and_team(u, t) do
+      p.destroy_later
+    end
+    assert_nil pm1.reload.project_id
+  end
+
+  test "should have search team" do
+    assert_kind_of CheckSearch, create_project.check_search_team
+    assert_kind_of Array, create_project.check_search_team.projects
+  end
 end

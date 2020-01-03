@@ -307,6 +307,10 @@ class ProjectMedia < ActiveRecord::Base
     ProjectMedia.where(id: ids)
   end
 
+  def project_ids
+    ProjectMediaProject.where(project_media_id: self.id).map(&:project_id)
+  end
+
   protected
 
   def initiate_metadata_annotation(info)

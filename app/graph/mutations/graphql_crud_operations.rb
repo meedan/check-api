@@ -19,7 +19,7 @@ class GraphqlCrudOperations
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
         parent = self.define_optimistic_fields(parent, inputs, parent_name)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -120,8 +120,8 @@ class GraphqlCrudOperations
       self.send_bulk_pusher_notification("bulk_#{operation}_start", channels)
       self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current&.id, Team.current&.id)
       ret
-    elsif inputs[:id]
-      self.send("#{operation}_from_single_id", inputs[:id], inputs, ctx, parents)
+    elsif inputs[:id] || obj
+      self.send("#{operation}_from_single_id", inputs[:id] || obj.graphql_id, inputs, ctx, parents)
     end
   end
 
@@ -227,8 +227,13 @@ class GraphqlCrudOperations
 
   def self.destroy(inputs, ctx, parents = [])
     returns = {}
+    obj = nil
     if inputs[:id]
       obj = self.object_from_id(inputs[:id])
+    elsif inputs[:project_id] && inputs[:project_media_id]
+      obj = ProjectMediaProject.where(project_id: inputs[:project_id], project_media_id: inputs[:project_media_id]).last
+    end
+    unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)
         parent_obj = self.define_optimistic_fields(parent_obj, inputs, parent)
@@ -290,6 +295,11 @@ class GraphqlCrudOperations
 
       input_field :id, types.ID
       input_field :ids, types[types.ID]
+
+      if type == 'project_media_project'
+        input_field :project_id, types.Int
+        input_field :project_media_id, types.Int
+      end
 
       input_field(:current_id, types.Int) if type == 'relationship'
 

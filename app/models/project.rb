@@ -31,11 +31,19 @@ class Project < ActiveRecord::Base
 
   has_annotations
 
-  notifies_pusher on: :save, event: 'project_updated', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
+  notifies_pusher on: [:save, :destroy], event: 'project_updated', targets: proc { |p| [p.team] }, data: proc { |p| { id: p.id }.to_json }
 
   check_settings
 
   include CheckExport
+
+  def before_destroy_later
+    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
+  end
+
+  def check_search_team
+    self.team.check_search_team
+  end
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
