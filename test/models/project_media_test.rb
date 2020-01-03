@@ -210,7 +210,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 9, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 10, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -2026,5 +2026,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
+  end
+
+  test "should get project ids" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    create_project_media_project project_media: pm, project: p2
+    assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
   end
 end

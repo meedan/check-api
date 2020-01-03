@@ -91,4 +91,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = MediaSearch.find(get_es_id(pm))
     assert_equal [p1.id], result.project_id
   end
+
+  test "should get search object" do
+    pmp = create_project_media_project
+    assert_kind_of CheckSearch, pmp.check_search_project
+  end
 end
