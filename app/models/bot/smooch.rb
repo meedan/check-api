@@ -523,9 +523,7 @@ class Bot::Smooch < BotUser
           self.save_message_later(message, app_id)
           self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
         else
-          error_message = is_supported[:type] == false ? :smooch_bot_message_type_unsupported : :smooch_bot_message_size_unsupported
-          max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(error_message, { locale: message['language'], max_size: max_size }))
+          self.send_error_message(message, is_supported)
         end
       else
         sm.send_message_existing
@@ -548,7 +546,7 @@ class Bot::Smooch < BotUser
       type = m[1] unless m.nil?
     end
     message['mediaSize'] ||= 0
-    # define the ret array with 
+    # define the ret array with keys
     # type: true if the type supported, size: true if size in allowed range and m_type for message type(image, video, ..)
     ret = { type: true, m_type: type }
     case type
@@ -562,6 +560,12 @@ class Bot::Smooch < BotUser
       ret = { type: false, size: false }
     end
     ret
+  end
+
+  def self.send_error_message(message, is_supported)
+    error_message = is_supported[:type] == false ? :smooch_bot_message_type_unsupported : :smooch_bot_message_size_unsupported
+    max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
+    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(error_message, { locale: message['language'], max_size: max_size }))
   end
 
   def self.smooch_api_client
