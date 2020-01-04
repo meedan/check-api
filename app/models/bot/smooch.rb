@@ -50,7 +50,9 @@ class Bot::Smooch < BotUser
   end
 
   ::Dynamic.class_eval do
-    after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
+    after_save(:send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }) do |obj|
+      SmoochMemeWorker.perform_in(1.second, obj.id) if obj.action == 'publish'
+    end
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
     before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
 
@@ -66,10 +68,6 @@ class Bot::Smooch < BotUser
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
-    end
-
-    def send_meme_to_smooch_users
-      SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
     end
 
     def change_smooch_user_state
@@ -363,7 +361,7 @@ class Bot::Smooch < BotUser
         text = []
         media = nil
         list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-          next unless self.supported_message?(message)
+          next unless self.supported_message?(message)[:type]
           if media.nil?
             media = message['mediaUrl']
             bundle['type'] = message['type']
@@ -518,11 +516,12 @@ class Bot::Smooch < BotUser
       if pm_id.nil?
         sm.send_message_new
         sm.message = message.to_json
-        if self.supported_message?(message)
+        is_supported = self.supported_message?(message)
+        if is_supported.slice(:type, :size).all?{|_k, v| v}
           self.save_message_later(message, app_id)
           self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
         else
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: message['language'] }))
+          self.send_error_message(message, is_supported)
         end
       else
         sm.send_message_existing
@@ -539,14 +538,32 @@ class Bot::Smooch < BotUser
   end
 
   def self.supported_message?(message)
-    case message['type']
-    when 'text', 'image', 'video'
-      return true
-    when 'file'
-      return message['mediaType'].to_s =~ /^(image|video)\//
-    else
-      return false
+    type = message['type']
+    if type == 'file'
+      m = message['mediaType'].to_s.match(/^(image|video)\//)
+      type = m[1] unless m.nil?
     end
+    message['mediaSize'] ||= 0
+    # define the ret array with keys
+    # type: true if the type supported, size: true if size in allowed range and m_type for message type(image, video, ..)
+    ret = { type: true, m_type: type }
+    case type
+    when 'text'
+      ret[:size] = true
+    when 'image'
+      ret[:size] = message['mediaSize'] <= UploadedImage.max_size
+    when 'video'
+      ret[:size] = message['mediaSize'] <= UploadedVideo.max_size
+    else
+      ret = { type: false, size: false }
+    end
+    ret
+  end
+
+  def self.send_error_message(message, is_supported)
+    error_message = is_supported[:type] == false ? :smooch_bot_message_type_unsupported : :smooch_bot_message_size_unsupported
+    max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
+    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(error_message, { locale: message['language'], max_size: max_size }))
   end
 
   def self.smooch_api_client
