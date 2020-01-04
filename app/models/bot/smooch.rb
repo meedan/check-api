@@ -50,7 +50,9 @@ class Bot::Smooch < BotUser
   end
 
   ::Dynamic.class_eval do
-    after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
+    after_save(:send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }) do |obj|
+      SmoochMemeWorker.perform_in(1.second, obj.id) if obj.action == 'publish'
+    end
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
     before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
 
@@ -66,10 +68,6 @@ class Bot::Smooch < BotUser
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
-    end
-
-    def send_meme_to_smooch_users
-      SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
     end
 
     def change_smooch_user_state
