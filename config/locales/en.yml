@@ -103,6 +103,8 @@ en:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
+      image_too_large: Sorry, we don't support images larger than %{max_size} at the moment.
+      video_too_large: Sorry, we don't support videos larger than %{max_size} at the moment.
   activerecord:
     models:
       link: Link
@@ -563,6 +565,7 @@ en:
     your request further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of message
     for verification at this time.
+  smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size} at the moment.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-

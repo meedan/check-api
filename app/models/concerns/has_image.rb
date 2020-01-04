@@ -13,7 +13,7 @@ module HasImage
     include HasFile
 
     mount_uploader :file, ImageUploader
-    validates :file, size: true, file_size: { less_than: UploadedImage.max_size, message: "size should be less than #{UploadedImage.max_size_readable}" }, allow_blank: true
+    validates :file, size: true, file_size: { less_than: UploadedImage.max_size, message: :image_too_large, max_size: UploadedImage.max_size_readable }, allow_blank: true
   end
 
   def thumbnail_path
