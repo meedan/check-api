@@ -79,7 +79,7 @@ build_live:
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
     - d=configurator/check/live/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
-    - docker build  -f Dockerfile.production -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"  .
+    - docker build  -f deploy/live/Dockerfile -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"  .
     - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
   only:
     - master
