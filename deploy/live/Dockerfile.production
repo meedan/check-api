@@ -42,7 +42,7 @@ RUN sed -i "s/ddDEPLOYUSERdd/checkdeploy/g" /etc/nginx/sites-available/${APP} \
     && rm /etc/nginx/sites-enabled/default
 
 # CMD and helper scripts
-COPY --chown=root:root production/bin /opt/bin
+COPY --chown=root:root deploy/scripts /opt/bin
 
 #
 # code deployment

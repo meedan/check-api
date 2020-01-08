@@ -26,7 +26,7 @@ build_qa:
       if docker image list | grep -q "$CI_COMMIT_SHA"; then 
         echo "This commit is already build. No need to rebuild it"; 
       else    
-        docker build  -f Dockerfile.production -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
+        docker build  -f deploy/develop/Dockerfile -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
         docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
       fi
   only:
