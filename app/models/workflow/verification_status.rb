@@ -103,7 +103,7 @@ class Workflow::VerificationStatus < Workflow::Base
           }
           MailWorker.perform_in(1.second, 'TerminalStatusMailer', YAML::dump(options))
         else
-          errors.add(:base, I18n.t(:must_resolve_required_tasks_first))
+          errors.add(:base, I18n.t('errors.messages.must_resolve_required_tasks_first'))
           raise ActiveRecord::RecordInvalid.new(self)
         end
       end

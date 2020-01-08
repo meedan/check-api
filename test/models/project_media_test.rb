@@ -1080,7 +1080,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.url = url
     pm.media_type = 'Link'
     assert !pm.valid?
-    assert pm.errors.messages.values.flatten.include?('This link is already being parsed, please try again in a few seconds.')
+    assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
   end
 
   test "should create project source" do

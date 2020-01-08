@@ -124,7 +124,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def annotation_type_exists
-    errors.add(:annotation_type, 'does not exist') if self.annotation_type != 'dynamic' && DynamicAnnotation::AnnotationType.where(annotation_type: self.annotation_type).last.nil?
+    errors.add(:annotation_type, I18n.t('errors.messages.annotation_type_does_not_exist')) if self.annotation_type != 'dynamic' && DynamicAnnotation::AnnotationType.where(annotation_type: self.annotation_type).last.nil?
   end
 
   def create_fields
@@ -157,7 +157,7 @@ class Dynamic < ActiveRecord::Base
       annotation_type = DynamicAnnotation::AnnotationType.where(annotation_type: self.annotation_type).last
       fields_set = JSON.parse(self.set_fields).keys
       mandatory_fields = annotation_type.schema.reject{ |instance| instance.optional }.map(&:name)
-      errors.add(:base, 'Please set all mandatory fields') unless (mandatory_fields - fields_set).empty?
+      errors.add(:base, I18n.t('errors.messages.annotation_mandatory_fields')) unless (mandatory_fields - fields_set).empty?
     end
   end
 
@@ -189,7 +189,7 @@ class Dynamic < ActiveRecord::Base
       self.set_attribution.split(',').each do |uid|
         invalid << uid if !members_ids.include?(uid.to_i) && User.where(id: uid.to_i, is_admin: true).last.nil?
       end
-      errors.add(:base, I18n.t(:error_invalid_attribution)) unless invalid.empty?
+      errors.add(:base, I18n.t('errors.messages.invalid_attribution')) unless invalid.empty?
     end
   end
 end
