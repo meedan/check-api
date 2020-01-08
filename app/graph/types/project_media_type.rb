@@ -18,6 +18,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :description, types.String
   field :picture, types.String
   field :virality, types.Int
+  field :requests_count, types.Int
   field :demand, types.Int
   field :linked_items_count, types.Int
   field :last_seen, types.String
