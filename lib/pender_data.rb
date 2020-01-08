@@ -32,13 +32,13 @@ module PenderData
   def handle_pender_error(code)
     case code.to_i
     when PenderClient::ErrorCodes::DUPLICATED
-      I18n.t(:pender_conflict, default: 'This link is already being parsed, please try again in a few seconds.')
+      I18n.t('errors.messages.pender_conflict')
     when PenderClient::ErrorCodes::INVALID_VALUE
-      I18n.t(:pender_url_invalid, default: 'This link is invalid.')
+      I18n.t('errors.messages.pender_url_invalid')
     when PenderClient::ErrorCodes::UNSAFE
-      I18n.t(:pender_url_unsafe, default: 'This link is unsafe.')
+      I18n.t('errors.messages.pender_url_unsafe')
     else
-      I18n.t(:pender_could_not_parse, default: 'Could not parse this media.')
+      I18n.t('errors.messages.pender_could_not_parse')
     end
   end
 
