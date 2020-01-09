@@ -12,10 +12,6 @@
             "title": "%{team_rule_name}",
             "type": "string"
           },
-          "project_ids": {
-            "title": "%{team_rule_project_ids}",
-            "type": "string"
-          },
           "rules": {
             "title": "%{team_rule_conditions}",
             "type": "array",
@@ -74,10 +70,6 @@
                     {
                       "key": "move_to_project",
                       "value": "%{team_rule_move_to_project}"
-                    },
-                    {
-                      "key": "copy_to_project",
-                      "value": "%{team_rule_copy_to_project}"
                     },
                     {
                       "key": "send_to_trash",
