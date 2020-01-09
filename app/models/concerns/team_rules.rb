@@ -92,7 +92,6 @@ module TeamRules
     statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
 
-    schema['properties']['rules']['items']['properties']['project_ids']['enum'] = [{ key: '0', value: I18n.t(:team_rule_all_items) }].concat(projects);
 
     {
       'actions' => {
@@ -116,7 +115,6 @@ module TeamRules
   def apply_rules(pm, obj = nil)
     all_rules_and_actions = self.get_rules || []
     all_rules_and_actions.map(&:with_indifferent_access).each do |rules_and_actions|
-      next if !rules_and_actions[:project_ids].blank? && !rules_and_actions[:project_ids].split(',').map(&:to_i).include?(pm.project_id)
       matches = 0
       rules_and_actions[:rules].each do |rule|
         matches += 1 if ::TeamRules::RULES.include?(rule[:rule_definition]) && self.send(rule[:rule_definition], pm, obj, rule[:rule_value])
