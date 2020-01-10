@@ -26,10 +26,11 @@ class ProjectMediaProject < ActiveRecord::Base
   end
 
   def set_project_media_project_id
-    self.project_media.update_column(:project_id, self.project_id) if self.project_media.project_id.blank?
+    self.project_media.update_column(:project_id, self.project_id) unless self.project_media.is_being_copied
   end
 
   def unset_project_media_project_id
-    self.project_media.update_column(:project_id, nil) if self.project_media.project_id == self.project_id
+    id = ProjectMediaProject.where(project_media_id: self.project_media_id).last&.project_id
+    self.project_media.update_column(:project_id, id) if self.project_media.project_id != id && !self.project_media.is_being_copied && ProjectMediaProject.where(project_media_id: self.project_media_id, project_id: id).last.nil?
   end
 end

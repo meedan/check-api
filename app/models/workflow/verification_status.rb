@@ -73,6 +73,7 @@ class Workflow::VerificationStatus < Workflow::Base
       active = ::Workflow::Workflow.options(self, 'verification_status')[:active]
       f = s.get_field('verification_status_status')
       unless active.nil?
+        f.previous_status = f.value
         f.value = active
         f.skip_check_ability = true
         f.save!

@@ -1807,11 +1807,11 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
     m = create_claim_media quote: 'this is a test'
     create_project_media project: p0, media: m
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
 end

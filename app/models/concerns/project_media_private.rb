@@ -98,9 +98,9 @@ module ProjectMediaPrivate
   end
 
   def update_project_media_project
-    if self.previous_changes.keys.include?('project_id')
-      self.project_media_projects.where(project_id: self.previous_changes['project_id'][0]).each{ |x| x.destroy! }
-      ProjectMediaProject.create! project_media_id: self.id, project_id: self.previous_changes['project_id'][1]
+    if self.previous_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
+      ProjectMediaProject.where(project_media_id: self.id).delete_all
+      ProjectMediaProject.create! project_media_id: self.id, project_id: self.project_id
     end
   end
 end

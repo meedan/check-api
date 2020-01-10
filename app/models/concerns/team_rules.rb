@@ -52,20 +52,18 @@ module TeamRules
     end
 
     def move_to_project(pm, value)
-      self.copy_or_move_to_project(pm, value, 'project_id')
+      project = Project.where(team_id: self.id, id: value.to_i).last
+      unless project.nil?
+        pm = ProjectMedia.where(id: pm.id).last
+        pm.previous_project_id = pm.project_id
+        pm.project_id = project.id
+        pm.save!
+      end
     end
 
     def copy_to_project(pm, value)
-      self.copy_or_move_to_project(pm, value, 'copy_to_project_id')
-    end
-
-    def copy_or_move_to_project(pm, value, attr)
       project = Project.where(team_id: self.id, id: value.to_i).last
-      unless project.nil?
-        pm = ProjectMedia.find(pm.id)
-        pm.send("#{attr}=", project.id)
-        pm.save!
-      end
+      ProjectMediaProject.create!(project: project, project_media: pm) if !project.nil? && ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
     end
   end
 
