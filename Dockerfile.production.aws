@@ -1,5 +1,5 @@
 # check-api
-FROM meedan/ruby
+FROM ruby-testing
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \
@@ -26,8 +26,25 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 #
 
 # dependencies
-RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y jq ffmpegthumbnailer fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts
+RUN apt-get update
+RUN apt-get install -y software-properties-common
+RUN apt-get install -y wget cabextract xfonts-utils 
+
+ #for fonts
+RUN mkdir /tempfonts
+RUN wget http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb -P /tempfonts/
+RUN apt install -y /tempfonts/ttf-mscorefonts-installer_3.6_all.deb 
+RUN rm -r /tempfonts --force
+ #----- Install the dependencies for fonts
+RUN apt-get install -y jq ffmpegthumbnailer \
+    fontconfig \
+    libfontconfig \
+    fonts-deva\
+    fonts-beng \ 
+    fonts-samyak-gujr fonts-lohit-gujr fonts-gujr-extra \
+    fonts-telu \
+    fonts-taml \
+    fonts-mlym 
 
 # phantomjs
 RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
