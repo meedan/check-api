@@ -152,17 +152,6 @@ class RelationshipTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create related report if project is not the same" do
-    pm = create_project_media
-    assert_no_difference 'ProjectMedia.count' do
-      assert_no_difference 'Relationship.count' do
-        assert_raises RuntimeError do
-          create_project_media related_to_id: pm
-        end
-      end
-    end
-  end
-
   test "should not create related report if source report does not exist" do
     pm = create_project_media
     id = pm.id
