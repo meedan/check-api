@@ -1,5 +1,5 @@
 # check-api
-FROM ruby-testing
+FROM meedan/base
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \
@@ -30,12 +30,12 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN apt-get install -y wget cabextract xfonts-utils 
 
- #for fonts
+#for fonts to be installed on debian
 RUN mkdir /tempfonts
 RUN wget http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb -P /tempfonts/
 RUN apt install -y /tempfonts/ttf-mscorefonts-installer_3.6_all.deb 
 RUN rm -r /tempfonts --force
- #----- Install the dependencies for fonts
+# Install the dependencies for fonts
 RUN apt-get install -y jq ffmpegthumbnailer \
     fontconfig \
     libfontconfig \

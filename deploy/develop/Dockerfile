@@ -1,4 +1,4 @@
-FROM meedan/ruby
+FROM ruby-testing
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
