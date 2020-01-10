@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class ProjectMediaTest < ActiveSupport::TestCase
+class ProjectMediaProjectTest < ActiveSupport::TestCase
   def setup
     super
   end

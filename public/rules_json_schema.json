@@ -72,6 +72,10 @@
                       "value": "%{team_rule_move_to_project}"
                     },
                     {
+                      "key": "copy_to_project",
+                      "value": "%{team_rule_copy_to_project}"
+                    },
+                    {
                       "key": "send_to_trash",
                       "value": "%{team_rule_send_to_trash}"
                     },

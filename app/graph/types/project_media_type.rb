@@ -112,7 +112,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.Int
 
     resolve -> (project_media, _args, _ctx) {
-      Project.current ? Project.current.id : project_media.project_id
+      Project.current ? Project.current.reload.id : project_media.reload.project_id
     }
   end
 

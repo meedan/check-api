@@ -21,7 +21,7 @@ class ProjectMedia < ActiveRecord::Base
   after_commit :create_relationship, :copy_to_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_project_media_project, on: [:update]
-  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
+  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
@@ -362,5 +362,4 @@ class ProjectMedia < ActiveRecord::Base
   # private
   #
   # Please add private methods to app/models/concerns/project_media_private.rb
-
 end
