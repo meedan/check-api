@@ -45,23 +45,6 @@ module ProjectMediaCreators
     self.create_project_source
   end
 
-  def create_reverse_image_annotation
-    team = self.team || self.project&.team
-    return if team.nil? || team.is_being_copied || self.media.type == 'UploadedVideo'
-    picture = self.media.picture
-    unless picture.blank?
-      d = Dynamic.new
-      d.skip_check_ability = true
-      d.skip_notifications = true
-      d.annotation_type = 'reverse_image'
-      d.annotator = BotUser.where(name: 'Check Bot').last
-      d.annotated = self
-      d.disable_es_callbacks = Rails.env.to_s == 'test'
-      d.set_fields = { reverse_image_path: picture }.to_json
-      d.save!
-    end
-  end
-
   def create_annotation
     unless self.set_annotation.blank?
       params = JSON.parse(self.set_annotation)
@@ -198,7 +181,7 @@ module ProjectMediaCreators
   def create_relationship(type = Relationship.default_type)
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
-      if !related.nil? && related.project_id == self.project_id
+      unless related.nil?
         r = Relationship.new
         r.skip_check_ability = true
         r.relationship_type = type

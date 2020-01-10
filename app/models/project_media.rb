@@ -17,7 +17,7 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :project_id }
 
   before_validation :set_team_id, on: :create
-  after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
+  after_create :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
   after_commit :create_relationship, :copy_to_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_project_media_project, on: [:update]
