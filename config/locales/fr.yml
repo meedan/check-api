@@ -485,8 +485,8 @@ fr:
       assign_media_subject: "[%{team} - %{project}] Un élément vous a été affecté"
       unassign_media_subject: "[%{team} - %{project}] Votre affectation à un élément
         a été annulée"
-      assign_project_title: Projet affecté
-      unassign_project_title: Affectation de projet annulée
+      assign_project_title: Liste affectée
+      unassign_project_title: Affectation de liste annulée
       assign_project_text: "%{author} a affecté la liste %{project} dans %{team}."
       unassign_project_text: "%{author} a annulé l'affectation de la liste %{project}
         dans %{team}."
