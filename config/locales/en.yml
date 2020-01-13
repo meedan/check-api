@@ -466,8 +466,8 @@ en:
       assign_media_subject: "[%{team} - %{project}] An item was assigned to you"
       unassign_media_subject: "[%{team} - %{project}] An item was unassigned from
         you"
-      assign_project_title: Project Assigned
-      unassign_project_title: Project Unassigned
+      assign_project_title: List Assigned
+      unassign_project_title: List Unassigned
       assign_project_text: "%{author} assigned list %{project} in %{team}."
       unassign_project_text: "%{author} unassigned list %{project} in %{team}."
       assign_task_title: Task Assigned
@@ -585,7 +585,7 @@ en:
 
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
-    any verification reports, because this project is no longer active.
+    any verification reports, because this list is no longer active.
   smooch_bot_result_changed: |-
     [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
 
