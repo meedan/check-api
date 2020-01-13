@@ -4,7 +4,6 @@ bn:
     media:
       undetermined:
         label: এখনো শুরু হয়নি
-        description: ডিফল্ট, শুধু চেক করা হয়েছে, কাজ শুরু হয়নি
       not_applicable:
         label: মীমাংসাহীন
         description: উপলব্ধ প্রমাণ সঙ্গে কোন উপসংহার করা যাবে না
@@ -19,7 +18,6 @@ bn:
         description: 'উপসংহার: এই আইটেম এর কন্টেন্ট যাচাই করা হয়েছে'
       pending:
         label: মুলতুবী
-        description: ডিফল্ট, শুধু সেতু যোগ করা, কোন কাজ শুরু করা হয় নি
       translated:
         label: অনূদিত
         description: অনুবাদ করা হয়েছে, পর্যালোচনার জন্য অপেক্ষা করছে
@@ -42,7 +40,6 @@ bn:
         label: প্রত্যাখ্যাত
       unstarted:
         label: শুরু করা হয় নি
-        description: ডিফল্ট, শুধু চেক করা হয়েছে, কাজ শুরু হয়নি
   smooch_bot_meme: এখানে আমরা আপনার অনুরোধকৃত আইটেমের ভিত্তিতে তৈরি একটি মেমে যাচাই
     করেছি। আরো জানুন%{url}
   smooch_bot_result_changed: |-

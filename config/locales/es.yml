@@ -18,7 +18,6 @@ es:
     media:
       undetermined:
         label: Sin iniciar
-        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
       not_applicable:
         label: Inconcluso
         description: No se puede llegar a ninguna conclusión con la evidencia disponible
@@ -33,7 +32,6 @@ es:
         description: 'Conclusión: el contenido del ítem es verificado'
       pending:
         label: Pendiente
-        description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
       translated:
         label: Traducido
         description: La traducción está lista, esperando la revisión
@@ -56,11 +54,9 @@ es:
         label: Basura
       unstarted:
         label: Sin iniciar
-        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
     source:
       undetermined:
         label: Sin iniciar
-        description: 'Predeterminado por Check, no se ha iniciado ningún trabajo. '
       credible:
         label: Confiable
         description: 'Conclusión: la fuente es confiable'
@@ -76,7 +72,6 @@ es:
     translation:
       pending:
         label: Pendiente
-        description: 'Predeterminado por Bridge, no se ha iniciado ningún trabajo. '
       in_progress:
         label: En progreso
         description: El trabajo ha comenzado, pero aún no se realizó ninguna traducción
@@ -100,7 +95,6 @@ es:
   activerecord:
     models:
       link: Enlace
-      claim: Afirmación
       uploaded_file: Archivo
       uploaded_image: Imagen
       uploaded_video: Vídeo
@@ -108,8 +102,6 @@ es:
       comment: Nota
       project_media: Ítem
       media: Ítem
-      project: Proyecto
-      team: Equipo
       user: Usuario
       source: Fuente
       project_source: Fuente
@@ -122,8 +114,6 @@ es:
         file: Imagen
       uploaded_video:
         file: Vídeo
-      team:
-        slug: URL del equipo
       source:
         name: Nombre
       contact:
@@ -153,7 +143,6 @@ es:
   slug_is_reserved: Está reservado
   invalid_format_for_languages: 'Configuración de idiomas inválida. Debería tener
     el formato [{''id'': ''en'', ''title'': ''English''}]'
-  invalid_media_item: 'Lo sentimos, este ítem no es válido '
   invalid_default_status_for_custom_verification_status: El identificador de estado
     predeterminado es inválido
   invalid_active_status_for_custom_verification_status: El identificador de estado
@@ -181,7 +170,6 @@ es:
       unassigned: Desasignado de
       required: Requerido?
       required_yes: Sí
-      project: Proyecto
       source: Fuente
       status: Estado
       status_previous: Estado anterior
@@ -196,7 +184,6 @@ es:
       task_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
       task_unassign: "%{user} (%{role} at %{team}) desasigno un %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) respondió una Tarea"
-      task_answer_edit: "%{user} (%{role} at %{team}) editó la respuesta"
       task_comment: "%{user} (%{role} at %{team}) agregó una nota a una Tarea"
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
@@ -211,44 +198,18 @@ es:
         %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
-      project_create: "%{user} (%{role} at %{team}) creó un proyecto "
-      project_assign: "%{user} (%{role} at %{team}) asignó un proyecto"
-      project_unassign: "%{user} (%{role} at %{team}) desasignó un proyecto"
-      user_member: "%{user} unido al equipo %{team}"
-      user_requested: "%{user} solicitó unirse al equipo %{team}"
-      user_invited: "%{user} fue invitado a unirse al equipo %{team}"
-      user_banned: "%{user}fue suspendido del equipo %{team}"
   mail_view_welcome: Bienvenida / Bienvenido a %{app_name}
   mail_view_register: "¡Estás a un solo paso de usar %{app_name}! Por favor, confirma
     tu dirección de correo electrónico haciendo clic en el siguiente enlace:"
   mail_confirm_button: Confirmar mi cuenta
-  pender_could_not_parse: 'No se pudo analizar este ítem '
-  slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque
-    está restringido a los miembros de los equipos de Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
         menu: Enviar instrucciones para restablecer la contraseña
-      export_project:
-        menu: Exportar datos del proyecto
-      export_images:
-        menu: Exportar imágenes del proyecto
       delete_tasks:
         done: eliminó las tareas
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "¿Estás seguro(a) que quieres eliminar todas las tareas del equipo
-            <strong>%{team}</strong>? Las siguientes tareas se eliminarán:"
       duplicate_team:
-        menu: Duplicar equipo
         done: 'copiado '
-        are_you_sure_you_want_to_copy_team:
-          html: "¿Estás seguro(a) que quieres copiar el equipo <strong>%{team}</strong>?
-            Todos los datos relacionados también serán copiados."
-        the_team_is_being_copied: El equipo está siendo duplicado
-        url_when_ready:
-          html: Cuando esté lista, la copia del equipo estará disponible en <strong>%{copy_url}</strong>
-    flash:
-      delete_team_scheduled: El equipo %{team} está siendo eliminado
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: Canal de Slack inválido
   translation_status_not_valid: Estado inválido
@@ -256,10 +217,6 @@ es:
     este cambio de estado.
   translation_request_id_exists: 'Ya existe una solicitud de traducción para este
     mensaje '
-  auto_publisher_added_to_project: "¡Gracias! ahora todas las traducciones nuevas
-    en el proyecto %{project} se publicarán automáticamente en esta cuenta de %{provider}.
-    Si cambias de opinión, ponte en contacto con el administrador o simplemente revoca
-    la autorización de Bridge de %{provider}."
   invalid_token: Token inválido
   viber_screenshot_footer: "%{target_language} traducción de %{source_language}: “%{source_text}”"
   time:
@@ -267,16 +224,6 @@ es:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y a las %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
-  oembed_disclaimer_undetermined: Este medio no ha sido revisado por el equipo de
-    %{team}
-  oembed_disclaimer_in_progress: la veracidad de este medio está en proceso de ser
-    determinada por el equipo de %{team} el %{date}
-  oembed_disclaimer_verified: la precisión de este medio fue verificada por el equipo
-    %{team} el %{date}
-  oembed_disclaimer_false: El equipo %{team} ha determinado la veracidad de este medio
-    como falsa, el %{date}
-  oembed_disclaimer_not_applicable: El equipo %{team} no pudo llegar a ninguna conclusión
-    sobre la precisión de este medio, el %{date}
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
   role_owner: propietario
@@ -301,34 +248,16 @@ es:
     one: 'Una tarea resuelta '
     other: "%{count} tareas resueltas"
   oembed_notes: Notas
-  pender_conflict: Este enlace ya está siendo analizado, intente de nuevo en unos
-    segundos.
   duplicate_source: Fuente existente
   geolocation_invalid_value: 'La localización debe tener un GeoJSON válido (http://geojson.org/) '
   datetime_invalid_date: 'Por favor proporciona una fecha válida '
-  error_team_archived: Lo sentimos, no puedes añadir un proyecto a un equipo eliminado
-  error_project_archived: Lo sentimos, no puedes añadir un ítem a un proyecto eliminado
-  error_team_archived_for_source: Lo sentimos, no puedes añadir una fuente a un equipo
-    eliminado
   permission_error: Lo sentimos, no tienes autorización para realizar esta operación
-  error_annotated_archived: Lo sentimos, no puedes añadir una nota a un ítem eliminado
   only_super_admin_can_do_this: Lo sentimos, solo los administradores del sistema
     pueden hacer este cambio
-  max_number_of_team_users_reached: Lo sentimos, se ha alcanzado el número máximo
-    de usuarios para este equipo
-  max_number_of_projects_reached: Lo sentimos, se alcanzó el número máximo de proyectos
-    para este equipo
-  cant_set_custom_statuses: Lo sentimos, la función de estados personalizados no está
-    disponible para este equipo
   cant_change_custom_statuses: |-
     Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
     %{urls} %{others_amount}
-  cant_create_team_task: Lo sentimos, tu equipo no tiene acceso a estas funciones
-  cant_create_media_under_this_team_using_extension: Lo sentimos, la función de extensión
-    del navegador no está disponible para este equipo
-  error_invalid_attribution: Atribución inválida
   account_exists: Esta cuenta ya existe
-  media_exists: Este medio ya existe
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor
@@ -346,26 +275,14 @@ es:
         instruction_2: Si tu no has hecho esta solicitud, o estás teniendo dificultades
           para restablecer tu contraseña, ponte en contacto con nosotros %{support_email}
       invitation_instructions:
-        subject: "%{user} ha sido invitado a unirse al equipo %{team}"
         hello: "¡Hola %{name}!"
-        someone_invited_you_default:
-          html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}."
-        someone_invited_you_custom:
-          html: "%{name}Te ha invitado a unirte al equipo %{team} como %{role}, diciendo:"
         accept: Aceptar invitación
         accept_until: Esta invitación expirará a las %{due_date}.
         ignore: Si no desea aceptar la invitación, ignore este correo electrónico.
-        app_team: 'Equipo %{app} '
     failure:
       unconfirmed: Por favor consulta tu correo electrónico para verificar tu cuenta.
   user_invitation:
-    invited: Este usuario ya ha sido invitado a este equipo.
-    member: Este usuario ya está en el equipo.
-    team_found: Equipo no encontrado.
     invalid: Símbolo (token) de invitación es inválido.
-    no_invitation: No hay invitación para el equipo %{name}
-  error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros
-    de este equipo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando
     esta cuenta
   error_login_2fa: 'Por favor completa tu inicio de sesión proporcionando un código
@@ -374,7 +291,6 @@ es:
   mails_notifications:
     greeting: Hola %{username},
     greeting_anonymous: "¡Hola!"
-    project_view: Vista de proyecto
     unsubscribe: 'Cancelar suscripción '
     unsubscribe_link: "%{unsubscribe} de estas notificaciones"
     copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
@@ -414,29 +330,13 @@ es:
         %{anonymous}
       anonymous: anónimo
     admin_mailer:
-      team_download_subject: La captura de datos del equipo [%{team}] está lista para
-        ser descargada
-      team_dump_title: 'Datos del equipo '
       types:
         dump: captura de datos
         csv: informe
         images: archivo de imágenes
-      team_dump_text: 'Solicitaste descargar una captura de datos del proyecto %{project}
-        - aquí está el enlace de descarga: %{link}'
-      team_dump_button: 'Descargar los datos del equipo '
       decompress_text: El %{type} se descargará como un archivo comprimido y cifrado.
         Para descomprimirlo, usa esta contraseña %{password}.
       expire_note: Ten en cuenta que este enlace caducará en %{days} días.
-      project_export_csv_subject: El informe del proyecto [%{team} - %{project}] está
-        listo para ser descargado
-      project_export_images_subject: El archivo de imágenes del proyecto [%{team}-
-        %{project}] está listo para ser descargado
-      project_export_title: Datos del proyecto
-      project_export_button: Descargar los datos del proyecto
-      project_export_csv_text: 'Solicitaste descargar un reporte de %{project} - aquí
-        está el enlace de descarga: %{link}'
-      project_export_images_text: 'Solicitaste descargar el archivo de imágenes del
-        proyecto %{project} - aquí está el enlace de descarga: %{link}'
       team_import_subject: Tu importación de datos se ha completado
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}.
@@ -447,15 +347,8 @@ es:
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
       header_title: Tarea respondida
-      header_text: " %{author} respondió una tarea en el proyecto %{project} en %{team}."
-      section_title: "¿Quién o cuál es la fuente de la afirmación?"
       status: Estado
-      media_h: Medio
     media_status:
-      label: medio
-      subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
-      header_title: El estado del medio ha sido actualizado
-      header_text: " %{author} actualizó un ítem del poyecto %{project} en %{team}."
       section_title: Marcado como %{status}.
       added_to: Añadido a %{app_name}
       update_h: Última actualización
@@ -463,49 +356,22 @@ es:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
-      assign_project_subject: "[%{team} - %{project}] Se te ha asignado un proyecto"
-      unassign_project_subject: "[%{team} - %{project}] Se te ha desasignado un proyecto"
-      assign_media_subject: "[%{team} - %{project}] Se te ha asignado un  ítem"
-      unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
       assign_project_title: 'Proyecto asignado '
       unassign_project_title: Proyecto sin asignar
-      assign_project_text: "%{author} asignó un proyecto %{project} en %{team}."
-      unassign_project_text: "%{author} desasignó un proyecto %{project} en %{team}. "
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
-      assign_task_text: "%{author} asignó una tarea de %{project} en %{team}."
-      unassign_task_text: "%{author} desasignó una tarea de %{project} en %{team}. "
-      assign_media_title: Ítem asignado
-      unassign_media_title: Ítem desasignado
-      assign_media_text: " %{author} asignó un ítem del proyecto %{project} en%{team}."
-      unassign_media_text: " %{author} desasignó un ítem del proyecto %{project} en%{team}."
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
-      project_button: Ir a la página del proyecto.
     request_to_join:
-      subject: Solicitar unirse a %{team}
-      team_page: página del equipo
-      team_button: Ir a la página del equipo.
       rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
-      approved_subject: 'Bienvenida/Bienvenido a %{team} '
-      request_title: Solicitar unirse a %{team}
-      request_text: "%{name} (%{email}) quiere unirse a %{team} en %{app_name}. Puedes
-        procesas esta solicitud visitando %{url}."
-      approved_title: Bienvenida/Bienvenido al equipo %{team}
-      approved_text: "¡Tu solicitud para unirte a %{team} en %{app_name}fue aprobada.
-        Puedes ir a %{url} y empezar a contribuir!"
       rejected_title: Solicitud denegada
-      rejected_text: Lo sentimos, pero tu solicitud para unirte a %{team} en %{app_name}
-        no fue aprobada.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede
       %{browser} en %{platform}'
     ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
     failed_subject: 'Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}'
-    ip: Has iniciado sesión desde %{location}
-    device: Has iniciado sesión desde %{browser} en %{platform}
     devise_name: "%{browser} en %{platform}"
     failed: 'Se han detectado Intentos fallidos de inicio de sesión '
     password_text: 'restablece tu contraseña inmediatamente '
@@ -529,7 +395,6 @@ es:
     privace_manage_plain: Gestiona tus notificaciones de correo electrónico
     privacy_plain: Aprende más acerca de nuestras Políticas de Privacidad
   archive_keep_backup: Video Vault
-  archive_pender_archive: capturas de pantalla de Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Estado inválido
@@ -543,15 +408,8 @@ es:
     predeterminado para los estados de verificación personalizados
   blank_active_status_for_custom_verification_status: Por favor proporcione un valor
     activo para los estados de verificación personalizados
-  bot_name_exists_for_this_team: Ya existe un bot con ese nombre en este equipo
-  bot_team_id_doesnt_exist: Lo sentimos, no hay equipo con el identificador proporcionado
-  bot_team_id_mandatory_to_create: Lo sentimos, primero debes elegir un equipo para
-    crear un bot
   bot_not_approved_for_installation: 'Lo sentimos, este bot no fue aprobado y por
     eso no se puede instalar '
-  only_admins_can_approve_bots: Lo sentimos, solo los super admintradores pueden aprobar
-    bots
-  could_not_save_related_bot_data: Lo sentimos, no se pudo agregar el bot a este equipo
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
     directamente- por favor, envía una sugerencia de respuesta .
   bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
@@ -565,9 +423,6 @@ es:
     Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
   smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el
     número 1,  no procesaremos más tu solicitud. ¡Gracias! '
-  smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía
-    no los procesamos. Pero puedes enviarnos textos, imágenes y enlaces para verificarlos.
-    ¡Gracias!
   smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que
     verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: |-
@@ -598,8 +453,6 @@ es:
     roles:
       owner:
         description: Los propietarios controlan el espacio de trabajo.
-      editor:
-        description: Los editores administran el equipo y los proyectos.
       journalist:
         description: Periodistas verificaron la información.
       contributor:
@@ -610,13 +463,6 @@ es:
           asignadas a ellas o ellos.
     permissions:
       sections:
-        project_management:
-          name: Gestion de proyectos
-          permissions:
-            create: Crear proyecto
-            edit: Editar proyecto
-            delete: Eliminar proyecto
-            add_item: 'Añadir ítem al proyecto '
         item_page_management:
           name: Gestión del ítem
           permissions:
@@ -635,43 +481,24 @@ es:
             delete: Eliminar tarea
             add_response: Añadir una respuesta
             delete_repsonse: Eliminar respuesta
-            assign_task: Asignar tarea o ítem
         team_management:
-          name: Gestión del equipo
           permissions:
-            delete: Eliminar equipo
-            edit: Editar información del equipo
-            set_private: Establecer este equipo como privado
-            edit_status: Editar estados de todo el equipo
-            edit_tasks: Crear y editar tareas de todo el equipo
-            roles: Editar roles del equipos
             third_party: Añadir integraciones de terceros
-            invite_owner: Invitar, aprobar y eliminar propietarios de equipos
-            invite_members: Invitar, aprobar y eliminar miembros del equipo
   team_import:
     invalid_google_spreadsheet_url: URL de hoja de cálculo inválida %{spreadsheet_url}
     not_found_google_spreadsheet_url: Hoja de cálculo no encontrada en %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: No se pudo autenticar Google Drive con
       las credenciales actuales. Por favor comunícate con nuestro equipo de soporte
       técnico para notificarles este incidente.
-    team_not_present: El equipo actual no se encontró durante la importación de datos.
-      Por favor comunícate con nuestro equipo de soporte técnico para notificarles
-      este incidente.
     user_not_present: El usuario actual no se encontró durante la importación de datos.
       Por favor comunícate con nuestro equipo de soporte técnico para notificarles
       este incidente.
-    user_not_authorized: Lo sentimos, no tienes permitido importar data dentro de
-      este equipo.
-    invalid_project: Proyecto inválido %{project}
     invalid_user: Autor inválido %{user}
     invalid_status: Estado inválido %{status}
     blank_user: Autor en blanco inválido
     blank_annotator: Anotación en blanco inválida
-    blank_project: Proyecto en blanco inválido
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
-  pender_url_invalid: Este enlace es inválido
-  pender_url_unsafe: Este enlace no es seguro
   verification_status_deadline: 'Fecha límite '
   verification_status_deadline_asc: Menor tiempo posible
   verification_status_deadline_desc: Mayor tiempo posible
@@ -694,23 +521,8 @@ es:
   invalid_task_answer: 'Lo sentimos, por el momento las respuestas a las tareas no
     soportan este tipo de formato '
   team_rule_name: Un nombre único que identifica lo que hace esta regla
-  team_rule_project_ids: IDs de proyectos (dejar en blanco para aplicar a todos los
-    proyectos del equipo)
   team_rules: Reglas
-  team_rule_conditions: Condiciones
-  team_rule_condition: Condición
-  team_rule_condition_definition: Definición de condición
-  team_rule_has_less_than_x_words: El mensaje contiene menos de este número de palabras
-  team_rule_matches_regexp: El mensaje coincide con esta expresión regular
-  team_rule_contains_keyword: El mensaje contiene una o más de estas palabras clave
-    (separadas por comas)
-  team_rule_value: Valor
-  team_rule_actions: Acciones
-  team_rule_action: Acción
-  team_rule_action_definition: Definición de acción
   team_rule_send_to_trash: Enviar a la papelera
-  team_rule_move_to_project: Mover al proyecto (proporcione el ID de proyecto)
-  team_rule_ban_submitter: Prohibir el usuario
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
