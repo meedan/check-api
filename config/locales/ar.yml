@@ -18,7 +18,6 @@ ar:
     media:
       undetermined:
         label: لم يبدأ بعد
-        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في التحقق منه
       not_applicable:
         label: غير محسوم
         description: لا يمكن استنتاج الحالة باستخدام الدلائل المتاحة
@@ -33,7 +32,6 @@ ar:
         description: 'النتيجة : محتوى العنصر صحيح'
       pending:
         label: مُعَلَّق
-        description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
       translated:
         label: مُتَرجَم
         description: تمت الترجمة ولم تبدأ المراجعة بعد
@@ -56,12 +54,9 @@ ar:
         label: سخام
       unstarted:
         label: لم يبدأ بعد
-        description: الحالة الافتراضية لعنصر أُضيف تواً، لم تبدأ معالجته
     source:
       undetermined:
         label: لم يبدأ بعد
-        description: حالة المصدر الأولية، أُضيف تواً إلى Check، لم يتم البدء في التحقق
-          منه
       credible:
         label: موثوق به
         description: 'النتيجة: هذا المصدر موثوق به'
@@ -77,7 +72,6 @@ ar:
     translation:
       pending:
         label: مُعَلَّق
-        description: 'الحالة الأولية : أُضيف لِلتَّو ولم تبدأ الترجمة بعد'
       in_progress:
         label: قيد التقدم
         description: بدأ العمل على العنصر ولم تتم الترجمة بعد
@@ -101,7 +95,6 @@ ar:
   activerecord:
     models:
       link: رابط
-      claim: إدعاء
       uploaded_file: ملف
       uploaded_image: صورة
       uploaded_video: فيديو
@@ -109,8 +102,6 @@ ar:
       comment: ملحوظة
       project_media: العنصر
       media: عنصر
-      project: مشروع
-      team: فريق
       user: مستخدم
       source: مصدر
       project_source: المصدر
@@ -123,8 +114,6 @@ ar:
         file: الصورة
       uploaded_video:
         file: فيديو
-      team:
-        slug: رابط الفريق
       source:
         name: الاسم
       contact:
@@ -158,7 +147,6 @@ ar:
   slug_is_reserved: مأخوذ
   invalid_format_for_languages: 'صيغة اللغات غير صالحة - الصيغة المطلوبة هي [{''id'':
     ''en'',''title'': ''English''}]'
-  invalid_media_item: " عذراً ، هذا العنصر غير صحيح"
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة
@@ -186,7 +174,6 @@ ar:
       unassigned: تم إلغاء التكليف عن
       required: إجبارية ؟
       required_yes: نعم
-      project: المشروع
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
@@ -201,7 +188,6 @@ ar:
       task_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
       task_unassign: قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}
       task_answer_create: قام %{user} (%{role} في %{team}) بإجابة مهمة
-      task_answer_edit: قام %{user} (%{role} في %{team}) بتحرير اجابة مهمة
       task_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى مهمة
       project_media_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_media_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
@@ -215,53 +201,23 @@ ar:
       project_source_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_source_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_source_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
-      project_create: قام %{user} (%{role} في %{team}) بإنشاء مشروع
-      project_assign: قام %{user} (%{role} في %{team}) بتكليف مشروع
-      project_unassign: قام %{user} (%{role} في %{team}) بالغاء تكليف مشروع
-      user_member: إنضم %{user} الى الفريق %{team}
-      user_requested: طلب %{user} الانضمام الى الفريق %{team}
-      user_invited: تمت دعوة %{user} الى الفريق %{team}
-      user_banned: تم نبذ %{user} من الفريق %{team}
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
     أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_confirm_button: أكِّد الحساب
-  pender_could_not_parse: عذراً ، لقد واجهنا خطأ ما اثناء تحليل الميديا. من فضلك أعد
-    المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
-  slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى فريق %{team_name}
-    حيث أنه محصور على أعضاء فريق %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
-      export_project:
-        menu: تصدير معلومات المشروع
-      export_images:
-        menu: تصدير صور المشروع
       delete_tasks:
         done: تم حذف المهام
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'هل أنت متأكد أنك تود حذف جميع المهام في الفريق <strong>%{team}</strong>؟
-            سوف يتم حذف المهام اﻵتية:'
       duplicate_team:
-        menu: نسخ الفريق
         done: تم النسخ
-        are_you_sure_you_want_to_copy_team:
-          html: هل أنت متأكد أنك تود نسخ الفريق <strong>%{team}</strong>؟ سوف يتم
-            أيضًا نسخ جميع البيانات المرتبطة.
-        the_team_is_being_copied: يتم نسخ الفريق
-        url_when_ready:
-          html: بمجرد أن تصبح جاهزة ، سوف تكون نسخة الفريق متاحة في <strong>%{copy_url}</strong>
-    flash:
-      delete_team_scheduled: يتم حذف الفريق %{team}
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: قناة Slack غير صالحة
   translation_status_not_valid: حالة غير صالحة
   translation_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
   translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
-  auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في %{project} إلى
-    الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم أو
-    أحذف تطبيق Bridge من الحساب على %{provider}.
   invalid_token: رمز الأمان غير صالح
   viber_screenshot_footer: 'ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”'
   time:
@@ -269,12 +225,6 @@ ar:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
-  oembed_disclaimer_undetermined: لم يقم فريق %{team} بالتحقق من دقة هذا العنصر بعد
-  oembed_disclaimer_in_progress: بدأ فريق %{team} بالتحقق من دقة هذا العنصر في %{date}
-  oembed_disclaimer_verified: تحقق فريق %{team} من دقة هذا العنصر في %{date}
-  oembed_disclaimer_false: نفى فريق %{team} دقة هذا العنصر في %{date}
-  oembed_disclaimer_not_applicable: لم يتمكن فريق %{team} من التحقق من هذا العنصر
-    منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -311,30 +261,15 @@ ar:
     many: "%{count} مهمة مكتملة"
     other: "%{count} مهمة مكتملة"
   oembed_notes: ملحوظات
-  pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع ثوانٍ.
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
-  error_team_archived: عذراً ، لا يمكن إضافة مشروع لفريق  في سلة المهملات
-  error_project_archived: عذراً ، لا يمكن إضافة عنصر لمشروع  في سلة المهملات
-  error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لفريق في سلة المهملات
   permission_error: عذراً ، ليس مسموح لك تنفيذ هذه العملية
-  error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
   only_super_admin_can_do_this: عذراً ، هذه العملية متاحة لمسؤولي النظام فقط
-  max_number_of_team_users_reached: عذراً ، لقد تم الوصول إلى الحد الأقصى للأعضاء
-    في هذا الفريق
-  max_number_of_projects_reached: عذراً ، لقد تم الوصول إلى الحد الأقصى للمشاريع في
-    هذا الفريق
-  cant_set_custom_statuses: عذراً ، خاصية حالات التحقق المتخصصة غير متاحة لهذا الفريق
   cant_change_custom_statuses: |-
     عذرًا ، لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
     %{others_amount} %{urls}
-  cant_create_team_task: عذراً ، هذه الخاصية غير متاحة لهذا الفريق
-  cant_create_media_under_this_team_using_extension: عذراً ، خاصية ملحق المتصفح غير
-    متاحة لهذا الفريق
-  error_invalid_attribution: إسناد غير صالح
   account_exists: هذا الحساب موجود بالفعل
-  media_exists: هذا العنصر موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
   email_exists: " مستخدم بالفعل"
   banned_user: عذراً ، لقد تم حظرك من %{app_name}. من فضلك تواصل مع فريق الدعم إن
@@ -351,32 +286,20 @@ ar:
         instruction_2: إذا لم تقم إنشاء هذا الطلب ، أو كنت تواجه صعوبة لإعادة تعيين
           كلمة المرور الخاصة بك ، فيرجى الاتصال بنا على %{support_email}.
       invitation_instructions:
-        subject: لقد دعاك %{user} للانضمام إلى فريق %{team}
         hello: مرحباً %{name}
-        someone_invited_you_default:
-          html: لقد دعاك %{name} للانضمام إلى فريق %{team}بصفه %{role}.
-        someone_invited_you_custom:
-          html: 'لقد دعاك %{name} للانضمام إلى فريق %{team} بصفه %{role} قائلاً :'
         accept: قبول الدعوة
         accept_until: هذه الدعوة سوف تنتهي في %{due_date}.
         ignore: إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة.
-        app_team: فريق %{app}
     failure:
       unconfirmed: من فضلك راجع بريدك الالكتروني للتحقق من حسابك.
   user_invitation:
-    invited: تمت دعوة هذا المستخدم بالفعل لهذا الفريق.
-    member: هذا المستخدم عضو في الفريق بالفعل.
-    team_found: هذا الفريق غير موجود
     invalid: رمز الدعوة غير صالح
-    no_invitation: لا توجد دعوة للفريق %{name}
-  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذا الفريق
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   mail_see_it: 'تستطيع أن تراه هنا : '
   mails_notifications:
     greeting: مرحباً %{username}
     greeting_anonymous: مرحباً
-    project_view: عرض المشروع
     unsubscribe: إلغاء الاشتراك
     unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
@@ -412,27 +335,13 @@ ar:
         %{id}
       anonymous: مجهول
     admin_mailer:
-      team_download_subject: "[%{team}] بيانات الفريق جاهزة للتحميل"
-      team_dump_title: بيانات الفريق
       types:
         dump: لقطة البيانات
         csv: تقرير
         images: أرشيف الصور
-      team_dump_text: لقد طلبت لقطة البيانات للفريق %{team} - يمكنك استخدام هذا الرابط
-        للتحميل %{link}
-      team_dump_button: تحميل بيانات الفريق
       decompress_text: سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط الرجاء استخدام
         كلمة السر %{password}
       expire_note: يرجى الملاحظة أن مدة صلاحية الرابط %{days} أيام.
-      project_export_csv_subject: "[%{team} - %{project}] تقرير المشروع جاهز للتحميل"
-      project_export_images_subject: "[%{team} - %{project}] أرشيف صور المشروع جاهز
-        للتحميل"
-      project_export_title: بيانات المشروع
-      project_export_button: تحميل بيانات المشروع
-      project_export_csv_text: لقد طلبت تقريراً للمشروع %{project} - يمكنك استخدام
-        هذا الرابط للتحميل %{link}
-      project_export_images_text: لقد طلبت أرشيف الصور للمشروع %{project} - يمكنك
-        استخدام هذا الرابط للتحميل %{link}
       team_import_subject: تمت عملية استيراد البيانات
       team_import_title: استيراد البيانات
       team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url}
@@ -441,15 +350,8 @@ ar:
     task_resolved:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
       header_title: تمت اجابة مهمة
-      header_text: قام(ت) %{author} باجابة مهمة في مشروع %{project} التابع الى %{team}.
-      section_title: من أو ما هو مصدر الإدعاء ؟
       status: الحالة
-      media_h: الميديا
     media_status:
-      label: الميديا
-      subject: "[%{team} - %{project}] تم تغيير حالة العنصر إلى %{status}"
-      header_title: تم تحديث حالة الميديا
-      header_text: قام(ت) %{author} بتحديث عنصر في مشروع %{project} التابع الى %{team}.
       section_title: تم التصنيف أنه %{status}.
       added_to: تمت الإضافة الى %{app_name}
       update_h: آخر تحديث
@@ -457,54 +359,22 @@ ar:
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-      assign_project_subject: "[%{team} - %{project}] تم تكليف مشروع إليك"
-      unassign_project_subject: "[%{team} - %{project}] تم إلغاء تكليف مشروع عنك"
-      assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
-      unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف العنصر عنك"
       assign_project_title: تكليف مشروع
       unassign_project_title: إلغاء تكليف مشروع
-      assign_project_text: قام(ت) %{author} بتكليف مشروع %{project} التابع الى %{team}.
-      unassign_project_text: قام(ت) %{author} بالغاء تكليف مشروع %{project} التابع
-        الى %{team}.
       assign_task_title: تكليف مهمة
       unassign_task_title: إلغاء تكليف مهمة
-      assign_task_text: قام(ت) %{author} بتكليف مهمة في مشروع %{project} التابع الى
-        %{team}.
-      unassign_task_text: قام(ت) %{author} بالغاء تكليف مهمة في مشروع %{project} التابع
-        الى %{team}.
-      assign_media_title: تكليف عنصر
-      unassign_media_title: إلغاء تكليف عنصر
-      assign_media_text: قام(ت) %{author} بتكليف عنصر في مشروع %{project} التابع الى
-        %{team}.
-      unassign_media_text: قام(ت) %{author} بالغاء تكليف عنصر في مشروع %{project}
-        التابع الى %{team}.
       assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
       unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
       assign_by: تكليف من
       unassign_by: قام(ت) بإلغاء التكليف
-      project_button: 'اذهب إلى صفحة المشروع '
     request_to_join:
-      subject: طلب انضمام إلى %{team}
-      team_page: صفحة الفريق
-      team_button: 'اذهب إلى صفحة الفريق '
       rejected_subject: لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}
-      approved_subject: مرحباً بك في %{team}
-      request_title: طلب انضمام إلى %{team}
-      request_text: "%{name} (%{email}) يريد الإنضمام إلى%{team} على %{app_name}.
-        يمكنك معالجة هذا الطلب بالضغط على الرابط %{url}."
-      approved_title: مرحبًا بك في فريق %{team}
-      approved_text: تم الموافقة على طلب انضمامك إلى فريق %{team}على%{app_name} يمكنك
-        الآن الذهاب إلى %{url} وبدء المشاركة!
       rejected_title: تم رفض الطلب
-      rejected_text: 'عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى فريق %{team}على
-        %{app_name}  '
   mail_security:
     device_subject: 'تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser}
       على %{platform}'
     ip_subject: 'تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}'
     failed_subject: 'تنبيه الأمان : محاولات فاشلة لتسجيل الدخول على %{app_name}'
-    ip: لقد قمت بتسجيل الدخول من %{location}
-    device: لقد قمت بتسجيل الدخول من %{browser} على %{platform}
     devise_name: "%{browser} على %{platform}"
     failed: تم اكتشاف محاولات فاشلة لتسجيل الدخول
     password_text: إعادة تعيين كلمة المرور الخاصة بك حالاً
@@ -525,7 +395,6 @@ ar:
     privace_manage_plain: إدارة تنبيهات للبريد الإلكتروني الخاصة بك
     privacy_plain: معرفة المزيد عن سياسة الخصوصية
   archive_keep_backup: Video Vault
-  archive_pender_archive: لقطات الشاشة من Keep
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: حالة غير صالحة
@@ -538,14 +407,8 @@ ar:
     التحقق الخاصة
   blank_active_status_for_custom_verification_status: من فضلك أضف قيمة نشطة لحالات
     التحقق الخاصة
-  bot_name_exists_for_this_team: هناك بوت آخر بنفس الاسم في هذا الفريق
-  bot_team_id_doesnt_exist: عذراً ، لا يوجد فريق بهذا المُعَرِّف
-  bot_team_id_mandatory_to_create: عذراً ، يجب اختيار فريقاً لكي تضيف البوت
   bot_not_approved_for_installation: عذراً ، لا يمكن تثبيت هذا البوت ﻷن لم يتم الموافقة
     عليه
-  only_admins_can_approve_bots: عذراً ، هذه العملية متاحة للمسؤولين فقط
-  could_not_save_related_bot_data: عذراً ، لقد واجهنا خطأ ما اثناء إضافة البوت. من
-    فضلك أعد المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
   bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
   bot_cant_add_review_to_task: عذراً ، البوت لا يمكنه مراجعة المهام
   task_suggestion_invalid_value: عذراً ، صيغة الاقتراح غير صحيحة
@@ -557,8 +420,6 @@ ar:
     سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
   smooch_bot_message_unconfirmed: نظراً لأنك لم ترد  بـ 1 ، فلن نقوم بمعالجة طلبك
     وشكراً.
-  smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل في الوقت
-    الحالي.
   smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد
     %{url}.
   smooch_bot_result: |-
@@ -589,8 +450,6 @@ ar:
     roles:
       owner:
         description: المديرون يديرون مساحة العمل.
-      editor:
-        description: المحررون يديرون الفريق و المشاريع.
       journalist:
         description: الصحفيون يتحققون من المعلومات.
       contributor:
@@ -599,13 +458,6 @@ ar:
         description: المفسرون يمكنهم فقط عرض وإجابة المهام المكلفون بها.
     permissions:
       sections:
-        project_management:
-          name: إدارة المشاريع
-          permissions:
-            create: إضافة المشاريع
-            edit: تحرير المشاريع
-            delete: حذف المشاريع
-            add_item: إضافة عناصر للمشاريع
         item_page_management:
           name: إدارة العناصر
           permissions:
@@ -624,39 +476,22 @@ ar:
             delete: حذف المهام
             add_response: إضافة اﻹجابات
             delete_repsonse: حذف اﻹجابات
-            assign_task: تكليف المهام والعناصر
         team_management:
-          name: إدارة الفريق
           permissions:
-            delete: حذف الفريق
-            edit: تحرير معلومات الفريق
-            set_private: إخفاء أو إظهار الفريق
-            edit_status: تحرير حالات تحقق الفريق
-            edit_tasks: تحرير مهام الفريق
-            roles: إدارة أعضاء الفريق
             third_party: تكامل التطبيقات الخارجية
-            invite_owner: دعوة مديري الفريق والموافقة عليهم وإزالتهم
-            invite_members: دعوة أعضاء الفريق والموافقة عليهم وإزالتهم
   team_import:
     invalid_google_spreadsheet_url: عنوان جدول بيانات غير صالح %{spreadsheet_url}
     not_found_google_spreadsheet_url: عنوان جدول بيانات غير صحيح %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد
       المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
-    team_not_present: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق
-      الدعم إن استمر الخطأ.
     user_not_present: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق
       الدعم إن استمر الخطأ.
-    user_not_authorized: عذراً ، ليس مسموح لك استيراد بيانات لهذا الفريق.
-    invalid_project: مشروع غير صالح %{project}
     invalid_user: مؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
     blank_user: مؤلف فارغ غير صالح
     blank_annotator: مُعلِّق فارغ غير صالح
-    blank_project: مشروع فارغ غير صالح
     invalid_annotator: مُعلِّق غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
-  pender_url_invalid: هذا الرابط غير صالح
-  pender_url_unsafe: هذا الرابط غير آمن.
   verification_status_deadline: الموعد
   verification_status_deadline_asc: مستحق قريباً
   verification_status_deadline_desc: مستحق لاحقاً
@@ -677,23 +512,8 @@ ar:
     حساب تويتر هذا بواسطة بوت Smooch.
   invalid_task_answer: " عذراً ، تنسيق هذه الاجابة غير صحيح"
   team_rule_name: اسم فريد يصف القاعدة
-  team_rule_project_ids: معرفات المشروعات (اتركه فارغا للتطبيق على جميع المشاريع في
-    هذا الفريق)
   team_rules: القواعد
-  team_rule_conditions: "‏‏الشروط"
-  team_rule_condition: "‏‏الشرط"
-  team_rule_condition_definition: تعريف ‏‏الشرط
-  team_rule_has_less_than_x_words: الرسالة تحتوي على عدد من الكلمات أقل من اﻵتي
-  team_rule_matches_regexp: الرسالة تطابق التعبير القياسي الآتي
-  team_rule_contains_keyword: الرسالة تحتوي على كلمة واحدة على الأقل من الكلمات الأساسية
-    اﻵتية (مفصولة بفواصل)
-  team_rule_value: القيمة
-  team_rule_actions: الإجراءات
-  team_rule_action: "‏‏الإجراء"
-  team_rule_action_definition: تعريف ‏‏الإجراء
   team_rule_send_to_trash: ارسال إلى سلة المهملات
-  team_rule_move_to_project: نقل إلى مشروع (توفير معرِّف المشروع)
-  team_rule_ban_submitter: منع المستخدم
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''

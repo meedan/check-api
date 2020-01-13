@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out Of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -103,14 +103,16 @@ en:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
-      mini_magick_processing_error: "Failed to manipulate with MiniMagick, maybe it is not an image? Original Error: %{e}"
+      mini_magick_processing_error: 'Sorry, we failed to process the image. The error
+        was: %{e}'
       annotation_mandatory_fields: Please set all mandatory fields
       annotation_type_does_not_exist: does not exist
       invalid_attribution: Invalid attribution
       must_resolve_required_tasks_first: Required tasks must be resolved first
-      image_too_large: Sorry, we don't support images larger than %{max_size} at the moment.
-      video_too_large: Sorry, we don't support videos larger than %{max_size} at the moment.
-      pender_conflict: This link is already being parsed. Please try again in a few seconds.
+      image_too_large: Sorry, we don't support images larger than %{max_size}.
+      video_too_large: Sorry, we don't support videos larger than %{max_size}.
+      pender_conflict: This link is already being parsed. Please try again in a few
+        seconds.
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
       pender_could_not_parse: Could not parse this link.
@@ -258,8 +260,8 @@ en:
         menu: Duplicate workspace
         done: copied
         are_you_sure_you_want_to_copy_team:
-          html: Are you sure you want to copy the workspace <strong>%{team}</strong>? All
-            the related data will also be copied.
+          html: Are you sure you want to copy the workspace <strong>%{team}</strong>?
+            All the related data will also be copied.
         the_team_is_being_copied: The workspace is being copied
         url_when_ready:
           html: When ready, the workspace copy will be available at <strong>%{copy_url}</strong>
@@ -271,10 +273,10 @@ en:
   translation_status_permission_error: Sorry, you are not allowed to make this status
     change.
   translation_request_id_exists: There is already a translation request for this message
-  auto_publisher_added_to_project: Thanks! Now all new translations under list
-    %{project} will be automatically published to this account on %{provider}. If
-    you change your mind, please contact the administrator or simply revoke the Bridge
-    authorization from %{provider}.
+  auto_publisher_added_to_project: Thanks! Now all new translations under list %{project}
+    will be automatically published to this account on %{provider}. If you change
+    your mind, please contact the administrator or simply revoke the Bridge authorization
+    from %{provider}.
   invalid_token: Invalid Token
   viber_screenshot_footer: "%{target_language} translation from %{source_language}:
     “%{source_text}”"
@@ -285,9 +287,12 @@ en:
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: This item has not been verified by %{team}
   oembed_disclaimer_in_progress: This item is being verified by %{team} as of %{date}
-  oembed_disclaimer_verified: This item has been determined to be verified by %{team} on %{date}
-  oembed_disclaimer_false: This item has been determined to be false by %{team} on %{date}
-  oembed_disclaimer_not_applicable: No conclusion could be reached about this item by %{team} as of %{date}
+  oembed_disclaimer_verified: This item has been determined to be verified by %{team}
+    on %{date}
+  oembed_disclaimer_false: This item has been determined to be false by %{team} on
+    %{date}
+  oembed_disclaimer_not_applicable: No conclusion could be reached about this item
+    by %{team} as of %{date}
   oembed_source_date: "%{date} on %{provider}"
   role_editor: editor
   role_owner: owner
@@ -419,14 +424,14 @@ en:
       decompress_text: The %{type} will download as a compressed, encrypted file.
         To decompress it, please use the password %{password}.
       expire_note: Please note that this link will expire in %{days} days.
-      project_export_csv_subject: "[%{team} - %{project}] List report is ready
-        to be downloaded"
-      project_export_images_subject: "[%{team} - %{project}] List image archive
-        is ready to be downloaded"
+      project_export_csv_subject: "[%{team} - %{project}] List report is ready to
+        be downloaded"
+      project_export_images_subject: "[%{team} - %{project}] List image archive is
+        ready to be downloaded"
       project_export_title: List Data
       project_export_button: Download list data
-      project_export_csv_text: 'You''ve requested a report for list %{project}
-        - here''s a link to download it: %{link}'
+      project_export_csv_text: 'You''ve requested a report for list %{project} - here''s
+        a link to download it: %{link}'
       project_export_images_text: 'You''ve requested an archive of images for list
         %{project} - here''s a link to download it: %{link}'
       team_import_subject: Your data import has completed
@@ -446,7 +451,8 @@ en:
       label: item
       subject: "[%{team} - %{project}] An item status was marked as %{status}"
       header_title: Item Status Updated
-      header_text: " %{author} updated the status of an item in project %{project} in %{team}."
+      header_text: " %{author} updated the status of an item in list %{project} in
+        %{team}."
       section_title: Marked as %{status}.
       added_to: Added to %{app_name}
       update_h: Last Update
@@ -458,8 +464,8 @@ en:
       unassign_project_subject: "[%{team} - %{project}] A list was unassigned from
         you"
       assign_media_subject: "[%{team} - %{project}] An item was assigned to you"
-      unassign_media_subject: "[%{team} - %{project}] An item was unassigned
-        from you"
+      unassign_media_subject: "[%{team} - %{project}] An item was unassigned from
+        you"
       assign_project_title: Project Assigned
       unassign_project_title: Project Unassigned
       assign_project_text: "%{author} assigned list %{project} in %{team}."
@@ -470,10 +476,8 @@ en:
       unassign_task_text: "%{author} unassigned a task in list %{project} in %{team}."
       assign_media_title: Item Assigned
       unassign_media_title: Item Unassigned
-      assign_media_text: "%{author} assigned an item in list %{project} in
-        %{team}."
-      unassign_media_text: "%{author} unassigned an item in list %{project}
-        in %{team}."
+      assign_media_text: "%{author} assigned an item in list %{project} in %{team}."
+      unassign_media_text: "%{author} unassigned an item in list %{project} in %{team}."
       assign_log: "%{author} assigned %{model} to %{username}"
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
@@ -486,13 +490,14 @@ en:
       rejected_subject: Your request to join %{team} was not approved
       approved_subject: Welcome to workspace %{team}
       request_title: Request to join workspace %{team}
-      request_text: "%{name} (%{email}) wants to join workspace %{team} on %{app_name}. You
-        can process this request by visiting %{url}."
+      request_text: "%{name} (%{email}) wants to join workspace %{team} on %{app_name}.
+        You can process this request by visiting %{url}."
       approved_title: Welcome to workspace %{team}
-      approved_text: Your request to join workspace %{team} on %{app_name} was approved. You
-        can now go to the %{url} and start contributing.
+      approved_text: Your request to join workspace %{team} on %{app_name} was approved.
+        You can now go to the %{url} and start contributing.
       rejected_title: Request Denied
-      rejected_text: Sorry, your request to join workspace %{team} on %{app_name} was not approved.
+      rejected_text: Sorry, your request to join workspace %{team} on %{app_name}
+        was not approved.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
@@ -537,8 +542,8 @@ en:
   bot_name_exists_for_this_team: There is already a bot with the provided name in
     this workspace
   bot_team_id_doesnt_exist: Sorry, there is no workspace with the provided identifier
-  bot_team_id_mandatory_to_create: Sorry, you need to choose a workspace in order to create
-    a bot
+  bot_team_id_mandatory_to_create: Sorry, you need to choose a workspace in order
+    to create a bot
   bot_not_approved_for_installation: Sorry, this bot was not approved so it can't
     be installed
   only_admins_can_approve_bots: Sorry, only system administrators can approve bots
@@ -557,9 +562,8 @@ en:
     We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
   smooch_bot_message_unconfirmed: Since you didn't reply with 1, we will not process
     your request further. Thank you.
-  smooch_bot_message_type_unsupported: Sorry, we don't support this type of message
-    for verification at this time.
-  smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size} at the moment.
+  smooch_bot_message_type_unsupported: Sorry, we don't support this type of message.
+  smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size}.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-
@@ -646,8 +650,8 @@ en:
     cannot_authenticate_with_the_credentials: Cannot authenticate Google Drive with
       the current credentials. Please contact the support team to notify them of this
       incident.
-    team_not_present: Current workspace not found during data import. Please notify the
-      support team of this incident.
+    team_not_present: Current workspace not found during data import. Please notify
+      the support team of this incident.
     user_not_present: Current user not found during data import. Please notify the
       support team of this incident.
     user_not_authorized: Sorry, you are not allowed to import data into this workspace.
@@ -692,23 +696,23 @@ en:
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Video
-  team_rule_contains_keyword: 'Item contains one or more of the keywords (comma separated)'
+  team_rule_contains_keyword: Item contains one or more of the keywords (comma separated)
   team_rule_select_type: Select type
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
   team_rule_status_is: Item status is
-  team_rule_value: Type something
+  team_rule_value: Type something...
   team_rule_actions: Then
   team_rule_action: Then
   team_rule_action_definition: Select action
   team_rule_send_to_trash: Send to trash
   team_rule_move_to_project: Move item to list
   team_rule_copy_to_project: Add item to list
-  team_rule_ban_submitter: "Ban submitting user (future items won't appear in Check)"
+  team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
   custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
-    item que você compartilhou conosco foi classificado como *%{status} *.\n\nVeja
+    item que você compartilhou conosco foi classificado como *%{status}*.\n\nVeja
     as etapas que seguimos para chegar a esta conclusão: %{url}\n"
   custom_message_smooch_bot_result_changed_afp-checamos: |-
     Desculpe. A mensagem que você nos enviou foi incorretamente classificada como %{previous_status}. Sentimos muito pelo erro.
@@ -731,7 +735,7 @@ en:
   custom_message_smooch_bot_not_final_afp-checamos: |
     [Relatório de verificação - CORREÇÃO]
 
-    A mensagem que você compartilhou conosco foi classificada incorretamente como *%{status} *.
+    A mensagem que você compartilhou conosco foi classificada incorretamente como *%{status}*.
 
     O conteúdo ainda está na nossa fila para verificação adicional.
   custom_message_smooch_bot_meme_afp-checamos: Criamos uma imagem com base na verificação
@@ -742,9 +746,9 @@ en:
   custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
     possível enviar nenhum resultado porque este projeto não está mais ativo.
   custom_message_smooch_bot_ask_for_tos_afp-checamos: |
-    Check Message, é o software utilizado nesta linha de verificação, e é fornecido sob estes Termos de Serviço:% {tos}.
+    Check Message é o software utilizado nesta linha de verificação, e é fornecido sob estes Termos de Serviço: %{tos}.
 
-    Ao continuar a usar este serviço, * você concorda em cumprir estes termos *. Caso discorde você pode interromper o uso.
+    Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Caso discorde você pode interromper o uso.
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 

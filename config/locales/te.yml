@@ -4,7 +4,6 @@ te:
     media:
       undetermined:
         label: మొదలవలేదు
-        description: డెఫాల్ట్, ఇప్పుడే Checkకు జొడించాం, పని మొదలవలేదు
       not_applicable:
         label: నిర్ధారింపలేనిది
         description: ఉన్న ఆధారాలతొ నిర్ధారణకు రాలేము
@@ -19,7 +18,6 @@ te:
         description: 'నిర్ధారణ - ఐటెం కంటెంట్ వెరిఫై చేయబడినది '
       pending:
         label: 'పెండింగ్ లొ ఉన్నది '
-        description: డెఫాల్ట్, ఇప్పుడే Bridgeకు జొడించాం, పని మొదలవలేదు
       translated:
         label: 'అనువదింపబడినది '
         description: అనువదింపబడినది, రివ్యూ కొరకు వేచిఉన్నాం
@@ -42,7 +40,6 @@ te:
         label: అప్రయోజనం
       unstarted:
         label: మొదలవలేదు
-        description: డెఫాల్ట్, ఇప్పుడే Checkకు జొడించాం, పని మొదలవలేదు
   smooch_bot_meme: మీరు నిజ నిర్ధారణ కోసం పంపిన అయిటం ఆధారముగా మేము ఈ మేఎం తయారు చేసాము.
     మరింత సమాచారం కొరకు %{url}
   smooch_bot_result_changed: |-
