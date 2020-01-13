@@ -585,7 +585,7 @@ en:
 
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
-    any verification reports, because this list is no longer active.
+    any verification reports, because this project is no longer active.
   smooch_bot_result_changed: |-
     [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
 

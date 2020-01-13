@@ -459,6 +459,8 @@ pt:
       label: Item
       subject: "[%{team} - %{project}] O status de um item foi marcado como %{status}"
       header_title: Status do Item Atualizado
+      header_text: " %{author} atualizou o status de um item na lista %{project} em
+        %{team}."
       section_title: Marcado como %{status}.
       added_to: Adicionado ao %{app_name}
       update_h: Última Atualização
@@ -474,8 +476,8 @@ pt:
       assign_media_subject: "[%{team} - %{project}] Um item foi atribuído para você"
       unassign_media_subject: "[%{team} - %{project}] Um item foi desatribuído de
         você"
-      assign_project_title: Projeto atribuído
-      unassign_project_title: Projeto desatribuído
+      assign_project_title: Lista atribuída
+      unassign_project_title: Lista desatribuída
       assign_project_text: " %{author} atribuiu a lista %{project} em %{team}."
       unassign_project_text: " %{author} desatribuiu a lista %{project} em %{team}."
       assign_task_title: Tarefa atribuída
@@ -499,12 +501,22 @@ pt:
       team_button: Ir para a página da área de trabalho
       rejected_subject: Sua solicitação para participar de %{team} não foi aprovada
       approved_subject: Bem-vindo à área de trabalho %{team}
+      request_title: Solicitação para participar da área de trabalho %{team}
+      request_text: "%{name} (%{email}) quer entrar na área de trabalho %{team} em
+        %{app_name}. Você pode processar essa solicitação visitando %{url}."
+      approved_title: Bem-vindo à área de trabalho %{team}
+      approved_text: Sua solicitação para participar da área de trabalho %{team} no
+        %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir.
       rejected_title: Solicitação Negada
+      rejected_text: Desculpe, mas sua solicitação para participar da área de trabalho
+        %{team} no %{app_name} não foi aprovada.
   mail_security:
     device_subject: 'Alerta de segurança: Novo login em %{app_name} pelo %{browser}
       em %{platform}'
     ip_subject: 'Alerta de segurança: Login novo ou incomum em %{app_name}'
     failed_subject: 'Alerta de segurança: Tentativas de login em %{app_name} falharam'
+    ip: Você se conectou de %{location}
+    device: Você se conectou pelo %{browser} em %{platform}
     devise_name: "%{browser} em %{platform}"
     failed: Tentativas de login com falha foram detectadas
     password_text: redefina sua senha imediatamente.
@@ -540,10 +552,18 @@ pt:
     padrão para os status de verificação personalizada
   blank_active_status_for_custom_verification_status: Por favor, forneça um valor
     ativo para os status de verificação personalizada
+  bot_name_exists_for_this_team: Já existe um bot com o nome fornecido nessa área
+    de trabalho
+  bot_team_id_doesnt_exist: Desculpe, não há área de trabalho com o identificador
+    fornecido
   bot_team_id_mandatory_to_create: Desculpe, precisa escolher uma área de trabalho
     para criar um bot
   bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso
     não pode ser instalado
+  only_admins_can_approve_bots: Desculpe, apenas administradores do sistema podem
+    aprovar bots
+  could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot nessa
+    área de trabalho
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder uma tarefa diretamente
     - por favor adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma sugestão de resposta
@@ -555,6 +575,10 @@ pt:
     note que não somos capazes de responder a todas as mensagens.
   smooch_bot_message_unconfirmed: Como você não respondeu com 1, não processaremos
     mais sua requisição. Obrigado.
+  smooch_bot_message_type_unsupported: Desculpe, ainda não damos suporte a este tipo
+    de mensagem.
+  smooch_bot_message_size_unsupported: Desculpe, não suportamos arquivos maiores que
+    %{max_size}.
   smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que
     verificássemos. Saiba mais em %{url}.
   smooch_bot_result: |-
@@ -584,6 +608,8 @@ pt:
     roles:
       owner:
         description: Donos controlam o ambiente.
+      editor:
+        description: Editores gerenciam a área de trabalho e listas.
       journalist:
         description: Jornalistas verificam informações.
       contributor:
@@ -594,6 +620,13 @@ pt:
           a ele(a)s.
     permissions:
       sections:
+        project_management:
+          name: Gerenciamento de lista
+          permissions:
+            create: Criar lista
+            edit: Editar lista
+            delete: Excluir lista
+            add_item: Adicionar item à lista
         item_page_management:
           name: Gerenciamento de item
           permissions:
@@ -612,21 +645,37 @@ pt:
             delete: Excluir tarefa
             add_response: Adicionar resposta
             delete_repsonse: Excluir resposta
+            assign_task: Atribuir tarefa ou item
         team_management:
+          name: gerenciamento de área de trabalho
           permissions:
+            delete: Fechar área de trabalho
+            edit: Editar informações da área de trabalho
+            set_private: Tornar área de trabalho privada
+            edit_status: Editar status da área de trabalho
+            edit_tasks: Criar e editar tarefas da área de trabalho
+            roles: Editar papéis da área de trabalho
             third_party: Adicionar integrações externas
+            invite_owner: Convidar, aprovar e excluir donos da área de trabalho
+            invite_members: Convidar, aprovar e excluir membros da área de trabalho
   team_import:
     invalid_google_spreadsheet_url: A URL da planilha é inválida %{spreadsheet_url}
     not_found_google_spreadsheet_url: A planilha não foi encontrada em %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: Não é possível autenticar no Google
       Drive com as credenciais atuais. Por favor, entre em contato com a equipe de
       suporte para notificá-los sobre esse incidente.
+    team_not_present: Área de trabalho atual não foi encontrado durante a importação
+      de dados. Por favor, notifique a equipe de suporte sobre este incidente.
     user_not_present: Usuário atual não encontrado durante a importação de dados.
       Por favor, notifique a equipe de suporte sobre este incidente.
+    user_not_authorized: Desculpe, você não tem permissão para importar dados nessa
+      área de trabalho.
+    invalid_project: Lista inválida %{project}
     invalid_user: Usuário inválido %{user}
     invalid_status: Status inválido %{status}
     blank_user: Autor não pode ficar em branco
     blank_annotator: Anotador não pode ficar em branco
+    blank_project: Lista não pode ficar em branco
     invalid_annotator: Anotador inválido %{user}
     invalid_assignee: Atribuição inválida %{user}
   verification_status_deadline: Prazo
@@ -649,8 +698,36 @@ pt:
     essa conta de Twitter serão tratados pelo bot Smooch.
   invalid_task_answer: Desculpe, o formato da resposta dessa tarefa é inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
+  team_rule_project_ids: Aplicar para a lista
+  team_rule_destination: Selecione lista de destino
   team_rules: Regras
+  team_rule_conditions: Se
+  team_rule_condition: Se
+  team_rule_condition_definition: Selecione condição
+  team_rule_has_less_than_x_words: O item contém menos que este número de palavras
+  team_rule_matches_regexp: O item corresponde a esta expressão regular
+  team_rule_type_is: O tipo do item é
+  team_rule_type_is_claim: Texto
+  team_rule_type_is_link: Link
+  team_rule_type_is_uploadedimage: Imagem
+  team_rule_type_is_uploadedvideo: Vídeo
+  team_rule_contains_keyword: O item contém uma ou mais destas palavras-chave (separadas
+    por vírgulas)
+  team_rule_select_type: Selecione o tipo
+  team_rule_tagged_as: O item está marcado como
+  team_rule_select_tag: Selecione tag
+  team_rule_select_status: Selecione status
+  team_rule_status_is: O status do item é
+  team_rule_value: Digite algo...
+  team_rule_actions: Então
+  team_rule_action: Então
+  team_rule_action_definition: Selecione ação
   team_rule_send_to_trash: Enviar para lixeira
+  team_rule_move_to_project: Mover item para lista
+  team_rule_copy_to_project: Adicionar item à lista
+  team_rule_ban_submitter: Banir remetente (as futuras mensagens não aparecerão no
+    Check)
+  team_rule_all_items: Todos os itens
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
