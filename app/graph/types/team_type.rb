@@ -22,6 +22,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_memebuster_template, types.String
   field :get_status_target_turnaround, types.String
   field :get_disclaimer, types.String
+  field :get_embed_analysis, types.Boolean
   field :get_embed_tasks, types.String
   field :get_max_number_of_members, types.String
   field :pusher_channel, types.String

@@ -2024,4 +2024,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_project_media_project project_media: pm, project: p2
     assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
   end
+
+  test "should get analysis for embed" do
+    ft = create_field_type field_type: 'boolean', label: 'Boolean'
+    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
+    create_field_instance annotation_type_object: at, name: 'memebuster_show_analysis', label: 'Memebuster Show Analysis', field_type_object: ft, optional: false
+    ft = create_field_type field_type: 'text', label: 'Text'
+    at = create_annotation_type annotation_type: 'analysis', label: 'Analysis'
+    create_field_instance annotation_type_object: at, name: 'analysis_text', label: 'Analysis Text', field_type_object: ft, optional: false
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_nil pm.reload.embed_analysis
+    a = random_string
+    create_dynamic_annotation annotation_type: 'analysis', annotated: pm, set_fields: { analysis_text: a }.to_json
+    assert_nil pm.reload.embed_analysis
+    t.embed_analysis = true
+    t.save!
+    assert_equal a, pm.reload.embed_analysis
+    d = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_show_analysis: false }.to_json
+    assert_nil pm.reload.embed_analysis
+    d = Dynamic.find(d.id)
+    d.set_fields = { memebuster_show_analysis: true }.to_json
+    d.save!
+    assert_equal a, pm.reload.embed_analysis
+    t.embed_analysis = false
+    t.save!
+    assert_equal a, pm.reload.embed_analysis
+    d.destroy!
+    assert_nil pm.reload.embed_analysis
+  end
 end

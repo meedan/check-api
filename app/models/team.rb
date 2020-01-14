@@ -143,6 +143,10 @@ class Team < ActiveRecord::Base
     self.send(:set_disclaimer, text)
   end
 
+  def embed_analysis=(bool)
+    self.send(:set_embed_analysis, (bool.to_i == 1))
+  end
+
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end

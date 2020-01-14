@@ -671,6 +671,7 @@ en:
   embed_expand_all: Expand all
   embed_collapse_all: Collapse all
   embed_tasks: Tasks
+  embed_analysis: Analysis
   embed_description: Description
   other_language: Other
   unidentified_language: Unidentified

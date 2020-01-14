@@ -1066,15 +1066,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
   test "should use custom embed URL from task answer" do
     create_task_status_stuff
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    tt = create_team_task team_id: @team.id
-    RequestStore.store[:smooch_bot_settings] = { smooch_task: tt.id }.with_indifferent_access
+    fi1 = create_field_instance annotation_type_object: at, name: 'memebuster_custom_url', label: 'Memebuster Custom URL', field_type_object: ft1
     pm = create_project_media
-    t = create_task annotated: pm, team_task_id: tt.id
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'https://custom.url' }.to_json }.to_json
-    t.save!
+    create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_custom_url: 'https://custom.url' }.to_json
     assert_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
     assert_no_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
