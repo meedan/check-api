@@ -201,8 +201,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_source
     cache_key = "project_source_id_cache_for_project_media_#{self.id}"
-    ps = Rails.cache.fetch(cache_key) do
-      get_project_source(self.project_id)
+    if Rails.cache.exist?(cache_key)
+      ps = Rails.cache.read(cache_key)
+    else
+      ps = get_project_source(self.project_id)
+      Rails.cache.write(cache_key, ps) unless ps.nil?
     end
     ps = ProjectSource.find_by_id ps.id unless ps.nil?
     ps
