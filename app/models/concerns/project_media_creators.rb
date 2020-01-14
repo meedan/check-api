@@ -12,7 +12,7 @@ module ProjectMediaCreators
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.project.nil? ? [] : self.project.auto_tasks
+      tasks = self.project.nil? ? Project.new(team: team).auto_tasks : self.project.auto_tasks
     end
     created = []
     tasks.each do |task|
