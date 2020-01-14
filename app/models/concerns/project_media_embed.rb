@@ -19,7 +19,7 @@ module ProjectMediaEmbed
   def embed_url(shorten = true)
     url = CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
     return url unless shorten && CONFIG['bitly_key']
-    Rails.cache.fetch("shorten-url-#{self.id}") do
+    Rails.cache.fetch("shorten-url-#{self.full_url}") do
       # Shorten using Bit.ly and return the shortened URL
       begin
         bitly = Bitly.client.shorten(url)
