@@ -712,6 +712,7 @@ en:
   team_rule_copy_to_project: Add item to list
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
+  relationship_not_same_team: Related items must be under the same team
   custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
     item que você compartilhou conosco foi classificado como *%{status}*.\n\nVeja
     as etapas que seguimos para chegar a esta conclusão: %{url}\n"
