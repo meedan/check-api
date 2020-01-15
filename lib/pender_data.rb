@@ -11,7 +11,7 @@ module PenderData
         result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
       rescue StandardError => e
         Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
-        Airbrake.notify(e) if Airbrake.configured?
+        Airbrake.notify(e, params: params) if Airbrake.configured?
       end
       if result['type'] == 'error'
         self.pender_error = true
