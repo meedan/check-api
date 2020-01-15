@@ -271,4 +271,21 @@ class RelationshipTest < ActiveSupport::TestCase
       assert_equal t3, r3.reload.target
     end
   end
+
+  test "should not relate items from different teams" do
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team_id: t1.id
+    pm2 = create_project_media team_id: t2.id
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: pm1.id, target_id: pm2.id
+    end
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: pm1.id, target_id: pm2.id
+    end
+  end
 end
