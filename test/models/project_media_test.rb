@@ -2,7 +2,7 @@ require_relative '../test_helper'
 
 class ProjectMediaTest < ActiveSupport::TestCase
   def setup
-    setup_elasticsearch
+    require 'sidekiq/testing'
     Sidekiq::Testing.fake!
     super
     create_team_bot login: 'keep', name: 'Keep'
@@ -1878,90 +1878,59 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of linked items" do
-    Sidekiq::Testing.inline! do
-      pm = create_project_media disable_es_callbacks: false
-      sleep 3
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(0, pm.linked_items_count); assert_equal(0, result.linked_items_count) }
-      pm2 = create_project_media disable_es_callbacks: false
-      sleep 3
-      result2 = result = MediaSearch.find(get_es_id(pm2))
-      assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count); assert_equal(0, result2.linked_items_count) }
-      create_relationship source_id: pm.id, target_id: pm2.id
-      result = MediaSearch.find(get_es_id(pm))
-      result2 = MediaSearch.find(get_es_id(pm2))
-      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count); assert_equal(1, result.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count); assert_equal(1, result2.linked_items_count) }
-      pm3 = create_project_media disable_es_callbacks: false
-      sleep 3
-      result3 = MediaSearch.find(get_es_id(pm3))
-      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count); assert_equal(0, result3.linked_items_count) }
-      r = create_relationship source_id: pm.id, target_id: pm3.id
-      result = MediaSearch.find(get_es_id(pm))
-      result2 = MediaSearch.find(get_es_id(pm2))
-      result3 = MediaSearch.find(get_es_id(pm3))
-      assert_queries(0, '=') { assert_equal(2, pm.linked_items_count); assert_equal(2, result.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count); assert_equal(1, result2.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count); assert_equal(1, result3.linked_items_count) }
-      r.destroy!
-      result = MediaSearch.find(get_es_id(pm))
-      result2 = MediaSearch.find(get_es_id(pm2))
-      result3 = MediaSearch.find(get_es_id(pm3))
-      assert_queries(0, '=') { assert_equal(1, pm.linked_items_count); assert_equal(1, result.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count); assert_equal(1, result2.linked_items_count) }
-      assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count); assert_equal(0, result3.linked_items_count) }
-      assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
-    end
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
+    pm2 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+    create_relationship source_id: pm.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    pm3 = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    r = create_relationship source_id: pm.id, target_id: pm3.id
+    assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
   end
 
   test "should cache number of requests" do
-    Sidekiq::Testing.inline! do
-      create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-      pm = create_project_media disable_es_callbacks: false
-      sleep 3
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(0, pm.requests_count); assert_equal(0, result.requests_count) }
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(1, pm.requests_count); assert_equal(1, result.requests_count) }
-      create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(2, pm.requests_count); assert_equal(2, result.requests_count) }
-      assert_queries(0, '>') { assert_equal(2, pm.requests_count(true)) }
-    end
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(2, pm.requests_count) }
+    assert_queries(0, '>') { assert_equal(2, pm.requests_count(true)) }
   end
 
   test "should cache last seen" do
-    Sidekiq::Testing.inline! do
-      create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-      pm = create_project_media disable_es_callbacks: false
-      sleep 3
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { pm.last_seen }
-      assert_equal pm.created_at.to_i, pm.last_seen
-      assert_equal pm.created_at.to_i, result.last_seen
-      assert_queries(0, '>') do
-        assert_equal pm.created_at.to_i, pm.last_seen(true)
-      end
-      sleep 1
-      t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen); assert_equal(t, result.last_seen) }
-      sleep 1
-      pm2 = create_project_media disable_es_callbacks: false
-      r = create_relationship source_id: pm.id, target_id: pm2.id
-      t = pm2.created_at.to_i
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen); assert_equal(t, result.last_seen) }
-      sleep 1
-      t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(t, pm.last_seen); assert_equal(t, result.last_seen) }
-      r.destroy!
-      result = MediaSearch.find(get_es_id(pm))
-      assert_queries(0, '=') { assert_equal(t0, pm.last_seen); assert_equal(t0, result.last_seen) }
-      assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { pm.last_seen }
+    assert_equal pm.created_at.to_i, pm.last_seen
+    assert_queries(0, '>') do
+      assert_equal pm.created_at.to_i, pm.last_seen(true)
     end
+    sleep 1
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    pm2 = create_project_media
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
+    assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
   end
 
   test "should cache status" do
@@ -2018,6 +1987,56 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '>') do
       assert_equal 'Description 2', pm.description(true)
     end
+  end
+
+  test "should index sortable fields" do
+    # sortable fields are [linked_items_count, requests_count and last_seen]
+    setup_elasticsearch
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media projrct: p, disable_es_callbacks: false
+    sleep 3
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 0, result.requests_count
+    assert_equal 0, result.linked_items_count
+    assert_equal pm.created_at.to_i, result.last_seen
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 1, result.requests_count
+    assert_equal t, result.last_seen
+
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 1, result.linked_items_count
+    assert_equal 1, result2.linked_items_count
+    assert_equal t, result.last_seen
+
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t, result.last_seen
+
+    r.destroy!
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t0, result.last_seen
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 0, result.linked_items_count
+    assert_equal 0, result2.linked_items_count
+
+
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 2, result.requests_count
+    # test sorting
+    # result = CheckSearch.new({projects: [p.id], sort: 'requests'}.to_json)
+    # assert_equal [pm2.id, pm.id], result.medias.map(&:id)
+    # result = CheckSearch.new({projects: [p.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    # assert_equal [pm.id, pm2.id], result.medias.map(&:id)
   end
 
   test "should get team" do
