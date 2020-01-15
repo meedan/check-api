@@ -12,6 +12,7 @@ class Relationship < ActiveRecord::Base
   before_validation :set_user
   validate :relationship_type_is_valid
   validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
+  validate :items_are_from_the_same_team
 
   after_create :increment_counters, :index_source
   after_update :propagate_inversion, :reset_counters
@@ -217,5 +218,11 @@ class Relationship < ActiveRecord::Base
 
   def set_user
     self.user ||= User.current
+  end
+
+  def items_are_from_the_same_team
+    if self.source && self.target && self.source.team_id != self.target.team_id
+      errors.add(:base, I18n.t(:relationship_not_same_team))
+    end
   end
 end
