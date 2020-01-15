@@ -13,8 +13,9 @@ class ElasticSearch5Test < ActionController::TestCase
   end
 
   test "should search for parent items only" do
-    pm1 = create_project_media disable_es_callbacks: false
-    pm2 = create_project_media disable_es_callbacks: false
+    p = create_project
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media disable_es_callbacks: false, project: p
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort

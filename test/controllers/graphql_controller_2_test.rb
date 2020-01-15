@@ -245,18 +245,19 @@ class GraphqlController2Test < ActionController::TestCase
   test "should return relationship information" do
     t = create_team
     p = create_project team: t
+    p2 = create_project team: t
     pm = create_project_media project: p
     pm2 = create_project_media project: p
-    s1 = create_project_media
+    s1 = create_project_media project: p2
     r = create_relationship source_id: s1.id, target_id: pm.id, relationship_type: { source: 'parent', target: 'child' }
-    create_relationship source_id: s1.id, relationship_type: { source: 'parent', target: 'child' }
-    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
-    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }
-    s2 = create_project_media
+    create_relationship source_id: s1.id, relationship_type: { source: 'parent', target: 'child' }, target_id: create_project_media(project: p2).id
+    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }, target_id: create_project_media(project: p2).id
+    create_relationship source_id: s1.id, relationship_type: { source: 'related', target: 'related' }, target_id: create_project_media(project: p2).id
+    s2 = create_project_media project: p2
     create_relationship source_id: s2.id, target_id: pm2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
-    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
-    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
-    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: create_project_media(project: p2).id
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: create_project_media(project: p2).id
+    create_relationship source_id: s2.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: create_project_media(project: p2).id
     3.times { create_relationship(relationship_type: { source: 'duplicates', target: 'duplicate_of' }) }
     2.times { create_relationship(relationship_type: { source: 'parent', target: 'child' }) }
     1.times { create_relationship(relationship_type: { source: 'related', target: 'related' }) }
