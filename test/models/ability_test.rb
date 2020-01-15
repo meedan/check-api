@@ -2285,4 +2285,14 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, pmp2)
     end
   end
+
+  test "restore and update project media permissions at team level" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert JSON.parse(t.permissions)['restore ProjectMedia']
+      assert JSON.parse(t.permissions)['update ProjectMedia']
+    end
+  end
 end

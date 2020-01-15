@@ -43,7 +43,7 @@ module CheckBasicAbilities
     can :restore, ProjectMedia do |obj|
       tmp = obj.dup
       tmp.archived = false
-      obj.archived_was && can?(:update, tmp)
+      obj.archived && can?(:update, tmp)
     end
   end
 
