@@ -1673,11 +1673,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have relationships and parent and children reports" do
-    s1 = create_project_media
-    s2 = create_project_media
-    t1 = create_project_media
-    t2 = create_project_media
-    create_project_media
+    p = create_project
+    s1 = create_project_media project: p
+    s2 = create_project_media project: p
+    t1 = create_project_media project: p
+    t2 = create_project_media project: p
+    create_project_media project: p
     create_relationship source_id: s1.id, target_id: t1.id
     create_relationship source_id: s2.id, target_id: t2.id
     assert_equal [t1], s1.targets
@@ -1844,19 +1845,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache demand" do
+    p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media
+    pm = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media
+    pm2 = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
     assert_queries(0, '=') { assert_equal(2, pm2.demand) }
     r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
-    pm3 = create_project_media
+    pm3 = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
@@ -1878,14 +1880,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of linked items" do
-    pm = create_project_media
+    p = create_project
+    pm = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
-    pm2 = create_project_media
+    pm2 = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
     create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
-    pm3 = create_project_media
+    pm3 = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
     r = create_relationship source_id: pm.id, target_id: pm3.id
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
@@ -1910,8 +1913,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache last seen" do
+    p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media
+    pm = create_project_media project: p
     assert_queries(0, '=') { pm.last_seen }
     assert_equal pm.created_at.to_i, pm.last_seen
     assert_queries(0, '>') do
@@ -1921,7 +1925,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
-    pm2 = create_project_media
+    pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id
     t = pm2.created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
@@ -2002,16 +2006,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should query media" do
     t = create_team
+    p = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
-    create_project_media
+    create_project_media project: p
     create_project_media team_id: t.id, project: p1
-    create_project_media team_id: t.id, archived: true
-    create_project_media team_id: t.id, inactive: true
+    create_project_media team_id: t.id, archived: true, project: p
+    create_project_media team_id: t.id, inactive: true, project: p
     pm = create_project_media team_id: t.id, project: p1
-    create_relationship source_id: pm.id, target_id: create_project_media.id
+    create_relationship source_id: pm.id, target_id: create_project_media(project: p).id
     create_project_media_project project_media: pm, project: p2
-    assert_equal 2, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size

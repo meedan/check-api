@@ -5,6 +5,8 @@ class RelationshipTest < ActiveSupport::TestCase
     super
     Relationship.delete_all
     Sidekiq::Testing.inline!
+    @team = create_team
+    @project = create_project team: @team
   end
 
   test "should create relationship" do
@@ -14,14 +16,15 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should have source" do
-    pm = create_project_media
-    r = create_relationship source_id: pm.id
+    pm = create_project_media(project: @project)
+    pm2 = create_project_media(project: @project)
+    r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_equal pm, r.source
   end
 
   test "should have target" do
-    pm = create_project_media
-    r = create_relationship target_id: pm.id
+    pm = create_project_media project: @project
+    r = create_relationship target_id: pm.id, source_id: create_project_media(project: @project).id
     assert_equal pm, r.target
   end
 
@@ -42,9 +45,11 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should destroy relationships when project media is destroyed" do
-    pm = create_project_media
-    create_relationship source_id: pm.id
-    create_relationship target_id: pm.id
+    pm = create_project_media project: @project
+    pm2 = create_project_media project: @project
+    pm3 = create_project_media project: @project
+    create_relationship source_id: pm.id, target_id: pm2.id
+    create_relationship target_id: pm.id, source_id: pm3.id
     assert_difference 'Relationship.count', -2 do
       pm.destroy
     end
@@ -63,8 +68,8 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should not have duplicate relationships" do
-    s = create_project_media
-    t = create_project_media
+    s = create_project_media project: @project
+    t = create_project_media project: @project
     name = { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s.id, target_id: t.id, relationship_type: name
     assert_raises ActiveRecord::RecordInvalid do
@@ -75,13 +80,13 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should start with targets count zero" do
-    pm = create_project_media
+    pm = create_project_media project: @project
     assert_equal 0, pm.targets_count
   end
 
   test "should increment and decrement counters when relationship is created or destroyed" do
-    s = create_project_media
-    t = create_project_media
+    s = create_project_media project: @project
+    t = create_project_media project: @project
     assert_equal 0, s.targets_count
     assert_equal 0, s.sources_count
     assert_equal 0, t.targets_count
@@ -99,12 +104,12 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should return siblings" do
-    p = create_project_media
-    r = create_relationship source_id: p.id
-    s1 = create_project_media
-    s2 = create_project_media
-    s3 = create_project_media
-    create_relationship source_id: p.id, relationship_type: { source: 'foo', target: 'bar' }
+    p = create_project_media project: @project
+    r = create_relationship source_id: p.id, target_id: create_project_media(project: @project).id
+    s1 = create_project_media project: @project
+    s2 = create_project_media project: @project
+    s3 = create_project_media project: @project
+    create_relationship source_id: p.id, relationship_type: { source: 'foo', target: 'bar' }, target_id: create_project_media(project: @project).id
     create_relationship source_id: p.id, target_id: s1.id
     create_relationship source_id: p.id, target_id: s2.id
     create_relationship source_id: p.id, target_id: s3.id
@@ -112,13 +117,13 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should return targets grouped by type" do
-    s = create_project_media
-    t1 = create_project_media
-    t2 = create_project_media
-    t3 = create_project_media
-    t4 = create_project_media
-    t5 = create_project_media
-    t6 = create_project_media
+    s = create_project_media project: @project
+    t1 = create_project_media project: @project
+    t2 = create_project_media project: @project
+    t3 = create_project_media project: @project
+    t4 = create_project_media project: @project
+    t5 = create_project_media project: @project
+    t6 = create_project_media project: @project
     create_relationship
     create_relationship source_id: s.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: t1.id
     create_relationship source_id: s.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: t2.id
@@ -153,22 +158,22 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should not create related report if source report does not exist" do
-    pm = create_project_media
+    pm = create_project_media project: @project
     id = pm.id
     pm.delete
     assert_no_difference 'ProjectMedia.count' do
       assert_no_difference 'Relationship.count' do
         assert_raises RuntimeError do
-          create_project_media related_to_id: id
+          create_project_media related_to_id: id, project: @project
         end
       end
     end
   end
 
   test "should archive or restore medias when source is archived or restored" do
-    s = create_project_media
-    t1 = create_project_media
-    t2 = create_project_media
+    s = create_project_media project: @project
+    t1 = create_project_media project: @project
+    t2 = create_project_media project: @project
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
     assert !t1.reload.archived
@@ -184,9 +189,9 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should delete medias when source is deleted" do
-    s = create_project_media
-    t1 = create_project_media
-    t2 = create_project_media
+    s = create_project_media project: @project
+    t1 = create_project_media project: @project
+    t2 = create_project_media project: @project
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
     assert_not_nil ProjectMedia.where(id: t1.id).last
@@ -255,10 +260,10 @@ class RelationshipTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
-      s = create_project_media
-      t1 = create_project_media
-      t2 = create_project_media
-      t3 = create_project_media
+      s = create_project_media project: @project
+      t1 = create_project_media project: @project
+      t2 = create_project_media project: @project
+      t3 = create_project_media project: @project
       r1 = create_relationship source_id: s.id, target_id: t1.id
       r2 = create_relationship source_id: s.id, target_id: t2.id
       r3 = create_relationship source_id: s.id, target_id: t3.id
@@ -269,6 +274,23 @@ class RelationshipTest < ActiveSupport::TestCase
       assert_equal t2, r2.reload.target
       assert_equal t1, r3.reload.source
       assert_equal t3, r3.reload.target
+    end
+  end
+
+  test "should not relate items from different teams" do
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team_id: t1.id
+    pm2 = create_project_media team_id: t2.id
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: pm1.id, target_id: pm2.id
+    end
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+    assert_raises ActiveRecord::RecordInvalid do
+      create_relationship source_id: pm1.id, target_id: pm2.id
     end
   end
 end
