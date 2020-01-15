@@ -221,7 +221,7 @@ class Relationship < ActiveRecord::Base
   end
 
   def items_are_from_the_same_team
-    if self.source&.team_id != self.target&.team_id
+    if self.source && self.target && self.source.team_id != self.target.team_id
       errors.add(:base, I18n.t(:relationship_not_same_team))
     end
   end
