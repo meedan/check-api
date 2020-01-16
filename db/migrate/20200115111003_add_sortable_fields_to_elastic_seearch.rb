@@ -22,6 +22,6 @@ class AddSortableFieldsToElasticSeearch < ActiveRecord::Migration
     	fields = { 'requests_count' => pm.requests_count.to_i, 'linked_items_count' => pm.linked_items_count.to_i, 'last_seen' => pm.last_seen.to_i }
       es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: fields } } }
     end
-    client.bulk body: es_body
+    client.bulk body: es_body unless es_body.blank?
   end
 end
