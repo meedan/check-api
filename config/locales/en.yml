@@ -585,7 +585,7 @@ en:
 
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
-    any verification reports, because this list is no longer active.
+    any verification reports, because this project is no longer active.
   smooch_bot_result_changed: |-
     [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
 
@@ -671,6 +671,7 @@ en:
   embed_expand_all: Expand all
   embed_collapse_all: Collapse all
   embed_tasks: Tasks
+  embed_analysis: Analysis
   embed_description: Description
   other_language: Other
   unidentified_language: Unidentified
@@ -711,6 +712,7 @@ en:
   team_rule_copy_to_project: Add item to list
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
+  relationship_not_same_team: Related items must be under the same team
   custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
     item que você compartilhou conosco foi classificado como *%{status}*.\n\nVeja
     as etapas que seguimos para chegar a esta conclusão: %{url}\n"

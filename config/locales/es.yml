@@ -356,8 +356,6 @@ es:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
-      assign_project_title: 'Proyecto asignado '
-      unassign_project_title: Proyecto sin asignar
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
       assign_log: "%{author} asignó %{model} a %{username}"
@@ -443,8 +441,6 @@ es:
   smooch_bot_not_final: |-
     [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional.
-  smooch_bot_disabled: Gracias por enviar este mensaje. No podemos devolver ningún
-    informe de verificación, porque este proyecto ya no está activo.
   smooch_bot_result_changed: |-
     [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
 

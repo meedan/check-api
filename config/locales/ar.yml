@@ -359,8 +359,6 @@ ar:
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-      assign_project_title: تكليف مشروع
-      unassign_project_title: إلغاء تكليف مشروع
       assign_task_title: تكليف مهمة
       unassign_task_title: إلغاء تكليف مهمة
       assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
@@ -440,8 +438,6 @@ ar:
     [تقرير التحقيق - تصحيح] لقد حدث خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*.
 
     ما زال العنصر في قائمة اﻹنتظار للمزيد من التحقق.
-  smooch_bot_disabled: شكرا لإرسال هذه الرسالة.لا نستطيع إرسال أي من تقرير التحقيق
-    ، حيث أن هذا المشروع لم يعد نشطاً.
   smooch_bot_result_changed: |-
     [تقرير التحقيق - تصحيح] لقد تغير تصنيف العنصر الذي أرسلته لنا من *%{previous_status}* إلى *%{status}*.
 

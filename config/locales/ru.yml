@@ -292,7 +292,6 @@ ru:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
       unassign_task_subject: "[%{team} - %{project}] С вас был снят вопрос по материалу"
-      unassign_project_title: Проект снят
       unassign_task_title: Задача снята
   mail_security:
     device_subject: 'Внимание: Новый вход в %{app_name} через %{browser} на %{platform}'
@@ -345,8 +344,6 @@ ru:
     Спасибо.
   smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от
     вас для верификации. Подробнее: %{url}.'
-  smooch_bot_disabled: Спасибо за ваше сообщение. К сожалению, мы не сможем провести
-    верификацию, поскольку этот проект больше не активен.
   smooch_bot_result_changed: |-
     [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
 

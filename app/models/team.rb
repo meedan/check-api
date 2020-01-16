@@ -143,6 +143,10 @@ class Team < ActiveRecord::Base
     self.send(:set_disclaimer, text)
   end
 
+  def embed_analysis=(bool)
+    self.send(:set_embed_analysis, (bool.to_i == 1))
+  end
+
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
@@ -259,6 +263,8 @@ class Team < ActiveRecord::Base
     ability ||= Ability.new
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
+    perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: true))
+    perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms
   end
 

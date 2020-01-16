@@ -347,8 +347,6 @@ ro:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
       unassign_task_subject: "[%{team} - %{project}] O sarcină a fost transferată
         de la Dvs"
-      assign_project_title: Dosar atribuit
-      unassign_project_title: Dosar transferat
       assign_task_title: Sarcină desemnată
       unassign_task_title: Sarcină transferată
       assign_log: "%{author} a atribuit %{model} lui %{username}"
@@ -432,8 +430,6 @@ ro:
   smooch_bot_not_final: "[Raport de verificare - CORECTARE] Mesajul transmis de Dvs
     a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru
     verificări ulterioare."
-  smooch_bot_disabled: Vă mulțumim pentru acest mesaj. Nu putem să transmitem nici
-    un raport de verificare pentru că acest dosar nu mai este activ.
   smooch_bot_result_changed: |-
     [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
 

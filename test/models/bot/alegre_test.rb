@@ -282,9 +282,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should add relationships" do
-    pm1 = create_project_media
-    pm2 = create_project_media
-    pm3 = create_project_media
+    p = create_project
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
     @bot.add_relationships(pm1, [pm2.id])
     r = Relationship.last
