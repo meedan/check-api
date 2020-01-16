@@ -24,7 +24,7 @@ module CheckCachedFields
         model = update_on[:model]
         klass = self
         update_on[:events].each do |event, callback|
-          model.send("after_#{event}", ->(obj) { klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options[:recalculate], options[:update_es]) })
+          model.send("after_#{event}", ->(obj) { klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options) })
         end
       end
     end
@@ -33,9 +33,11 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def update_cached_field(name, obj, condition, ids, callback, recalculate, update_index = false)
+    def update_cached_field(name, obj, condition, ids, callback, options)
       condition ||= proc { true }
       return unless condition.call(obj)
+      recalculate = options[:recalculate]
+      update_index = options[:update_es] || false
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)

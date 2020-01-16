@@ -1993,9 +1993,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # sortable fields are [linked_items_count, requests_count and last_seen]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media projrct: p, disable_es_callbacks: false
+    pm = create_project_media disable_es_callbacks: false
     sleep 3
     result = MediaSearch.find(get_es_id(pm))
     assert_equal 0, result.requests_count
@@ -2006,7 +2004,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 1, result.requests_count
     assert_equal t, result.last_seen
 
-    pm2 = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media disable_es_callbacks: false
     sleep 3
     r = create_relationship source_id: pm.id, target_id: pm2.id
     t = pm2.created_at.to_i
@@ -2033,10 +2031,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = MediaSearch.find(get_es_id(pm))
     assert_equal 2, result.requests_count
     # test sorting
-    # result = CheckSearch.new({projects: [p.id], sort: 'requests'}.to_json)
-    # assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    # result = CheckSearch.new({projects: [p.id], sort: 'requests', sort_type: 'asc'}.to_json)
-    # assert_equal [pm.id, pm2.id], result.medias.map(&:id)
+    p = create_project
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    pm3 = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    [pm, pm2, pm3, pm, pm2, pm2].each do |obj|
+      create_dynamic_annotation(annotation_type: 'smooch', annotated: obj)
+    end
+    result = CheckSearch.new({projects: [p.id], sort: 'requests'}.to_json)
+    assert_equal [pm2.id, pm.id, pm3.id], result.medias.map(&:id)
+    result = CheckSearch.new({projects: [p.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    assert_equal [pm3.id, pm.id, pm2.id], result.medias.map(&:id)
+
   end
 
   test "should get team" do
