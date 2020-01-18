@@ -7,6 +7,7 @@ class ElasticSearch7Test < ActionController::TestCase
   end
 
   test "should index rules result" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
     assert_nil t.rules_search_fields_json_schema
     p1 = create_project team: t
@@ -51,9 +52,12 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal 2, t.rules_search_fields_json_schema[:properties][:rules][:properties].keys.size
     rule1 = Team.rule_id(rules[0])
     rule2 = Team.rule_id(rules[1])
-    pm1 = create_project_media project: p1, quote: 'hello this is a test', disable_es_callbacks: false
-    pm2 = create_project_media project: p1, quote: 'test', disable_es_callbacks: false
-    pm3 = create_project_media project: p1, quote: 'please test', disable_es_callbacks: false
+    pm1 = create_project_media project: p1, quote: 'hello this is a test', disable_es_callbacks: false, smooch_message: { 'text' => 'hello this is a test' }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm1, set_fields: { smooch_data: { 'text' => 'hello this is a test' }.to_json }.to_json
+    pm2 = create_project_media project: p1, quote: 'test', disable_es_callbacks: false, smooch_message: { 'text' => 'test' }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: { 'text' => 'test' }.to_json }.to_json
+    pm3 = create_project_media project: p1, quote: 'please test', disable_es_callbacks: false, smooch_message: { 'text' => 'please test' }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3, set_fields: { smooch_data: { 'text' => 'please test' }.to_json }.to_json
     
     sleep 10
     

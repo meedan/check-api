@@ -1455,43 +1455,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'in_progress', pm.last_verification_status
   end
 
-  test "should move pending item to in progress status" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    stub_config('app_name', 'Check') do
-      create_annotation_type annotation_type: 'response'
-      t = create_team
-      p = create_project team: t
-      u = create_user
-      create_team_user team: t, user: u, role: 'annotator'
-      pm = create_project_media project: p
-      default = 'undetermined'
-      active = 'in_progress'
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      t = create_task annotated: pm
-      assert_not_equal pm.last_status, active
-      # add comment by annotator
-      create_comment annotated: pm, disable_update_status: false, annotator: u
-      assert_not_equal pm.last_verification_status, active
-      # add comment
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, active
-      s.status = default; s.save!
-      # add tag
-      create_tag annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, active
-      s.status = default; s.save!
-      # add response
-      t.response = { annotation_type: 'response', set_fields: {} }.to_json
-      t.save!
-      assert_equal pm.last_verification_status, active
-      # change status to verified and tests autmatic update
-      s.status = 'verified'; s.save!
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, 'verified'
-    end
-  end
-
   test "should update media account when change author_url" do
     u = create_user is_admin: true
     t = create_team
@@ -1567,16 +1530,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.project_id = p2.id
     pm.save!
     assert_kind_of CheckSearch, pm.check_search_project_was
-  end
-
-  test "should move media to active status" do
-    create_verification_status_stuff
-    stub_config('app_name', 'Check') do
-      pm = create_project_media
-      assert_equal 'undetermined', pm.last_verification_status
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal 'in_progress', pm.reload.last_verification_status
-    end
   end
 
   test "should not complete media if there are pending tasks" do
