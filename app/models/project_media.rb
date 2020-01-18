@@ -360,6 +360,9 @@ class ProjectMedia < ActiveRecord::Base
     ms.archived = self.archived.to_i
     ms.inactive = self.inactive.to_i
     ms.sources_count = self.sources_count.to_i
+    ms.requests_count = self.requests_count.to_i
+    ms.linked_items_count = self.linked_items_count.to_i
+    ms.last_seen = self.last_seen.to_i
   end
 
   # private

@@ -1993,6 +1993,64 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should index sortable fields" do
+    # sortable fields are [linked_items_count, requests_count and last_seen]
+    setup_elasticsearch
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 0, result.requests_count
+    assert_equal 0, result.linked_items_count
+    assert_equal pm.created_at.to_i, result.last_seen
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 1, result.requests_count
+    assert_equal t, result.last_seen
+
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 1, result.linked_items_count
+    assert_equal 1, result2.linked_items_count
+    assert_equal t, result.last_seen
+
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t, result.last_seen
+
+    r.destroy!
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t0, result.last_seen
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 0, result.linked_items_count
+    assert_equal 0, result2.linked_items_count
+
+
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 2, result.requests_count
+    # test sorting
+    p2 = create_project
+    pm = create_project_media project: p2, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    pm3 = create_project_media project: p2, disable_es_callbacks: false
+    sleep 3
+    [pm, pm2, pm3, pm, pm2, pm2].each do |obj|
+      create_dynamic_annotation(annotation_type: 'smooch', annotated: obj)
+    end
+    result = CheckSearch.new({projects: [p2.id], sort: 'requests'}.to_json)
+    assert_equal [pm2.id, pm.id, pm3.id], result.medias.map(&:id)
+    result = CheckSearch.new({projects: [p2.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    assert_equal [pm3.id, pm.id, pm2.id], result.medias.map(&:id)
+  end
+
   test "should get team" do
     t = create_team
     p = create_project team: t
