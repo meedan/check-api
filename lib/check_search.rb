@@ -16,6 +16,10 @@ class CheckSearch
   end
 
   MEDIA_TYPES = %w[claims links images videos]
+  SORT_MAPPING = {
+    'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'requests' => 'requests_count',
+    'related' => 'linked_items_count', 'last_seen' => 'last_seen'
+  }
 
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
@@ -120,8 +124,7 @@ class CheckSearch
   end
 
   def get_pg_results(associated_type = 'ProjectMedia')
-    sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
-    sort = { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+    sort = { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
     relation = if associated_type == 'ProjectMedia'
                  get_pg_results_for_media
                elsif associated_type == 'ProjectSource'
@@ -248,10 +251,9 @@ class CheckSearch
   end
 
   def build_search_sort
-    if ['recent_activity', 'recent_added'].include?(@options['sort'].to_s)
-      sort_mapping = { 'recent_activity' => 'updated_at', 'recent_added' => 'created_at' }
+    if SORT_MAPPING.keys.include?(@options['sort'].to_s)
       return [
-        { sort_mapping[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
+        { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
     end
     [

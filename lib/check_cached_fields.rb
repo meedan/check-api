@@ -24,7 +24,7 @@ module CheckCachedFields
         model = update_on[:model]
         klass = self
         update_on[:events].each do |event, callback|
-          model.send("after_#{event}", ->(obj) { klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options[:recalculate]) })
+          model.send("after_#{event}", ->(obj) { klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options) })
         end
       end
     end
@@ -33,15 +33,22 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def update_cached_field(name, obj, condition, ids, callback, recalculate)
+    def update_cached_field(name, obj, condition, ids, callback, options)
       condition ||= proc { true }
       return unless condition.call(obj)
+      recalculate = options[:recalculate]
+      update_index = options[:update_es] || false
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)
         target.updated_at = Time.now
         target.skip_check_ability = true
         target.save!
+        # update es index
+        if update_index
+          options = { keys: [name], data: { name => value }, parent: target }
+          ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
+        end
       end
     end
   end

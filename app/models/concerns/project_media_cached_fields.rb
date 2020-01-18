@@ -30,6 +30,7 @@ module ProjectMediaCachedFields
   included do
     cached_field :linked_items_count,
       start_as: 0,
+      update_es: true,
       recalculate: proc { |pm| Relationship.where("source_id = ? OR target_id = ?", pm.id, pm.id).count },
       update_on: [
         {
@@ -44,6 +45,7 @@ module ProjectMediaCachedFields
 
     cached_field :requests_count,
       start_as: 0,
+      update_es: true,
       recalculate: proc { |pm| Dynamic.where(annotation_type: 'smooch', annotated_id: pm.id).count },
       update_on: [
         {
@@ -84,6 +86,7 @@ module ProjectMediaCachedFields
 
     cached_field :last_seen,
       start_as: proc { |pm| pm.created_at.to_i },
+      update_es: true,
       recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || pm.reload.created_at).to_i },
       update_on: [
         {
