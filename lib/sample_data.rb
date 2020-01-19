@@ -158,7 +158,7 @@ module SampleData
 
   def create_comment(options = {})
     user = options[:user] || create_user
-    options = { text: random_string(50), annotator: user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
+    options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -184,7 +184,7 @@ module SampleData
   end
 
   def create_tag(options = {})
-    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
+    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -245,7 +245,7 @@ module SampleData
   end
 
   def create_flag(options = {})
-    options = { flag: 'Spam', annotator: create_user, disable_update_status: true }.merge(options)
+    options = { flag: 'Spam', annotator: create_user }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -670,7 +670,6 @@ module SampleData
     end
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
-    a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -693,7 +692,6 @@ module SampleData
       status: 'unresolved',
       annotator: options[:user] || create_user,
       disable_es_callbacks: true,
-      disable_update_status: true
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team

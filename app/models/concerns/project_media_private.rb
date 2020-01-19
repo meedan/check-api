@@ -85,7 +85,7 @@ module ProjectMediaPrivate
   end
 
   def apply_rules_and_actions
-    self.project&.team&.apply_rules_and_actions(self, nil)
+    self.team&.apply_rules_and_actions(self, nil)
   end
 
   def set_team_id

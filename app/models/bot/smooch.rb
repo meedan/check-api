@@ -395,9 +395,10 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     # Override reply language with team language if present
-    options.merge!({ locale: team.get_language }) if team && team.get_language
+    options.merge!({ locale: team.get_language }) if team&.get_language
     if team && !config["smooch_message_#{key}"].blank?
-      (I18n.exists?("custom_message_#{key}_#{team.slug}") && !I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options).blank?) ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      i18nkey = "custom_message_#{key}_#{team.slug}"
+      (config['smooch_localize_messages'] && I18n.exists?(i18nkey) && !I18n.t(i18nkey.to_sym, options).blank?) ? I18n.t(i18nkey.to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
@@ -709,7 +710,7 @@ class Bot::Smooch < BotUser
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Link', { url: url })
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) if text != url && !text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) if text != url && !text.blank?
 
       self.add_hashtags(text, pm)
 
@@ -760,7 +761,7 @@ class Bot::Smooch < BotUser
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) unless text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) unless text.blank?
       FileUtils.rm_f filepath
 
       self.add_hashtags(text, pm)
@@ -874,7 +875,6 @@ class Bot::Smooch < BotUser
     a.annotated = pm
     a.annotation_type = 'smooch_response'
     a.disable_es_callbacks = true
-    a.disable_update_status = true
     a.skip_notifications = true
     a.skip_check_ability = true
     a.set_fields = { smooch_response_data: response.to_json }.to_json
