@@ -15,7 +15,7 @@ module TeamRules
       return false unless obj.nil?
       smooch_message = get_smooch_message(pm)
       return false if smooch_message.blank?
-      pm.report_type == 'claim' && pm.text.split(/\s+/).size <= value.to_i
+      pm.report_type == 'claim' && pm.text.split(/\s+/).size < value.to_i
     end
 
     def contains_keyword(pm, obj, value)
