@@ -1225,7 +1225,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: ([random_string] * 4).join(' ') + ' pLease?'
+        text: ([random_string] * 3).join(' ') + ' pLease?'
       }
     ]
     payload = {

@@ -35,7 +35,7 @@ class ElasticSearch7Test < ActionController::TestCase
         "rules": [
           {
             "rule_definition": "has_less_than_x_words",
-            "rule_value": "3"
+            "rule_value": "4"
           }
         ],
         "actions": [
@@ -91,7 +91,7 @@ class ElasticSearch7Test < ActionController::TestCase
           },
           {
             "rule_definition": "has_less_than_x_words",
-            "rule_value": "1"
+            "rule_value": "2"
           }
         ],
         "actions": [
@@ -111,7 +111,7 @@ class ElasticSearch7Test < ActionController::TestCase
           },
           {
             "rule_definition": "has_less_than_x_words",
-            "rule_value": "5"
+            "rule_value": "6"
           }
         ],
         "actions": [
@@ -131,7 +131,7 @@ class ElasticSearch7Test < ActionController::TestCase
           },
           {
             "rule_definition": "has_less_than_x_words",
-            "rule_value": "3"
+            "rule_value": "4"
           }
         ],
         "actions": [
