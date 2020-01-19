@@ -28,7 +28,6 @@ module ProjectMediaCreators
       t.annotated = self
       t.skip_check_ability = true
       t.skip_notifications = true
-      t.disable_update_status = true if t.respond_to?(:disable_update_status)
       t.save!
       created << t
       # set auto-response

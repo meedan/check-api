@@ -3,7 +3,7 @@ require 'active_support/concern'
 module TeamRules
   extend ActiveSupport::Concern
 
-  RULES = ['contains_keyword', 'has_less_than_x_words', 'matches_regexp', 'type_is', 'tagged_as', 'status_is']
+  RULES = ['contains_keyword', 'has_less_than_x_words', 'matches_regexp', 'type_is', 'tagged_as', 'status_is', 'title_contains_keyword']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
 
@@ -12,15 +12,36 @@ module TeamRules
 
   module Rules
     def has_less_than_x_words(pm, obj, value)
-      obj.nil? && pm.report_type == 'claim' && pm.text.split(/\s+/).size <= value.to_i
+      return false unless obj.nil?
+      smooch_message = get_smooch_message(pm)
+      return false if smooch_message.blank?
+      pm.report_type == 'claim' && pm.text.split(/\s+/).size <= value.to_i
     end
 
     def contains_keyword(pm, obj, value)
       return false unless obj.nil?
-      return false unless pm.report_type == 'claim'
-      words = pm.text.scan(/\w+/).to_a.map(&:downcase)
+      smooch_message = get_smooch_message(pm)
+      return false if smooch_message.blank?
+      text_contains_keyword(smooch_message, value)
+    end
+
+    def title_contains_keyword(pm, obj, value)
+      return false unless obj.nil?
+      text_contains_keyword(pm.title, value)
+    end
+
+    def text_contains_keyword(text, value)
+      words = text.scan(/\w+/).to_a.map(&:downcase)
       keywords = value.to_s.split(',').map(&:strip).map(&:downcase)
       !(words & keywords).empty?
+    end
+
+    def get_smooch_message(pm)
+      smooch_message = pm.smooch_message
+      if smooch_message.nil?
+        smooch_message = begin JSON.parse(pm.get_annotations('smooch').last.load.get_field_value('smooch_data').to_s) rescue {} end
+      end
+      smooch_message['text']
     end
 
     def matches_regexp(pm, obj, value)

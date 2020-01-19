@@ -15,35 +15,6 @@ class Workflow::VerificationStatus < Workflow::Base
     'in_progress'
   end
 
-  [Comment, Tag, Flag, Dynamic].each do |annotation_class|
-    annotation_class.class_eval do
-      attr_accessor :disable_update_status
-
-      after_create :update_annotated_status, if: :should_update_annotated_status?
-
-      protected
-
-      def author_is_not_annotator
-        self.annotator.nil? || !self.annotator.is_a?(User) || !self.annotator.role?(:annotator)
-      end
-
-      private
-
-      def should_update_annotated_status?
-        !self.disable_update_status &&
-        !self.is_being_copied &&
-        ['ProjectMedia', 'Task'].include?(self.annotated_type) &&
-        (self.class.name != 'Dynamic' || self.annotation_type =~ /^task_response/) &&
-        self.author_is_not_annotator
-      end
-
-      def update_annotated_status
-        target = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
-        target.move_media_to_active_status unless self.annotated.nil?
-      end
-    end
-  end
-
   Task.class_eval do
     after_create :back_status_to_active, unless: :is_being_copied
 
@@ -62,13 +33,6 @@ class Workflow::VerificationStatus < Workflow::Base
   end
 
   ProjectMedia.class_eval do
-    def move_media_to_active_status
-      return unless CONFIG['app_name'] == 'Check'
-      s = self.get_annotations('verification_status').last
-      s = s.load unless s.nil?
-      self.set_active_status(s) if !s.nil? && s.get_field('verification_status_status').value == ::Workflow::Workflow.options(self, 'verification_status')[:default] && !s.locked
-    end
-
     def set_active_status(s)
       active = ::Workflow::Workflow.options(self, 'verification_status')[:active]
       f = s.get_field('verification_status_status')

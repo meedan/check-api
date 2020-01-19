@@ -46,6 +46,10 @@
                     {
                       "key": "matches_regexp",
                       "value": "%{team_rule_matches_regexp}"
+                    },
+                    {
+                      "key": "title_contains_keyword",
+                      "value": "%{team_rule_title_contains_keyword}"
                     }
                   ]
                 },
