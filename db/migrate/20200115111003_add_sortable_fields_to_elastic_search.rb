@@ -8,9 +8,9 @@ class AddSortableFieldsToElasticSearch < ActiveRecord::Migration
       body: {
         media_search: {
           properties: {
-            requests_count: { type: 'integer' },
-            linked_items_count: { type: 'integer' },
-            last_seen: { type: 'integer' }
+            requests_count: { type: 'long' },
+            linked_items_count: { type: 'long' },
+            last_seen: { type: 'long' }
           }
         }
       }
