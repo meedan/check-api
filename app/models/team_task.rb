@@ -150,7 +150,7 @@ class TeamTask < ActiveRecord::Base
     .find_each do |pm|
       begin
         pm.create_auto_tasks([self])
-      rescue Exception => e
+      rescue StandardError => e
         TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
         Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
       end
