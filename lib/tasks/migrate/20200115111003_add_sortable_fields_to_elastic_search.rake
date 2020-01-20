@@ -17,7 +17,7 @@ namespace :check do
         }
       }
       client.indices.put_mapping options
-      ProjectMedia.find_in_batches(:batch_size => 500) do |pms|
+      ProjectMedia.find_in_batches(:batch_size => 5000) do |pms|
         es_body = []
         pms.each do |pm|
           doc_id = pm.get_es_doc_id(pm)
