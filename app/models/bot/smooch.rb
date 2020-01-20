@@ -490,6 +490,9 @@ class Bot::Smooch < BotUser
       a.annotated_id = self.get_project_id
       a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
       a.save!
+      query = { field_name: 'smooch_user_data', json: { app_name: app.app.name, identifier: identifier } }.to_json
+      cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
+      Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
     end
   end
 
