@@ -53,11 +53,11 @@ class MediaSearch
 
   attribute :rules, Array, mapping: { type: 'keyword' }
 
-  attribute :requests_count, Integer
+  attribute :requests_count, Integer, mapping: { type: 'long' }
 
-  attribute :linked_items_count, Integer
+  attribute :linked_items_count, Integer, mapping: { type: 'long' }
 
-  attribute :last_seen, Integer
+  attribute :last_seen, Integer, mapping: { type: 'long' }
 
   def set_es_annotated(obj)
     self.send("annotated_type=", obj.class.name)
