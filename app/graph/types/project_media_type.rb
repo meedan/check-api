@@ -5,7 +5,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :media_id, types.Int
-  field :project_id, types.Int
   field :user_id, types.Int
   field :url, types.String
   field :quote, types.String
@@ -16,6 +15,20 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :report_type, types.String
   field :target_languages, types.String
   field :title, types.String
+  field :description, types.String
+  field :picture, types.String
+  field :virality, types.Int
+  field :requests_count, types.Int
+  field :demand, types.Int
+  field :linked_items_count, types.Int
+  field :last_seen, types.String
+  field :status, types.String
+
+  field :type, types.String  do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.media.type
+    }
+  end
 
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
@@ -74,7 +87,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   #     end
   #   }
   # end
-  { media: :account, project: :team }.each do |key, value|
+  { media: :account }.each do |key, value|
     type = "#{value.to_s.capitalize}Type".constantize
     field value do
       type -> { type }
@@ -87,11 +100,27 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :team do
+    type -> { TeamType }
+
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Team).load(project_media.team_id)
+    }
+  end
+
+  field :project_id do
+    type types.Int
+
+    resolve -> (project_media, _args, _ctx) {
+      Project.current ? Project.current.reload.id : project_media.reload.project_id
+    }
+  end
+
   field :project do
     type -> { ProjectType }
 
     resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Project).load(project_media.project_id)
+      Project.current || RecordLoader.for(Project).load(project_media.project_id)
     }
   end
 
@@ -276,6 +305,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       project_media.assignments_progress(args['user_id'])
     }
   end
+
+  field :project_ids, JsonStringType
 
   # End of fields
 end

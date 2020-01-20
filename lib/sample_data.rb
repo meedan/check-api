@@ -158,7 +158,7 @@ module SampleData
 
   def create_comment(options = {})
     user = options[:user] || create_user
-    options = { text: random_string(50), annotator: user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
+    options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -184,7 +184,7 @@ module SampleData
   end
 
   def create_tag(options = {})
-    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true, disable_update_status: true }.merge(options)
+    options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -245,7 +245,7 @@ module SampleData
   end
 
   def create_flag(options = {})
-    options = { flag: 'Spam', annotator: create_user, disable_update_status: true }.merge(options)
+    options = { flag: 'Spam', annotator: create_user }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
@@ -670,7 +670,6 @@ module SampleData
     end
     a.set_fields = options[:set_fields]
     a.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
-    a.disable_update_status =  options.has_key?(:disable_update_status) ? options[:disable_update_status] : true
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -693,7 +692,6 @@ module SampleData
       status: 'unresolved',
       annotator: options[:user] || create_user,
       disable_es_callbacks: true,
-      disable_update_status: true
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
@@ -715,6 +713,11 @@ module SampleData
     #   ...
     # }
     annotation_type_name = annotation_type_label.parameterize.tr('-', '_')
+    if Bot::Keep.archiver_annotation_types.include?(annotation_type_name)
+      field_name_prefix = annotation_type_name
+      annotation_type_name = 'archiver'
+      annotation_type_label = 'Archiver'
+    end
     at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
     fts = fields.values.collect{ |v| v.first }
     fts.each do |label|
@@ -723,7 +726,7 @@ module SampleData
     end
     fields.each do |label, type|
       field_label = annotation_type_label + ' ' + label
-      field_name = annotation_type_name + '_' + label.parameterize.tr('-', '_')
+      field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
       optional = type[1].nil? ? true : type[1]
       settings = type[2] || {}
       field_type = type[0].parameterize.tr('-', '_')
@@ -733,8 +736,10 @@ module SampleData
   end
 
   def create_relationship(options = {})
-    source_id = options[:source_id] || create_project_media.id
-    target_id = options[:target_id] || create_project_media.id
+    t = create_team
+    p = create_project team: t
+    source_id = options[:source_id] || create_project_media(project: p).id
+    target_id = options[:target_id] || create_project_media(project: p).id
     options = {
       source_id: source_id,
       target_id: target_id,
@@ -815,5 +820,17 @@ module SampleData
     end
     la.save!
     la.reload
+  end
+
+  def create_project_media_project(options = {})
+    pmp = ProjectMediaProject.new
+    pmp.disable_es_callbacks = true
+    options.each do |key, value|
+      pmp.send("#{key}=", value) if pmp.respond_to?("#{key}=")
+    end
+    pmp.project_media = create_project_media if pmp.project_media.nil?
+    pmp.project = create_project if pmp.project.nil?
+    pmp.save!
+    pmp.reload
   end
 end

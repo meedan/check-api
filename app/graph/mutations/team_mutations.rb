@@ -21,6 +21,7 @@ module TeamMutations
     set_team_tasks: 'json',
     rules: 'str',
     disclaimer: 'str',
+    embed_analysis: 'bool',
     embed_tasks: 'str',
     remove_auto_task: 'str', # label
     contact: 'str',

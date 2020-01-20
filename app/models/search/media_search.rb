@@ -3,7 +3,7 @@ class MediaSearch
   include CheckElasticSearchModel
 
   attribute :team_id, Integer
-  attribute :project_id, Integer
+  attribute :project_id, Array, mapping: { type: 'integer' }
   attribute :annotated_type, String, mapping: { type: 'text' }
   attribute :annotated_id, Integer
   attribute :associated_type, String, mapping: { type: 'keyword' }
@@ -13,6 +13,7 @@ class MediaSearch
   attribute :quote, String, mapping: { type: 'text', analyzer: 'check' }
   attribute :inactive, Integer
   attribute :archived, Integer
+  attribute :sources_count, Integer
   attribute :accounts, Array, mapping: {
     type: 'nested',
     properties: {
@@ -51,6 +52,12 @@ class MediaSearch
   }
 
   attribute :rules, Array, mapping: { type: 'keyword' }
+
+  attribute :requests_count, Integer
+
+  attribute :linked_items_count, Integer
+
+  attribute :last_seen, Integer
 
   def set_es_annotated(obj)
     self.send("annotated_type=", obj.class.name)

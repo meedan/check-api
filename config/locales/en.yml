@@ -18,7 +18,7 @@ en:
     media:
       undetermined:
         label: Unstarted
-        description: Default, just added to Check, no work has started
+        description: Default, just added, no work has started
       not_applicable:
         label: Inconclusive
         description: No conclusion can be made with the available evidence
@@ -33,7 +33,7 @@ en:
         description: 'Conclusion: the item''s content is verified'
       pending:
         label: Pending
-        description: Default, just added to Bridge, no work has started
+        description: Default, just added, no work has started
       translated:
         label: Translated
         description: Translation is done, waiting for review
@@ -63,11 +63,11 @@ en:
         description: 
       unstarted:
         label: Unstarted
-        description: Default, just added to Check, no work has started
+        description: Default, just added, no work has started
     source:
       undetermined:
         label: Unstarted
-        description: Default, just added to Check, no work has started
+        description: Default, just added, no work has started
       credible:
         label: Credible
         description: 'Conclusion: the source is credible'
@@ -83,7 +83,7 @@ en:
     translation:
       pending:
         label: Pending
-        description: Default, just added to Bridge, no work has started
+        description: Default, just added, no work has started
       in_progress:
         label: In Progress
         description: Work has begun, but no translation made yet
@@ -103,10 +103,23 @@ en:
       extension_white_list_error: 'cannot have type %{extension}, allowed types: %{allowed_types}'
       invalid_size: must be between %{min_width}x%{min_height} and %{max_width}x%{max_height}
         pixels
+      mini_magick_processing_error: 'Sorry, we failed to process the image. The error
+        was: %{e}'
+      annotation_mandatory_fields: Please set all mandatory fields
+      annotation_type_does_not_exist: does not exist
+      invalid_attribution: Invalid attribution
+      must_resolve_required_tasks_first: Required tasks must be resolved first
+      image_too_large: Sorry, we don't support images larger than %{max_size}.
+      video_too_large: Sorry, we don't support videos larger than %{max_size}.
+      pender_conflict: This link is already being parsed. Please try again in a few
+        seconds.
+      pender_url_invalid: This link is invalid.
+      pender_url_unsafe: This link is unsafe.
+      pender_could_not_parse: Could not parse this link.
   activerecord:
     models:
       link: Link
-      claim: Claim
+      claim: Text
       uploaded_file: File
       uploaded_image: Image
       uploaded_video: Video
@@ -114,8 +127,8 @@ en:
       comment: Note
       project_media: Item
       media: Item
-      project: Project
-      team: Team
+      project: List
+      team: Workspace
       user: User
       source: Source
       project_source: Source
@@ -129,7 +142,7 @@ en:
       uploaded_video:
         file: Video
       team:
-        slug: Team URL
+        slug: Workspace URL
       source:
         name: Name
       contact:
@@ -160,7 +173,7 @@ en:
   slug_is_reserved: is reserved
   invalid_format_for_languages: 'Invalid languages setting. It should have the format
     [{''id'': ''en'', ''title'': ''English''}]'
-  invalid_media_item: Sorry, this is not a valid media item
+  invalid_media_item: Sorry, this is not a valid item
   invalid_default_status_for_custom_verification_status: The default status identifier
     is invalid
   invalid_active_status_for_custom_verification_status: The active status identifier
@@ -188,7 +201,7 @@ en:
       unassigned: Unassigned from
       required: Required?
       required_yes: 'Yes'
-      project: Project
+      project: List
       source: Source
       status: Status
       status_previous: Previous status
@@ -203,7 +216,7 @@ en:
       task_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
       task_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) answered a Task"
-      task_answer_edit: "%{user} (%{role} at %{team}) edited a Task answer"
+      task_answer_edit: "%{user} (%{role} at %{team}) edited the answer of a Task"
       task_comment: "%{user} (%{role} at %{team}) added a note to a Task"
       project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) added a %{type}"
@@ -217,54 +230,53 @@ en:
       project_source_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"
-      project_create: "%{user} (%{role} at %{team}) created a project"
-      project_assign: "%{user} (%{role} at %{team}) assigned a project"
-      project_unassign: "%{user} (%{role} at %{team}) unassigned a project"
-      user_member: "%{user} joined team %{team}"
-      user_requested: "%{user} requested to join team %{team}"
-      user_invited: "%{user} was invited to join team %{team}"
-      user_banned: "%{user} was banned from team %{team}"
+      project_create: "%{user} (%{role} at %{team}) created a List"
+      project_assign: "%{user} (%{role} at %{team}) assigned a List"
+      project_unassign: "%{user} (%{role} at %{team}) unassigned a List"
+      user_member: "%{user} joined workspace %{team}"
+      user_requested: "%{user} requested to join workspace %{team}"
+      user_invited: "%{user} was invited to join workspace %{team}"
+      user_banned: "%{user} was banned from workspace %{team}"
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm
     your email address by clicking the following link:'
   mail_confirm_button: Confirm my account
-  pender_could_not_parse: Could not parse this media.
   slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it
-    is restricted to members of the Slack team(s) %{teams}.
+    is restricted to members of the Slack workspace(s) %{teams}.
   admin:
     actions:
       send_reset_password_email:
         menu: Send reset password instructions
       export_project:
-        menu: Export project data
+        menu: Export data
       export_images:
-        menu: Export project images
+        menu: Export images
       delete_tasks:
         done: deleted the tasks
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Are you sure you want to delete all tasks in team <strong>%{team}</strong>?
+          html: 'Are you sure you want to delete all tasks in workspace <strong>%{team}</strong>?
             The following tasks will be removed:'
       duplicate_team:
-        menu: Duplicate team
+        menu: Duplicate workspace
         done: copied
         are_you_sure_you_want_to_copy_team:
-          html: Are you sure you want to copy the team <strong>%{team}</strong>? All
-            the related data will also be copied.
-        the_team_is_being_copied: The team is being copied
+          html: Are you sure you want to copy the workspace <strong>%{team}</strong>?
+            All the related data will also be copied.
+        the_team_is_being_copied: The workspace is being copied
         url_when_ready:
-          html: When ready, the team copy will be available at <strong>%{copy_url}</strong>
+          html: When ready, the workspace copy will be available at <strong>%{copy_url}</strong>
     flash:
-      delete_team_scheduled: The team %{team} is being deleted
+      delete_team_scheduled: The workspace %{team} is being deleted
   email_not_found: E-mail not found
   slack_channel_format_wrong: Invalid Slack channel
   translation_status_not_valid: Invalid status
   translation_status_permission_error: Sorry, you are not allowed to make this status
     change.
   translation_request_id_exists: There is already a translation request for this message
-  auto_publisher_added_to_project: Thanks! Now all new translations under project
-    %{project} will be automatically published to this account on %{provider}. If
-    you change your mind, please contact the administrator or simply revoke the Bridge
-    authorization from %{provider}.
+  auto_publisher_added_to_project: Thanks! Now all new translations under list %{project}
+    will be automatically published to this account on %{provider}. If you change
+    your mind, please contact the administrator or simply revoke the Bridge authorization
+    from %{provider}.
   invalid_token: Invalid Token
   viber_screenshot_footer: "%{target_language} translation from %{source_language}:
     “%{source_text}”"
@@ -273,16 +285,14 @@ en:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
-  oembed_disclaimer_undetermined: This media has not been reviewed by the %{team}
-    team
-  oembed_disclaimer_in_progress: The accuracy of this media is in progress of being
-    determined by the %{team} team on %{date}
-  oembed_disclaimer_verified: The accuracy of this media was verified by the %{team}
-    team on %{date}
-  oembed_disclaimer_false: The accuracy of this media has been determined to be false
-    by the %{team} team on %{date}
-  oembed_disclaimer_not_applicable: No conclusion could be reached about the accuracy
-    of this media by the %{team} team on %{date}
+  oembed_disclaimer_undetermined: This item has not been verified by %{team}
+  oembed_disclaimer_in_progress: This item is being verified by %{team} as of %{date}
+  oembed_disclaimer_verified: This item has been determined to be verified by %{team}
+    on %{date}
+  oembed_disclaimer_false: This item has been determined to be false by %{team} on
+    %{date}
+  oembed_disclaimer_not_applicable: No conclusion could be reached about this item
+    by %{team} as of %{date}
   oembed_source_date: "%{date} on %{provider}"
   role_editor: editor
   role_owner: owner
@@ -307,31 +317,22 @@ en:
     one: One resolved task
     other: "%{count} resolved tasks"
   oembed_notes: Notes
-  pender_conflict: This link is already being parsed, please try again in a few seconds.
   duplicate_source: Source exists
   geolocation_invalid_value: Location must contain a valid GeoJSON (http://geojson.org/)
   datetime_invalid_date: Please provide a valid date
-  error_team_archived: Sorry, you can't add project to a trashed team
-  error_project_archived: Sorry, you can't add item to a trashed project
-  error_team_archived_for_source: Sorry, you can't add source to a trashed team
+  error_team_archived: Sorry, you can't add a list to a trashed workspace
+  error_project_archived: Sorry, you can't add an item to a trashed list
+  error_team_archived_for_source: Sorry, you can't add a source to a trashed workspace
   permission_error: Sorry, you are not allowed to perform this operation
-  error_annotated_archived: Sorry, you can't add note to a trashed item
+  error_annotated_archived: Sorry, you can't add a note to a trashed item
   only_super_admin_can_do_this: Sorry, only system administrators can make this change
-  max_number_of_team_users_reached: Sorry, the maximum number of users for this team
+  max_number_of_team_users_reached: Sorry, the maximum number of users for this workspace
     has been reached
-  max_number_of_projects_reached: Sorry, the maximum number of projects for this team
-    has been reached
-  cant_set_custom_statuses: Sorry, the custom statuses feature is not available to
-    this team
   cant_change_custom_statuses: |-
     Sorry, you can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items:
     %{urls} %{others_amount}
-  cant_create_team_task: Sorry, your team does not have access to this feature
-  cant_create_media_under_this_team_using_extension: Sorry, the browser extension
-    feature is not available to this team
-  error_invalid_attribution: Invalid attribution
   account_exists: This account already exists
-  media_exists: This media already exists
+  media_exists: This item already exists
   source_exists: This source already exists
   email_exists: has already been taken
   banned_user: Sorry, your account has been banned from %{app_name}. Please contact
@@ -348,25 +349,25 @@ en:
         instruction_2: If you didn't make this request, or are having difficulty resetting
           your password, please contact us at %{support_email}.
       invitation_instructions:
-        subject: "%{user} invited you to join %{team} team"
+        subject: "%{user} invited you to join workspace %{team}"
         hello: Hello %{name}
         someone_invited_you_default:
-          html: "%{name} has invited you to join %{team} team as %{role}."
+          html: "%{name} has invited you to join workspace %{team} as %{role}."
         someone_invited_you_custom:
-          html: "%{name} has invited you to join %{team} team as %{role}, saying:"
+          html: "%{name} has invited you to join workspace %{team} as %{role}, saying:"
         accept: Accept invitation
         accept_until: This invitation will expire on %{due_date}.
         ignore: If you don't want to accept the invitation, please ignore this email.
-        app_team: "%{app} Team"
+        app_team: "%{app} Workspace"
     failure:
       unconfirmed: Please check your email to verify your account.
   user_invitation:
-    invited: This user was already invited to this team.
-    member: This user is already a team member.
-    team_found: Team not found.
+    invited: This user was already invited to this workspace.
+    member: This user is already a member.
+    team_found: Workspace not found.
     invalid: Invitation token is invalid.
-    no_invitation: No invitation exists for team %{name}
-  error_user_is_not_a_team_member: Sorry, you can only assign to members of this team
+    no_invitation: No invitation exists for workspace %{name}
+  error_user_is_not_a_team_member: Sorry, you can only assign to members of this workspace
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
   error_login_2fa: Please complete your sign-in by supplying an authentication code.
@@ -374,7 +375,7 @@ en:
   mails_notifications:
     greeting: Hello %{username},
     greeting_anonymous: Hello!
-    project_view: View project
+    project_view: View list
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: '%{app_name} by <a href="https://meedan.com">Meedan</a>'
@@ -411,27 +412,27 @@ en:
         user %{id}
       anonymous: anonymous
     admin_mailer:
-      team_download_subject: "[%{team}] Team data snapshot is ready to be downloaded"
-      team_dump_title: Team Data
+      team_download_subject: "[%{team}] Workspace data snapshot is ready to be downloaded"
+      team_dump_title: Workspace Data
       types:
         dump: data snapshot
         csv: report
         images: image archive
-      team_dump_text: 'You''ve requested a data snapshot for team %{team} - here''s
+      team_dump_text: 'You''ve requested a data snapshot for workspace %{team} - here''s
         a link to download it: %{link}'
-      team_dump_button: Download team data
+      team_dump_button: Download workspace data
       decompress_text: The %{type} will download as a compressed, encrypted file.
         To decompress it, please use the password %{password}.
       expire_note: Please note that this link will expire in %{days} days.
-      project_export_csv_subject: "[%{team} - %{project}] Project report is ready
-        to be downloaded"
-      project_export_images_subject: "[%{team} - %{project}] Project image archive
-        is ready to be downloaded"
-      project_export_title: Project Data
-      project_export_button: Download project data
-      project_export_csv_text: 'You''ve requested a report for project %{project}
-        - here''s a link to download it: %{link}'
-      project_export_images_text: 'You''ve requested an archive of images for project
+      project_export_csv_subject: "[%{team} - %{project}] List report is ready to
+        be downloaded"
+      project_export_images_subject: "[%{team} - %{project}] List image archive is
+        ready to be downloaded"
+      project_export_title: List Data
+      project_export_button: Download list data
+      project_export_csv_text: 'You''ve requested a report for list %{project} - here''s
+        a link to download it: %{link}'
+      project_export_images_text: 'You''ve requested an archive of images for list
         %{project} - here''s a link to download it: %{link}'
       team_import_subject: Your data import has completed
       team_import_title: Data Import
@@ -442,15 +443,16 @@ en:
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: Task Answered
-      header_text: " %{author} answered a task in project %{project} in %{team}."
-      section_title: Who or what is the source of the claim?
+      header_text: " %{author} answered a task in list %{project} in %{team}."
+      section_title: Who or what is the source of the item?
       status: Status
-      media_h: Media
+      media_h: Item
     media_status:
-      label: media
-      subject: "[%{team} - %{project}] A media item status was marked as %{status}"
-      header_title: Media Status Updated
-      header_text: " %{author} updated a media item in project %{project} in %{team}."
+      label: item
+      subject: "[%{team} - %{project}] An item status was marked as %{status}"
+      header_title: Item Status Updated
+      header_text: " %{author} updated the status of an item in list %{project} in
+        %{team}."
       section_title: Marked as %{status}.
       added_to: Added to %{app_name}
       update_h: Last Update
@@ -458,51 +460,50 @@ en:
     assignment:
       assign_task_subject: "[%{team} - %{project}] A task was assigned to you"
       unassign_task_subject: "[%{team} - %{project}] A task was unassigned from you"
-      assign_project_subject: "[%{team} - %{project}] A project was assigned to you"
-      unassign_project_subject: "[%{team} - %{project}] A project was unassigned from
+      assign_project_subject: "[%{team} - %{project}] A list was assigned to you"
+      unassign_project_subject: "[%{team} - %{project}] A list was unassigned from
         you"
-      assign_media_subject: "[%{team} - %{project}] A media item was assigned to you"
-      unassign_media_subject: "[%{team} - %{project}] A media item was unassigned
-        from you"
-      assign_project_title: Project Assigned
-      unassign_project_title: Project Unassigned
-      assign_project_text: "%{author} assigned a project %{project} in %{team}."
-      unassign_project_text: "%{author} unassigned a project %{project} in %{team}."
+      assign_media_subject: "[%{team} - %{project}] An item was assigned to you"
+      unassign_media_subject: "[%{team} - %{project}] An item was unassigned from
+        you"
+      assign_project_title: List Assigned
+      unassign_project_title: List Unassigned
+      assign_project_text: "%{author} assigned list %{project} in %{team}."
+      unassign_project_text: "%{author} unassigned list %{project} in %{team}."
       assign_task_title: Task Assigned
       unassign_task_title: Task Unassigned
-      assign_task_text: "%{author} assigned a task in project %{project} in %{team}."
-      unassign_task_text: "%{author} unassigned a task in project %{project} in %{team}."
-      assign_media_title: Media Item Assigned
-      unassign_media_title: Media Item Unassigned
-      assign_media_text: "%{author} assigned a media item in project %{project} in
-        %{team}."
-      unassign_media_text: "%{author} unassigned a media item in project %{project}
-        in %{team}."
+      assign_task_text: "%{author} assigned a task in list %{project} in %{team}."
+      unassign_task_text: "%{author} unassigned a task in list %{project} in %{team}."
+      assign_media_title: Item Assigned
+      unassign_media_title: Item Unassigned
+      assign_media_text: "%{author} assigned an item in list %{project} in %{team}."
+      unassign_media_text: "%{author} unassigned an item in list %{project} in %{team}."
       assign_log: "%{author} assigned %{model} to %{username}"
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
-      project_button: Go to the project page
+      project_button: Go to the list page
     request_to_join:
-      subject: Request to join %{team}
-      team_page: team page
-      team_button: Go to the team page
+      subject: Request to join workspace %{team}
+      team_page: workspace page
+      team_button: Go to the workspace page
       rejected_subject: Your request to join %{team} was not approved
-      approved_subject: Welcome to %{team}
-      request_title: Request to join %{team}
-      request_text: "%{name} (%{email}) wants to join %{team} on %{app_name}. You
-        can process this request by visiting %{url}."
-      approved_title: Welcome to the %{team} team
-      approved_text: Your request to join %{team} on %{app_name} was approved. You
-        can now go to the %{url} and start contributing.
+      approved_subject: Welcome to workspace %{team}
+      request_title: Request to join workspace %{team}
+      request_text: "%{name} (%{email}) wants to join workspace %{team} on %{app_name}.
+        You can process this request by visiting %{url}."
+      approved_title: Welcome to workspace %{team}
+      approved_text: Your request to join workspace %{team} on %{app_name} was approved.
+        You can now go to the %{url} and start contributing.
       rejected_title: Request Denied
-      rejected_text: Sorry your request to join %{team} on %{app_name} was not approved.
+      rejected_text: Sorry, your request to join workspace %{team} on %{app_name}
+        was not approved.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
     ip_subject: 'Security alert: New or unusual %{app_name} login'
     failed_subject: 'Security alert: Failed login attempts to %{app_name}'
-    ip: You’ve signed in from %{location}
-    device: You’ve signed in from %{browser} on %{platform}
+    ip: You've signed in from %{location}
+    device: You've signed in from %{browser} on %{platform}
     devise_name: "%{browser} on %{platform}"
     failed: Failed login attempts detected
     password_text: reset your password immediately.
@@ -525,7 +526,7 @@ en:
     privace_manage_plain: Manage your email notifications
     privacy_plain: Learn more about our Privacy Policy
   archive_keep_backup: Video Vault
-  archive_pender_archive: Keep screenshots
+  archive_pender_archive: Screenshot
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Invalid status
@@ -539,14 +540,14 @@ en:
   blank_active_status_for_custom_verification_status: Please provide an 'active' value
     for the custom verification statuses
   bot_name_exists_for_this_team: There is already a bot with the provided name in
-    this team
-  bot_team_id_doesnt_exist: Sorry, there is no team with the provided identifier
-  bot_team_id_mandatory_to_create: Sorry, you need to choose a team in order to create
-    a bot
+    this workspace
+  bot_team_id_doesnt_exist: Sorry, there is no workspace with the provided identifier
+  bot_team_id_mandatory_to_create: Sorry, you need to choose a workspace in order
+    to create a bot
   bot_not_approved_for_installation: Sorry, this bot was not approved so it can't
     be installed
-  only_admins_can_approve_bots: Sorry, only super admins can approve bots
-  could_not_save_related_bot_data: Sorry, could not add the bot to this team
+  only_admins_can_approve_bots: Sorry, only system administrators can approve bots
+  could_not_save_related_bot_data: Sorry, could not add the bot to this workspace
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
@@ -561,8 +562,8 @@ en:
     We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
   smooch_bot_message_unconfirmed: Since you didn't reply with 1, we will not process
     your request further. Thank you.
-  smooch_bot_message_type_unsupported: Sorry, we don't support this type of message
-    for verification at this time.
+  smooch_bot_message_type_unsupported: Sorry, we don't support this type of message.
+  smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size}.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-
@@ -594,7 +595,7 @@ en:
       owner:
         description: Owners control the workspace.
       editor:
-        description: Editors manage the team and projects.
+        description: Editors manage the workspace and lists.
       journalist:
         description: Journalists verify information.
       contributor:
@@ -606,12 +607,12 @@ en:
     permissions:
       sections:
         project_management:
-          name: Project management
+          name: List management
           permissions:
-            create: Create project
-            edit: Edit project
-            delete: Delete project
-            add_item: Add media item to project
+            create: Create list
+            edit: Edit list
+            delete: Delete list
+            add_item: Add item to list
         item_page_management:
           name: Item management
           permissions:
@@ -630,40 +631,38 @@ en:
             delete: Delete task
             add_response: Add a response
             delete_repsonse: Delete response
-            assign_task: Assign task or media item
+            assign_task: Assign task or item
         team_management:
-          name: Team management
+          name: workspace management
           permissions:
-            delete: Delete team
-            edit: Edit team information
-            set_private: Set team to private
-            edit_status: Edit teamwide statuses
-            edit_tasks: Create and edit teamwide tasks
-            roles: Edit team roles
+            delete: Close workspace
+            edit: Edit workspace information
+            set_private: Set workspace to private
+            edit_status: Edit workspace statuses
+            edit_tasks: Create and edit workspace tasks
+            roles: Edit workspace roles
             third_party: Add third-party integrations
-            invite_owner: Invite, approve, and remove team owners
-            invite_members: Invite, approve, and remove team members
+            invite_owner: Invite, approve, and remove workspace owners
+            invite_members: Invite, approve, and remove workspace members
   team_import:
     invalid_google_spreadsheet_url: Invalid spreadsheet URL %{spreadsheet_url}
     not_found_google_spreadsheet_url: Spreadsheet not found at %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: Cannot authenticate Google Drive with
       the current credentials. Please contact the support team to notify them of this
       incident.
-    team_not_present: Current team not found during data import. Please notify the
-      support team of this incident.
+    team_not_present: Current workspace not found during data import. Please notify
+      the support team of this incident.
     user_not_present: Current user not found during data import. Please notify the
       support team of this incident.
-    user_not_authorized: Sorry, you are not allowed to import data into this team.
-    invalid_project: Invalid project %{project}
+    user_not_authorized: Sorry, you are not allowed to import data into this workspace.
+    invalid_project: Invalid list %{project}
     invalid_user: Invalid author %{user}
     invalid_status: Invalid status %{status}
     blank_user: Invalid blank author
     blank_annotator: Invalid blank annotator
-    blank_project: Invalid blank project
+    blank_project: Invalid blank list
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
-  pender_url_invalid: This link is invalid.
-  pender_url_unsafe: This link is unsafe.
   verification_status_deadline: Deadline
   verification_status_deadline_asc: Due soonest
   verification_status_deadline_desc: Due latest
@@ -672,6 +671,7 @@ en:
   embed_expand_all: Expand all
   embed_collapse_all: Collapse all
   embed_tasks: Tasks
+  embed_analysis: Analysis
   embed_description: Description
   other_language: Other
   unidentified_language: Unidentified
@@ -684,61 +684,39 @@ en:
     be handled by the Smooch Bot.
   invalid_task_answer: Sorry, the format of this task answer is not valid
   team_rule_name: A unique name that identifies what this rule does
-  team_rule_project_ids: Project IDs (leave empty to apply to all projects under that
-    team)
+  team_rule_project_ids: Apply to list
+  team_rule_destination: Select destination list
   team_rules: Rules
-  team_rule_conditions: Conditions
-  team_rule_condition: Condition
-  team_rule_condition_definition: Condition Definition
-  team_rule_has_less_than_x_words: Message has less than this number of words
-  team_rule_matches_regexp: Message matches this regular expression
-  team_rule_contains_keyword: Message contains at least one of the following keywords
-    (separated by commas)
-  team_rule_value: Value
-  team_rule_actions: Actions
-  team_rule_action: Action
-  team_rule_action_definition: Action Definition
+  team_rule_conditions: If
+  team_rule_condition: If
+  team_rule_condition_definition: Select condition
+  team_rule_has_less_than_x_words: Request has only text and less than this number
+    of words
+  team_rule_matches_regexp: Item matches this regular expression
+  team_rule_type_is: Item type is
+  team_rule_type_is_claim: Text
+  team_rule_type_is_link: Link
+  team_rule_type_is_uploadedimage: Image
+  team_rule_type_is_uploadedvideo: Video
+  team_rule_contains_keyword: Request contains one or more of the following keywords
+    (comma separated)
+  team_rule_title_contains_keyword: Item title contains one or more of the following
+    keywords
+  team_rule_select_type: Select type
+  team_rule_tagged_as: Item is tagged as
+  team_rule_select_tag: Select tag
+  team_rule_select_status: Select status
+  team_rule_status_is: Item status is
+  team_rule_value: Type something...
+  team_rule_actions: Then
+  team_rule_action: Then
+  team_rule_action_definition: Select action
   team_rule_send_to_trash: Send to trash
-  team_rule_move_to_project: Move to project (please provide project ID)
-  team_rule_ban_submitter: Ban submitting user
-  custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
-    item que você compartilhou conosco foi classificado como *%{status} *.\n\nVeja
-    as etapas que seguimos para chegar a esta conclusão: %{url}\n"
-  custom_message_smooch_bot_result_changed_afp-checamos: |-
-    Desculpe. A mensagem que você nos enviou foi incorretamente classificada como %{previous_status}. Sentimos muito pelo erro.
-
-    A mensagem que você compartilhou conosco foi classificada como %{status}.
-
-    Esses são os passos que seguimos para chegar a esta conclusão: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: |
-    Agradecemos o contato. Deseja verificar este conteúdo?
-
-    Para dizer sim, *responda com o número 1*. Qualquer outra resposta irá encerrar nossa conversa.
-  custom_message_smooch_bot_message_confirmed_afp-checamos: |-
-    Obrigada, sua solicitação foi recebida e enviaremos um relatório o mais breve possível.
-
-    Por favor, entenda que não podemos responder a todas as solicitações.
-  custom_message_smooch_bot_message_type_unsupported_afp-checamos: Desculpe, no momento
-    não oferecemos suporte para esse tipo de mensagem.
-  custom_message_smooch_bot_message_unconfirmed_afp-checamos: Como você não respondeu
-    com o número 1, não processaremos mais a sua solicitação. Agradecemos o contato.
-  custom_message_smooch_bot_not_final_afp-checamos: |
-    [Relatório de verificação - CORREÇÃO]
-
-    A mensagem que você compartilhou conosco foi classificada incorretamente como *%{status} *.
-
-    O conteúdo ainda está na nossa fila para verificação adicional.
-  custom_message_smooch_bot_meme_afp-checamos: Criamos uma imagem com base na verificação
-    que você solicitou. Saiba mais em %{url}.
-  custom_message_smooch_bot_window_closing_afp-checamos: O volume de solicitações
-    está muito alto e ainda não conseguimos responder o seu pedido. Agradecemos a
-    sugestão. Se quiser nos enviar outra mensagem, fique à vontade.
-  custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
-    possível enviar nenhum resultado porque este projeto não está mais ativo.
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: |
-    Check Message, é o software utilizado nesta linha de verificação, e é fornecido sob estes Termos de Serviço:% {tos}.
-
-    Ao continuar a usar este serviço, * você concorda em cumprir estes termos *. Caso discorde você pode interromper o uso.
+  team_rule_move_to_project: Move item to list
+  team_rule_copy_to_project: Add item to list
+  team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
+  team_rule_all_items: All items
+  relationship_not_same_team: Related items must exist in the same workspace
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
@@ -830,50 +808,6 @@ en:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
-  custom_message_smooch_bot_result_check-message-demo: |
-    [Verification Report]
-
-    The item that you shared with us is marked *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_result_changed_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
-    Thank you for sending this request. Do you want us to verify its content?
-
-    To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_check-message-demo: |
-    Thank you. Your request has been added to our verification queue.
-
-    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |
-    Sorry, we don't support this type of message for verification at this time.
-    The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Since you didn't
-    reply with 1, we will not process your request further. Thank you.
-  custom_message_smooch_bot_not_final_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us was wrongly marked as *%{status}*.
-
-    It is still in our queue for further verification.
-  custom_message_smooch_bot_meme_check-message-demo: Here's a meme we created based
-    on the item you have requested that we verify. Learn more at %{url}.
-  custom_message_smooch_bot_window_closing_check-message-demo: The volume of requests
-    on this channel is very high, and we haven't been able to resolve your request
-    yet. Thank you for your patience.
-  custom_message_smooch_bot_disabled_check-message-demo: Thank you for sending this
-    message. We are unable to send back any verification reports because this project
-    is no longer active.
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'You can use this service
-    to request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?

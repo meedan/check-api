@@ -17,7 +17,8 @@ class Bot::Keep < BotUser
       'keep_backup',    # VideoVault
       'pender_archive', # Screenshot
       'archive_is',     # Archive.is
-      'archive_org'     # Archive.org
+      'archive_org',    # Archive.org
+      'perma_cc'        # Perma.cc
     ]
   end
 
@@ -66,9 +67,9 @@ class Bot::Keep < BotUser
         m.save!
 
         ProjectMedia.where(media_id: link.id).each do |pm|
-          annotation = pm.annotations.where(annotation_type: type).last
+          annotation = pm.annotations.where(annotation_type: 'archiver').last
 
-          unless annotation.nil?
+          unless annotation.nil? || !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
             annotation = annotation.load
             annotation.skip_check_ability = true
             annotation.disable_es_callbacks = Rails.env.to_s == 'test'
@@ -91,26 +92,27 @@ class Bot::Keep < BotUser
 
   ProjectMedia.class_eval do
     def should_skip_create_archive_annotation?(type)
-      team = self.project.team
+      team = self.team
       bot = BotUser.where(login: 'keep').last
       installation = TeamBotInstallation.where(team_id: team.id, user_id: bot&.id.to_i).last
       getter = "get_archive_#{type}_enabled"
-      !DynamicAnnotation::AnnotationType.where(annotation_type: type).exists? || !self.media.is_a?(Link) || installation.nil? || !installation.send(getter)
+      !DynamicAnnotation::AnnotationType.where(annotation_type: 'archiver').exists? || !DynamicAnnotation::FieldInstance.where(name: "#{type}_response").exists? || !self.media.is_a?(Link) || installation.nil? || !installation.send(getter)
     end
 
     def create_archive_annotation(type)
       return if self.should_skip_create_archive_annotation?(type)
-
       data = begin JSON.parse(self.media.metadata_annotation.get_field_value('metadata_value')) rescue self.media.pender_data end
 
       return unless data.has_key?('archives')
-
-      a = Dynamic.new
-      a.skip_check_ability = true
-      a.skip_notifications = true
-      a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.annotation_type = type
-      a.annotated = self
+      a = Dynamic.where(annotation_type: 'archiver', annotated_type: self.class_name, annotated_id: self.id).last
+      if a.nil?
+        a = Dynamic.new
+        a.skip_check_ability = true
+        a.skip_notifications = true
+        a.disable_es_callbacks = Rails.env.to_s == 'test'
+        a.annotation_type = 'archiver'
+        a.annotated = self
+      end
 
       archives = data['archives']
       response = Bot::Keep.set_response_based_on_pender_data(type, archives[Bot::Keep.annotation_type_to_archiver(type)])
@@ -118,12 +120,12 @@ class Bot::Keep < BotUser
       a.save!
     end
 
-    def reset_archive_response(annotation)
-      return if self.should_skip_create_archive_annotation?(annotation.annotation_type)
+    def reset_archive_response(annotation, archiver)
+      return if self.should_skip_create_archive_annotation?(archiver)
       a = annotation.load || annotation
       a.skip_check_ability = true
       a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.set_fields = { "#{a.annotation_type}_response" => {}.to_json }.to_json
+      a.set_fields = { "#{archiver}_response" => {}.to_json }.to_json
       a.save!
     end
 

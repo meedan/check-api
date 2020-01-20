@@ -41,9 +41,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should have a project and media" do
-    assert_no_difference 'ProjectMedia.count' do
-      assert_raise ActiveRecord::RecordInvalid do
+  test "should have a media not not necessarily a project" do
+    assert_difference 'ProjectMedia.count' do
+      assert_nothing_raised do
         create_project_media project: nil
       end
       assert_raise ActiveRecord::RecordInvalid do
@@ -210,7 +210,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 9, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 10, CheckNotifications::Pusher::Worker.jobs.size
     CheckNotifications::Pusher::Worker.drain
     assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -442,10 +442,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p
-      assert ProjectMedia.belonged_to_project(pm.id, p.id)
+      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
       pm.project = p2; pm.save!
       assert_equal p2, pm.project
-      assert ProjectMedia.belonged_to_project(pm.id, p.id)
+      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
     end
   end
 
@@ -504,17 +504,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal p2, pm.project
   end
 
-  test "should create annotation when project media with picture is created" do
-    ft = create_field_type field_type: 'image_path', label: 'Image Path'
-    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
-    create_bot name: 'Check Bot'
-    i = create_uploaded_image
-    assert_difference "Dynamic.where(annotation_type: 'reverse_image').count" do
-      create_project_media media: i
-    end
-  end
-
   test "should refresh Pender data" do
     create_translation_status_stuff
     create_verification_status_stuff(false)
@@ -542,6 +531,47 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '2', em2_data['foo']
     assert_equal 2, em2_data['refreshes_count']
     assert_equal em1, em2
+  end
+
+  test "should create or reset archive response when refresh media" do
+    create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
+    l = create_link
+    t = create_team
+    t.set_limits_keep = true
+    t.save!
+    tb = BotUser.where(name: 'Keep').last
+    tb.set_settings = [{ name: 'archive_pender_archive_enabled', type: 'boolean' }]
+    tb.set_approved = true
+    tb.save!
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
+    tbi.set_archive_pender_archive_enabled = true
+    tbi.save!
+    p = create_project team: t
+    pm = create_project_media media: l, project: p
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.refresh_media = true
+        pm.skip_check_ability = true
+        pm.save!
+      end
+    end
+    a = pm.get_annotations('archiver').last.load
+    f = a.get_field('pender_archive_response')
+    f.value = '{"foo":"bar"}'
+    f.save!
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_not_equal "{}", v
+
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.refresh_media = true
+        pm.skip_check_ability = true
+        pm.save!
+      end
+    end
+
+    v = a.reload.get_field('pender_archive_response').reload.value
+    assert_equal "{}", v
   end
 
   test "should get user id for migration" do
@@ -1039,7 +1069,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.url = url
     pm.media_type = 'Link'
     assert !pm.valid?
-    assert pm.errors.messages.values.flatten.include?('This link is already being parsed, please try again in a few seconds.')
+    assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
   end
 
   test "should create project source" do
@@ -1248,8 +1278,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1266,8 +1298,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: c, project: p
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1278,8 +1312,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_no_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
   end
 
@@ -1298,8 +1334,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.save!
     p = create_project team: t
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
     Link.any_instance.unstub(:pender_embed)
     Media.any_instance.unstub(:pender_embed)
@@ -1320,8 +1358,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
     pm = create_project_media media: l, project: p
-    assert_difference 'Dynamic.where(annotation_type: "pender_archive").count' do
-      pm.create_all_archive_annotations
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
+        pm.create_all_archive_annotations
+      end
     end
     Link.any_instance.unstub(:pender_data)
     Link.any_instance.unstub(:pender_embed)
@@ -1415,43 +1455,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'in_progress', pm.last_verification_status
   end
 
-  test "should move pending item to in progress status" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    stub_config('app_name', 'Check') do
-      create_annotation_type annotation_type: 'response'
-      t = create_team
-      p = create_project team: t
-      u = create_user
-      create_team_user team: t, user: u, role: 'annotator'
-      pm = create_project_media project: p
-      default = 'undetermined'
-      active = 'in_progress'
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      t = create_task annotated: pm
-      assert_not_equal pm.last_status, active
-      # add comment by annotator
-      create_comment annotated: pm, disable_update_status: false, annotator: u
-      assert_not_equal pm.last_verification_status, active
-      # add comment
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, active
-      s.status = default; s.save!
-      # add tag
-      create_tag annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, active
-      s.status = default; s.save!
-      # add response
-      t.response = { annotation_type: 'response', set_fields: {} }.to_json
-      t.save!
-      assert_equal pm.last_verification_status, active
-      # change status to verified and tests autmatic update
-      s.status = 'verified'; s.save!
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal pm.last_verification_status, 'verified'
-    end
-  end
-
   test "should update media account when change author_url" do
     u = create_user is_admin: true
     t = create_team
@@ -1527,16 +1530,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.project_id = p2.id
     pm.save!
     assert_kind_of CheckSearch, pm.check_search_project_was
-  end
-
-  test "should move media to active status" do
-    create_verification_status_stuff
-    stub_config('app_name', 'Check') do
-      pm = create_project_media
-      assert_equal 'undetermined', pm.last_verification_status
-      create_comment annotated: pm, disable_update_status: false
-      assert_equal 'in_progress', pm.reload.last_verification_status
-    end
   end
 
   test "should not complete media if there are pending tasks" do
@@ -1633,11 +1626,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have relationships and parent and children reports" do
-    s1 = create_project_media
-    s2 = create_project_media
-    t1 = create_project_media
-    t2 = create_project_media
-    create_project_media
+    p = create_project
+    s1 = create_project_media project: p
+    s2 = create_project_media project: p
+    t1 = create_project_media project: p
+    t2 = create_project_media project: p
+    create_project_media project: p
     create_relationship source_id: s1.id, target_id: t1.id
     create_relationship source_id: s2.id, target_id: t2.id
     assert_equal [t1], s1.targets
@@ -1722,6 +1716,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     ps.delete
     assert_nil pm.reload.project_source
+    # check that cache store valid source id
+    pm = create_project_media media: create_valid_media, project: p
+    pm2 = create_project_media media: create_valid_media, project: p
+    pm3 = create_project_media media: create_valid_media, project: p
+    pm4 = create_project_media media: create_valid_media, project: p
+    pms = [pm, pm2, pm3, pm4]
+    pms.each do |obj|
+      obj.project_source
+      cache_key = "project_source_id_cache_for_project_media_#{obj.id}"
+      assert Rails.cache.exist?(cache_key)
+      assert_equal obj.get_project_source(p.id), Rails.cache.read(cache_key)
+    end
   end
 
   # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5ca644ecf023ba001260e71d
@@ -1789,5 +1795,279 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
       assert_equal p, pm.copied_to_project
     end
+  end
+
+  test "should cache demand" do
+    p = create_project
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.demand) }
+    pm2 = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm2.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal(3, pm.demand) }
+    assert_queries(0, '=') { assert_equal(3, pm2.demand) }
+    pm3 = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm3.demand) }
+    2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
+    assert_queries(0, '=') { assert_equal(2, pm3.demand) }
+    create_relationship source_id: pm.id, target_id: pm3.id
+    assert_queries(0, '=') { assert_equal(5, pm.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(5, pm3.demand) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm3
+    assert_queries(0, '=') { assert_equal(6, pm.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(6, pm3.demand) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(4, pm.demand) }
+    assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    assert_queries(0, '=') { assert_equal(4, pm3.demand) }
+    assert_queries(0, '>') { assert_equal(4, pm.demand(true)) }
+    assert_queries(0, '>') { assert_equal(2, pm2.demand(true)) }
+    assert_queries(0, '>') { assert_equal(4, pm3.demand(true)) }
+  end
+
+  test "should cache number of linked items" do
+    p = create_project
+    pm = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
+    pm2 = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+    create_relationship source_id: pm.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    pm3 = create_project_media project: p
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    r = create_relationship source_id: pm.id, target_id: pm3.id
+    assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
+    assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
+  end
+
+  test "should cache number of requests" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal(0, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(1, pm.requests_count) }
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_queries(0, '=') { assert_equal(2, pm.requests_count) }
+    assert_queries(0, '>') { assert_equal(2, pm.requests_count(true)) }
+  end
+
+  test "should cache last seen" do
+    p = create_project
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    pm = create_project_media project: p
+    assert_queries(0, '=') { pm.last_seen }
+    assert_equal pm.created_at.to_i, pm.last_seen
+    assert_queries(0, '>') do
+      assert_equal pm.created_at.to_i, pm.last_seen(true)
+    end
+    sleep 1
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    pm2 = create_project_media project: p
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    sleep 1
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal(t0, pm.last_seen) }
+    assert_queries(0, '>') { assert_equal(t0, pm.last_seen(true)) }
+  end
+
+  test "should cache status" do
+    create_verification_status_stuff(false)
+    pm = create_project_media
+    assert pm.respond_to?(:status)
+    assert_queries 0, '=' do
+      assert_equal 'undetermined', pm.status
+    end
+    s = pm.last_verification_status_obj
+    s.status = 'verified'
+    s.save!
+    assert_queries 0, '=' do
+      assert_equal 'verified', pm.status
+    end
+    assert_queries(0, '>') do
+      assert_equal 'verified', pm.status(true)
+    end
+  end
+
+  test "should cache title" do
+    pm = create_project_media
+    pm.metadata = { title: 'Title 1' }.to_json
+    pm.save!
+    assert pm.respond_to?(:title)
+    assert_queries 0, '=' do
+      assert_equal 'Title 1', pm.title
+    end
+    pm = create_project_media
+    pm.metadata = { title: 'Title 2' }.to_json
+    pm.save!
+    assert_queries 0, '=' do
+      assert_equal 'Title 2', pm.title
+    end
+    assert_queries(0, '>') do
+      assert_equal 'Title 2', pm.title(true)
+    end
+  end
+
+  test "should cache description" do
+    pm = create_project_media
+    pm.metadata = { description: 'Description 1' }.to_json
+    pm.save!
+    assert pm.respond_to?(:description)
+    assert_queries 0, '=' do
+      assert_equal 'Description 1', pm.description
+    end
+    pm = create_project_media
+    pm.metadata = { description: 'Description 2' }.to_json
+    pm.save!
+    assert_queries 0, '=' do
+      assert_equal 'Description 2', pm.description
+    end
+    assert_queries(0, '>') do
+      assert_equal 'Description 2', pm.description(true)
+    end
+  end
+
+  test "should index sortable fields" do
+    # sortable fields are [linked_items_count, requests_count and last_seen]
+    setup_elasticsearch
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 0, result.requests_count
+    assert_equal 0, result.linked_items_count
+    assert_equal pm.created_at.to_i, result.last_seen
+    t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 1, result.requests_count
+    assert_equal t, result.last_seen
+
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    sleep 3
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    t = pm2.created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 1, result.linked_items_count
+    assert_equal 1, result2.linked_items_count
+    assert_equal t, result.last_seen
+
+    t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t, result.last_seen
+
+    r.destroy!
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal t0, result.last_seen
+    result = MediaSearch.find(get_es_id(pm))
+    result2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 0, result.linked_items_count
+    assert_equal 0, result2.linked_items_count
+
+
+    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 2, result.requests_count
+    # test sorting
+    p2 = create_project
+    pm = create_project_media project: p2, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    pm3 = create_project_media project: p2, disable_es_callbacks: false
+    sleep 3
+    [pm, pm2, pm3, pm, pm2, pm2].each do |obj|
+      create_dynamic_annotation(annotation_type: 'smooch', annotated: obj)
+    end
+    result = CheckSearch.new({projects: [p2.id], sort: 'requests'}.to_json)
+    assert_equal [pm2.id, pm.id, pm3.id], result.medias.map(&:id)
+    result = CheckSearch.new({projects: [p2.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    assert_equal [pm3.id, pm.id, pm2.id], result.medias.map(&:id)
+  end
+
+  test "should get team" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal t, pm.reload.team
+    t2 = create_team
+    pm.team = t2
+    assert_equal t2, pm.team
+    assert_equal t, ProjectMedia.find(pm.id).team
+  end
+
+  test "should query media" do
+    t = create_team
+    p = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_project_media project: p
+    create_project_media team_id: t.id, project: p1
+    create_project_media team_id: t.id, archived: true, project: p
+    create_project_media team_id: t.id, inactive: true, project: p
+    pm = create_project_media team_id: t.id, project: p1
+    create_relationship source_id: pm.id, target_id: create_project_media(project: p).id
+    create_project_media_project project_media: pm, project: p2
+    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
+    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
+    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
+  end
+
+  test "should get project ids" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    create_project_media_project project_media: pm, project: p2
+    assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
+  end
+
+  test "should get analysis for embed" do
+    ft = create_field_type field_type: 'boolean', label: 'Boolean'
+    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
+    create_field_instance annotation_type_object: at, name: 'memebuster_show_analysis', label: 'Memebuster Show Analysis', field_type_object: ft, optional: false
+    ft = create_field_type field_type: 'text', label: 'Text'
+    at = create_annotation_type annotation_type: 'analysis', label: 'Analysis'
+    create_field_instance annotation_type_object: at, name: 'analysis_text', label: 'Analysis Text', field_type_object: ft, optional: false
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_nil pm.reload.embed_analysis
+    a = random_string
+    create_dynamic_annotation annotation_type: 'analysis', annotated: pm, set_fields: { analysis_text: a }.to_json
+    assert_nil pm.reload.embed_analysis
+    t.embed_analysis = true
+    t.save!
+    assert_equal a, pm.reload.embed_analysis
+    d = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_show_analysis: false }.to_json
+    assert_nil pm.reload.embed_analysis
+    d = Dynamic.find(d.id)
+    d.set_fields = { memebuster_show_analysis: true }.to_json
+    d.save!
+    assert_equal a, pm.reload.embed_analysis
+    t.embed_analysis = false
+    t.save!
+    assert_equal a, pm.reload.embed_analysis
+    d.destroy!
+    assert_nil pm.reload.embed_analysis
   end
 end

@@ -45,6 +45,7 @@ class Bot::Alegre < BotUser
     annotation.annotation_type = 'language'
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = { language: lang }.to_json
+    annotation.skip_check_ability = true
     annotation.save!
     annotation
   end
@@ -61,8 +62,8 @@ class Bot::Alegre < BotUser
 
   def get_context(pm)
     {
-      team_id: pm.project.team.id,
-      project_id: pm.project.id,
+      team_id: pm.team_id,
+      project_id: pm.project_id,
       project_media_id: pm.id
     }
   end

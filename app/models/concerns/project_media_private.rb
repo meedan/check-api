@@ -3,6 +3,13 @@ require 'active_support/concern'
 module ProjectMediaPrivate
   extend ActiveSupport::Concern
 
+  def get_project_source(pid)
+    sources = []
+    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
+    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
+    ProjectSource.where(project_id: pid, source_id: sources).first
+  end
+
   private
 
   def move_media_sources
@@ -20,13 +27,6 @@ module ProjectMediaPrivate
         end
       end
     end
-  end
-
-  def get_project_source(pid)
-    sources = []
-    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
-    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
-    ProjectSource.where(project_id: pid, source_id: sources).first
   end
 
   def project_is_not_archived
@@ -81,10 +81,26 @@ module ProjectMediaPrivate
   end
 
   def notify_team_bots(event)
-    BotUser.enqueue_event("#{event}_project_media", self.project.team_id, self)
+    BotUser.enqueue_event("#{event}_project_media", self.team_id, self)
   end
 
   def apply_rules_and_actions
-    self.project&.team&.apply_rules_and_actions(self)
+    self.team&.apply_rules_and_actions(self, nil)
+  end
+
+  def set_team_id
+    self.team_id = self.project.team_id if self.team_id.blank? && !self.project_id.blank?
+    self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
+  end
+
+  def create_project_media_project
+    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.project_id.blank?
+  end
+
+  def update_project_media_project
+    if self.previous_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
+      ProjectMediaProject.where(project_media_id: self.id).delete_all
+      ProjectMediaProject.create! project_media_id: self.id, project_id: self.project_id
+    end
   end
 end

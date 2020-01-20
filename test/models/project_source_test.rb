@@ -133,10 +133,10 @@ class ProjectSourceTest < ActiveSupport::TestCase
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
       ps = create_project_source project: p
-      assert ProjectSource.belonged_to_project(ps.id, p.id)
+      assert ProjectSource.belonged_to_project(ps.id, p.id, t.id)
       ps.project = p2; ps.save!
       assert_equal p2, ps.project
-      assert ProjectSource.belonged_to_project(ps.id, p.id)
+      assert ProjectSource.belonged_to_project(ps.id, p.id, t.id)
     end
   end
 
@@ -225,4 +225,15 @@ class ProjectSourceTest < ActiveSupport::TestCase
     end
   end
 
+  test "should query source" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_project_source
+    create_project_source project: p1
+    create_project_source project: p2
+    assert_equal 2, CheckSearch.new({ show: ['sources'], team_id: t.id }.to_json).sources.size
+    assert_equal 1, CheckSearch.new({ show: ['sources'], team_id: t.id, projects: [p1.id] }.to_json).sources.size
+    assert_equal 1, CheckSearch.new({ show: ['sources'], team_id: t.id, projects: [p2.id] }.to_json).sources.size
+  end
 end

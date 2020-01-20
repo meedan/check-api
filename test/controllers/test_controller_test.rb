@@ -384,4 +384,22 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should save cache entry" do
+    key = random_string
+    value = random_string
+    get :new_cache_key, { key: key, value: value }
+    assert_equal value, Rails.cache.read(key)
+    assert_response :success
+  end
+
+  test "should not save cache entry if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    key = random_string
+    value = random_string
+    get :new_cache_key, { key: key, value: value }
+    assert_nil Rails.cache.read(key)
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

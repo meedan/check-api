@@ -303,7 +303,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "invite Members"].sort
+    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser", "create User", "create Contact", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
@@ -1415,6 +1415,7 @@ class TeamTest < ActiveSupport::TestCase
     copy_p = copy.projects.find_by_title(project.title)
     copy_pm = copy_p.project_medias.first
     assert_equal pm.versions.map(&:event_type).sort, copy_pm.versions.map(&:event_type).sort
+    assert_equal pm.versions.count, copy_pm.versions.count
     assert_equal pm.get_versions_log.count, copy_pm.get_versions_log.count
 
     assert_nothing_raised do
@@ -1449,7 +1450,7 @@ class TeamTest < ActiveSupport::TestCase
 
       assert_equal 2, Relationship.count
       assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
-      version =  copy_pm1.reload.get_versions_log.first.reload
+      version =  copy_pm1.reload.get_versions_log[2].reload
       changes = version.get_object_changes
       assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
       assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']
@@ -1635,8 +1636,216 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
-      pm = create_project_media quote: text, project: p
-      assert t.contains_keyword(pm, 'hospital')
+      pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+      assert t.contains_keyword(pm, nil, 'hospital')
     end
+  end
+
+  test "should match rule based on status" do
+    create_verification_status_stuff
+    create_task_status_stuff(false)
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "status_is",
+          "rule_value": "in_progress"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0
+    s = pm1.last_status_obj
+    s.status = 'in_progress'
+    s.save!
+    pm2 = create_project_media project: p0
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p0.id, pm2.reload.project_id
+  end
+
+  test "should match rule based on tag" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "tagged_as",
+          "rule_value": "foo"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "tagged_as",
+          "rule_value": "bar"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p2.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0
+    create_tag tag: 'foo', annotated: pm1
+    pm2 = create_project_media project: p0
+    create_tag tag: 'bar', annotated: pm2
+    pm3 = create_project_media project: p0
+    create_tag tag: 'test', annotated: pm2
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p0.id, pm3.reload.project_id
+  end
+
+  test "should match rule based on item type" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    p4 = create_project team: t
+    rules = []
+    { 'claim' => p1, 'uploadedvideo' => p2, 'uploadedimage' => p3, 'link' => p4 }.each do |type, p|
+      rules << {
+        "name": random_string,
+        "project_ids": "",
+        "rules": [
+          {
+            "rule_definition": "type_is",
+            "rule_value": type
+          }
+        ],
+        "actions": [
+          {
+            "action_definition": "move_to_project",
+            "action_value": p.id.to_s
+          }
+        ]
+      }
+    end
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media media: create_claim_media, project: p0
+    pm2 = create_project_media media: create_uploaded_video, project: p0
+    pm3 = create_project_media media: create_uploaded_image, project: p0
+    pm4 = create_project_media media: create_link, project: p0
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p3.id, pm3.reload.project_id
+    assert_equal p4.id, pm4.reload.project_id
+  end
+
+  test "should return number of items in trash and outside trash" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_project_media project: p1
+    create_project_media project: p1
+    create_project_media project: p1, archived: 1
+    create_project_media project: p2
+    create_project_media project: p2
+    create_project_media project: p2, archived: 1
+    create_project_media
+    create_project_media
+    create_project_media archived: 1
+    assert_equal 2, t.reload.trash_count
+    assert_equal 4, t.reload.medias_count
+  end
+
+  test "should be copied to another project as a result of a rule" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "contains_keyword",
+          "rule_value": "test"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    m = create_claim_media quote: 'this is a test'
+    create_project_media project: p0, media: m, smooch_message: { 'text' => 'this is a test' }
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
+
+  test "should match rule by title" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "title_contains_keyword",
+          "rule_value": "test"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    create_project_media project: p0, media: nil, url: url
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
 end

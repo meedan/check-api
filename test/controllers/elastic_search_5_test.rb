@@ -12,6 +12,19 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
+  test "should search for parent items only" do
+    p = create_project
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media disable_es_callbacks: false, project: p
+    sleep 2
+    result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    sleep 2
+    result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id], result.medias.map(&:id)
+  end
+
   test "should set type automatically for media" do
     m = create_media_search
     assert_equal 'mediasearch', m.annotation_type
@@ -113,12 +126,9 @@ class ElasticSearch5Test < ActionController::TestCase
       result = MediaSearch.find(get_es_id(pm))
       p.destroy
       assert_equal 0, ProjectMedia.where(project_id: id).count
-      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 1, ProjectMedia.where(project_id: nil).count
+      assert_equal 3, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
-      sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        MediaSearch.find(get_es_id(pm))
-      end
     end
   end
 
@@ -164,12 +174,14 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 1
     id = get_es_id(ps)
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
     ps.project = p2; ps.save!
     sleep 1
     ms = MediaSearch.find(id)
-    assert_equal ms.project_id.to_i, p2.id
+    assert_equal 1, ms.project_id.size
+    assert_equal ms.project_id.last.to_i, p2.id
     assert_equal ms.team_id.to_i, t.id
   end
 
@@ -338,7 +350,7 @@ class ElasticSearch5Test < ActionController::TestCase
     r1 = create_relationship source_id: s.id, target_id: t1.id
     r2 = create_relationship source_id: s.id, target_id: t2.id
     sleep 1
-    result = CheckSearch.new({ keyword: 'target' }.to_json)
+    result = CheckSearch.new({ keyword: 'target', include_related_items: true }.to_json)
     assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
     r1.destroy
     r2.destroy

@@ -148,7 +148,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm1e.id, target_id: pm1f.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"include_related_items\":true}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t1.slug
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
@@ -417,5 +417,216 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'mutation update { updateTag(input: { clientMutationId: "1", id: "' + id + '", fragment: "t=1,2" }) { tag { id } } }'
     post :create, query: query
     assert_response :success
+  end
+
+  test "should retrieve information for grid" do
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t
+    p = create_project team: t
+
+    m = create_uploaded_image
+    pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
+    info = { title: random_string, description: random_string }.to_json; pm.metadata = info; pm.save!
+    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
+    pm2 = create_project_media project: p
+    r = create_relationship source_id: pm.id, target_id: pm2.id
+    create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
+    info = { title: 'Title Test', description: 'Description Test' }.to_json; pm.metadata = info; pm.save!
+
+    sleep 10
+
+    query = '
+      query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") {
+        id
+        number_of_results
+        medias(first: 1) {
+          edges {
+            node {
+              id
+              dbid
+              picture
+              title
+              description
+              virality
+              demand
+              linked_items_count
+              type
+              status
+              first_seen: created_at
+              last_seen
+            }
+          }
+        }
+      }}
+    '
+
+    assert_queries 17, '=' do
+      post :create, query: query, team: 'team'
+    end
+    
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['search']
+    assert_equal 1, result['number_of_results']
+    assert_equal 1, result['medias']['edges'].size
+    result['medias']['edges'].each do |pm_node|
+      pm = pm_node['node']
+      assert_equal 'Title Test', pm['title']
+      assert_equal 'Description Test', pm['description']
+      assert_equal 0, pm['virality']
+      assert_equal 1, pm['linked_items_count']
+      assert_equal 'UploadedImage', pm['type']
+      assert_not_equal pm['first_seen'], pm['last_seen']
+      assert_equal 2, pm['demand']
+    end
+  end
+
+  test "should get items that belong to multiple lists (from PostgreSQL)" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    
+    pm1 = create_project_media project: p1, disable_es_callbacks: false
+    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
+
+    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
+
+    pm3 = create_project_media project: p1, disable_es_callbacks: false
+    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
+
+    sleep 10
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p1.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p3.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm2.id, pm3.id].sort, results
+  end
+
+  test "should get items that belong to multiple lists (from ElasticSearch)" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    
+    pm1 = create_project_media project: p1, media: create_claim_media(quote: 'test 1'), disable_es_callbacks: false
+    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
+
+    pm2 = create_project_media project: p2, media: create_claim_media(quote: 'test 2'), disable_es_callbacks: false
+    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
+
+    pm3 = create_project_media project: p1, media: create_claim_media(quote: 'test 3'), disable_es_callbacks: false
+    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
+
+    sleep 10
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p1.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm3.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id, pm2.id].sort, results
+
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p3.id.to_s + '],\"keyword\":\"test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm2.id, pm3.id].sort, results
+  end
+
+  test "should create project media project" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+
+    query = 'mutation addToList { createProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
+    assert_difference 'ProjectMediaProject.count' do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+    assert_equal [p1.id, p2.id].sort, pm.reload.project_ids.sort
+  end
+
+  test "should destroy project media project" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+
+    query = 'mutation removeFromList { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    assert_difference 'ProjectMediaProject.count', -1 do
+      post :create, query: query, team: t
+    end
+    assert_response :success
+    assert_nil pm.reload.project_id
+  end
+
+  test "should return cached value for dynamic annotation" do
+    create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', false] })
+    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json }.to_json
+    authenticate_with_token
+    assert_nil ApiKey.current
+
+    post :create, query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
+    
+    post :create, query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    assert_response :success
+    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
+
+    query = { field_name: 'smooch_user_data', json: { app_name: 'foo', identifier: 'bar' } }.to_json
+    cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
+    Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: d.id, field_name: 'smooch_user_data').last&.id)
+
+    post :create, query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    assert_response :success
+    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
   end
 end

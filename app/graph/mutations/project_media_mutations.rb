@@ -1,7 +1,7 @@
 module ProjectMediaMutations
   fields = {
     media_id: 'int',
-    project_id: '!int',
+    project_id: 'int',
     related_to_id: 'int'
   }
 

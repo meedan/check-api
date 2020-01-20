@@ -68,10 +68,14 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'
     @media_url_2 = 'https://smooch.com/image/test2.jpeg'
+    @media_url_3 = 'https://smooch.com/image/large-image.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
+    @video_ur_2 = 'https://smooch.com/video/fake-video.mp4'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/large-image.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
@@ -787,12 +791,21 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   end
 
   test "should support file only if image or video" do
-    assert Bot::Smooch.supported_message?({ 'type' => 'image' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'video' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'text' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })
-    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })
-    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })
+    assert Bot::Smooch.supported_message?({ 'type' => 'image' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'video' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })[:type]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:type]
+    # should not supoort invalid size
+    large_image =  UploadedImage.max_size + random_number
+    large_video =  UploadedVideo.max_size + random_number
+    assert !Bot::Smooch.supported_message?({ 'type' => 'image', 'mediaSize' => large_image })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'video', 'mediaSize' => large_video })[:size]
+    assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg', 'mediaSize' => large_image })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4', 'mediaSize' => large_video })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:size]
   end
 
   test "should ban user that sends unsafe URL" do
@@ -1053,15 +1066,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
   test "should use custom embed URL from task answer" do
     create_task_status_stuff
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    tt = create_team_task team_id: @team.id
-    RequestStore.store[:smooch_bot_settings] = { smooch_task: tt.id }.with_indifferent_access
+    fi1 = create_field_instance annotation_type_object: at, name: 'memebuster_custom_url', label: 'Memebuster Custom URL', field_type_object: ft1
     pm = create_project_media
-    t = create_task annotated: pm, team_task_id: tt.id
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'https://custom.url' }.to_json }.to_json
-    t.save!
+    create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_custom_url: 'https://custom.url' }.to_json
     assert_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
     assert_no_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
@@ -1216,7 +1225,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: ([random_string] * 4).join(' ') + ' pLease?'
+        text: ([random_string] * 3).join(' ') + ' pLease?'
       }
     ]
     payload = {
@@ -1454,6 +1463,159 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Rails.cache.write('smooch:response:' + payload['message']['_id'], pm.id)
     assert_nothing_raised do
       Bot::Smooch.resend_message_after_window(payload.to_json)
+    end
+  end
+
+  test "should delete cache entries when user annotation is deleted" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+    Bot::Smooch.unstub(:save_user_information)
+    SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+    { 'whatsapp' => '', 'messenger' => 'http://facebook.com/psid=1234', 'twitter' => 'http://twitter.com/profile_images/1234/image.jpg', 'other' => '' }.each do |platform, url|
+      SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      redis = Redis.new(REDIS_CONFIG)
+      assert_equal 0, redis.llen("smooch:bundle:#{uid}")
+      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_nil Rails.cache.read("smooch:banned:#{uid}")
+      assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
+        Bot::Smooch.run(payload)
+      end
+      pm = ProjectMedia.last
+      assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_not_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
+      sm = CheckStateMachine.new(uid)
+      sm.enter_human_mode
+      sm = CheckStateMachine.new(uid)
+      assert_equal 'human_mode', sm.state.value
+      Bot::Smooch.ban_user({ 'authorId' => uid }) 
+      assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
+      a = Dynamic.where(annotation_type: 'smooch_user').last
+      assert_not_nil a
+      a.destroy!
+      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+      assert_nil Rails.cache.read("smooch:banned:#{uid}")
+      assert_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
+      sm = CheckStateMachine.new(uid)
+      assert_equal 'waiting_for_message', sm.state.value   
+      assert_equal 0, redis.llen("smooch:bundle:#{uid}")
+    end
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
+  test "should detect media type" do
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'file',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaType: 'image/jpeg',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_difference 'ProjectMedia.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      message['mediaUrl'] = @video_ur_2
+      assert_raises 'ActiveRecord::RecordInvalid' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+    end
+  end
+
+  test "should not save larger files" do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'image',
+        text: random_string,
+        mediaUrl: @media_url_3,
+        mediaSize: UploadedImage.max_size + random_number
+      },
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'file',
+        mediaType: 'image/jpeg',
+        text: random_string,
+        mediaUrl: @media_url_2,
+        mediaSize: UploadedImage.max_size + random_number
+      },
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'video',
+        mediaType: 'video/mp4',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaSize: UploadedVideo.max_size + random_number
+      }
+
+    ]
+    assert_no_difference 'ProjectMedia.count', 0 do
+      assert_no_difference 'Annotation.where(annotation_type: "smooch").count', 0 do
+        messages.each do |message|
+          uid = message[:authorId]
+
+          message = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [message],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
+
+          ignore = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [
+              {
+                '_id': random_string,
+                authorId: uid,
+                type: 'text',
+                text: '2'
+              }
+            ],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
+
+          assert Bot::Smooch.run(message)
+        end
+      end
     end
   end
 

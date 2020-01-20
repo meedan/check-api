@@ -11,7 +11,7 @@ class AssignmentMailer < ApplicationMailer
       title, media_title = project_media.title
       description = project_media.description
       project = project_media.project
-      team = project.team
+      team = project_media.team
       if annotation.annotation_type == 'task'
         task = annotation.load
         title = task.label
@@ -47,7 +47,7 @@ class AssignmentMailer < ApplicationMailer
       author: author_name,
       author_id: author_id,
       team: team.name,
-      project: project.title,
+      project: project&.title&.to_s,
       title: title,
       media_title: media_title,
       url: url,
@@ -62,7 +62,7 @@ class AssignmentMailer < ApplicationMailer
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{model}"), app: CONFIG['app_name']
       }),
-      project_url: project.url,
+      project_url: project&.url&.to_s,
       description: description,
     }
 

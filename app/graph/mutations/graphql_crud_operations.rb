@@ -19,7 +19,7 @@ class GraphqlCrudOperations
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
         parent = self.define_optimistic_fields(parent, inputs, parent_name)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) unless ['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -120,8 +120,8 @@ class GraphqlCrudOperations
       self.send_bulk_pusher_notification("bulk_#{operation}_start", channels)
       self.delay_for(1.second, retry: false).operation_from_multiple_ids(operation, inputs[:ids].join(','), params.to_json, channels, User.current&.id, Team.current&.id)
       ret
-    elsif inputs[:id]
-      self.send("#{operation}_from_single_id", inputs[:id], inputs, ctx, parents)
+    elsif inputs[:id] || obj
+      self.send("#{operation}_from_single_id", inputs[:id] || obj.graphql_id, inputs, ctx, parents)
     end
   end
 
@@ -187,7 +187,14 @@ class GraphqlCrudOperations
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
 
-    obj.define_singleton_method(:number_of_results) { 0 } if inputs['empty_trash']
+    if inputs['empty_trash']
+      obj.define_singleton_method(:number_of_results) { 0 }
+      if obj.is_a?(Team)
+        public_team = obj.public_team
+        public_team.define_singleton_method(:trash_count) { 0 }
+        obj.define_singleton_method(:public_team) { public_team }
+      end
+    end
 
     obj
   end
@@ -206,7 +213,7 @@ class GraphqlCrudOperations
   def self.define_optimistic_fields_for_project_media(obj, inputs, _name)
     status = begin JSON.parse(inputs[:set_fields])['verification_status_status'] rescue nil end
     unless status.nil?
-      return obj if TeamBotInstallation.where(team_id: obj.project.team_id, user_id: BotUser.where(login: 'smooch').last&.id.to_i).last.nil?
+      return obj if TeamBotInstallation.where(team_id: obj.team_id, user_id: BotUser.where(login: 'smooch').last&.id.to_i).last.nil?
       targets = []
       obj.targets_by_users.find_each do |target|
         target.define_singleton_method(:last_status) { status }
@@ -220,8 +227,13 @@ class GraphqlCrudOperations
 
   def self.destroy(inputs, ctx, parents = [])
     returns = {}
+    obj = nil
     if inputs[:id]
       obj = self.object_from_id(inputs[:id])
+    elsif inputs[:project_id] && inputs[:project_media_id]
+      obj = ProjectMediaProject.where(project_id: inputs[:project_id], project_media_id: inputs[:project_media_id]).last
+    end
+    unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)
         parent_obj = self.define_optimistic_fields(parent_obj, inputs, parent)
@@ -283,6 +295,11 @@ class GraphqlCrudOperations
 
       input_field :id, types.ID
       input_field :ids, types[types.ID]
+
+      if type == 'project_media_project'
+        input_field :project_id, types.Int
+        input_field :project_media_id, types.Int
+      end
 
       input_field(:current_id, types.Int) if type == 'relationship'
 
@@ -407,7 +424,8 @@ class GraphqlCrudOperations
           tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
           project = Project.where(id: pid, team_id: tid).last
           pid = project.nil? ? 0 : project.id
-          objid = class_name.belonged_to_project(objid, pid) || 0
+          Project.current = project
+          objid = class_name.belonged_to_project(objid, pid, tid) || 0
           GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
         end
       end

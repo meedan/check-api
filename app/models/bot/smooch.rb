@@ -50,13 +50,24 @@ class Bot::Smooch < BotUser
   end
 
   ::Dynamic.class_eval do
-    after_save :send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }
+    after_save(:send_meme_to_smooch_users, if: proc { |d| d.annotation_type == 'memebuster' }) do |obj|
+      SmoochMemeWorker.perform_in(1.second, obj.id) if obj.action == 'publish'
+    end
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
+    before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
+
+    scope :smooch_user, -> { where(annotation_type: 'smooch_user').joins(:fields).where('dynamic_annotation_fields.field_name' => 'smooch_user_data') }
 
     private
 
-    def send_meme_to_smooch_users
-      SmoochMemeWorker.perform_in(1.second, self.id) if self.action == 'publish'
+    def delete_smooch_cache_keys
+      uid = self.get_field_value('smooch_user_id')
+      unless uid.blank?
+        ["smooch:bundle:#{uid}", "smooch:last_accepted_terms:#{uid}", "smooch:banned:#{uid}"].each { |key| Rails.cache.delete(key) }
+        Rails.cache.delete_matched("smooch:request:#{uid}:*")
+        sm = CheckStateMachine.new(uid)
+        sm.leave_human_mode if sm.state.value == 'human_mode'
+      end
     end
 
     def change_smooch_user_state
@@ -270,7 +281,7 @@ class Bot::Smooch < BotUser
 
   def self.team_has_smooch_bot_installed(pm)
     bot = BotUser.where(login: 'smooch').last
-    tbi = TeamBotInstallation.where(team_id: pm.project.team_id, user_id: bot&.id.to_i).last
+    tbi = TeamBotInstallation.where(team_id: pm.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
@@ -326,15 +337,11 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_redis_client
-    Redis.new(REDIS_CONFIG)
-  end
-
   def self.group_messages(message, app_id)
     sm = CheckStateMachine.new(message['authorId'])
     return if sm.state.value == 'human_mode'
     self.send_tos_if_needed(message)
-    redis = self.get_redis_client
+    redis = Redis.new(REDIS_CONFIG)
     uid = message['authorId']
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
@@ -343,7 +350,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_messages(uid, id, app_id)
-    redis = self.get_redis_client
+    redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     list = redis.lrange(key, 0, redis.llen(key))
     unless list.empty?
@@ -354,7 +361,7 @@ class Bot::Smooch < BotUser
         text = []
         media = nil
         list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-          next unless self.supported_message?(message)
+          next unless self.supported_message?(message)[:type]
           if media.nil?
             media = message['mediaUrl']
             bundle['type'] = message['type']
@@ -388,9 +395,10 @@ class Bot::Smooch < BotUser
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
     # Override reply language with team language if present
-    options.merge!({ locale: team.get_language }) if team && team.get_language
+    options.merge!({ locale: team.get_language }) if team&.get_language
     if team && !config["smooch_message_#{key}"].blank?
-      (I18n.exists?("custom_message_#{key}_#{team.slug}") && !I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options).blank?) ? I18n.t("custom_message_#{key}_#{team.slug}".to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
+      i18nkey = "custom_message_#{key}_#{team.slug}"
+      (config['smooch_localize_messages'] && I18n.exists?(i18nkey) && !I18n.t(i18nkey.to_sym, options).blank?) ? I18n.t(i18nkey.to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
     else
       I18n.t(key.to_sym, options)
     end
@@ -482,6 +490,9 @@ class Bot::Smooch < BotUser
       a.annotated_id = self.get_project_id
       a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
       a.save!
+      query = { field_name: 'smooch_user_data', json: { app_name: app.app.name, identifier: identifier } }.to_json
+      cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
+      Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
     end
   end
 
@@ -509,11 +520,12 @@ class Bot::Smooch < BotUser
       if pm_id.nil?
         sm.send_message_new
         sm.message = message.to_json
-        if self.supported_message?(message)
+        is_supported = self.supported_message?(message)
+        if is_supported.slice(:type, :size).all?{|_k, v| v}
           self.save_message_later(message, app_id)
           self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
         else
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_type_unsupported, { locale: message['language'] }))
+          self.send_error_message(message, is_supported)
         end
       else
         sm.send_message_existing
@@ -530,14 +542,32 @@ class Bot::Smooch < BotUser
   end
 
   def self.supported_message?(message)
-    case message['type']
-    when 'text', 'image', 'video'
-      return true
-    when 'file'
-      return message['mediaType'].to_s =~ /^(image|video)\//
-    else
-      return false
+    type = message['type']
+    if type == 'file'
+      m = message['mediaType'].to_s.match(/^(image|video)\//)
+      type = m[1] unless m.nil?
     end
+    message['mediaSize'] ||= 0
+    # define the ret array with keys
+    # type: true if the type supported, size: true if size in allowed range and m_type for message type(image, video, ..)
+    ret = { type: true, m_type: type }
+    case type
+    when 'text'
+      ret[:size] = true
+    when 'image'
+      ret[:size] = message['mediaSize'] <= UploadedImage.max_size
+    when 'video'
+      ret[:size] = message['mediaSize'] <= UploadedVideo.max_size
+    else
+      ret = { type: false, size: false }
+    end
+    ret
+  end
+
+  def self.send_error_message(message, is_supported)
+    error_message = is_supported[:type] == false ? :smooch_bot_message_type_unsupported : :smooch_bot_message_size_unsupported
+    max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
+    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(error_message, { locale: message['language'], max_size: max_size }))
   end
 
   def self.smooch_api_client
@@ -587,6 +617,7 @@ class Bot::Smooch < BotUser
          when 'video'
            self.save_media_message(message, 'video')
          when 'file'
+           message['mediaType'] = self.detect_media_type(message)
            m = message['mediaType'].to_s.match(/^(image|video)\//)
            m.nil? ? return : self.save_media_message(message, m[1])
          else
@@ -682,7 +713,7 @@ class Bot::Smooch < BotUser
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Link', { url: url })
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) if text != url && !text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) if text != url && !text.blank?
 
       self.add_hashtags(text, pm)
 
@@ -697,6 +728,20 @@ class Bot::Smooch < BotUser
     pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
+  end
+
+  def self.detect_media_type(message)
+    type = nil
+    begin
+      m_type = MimeMagic.by_magic(open(message['mediaUrl']))
+      type = m_type.type
+      unless type.nil? || type == message['mediaType']
+        Rails.logger.warn "[Smooch Bot] saved file #{message['mediaUrl']} as #{type} instead of #{message['mediaType']}"
+      end
+    rescue
+      nil
+    end
+    type || message['mediaType']
   end
 
   def self.save_media_message(message, type = 'image')
@@ -719,7 +764,7 @@ class Bot::Smooch < BotUser
         pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
-      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true, disable_update_status: true) unless text.blank?
+      Comment.create!(annotated: pm, text: text, force_version: true, skip_check_ability: true) unless text.blank?
       FileUtils.rm_f filepath
 
       self.add_hashtags(text, pm)
@@ -734,7 +779,7 @@ class Bot::Smooch < BotUser
       finals = ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].select{ |s| s['completed'].to_i == 1 }.collect{ |s| s['id'].gsub(/^not_true$/, 'false') }
       previous_final_statuses = []
       f = pm.last_verification_status_obj.get_field('verification_status_status')
-      Version.from_partition(pm.project.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).order('id ASC').each do |v|
+      Version.from_partition(pm.team_id).where(item_type: 'DynamicAnnotation::Field', item_id: f.id.to_s).order('id ASC').each do |v|
         status = YAML.load(JSON.parse(v.object_after)['value']).to_s
         previous_final_statuses << status if finals.include?(status)
       end
@@ -818,14 +863,7 @@ class Bot::Smooch < BotUser
 
   def self.embed_url(pm)
     pm = Bot::Smooch.get_parent(pm) || pm
-    team_task_id = self.config['smooch_task'].to_i
-    custom_url = nil
-    if team_task_id > 0
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: pm.id).each do |t|
-        custom_url = t.first_response if t.team_task_id.to_i == team_task_id && t.status == 'resolved'
-      end
-    end
-    custom_url || pm.embed_url
+    pm.custom_embed_url || pm.embed_url
   end
 
   def self.send_meme_to_user(uid, pm, lang)
@@ -840,7 +878,6 @@ class Bot::Smooch < BotUser
     a.annotated = pm
     a.annotation_type = 'smooch_response'
     a.disable_es_callbacks = true
-    a.disable_update_status = true
     a.skip_notifications = true
     a.skip_check_ability = true
     a.set_fields = { smooch_response_data: response.to_json }.to_json

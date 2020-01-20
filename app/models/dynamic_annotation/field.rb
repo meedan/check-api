@@ -23,7 +23,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     self.method_suggestions('formatter').each do |name|
       return self.send(name) if self.respond_to?(name)
     end
-    self.value
+    self.value.to_s
   end
 
   def as_json(options = {})

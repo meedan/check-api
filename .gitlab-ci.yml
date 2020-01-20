@@ -2,8 +2,7 @@ stages:
   #- test
   - build
   - deploy
-
-
+  
 build_qa:
   image: docker:latest
   services:
@@ -15,13 +14,12 @@ build_qa:
   variables:
     AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-    - d=configurator/check/qa/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
     - docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
@@ -51,8 +49,6 @@ deploy_qa:
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
-    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_qa_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - develop
 
@@ -72,10 +68,7 @@ build_live:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-    - d=configurator/check/live/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
-    - docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"  .
-    - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
+    - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master
 
@@ -104,7 +97,5 @@ deploy_live:
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
-    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_live_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master

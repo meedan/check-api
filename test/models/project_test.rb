@@ -692,9 +692,9 @@ class ProjectTest < ActiveSupport::TestCase
       end
       RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
-      assert_nil ProjectMedia.where(id: pm2.id).last
-      assert_nil ProjectMedia.where(id: pm3.id).last
-      assert_nil Comment.where(id: c.id).last
+      assert_not_nil ProjectMedia.where(id: pm2.id, project_id: nil).last
+      assert_not_nil ProjectMedia.where(id: pm3.id, project_id: nil).last
+      assert_not_nil Comment.where(id: c.id).last
       assert_not_nil ProjectSource.where(id: ps1.id).last
       assert_nil ProjectSource.where(id: ps2.id).last
     end
@@ -747,12 +747,14 @@ class ProjectTest < ActiveSupport::TestCase
       l1 = create_link
       pm3 = create_project_media media: l1, project: p
       pm3.create_all_archive_annotations
-      f = DynamicAnnotation::Field.last
+      archiver = Annotation.where(annotation_type: 'archiver', annotated_id: pm3.id).last
+      f = DynamicAnnotation::Field.where(field_name: "pender_archive_response", annotation_id: archiver.id).last
       f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
       f.save!
       l2 = create_link
       pm4 = create_project_media media: l2, project: p
       pm4.create_all_archive_annotations
+
       assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
     end
     Team.any_instance.unstub(:get_limits_keep)
@@ -856,5 +858,30 @@ class ProjectTest < ActiveSupport::TestCase
       Assignment.any_instance.unstub(:nil?)
       assert_equal n, Assignment.count
     end
+  end
+
+  test "should not include trashed items in medias count" do
+    p = create_project
+    create_project_media project: p
+    create_project_media project: p
+    create_project_media project: p, archived: 1
+    assert_equal 2, p.reload.medias_count
+  end
+
+  test "should nullify project medias project_id when project is deleted" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    assert_not_nil pm1.reload.project_id
+    with_current_user_and_team(u, t) do
+      p.destroy_later
+    end
+    assert_nil pm1.reload.project_id
+  end
+
+  test "should have search team" do
+    assert_kind_of CheckSearch, create_project.check_search_team
+    assert_kind_of Array, create_project.check_search_team.projects
   end
 end

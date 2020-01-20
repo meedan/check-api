@@ -25,7 +25,7 @@ class DynamicTest < ActiveSupport::TestCase
     a = create_dynamic_annotation
     f1 = create_field annotation_id: a.id
     f2 = create_field annotation_id: a.id
-    assert_equal [f1, f2], a.reload.fields
+    assert_equal [f1, f2].sort, a.reload.fields.to_a.sort
   end
 
   test "should load" do

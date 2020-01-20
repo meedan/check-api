@@ -38,8 +38,11 @@ class Bot::KeepTest < ActiveSupport::TestCase
     l = create_link
     p = create_project team: t
     pm = create_project_media project: p, media: l
-    pm.create_all_archive_annotations
-    assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
+        pm.create_all_archive_annotations
+      end
+    end
   end
 
   test "should not create Keep annotations if media is not a link" do
@@ -54,8 +57,11 @@ class Bot::KeepTest < ActiveSupport::TestCase
     c = create_claim_media
     p = create_project team: t
     pm = create_project_media project: p, media: c
-    pm.create_all_archive_annotations
-    assert_nil pm.annotations.where(annotation_type: 'keep_backup').last
+    assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
+        pm.create_all_archive_annotations
+      end
+    end
   end
 
   test "should create Keep annotations when bot runs" do
@@ -71,8 +77,11 @@ class Bot::KeepTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: l
     u = create_user is_admin: true
-    Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
-    assert_not_nil pm.annotations.where(annotation_type: 'keep_backup').last
+    assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
+      assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
+        Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
+      end
+    end
   end
 
   test "should parse webhook payload" do

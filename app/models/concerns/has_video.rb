@@ -14,7 +14,7 @@ module HasVideo
 
     mount_uploader :file, VideoUploader
     process_in_background :file
-    validates :file, file_size: { less_than: UploadedVideo.max_size, message: "size should be less than #{UploadedVideo.max_size_readable}" }, allow_blank: true
+    validates :file, file_size: { less_than: UploadedVideo.max_size, message: :video_too_large, max_size: UploadedVideo.max_size_readable }, allow_blank: true
   end
 
   def thumbnail_path

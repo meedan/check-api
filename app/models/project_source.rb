@@ -21,6 +21,10 @@ class ProjectSource < ActiveRecord::Base
     p.nil? ? [] : [p.team_id]
   end
 
+  def team_id
+    self.project.team_id
+  end
+
   def collaborators
     self.annotators
   end

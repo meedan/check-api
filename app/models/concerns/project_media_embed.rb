@@ -19,7 +19,7 @@ module ProjectMediaEmbed
   def embed_url(shorten = true)
     url = CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
     return url unless shorten && CONFIG['bitly_key']
-    Rails.cache.fetch("shorten-url-#{self.id}") do
+    Rails.cache.fetch("shorten-url-#{self.full_url}") do
       # Shorten using Bit.ly and return the shortened URL
       begin
         bitly = Bitly.client.shorten(url)
@@ -29,6 +29,24 @@ module ProjectMediaEmbed
         url
       end
     end
+  end
+
+  def embed_analysis
+    item_show_analysis_defined = (begin self.get_annotations('memebuster').last.load.get_field('memebuster_show_analysis') rescue nil end)
+    item_show_analysis = (begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_show_analysis') rescue false end)
+    if (item_show_analysis_defined && item_show_analysis) || (!item_show_analysis_defined && self.team.get_embed_analysis)
+      begin self.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue nil end
+    end
+  end
+
+  def embed_disclaimer
+    item_disclaimer = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_disclaimer').to_s rescue nil end
+    item_disclaimer || self.team.get_disclaimer
+  end
+
+  def custom_embed_url
+    url = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_custom_url').to_s rescue nil end
+    url.to_s =~ /^http/ ? url : nil
   end
 
   def author_name
@@ -48,7 +66,7 @@ module ProjectMediaEmbed
   end
 
   def author_role
-    role = self.user.nil? ? '' : self.user.role(self.project.team).to_s
+    role = self.user.nil? ? '' : self.user.role(self.team).to_s
     role.blank? ? 'none' : role
   end
 
@@ -65,8 +83,10 @@ module ProjectMediaEmbed
   end
 
   def completed_tasks_to_show
-    tasks_to_show = self.project.team.get_embed_tasks.to_s.split(',').map(&:to_i)
-    self.all_tasks.select{ |t| t.status == 'resolved' && (t.team_task_id.blank? || tasks_to_show.include?(t.team_task_id.to_i)) }.reverse
+    item_tasks = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_tasks') rescue nil end
+    team_tasks = []
+    team_tasks = self.team.get_embed_tasks.to_s.split(',').map(&:to_i) if item_tasks.nil?
+    self.all_tasks.select{ |t| t.status == 'resolved' && (item_tasks.to_a.include?(t.id) || team_tasks.include?(t.team_task_id.to_i)) }.reverse
   end
 
   def open_tasks
@@ -176,7 +196,7 @@ module ProjectMediaEmbed
   end
 
   def last_status_html
-    custom_statuses = self.project.team.get_media_statuses
+    custom_statuses = self.team.get_media_statuses
     if custom_statuses.nil?
       "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
     else

@@ -18,7 +18,6 @@ ml:
     media:
       undetermined:
         label: 'തുടങ്ങിയിട്ടില്ല '
-        description: നടപടിക്രമത്തിലാണ്. പരിശോധന തുടങ്ങുന്നതേയുള്ളൂ.
       not_applicable:
         label: നിര്‍ണ്ണയിക്കാനായില്ല
         description: 'ഇപ്പോഴുള്ള തെളിവുകള്‍ വച്ച് ഒരു നിഗമനത്തിലെത്താനാവില്ല '
@@ -33,7 +32,6 @@ ml:
         description: 'കണ്ടെത്തല്‍ : താങ്കളയച്ച സംഗതിയുടെ ഉള്ളടക്കം പരിശോധിച്ച് ഉറപ്പുവരുത്തിയിട്ടുണ്ട്.'
       pending:
         label: പരിഗണനയിലാണ്
-        description: നടപടിക്രമത്തില്‍. അടുത്ത ഘട്ടത്തിലേക്ക് കടക്കുന്നു. പരിശോധന തുടങ്ങിയിട്ടില്ല
       translated:
         label: പരിഭാഷപ്പെടുത്തിയിട്ടുണ്ട്
         description: പരിഭാഷ കഴിഞ്ഞു.വിലയിരുത്തല്‍ കാത്തിരിക്കുന്നു
@@ -56,11 +54,9 @@ ml:
         label: ഉപയോഗശൂന്യം
       unstarted:
         label: തുടങ്ങിയിട്ടില്ല
-        description: നടപടിക്രമത്തില്‍. പരിശോധക്കായി ചേര്‍ത്തിട്ടുണ്ട്. പ്രവൃത്തി തുടങ്ങിയിട്ടില്ല
     source:
       undetermined:
         label: തുടങ്ങിയിട്ടില്ല
-        description: നടപടിക്രമത്തില്‍. പരിശോധക്കായി ചേര്‍ത്തിട്ടുണ്ട്. പ്രവൃത്തി തുടങ്ങിയിട്ടില്ല
       credible:
         label: വിശ്വസനീയം
         description: 'കണ്ടെത്തല്‍ : വിശ്വസനീയമായ ഉറവിടമാണ് '
@@ -76,7 +72,6 @@ ml:
     translation:
       pending:
         label: തീര്‍ന്നിട്ടില്ല
-        description: 'നടപടിക്രമത്തില്‍, അടുത്ത് ഘട്ടത്തിലേക്ക് കടക്കുന്നു. '
       in_progress:
         label: നടന്നുകൊണ്ടിരിക്കുന്നു
         description: 'പ്രവൃത്തി തുടങ്ങിയിട്ടുണ്ട്. പരിഭാഷപ്പെടുത്തിയിട്ടില്ല '
@@ -98,15 +93,12 @@ ml:
   activerecord:
     models:
       link: 'ലിങ്ക് '
-      claim: അവകാശവാദം
       uploaded_file: ഫയല്‍
       uploaded_image: ചിത്രം
       task: ജോലി
       comment: നോട്ട്
       project_media: തരം
       media: തരം
-      project: പദ്ധതി
-      team: ടീം
       user: 'ഉപയോക്താവ് '
       source: 'ഉറവിടം '
       project_source: ഉറവിടം
@@ -146,17 +138,6 @@ ml:
     *%{status}*
 
     എന്നാക്കി മാറ്റിയിരിക്കുന്നു. ഈ നിഗമനത്തിലെത്താന്‍ ഞങ്ങള്‍ സ്വീകരിച്ച മാര്‍ഗ്ഗം ഇതാണ്  3 %{url}.
-  custom_message_smooch_bot_result_afp-checamos: ''
-  custom_message_smooch_bot_result_changed_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
-  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
-  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
-  custom_message_smooch_bot_not_final_afp-checamos: ''
-  custom_message_smooch_bot_meme_afp-checamos: ''
-  custom_message_smooch_bot_window_closing_afp-checamos: ''
-  custom_message_smooch_bot_disabled_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -183,17 +164,6 @@ ml:
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_disabled_caio: ''
-  custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
-  custom_message_smooch_bot_disabled_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: താങ്കളുടെ സന്ദേശത്തിന്
     നന്ദി. ഇത് 2019ലെ ലോക് സഭാ തെരഞ്ഞെടുപ്പുമായി ബന്ധപ്പെട്ട വ്യാജവിവരമാണെന്ന് സംശയമുണ്ടോ
     ? ഉണ്ടെങ്കില്‍ 1 എന്ന് മറുപടി അയക്കകുക. ഇല്ലെങ്കില്‍ ഈ സംഭാഷണം ഇവിടെ അവസാനിപ്പിക്കാം.

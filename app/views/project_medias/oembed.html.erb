@@ -21,6 +21,7 @@
           collapse_all: "<%= I18n.t(:embed_collapse_all, locale: locale) %>",
           tasks: "<%= I18n.t(:embed_tasks, locale: locale) %>",
           description: "<%= I18n.t(:embed_description, locale: locale) %>",
+          analysis: "<%= I18n.t(:embed_analysis, locale: locale) %>",
 
           <% Workflow::Workflow.core_options(@project_media, @project_media.default_project_media_status_type)[:statuses].each do |status| %>
             status_<%= status[:id] %>: "<%= I18n.t('statuses.media.' + status[:id].gsub(/^false$/, 'not_true') + '.label', locale: locale) %>",
@@ -75,6 +76,13 @@
         </div>
       <% end %>
 
+      <% if @project_media.embed_analysis %>
+        <h2 class="oembed__subtitle"><span class="l">analysis</span></h2>
+        <div id="oembed__description" class="oembed__card oembed__linkify" dir="auto">
+          <%= @project_media.embed_analysis %>
+        </div>
+      <% end %>
+
       <% 
         tasks = @project_media.completed_tasks_to_show.to_a
         if tasks.size > 0
@@ -96,10 +104,9 @@
       <% end %>
 
       <div id="oembed__footer">
-        <% team = @project_media.project.team %>
+        <% team = @project_media.team %>
         <p><img src="<%= team.avatar %>" alt="" /> <span id="oembed__team-name" dir="auto"><%= team.name %></span></p>
-        <p class="oembed__linkify" id="oembed__team-disclaimer" dir="auto"><%= team.get_disclaimer %></p>
-        <p class="oembed__linkify" id="oembed__team-link"><%= team.url %></p>
+        <p class="oembed__linkify" id="oembed__team-disclaimer" dir="auto"><%= @project_media.embed_disclaimer %></p>
       </div>
     </div> <!-- / #oembed__content-container -->
 

@@ -3,10 +3,17 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_auto_tasks
-    return if self.project.team.is_being_copied
+  def get_team_for_auto_tasks
+    self.team || self.project&.team
+  end
+
+  def create_auto_tasks(tasks = [])
+    team = self.get_team_for_auto_tasks
+    return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
-    tasks = self.project.nil? ? [] : self.project.auto_tasks
+    if tasks.blank?
+      tasks = self.project.nil? ? Project.new(team: team).auto_tasks : self.project.auto_tasks
+    end
     created = []
     tasks.each do |task|
       t = Task.new
@@ -21,7 +28,6 @@ module ProjectMediaCreators
       t.annotated = self
       t.skip_check_ability = true
       t.skip_notifications = true
-      t.disable_update_status = true if t.respond_to?(:disable_update_status)
       t.save!
       created << t
       # set auto-response
@@ -33,24 +39,9 @@ module ProjectMediaCreators
   private
 
   def set_project_source
-    return if self.project.team.is_being_copied
+    team = self.team || self.project&.team
+    return if team.nil? || team.is_being_copied
     self.create_project_source
-  end
-
-  def create_reverse_image_annotation
-    return if self.project.team.is_being_copied || self.media.type == 'UploadedVideo'
-    picture = self.media.picture
-    unless picture.blank?
-      d = Dynamic.new
-      d.skip_check_ability = true
-      d.skip_notifications = true
-      d.annotation_type = 'reverse_image'
-      d.annotator = BotUser.where(name: 'Check Bot').last
-      d.annotated = self
-      d.disable_es_callbacks = Rails.env.to_s == 'test'
-      d.set_fields = { reverse_image_path: picture }.to_json
-      d.save!
-    end
   end
 
   def create_annotation
@@ -167,6 +158,7 @@ module ProjectMediaCreators
   end
 
   def create_project_source
+    return if self.project_id.blank?
     a = self.media.account
     source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
     if source.nil?
@@ -188,7 +180,7 @@ module ProjectMediaCreators
   def create_relationship(type = Relationship.default_type)
     unless self.related_to_id.nil?
       related = ProjectMedia.where(id: self.related_to_id).last
-      if !related.nil? && related.project_id == self.project_id
+      unless related.nil?
         r = Relationship.new
         r.skip_check_ability = true
         r.relationship_type = type
@@ -202,6 +194,6 @@ module ProjectMediaCreators
   end
 
   def copy_to_project
-    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications) if self.copy_to_project_id
+    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
   end
 end

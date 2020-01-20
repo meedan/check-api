@@ -68,7 +68,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation', 'Dynamic']
 
   config.navigation_static_links = {
     'Web Client' => CONFIG['checkdesk_client'],
@@ -565,6 +565,31 @@ RailsAdmin.config do |config|
     list do
       field :bot_user
       field :team
+    end
+  end
+
+  config.model 'Dynamic' do
+    label 'Smooch User'
+    label_plural 'Smooch Users'
+
+    list do
+      scopes [:smooch_user]
+      field :id
+      field :name do
+        queryable true
+        filterable true
+        searchable [{ dynamic_annotation_fields: :value }]
+        formatted_value do
+          begin
+            dynamic = bindings[:object]
+            data = JSON.parse(dynamic.get_field_value('smooch_user_data'))
+            data.dig('raw', 'givenName').to_s + ' ' + data.dig('raw', 'surname').to_s
+          rescue
+            'Could not parse the name'
+          end
+        end
+        visible_only_for_admin
+      end
     end
   end
 end

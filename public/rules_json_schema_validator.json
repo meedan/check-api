@@ -12,10 +12,6 @@
         "title": "A unique name that identifies what this rule does",
         "type": "string"
       },
-      "project_ids": {
-        "title": "Project IDs (leave empty to apply to all projects under that team)",
-        "type": "string"
-      },
       "rules": {
         "title": "Conditions",
         "type": "array",
