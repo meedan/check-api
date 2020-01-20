@@ -48,7 +48,8 @@ deploy_qa:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_live_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - develop
 
@@ -68,7 +69,8 @@ build_live:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"  .
+    - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
   only:
     - master
 
@@ -96,6 +98,7 @@ deploy_live:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_live_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master
