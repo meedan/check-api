@@ -704,6 +704,7 @@ fr:
   embed_expand_all: Développer tout
   embed_collapse_all: Réduire tout
   embed_tasks: Tâches
+  embed_analysis: Analyse
   embed_description: Description
   other_language: Autre
   unidentified_language: Non identifié
@@ -722,15 +723,18 @@ fr:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Sélectionnez une condition
-  team_rule_has_less_than_x_words: L'élément contient moins que ce nombre de mots
+  team_rule_has_less_than_x_words: La demande contient uniquement du texte et moins
+    que ce nombre de mots
   team_rule_matches_regexp: L'élément correspond à cette expression régulière
   team_rule_type_is: Le type de l'élément est
   team_rule_type_is_claim: Texte
   team_rule_type_is_link: Lien
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Vidéo
-  team_rule_contains_keyword: L'élément contient un ou plusieurs des mots-clés suivants
+  team_rule_contains_keyword: La demande contient un ou plusieurs des mots-clés suivants
     (séparés par des virgules)
+  team_rule_title_contains_keyword: Le titre de l'élément contient un ou plusieurs
+    des mots-clés suivants
   team_rule_select_type: Selectionner le type
   team_rule_tagged_as: L'élément contient le tag suivant
   team_rule_select_tag: Sélectionner un tag
@@ -746,17 +750,8 @@ fr:
   team_rule_ban_submitter: Exclure l'expéditeur (ses futurs messages n'apparaîtront
     plus dans Check)
   team_rule_all_items: Tous les éléments
-  custom_message_smooch_bot_result_afp-checamos: ''
-  custom_message_smooch_bot_result_changed_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
-  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
-  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
-  custom_message_smooch_bot_not_final_afp-checamos: ''
-  custom_message_smooch_bot_meme_afp-checamos: ''
-  custom_message_smooch_bot_window_closing_afp-checamos: ''
-  custom_message_smooch_bot_disabled_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  relationship_not_same_team: Les éléments associés doivent exister dans le même espace
+    de travail
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -786,17 +781,6 @@ fr:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
-  custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
-  custom_message_smooch_bot_disabled_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Merci de nous envoyer ce message.
 
