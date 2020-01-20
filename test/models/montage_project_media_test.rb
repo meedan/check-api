@@ -61,11 +61,13 @@ class MontageProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should return number of tags" do
-    pm = create_project_media.extend(Montage::Video)
-    2.times { create_tag(annotated: pm) }
-    2.times { create_tag }
-    2.times { create_comment(annotated: pm) }
-    assert_equal 2, pm.tag_count
+    WebMock.allow_net_connect! do
+      pm = create_project_media.extend(Montage::Video)
+      2.times { create_tag(annotated: pm) }
+      2.times { create_tag }
+      2.times { create_comment(annotated: pm) }
+      assert_equal 2, pm.tag_count
+    end
   end
 
   test "should return YouTube id" do

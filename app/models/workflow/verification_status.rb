@@ -3,6 +3,7 @@ class Workflow::VerificationStatus < Workflow::Base
   check_default_project_media_workflow if CONFIG['app_name'] == 'Check'
 
   check_workflow from: :any, to: :terminal, actions: [:send_terminal_notification_if_can_complete_media, :reset_deadline]
+  check_workflow from: :any, to: :any, actions: [:apply_rules]
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
   check_workflow on: :commit, actions: :save_deadline, events: [:create, :update]
 
@@ -12,35 +13,6 @@ class Workflow::VerificationStatus < Workflow::Base
 
   def self.core_active_value
     'in_progress'
-  end
-
-  [Comment, Tag, Flag, Dynamic].each do |annotation_class|
-    annotation_class.class_eval do
-      attr_accessor :disable_update_status
-
-      after_create :update_annotated_status, if: :should_update_annotated_status?
-
-      protected
-
-      def author_is_not_annotator
-        self.annotator.nil? || !self.annotator.is_a?(User) || !self.annotator.role?(:annotator)
-      end
-
-      private
-
-      def should_update_annotated_status?
-        !self.disable_update_status &&
-        !self.is_being_copied &&
-        ['ProjectMedia', 'Task'].include?(self.annotated_type) &&
-        (self.class.name != 'Dynamic' || self.annotation_type =~ /^task_response/) &&
-        self.author_is_not_annotator
-      end
-
-      def update_annotated_status
-        target = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
-        target.move_media_to_active_status unless self.annotated.nil?
-      end
-    end
   end
 
   Task.class_eval do
@@ -61,17 +33,11 @@ class Workflow::VerificationStatus < Workflow::Base
   end
 
   ProjectMedia.class_eval do
-    def move_media_to_active_status
-      return unless CONFIG['app_name'] == 'Check'
-      s = self.get_annotations('verification_status').last
-      s = s.load unless s.nil?
-      self.set_active_status(s) if !s.nil? && s.get_field('verification_status_status').value == ::Workflow::Workflow.options(self, 'verification_status')[:default] && !s.locked
-    end
-
     def set_active_status(s)
       active = ::Workflow::Workflow.options(self, 'verification_status')[:active]
       f = s.get_field('verification_status_status')
       unless active.nil?
+        f.previous_status = f.value
         f.value = active
         f.skip_check_ability = true
         f.save!
@@ -102,7 +68,7 @@ class Workflow::VerificationStatus < Workflow::Base
           }
           MailWorker.perform_in(1.second, 'TerminalStatusMailer', YAML::dump(options))
         else
-          errors.add(:base, I18n.t(:must_resolve_required_tasks_first))
+          errors.add(:base, I18n.t('errors.messages.must_resolve_required_tasks_first'))
           raise ActiveRecord::RecordInvalid.new(self)
         end
       end
@@ -126,6 +92,12 @@ class Workflow::VerificationStatus < Workflow::Base
       deadline = status.get_field('deadline')
       deadline.delete unless deadline.blank?
       status.save!
+    end
+
+    def apply_rules
+      status = self.annotation&.load
+      team = Team.where(id: status.get_team.last.to_i).last
+      team.apply_rules_and_actions(status.annotated, self) if !team.nil? && status.annotated_type == 'ProjectMedia'
     end
   end
 end

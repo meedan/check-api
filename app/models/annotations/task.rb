@@ -50,6 +50,10 @@ class Task < ActiveRecord::Base
     self&.annotated&.project
   end
 
+  def team
+    self&.annotated&.team
+  end
+
   def to_s
     self.label
   end
@@ -180,7 +184,6 @@ class Task < ActiveRecord::Base
     response.annotated = self
     response.annotation_type = params['annotation_type']
     response.disable_es_callbacks = Rails.env.to_s == 'test'
-    response.disable_update_status = (Rails.env.to_s == 'test' && response.respond_to?(:disable_update_status))
     response.set_fields = params['set_fields']
     response.updated_at = Time.now
     response.save!

@@ -12,6 +12,7 @@ class Relationship < ActiveRecord::Base
   before_validation :set_user
   validate :relationship_type_is_valid
   validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
+  validate :items_are_from_the_same_team
 
   after_create :increment_counters, :index_source
   after_update :propagate_inversion, :reset_counters
@@ -84,7 +85,7 @@ class Relationship < ActiveRecord::Base
     ids = nil
     unless filters.blank?
       filters['projects'] ||= [project_media.project_id.to_s]
-      search = CheckSearch.new(filters.to_json)
+      search = CheckSearch.new(filters.merge({ include_related_items: true }).to_json)
       query = search.medias_build_search_query
       ids = search.medias_get_search_result(query).map(&:annotated_id).map(&:to_i)
     end
@@ -151,8 +152,16 @@ class Relationship < ActiveRecord::Base
   end
 
   def update_counters(value)
-    self.source.update_column(:targets_count, self.source.targets_count + value) unless self.source.nil?
-    self.target.update_column(:sources_count, self.target.sources_count + value) unless self.target.nil?
+    source = self.source
+    target = self.target
+    unless source.nil?
+      source.skip_check_ability = true
+      source.update_attribute(:targets_count, source.targets_count + value)
+    end
+    unless target.nil?
+      target.skip_check_ability = true
+      target.update_attribute(:sources_count, target.sources_count + value)
+    end
   end
 
   private
@@ -209,5 +218,11 @@ class Relationship < ActiveRecord::Base
 
   def set_user
     self.user ||= User.current
+  end
+
+  def items_are_from_the_same_team
+    if self.source && self.target && self.source.team_id != self.target.team_id
+      errors.add(:base, I18n.t(:relationship_not_same_team))
+    end
   end
 end

@@ -1146,7 +1146,7 @@ class AbilityTest < ActiveSupport::TestCase
     a = create_account
 
     with_current_user_and_team(u, t) do
-      assert_equal ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "invite Members"].sort, JSON.parse(t.permissions).keys.sort
+      assert_equal ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort, JSON.parse(t.permissions).keys.sort
       assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
@@ -2267,6 +2267,32 @@ class AbilityTest < ActiveSupport::TestCase
           end
         end
       end
+    end
+  end
+
+  test "contributor permissions for project media project" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u , team: t, role: 'contributor'
+    p = create_project team: t
+    pmp1 = create_project_media_project project: p
+    pmp2 = create_project_media_project
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:create, pmp1)
+      assert ability.can?(:destroy, pmp1)
+      assert ability.cannot?(:create, pmp2)
+      assert ability.cannot?(:destroy, pmp2)
+    end
+  end
+
+  test "restore and update project media permissions at team level" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    with_current_user_and_team(u, t) do
+      assert JSON.parse(t.permissions)['restore ProjectMedia']
+      assert JSON.parse(t.permissions)['update ProjectMedia']
     end
   end
 end

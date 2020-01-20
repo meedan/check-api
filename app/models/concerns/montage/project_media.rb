@@ -39,7 +39,7 @@ module Montage::Video
   end
 
   def project_id
-    self.project.team_id
+    self.team_id || self.project.team_id
   end
 
   def tag_count

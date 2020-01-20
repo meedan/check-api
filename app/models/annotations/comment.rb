@@ -73,7 +73,7 @@ class Comment < ActiveRecord::Base
 
   def extract_check_urls
     urls = []
-    team = self.annotated_type === 'ProjectMedia' ? self.annotated.project.team : nil
+    team = self.annotated_type === 'ProjectMedia' ? self.annotated.team : nil
     if team
       words = self.text.to_s.split(/\s+/)
       pattern = Regexp.new(CONFIG['checkdesk_client'])

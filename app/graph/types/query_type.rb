@@ -119,15 +119,23 @@ QueryType = GraphQL::ObjectType.define do
     type DynamicAnnotationFieldType
 
     argument :query, !types.String
+    argument :only_cache, types.Boolean
 
     resolve -> (_obj, args, ctx) do
       ability = ctx[:ability] || Ability.new
       if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
-        query = JSON.parse(args['query'])
-        json = query.delete('json')
-        obj = DynamicAnnotation::Field.where(query)
-        obj = obj.find_in_json(json) unless json.blank?
-        obj.last
+        cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(args['query'])
+        obj = nil
+        if Rails.cache.read(cache_key) || args['only_cache']
+          obj = DynamicAnnotation::Field.where(id: Rails.cache.read(cache_key).to_i).last
+        else
+          query = JSON.parse(args['query'])
+          json = query.delete('json')
+          obj = DynamicAnnotation::Field.where(query)
+          obj = obj.find_in_json(json) unless json.blank?
+          obj = obj.last
+        end
+        obj
       end
     end
   end

@@ -178,6 +178,11 @@ class TestController < ApplicationController
     render_success 'dynamic_annotation', { graphql_id: d.graphql_id }
   end
 
+  def new_cache_key
+    Rails.cache.write(params[:key], params[:value])
+    render_success 'cache_key', { params[:key] => params[:value] }
+  end
+
   protected
 
   def new_media(type)

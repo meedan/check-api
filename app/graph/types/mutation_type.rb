@@ -102,4 +102,7 @@ MutationType = GraphQL::ObjectType.define do
   end
 
   field :importSpreadsheet, field: ImportSpreadsheetMutation.field
+
+  field :createProjectMediaProject, field: ProjectMediaProjectMutations::Create.field
+  field :destroyProjectMediaProject, field: ProjectMediaProjectMutations::Destroy.field
 end

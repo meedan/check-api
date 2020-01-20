@@ -12,10 +12,6 @@
             "title": "%{team_rule_name}",
             "type": "string"
           },
-          "project_ids": {
-            "title": "%{team_rule_project_ids}",
-            "type": "string"
-          },
           "rules": {
             "title": "%{team_rule_conditions}",
             "type": "array",
@@ -28,16 +24,32 @@
                   "type": "string",
                   "enum": [
                     {
+                      "key": "contains_keyword",
+                      "value": "%{team_rule_contains_keyword}"
+                    },
+                    {
                       "key": "has_less_than_x_words",
                       "value": "%{team_rule_has_less_than_x_words}"
+                    },
+                    {
+                      "key": "tagged_as",
+                      "value": "%{team_rule_tagged_as}"
+                    },
+                    {
+                      "key": "status_is",
+                      "value": "%{team_rule_status_is}"
+                    },
+                    {
+                      "key": "type_is",
+                      "value": "%{team_rule_type_is}"
                     },
                     {
                       "key": "matches_regexp",
                       "value": "%{team_rule_matches_regexp}"
                     },
                     {
-                      "key": "contains_keyword",
-                      "value": "%{team_rule_contains_keyword}"
+                      "key": "title_contains_keyword",
+                      "value": "%{team_rule_title_contains_keyword}"
                     }
                   ]
                 },
@@ -60,12 +72,16 @@
                   "type": "string",
                   "enum": [
                     {
-                      "key": "send_to_trash",
-                      "value": "%{team_rule_send_to_trash}"
-                    },
-                    {
                       "key": "move_to_project",
                       "value": "%{team_rule_move_to_project}"
+                    },
+                    {
+                      "key": "copy_to_project",
+                      "value": "%{team_rule_copy_to_project}"
+                    },
+                    {
+                      "key": "send_to_trash",
+                      "value": "%{team_rule_send_to_trash}"
                     },
                     {
                       "key": "ban_submitter",

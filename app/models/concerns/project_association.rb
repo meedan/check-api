@@ -5,15 +5,18 @@ module ProjectAssociation
   extend ActiveSupport::Concern
 
   def check_search_team
-    self.project.team.check_search_team
+    team = self.respond_to?(:team) ? self.team : self.project.team
+    team.check_search_team
   end
 
   def check_search_trash
-    self.project.team.check_search_trash
+    team = self.respond_to?(:team) ? self.team : self.project.team
+    team.check_search_trash
   end
 
   def check_search_project(project = nil)
     project ||= self.project
+    return nil if project.nil?
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => project.id }, 'projects' => [project.id] }.to_json)
   end
 
@@ -26,9 +29,9 @@ module ProjectAssociation
   end
 
   module ClassMethods
-    def belonged_to_project(objid, pid)
+    def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_id == pid || obj.versions.from_partition(obj.project.team_id).where_object(project_id: pid).exists?)
+      if obj && (obj.project_id == pid || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
         key = self.to_s == 'ProjectMedia' ? :media_id : :source_id
@@ -54,7 +57,7 @@ module ProjectAssociation
     after_commit :destroy_elasticsearch_media , on: :destroy
 
     def get_versions_log(event_types = nil, field_names = nil, annotation_types = nil)
-      log = Version.from_partition(self.project.team_id).where(associated_type: self.class.name, associated_id: self.id)
+      log = Version.from_partition(self.team_id).where(associated_type: self.class.name, associated_id: self.id)
       log = log.where(event_type: event_types) unless event_types.blank?
       log = log.where('version_field_name(event_type, object_after) IN (?)', field_names.concat([''])) unless field_names.blank?
       log = log.where('version_annotation_type(event_type, object_after) IN (?)', annotation_types.concat([''])) unless annotation_types.blank?
@@ -72,17 +75,18 @@ module ProjectAssociation
     end
 
     def update_elasticsearch_data
-      return if self.disable_es_callbacks
+      return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(project_id team_id)
       data = {
         'project_id' => self.project_id,
-        'team_id' => self.project.team_id
+        'team_id' => self.team_id
       }
       if self.class_name == 'ProjectMedia'
-        keys.concat(%w(archived inactive))
+        keys.concat(%w(archived inactive sources_count))
         data = data.merge({
           'archived' => self.archived.to_i,
           'inactive' => self.inactive.to_i,
+          'sources_count' => self.sources_count
         })
       end
       options = { keys: keys, data: data, parent: self }

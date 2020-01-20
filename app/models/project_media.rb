@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :team, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -9,22 +9,25 @@ class ProjectMedia < ActiveRecord::Base
   include Versioned
   include ValidationsHelper
   include ProjectMediaPrivate
+  include ProjectMediaCachedFields
 
-  validates_presence_of :media, :project
+  validates_presence_of :media
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :project_id }
 
-  after_create :set_quote_metadata, :create_auto_tasks, :create_reverse_image_annotation, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
+  before_validation :set_team_id, on: :create
+  after_create :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
   after_commit :create_relationship, :copy_to_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
-  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
+  after_commit :update_project_media_project, on: [:update]
+  after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.project.team] },
-                  bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.project.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.team, pm.copied_to_project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -52,9 +55,9 @@ class ProjectMedia < ActiveRecord::Base
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
-      role: I18n.t('role_' + user.role(self.project.team).to_s),
-      project: Bot::Slack.to_slack(self.project.title),
-      team: Bot::Slack.to_slack(self.project.team.name),
+      role: I18n.t('role_' + user.role(self.team).to_s),
+      project: Bot::Slack.to_slack(self.project&.title&.to_s),
+      team: Bot::Slack.to_slack(self.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),
       related_to: self.related_to ? Bot::Slack.to_slack_url(self.related_to.full_url, self.related_to.title) : nil,
@@ -111,12 +114,8 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
-  def title
-    self.metadata.dig('title') || self.media.quote
-  end
-
-  def description
-    self.metadata.dig('description') || (self.media.type == 'Claim' ? nil : self.text)
+  def picture
+    self.media&.picture&.to_s
   end
 
   def get_annotations(type = nil)
@@ -174,8 +173,8 @@ class ProjectMedia < ActiveRecord::Base
 
   def refresh_media=(_refresh)
     Bot::Keep.archiver_annotation_types.each do |type|
-      a = self.annotations.where(annotation_type: type).last
-      a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a)
+      a = self.annotations.where(annotation_type: 'archiver').last
+      a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a, type)
     end
     self.media.refresh_pender_data
     self.updated_at = Time.now
@@ -188,7 +187,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    "#{self.project.url}/media/#{self.id}"
+    self.project ? "#{self.project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 
   def update_mt=(_update)
@@ -202,15 +201,13 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_source
     cache_key = "project_source_id_cache_for_project_media_#{self.id}"
-    psid = Rails.cache.fetch(cache_key) do
+    if Rails.cache.exist?(cache_key)
+      ps = Rails.cache.read(cache_key)
+    else
       ps = get_project_source(self.project_id)
-      ps.nil? ? 0 : ps.id
+      Rails.cache.write(cache_key, ps) unless ps.nil?
     end
-    ps = ProjectSource.where(id: psid).last
-    if ps.nil?
-      ps = get_project_source(self.project_id)
-      Rails.cache.write(cache_key, ps.id) unless ps.nil?
-    end
+    ps = ProjectSource.find_by_id ps.id unless ps.nil?
     ps
   end
 
@@ -256,6 +253,15 @@ class ProjectMedia < ActiveRecord::Base
     ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
   end
 
+  def related_items_ids
+    parent = Relationship.where(target_id: self.id).last&.source || self
+    ids = [parent.id]
+    Relationship.where(source_id: parent.id).find_each do |r|
+      ids << r.target_id
+    end
+    ids.uniq.sort
+  end
+
   def encode_with(coder)
     extra = { 'related_to_id' => self.related_to_id }
     coder['extra'] = extra
@@ -291,7 +297,7 @@ class ProjectMedia < ActiveRecord::Base
       r.target = project_media
       r.destroy
       User.current = nil
-      v = r.versions.from_partition(project_media.project.team_id).where(event_type: 'destroy_relationship').last
+      v = r.versions.from_partition(project_media.team_id).where(event_type: 'destroy_relationship').last
       unless v.nil?
         v.meta = r.version_metadata
         v.save!
@@ -302,6 +308,10 @@ class ProjectMedia < ActiveRecord::Base
   def targets_by_users
     ids = self.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").map(&:target_id)
     ProjectMedia.where(id: ids)
+  end
+
+  def project_ids
+    ProjectMediaProject.where(project_media_id: self.id).map(&:project_id)
   end
 
   protected
@@ -349,10 +359,13 @@ class ProjectMedia < ActiveRecord::Base
     ms.translation_status = ts.load.status unless ts.nil?
     ms.archived = self.archived.to_i
     ms.inactive = self.inactive.to_i
+    ms.sources_count = self.sources_count.to_i
+    ms.requests_count = self.requests_count.to_i
+    ms.linked_items_count = self.linked_items_count.to_i
+    ms.last_seen = self.last_seen.to_i
   end
 
   # private
   #
   # Please add private methods to app/models/concerns/project_media_private.rb
-
 end

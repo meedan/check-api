@@ -7,12 +7,12 @@ class TerminalStatusMailer < ApplicationMailer
     author = options[:author]
     status = options[:status]
     project = annotated.project
-    team = project.team
+    team = annotated.team
     image_path = annotated.media.type == 'UploadedImage' ? annotated.media.image_path : ''
     info = {
       team: team.name,
-      project: project.title,
-      project_url: project.url,
+      project: project&.title.to_s,
+      project_url: project&.url.to_s,
       author: author.present? ? author.name : '',
       author_role: I18n.t("role_" + author.role(team).to_s),
       profile_image: author.profile_image,
@@ -30,7 +30,7 @@ class TerminalStatusMailer < ApplicationMailer
       created_at: annotated.created_at,
       updated_at: annotated.updated_at
     }
-    subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project.title, status: status)
+    subject = I18n.t('mails_notifications.media_status.subject', team: team.name, project: annotated.project&.title.to_s, status: status)
     recipients = team.recipients(author, ['editor', 'owner'])
     recipients = Bounce.remove_bounces(recipients)
     recipients.each do |recipient|
