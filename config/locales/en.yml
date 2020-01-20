@@ -690,15 +690,18 @@ en:
   team_rule_conditions: If
   team_rule_condition: If
   team_rule_condition_definition: Select condition
-  team_rule_has_less_than_x_words: Request has only text and less than this number of words
+  team_rule_has_less_than_x_words: Request has only text and less than this number
+    of words
   team_rule_matches_regexp: Item matches this regular expression
   team_rule_type_is: Item type is
   team_rule_type_is_claim: Text
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Video
-  team_rule_contains_keyword: Request contains one or more of the following keywords (comma separated)
-  team_rule_title_contains_keyword: Item title contains one or more of the following keywords
+  team_rule_contains_keyword: Request contains one or more of the following keywords
+    (comma separated)
+  team_rule_title_contains_keyword: Item title contains one or more of the following
+    keywords
   team_rule_select_type: Select type
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
@@ -713,45 +716,7 @@ en:
   team_rule_copy_to_project: Add item to list
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
-  relationship_not_same_team: Related items must be under the same team
-  custom_message_smooch_bot_result_afp-checamos: "[Relatório de verificação] \n\nO
-    item que você compartilhou conosco foi classificado como *%{status}*.\n\nVeja
-    as etapas que seguimos para chegar a esta conclusão: %{url}\n"
-  custom_message_smooch_bot_result_changed_afp-checamos: |-
-    Desculpe. A mensagem que você nos enviou foi incorretamente classificada como %{previous_status}. Sentimos muito pelo erro.
-
-    A mensagem que você compartilhou conosco foi classificada como %{status}.
-
-    Esses são os passos que seguimos para chegar a esta conclusão: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: |
-    Agradecemos o contato. Deseja verificar este conteúdo?
-
-    Para dizer sim, *responda com o número 1*. Qualquer outra resposta irá encerrar nossa conversa.
-  custom_message_smooch_bot_message_confirmed_afp-checamos: |-
-    Obrigada, sua solicitação foi recebida e enviaremos um relatório o mais breve possível.
-
-    Por favor, entenda que não podemos responder a todas as solicitações.
-  custom_message_smooch_bot_message_type_unsupported_afp-checamos: Desculpe, no momento
-    não oferecemos suporte para esse tipo de mensagem.
-  custom_message_smooch_bot_message_unconfirmed_afp-checamos: Como você não respondeu
-    com o número 1, não processaremos mais a sua solicitação. Agradecemos o contato.
-  custom_message_smooch_bot_not_final_afp-checamos: |
-    [Relatório de verificação - CORREÇÃO]
-
-    A mensagem que você compartilhou conosco foi classificada incorretamente como *%{status}*.
-
-    O conteúdo ainda está na nossa fila para verificação adicional.
-  custom_message_smooch_bot_meme_afp-checamos: Criamos uma imagem com base na verificação
-    que você solicitou. Saiba mais em %{url}.
-  custom_message_smooch_bot_window_closing_afp-checamos: O volume de solicitações
-    está muito alto e ainda não conseguimos responder o seu pedido. Agradecemos a
-    sugestão. Se quiser nos enviar outra mensagem, fique à vontade.
-  custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
-    possível enviar nenhum resultado porque este projeto não está mais ativo.
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: |
-    Check Message é o software utilizado nesta linha de verificação, e é fornecido sob estes Termos de Serviço: %{tos}.
-
-    Ao continuar a usar este serviço, *você concorda em cumprir estes termos*. Caso discorde você pode interromper o uso.
+  relationship_not_same_team: Related items must exist in the same workspace
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
@@ -843,50 +808,6 @@ en:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignored.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Sorry, but this bot is currently
     disabled :(
-  custom_message_smooch_bot_result_check-message-demo: |
-    [Verification Report]
-
-    The item that you shared with us is marked *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_result_changed_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
-    Thank you for sending this request. Do you want us to verify its content?
-
-    To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_check-message-demo: |
-    Thank you. Your request has been added to our verification queue.
-
-    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |
-    Sorry, we don't support this type of message for verification at this time.
-    The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Since you didn't
-    reply with 1, we will not process your request further. Thank you.
-  custom_message_smooch_bot_not_final_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us was wrongly marked as *%{status}*.
-
-    It is still in our queue for further verification.
-  custom_message_smooch_bot_meme_check-message-demo: Here's a meme we created based
-    on the item you have requested that we verify. Learn more at %{url}.
-  custom_message_smooch_bot_window_closing_check-message-demo: The volume of requests
-    on this channel is very high, and we haven't been able to resolve your request
-    yet. Thank you for your patience.
-  custom_message_smooch_bot_disabled_check-message-demo: Thank you for sending this
-    message. We are unable to send back any verification reports because this project
-    is no longer active.
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'You can use this service
-    to request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?

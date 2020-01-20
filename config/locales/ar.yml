@@ -18,6 +18,7 @@ ar:
     media:
       undetermined:
         label: لم يبدأ بعد
+        description: حالة المصدر الأولية، أُضيف تواً، لم يتم البدء في معالجته
       not_applicable:
         label: غير محسوم
         description: لا يمكن استنتاج الحالة باستخدام الدلائل المتاحة
@@ -57,6 +58,7 @@ ar:
     source:
       undetermined:
         label: لم يبدأ بعد
+        description: حالة المصدر الأولية، أُضيف تواً، لم يتم البدء في معالجته
       credible:
         label: موثوق به
         description: 'النتيجة: هذا المصدر موثوق به'
@@ -95,6 +97,7 @@ ar:
   activerecord:
     models:
       link: رابط
+      claim: نص
       uploaded_file: ملف
       uploaded_image: صورة
       uploaded_video: فيديو
@@ -114,6 +117,8 @@ ar:
         file: الصورة
       uploaded_video:
         file: فيديو
+      team:
+        slug: رابط مساحة العمل
       source:
         name: الاسم
       contact:
@@ -147,6 +152,7 @@ ar:
   slug_is_reserved: مأخوذ
   invalid_format_for_languages: 'صيغة اللغات غير صالحة - الصيغة المطلوبة هي [{''id'':
     ''en'',''title'': ''English''}]'
+  invalid_media_item: " عذراً ، هذا العنصر غير صحيح"
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة
@@ -205,10 +211,14 @@ ar:
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
     أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
   mail_confirm_button: أكِّد الحساب
+  slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى %{team_name} حيث
+    أنه محصور على أعضاء مساحة العمل %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
+      export_project:
+        menu: تصدير البيانات
       delete_tasks:
         done: تم حذف المهام
       duplicate_team:
@@ -510,17 +520,6 @@ ar:
   team_rule_name: اسم فريد يصف القاعدة
   team_rules: القواعد
   team_rule_send_to_trash: ارسال إلى سلة المهملات
-  custom_message_smooch_bot_result_afp-checamos: ''
-  custom_message_smooch_bot_result_changed_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
-  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
-  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
-  custom_message_smooch_bot_not_final_afp-checamos: ''
-  custom_message_smooch_bot_meme_afp-checamos: ''
-  custom_message_smooch_bot_window_closing_afp-checamos: ''
-  custom_message_smooch_bot_disabled_afp-checamos: ''
-  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -550,17 +549,6 @@ ar:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: شكراً
     لقد تجاهلت.
   custom_message_smooch_bot_disabled_caio: مع الأسف! ، هذا البوت معطل حاليا
-  custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
-  custom_message_smooch_bot_disabled_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     شكرا لإرسال هذه الرسالة.
 
