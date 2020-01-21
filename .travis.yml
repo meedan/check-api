@@ -26,7 +26,7 @@ before_install:
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1	
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-- sudo systemctl start postgresql@11
+- ps aux
 cache:
   directories:
   - "/tmp/bundler"
