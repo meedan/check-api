@@ -6,6 +6,9 @@ services:
 rvm:
   - 2.3.8
 before_install:
+- export RECORD_RUNTIME=true	
+- export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH	
+- export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get -qq update
 - sudo apt-get install -y wget imagemagick fontconfig libfontconfig ffmpegthumbnailer
@@ -21,6 +24,8 @@ before_install:
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
+- rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1	
+  tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 cache:
   directories:
   - "/tmp/bundler"
