@@ -40,6 +40,7 @@ addons:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
+- wget -q --waitretry=5 --retry-connrefused -t 20 -T 10 -O - http://127.0.0.1:5432
 - cd test && ./setup-parallel-env.sh && cd -
 - bundle exec rake assets:precompile
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
