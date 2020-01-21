@@ -6,7 +6,6 @@ before_install:
 - export RECORD_RUNTIME=true
 - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
-- sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get -qq update
 - sudo apt-get -y remove postgresql\*
@@ -67,16 +66,16 @@ matrix:
     if: commit_message =~ /\[load test\]/
     language: node_js
     sudo: required
-    dist: trusty
+    dist: xenial
     addons:
-      postgresql: '9.5'
+      postgresql: '11.2'
       hosts:
       - bridgembed
     before_install:
     - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
     - sudo rm /etc/apt/sources.list.d/mongodb*
     - sudo apt-get -qq update
-    - sudo apt-get install wget python-setuptools lsof unzip imagemagick ruby ruby-dev libnss3 libnss3-dev xvfb libnss3-1d libexif-dev curl build-essential libssl-dev libappindicator1 fonts-liberation redis-server apache2-utils siege -y
+    - sudo apt-get install wget python-setuptools lsof unzip imagemagick ruby ruby-dev libnss3 libnss3-dev xvfb libnss3-1d libexif-dev curl build-essential libssl-dev libappindicator1 fonts-liberation redis-server apache2-utils siege postgresql-11 postgresql-client-11 -y
     - rvm --default use 2.3.4
     - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
     - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
