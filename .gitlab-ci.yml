@@ -38,10 +38,10 @@ deploy_qa:
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
     GITHUB_TOKEN: $GITHUB_TOKEN
-  before_script:
-    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - docker pull $ECR_API_BASE_URL/sysops/test-check
-    - docker run --rm sysops/test-check meedan/check-api $CI_COMMIT_SHA
+  #  before_script:
+  #    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  #    - docker pull $ECR_API_BASE_URL/sysops/test-check
+  #    - docker run --rm sysops/test-check meedan/check-api $CI_COMMIT_SHA
   script:
     - apk add --no-cache curl jq python py-pip git
     - pip install ecs-deploy==1.7.0
