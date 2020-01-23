@@ -243,7 +243,7 @@ class Bot::Smooch < BotUser
               type: 'number'
             },
             name: {
-              type: 'string'
+              type: ['string', nil]
             },
             authorId: {
               type: 'string'
