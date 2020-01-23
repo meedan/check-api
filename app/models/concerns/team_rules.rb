@@ -185,7 +185,7 @@ module TeamRules
 
   def update_rules_index
     if self.rules_changed?
-      Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}") if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
+      Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
       RulesIndexWorker.perform_in(5.seconds, self.id)
     end
   end
