@@ -14,8 +14,7 @@ module TeamRules
     def has_less_than_x_words(pm, obj, value)
       return false unless obj.nil?
       smooch_message = get_smooch_message(pm)
-      return false if smooch_message.blank?
-      smooch_message.split(/\s+/).size < value.to_i
+      smooch_message.to_s.split(/\s+/).size < value.to_i
     end
 
     def contains_keyword(pm, obj, value)
