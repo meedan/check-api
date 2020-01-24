@@ -1,4 +1,4 @@
-class MigrateElasticSearchForSoucesCount < ActiveRecord::Migration
+class MigrateElasticSearchForSourcesCount < ActiveRecord::Migration
   def change
     client = MediaSearch.gateway.client
     options = {
