@@ -196,4 +196,15 @@ module ProjectMediaCreators
   def copy_to_project
     ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
   end
+
+  def add_to_project
+    ProjectMediaProject.create!(project_id: self.add_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
+  end
+
+  def remove_from_project
+    if self.remove_from_project_id
+      pmp = ProjectMediaProject.where(project_id: self.remove_from_project_id, project_media_id: self.id).last
+      pmp.destroy! unless pmp.nil?
+    end
+  end
 end

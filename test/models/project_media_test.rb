@@ -2070,4 +2070,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
     d.destroy!
     assert_nil pm.reload.embed_analysis
   end
+
+  test "should add to list" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
+    assert_difference 'ProjectMediaProject.count' do
+      pm = ProjectMedia.find(pm.id)
+      pm.add_to_project_id = p2.id
+      pm.save!
+    end
+    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
+  end
+
+  test "should remove from list" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
+    assert_difference 'ProjectMediaProject.count', -1 do
+      pm = ProjectMedia.find(pm.id)
+      pm.remove_from_project_id = p.id
+      pm.save!
+    end
+    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
+  end
 end

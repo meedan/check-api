@@ -1619,6 +1619,31 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not crash if message in payload contains nil name" do
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: random_string,
+        name: nil
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+  end
+
   protected
 
   def run_concurrent_requests

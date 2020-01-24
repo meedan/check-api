@@ -1848,4 +1848,75 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
+
+  test "should match rule by number of words and type" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "has_less_than_x_words",
+          "rule_value": "3"
+        },
+        {
+          "rule_definition": "type_is",
+          "rule_value": "claim"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    m = create_claim_media quote: 'test'
+    create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
+    m = create_link
+    create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
+    assert_equal 2, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
+
+  test "should match rule by number of words" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "has_less_than_x_words",
+          "rule_value": "3"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    create_project_media project: p0, media: nil, url: url, smooch_message: { 'text' => 'test' }
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
 end

@@ -1,4 +1,6 @@
 class TeamTask < ActiveRecord::Base
+  include ErrorNotification
+
   validates_presence_of :label, :team_id
   validates :task_type, included: { values: Task.task_types }
 
@@ -146,7 +148,12 @@ class TeamTask < ActiveRecord::Base
     .where.not(id: excluded_ids)
     .where('s.id' => nil)
     .find_each do |pm|
-      pm.create_auto_tasks([self])
+      begin
+        pm.create_auto_tasks([self])
+      rescue StandardError => e
+        TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
+        Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
+      end
     end
   end
 
