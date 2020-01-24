@@ -87,7 +87,7 @@ class Project < ActiveRecord::Base
   end
 
   def medias_count
-    ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => self.id }).count
+    ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => self.id, 'project_medias.sources_count' => 0 }).count
   end
 
   def slack_notifications_enabled=(enabled)

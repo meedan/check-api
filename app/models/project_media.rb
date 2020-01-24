@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id, :skip_rules, :add_to_project_id, :remove_from_project_id
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -18,7 +18,7 @@ class ProjectMedia < ActiveRecord::Base
 
   before_validation :set_team_id, on: :create
   after_create :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
-  after_commit :create_relationship, :copy_to_project, on: [:update, :create]
+  after_commit :create_relationship, :copy_to_project, :add_to_project, :remove_from_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_project_media_project, on: [:update]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project

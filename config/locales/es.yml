@@ -438,7 +438,7 @@ es:
         está listo para ser descargado
       project_export_title: Datos de la lista
       project_export_button: Descargar los datos de la lista
-      project_export_csv_text: 'Solicitaste descargar un reporte de la lista %{project}
+      project_export_csv_text: 'Solicitaste descargar un informe de la lista %{project}
         - aquí está el enlace de descarga: %{link}'
       project_export_images_text: 'Solicitaste descargar el archivo de imágenes de
         la lista %{project} - aquí está el enlace de descarga: %{link}'
@@ -459,6 +459,9 @@ es:
     media_status:
       label: ítem
       subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
+      header_title: El estado del item ha sido actualizado
+      header_text: " %{author} actualizó el estado de un ítem de la lista %{project}
+        en %{team}."
       section_title: Marcado como %{status}.
       added_to: Añadido a %{app_name}
       update_h: Última actualización
@@ -466,20 +469,51 @@ es:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
+      assign_project_subject: "[%{team} - %{project}] Se te ha asignado una lista"
+      unassign_project_subject: "[%{team} - %{project}] Se te ha desasignado una lista"
+      assign_media_subject: "[%{team} - %{project}] Se te ha asignado un ítem"
+      unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
+      assign_project_title: 'Lista asignada '
+      unassign_project_title: Lista sin asignar
+      assign_project_text: "%{author} asignó una lista %{project} en %{team}."
+      unassign_project_text: "%{author} desasignó una lista %{project} en %{team}. "
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
+      assign_task_text: "%{author} asignó una tarea en la lista %{project} en %{team}."
+      unassign_task_text: "%{author} desasignó una tarea de la lista %{project} en
+        %{team}. "
+      assign_media_title: Ítem asignado
+      unassign_media_title: Ítem desasignado
+      assign_media_text: "%{author} asignó un ítem de la lista %{project} en %{team}."
+      unassign_media_text: "%{author} desasignó un ítem de la lista %{project} en
+        %{team}. "
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
+      project_button: Ir a la página de la lista.
     request_to_join:
+      subject: Solicitar unirse a área de trabajo %{team}
+      team_page: página del área de trabajo
+      team_button: Ir a la página del área de trabajo.
       rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
+      approved_subject: 'Bienvenida/Bienvenido a área de trabajo %{team} '
+      request_title: Solicitar unirse a área de trabajo %{team}
+      request_text: "%{name} (%{email}) quiere unirse a área de trabajo %{team} en
+        %{app_name}. Puedes procesas esta solicitud visitando %{url}."
+      approved_title: 'Bienvenida/Bienvenido a área de trabajo %{team} '
+      approved_text: "¡Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue
+        aprobada. Puedes ir a %{url} y empezar a contribuir!"
       rejected_title: Solicitud denegada
+      rejected_text: Lo sentimos, pero tu solicitud para unirte a área de trabajo
+        %{team} en %{app_name} no fue aprobada.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede
       %{browser} en %{platform}'
     ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
     failed_subject: 'Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}'
+    ip: Has iniciado sesión desde %{location}
+    device: Has iniciado sesión desde %{browser} en %{platform}
     devise_name: "%{browser} en %{platform}"
     failed: 'Se han detectado Intentos fallidos de inicio de sesión '
     password_text: 'restablece tu contraseña inmediatamente '
@@ -503,6 +537,7 @@ es:
     privace_manage_plain: Gestiona tus notificaciones de correo electrónico
     privacy_plain: Aprende más acerca de nuestras Políticas de Privacidad
   archive_keep_backup: Video Vault
+  archive_pender_archive: Capturas de pantalla
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Estado inválido
@@ -516,8 +551,17 @@ es:
     predeterminado para los estados de verificación personalizados
   blank_active_status_for_custom_verification_status: Por favor proporcione un valor
     activo para los estados de verificación personalizados
+  bot_name_exists_for_this_team: Ya existe un bot con ese nombre en esta área de trabajo
+  bot_team_id_doesnt_exist: Lo sentimos, no hay ninguna área de trabajo con el identificador
+    proporcionado
+  bot_team_id_mandatory_to_create: Lo sentimos, primero debes elegir una área de trabajo
+    para crear un bot
   bot_not_approved_for_installation: 'Lo sentimos, este bot no fue aprobado y por
     eso no se puede instalar '
+  only_admins_can_approve_bots: Lo sentimos, solo los administradores del sistema
+    pueden aprobar bots
+  could_not_save_related_bot_data: Lo sentimos, no se pudo agregar el bot a esta área
+    de trabajo
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
     directamente- por favor, envía una sugerencia de respuesta .
   bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
@@ -531,6 +575,10 @@ es:
     Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
   smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el
     número 1,  no procesaremos más tu solicitud. ¡Gracias! '
+  smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía
+    no los procesamos.
+  smooch_bot_message_size_unsupported: Lo sentimos, no procesamos archivos más grandes
+    que %{max_size}.
   smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que
     verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: |-
@@ -551,6 +599,8 @@ es:
   smooch_bot_not_final: |-
     [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros fue erróneamente marcado como *%{status}*.
     Todavía está en nuestra cola de verificación para añadirle información adicional.
+  smooch_bot_disabled: Gracias por enviar este mensaje. No podemos devolver ningún
+    informe de verificación, porque este proyecto ya no está activo.
   smooch_bot_result_changed: |-
     [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
 
@@ -559,6 +609,8 @@ es:
     roles:
       owner:
         description: Los propietarios controlan el espacio de trabajo.
+      editor:
+        description: Los editores administran la área de trabajo y las listas.
       journalist:
         description: Periodistas verificaron la información.
       contributor:
@@ -569,6 +621,13 @@ es:
           asignadas a ellas o ellos.
     permissions:
       sections:
+        project_management:
+          name: Gestión de la lista
+          permissions:
+            create: Crear lista
+            edit: Editar lista
+            delete: Eliminar lista
+            add_item: Añadir ítem a la lista
         item_page_management:
           name: Gestión del ítem
           permissions:
@@ -587,22 +646,39 @@ es:
             delete: Eliminar tarea
             add_response: Añadir una respuesta
             delete_repsonse: Eliminar respuesta
+            assign_task: Asignar tarea o ítem
         team_management:
+          name: gestión del área de trabajo
           permissions:
+            delete: Cerrar área de trabajo
+            edit: Editar información del área de trabajo
+            set_private: Establecer esta área de trabajo como privado
+            edit_status: Editar estados del área de trabajo
+            edit_tasks: Crear y editar tareas del área de trabajo
+            roles: Editar roles del área de trabajo
             third_party: Añadir integraciones de terceros
+            invite_owner: Invitar, aprobar y eliminar propietarios de área de trabajo
+            invite_members: Invitar, aprobar y eliminar miembros de área de trabajo
   team_import:
     invalid_google_spreadsheet_url: URL de hoja de cálculo inválida %{spreadsheet_url}
     not_found_google_spreadsheet_url: Hoja de cálculo no encontrada en %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: No se pudo autenticar Google Drive con
       las credenciales actuales. Por favor comunícate con nuestro equipo de soporte
       técnico para notificarles este incidente.
+    team_not_present: La área de trabajo actual no se encontró durante la importación
+      de datos. Por favor comunícate con nuestro equipo de soporte técnico para notificarles
+      este incidente.
     user_not_present: El usuario actual no se encontró durante la importación de datos.
       Por favor comunícate con nuestro equipo de soporte técnico para notificarles
       este incidente.
+    user_not_authorized: Lo sentimos, no tienes permitido importar data dentro de
+      esta área de trabajo.
+    invalid_project: Lista inválida %{project}
     invalid_user: Autor inválido %{user}
     invalid_status: Estado inválido %{status}
     blank_user: Autor en blanco inválido
     blank_annotator: Anotación en blanco inválida
+    blank_project: Lista en blanco inválido
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
   verification_status_deadline: 'Fecha límite '
@@ -614,6 +690,7 @@ es:
   embed_expand_all: Expandir todo
   embed_collapse_all: Contraer todo
   embed_tasks: Tareas
+  embed_analysis: Análisis
   embed_description: 'Descripción '
   other_language: Otro
   unidentified_language: No identificado
@@ -627,8 +704,41 @@ es:
   invalid_task_answer: 'Lo sentimos, por el momento las respuestas a las tareas no
     soportan este tipo de formato '
   team_rule_name: Un nombre único que identifica lo que hace esta regla
+  team_rule_project_ids: Aplicar a la lista
+  team_rule_destination: Seleccionar lista de destino
   team_rules: Reglas
+  team_rule_conditions: Si
+  team_rule_condition: Si
+  team_rule_condition_definition: Seleccionar condición
+  team_rule_has_less_than_x_words: La solicitud solo tiene texto e menos de este número
+    de palabras
+  team_rule_matches_regexp: El ítem coincide con esta expresión regular
+  team_rule_type_is: El tipo de ítem es
+  team_rule_type_is_claim: Texto
+  team_rule_type_is_link: Enlace
+  team_rule_type_is_uploadedimage: Imagen
+  team_rule_type_is_uploadedvideo: Vídeo
+  team_rule_contains_keyword: La solicitud contiene una o más de las siguientes palabras
+    clave (separadas por comas)
+  team_rule_title_contains_keyword: El título del ítem contiene una o más de las siguientes
+    palabras clave
+  team_rule_select_type: Seleccionar tipo
+  team_rule_tagged_as: Ítem etiquetado como
+  team_rule_select_tag: Seleccionar tag
+  team_rule_select_status: Seleccionar estado
+  team_rule_status_is: El estado de ítem es
+  team_rule_value: Escribe algo...
+  team_rule_actions: Entonces
+  team_rule_action: Entonces
+  team_rule_action_definition: Seleccionar acción
   team_rule_send_to_trash: Enviar a la papelera
+  team_rule_move_to_project: Mover ítem a la lista
+  team_rule_copy_to_project: Añadir ítem a la lista
+  team_rule_ban_submitter: Prohibir el remitente (sus mensajes futuros no aparecerán
+    en Check)
+  team_rule_all_items: Todos los ítems
+  relationship_not_same_team: Los elementos relacionados deben existir en el misma
+    área de trabajo
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''

@@ -690,8 +690,7 @@ en:
   team_rule_conditions: If
   team_rule_condition: If
   team_rule_condition_definition: Select condition
-  team_rule_has_less_than_x_words: Request has only text and less than this number
-    of words
+  team_rule_has_less_than_x_words: Request contains less than the following number of words
   team_rule_matches_regexp: Item matches this regular expression
   team_rule_type_is: Item type is
   team_rule_type_is_claim: Text

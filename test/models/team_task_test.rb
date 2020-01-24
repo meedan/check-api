@@ -91,6 +91,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     p = create_project team: t
     p2 = create_project team: t
     pm = create_project_media project: p
+    create_project_media project: p, archived: 1
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id, project_ids: [p2.id],required: false, description: 'Foo', options: [{ label: 'Foo' }]
     pm2 = create_project_media project: p2
