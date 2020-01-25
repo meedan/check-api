@@ -207,6 +207,7 @@ ar:
       project_source_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_source_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_source_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
+      project_create: قام %{user} (%{role} في %{team}) بإنشاء قائمة
   mail_view_welcome: مرحباً بك في %{app_name}
   mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
     أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
@@ -235,6 +236,8 @@ ar:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
+  oembed_disclaimer_undetermined: لم يقم %{team} بالتحقق من دقة هذا العنصر بعد
+  oembed_disclaimer_false: نفى %{team} دقة هذا العنصر في %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -415,6 +418,7 @@ ar:
     التحقق الخاصة
   blank_active_status_for_custom_verification_status: من فضلك أضف قيمة نشطة لحالات
     التحقق الخاصة
+  bot_team_id_mandatory_to_create: عذراً ، يجب اختيار مساحة العمل لكي تضيف البوت
   bot_not_approved_for_installation: عذراً ، لا يمكن تثبيت هذا البوت ﻷن لم يتم الموافقة
     عليه
   bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
@@ -464,6 +468,9 @@ ar:
         description: المفسرون يمكنهم فقط عرض وإجابة المهام المكلفون بها.
     permissions:
       sections:
+        project_management:
+          permissions:
+            create: إنشاء قائمة
         item_page_management:
           name: إدارة العناصر
           permissions:
@@ -484,6 +491,7 @@ ar:
             delete_repsonse: حذف اﻹجابات
         team_management:
           permissions:
+            edit_tasks: إنشاء وتحرير مهام مساحة العمل
             third_party: تكامل التطبيقات الخارجية
   team_import:
     invalid_google_spreadsheet_url: عنوان جدول بيانات غير صالح %{spreadsheet_url}
@@ -527,7 +535,8 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: إليك ميم أنشأناه بناء على العنصر
+    الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -538,7 +547,8 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
+  custom_message_smooch_bot_meme_boom-factcheck: إليك ميم أنشأناه بناء على العنصر
+    الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
