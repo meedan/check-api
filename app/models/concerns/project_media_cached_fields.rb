@@ -78,8 +78,8 @@ module ProjectMediaCachedFields
           model: Relationship,
           affected_ids: proc { |r| [r.source&.related_items_ids, r.target_id].flatten.reject{ |id| id.blank? }.uniq },
           events: {
-            create: proc { |pm, r| pm.id == r.target_id ? r.source&.demand&.to_i : pm.demand + r.target&.demand&.to_i },
-            destroy: proc { |pm, r| pm.id == r.target_id ? pm.requests_count : pm.demand - r.target&.requests_count&.to_i }
+            create: :recalculate,
+            destroy: :recalculate
           }
         }
       ]

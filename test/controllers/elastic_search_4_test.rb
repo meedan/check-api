@@ -24,7 +24,7 @@ class ElasticSearch4Test < ActionController::TestCase
       # keyword & tags
       Team.current = t
       result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
-      assert_equal [pm2.id, pm.id], result.medias.map(&:id)
+      assert_equal [pm.id, pm2.id], result.medias.map(&:id)
       # keyword & context
       result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
@@ -86,7 +86,7 @@ class ElasticSearch4Test < ActionController::TestCase
       # sort with keywords
       Team.current = t
       result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
-      assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+      assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
       assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
       # sort with keywords and tags
@@ -108,7 +108,7 @@ class ElasticSearch4Test < ActionController::TestCase
       result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], verification_status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], verification_status: ["verified"], projects: [p.id]}.to_json)
-      assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
     end
   end
 
@@ -139,9 +139,9 @@ class ElasticSearch4Test < ActionController::TestCase
 
     Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
-    assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
+    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort_type: 'asc'}.to_json)
-    assert_equal [pm1.id, pm2.id, pm3.id], result.medias.map(&:id)
+    assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', sort_type: 'asc'}.to_json)

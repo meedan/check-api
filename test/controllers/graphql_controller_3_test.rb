@@ -103,7 +103,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1b.id, pm1a.id], results
+    assert_equal [pm1a.id, pm1b.id], results
 
     # Another sort criteria and default order: recent activity, descending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\"}") {medias(first:20){edges{node{dbid}}}}}'
@@ -117,7 +117,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1a.id, pm1b.id], results
+    assert_equal [pm1b.id, pm1a.id], results
 
     # Another search criteria and another order: recent activity, ascending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
