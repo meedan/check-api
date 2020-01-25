@@ -148,7 +148,7 @@ class ElasticSearch3Test < ActionController::TestCase
     # sort with keywords
     Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps3.id, ps2.id, ps1.id], result.sources.map(&:id)
+    assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps1.id, ps3.id, ps2.id], result.sources.map(&:id)
     # sort with keywords and tags
@@ -162,7 +162,7 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', show: ['sources'] }.to_json)
     assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], show: ['sources'] }.to_json)
-    assert_equal [ps3.id, ps2.id], result.sources.map(&:id)
+    assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
   end
 
   test "should filter by medias or sources" do

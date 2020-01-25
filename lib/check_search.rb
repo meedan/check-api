@@ -6,7 +6,7 @@ class CheckSearch
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
-    @options['sort'] ||= 'recent_added'
+    @options['sort'] ||= 'recent_activity'
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= MEDIA_TYPES
