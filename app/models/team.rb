@@ -197,7 +197,7 @@ class Team < ActiveRecord::Base
   end
 
   def trash
-    ProjectMedia.where({ team_id: self.id, archived: true })
+    ProjectMedia.where({ team_id: self.id, archived: true, sources_count: 0 })
   end
 
   def trash_size
