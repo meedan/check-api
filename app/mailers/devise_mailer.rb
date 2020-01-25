@@ -30,6 +30,8 @@ class DeviseMailer < Devise::Mailer
     @due_at = opts[:due_at]
     @title = I18n.t("mails_notifications.invitation.title")
     @direction = ApplicationMailer.set_template_direction
+    tu = record.team_users.where(team_id: @team.id).last
+    opts[:to] = tu.invitation_email unless tu.nil?
     opts[:subject] = I18n.t(:'devise.mailer.invitation_instructions.subject', user: @invited_by, team: @team.name)
     super
   end

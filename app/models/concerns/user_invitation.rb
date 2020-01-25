@@ -133,7 +133,7 @@ module UserInvitation
       tu.invited_by_id ||= User.current.id unless User.current.nil?
       tu.invitation_token = self.invitation_token || options[:enc]
       tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
-      tu.invitation_email = options[:email]
+      tu.invitation_email = options[:email] || self.email
       self.send_invitation_mail(tu) if tu.save!
     end
 

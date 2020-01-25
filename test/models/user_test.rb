@@ -1038,7 +1038,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send invitaion by invitation emaill not primary email" do
+  test "should send invitaion using invitation emaill not primary email" do
     t = create_team
     u = create_user email: 'primary@local.com'
     create_team_user team: t, user: u, role: 'owner'
