@@ -723,8 +723,7 @@ fr:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Sélectionnez une condition
-  team_rule_has_less_than_x_words: La demande contient uniquement du texte et moins
-    que ce nombre de mots
+  team_rule_has_less_than_x_words: La demande contient moins que ce nombre de mots
   team_rule_matches_regexp: L'élément correspond à cette expression régulière
   team_rule_type_is: Le type de l'élément est
   team_rule_type_is_claim: Texte

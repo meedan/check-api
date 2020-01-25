@@ -73,8 +73,7 @@ bn:
     তথ্য যাচাই অনুরোধের জন্য ধন্যবাদ। আপনি কি বিষয়টি যাচাই করতে চান?
     হ্যাঁ বলার জন্যে, *উত্তরে 1 লিখুন*; অন্য কিছু প্রত্যুত্তর এলে এখানেই আমাদের কথোপকথন সমাপ্ত হবে।
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: দুঃখিত, এই পরিসেবা
-    সরাসরি হোয়াটসঅ্যাপে আপলোড করা ভিডিও এবং অডিও বার্তা সাপোর্ট করে না।
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 রিপ্লাই না দেওয়ার
     জন্য আপনার এই নিবেদন এখানেই সমাপ্ত হল।  ধন্যবাদ।
   custom_message_smooch_bot_not_final_boom-factcheck: "[ভেরিফিকেশান রিপোর্ট -  সংশোধন]\n\nআপনি

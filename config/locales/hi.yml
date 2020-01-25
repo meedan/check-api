@@ -110,9 +110,7 @@ hi:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: "शुभकानाएं! आपकी आग्रह
     की गयी सामग्री हमें मिल गयी है. हम इसकी जांच आपको जल्द से जल्द जवाब भेजेंगे. .\n\nपर
     ध्यान रखें कि हम हर निवेदन का जवाब नहीं दे पायेंगे \n\n"
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: माफ़ करें, हम
-    व्हाट्सएप्प पर सीधे अपलोड किये गए ऑडियो और वीडियो फॉर्मेट को सत्यापित करने में
-    असमर्थ हैं.
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 न भेजने पर आपका
     यह निवेदन यहीं समाप्त होता है. धन्यवाद.
   custom_message_smooch_bot_not_final_boom-factcheck: |
