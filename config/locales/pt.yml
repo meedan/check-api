@@ -705,8 +705,7 @@ pt:
   team_rule_conditions: Se
   team_rule_condition: Se
   team_rule_condition_definition: Selecione condição
-  team_rule_has_less_than_x_words: A solicitação contém apenas texto e menos que este
-    número de palavras
+  team_rule_has_less_than_x_words: A solicitação contém menos que este número de palavras
   team_rule_matches_regexp: O item corresponde a esta expressão regular
   team_rule_type_is: O tipo do item é
   team_rule_type_is_claim: Texto
