@@ -40,7 +40,7 @@ module CheckElasticSearch
     sleep 1
     data = get_elasticsearch_data(options[:data])
     # data.merge!(add_missing_fields(options))
-    fields = {'updated_at' => Time.now.utc}
+    fields = { 'updated_at' => Time.now.utc }
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
     client = MediaSearch.gateway.client
     client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
