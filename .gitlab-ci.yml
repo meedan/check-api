@@ -49,6 +49,8 @@ deploy_qa:
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_qa_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - develop
 
@@ -97,5 +99,7 @@ deploy_live:
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
+    - git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+    - docker run --env-file=configurator/check/aws-long-tasks/.env_file_live_migrate $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master
