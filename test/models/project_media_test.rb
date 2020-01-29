@@ -2097,4 +2097,49 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
   end
+
+  test "should handle indexing conflicts" do
+    require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
+    Sidekiq::Testing.server_middleware do |chain|
+      chain.add ::Middleware::Sidekiq::Server::Retry
+    end
+
+    class ElasticSearchTestWorker
+      include Sidekiq::Worker
+      attr_accessor :retry_count
+      sidekiq_options retry: 5
+
+      sidekiq_retries_exhausted do |_msg, e|
+        raise e
+      end
+
+      def perform(id)
+        begin
+          client = MediaSearch.gateway.client
+          client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id, retry_on_conflict: 0, body: { doc: { updated_at: Time.now + rand(50).to_i } }
+        rescue Exception => e
+          retry_count = retry_count.to_i + 1
+          if retry_count < 5
+            perform(id)
+          else
+            raise e
+          end
+        end
+      end
+    end
+    
+    setup_elasticsearch
+    
+    threads = []
+    pm = create_project_media media: nil, quote: 'test', disable_es_callbacks: false
+    id = get_es_id(pm)
+    15.times do |i|
+      threads << Thread.start do
+        Sidekiq::Testing.inline! do
+          ElasticSearchTestWorker.perform_async(id)
+        end
+      end
+    end
+    threads.map(&:join)
+  end
 end
