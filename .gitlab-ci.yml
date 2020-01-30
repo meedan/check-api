@@ -20,7 +20,7 @@ build_qa:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - docker build  -f Dockerfile.production.aws -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
+    - docker build  -f Dockerfile.production -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"  .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
@@ -70,6 +70,8 @@ build_live:
     - pip install docutils==0.14
     - pip install awscli==1.16.201
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - docker build  -f Dockerfile.production -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"  .
+    - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
     - docker pull $ECR_API_BASE_URL/aws-long-tasks:latest
   only:
     - master
