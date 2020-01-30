@@ -132,8 +132,7 @@ module TeamRules
         'rule_value_type_is' => { title: I18n.t(:team_rule_select_type), type: 'string', enum: types },
         'rule_value_tagged_as' => { title: I18n.t(:team_rule_select_tag), type: 'string', enum: tags },
         'rule_value_status_is' => { title: I18n.t(:team_rule_select_status), type: 'string', enum: statuses },
-        'rule_value_title_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' },
-        'rule_value_request_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' }
+        'rule_value_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' }
       }
     }.each do |section, fields|
       fields.each do |property, value|

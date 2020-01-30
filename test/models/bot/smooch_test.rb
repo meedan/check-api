@@ -1160,7 +1160,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         "name": "Rule 3",
         "rules": [
           {
-            "rule_definition": "matches_regexp",
+            "rule_definition": "request_matches_regexp",
             "rule_value": "^[0-9]+$"
           }
         ],
@@ -1175,7 +1175,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         "name": "Rule 4",
         "rules": [
           {
-            "rule_definition": "matches_regexp",
+            "rule_definition": "request_matches_regexp",
             "rule_value": "bad word"
           }
         ],
