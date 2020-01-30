@@ -3,7 +3,7 @@ require 'active_support/concern'
 module TeamRules
   extend ActiveSupport::Concern
 
-  RULES = ['contains_keyword', 'has_less_than_x_words', 'matches_regexp', 'type_is', 'tagged_as', 'status_is', 'title_contains_keyword']
+  RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as', 'status_is', 'title_contains_keyword']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
 
@@ -43,8 +43,20 @@ module TeamRules
       smooch_message['text']
     end
 
-    def matches_regexp(pm, obj, value)
-      obj.nil? && pm.report_type == 'claim' && !pm.text.match(/#{Regexp.new(value)}/).nil?
+    def title_matches_regexp(pm, obj, value)
+      return false unless obj.nil?
+      matches_regexp(pm.title, value)
+    end
+
+    def request_matches_regexp(pm, obj, value)
+      return false unless obj.nil?
+      smooch_message = get_smooch_message(pm)
+      return false if smooch_message.blank?
+      matches_regexp(smooch_message, value)
+    end
+
+    def matches_regexp(text, value)
+      !text.match(/#{Regexp.new(value)}/).nil?
     end
 
     def type_is(pm, obj, value)
@@ -119,7 +131,9 @@ module TeamRules
       'rules' => {
         'rule_value_type_is' => { title: I18n.t(:team_rule_select_type), type: 'string', enum: types },
         'rule_value_tagged_as' => { title: I18n.t(:team_rule_select_tag), type: 'string', enum: tags },
-        'rule_value_status_is' => { title: I18n.t(:team_rule_select_status), type: 'string', enum: statuses }
+        'rule_value_status_is' => { title: I18n.t(:team_rule_select_status), type: 'string', enum: statuses },
+        'rule_value_title_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' },
+        'rule_value_request_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' }
       }
     }.each do |section, fields|
       fields.each do |property, value|
