@@ -64,6 +64,7 @@ module TeamRules
     def send_to_trash(pm, _value)
       pm = ProjectMedia.find(pm.id)
       pm.archived = 1
+      pm.skip_check_ability = true
       pm.save!
     end
 
@@ -77,6 +78,7 @@ module TeamRules
         pm = ProjectMedia.where(id: pm.id).last
         pm.previous_project_id = pm.project_id
         pm.project_id = project.id
+        pm.skip_check_ability = true
         pm.save!
       end
     end
