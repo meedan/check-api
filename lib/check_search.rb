@@ -99,6 +99,7 @@ class CheckSearch
     return collection.size if collection.is_a?(Array)
     return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
     user = User.current
+    collection = collection.unscope(where: :id)
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
@@ -130,7 +131,18 @@ class CheckSearch
                elsif associated_type == 'ProjectSource'
                  get_pg_results_for_source
                end
-    relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+    @options['id'] ? relation.where(id: @options['id']) : relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+  end
+
+  def item_navigation_offset
+    return -1 unless @options['id']
+    sort_key = SORT_MAPPING[@options['sort'].to_s]
+    sort_type = @options['sort_type'].to_s.downcase.to_sym
+    sort = { sort_key => sort_type }
+    condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
+    pm = ProjectMedia.where(id: @options['id']).last
+    return -1 if pm.nil?
+    get_pg_results_for_media.order(sort).where(condition, pm.send(sort_key)).count
   end
 
   def get_pg_results_for_media
