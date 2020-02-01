@@ -62,9 +62,7 @@ module TeamRules
 
   module Actions
     def send_to_trash(pm, _value)
-      pm = ProjectMedia.find(pm.id)
       pm.archived = 1
-      pm.skip_check_ability = true
       pm.save!
     end
 
@@ -75,10 +73,8 @@ module TeamRules
     def move_to_project(pm, value)
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
-        pm = ProjectMedia.where(id: pm.id).last
         pm.previous_project_id = pm.project_id
         pm.project_id = project.id
-        pm.skip_check_ability = true
         pm.save!
       end
     end
@@ -150,6 +146,7 @@ module TeamRules
     self.apply_rules(pm, obj) do |rules_and_actions|
       rules_and_actions[:actions].each do |action|
         if ::TeamRules::ACTIONS.include?(action[:action_definition])
+          pm = ProjectMedia.find(pm.id)
           pm.skip_check_ability = true
           self.send(action[:action_definition], pm, action[:action_value])
           pm.skip_check_ability = false
