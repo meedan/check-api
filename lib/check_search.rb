@@ -138,11 +138,19 @@ class CheckSearch
     return -1 unless @options['id']
     sort_key = SORT_MAPPING[@options['sort'].to_s]
     sort_type = @options['sort_type'].to_s.downcase.to_sym
-    sort = { sort_key => sort_type }
-    condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
-    get_pg_results_for_media.order(sort).where(condition, pm.send(sort_key)).count
+    if should_hit_elasticsearch?('ProjectMedia')
+      query = medias_build_search_query('ProjectMedia')
+      conditions = query[:bool][:must]
+      sort_operator = sort_type == :asc ? :lt : :gt
+      conditions << { range: { sort_key => { sort_operator => pm.send(sort_key) } } }
+      query = { bool: { must: conditions } }
+      MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: query })['count'].to_i
+    else
+      condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
+      get_pg_results_for_media.where(condition, pm.send(sort_key)).count
+    end
   end
 
   def get_pg_results_for_media
@@ -194,7 +202,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['id'] ? [MediaSearch.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
