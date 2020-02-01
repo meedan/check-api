@@ -143,9 +143,13 @@ class CheckSearch
     if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
+      es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
+      sort_value = MediaSearch.find(es_id).send(sort_key)
       sort_operator = sort_type == :asc ? :lt : :gt
-      conditions << { range: { sort_key => { sort_operator => pm.send(sort_key) } } }
-      query = { bool: { must: conditions } }
+      puts "Sort Key: #{sort_key} Sort Operator: #{sort_operator} Sort Value: #{sort_value}"
+      conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      must_not = [{ ids: { values: [es_id] } }]
+      query = { bool: { must: conditions, must_not: must_not } }
       MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: query })['count'].to_i
     else
       condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
