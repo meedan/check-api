@@ -185,7 +185,7 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal ms.team_id.to_i, t.id
   end
 
-  test "should create elasticsearch comment" do
+  test "should create update destroy elasticsearch comment" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
@@ -200,32 +200,12 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 1
     result = MediaSearch.find(get_es_id(ps))
     assert_equal [c2.id], result['comments'].collect{|i| i["id"]}
-  end
-
-  test "should update elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
+    # update es comment
     c.text = 'test-mod'; c.save!
     sleep 1
     result = MediaSearch.find(get_es_id(pm))
     assert_equal ['test-mod'], result['comments'].collect{|i| i["text"]}
-  end
-
-  test "should destroy elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    s = create_source
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
-    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [c.id], result['comments'].collect{|i| i["id"]}
+    # destroy es comment
     c.destroy
     c2.destroy
     sleep 1
@@ -235,7 +215,7 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_empty result['comments']
   end
 
-  test "should create elasticsearch tag" do
+  test "should create update destroy elasticsearch tag" do
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, disable_es_callbacks: false
@@ -243,20 +223,19 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 1
     result = MediaSearch.find(get_es_id(pm))
     assert_equal [t.id], result['tags'].collect{|i| i["id"]}
-  end
-
-  test "should update elasticsearch tag" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
+    # update tag
     t.tag = 'sports-news'; t.save!
     sleep 1
     result = MediaSearch.find(get_es_id(pm))
     assert_equal ['sports-news'], result['tags'].collect{|i| i["tag"]}
+    # destroy tag
+    t.destroy
+    sleep 1
+    result = MediaSearch.find(get_es_id(pm))
+    assert_empty result['tags']
   end
 
-  test "should create elasticsearch status" do
+  test "should create update elasticsearch status" do
     m = create_valid_media
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, disable_es_callbacks: false
@@ -264,13 +243,7 @@ class ElasticSearch5Test < ActionController::TestCase
       ms = MediaSearch.find(get_es_id(pm))
       assert_equal 'undetermined', ms.verification_status
       assert_equal 'pending', ms.translation_status
-    end
-  end
-
-  test "should update elasticsearch status" do
-    m = create_valid_media
-    Sidekiq::Testing.inline! do
-      pm = create_project_media media: m, disable_es_callbacks: false
+      # update status
       s = pm.get_annotations('translation_status').last.load
       s.status = 'translated'
       s.save!

@@ -52,19 +52,12 @@ class ElasticSearch4Test < ActionController::TestCase
       # keyword & tags & context & status
       result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], verification_status: ['verified'], projects: [p.id]}.to_json)
       assert_equal [pm.id], result.medias.map(&:id)
+      # search keyword in comments
+      create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
+      sleep 1
+      result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
     end
-  end
-
-  test "should search keyword in comments" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
-    sleep 10
-    Team.current = t
-    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should sort results by recent activities" do
@@ -230,70 +223,33 @@ class ElasticSearch4Test < ActionController::TestCase
     assert result.medias.map(&:id).include?(pm.id)
   end
 
-  test "should include tag and status in recent activity sort" do
+  test "should include tag status and comments in recent activity sort" do
     stub_config('app_name', 'Check') do
       t = create_team
       p = create_project team: t
-      pender_url = CONFIG['pender_url_private'] + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m1 = create_media(account: create_valid_account, url: url)
-      pm1  = create_project_media project: p, media: m1, disable_es_callbacks: false
-      url = 'http://test2.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m2 = create_media(account: create_valid_account, url: url)
-      pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
+      pm1  = create_project_media project: p, disable_es_callbacks: false
+      sleep 1
+      pm2  = create_project_media project: p, disable_es_callbacks: false
+      sleep 1
+      pm3  = create_project_media project: p, disable_es_callbacks: false
       sleep 1
       create_status annotated: pm1, status: 'in_progress', disable_es_callbacks: false
       sleep 1
       Team.current = t
       result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
-      assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
-      create_tag annotated: pm2, tag: 'in_progress', disable_es_callbacks: false
+      assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+      create_tag annotated: pm3, tag: 'in_progress', disable_es_callbacks: false
       sleep 1
       result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
-      assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
-    end
-  end
-
-  test "should include notes in recent activity sort" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m1 = create_media(account: create_valid_account, url: url)
-    pm1  = create_project_media project: p, media: m1, disable_es_callbacks: false
-    url = 'http://test2.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m2 = create_media(account: create_valid_account, url: url)
-    pm2  = create_project_media project: p, media: m2, disable_es_callbacks: false
-    create_comment annotated: pm1, text: 'add comment', disable_es_callbacks: false
-    sleep 1
-    Team.current = t
-    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity"}.to_json)
-    assert_equal [pm1.id, pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json)
-    assert_equal [pm2.id, pm1.id], result.medias.map(&:id)
-  end
-
-  test "should sort by recent activity with project and status filters" do
-    stub_config('app_name', 'Check') do
-      t = create_team
-      p = create_project team: t
-      pender_url = CONFIG['pender_url_private'] + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m = create_media(account: create_valid_account, url: url)
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      create_status status: 'in_progress', annotated: pm, disable_es_callbacks: false
+      assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
+      # include notes in recent activity sort
+      create_comment annotated: pm1, text: 'add comment', disable_es_callbacks: false
       sleep 1
-      Team.current = t
+      result = CheckSearch.new({projects: [p.id], sort: "recent_activity"}.to_json)
+      assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({projects: [p.id], sort: "recent_activity", sort_type: 'asc'}.to_json)
+      assert_equal [pm2.id, pm3.id, pm1.id], result.medias.map(&:id)
+      # should sort by recent activity with project and status filters
       result = CheckSearch.new({projects: [p.id], verification_status: ['in_progress'], sort: "recent_activity"}.to_json)
       assert_equal 1, result.project_medias.count
     end

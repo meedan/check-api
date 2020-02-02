@@ -5,22 +5,7 @@ class ElasticSearch2Test < ActionController::TestCase
     super
     setup_elasticsearch
   end
-
-  test "should filter by archived" do
-    create_project_media disable_es_callbacks: false
-    pm = create_project_media disable_es_callbacks: false
-    pm.archived = true
-    pm.save!
-    create_project_media disable_es_callbacks: false
-    sleep 3
-    result = CheckSearch.new({}.to_json)
-    assert_equal 2, result.medias.count
-    result = CheckSearch.new({ archived: 1 }.to_json)
-    assert_equal 1, result.medias.count
-    result = CheckSearch.new({ archived: 0 }.to_json)
-    assert_equal 2, result.medias.count
-  end
-
+  
   test "should get teams" do
     u = create_user
     t = create_team

@@ -165,7 +165,7 @@ class ElasticSearch3Test < ActionController::TestCase
     assert_equal [ps2.id, ps3.id], result.sources.map(&:id)
   end
 
-  test "should filter by medias or sources" do
+  test "should filter by medias or sources or archived" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
@@ -175,7 +175,7 @@ class ElasticSearch3Test < ActionController::TestCase
     s = create_source
     create_project_source project: p, source: s, disable_es_callbacks: false
     c = create_claim_media
-    create_project_media project: p, media: c, disable_es_callbacks: false
+    pm = create_project_media project: p, media: c, disable_es_callbacks: false
     m = create_valid_media
     create_project_media project: p, media: m, disable_es_callbacks: false
     i = create_uploaded_image
@@ -206,6 +206,13 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({ show: ['sources', 'claims'] }.to_json)
     assert_equal p.sources.count, result.sources.count
     assert_equal 1, result.medias.count
+    # filter by archived
+    pm.archived = true
+    pm.save!
+    result = CheckSearch.new({ archived: 1 }.to_json)
+    assert_equal 1, result.medias.count
+    result = CheckSearch.new({ archived: 0 }.to_json)
+    assert_equal 2, result.medias.count
     Team.current = nil
   end
 

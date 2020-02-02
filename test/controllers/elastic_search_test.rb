@@ -161,6 +161,26 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal u.id.to_s, last_version.whodunnit
   end
 
+  test "should update es in bulk update" do
+    u = create_user
+    @team = create_team
+    p = create_project team: @team
+    p2 = create_project team: @team
+    create_team_user user: u, team: @team, role: 'owner'
+    pm1 = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    authenticate_with_user(u)
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
+    sleep 1
+    ms1 = MediaSearch.find(get_es_id(pm1))
+    ms2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal pm1.reload.inactive.to_i, ms1.inactive
+    assert_equal pm2.reload.inactive.to_i, ms2.inactive
+  end
+
   test "should search with keyword" do
     t = create_team
     p = create_project team: t
