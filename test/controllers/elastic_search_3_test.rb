@@ -213,7 +213,6 @@ class ElasticSearch3Test < ActionController::TestCase
     assert_equal 1, result.medias.count
     result = CheckSearch.new({ archived: 0 }.to_json)
     assert_equal 2, result.medias.count
-  end
     Team.current = nil
   end
 
