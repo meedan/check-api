@@ -20,7 +20,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m
+        assert_equal u, pm.user
+      end
+    end
+    # should be uinq
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raises RuntimeError do
+        create_project_media project: p, media: m
+      end
     end
     # journalist should assign any media
     m2 = create_valid_media
@@ -290,18 +299,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should set user when project media is created" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    pm = nil
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p
-    end
-    assert_equal u, pm.user
-  end
-
   test "should create embed for uploaded image" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -314,19 +311,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.media_type = 'UploadedImage'
     pm.save!
     assert_equal 'rails.png', pm.metadata['title']
-  end
-
-  test "should be unique" do
-    p = create_project
-    m = create_valid_media
-    assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m
-    end
-    assert_no_difference 'ProjectMedia.count' do
-      assert_raises RuntimeError do
-        create_project_media project: p, media: m
-      end
-    end
   end
 
   test "should protect attributes from mass assignment" do
