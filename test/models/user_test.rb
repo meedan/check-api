@@ -1038,6 +1038,26 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should send invitaion using invitation emaill not primary email" do
+    t = create_team
+    u = create_user email: 'primary@local.com'
+    create_team_user team: t, user: u, role: 'owner'
+    a = create_account source: u.source, user: u, provider: 'facebook', email: 'account@local.com'
+    # create a new team and invite existing user with email of associated account
+    t2 = create_team
+    u2 = create_user
+    create_team_user team: t2, user: u2, role: 'owner'
+    # invite existing user
+    members = [{role: 'journalist', email: 'account@local.com'}]
+    # A) for same team
+    with_current_user_and_team(u2, t2) do
+      assert_difference 'TeamUser.count', 1 do
+        User.send_user_invitation(members)
+      end
+    end
+    assert_equal ['account@local.com'], t2.invited_mails(t2)
+  end
+
   test "should allow user to delete own account" do
     t = create_team
     user = create_user

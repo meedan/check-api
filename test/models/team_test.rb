@@ -1919,4 +1919,53 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
+
+  test "should skip permission when applying action" do
+    t = create_team
+    p = create_project team: t
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    create_team_bot_installation user_id: b.id, settings: nil, team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "has_less_than_x_words",
+          "rule_value": "3"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "send_to_trash",
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "has_less_than_x_words",
+          "rule_value": "4"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "send_to_trash",
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_nothing_raised do
+      with_current_user_and_team(b, t) do
+        create_project_media project: p, media: nil, url: url, smooch_message: { 'text' => 'test' }
+      end
+    end
+  end
 end

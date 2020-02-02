@@ -629,4 +629,39 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
   end
+
+  test "should return updated offset from PG" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    sleep 1
+    pm2 = create_project_media project: p
+    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    response = JSON.parse(@response.body)['data']['search']
+    assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
+    assert_equal 1, response['item_navigation_offset']
+  end
+
+  test "should return updated offset from ES" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id
+    pm2 = create_project_media project: p
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
+    sleep 10
+    query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    response = JSON.parse(@response.body)['data']['search']
+    assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
+    assert_equal 1, response['item_navigation_offset']
+  end
 end
