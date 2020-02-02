@@ -108,7 +108,7 @@ class GraphqlCrudOperations
       objs[klass.constantize] << id
     end
     objs.each do |klass, ids|
-      klass.where(id: ids).find_each { |obj| obj.update_attributes(inactive: inactive) } if klass.column_names.include?('inactive')
+      klass.where(id: ids).find_each { |obj| obj.skip_check_ability = true; obj.inactive = inactive; obj.save! } if klass.column_names.include?('inactive')
     end
   end
 
