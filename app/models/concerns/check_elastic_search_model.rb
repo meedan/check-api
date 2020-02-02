@@ -118,6 +118,20 @@ module CheckElasticSearchModel
       client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
     end
 
+    def elasticsearch_bulk_update(options)
+      client = MediaSearch.gateway.client
+      index_alias = CheckElasticSearchModel.get_index_alias
+      options[:klass].where(id: options[:ids]).find_in_batches(:batch_size => 5000) do |objs|
+        es_body = []
+        objs.each do |obj|
+          doc_id = obj.get_es_doc_id(obj)
+          fields = { options[:key] => obj.send(options[:key]).to_i }
+          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+        end
+        client.bulk body: es_body unless es_body.blank?
+      end
+    end
+
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
       query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
