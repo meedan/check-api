@@ -107,7 +107,9 @@ class GraphqlCrudOperations
       objs[klass.constantize] ||= []
       objs[klass.constantize] << id
     end
-    objs.each { |klass, ids| klass.where(id: ids).update_all(inactive: inactive) if klass.column_names.include?('inactive') }
+    objs.each do |klass, ids|
+      klass.where(id: ids).find_each { |obj| obj.update_attributes(inactive: inactive) } if klass.column_names.include?('inactive')
+    end
   end
 
   def self.crud_operation(operation, obj, inputs, ctx, parents, returns = {})
