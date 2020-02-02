@@ -108,6 +108,7 @@ module UserMultiAuthLogin
         self.team_users.where(status: 'invited').each do |tu|
           User.accept_team_user_invitation(tu, token, {password: "", skip_notification: true}) if tu.invitation_period_valid?
         end
+        self.update_column(:raw_invitation_token, nil)
       end
       self.confirm unless self.reload.is_confirmed?
     end

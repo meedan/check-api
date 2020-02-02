@@ -10,7 +10,7 @@ ResendCancelInvitationMutation = GraphQL::Relay::Mutation.define do
   return_field :team, TeamType
 
   resolve -> (_root, inputs, _ctx) {
-    user = User.where(email: inputs[:email]).last
+    user = User.find_user_by_email(inputs[:email])
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else

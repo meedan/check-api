@@ -25,17 +25,17 @@ module UserInvitation
             else
               u.invitation_role = role
               u.invitation_text = text
-              msg.concat(u.invite_existing_user)
+              msg.concat(u.invite_existing_user(email))
             end
           rescue StandardError => e
-            msg << {email: email, error: e.message}
+            msg << { email: email, error: e.message }
           end
         end
       end
       msg
     end
 
-    def invite_existing_user
+    def invite_existing_user(email)
       msg = []
       unless Team.current.nil?
         tu = get_team_user
@@ -45,11 +45,12 @@ module UserInvitation
             raw, enc = Devise.token_generator.generate(User, :invitation_token)
             options = {:enc => enc, :raw => raw}
           end
+          options[:email] = email
           create_team_user_invitation(options)
         elsif tu.status == 'invited'
-          msg << {email: self.email, error: I18n.t(:"user_invitation.invited")}
+          msg << { email: tu.invitation_email, error: I18n.t(:"user_invitation.invited") }
         else
-          msg << {email: self.email, error: I18n.t(:"user_invitation.member")}
+          msg << { email: tu.invitation_email, error: I18n.t(:"user_invitation.member") }
         end
       end
       msg
@@ -132,6 +133,7 @@ module UserInvitation
       tu.invited_by_id ||= User.current.id unless User.current.nil?
       tu.invitation_token = self.invitation_token || options[:enc]
       tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
+      tu.invitation_email = options[:email] || self.email
       self.send_invitation_mail(tu) if tu.save!
     end
 

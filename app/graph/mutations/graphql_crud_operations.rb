@@ -107,7 +107,15 @@ class GraphqlCrudOperations
       objs[klass.constantize] ||= []
       objs[klass.constantize] << id
     end
-    objs.each { |klass, ids| klass.where(id: ids).update_all(inactive: inactive) if klass.column_names.include?('inactive') }
+    objs.each do |klass, ids|
+      if klass.column_names.include?('inactive')
+        klass.where(id: ids).update_all(inactive: inactive)
+        if klass.name == 'ProjectMedia' && !inactive
+          options = { klass: klass, ids: ids, key: 'inactive', skip_extra_data: true }
+          ElasticSearchWorker.perform_in(20.second, YAML::dump(klass), YAML::dump(options), 'check_bulk_update')
+        end
+      end
+    end
   end
 
   def self.crud_operation(operation, obj, inputs, ctx, parents, returns = {})

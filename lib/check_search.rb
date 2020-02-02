@@ -99,6 +99,7 @@ class CheckSearch
     return collection.size if collection.is_a?(Array)
     return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
     user = User.current
+    collection = collection.unscope(where: :id)
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
@@ -130,7 +131,30 @@ class CheckSearch
                elsif associated_type == 'ProjectSource'
                  get_pg_results_for_source
                end
-    relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+    @options['id'] ? relation.where(id: @options['id']) : relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
+  end
+
+  def item_navigation_offset
+    return -1 unless @options['id']
+    sort_key = SORT_MAPPING[@options['sort'].to_s]
+    sort_type = @options['sort_type'].to_s.downcase.to_sym
+    pm = ProjectMedia.where(id: @options['id']).last
+    return -1 if pm.nil?
+    if should_hit_elasticsearch?('ProjectMedia')
+      query = medias_build_search_query('ProjectMedia')
+      conditions = query[:bool][:must]
+      es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
+      sort_value = MediaSearch.find(es_id).send(sort_key)
+      sort_operator = sort_type == :asc ? :lt : :gt
+      puts "Sort Key: #{sort_key} Sort Operator: #{sort_operator} Sort Value: #{sort_value}"
+      conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      must_not = [{ ids: { values: [es_id] } }]
+      query = { bool: { must: conditions, must_not: must_not } }
+      MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: query })['count'].to_i
+    else
+      condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
+      get_pg_results_for_media.where(condition, pm.send(sort_key)).count
+    end
   end
 
   def get_pg_results_for_media
@@ -182,7 +206,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['id'] ? [MediaSearch.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private

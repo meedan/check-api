@@ -290,7 +290,7 @@ class Team < ActiveRecord::Base
 
   def invited_mails(team=nil)
     team ||= Team.current
-    TeamUser.select('users.email').where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).joins(:user).map(&:email) unless team.nil?
+    TeamUser.where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).map(&:invitation_email) unless team.nil?
   end
 
   def dynamic_search_fields_json_schema

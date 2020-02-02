@@ -20,7 +20,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m
+      with_current_user_and_team(u, t) do
+        pm = create_project_media project: p, media: m
+        assert_equal u, pm.user
+      end
+    end
+    # should be uinq
+    assert_no_difference 'ProjectMedia.count' do
+      assert_raises RuntimeError do
+        create_project_media project: p, media: m
+      end
     end
     # journalist should assign any media
     m2 = create_valid_media
@@ -290,18 +299,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should set user when project media is created" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: create_user
-    pm = nil
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p
-    end
-    assert_equal u, pm.user
-  end
-
   test "should create embed for uploaded image" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -314,19 +311,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.media_type = 'UploadedImage'
     pm.save!
     assert_equal 'rails.png', pm.metadata['title']
-  end
-
-  test "should be unique" do
-    p = create_project
-    m = create_valid_media
-    assert_difference 'ProjectMedia.count' do
-      create_project_media project: p, media: m
-    end
-    assert_no_difference 'ProjectMedia.count' do
-      assert_raises RuntimeError do
-        create_project_media project: p, media: m
-      end
-    end
   end
 
   test "should protect attributes from mass assignment" do
@@ -2096,5 +2080,50 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
     assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
+  end
+
+  test "should handle indexing conflicts" do
+    require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
+    Sidekiq::Testing.server_middleware do |chain|
+      chain.add ::Middleware::Sidekiq::Server::Retry
+    end
+
+    class ElasticSearchTestWorker
+      include Sidekiq::Worker
+      attr_accessor :retry_count
+      sidekiq_options retry: 5
+
+      sidekiq_retries_exhausted do |_msg, e|
+        raise e
+      end
+
+      def perform(id)
+        begin
+          client = MediaSearch.gateway.client
+          client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id, retry_on_conflict: 0, body: { doc: { updated_at: Time.now + rand(50).to_i } }
+        rescue Exception => e
+          retry_count = retry_count.to_i + 1
+          if retry_count < 5
+            perform(id)
+          else
+            raise e
+          end
+        end
+      end
+    end
+    
+    setup_elasticsearch
+    
+    threads = []
+    pm = create_project_media media: nil, quote: 'test', disable_es_callbacks: false
+    id = get_es_id(pm)
+    15.times do |i|
+      threads << Thread.start do
+        Sidekiq::Testing.inline! do
+          ElasticSearchTestWorker.perform_async(id)
+        end
+      end
+    end
+    threads.map(&:join)
   end
 end
