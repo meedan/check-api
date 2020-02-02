@@ -176,10 +176,10 @@ class ElasticSearchTest < ActionController::TestCase
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
       # sleep 1
-      # ms1 = MediaSearch.find(get_es_id(pm1))
-      # ms2 = MediaSearch.find(get_es_id(pm2))
-      # assert_equal pm1.reload.inactive.to_i, ms1.inactive
-      # assert_equal pm2.reload.inactive.to_i, ms2.inactive
+      ms1 = MediaSearch.find(get_es_id(pm1))
+      ms2 = MediaSearch.find(get_es_id(pm2))
+      assert_equal pm1.reload.inactive.to_i, ms1.inactive
+      assert_equal pm2.reload.inactive.to_i, ms2.inactive
     end
   end
 
