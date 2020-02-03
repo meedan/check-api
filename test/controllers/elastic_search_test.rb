@@ -161,7 +161,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal u.id.to_s, last_version.whodunnit
   end
 
-  test "should update es in bulk update" do
+  test "should not update es inactive field in bulk update" do
     Sidekiq::Testing.inline! do
       u = create_user
       @team = create_team
