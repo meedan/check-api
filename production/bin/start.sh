@@ -59,10 +59,25 @@ for d in ${PERSIST_DIRS}; do
         echo "creating directory ${d}"
         mkdir -p ${d}
     fi
+
+#    echo "setting permissions for ${d}"
+#    chown -R ${DEPLOYUSER}:www-data ${d}
+#    find ${d} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
+#    find ${d} -type f -exec chmod 0664 {} \; # files are 664
 done
+
+
+# should only run migrations on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
+# for live environments PRIMARY is *not* set and run_migration.sh is called in a separate process
+if [ -n "${PRIMARY}" ]; then
+    /opt/bin/run_migration.sh
+fi
 
 echo "tailing ${LOGFILE}"
 tail -f ${LOGFILE} &
+
+echo "compiling assets"
+su ${DEPLOYUSER} -c "bundle exec rake assets:precompile"
 
 echo "starting nginx"
 echo "--STARTUP FINISHED--"
