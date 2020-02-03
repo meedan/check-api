@@ -13,7 +13,7 @@ module OugaiLogger
         Ougai::Formatters::Readable.new
       else
         Ougai::Formatters::Bunyan.new
-      #end
+      end
     end
   end
 end
