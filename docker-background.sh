@@ -7,4 +7,6 @@ until curl --silent -XGET --fail http://api:${SERVER_PORT}; do printf '.'; sleep
 bundle exec ruby bin/static-files-server &
 
 # Sidekiq
-bin/sidekiq
+bin/sidekiq &
+
+tail -f log/sidekiq.log
