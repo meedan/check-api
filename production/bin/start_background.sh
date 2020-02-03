@@ -21,7 +21,7 @@ if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN_PARSED}:x-oaut
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
 
-LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
+LOGFILE=${DEPLOYDIR}/log/sidekiq.log
 
 echo "setting permissions for ${LOGFILE}"
 touch ${LOGFILE}
@@ -44,4 +44,6 @@ echo "starting static files server"
 su ${DEPLOYUSER} -c "bundle exec ruby bin/static-files-server &"
 
 echo "starting sidekiq"
-su ${DEPLOYUSER} -c "bundle exec sidekiq -L ${LOGFILE} | tee ${LOGFILE}"
+su ${DEPLOYUSER} -c "bundle exec sidekiq -L ${LOGFILE} &"
+
+tail -f ${LOGFILE}
