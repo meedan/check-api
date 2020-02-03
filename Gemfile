@@ -18,7 +18,7 @@ end
 # Use pender from git
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
 
-gem 'logstash-logger'
+gem 'ougai'
 gem 'rails', '4.2.11.1'
 gem 'sqlite3'
 gem 'pg', '~> 0.15'
