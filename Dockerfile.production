@@ -79,11 +79,16 @@ USER root
 RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 
 
-#
 # RUNTIME ELEMENTS
 # expose, cmd
 
 EXPOSE 3300
 
 WORKDIR ${DEPLOYDIR}
+
+RUN cp config/config.yml.example config/config.yml && \
+    printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
+    bundle exec rake assets:precompile && \
+    rm config/config.yml
+
 ENTRYPOINT ["/opt/bin/start.sh"]
