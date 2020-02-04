@@ -82,10 +82,9 @@ module ProjectAssociation
         'team_id' => self.team_id
       }
       if self.class_name == 'ProjectMedia'
-        keys.concat(%w(archived inactive sources_count))
+        keys.concat(%w(archived sources_count))
         data = data.merge({
           'archived' => self.archived.to_i,
-          'inactive' => self.inactive.to_i,
           'sources_count' => self.sources_count
         })
       end
