@@ -4,8 +4,6 @@ class ElasticSearchWorker
 
   sidekiq_options :queue => :esqueue, :retry => 5
 
-  sidekiq_retries_exhausted { |msg, e| Airbrake.notify(e, msg) if Airbrake.configured? && e.is_a?(Elasticsearch::Transport::Transport::Errors::Conflict) }
-
   sidekiq_retry_in { |_count, _e| 5 }
 
   def perform(model, options, type)
