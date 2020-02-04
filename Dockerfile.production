@@ -61,8 +61,7 @@ USER ${DEPLOYUSER}
 COPY --chown=checkdeploy:www-data ./Gemfile ${DEPLOYDIR}/Gemfile
 COPY --chown=checkdeploy:www-data ./Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    && bundle install  --jobs 20 --retry 5 --deployment --without test development \
-    && bundle exec rake assets:precompile
+    && bundle install  --jobs 20 --retry 5 --deployment --without test development 
 
 # copy in the code
 # COPY's `--chown` directive cannot utilize environmental variables
@@ -87,4 +86,6 @@ RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
 EXPOSE 3300
 
 WORKDIR ${DEPLOYDIR}
+RUN bundle exec rake assets:precompile
+
 ENTRYPOINT ["/opt/bin/start.sh"]
