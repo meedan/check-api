@@ -67,17 +67,8 @@ for d in ${PERSIST_DIRS}; do
 done
 
 
-# should only run migrations on ${PRIMARY} nodes, perhaps in an out-of-band process during major multi-node deployments
-# for live environments PRIMARY is *not* set and run_migration.sh is called in a separate process
-if [ -n "${PRIMARY}" ]; then
-    /opt/bin/run_migration.sh
-fi
-
 echo "tailing ${LOGFILE}"
 tail -f ${LOGFILE} &
-
-echo "compiling assets"
-su ${DEPLOYUSER} -c "bundle exec rake assets:precompile"
 
 echo "starting nginx"
 echo "--STARTUP FINISHED--"
