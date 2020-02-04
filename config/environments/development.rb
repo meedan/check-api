@@ -1,4 +1,4 @@
-require 'logstash-logger'
+require 'ougai'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -59,4 +59,6 @@ Rails.application.configure do
   config.allow_concurrency = true
 
   config.action_mailer.default_url_options = { host: 'http://localhost:3000' }
+
+  config.logger = OugaiLogger::Logger.new(STDOUT)
 end
