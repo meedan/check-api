@@ -517,7 +517,7 @@ GEM
       multi_json (~> 1.0)
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
-    rack (1.6.11)
+    rack (1.6.12)
     rack-cors (0.4.1)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
