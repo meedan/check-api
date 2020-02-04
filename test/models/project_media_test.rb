@@ -1240,6 +1240,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get claim description only if it has been set" do
+    RequestStore.store[:skip_cached_field_update] = false
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_nil pm.reload.description
@@ -1688,6 +1689,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache project source id" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     pm = create_project_media project: p
     ps = pm.send :get_project_source, p.id
@@ -1782,6 +1784,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache demand" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media project: p
@@ -1817,6 +1820,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of linked items" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     pm = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
@@ -1839,6 +1843,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of requests" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media
     assert_queries(0, '=') { assert_equal(0, pm.requests_count) }
@@ -1850,6 +1855,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache last seen" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media project: p
@@ -1875,6 +1881,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache status" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff(false)
     pm = create_project_media
     assert pm.respond_to?(:status)
@@ -1893,6 +1900,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache title" do
+    RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
     pm.metadata = { title: 'Title 1' }.to_json
     pm.save!
@@ -1912,6 +1920,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache description" do
+    RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
     pm.metadata = { description: 'Description 1' }.to_json
     pm.save!
@@ -1931,6 +1940,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should index sortable fields" do
+    RequestStore.store[:skip_cached_field_update] = false
     # sortable fields are [linked_items_count, requests_count and last_seen]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })

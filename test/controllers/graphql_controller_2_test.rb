@@ -1059,6 +1059,7 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should bulk-update things" do
+    RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake! do
       u = create_user
       t = create_team
@@ -1099,6 +1100,7 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should bulk-destroy things" do
+    RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake! do
       u = create_user
       t = create_team

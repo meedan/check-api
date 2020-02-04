@@ -9,11 +9,7 @@ module OugaiLogger
     end
 
     def create_formatter
-      if Rails.env.development? || Rails.env.test?
-        Ougai::Formatters::Readable.new
-      else
-        Ougai::Formatters::Bunyan.new
-      end
+      (Rails.env.development? || Rails.env.test?) ? Ougai::Formatters::Readable.new : Ougai::Formatters::Bunyan.new
     end
   end
 end
