@@ -85,6 +85,7 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should update elasticsearch after refresh pender data" do
+    RequestStore.store[:skip_cached_field_update] = false
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')

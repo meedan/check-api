@@ -4,11 +4,16 @@ module CheckCachedFields
   end
 
   module ClassMethods
+    def skip_cached_field_update?
+      RequestStore.store[:skip_cached_field_update]
+    end
+
     def cached_field(name, options = {})
       options = options.with_indifferent_access
 
       if options[:start_as]
         self.send :after_create, ->(obj) do
+          return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
           Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value)
         end
@@ -24,7 +29,10 @@ module CheckCachedFields
         model = update_on[:model]
         klass = self
         update_on[:events].each do |event, callback|
-          model.send("after_#{event}", ->(obj) { klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options) })
+          model.send "after_#{event}", ->(obj) do
+            return if klass.skip_cached_field_update?
+            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
+          end
         end
       end
     end
