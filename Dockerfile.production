@@ -61,7 +61,7 @@ USER ${DEPLOYUSER}
 COPY --chown=checkdeploy:www-data ./Gemfile ${DEPLOYDIR}/Gemfile
 COPY --chown=checkdeploy:www-data ./Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    && bundle install  --jobs 20 --retry 5 --deployment --without test development 
+    && bundle install  --jobs 20 --retry 5 --deployment --without test development
 
 # copy in the code
 # COPY's `--chown` directive cannot utilize environmental variables
