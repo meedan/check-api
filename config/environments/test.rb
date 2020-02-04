@@ -55,6 +55,18 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {:host => 'http://localhost:13000'}
 
   # Log errors to stdout during testing.
-  config.logger = Logger.new(STDOUT)
+
+  
+  module ActiveSupport::TaggedLogging::Formatter
+    def call(severity, time, progname, data)
+      data = { msg: data.to_s } unless data.is_a?(Hash)
+      tags = current_tags
+      data[:tags] = tags if tags.present?
+      _call(severity, time, progname, data)
+    end
+  end
+
+  config.logger = ActiveSupport::TaggedLogging.new(OugaiLogger::Logger.new(STDOUT))
+  
   config.log_level = :ERROR
 end
