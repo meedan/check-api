@@ -16,7 +16,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @project = create_project user: @user, team: @team
     Object.any_instance.stubs(:notify_pusher)
     Sidekiq::Testing.fake!
-    RequestStore.store[:skip_cached_field_update] = true
+    RequestStore.store[:skip_cached_field_update] = false
   end
 
   def teardown
