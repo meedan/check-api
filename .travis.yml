@@ -9,6 +9,7 @@ before_install:
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
+- sudo apt-get update
 - sudo apt-get install wget redis-server graphicsmagick fontconfig libfontconfig install ffmpegthumbnailer -y
 - mkdir -p /tmp/downloads &&
   cd /tmp/downloads &&
@@ -39,8 +40,6 @@ cache:
   - "/usr/local/lib/python2.7/dist-packages/pip"
 addons:
   postgresql: '9.5'
-  apt:
-    update: true
   hosts:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
