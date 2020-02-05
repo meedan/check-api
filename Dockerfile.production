@@ -88,7 +88,7 @@ WORKDIR ${DEPLOYDIR}
 
 RUN cp config/config.yml.example config/config.yml && \
     printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
-    bundle exec rake assets:precompile && \
+    SECRET_KEY_BASE=bogus bundle exec rake assets:precompile && \
     rm config/config.yml
 
 ENTRYPOINT ["/opt/bin/start.sh"]
