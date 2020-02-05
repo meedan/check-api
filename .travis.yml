@@ -50,6 +50,7 @@ before_script:
 - bundle exec rake assets:precompile
 - bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
 - sleep 10
+- touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > test/cc-test-reporter
 - chmod +x ./test/cc-test-reporter
