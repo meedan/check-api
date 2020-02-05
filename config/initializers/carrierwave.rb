@@ -1,5 +1,5 @@
 CONFIG['storage']['asset_host'] ||= "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}"
-  
+
 bucket_name = CONFIG['storage']['bucket']
 
 unless bucket_name.blank?
@@ -12,7 +12,7 @@ unless bucket_name.blank?
     endpoint:              CONFIG['storage']['endpoint'],
     host:                  CONFIG['storage']['endpoint'] ? URI(CONFIG['storage']['endpoint']).host : ''
   }
-  
+
   CarrierWave.configure do |config|
     config.fog_provider = 'fog/aws'
     config.fog_credentials = credentials
@@ -24,7 +24,7 @@ unless bucket_name.blank?
 
   connection = Fog::Storage.new(credentials)
   bucket = connection.directories.get(bucket_name)
-  
+
   if bucket.nil?
     begin
       connection.directories.create(key: bucket_name, public: true)
