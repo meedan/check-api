@@ -1,5 +1,5 @@
 language: ruby
-dist: trusty
+dist: bionic
 services:
 - postgresql
 before_install:
@@ -7,11 +7,10 @@ before_install:
 - export RECORD_RUNTIME=true
 - export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
-- sudo add-apt-repository ppa:mc3man/trusty-media -y
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get -qq update
-- sudo apt-get install wget openjdk-7-jre redis-server imagemagick fontconfig libfontconfig
+- sudo apt-get install wget redis-server graphicsmagick fontconfig libfontconfig
 - sudo apt-get install ffmpegthumbnailer -y
 - mkdir -p /tmp/downloads &&
   cd /tmp/downloads &&
@@ -42,6 +41,15 @@ cache:
   - "/usr/local/lib/python2.7/dist-packages/pip"
 addons:
   postgresql: '9.5'
+  apt:
+    sources:
+      - ppa:chris-lea/redis-server
+    packages:
+    - redis-tools
+    - redis-server
+    - graphicsmagick 
+    - fontconfig 
+    - libfontconfig
   hosts:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
@@ -58,7 +66,7 @@ after_script:
 - echo 'Combining and uploading coverage...' && cd test && ./sum-upload-coverage.sh && cd -
 - echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
 rvm:
-- 2.3.4
+- 2.3.8
 jobs:
   include:
     - stage: test
