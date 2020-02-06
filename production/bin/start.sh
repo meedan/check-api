@@ -34,6 +34,4 @@ cp config/puma.rb $puma
 echo "pidfile '/app/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
 echo "environment '$RAILS_ENV'" >> $puma
 echo "port $SERVER_PORT" >> $puma
-echo "workers 3" >> $puma
-echo "raise_exception_on_sigterm false" >> $puma
-bundle exec puma -C $puma -t 8:32
+bundle exec puma -C $puma -t 8:32 -w 3
