@@ -33,7 +33,7 @@ RUN apt-get update -qq && apt-get install -y jq nodejs git build-essential libpq
      ffmpegthumbnailer fontconfig libfontconfig fonts-beng fonts-deva fonts-samyak-gujr fonts-mlym fonts-taml fonts-smc fonts-taml fonts-telu
 
 # phantomjs
-RUN curl -L -o- https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 | tar -xjf - phantomjs-2.1.1-linux-x86_64/bin/phantomjs && \
+RUN curl -sL https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 | tar xjf - phantomjs-2.1.1-linux-x86_64/bin/phantomjs && \
     mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/ && \
     rm -rf phantomjs*
 
@@ -54,10 +54,9 @@ WORKDIR ${DEPLOYDIR}
 USER ${DEPLOYUSER}
 # COPY's `--chown` directive cannot utilize environmental variables
 # so we mimic `--chown=${DEPLOYUSER}:www-data`
-COPY --chown=checkdeploy:www-data ./Gemfile ${DEPLOYDIR}/Gemfile
-COPY --chown=checkdeploy:www-data ./Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
-RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    && bundle install  --jobs 20 --retry 5 --deployment --without test development
+COPY --chown=checkdeploy:www-data Gemfile ${DEPLOYDIR}/Gemfile
+COPY --chown=checkdeploy:www-data Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
+RUN bundle install --jobs 20 --retry 5 --deployment --without test development
 
 # copy in the code
 # COPY's `--chown` directive cannot utilize environmental variables
@@ -66,26 +65,14 @@ COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 RUN touch ${DEPLOYDIR}/log/${RAILS_ENV}.log
 
 
-USER root
 
-# link config files
-# RUN /opt/bin/find_and_link_config_files.sh ${DEPLOYDIR}
-# persist these directories
-# RUN for d in ${PERSIST_DIRS}; do mkdir -p /app/shared/files/${d} \
-#    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
-
-RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
-
-# RUNTIME ELEMENTS
-# expose, cmd
-
-EXPOSE 3300
-
-WORKDIR ${DEPLOYDIR}
-
+USER ${DEPLOYUSER}
 RUN cp config/config.yml.example config/config.yml && \
     printf "production:\n adapter: sqlite3\n database: /tmp/db.sqlite\n" > config/database.yml && \
     SECRET_KEY_BASE=bogus bundle exec rake assets:precompile && \
     rm config/config.yml
 
+RUN chown ${DEPLOYUSER} ${DEPLOYDIR}/tmp
+
+EXPOSE 3300
 ENTRYPOINT ["/opt/bin/start.sh"]
