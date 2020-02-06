@@ -51,7 +51,6 @@ module TeamRules
     def request_matches_regexp(pm, obj, value)
       return false unless obj.nil?
       smooch_message = get_smooch_message(pm)
-      return false if smooch_message.blank?
       matches_regexp(smooch_message, value)
     end
 
