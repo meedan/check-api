@@ -55,6 +55,7 @@ module TeamRules
     end
 
     def matches_regexp(text, value)
+      text ||= ''
       !text.match(/#{Regexp.new(value)}/).nil?
     end
 
