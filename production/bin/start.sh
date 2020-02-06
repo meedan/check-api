@@ -17,8 +17,6 @@ fi
 if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
-tail -f $LOGFILE &
-
 mkdir -p /app/current/tmp/pids
 puma="/app/current/tmp/puma-$RAILS_ENV.rb"
 cp config/puma.rb $puma
@@ -26,4 +24,6 @@ echo "pidfile '/app/current/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
 echo "environment '$RAILS_ENV'" >> $puma
 echo "port $SERVER_PORT" >> $puma
 echo "workers 3" >> $puma
-bundle exec puma -C $puma -t 8:32
+bundle exec puma -C $puma -t 8:32 &
+
+tail -f $LOGFILE
