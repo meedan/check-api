@@ -4,19 +4,7 @@
 # the Dockerfile CMD
 
 LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
-
-function config_replace() {
-    # sed -i "s/ddRAILS_ENVdd/${RAILS_ENV}/g" /etc/nginx/sites-available/${APP}
-    VAR=$1
-    VAL=$2
-    FILE=$3
-    #    echo evaluating $VAR $VAL $FILE;
-    if grep --quiet "dd${VAR}dd" $FILE; then
-	echo "setting $VAR to $VAL in $FILE"
-	CMD="s/dd${VAR}dd/${VAL}/g"
-	sed -i'.bak' -e ${CMD} ${FILE}
-    fi
-}
+SERVER_PORT=80
 
 #since GITHUB_TOKEN environment variable is a json object, we need parse the value
 #This function is here due to a limitation by "secrets manager"
