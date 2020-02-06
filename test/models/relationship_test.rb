@@ -3,7 +3,6 @@ require_relative '../test_helper'
 class RelationshipTest < ActiveSupport::TestCase
   def setup
     super
-    Relationship.delete_all
     Sidekiq::Testing.inline!
     @team = create_team
     @project = create_project team: @team

@@ -241,11 +241,11 @@ class ElasticSearchTest < ActionController::TestCase
     # Search with account name
     result = CheckSearch.new({keyword: "username"}.to_json)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    # search in quote
-    m = create_claim_media quote: 'search_quote'
+    # search in quote (with and operator)
+    m = create_claim_media quote: 'keyworda and keywordb'
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    result = CheckSearch.new({keyword: "search_quote"}.to_json)
+    result = CheckSearch.new({keyword: "keyworda and keywordb"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
