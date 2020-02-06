@@ -36,40 +36,9 @@ GITHUB_TOKEN_PARSED=$(getParsedGithubToken)
 if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN_PARSED}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
-
-# sed in environmental variables
-for ENV in $( env | cut -d= -f1); do
-    config_replace "$ENV" "${!ENV}" /etc/nginx/sites-available/${APP}
-done
-
-if [ "$RAILS_ENV" == "test" ]; then
-    # comment out the include
-    sed -i'.bak' -e 's|include /etc/nginx/sites-available/test_404.conf|# include /etc/nginx/sites-available/test_404.conf|g' /etc/nginx/sites-available/${APP}
-fi
-
-echo "setting permissions for ${LOGFILE}"
-touch ${LOGFILE}
-chown ${DEPLOYUSER}:www-data ${LOGFILE}
-chmod 775 ${LOGFILE}
-
-echo PERSIST_DIRS $PERSIST_DIRS
-for d in ${PERSIST_DIRS}; do
-    d=/app/shared/files/${d}
-    if [ ! -e "${d}" ]; then
-        echo "creating directory ${d}"
-        mkdir -p ${d}
-    fi
-
-#    echo "setting permissions for ${d}"
-#    chown -R ${DEPLOYUSER}:www-data ${d}
-#    find ${d} -type d -exec chmod 2777 {} \; # set the sticky bit on directories to preserve permissions
-#    find ${d} -type f -exec chmod 0664 {} \; # files are 664
-done
-
-
-echo "tailing ${LOGFILE}"
-tail -f ${LOGFILE} &
-
-echo "starting nginx"
-echo "--STARTUP FINISHED--"
-nginx
+mkdir -p /app/tmp/pids
+puma="/app/tmp/puma-$RAILS_ENV.rb"
+cp config/puma.rb $puma
+echo "pidfile '/app/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
+echo "port $SERVER_PORT" >> $puma
+bundle exec puma -C $puma
