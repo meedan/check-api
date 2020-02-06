@@ -24,9 +24,11 @@ GITHUB_TOKEN_PARSED=$(getParsedGithubToken)
 if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN_PARSED}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
+tail -f $LOGFILE &
+
 mkdir -p /app/tmp/pids
 puma="/app/tmp/puma-$RAILS_ENV.rb"
 cp config/puma.rb $puma
 echo "pidfile '/app/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
 echo "port $SERVER_PORT" >> $puma
-bundle exec puma -C $puma
+bundle exec puma -C $puma -t 8:32 -w 3 --preload
