@@ -63,6 +63,8 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
 # COPY's `--chown` directive cannot utilize environmental variables
 # so we mimic `--chown=${DEPLOYUSER}:www-data`
 COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
+RUN touch ${DEPLOYDIR}/log/${RAILS_ENV}.log
+
 
 USER root
 
@@ -73,7 +75,6 @@ USER root
 #    && ln -s /app/shared/files/${d} ${DEPLOYDIR}/public/${d}; done
 
 RUN ln -s ${DEPLOYDIR} /app/${APP}-$(date -I)
-
 
 # RUNTIME ELEMENTS
 # expose, cmd
