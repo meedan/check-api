@@ -24,6 +24,7 @@ GITHUB_TOKEN_PARSED=$(getParsedGithubToken)
 if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN_PARSED}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
+
 touch $LOGFILE
 tail -f $LOGFILE &
 
