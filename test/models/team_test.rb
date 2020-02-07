@@ -1794,8 +1794,8 @@ class TeamTest < ActiveSupport::TestCase
       "project_ids": "",
       "rules": [
         {
-          "rule_definition": "contains_keyword",
-          "rule_value": "test"
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "^start_with_title"
         }
       ],
       "actions": [
@@ -1809,8 +1809,8 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
-    m = create_claim_media quote: 'this is a test'
-    create_project_media project: p0, media: m, smooch_message: { 'text' => 'this is a test' }
+    m = create_claim_media quote: 'start_with_title match title'
+    create_project_media project: p0, media: m, smooch_message: { 'text' => 'start_with_request match request' }
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
@@ -1918,6 +1918,54 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media project: p0, media: nil, url: url, smooch_message: { 'text' => 'test' }
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
+
+  test "should match with regexp" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "^start_with_title"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "request_matches_regexp",
+          "rule_value": "^start_with_request"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p2.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0, quote: 'start_with_title match title'
+    assert_equal p1.id, pm1.reload.project_id
+    pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
+    assert_equal p2.id, pm2.reload.project_id
+    pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
+    assert_equal p0.id, pm3.reload.project_id
   end
 
   test "should skip permission when applying action" do

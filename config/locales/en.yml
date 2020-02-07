@@ -692,14 +692,14 @@ en:
   team_rule_condition_definition: Select condition
   team_rule_has_less_than_x_words: Request contains less than the following number
     of words
-  team_rule_matches_regexp: Item matches this regular expression
+  team_rule_title_matches_regexp: Item title matches this regular expression
+  team_rule_request_matches_regexp: Item request matches this regular expression
   team_rule_type_is: Item type is
   team_rule_type_is_claim: Text
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Request contains one or more of the following keywords
-    (comma separated)
   team_rule_title_contains_keyword: Item title contains one or more of the following
     keywords
   team_rule_select_type: Select type
@@ -707,7 +707,8 @@ en:
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
   team_rule_status_is: Item status is
-  team_rule_value: Type something...
+  team_rule_type_regexp: Type a regular expression
+  team_rule_value: Type a list of keywords separated by commas
   team_rule_actions: Then
   team_rule_action: Then
   team_rule_action_definition: Select action
