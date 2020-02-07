@@ -19,9 +19,11 @@ d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "
 
 mkdir -p /app/current/tmp/pids
 puma="/app/current/tmp/puma-$RAILS_ENV.rb"
+
 cp config/puma.rb $puma
 echo "pidfile '/app/current/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
 echo "environment '$RAILS_ENV'" >> $puma
 echo "port $SERVER_PORT" >> $puma
 echo "workers 3" >> $puma
+
 bundle exec puma -C $puma -t 8:32
