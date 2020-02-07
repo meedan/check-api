@@ -12,12 +12,8 @@ d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "
 
 LOGFILE=${DEPLOYDIR}/log/sidekiq.log
 
-touch ${LOGFILE}
-
 echo "starting static files server"
 bundle exec ruby bin/static-files-server &
 
 echo "starting sidekiq"
-bundle exec sidekiq -L ${LOGFILE} &
-
-tail -f ${LOGFILE}
+bundle exec sidekiq 
