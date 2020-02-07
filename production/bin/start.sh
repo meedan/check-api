@@ -17,14 +17,14 @@ fi
 if [ ! -d "configurator" ]; then git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator; fi
 d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 
-mkdir -p /app/current/tmp/pids
-puma="/app/current/tmp/puma-${RAILS_ENV}.rb"
-cp config/puma.rb $puma
-cat << EOF >> $puma
+mkdir -p ${PWD}/tmp/pids
+puma="${PWD}/tmp/puma-${RAILS_ENV}.rb"
+cp config/puma.rb ${puma}
+cat << EOF >> ${puma}
 pidfile '/app/current/tmp/pids/server-${RAILS_ENV}.pid'
 environment '${RAILS_ENV}'
 port ${SERVER_PORT} 
 workers 3 
 EOF
 
-bundle exec puma -C $puma -t 8:32
+bundle exec puma -C ${puma} -t 8:32
