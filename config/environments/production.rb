@@ -54,17 +54,23 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
-  module ActiveSupport::TaggedLogging::Formatter
-    def call(severity, time, progname, data)
-      data = { msg: data.to_s } unless data.is_a?(Hash)
-      tags = current_tags
-      data[:tags] = tags if tags.present?
-      _call(severity, time, progname, data)
-    end
+  # config/environments/production.rb
+  config.lograge.enabled = true
+  config.lograge.custom_options = lambda do |event|
+    options = event.payload.slice(:request_id, :user_id)
+    options[:params] = event.payload[:params].except("controller", "action")
+    options
+  end
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  
+  # app/controllers/application_controller.rb
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.uuid
+    payload[:user_id] = current_user.id if current_user
   end
 
-  config.logger = ActiveSupport::TaggedLogging.new(OugaiLogger::Logger.new(STDOUT))
-
+  config.logger = ActiveSupport::Logger.new(STDOUT)
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   # config.cache_store = :memory_store, { size: 64.megabytes }
