@@ -62,13 +62,6 @@ Rails.application.configure do
     options
   end
   config.lograge.formatter = Lograge::Formatters::Json.new
-  
-  # app/controllers/application_controller.rb
-  def append_info_to_payload(payload)
-    super
-    payload[:request_id] = request.uuid
-    payload[:user_id] = current_user.id if current_user
-  end
 
   config.logger = ActiveSupport::Logger.new(STDOUT)
   # Use a different cache store in production.
@@ -96,9 +89,6 @@ Rails.application.configure do
 
   # Send deprecation notices to registered listeners.
   config.active_support.deprecation = :notify
-
-  # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false

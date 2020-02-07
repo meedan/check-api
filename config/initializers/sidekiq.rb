@@ -1,6 +1,9 @@
 file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")
 file = File.join(Rails.root, 'config', 'sidekiq.yml') unless File.exist?(file)
 require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
+
+Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
+
 REDIS_CONFIG = {}
 if File.exist?(file)
   require 'sidekiq/middleware/i18n'

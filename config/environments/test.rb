@@ -64,12 +64,5 @@ Rails.application.configure do
   end
   config.lograge.formatter = Lograge::Formatters::Json.new
   
-  # app/controllers/application_controller.rb
-  def append_info_to_payload(payload)
-    super
-    payload[:request_id] = request.uuid
-    payload[:user_id] = current_user.id if current_user
-  end
-
   config.logger = ActiveSupport::Logger.new(STDOUT)
 end
