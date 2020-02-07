@@ -63,5 +63,6 @@ Rails.application.configure do
   config.lograge.enabled = true
   config.lograge.formatter = Lograge::Formatters::Json.new
   config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger.level = Logger::DEBUG
 
 end

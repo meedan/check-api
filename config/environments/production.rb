@@ -64,6 +64,8 @@ Rails.application.configure do
   config.lograge.formatter = Lograge::Formatters::Json.new
 
   config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger.level = Logger::WARN
+  
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   # config.cache_store = :memory_store, { size: 64.megabytes }
