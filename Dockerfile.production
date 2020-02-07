@@ -58,9 +58,6 @@ RUN bundle install --jobs 20 --retry 5 --deployment --without test development
 # COPY's `--chown` directive cannot utilize environmental variables
 # so we mimic `--chown=${DEPLOYUSER}:www-data`
 COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
-RUN touch ${DEPLOYDIR}/log/${RAILS_ENV}.log
-
-
 
 USER ${DEPLOYUSER}
 RUN cp config/config.yml.example config/config.yml && \
