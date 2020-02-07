@@ -56,17 +56,20 @@ Rails.application.configure do
 
   # Log errors to stdout during testing.
 
+  config.lograge.enabled = true
+  config.lograge.custom_options = lambda do |event|
+    options = event.payload.slice(:request_id, :user_id)
+    options[:params] = event.payload[:params].except("controller", "action")
+    options
+  end
+  config.lograge.formatter = Lograge::Formatters::Json.new
   
-  module ActiveSupport::TaggedLogging::Formatter
-    def call(severity, time, progname, data)
-      data = { msg: data.to_s } unless data.is_a?(Hash)
-      tags = current_tags
-      data[:tags] = tags if tags.present?
-      _call(severity, time, progname, data)
-    end
+  # app/controllers/application_controller.rb
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.uuid
+    payload[:user_id] = current_user.id if current_user
   end
 
-  config.logger = ActiveSupport::TaggedLogging.new(OugaiLogger::Logger.new(STDOUT))
-  
-  config.log_level = :ERROR
+  config.logger = ActiveSupport::Logger.new(STDOUT)
 end
