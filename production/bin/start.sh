@@ -24,6 +24,4 @@ echo "pidfile '/app/current/tmp/pids/server-$RAILS_ENV.pid'" >> $puma
 echo "environment '$RAILS_ENV'" >> $puma
 echo "port $SERVER_PORT" >> $puma
 echo "workers 3" >> $puma
-bundle exec puma -C $puma -t 8:32 &
-
-tail -f $LOGFILE
+bundle exec puma -C $puma -t 8:32
