@@ -18,7 +18,7 @@ class ApplicationController < ActionController::Base
   def append_info_to_payload(payload)
     super
     payload[:request_id] = request.uuid
-    payload[:user_id] = current_user.id if current_api_user
+    payload[:user_id] = current_api_user.id if current_api_user
   end
 
   def authenticated?
