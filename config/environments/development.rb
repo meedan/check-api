@@ -1,4 +1,4 @@
-require 'ougai'
+require 'lograge'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -60,5 +60,15 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = { host: 'http://localhost:3000' }
 
-  config.logger = OugaiLogger::Logger.new(STDOUT)
+  config.lograge.enabled = true
+
+  config.lograge.logger = ActiveSupport::Logger.new(STDOUT)
+  config.lograge.custom_options = lambda do |event|
+    options = event.payload.slice(:request_id, :user_id)
+    options[:params] = event.payload[:params].except("controller", "action")
+    options[:time] = Time.now
+    options
+  end
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  config.log_level = :debug
 end

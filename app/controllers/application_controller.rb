@@ -14,6 +14,13 @@ class ApplicationController < ActionController::Base
     redirect_to '/403.html'
   end
 
+  # app/controllers/application_controller.rb
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.uuid
+    payload[:user_id] = current_api_user.id if current_api_user
+  end
+
   def authenticated?
     if signed_in?
       User.current = current_api_user
@@ -54,3 +61,4 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:sign_in, keys: [:otp_attempt])
   end
 end
+
