@@ -711,14 +711,15 @@ es:
   team_rule_condition: Si
   team_rule_condition_definition: Seleccionar condición
   team_rule_has_less_than_x_words: La solicitud tiene menos de este número de palabras
-  team_rule_matches_regexp: El ítem coincide con esta expresión regular
+  team_rule_title_matches_regexp: El título del ítem coincide con esta expresión regular
+  team_rule_request_matches_regexp: La solicitud coincide con esta expresión regular
   team_rule_type_is: El tipo de ítem es
   team_rule_type_is_claim: Texto
   team_rule_type_is_link: Enlace
   team_rule_type_is_uploadedimage: Imagen
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: La solicitud contiene una o más de las siguientes palabras
-    clave (separadas por comas)
+    clave
   team_rule_title_contains_keyword: El título del ítem contiene una o más de las siguientes
     palabras clave
   team_rule_select_type: Seleccionar tipo
@@ -726,7 +727,8 @@ es:
   team_rule_select_tag: Seleccionar tag
   team_rule_select_status: Seleccionar estado
   team_rule_status_is: El estado de ítem es
-  team_rule_value: Escribe algo...
+  team_rule_type_regexp: Escribe una expresión regular
+  team_rule_value: Escribe una lista de palabras clave separadas por comas
   team_rule_actions: Entonces
   team_rule_action: Entonces
   team_rule_action_definition: Seleccionar acción
@@ -768,6 +770,17 @@ es:
     bien, no lo tomaremos en cuenta.
   custom_message_smooch_bot_disabled_caio: "¡Lo sentimos! Este bot está actualmente
     inhabilitado :( "
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Gracias por enviar este mensaje.
 

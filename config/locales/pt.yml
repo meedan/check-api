@@ -706,21 +706,22 @@ pt:
   team_rule_condition: Se
   team_rule_condition_definition: Selecione condição
   team_rule_has_less_than_x_words: A solicitação contém menos que este número de palavras
-  team_rule_matches_regexp: O item corresponde a esta expressão regular
+  team_rule_title_matches_regexp: O título do item corresponde a esta expressão regular
+  team_rule_request_matches_regexp: A solicitação corresponde a esta expressão regular
   team_rule_type_is: O tipo do item é
   team_rule_type_is_claim: Texto
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Imagem
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
-    (separadas por vírgulas)
   team_rule_title_contains_keyword: O titulo do item contém uma ou mais destas palavras-chave
   team_rule_select_type: Selecione o tipo
   team_rule_tagged_as: O item está marcado como
   team_rule_select_tag: Selecione tag
   team_rule_select_status: Selecione status
   team_rule_status_is: O status do item é
-  team_rule_value: Digite algo...
+  team_rule_type_regexp: Digite uma expressão regular
+  team_rule_value: Digite uma lista de palavras-chaves separadas por vírgulas
   team_rule_actions: Então
   team_rule_action: Então
   team_rule_action_definition: Selecione ação
@@ -760,6 +761,17 @@ pt:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorado.
   custom_message_smooch_bot_disabled_caio: Uh-oh! Perdão, mas este bot está desabilitado
     :(
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
