@@ -114,6 +114,8 @@ fr:
       pender_url_invalid: Lien non valide.
       pender_url_unsafe: Lien non sécurisé.
       pender_could_not_parse: Il n'a pas été possible d'analyser ce lien.
+      invalid_format_for_languages: Format de langages non valide. Attendu `['en',
+        'ar', ...]`
   activerecord:
     models:
       link: Lien
@@ -168,8 +170,6 @@ fr:
           other: trop court (au moins %{count} caractères)
   slack_webhook_format_wrong: 'Webhook Slack non valide : le format doit être `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`'
   slug_is_reserved: est réservé
-  invalid_format_for_languages: 'Paramètre des langages non valide. Il doit conformer
-    au format [{''id'': ''en'', ''title'': ''English''}]'
   invalid_media_item: Désolé, cet élément n'est pas valide
   invalid_default_status_for_custom_verification_status: Identifiant du statut de
     défaut non valide

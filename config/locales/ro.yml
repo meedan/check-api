@@ -138,8 +138,6 @@ ro:
   slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
-  invalid_format_for_languages: 'Setările de limbă nu sunt valide. Formatul trebuie
-    să fie [{''id'': ''en'', ''title'': ''English''}]'
   invalid_default_status_for_custom_verification_status: Identificatorul de stare
     implicit nu este valid
   invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
