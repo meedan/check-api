@@ -151,8 +151,6 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صالحة  - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_languages: 'صيغة اللغات غير صالحة - الصيغة المطلوبة هي [{''id'':
-    ''en'',''title'': ''English''}]'
   invalid_media_item: " عذراً ، هذا العنصر غير صحيح"
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح

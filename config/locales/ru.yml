@@ -137,8 +137,6 @@ ru:
           other: 'не подходит по длине (минимум: %{count} символов)'
   slack_webhook_format_wrong: 'Неверный адрес webhook: он должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
-  invalid_format_for_languages: 'Неправильно указан язык. Корректный формат: [{''id'':
-    ''en'', ''title'': ''English''}]'
   invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса
     по умолчанию
   invalid_active_status_for_custom_verification_status: Неверный идентификатор активного
