@@ -3,8 +3,7 @@ Dynamic.class_eval do
   # How a field should be RENDERED ON A SEARCH FORM of a given team
 
   def self.field_search_json_schema_type_language(team = nil)
-    languages = []
-    team.projects.find_each { |project| languages << project.get_languages unless project.get_languages.blank? }
+    languages = team.get_languages || []
     keys = languages.flatten.uniq
     include_other = true
 

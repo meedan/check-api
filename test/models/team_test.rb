@@ -2016,4 +2016,30 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should save valid languages" do
+    t = create_team
+    value = ["en", "ar", "fr"]
+    assert_nothing_raised do
+      t.set_languages(value)
+      t.save!
+    end
+  end
+
+  test "should not save invalid languages" do
+    t = create_team
+    value = "en"
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_languages(value)
+      t.save!
+    end
+  end
+
+  test "should get languages" do
+    t = create_team
+    assert_equal nil, t.get_languages
+    t.settings = {:languages => ['ar', 'en']}; t.save!
+    assert_equal ['ar', 'en'], t.get_languages
+  end
+
 end

@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -116,6 +116,7 @@ en:
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
       pender_could_not_parse: Could not parse this link.
+      invalid_format_for_languages: Invalid languages format. Expecting `['en', 'ar', ...]`
   activerecord:
     models:
       link: Link
@@ -171,8 +172,6 @@ en:
   slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_format_for_languages: 'Invalid languages setting. It should have the format
-    [{''id'': ''en'', ''title'': ''English''}]'
   invalid_media_item: Sorry, this is not a valid item
   invalid_default_status_for_custom_verification_status: The default status identifier
     is invalid

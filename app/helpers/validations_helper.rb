@@ -18,13 +18,7 @@ module ValidationsHelper
     languages = self.get_languages
     unless languages.blank?
       if !languages.is_a?(Array)
-        errors.add(:base, I18n.t(:invalid_format_for_languages))
-      else
-        languages.each do |language|
-          if !language.is_a?(Hash) || language.keys.map(&:to_sym).sort != [:id, :title]
-            errors.add(:base, I18n.t(:invalid_format_for_languages))
-          end
-        end
+        errors.add(:base, I18n.t("errors.messages.invalid_format_for_languages"))
       end
     end
   end
