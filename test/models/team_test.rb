@@ -1644,6 +1644,7 @@ class TeamTest < ActiveSupport::TestCase
   test "should match rule based on status" do
     create_verification_status_stuff
     create_task_status_stuff(false)
+    setup_elasticsearch
     t = create_team
     p0 = create_project team: t
     p1 = create_project team: t
@@ -1666,11 +1667,14 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p0
+    pm1 = create_project_media project: p0, disable_es_callbacks: false
     s = pm1.last_status_obj
     s.status = 'in_progress'
     s.save!
-    pm2 = create_project_media project: p0
+    sleep 5
+    result = MediaSearch.find(get_es_id(pm1))
+    assert_equal [p1.id], result.project_id
+    pm2 = create_project_media project: p0, disable_es_callbacks: false
     assert_equal p1.id, pm1.reload.project_id
     assert_equal p0.id, pm2.reload.project_id
   end
@@ -1794,8 +1798,8 @@ class TeamTest < ActiveSupport::TestCase
       "project_ids": "",
       "rules": [
         {
-          "rule_definition": "contains_keyword",
-          "rule_value": "test"
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "^start_with_title"
         }
       ],
       "actions": [
@@ -1809,8 +1813,8 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
-    m = create_claim_media quote: 'this is a test'
-    create_project_media project: p0, media: m, smooch_message: { 'text' => 'this is a test' }
+    m = create_claim_media quote: 'start_with_title match title'
+    create_project_media project: p0, media: m, smooch_message: { 'text' => 'start_with_request match request' }
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
@@ -1920,6 +1924,54 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
 
+  test "should match with regexp" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "^start_with_title"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "request_matches_regexp",
+          "rule_value": "^start_with_request"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p2.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p0, quote: 'start_with_title match title'
+    assert_equal p1.id, pm1.reload.project_id
+    pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
+    assert_equal p2.id, pm2.reload.project_id
+    pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
+    assert_equal p0.id, pm3.reload.project_id
+  end
+
   test "should skip permission when applying action" do
     t = create_team
     p = create_project team: t
@@ -1968,4 +2020,30 @@ class TeamTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should save valid languages" do
+    t = create_team
+    value = ["en", "ar", "fr"]
+    assert_nothing_raised do
+      t.set_languages(value)
+      t.save!
+    end
+  end
+
+  test "should not save invalid languages" do
+    t = create_team
+    value = "en"
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_languages(value)
+      t.save!
+    end
+  end
+
+  test "should get languages" do
+    t = create_team
+    assert_equal nil, t.get_languages
+    t.settings = {:languages => ['ar', 'en']}; t.save!
+    assert_equal ['ar', 'en'], t.get_languages
+  end
+
 end

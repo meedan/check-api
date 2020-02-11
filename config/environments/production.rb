@@ -54,17 +54,19 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
-  module ActiveSupport::TaggedLogging::Formatter
-    def call(severity, time, progname, data)
-      data = { msg: data.to_s } unless data.is_a?(Hash)
-      tags = current_tags
-      data[:tags] = tags if tags.present?
-      _call(severity, time, progname, data)
-    end
+  # config/environments/production.rb
+  config.lograge.enabled = true
+
+  config.lograge.logger = ActiveSupport::Logger.new(STDOUT)
+  config.lograge.custom_options = lambda do |event|
+    options = event.payload.slice(:request_id, :user_id)
+    options[:params] = event.payload[:params].except("controller", "action")
+    options[:time] = Time.now
+    options
   end
-
-  config.logger = ActiveSupport::TaggedLogging.new(OugaiLogger::Logger.new(STDOUT))
-
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  config.log_level = :warn
+  
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   # config.cache_store = :memory_store, { size: 64.megabytes }
@@ -90,9 +92,6 @@ Rails.application.configure do
 
   # Send deprecation notices to registered listeners.
   config.active_support.deprecation = :notify
-
-  # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
