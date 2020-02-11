@@ -138,8 +138,6 @@ ro:
   slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
-  invalid_format_for_languages: 'Setările de limbă nu sunt valide. Formatul trebuie
-    să fie [{''id'': ''en'', ''title'': ''English''}]'
   invalid_default_status_for_custom_verification_status: Identificatorul de stare
     implicit nu este valid
   invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
@@ -531,6 +529,17 @@ ro:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: Ok, ignorăm.
   custom_message_smooch_bot_disabled_caio: Vai! ne pare rău! Acest robot acum este
     deactivat :(
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Vă mulțumim pentru că ați transmis acest mesaj.
 

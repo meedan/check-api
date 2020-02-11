@@ -106,7 +106,7 @@ module AnnotationBase
         annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now
-        annotated.disable_es_callbacks = (Rails.env.to_s == 'test')
+        annotated.disable_es_callbacks = true
         ActiveRecord::Base.connection_pool.with_connection do
           annotated.save!(validate: false)
         end

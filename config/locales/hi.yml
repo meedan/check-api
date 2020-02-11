@@ -137,6 +137,17 @@ hi:
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -168,13 +179,9 @@ hi:
   custom_message_smooch_bot_result_india-today: |-
     बधाई हो, जो मैसेज आपने हमें भेजा था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*.
 
-
-
     इस रिपोर्ट को तैयार करने के लिए हमने इस तरीके से जांच की: %{url}
 
-
-
-    आजतक फैक्ट-चेक से संपर्क करने के लिए एक बार फिर से आपका शुक्रिया.
+    आजतक फैक्ट-चेक से संपर्क करने के लिए एक
   custom_message_smooch_bot_result_changed_india-today: |
     [रिपोर्ट में सुधार]
 
@@ -190,11 +197,9 @@ hi:
   custom_message_smooch_bot_message_confirmed_india-today: |-
     धन्यवाद, आपका मैसेज हम जांच करने के फैक्ट-चेक टीम को भेज रहे हैं.
 
-
     अगर आपके मैसेज के बारे में हम रिपोर्ट प्रकाशित करते हैं तो आप अगले 48 घंटे के भीतर उसे यहां देख सकते हैं. 
 
     https://aajtak.intoday.in/fact-check.html
-
 
     लेकिन माफ करें, हर मैजेस का जवाब देना या उस पर रिपोर्ट छापना संभव नहीं है.
   custom_message_smooch_bot_message_type_unsupported_india-today: |-
@@ -222,7 +227,7 @@ hi:
     https://www.indiatoday.in/fact-check
   custom_message_smooch_bot_meme_india-today: 'ये हैं आपके भेजे मैसेज की रिपोर्ट कुछ
     नए अंदाज़ में.  अगर ये आपको पसंद आये तो अपने दोस्तों के साथ शेयर करें. इसके बारे
-    में और जानें यहाँ पर %{url}.
+    में और जानें यहाँ पर.
 
 '
   custom_message_smooch_bot_window_closing_india-today: |-
