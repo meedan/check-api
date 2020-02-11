@@ -23,6 +23,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :linked_items_count, types.Int
   field :last_seen, types.String
   field :status, types.String
+  field :share_count, types.Int
 
   field :type, types.String  do
     resolve -> (project_media, _args, _ctx) {

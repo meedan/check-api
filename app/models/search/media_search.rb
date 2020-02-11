@@ -58,6 +58,8 @@ class MediaSearch
   attribute :linked_items_count, Integer, mapping: { type: 'long' }
 
   attribute :last_seen, Integer, mapping: { type: 'long' }
+  
+  attribute :share_count, Integer, mapping: { type: 'long' }
 
   def set_es_annotated(obj)
     self.send("annotated_type=", obj.class.name)
