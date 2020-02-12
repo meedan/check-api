@@ -541,6 +541,40 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
   end
 
+  test "should support message without mediaType" do
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @video_url,
+      mediaType: 'video/mp4'
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert is_supported.slice(:type, :size).all?{ |_k, v| v }
+
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @video_url,
+      mediaType: 'audio/ogg'
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert !is_supported.slice(:type, :size).all?{ |_k, v| v }
+
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @video_url
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert is_supported.slice(:type, :size).all?{ |_k, v| v }
+  end
+
   protected
 
   def run_concurrent_requests
