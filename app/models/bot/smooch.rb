@@ -544,6 +544,7 @@ class Bot::Smooch < BotUser
   def self.supported_message?(message)
     type = message['type']
     if type == 'file'
+      message['mediaType'] = self.detect_media_type(message) if message['mediaType'].blank?
       m = message['mediaType'].to_s.match(/^(image|video)\//)
       type = m[1] unless m.nil?
     end
