@@ -127,5 +127,19 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :share_count,
+      start_as: 0,
+      recalculate: proc { |pm| begin JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']['share_count'] rescue 0 end },
+      update_on: [
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == 'metrics_data' },
+          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+          events: {
+            save: :recalculate
+          }
+        }
+      ]
   end
 end

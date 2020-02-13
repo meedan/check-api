@@ -1863,7 +1863,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should index sortable fields" do
     RequestStore.store[:skip_cached_field_update] = false
-    # sortable fields are [linked_items_count, requests_count and last_seen]
+    # sortable fields are [linked_items_count, requests_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
