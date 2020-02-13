@@ -8,7 +8,7 @@ namespace :check do
         pms.each do |pm|
         	print "."
           doc_id = pm.get_es_doc_id(pm)
-          fields = { 'project_id' => pm.project_ids, 'archived' => pm.archived.to_i }
+          fields = { 'project_id' => pm.project_ids, 'archived' => pm.archived.to_i, 'sources_count' => pm.sources_count }
           es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end
         client.bulk body: es_body unless es_body.blank?
