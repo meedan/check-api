@@ -52,5 +52,8 @@ class UserTest < ActiveSupport::TestCase
     assert bu.core?
     bu.login = 'test'
     assert !bu.core?
+    Module.stubs(:const_defined?).raises(StandardError.new)
+    assert !bu.core?
+    Module.unstub(:const_defined?)
   end
 end
