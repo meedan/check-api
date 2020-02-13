@@ -45,4 +45,12 @@ class UserTest < ActiveSupport::TestCase
     bu = create_bot_user
     assert bu.is_bot
   end
+
+  test "should be core" do
+    bu = BotUser.new
+    bu.login = 'smooch'
+    assert bu.core?
+    bu.login = 'test'
+    assert !bu.core?
+  end
 end
