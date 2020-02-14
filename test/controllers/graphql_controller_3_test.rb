@@ -420,6 +420,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should retrieve information for grid" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -631,6 +632,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return updated offset from PG" do
+    RequestStore.store[:skip_cached_field_update] = false
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
@@ -647,6 +649,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should return updated offset from ES" do
+    RequestStore.store[:skip_cached_field_update] = false
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team

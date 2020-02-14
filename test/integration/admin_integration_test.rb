@@ -16,6 +16,7 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     @project = create_project user: @user, team: @team
     Object.any_instance.stubs(:notify_pusher)
     Sidekiq::Testing.fake!
+    RequestStore.store[:skip_cached_field_update] = false
   end
 
   def teardown
@@ -118,22 +119,6 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
 
     get "/admin/user/#{@user.id}/edit"
     assert_response :success
-  end
-
-  test "should access User page with setting with json error" do
-    sign_in @admin_user
-    @user.set_languages('invalid_json')
-    @user.save(:validate => false)
-    get "/admin/user/#{@user.id}/edit"
-    assert_response :success
-  end
-
-  test "should edit and save User with yaml field" do
-    sign_in @admin_user
-
-    put "/admin/user/#{@user.id}/edit", user: { languages: "[{'id': 'en','title': 'English'}]" }
-    assert_redirected_to '/admin/user'
-    assert_equal [{"id" => "en", "title" => "English"}], @user.reload.get_languages
   end
 
   test "should show link to export data of a project" do

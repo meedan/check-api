@@ -149,6 +149,7 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
+    RequestStore.store[:skip_cached_field_update] = true
   end
 
   # This will run after any test
@@ -481,6 +482,94 @@ class ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', default_value: 'pending', field_type_object: ft1, optional: false
     create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
     create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
+  end
+
+  def setup_smooch_bot
+    DynamicAnnotation::AnnotationType.delete_all
+    DynamicAnnotation::FieldInstance.delete_all
+    DynamicAnnotation::FieldType.delete_all
+    DynamicAnnotation::Field.delete_all
+    create_translation_status_stuff
+    create_verification_status_stuff(false)
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
+    create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    Sidekiq::Testing.inline!
+    @app_id = random_string
+    @msg_id = random_string
+    SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(OpenStruct.new({ message: OpenStruct.new({ id: @msg_id }) }))
+    @team = create_team
+    @project = create_project team_id: @team.id
+    @bid = random_string
+    BotUser.delete_all
+    settings = [
+      { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
+      { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
+      { name: 'smooch_secret_key_secret', label: 'Smooch Secret Key: Secret', type: 'string', default: '' },
+      { name: 'smooch_webhook_secret', label: 'Smooch Webhook Secret', type: 'string', default: '' },
+      { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
+      { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
+      { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
+      { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
+      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false },
+    ]
+    {
+      'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_result_changed' => 'Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))',
+      'smooch_bot_ask_for_confirmation' => 'Message that asks the user to confirm the request to verify an item... should mention that the user needs to sent "1" to confirm',
+      'smooch_bot_message_confirmed' => 'Message that confirms to the user that the request is in the queue to be verified',
+      'smooch_bot_message_type_unsupported' => 'Message that informs the user that the type of message is not supported (for example, audio and video)',
+      'smooch_bot_message_unconfirmed' => 'Message sent when the user does not send "1" to confirm a request',
+      'smooch_bot_not_final' => 'Message when an item was wrongly marked as final, but that status is reverted (placeholder: %{status} (previous final status))',
+      'smooch_bot_meme' => 'Message sent along with a meme (placeholder: %{url} (public URL to verification results))',
+    }.each do |name, label|
+      settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
+    end
+    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
+    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:delete, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: 'ok')
+    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    @settings = {
+      'smooch_project_id' => @project.id,
+      'smooch_bot_id' => @bid,
+      'smooch_webhook_secret' => 'test',
+      'smooch_app_id' => @app_id,
+      'smooch_secret_key_key_id' => random_string,
+      'smooch_secret_key_secret' => random_string,
+      'smooch_template_namespace' => random_string,
+      'smooch_window_duration' => 10,
+      'smooch_localize_messages' => true,
+      'team_id' => @team.id,
+    }
+    @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
+    create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
+    Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
+    @media_url = 'https://smooch.com/image/test.jpeg'
+    @media_url_2 = 'https://smooch.com/image/test2.jpeg'
+    @media_url_3 = 'https://smooch.com/image/large-image.jpeg'
+    @video_url = 'https://smooch.com/video/test.mp4'
+    @video_ur_2 = 'https://smooch.com/video/fake-video.mp4'
+    WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
+    WebMock.stub_request(:get, 'https://smooch.com/image/large-image.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
+    @link_url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
+    @link_url_2 = 'https://' + random_string + '.com'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url_2 } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url_2 + '","type":"item"}}' })
+    Bot::Smooch.stubs(:get_language).returns('en')
+    create_alegre_bot
+    AlegreClient.host = 'http://alegre'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
+    WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
+    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    WebMock.stub_request(:get, "https://meedan.com/en/check/check_message_tos.html").to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
+    Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
   # Document GraphQL queries in Markdown format

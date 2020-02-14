@@ -85,6 +85,7 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should update elasticsearch after refresh pender data" do
+    RequestStore.store[:skip_cached_field_update] = false
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
@@ -158,7 +159,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.metadata = { title: 'title', description: 'description' }.to_json
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
@@ -174,19 +175,19 @@ class ElasticSearch2Test < ActionController::TestCase
     # add comment
     ElasticSearchWorker.clear
     c = create_comment annotated: pm, disable_es_callbacks: false
-    assert_equal 3, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # add tag
     ElasticSearchWorker.clear
     t = create_tag annotated: pm, disable_es_callbacks: false
-    assert_equal 4, ElasticSearchWorker.jobs.size
+    assert_equal 3, ElasticSearchWorker.jobs.size
     # destroy comment
     ElasticSearchWorker.clear
     c.destroy
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 1, ElasticSearchWorker.jobs.size
     # destroy tag
     ElasticSearchWorker.clear
     t.destroy
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 1, ElasticSearchWorker.jobs.size
   end
 
   test "should update status in background" do

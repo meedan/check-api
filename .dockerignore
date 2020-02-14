@@ -1,4 +1,5 @@
 .bundle
+log/
 vendor/
 tmp/
 dump.rdb

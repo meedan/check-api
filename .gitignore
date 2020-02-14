@@ -2,10 +2,7 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 /log/*.log
-/tmp/cache*
-/tmp/pids
-/tmp/sessions
-/tmp/sockets
+tmp/
 config/database.yml
 config/config.yml
 config/sidekiq.yml
@@ -18,11 +15,9 @@ db/schema.rb
 *~
 public/assets
 public/uploads
-tmp/restart.txt
 /.project
 db/data
 .DS_Store
-tmp/puma-*
 dump.rdb
 /vendor/
 /public/viber/*.html
@@ -42,7 +37,6 @@ config/credentials.json
 *.rdb
 public/memebuster/*
 !public/memebuster/default-template.svg
-tmp/parallel_runtime_test.log
 public/memebuster
 public/team_dump
 .idea

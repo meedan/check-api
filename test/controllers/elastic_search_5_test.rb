@@ -7,9 +7,11 @@ class ElasticSearch5Test < ActionController::TestCase
   end
 
   test "should create media search" do
+    m = nil
     assert_difference 'MediaSearch.length' do
-      create_media_search
+      m = create_media_search
     end
+    assert_equal 'mediasearch', m.annotation_type
   end
 
   test "should search for parent items only" do
@@ -23,11 +25,6 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
-  end
-
-  test "should set type automatically for media" do
-    m = create_media_search
-    assert_equal 'mediasearch', m.annotation_type
   end
 
   test "should reindex data" do
@@ -92,11 +89,7 @@ class ElasticSearch5Test < ActionController::TestCase
   test "should destroy related items" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
+    m = create_claim_media
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       c = create_comment annotated: pm, disable_es_callbacks: false
@@ -138,18 +131,13 @@ class ElasticSearch5Test < ActionController::TestCase
     s = create_source
     ps = create_project_source project: p, source: s, disable_es_callbacks: false
     sleep 1
+    # test index ps
     assert_not_nil MediaSearch.find(get_es_id(ps))
     ps.destroy
     sleep 1
     assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
       result = MediaSearch.find(get_es_id(ps))
     end
-  end
-
-  test "should index project source" do
-    ps = create_project_source disable_es_callbacks: false
-    sleep 1
-    assert_not_nil MediaSearch.find(get_es_id(ps))
   end
 
   test "should index related accounts" do
@@ -275,8 +263,7 @@ class ElasticSearch5Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "search / quote"}.to_json)
-    # TODO: fix test
-    # assert_equal [pm.id], result.medias.map(&:id)
+    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should search by custom status with hyphens" do
@@ -306,7 +293,7 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should search in target reports and return parents and children" do
+  test "should search and filter in target reports and return parents and children" do
     t = create_team
     p = create_project team: t
     sm = create_claim_media quote: 'source'
@@ -330,21 +317,9 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 1
     result = CheckSearch.new({ keyword: 'target' }.to_json)
     assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
-  end
-
-  test "should filter target reports" do
-    t = create_team
-    p = create_project team: t
-    m = create_claim_media quote: 'test'
-    s = create_project_media project: p, disable_es_callbacks: false
-
-    t1 = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_relationship source_id: s.id, target_id: t1.id
-
-    t2 = create_project_media project: p, disable_es_callbacks: false
-    create_relationship source_id: s.id, target_id: t2.id
-
-    t3 = create_project_media project: p, disable_es_callbacks: false
+    # filter target reports
+    q = create_claim_media quote: 'test'
+    t3 = create_project_media project: p, media: q, disable_es_callbacks: false
     create_relationship source_id: s.id, target_id: t3.id
     vs = t3.last_verification_status_obj
     vs.status = 'verified'
@@ -355,14 +330,14 @@ class ElasticSearch5Test < ActionController::TestCase
     ts = t4.last_translation_status_obj
     ts.status = 'ready'
     ts.save!
-
+    
     sleep 2
-
-    assert_equal [t1, t2, t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
-    assert_equal [t1].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
+    assert_equal [t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
+    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
     assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end
+  

@@ -220,10 +220,6 @@ class User < ActiveRecord::Base
     self.settings.to_json
   end
 
-  def languages=(languages)
-    self.send(:set_languages, languages)
-  end
-
   def is_confirmed?
     self.confirmed? && self.unconfirmed_email.nil?
   end

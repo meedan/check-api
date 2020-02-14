@@ -1,4 +1,4 @@
-FROM meedan/ruby
+FROM ruby:2.3-slim
 MAINTAINER Meedan <sysops@meedan.com>
 
 # the Rails stage can be overridden from the caller
@@ -6,15 +6,24 @@ ENV RAILS_ENV development
 
 # https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
 ENV MALLOC_ARENA_MAX 2
+ENV QT_QPA_PLATFORM offscreen
 
-# install dependencies
-RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y ffmpegthumbnailer libpq-dev imagemagick inkscape graphviz siege apache2-utils fontconfig libfontconfig ttf-devanagari-fonts ttf-bengali-fonts ttf-gujarati-fonts ttf-telugu-fonts ttf-tamil-fonts ttf-malayalam-fonts inotify-tools --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
-# phantomjs
-RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
-    tar -vxjf phantomjs-2.1.1-linux-x86_64.tar.bz2 && \
-    mv phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  phantomjs \
+  nodejs \
+  git \
+  build-essential \
+  inotify-tools \
+  libpq-dev \
+  sqlite3 libsqlite3-dev \
+  graphicsmagick \
+  ffmpegthumbnailer \
+  fontconfig libfontconfig \
+  fonts-beng fonts-deva fonts-samyak-gujr fonts-mlym fonts-taml fonts-smc fonts-taml fonts-telu
 
 # install our app
 WORKDIR /app
@@ -29,5 +38,4 @@ COPY . /app
 RUN chmod +x /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-background.sh
 EXPOSE 3000
-ENTRYPOINT ["tini", "--"]
 CMD ["/app/docker-entrypoint.sh"]

@@ -18,7 +18,7 @@ end
 # Use pender from git
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
 
-gem 'logstash-logger'
+gem 'lograge'
 gem 'rails', '4.2.11.1'
 gem 'sqlite3'
 gem 'pg', '~> 0.15'
@@ -90,7 +90,7 @@ gem 'google-protobuf', '3.2.0'
 gem 'concurrent-ruby', require: 'concurrent'
 gem 'rails_admin_material'
 gem 'apollo-tracing', '1.5.0'
-gem 'rubyzip', '1.2.2'
+gem 'rubyzip', '1.3.0'
 gem 'rack-protection', '1.5.5'
 gem 'loofah', '2.3.1'
 gem 'deep_cloneable', '~> 2.3.0'
@@ -135,4 +135,4 @@ gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_back
 gem 'activerecord-redshift-adapter',  git: 'https://github.com/arp/activerecord-redshift-adapter.git', branch: "rails4-compatibility"
 gem 'partitioned', git: 'https://github.com/dkhofer/partitioned.git', branch: 'rails-4-2'
 gem 'mimemagic', '~> 0.3.3'
-gem "honeycomb-beeline"
+gem 'honeycomb-beeline'

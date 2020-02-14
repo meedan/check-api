@@ -60,22 +60,19 @@ class ElasticSearch4Test < ActionController::TestCase
     end
   end
 
-  test "should sort results by recent activities" do
+  test "should sort results by recent activities and recent added" do
     stub_config('app_name', 'Check') do
       t = create_team
       p = create_project team: t
-      info = {title: 'search_sort'}.to_json
-      m1 = create_valid_media
+      quote = 'search_sort'
+      m1 = create_claim_media quote: 'search_sort'
+      m2 = create_claim_media quote: 'search_sort'
+      m3 = create_claim_media quote: 'search_sort'
       pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-      pm1.metadata = info
-      m2 = create_valid_media
       pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      pm2.metadata = info
-      m3 = create_valid_media
       pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-      pm3.metadata = info
       create_comment text: 'search_sort', annotated: pm1, disable_es_callbacks: false
-      sleep 10
+      sleep 5
       # sort with keywords
       Team.current = t
       result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
@@ -85,7 +82,7 @@ class ElasticSearch4Test < ActionController::TestCase
       # sort with keywords and tags
       create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
       create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-      sleep 10
+      sleep 5
       result = CheckSearch.new({tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
       result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
@@ -94,7 +91,7 @@ class ElasticSearch4Test < ActionController::TestCase
       create_status status: 'verified', annotated: pm2, disable_es_callbacks: false
       create_status status: 'verified', annotated: pm1, disable_es_callbacks: false
       create_status status: 'false', annotated: pm1, disable_es_callbacks: false
-      sleep 10
+      sleep 5
       # sort with keywords, tags and status
       result = CheckSearch.new({verification_status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
@@ -102,43 +99,12 @@ class ElasticSearch4Test < ActionController::TestCase
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], verification_status: ["verified"], projects: [p.id]}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
+      # sort asc and desc by created_date
+      result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_added'}.to_json)
+      assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_added', sort_type: 'asc'}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
     end
-  end
-
-  test "should sort results asc and desc" do
-    t = create_team
-    p = create_project team: t
-
-    info = {title: 'search_sort'}.to_json
-
-    m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.metadata = info
-
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.metadata = info
-
-    m3 = create_valid_media
-    pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.metadata = info
-
-    create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false
-    sleep 2
-    create_tag tag: 'sorts', annotated: pm1, disable_es_callbacks: false
-    sleep 2
-    create_tag tag: 'sorts', annotated: pm2, disable_es_callbacks: false
-    sleep 6
-
-    Team.current = t
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id]}.to_json)
-    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort_type: 'asc'}.to_json)
-    assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity'}.to_json)
-    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_activity', sort_type: 'asc'}.to_json)
-    assert_equal [pm3.id, pm1.id, pm2.id], result.medias.map(&:id)
   end
 
   test "should search annotations for multiple projects" do
@@ -160,41 +126,22 @@ class ElasticSearch4Test < ActionController::TestCase
     assert_equal [pm3.id, pm2.id, pm.id], result.medias.map(&:id)
   end
 
-  test "should search keyword with AND operator" do
-    t = create_team
-    p = create_project team: t
-    m1 = create_valid_media
-    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-    pm1.metadata = {title: 'keyworda'}.to_json
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.metadata = {title: 'keywordb'}.to_json
-    m3 = create_valid_media
-    pm3 = create_project_media project: p, media: m3, disable_es_callbacks: false
-    pm3.metadata = {title: 'keyworda and keywordb'}.to_json
-    sleep 1
-    Team.current = t
-    result = CheckSearch.new({keyword: 'keyworda'}.to_json)
-    assert_equal 2, result.medias.count
-    result = CheckSearch.new({keyword: 'keyworda and keywordb'}.to_json)
-    assert_equal 1, result.medias.count
-  end
-
   test "should search for multi-word tag" do
     t = create_team
     p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media project: p, disable_es_callbacks: false
     create_tag tag: 'iron maiden', annotated: pm, disable_es_callbacks: false
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    pm2 = create_project_media project: p, disable_es_callbacks: false
     create_tag tag: 'iron', annotated: pm2, disable_es_callbacks: false
-    sleep 10
+    sleep 5
     Team.current = t
     result = CheckSearch.new({tags: ['iron maiden']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({tags: ['iron']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort
+    # load all items sorted
+    assert_equal [pm.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
+    assert_equal [pm2.id, pm.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
   end
 
   test "should search for hashtag" do
@@ -253,14 +200,6 @@ class ElasticSearch4Test < ActionController::TestCase
       result = CheckSearch.new({projects: [p.id], verification_status: ['in_progress'], sort: "recent_activity"}.to_json)
       assert_equal 1, result.project_medias.count
     end
-  end
-
-  test "should load all items sorted" do
-    pm1 = create_project_media disable_es_callbacks: false
-    pm2 = create_project_media disable_es_callbacks: false
-    sleep 1
-    assert_equal [pm1.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
-    assert_equal [pm2.id, pm1.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
   end
 
   test "should always hit ElasticSearch" do
