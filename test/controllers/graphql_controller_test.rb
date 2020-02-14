@@ -740,7 +740,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should return null if public team is not found" do
     authenticate_with_user
     Team.delete_all
-    post :create, query: 'query FindPublicTeam { find_public_team { name } }', team: 'foo'
+    post :create, query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo'
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['find_public_team']
   end
