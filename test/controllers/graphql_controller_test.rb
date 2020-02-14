@@ -737,6 +737,14 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response 404
   end
 
+  test "should return null if public team is not found" do
+    authenticate_with_user
+    Team.delete_all
+    post :create, query: 'query FindPublicTeam { find_public_team { name } }', team: 'foo'
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['find_public_team']
+  end
+
   test "should run few queries to get project data" do
     n = 18 # Number of media items to be created
     m = 5 # Number of annotations per media
