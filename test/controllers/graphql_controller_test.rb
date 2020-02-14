@@ -185,12 +185,12 @@ class GraphqlControllerTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m
     m2 = create_valid_media
     pm3 = create_project_media project: p, media: m2
-    
+
     query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    
+
     query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -730,12 +730,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should return null if public team does not exist" do
+  test "should return 404 if public team does not exist" do
     authenticate_with_user
     Team.delete_all
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['public_team']
+    assert_response 404
   end
 
   test "should run few queries to get project data" do

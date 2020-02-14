@@ -70,6 +70,16 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  field :find_public_team do
+    type PublicTeamType
+    description 'Find whether a team exists'
+    argument :slug, !types.String
+
+    resolve -> (_obj, args, _ctx) do
+      Team.where(slug: args['slug']).last
+    end
+  end
+
   instance_exec ProjectMedia, :project_media, ProjectMediaType , &GraphqlCrudOperations.project_association
 
   instance_exec ProjectSource, :project_source, ProjectSourceType , &GraphqlCrudOperations.project_association
