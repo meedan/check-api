@@ -55,6 +55,17 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {:host => 'http://localhost:13000'}
 
   # Log errors to stdout during testing.
-  config.logger = Logger.new(STDOUT)
-  config.log_level = :ERROR
+
+  config.lograge.enabled = true
+
+  config.lograge.logger = ActiveSupport::Logger.new(STDOUT)
+  config.lograge.custom_options = lambda do |event|
+    options = event.payload.slice(:request_id, :user_id)
+    options[:params] = event.payload[:params].except("controller", "action")
+    options[:time] = Time.now
+    options
+  end
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  config.log_level = :warn
+  
 end

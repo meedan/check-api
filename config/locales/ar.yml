@@ -74,6 +74,7 @@ ar:
     translation:
       pending:
         label: مُعَلَّق
+        description: 'الحالة الأولية : أُضيف لِلتَّو ولم يبدأ العمل بعد'
       in_progress:
         label: قيد التقدم
         description: بدأ العمل على العنصر ولم تتم الترجمة بعد
@@ -150,8 +151,6 @@ ar:
           other: قصير جداً (الحد الأدنى %{count} حروف)
   slack_webhook_format_wrong: صيغة Slack webhook غير صالحة  - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_format_for_languages: 'صيغة اللغات غير صالحة - الصيغة المطلوبة هي [{''id'':
-    ''en'',''title'': ''English''}]'
   invalid_media_item: " عذراً ، هذا العنصر غير صحيح"
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح
@@ -220,15 +219,30 @@ ar:
         menu: إرسال تعليمات إعادة ضبط كلمة المرور
       export_project:
         menu: تصدير البيانات
+      export_images:
+        menu: تصدير الصور
       delete_tasks:
         done: تم حذف المهام
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: 'هل أنت متأكد أنك تود حذف جميع المهام في مساحة العمل <strong>%{team}</strong>؟
+            سوف يتم حذف المهام اﻵتية:'
       duplicate_team:
+        menu: نسخ مساحة العمل
         done: تم النسخ
+        are_you_sure_you_want_to_copy_team:
+          html: هل أنت متأكد أنك تود نسخ مساحة العمل <strong>%{team}</strong>؟ سوف
+            يتم أيضًا نسخ جميع البيانات المرتبطة.
+        the_team_is_being_copied: يتم نسخ مساحة العمل
+        url_when_ready:
+          html: بمجرد أن تصبح جاهزة ، سوف تكون نسخة مساحة العمل متاحة في <strong>%{copy_url}</strong>
   email_not_found: هذا البريد الإلكتروني غير موجود
   slack_channel_format_wrong: قناة Slack غير صالحة
   translation_status_not_valid: حالة غير صالحة
   translation_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
   translation_request_id_exists: هناك طلب آخر لترجمة هذه الرسالة
+  auto_publisher_added_to_project: من الآن سوف يتم نشر كل ترجمة في قائمة %{project}
+    إلى الحساب الذي أخترته على %{provider}. إن غيرت رأيك من فضلك تواصل مع فريق الدعم
+    أو أحذف تطبيق Bridge من الحساب على %{provider}.
   invalid_token: رمز الأمان غير صالح
   viber_screenshot_footer: 'ترجمة إلى %{target_language} من %{source_language}: “%{source_text}”'
   time:
@@ -237,7 +251,10 @@ ar:
       task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: لم يقم %{team} بالتحقق من دقة هذا العنصر بعد
+  oembed_disclaimer_in_progress: بدأ %{team} بالتحقق من دقة هذا العنصر في %{date}
+  oembed_disclaimer_verified: تحقق %{team} من دقة هذا العنصر في %{date}
   oembed_disclaimer_false: نفى %{team} دقة هذا العنصر في %{date}
+  oembed_disclaimer_not_applicable: لم يتمكن %{team} من التحقق من هذا العنصر منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_owner: مدير
@@ -277,12 +294,19 @@ ar:
   duplicate_source: المصدر موجود بالفعل
   geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
   datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
+  error_team_archived: عذراً ، لا يمكن إضافة قائمة لمساحة عمل في سلة المهملات
+  error_project_archived: عذراً ، لا يمكن إضافة عنصر لقائمة  في سلة المهملات
+  error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لمساحة عمل في سلة المهملات
   permission_error: عذراً ، ليس مسموح لك تنفيذ هذه العملية
+  error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
   only_super_admin_can_do_this: عذراً ، هذه العملية متاحة لمسؤولي النظام فقط
+  max_number_of_team_users_reached: عذراً ، لقد تم الوصول إلى الحد الأقصى للأعضاء
+    في هذه مساحة العمل
   cant_change_custom_statuses: |-
     عذرًا ، لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
     %{others_amount} %{urls}
   account_exists: هذا الحساب موجود بالفعل
+  media_exists: هذا العنصر موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
   email_exists: " مستخدم بالفعل"
   banned_user: عذراً ، لقد تم حظرك من %{app_name}. من فضلك تواصل مع فريق الدعم إن
@@ -307,6 +331,8 @@ ar:
       unconfirmed: من فضلك راجع بريدك الالكتروني للتحقق من حسابك.
   user_invitation:
     invalid: رمز الدعوة غير صالح
+  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذه مساحة
+    العمل
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   mail_see_it: 'تستطيع أن تراه هنا : '
@@ -406,6 +432,7 @@ ar:
     privace_manage_plain: إدارة تنبيهات للبريد الإلكتروني الخاصة بك
     privacy_plain: معرفة المزيد عن سياسة الخصوصية
   archive_keep_backup: Video Vault
+  archive_pender_archive: لقطة الشاشة
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: حالة غير صالحة
@@ -559,6 +586,17 @@ ar:
   custom_message_smooch_bot_message_unconfirmed_caio-bot-garden-refactoring: شكراً
     لقد تجاهلت.
   custom_message_smooch_bot_disabled_caio: مع الأسف! ، هذا البوت معطل حاليا
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     شكرا لإرسال هذه الرسالة.
 

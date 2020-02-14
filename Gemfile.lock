@@ -272,7 +272,7 @@ GEM
     ethon (0.11.0)
       ffi (>= 1.3.0)
     eventmachine (1.2.3)
-    excon (0.65.0)
+    excon (0.71.0)
     execjs (2.7.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
@@ -400,9 +400,11 @@ GEM
     logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
-    logstash-event (1.2.02)
-    logstash-logger (0.23.0)
-      logstash-event (~> 1.2)
+    lograge (0.11.2)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.3.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -517,7 +519,7 @@ GEM
       multi_json (~> 1.0)
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
-    rack (1.6.11)
+    rack (1.6.12)
     rack-cors (0.4.1)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
@@ -649,7 +651,7 @@ GEM
       thor
       ya2yaml
     ruby-progressbar (1.9.0)
-    rubyzip (1.2.2)
+    rubyzip (1.3.0)
     safe_yaml (1.0.4)
     sass (3.7.4)
       sass-listen (~> 4.0.0)
@@ -836,7 +838,7 @@ DEPENDENCIES
   json-schema
   jsonpath (~> 0.8.8)
   jwt
-  logstash-logger
+  lograge
   loofah (= 2.3.1)
   mimemagic (~> 0.3.3)
   mini_magick (= 4.3.3)
@@ -881,7 +883,7 @@ DEPENDENCIES
   rqrcode
   rubocop (= 0.49.0)
   ruby-cldr
-  rubyzip (= 1.2.2)
+  rubyzip (= 1.3.0)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   sidekiq
@@ -909,4 +911,4 @@ DEPENDENCIES
   webshot (= 0.1.0)
 
 BUNDLED WITH
-   1.17.1
+   1.17.3

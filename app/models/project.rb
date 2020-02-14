@@ -26,7 +26,6 @@ class Project < ActiveRecord::Base
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
-  validate :project_languages_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
 
   has_annotations
@@ -183,15 +182,6 @@ class Project < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
   end
 
-  def languages=(languages)
-    self.send(:set_languages, languages)
-  end
-
-  def languages
-    languages = self.get_languages
-    languages.nil? ? [] : languages
-  end
-
   def generate_token
     self.token = nil if self.is_being_copied
     self.token ||= SecureRandom.uuid
@@ -238,14 +228,6 @@ class Project < ActiveRecord::Base
   end
 
   private
-
-  def project_languages_format
-    languages = self.get_languages
-    unless languages.blank?
-      error_message = "Languages is invalid, it should have the format ['en', 'ar', 'fr']"
-      errors.add(:base, I18n.t(:invalid_format_for_project_languages, default: error_message)) unless languages.is_a?(Array)
-    end
-  end
 
   def set_description_and_team_and_user
     self.description ||= ''

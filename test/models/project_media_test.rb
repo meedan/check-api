@@ -596,84 +596,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_kind_of CheckSearch, pm.check_search_project
   end
 
-  # test "should have empty mt annotation" do
-  #   ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-  #   at = create_annotation_type annotation_type: 'language', label: 'Language'
-  #   create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-
-  #   ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON structure')
-  #   at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
-  #   create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
-
-  #   t = create_team
-  #   p = create_project team: t
-  #   text = 'Test'
-  #   stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-  #     url = CONFIG['alegre_host'] + '/langid/'
-  #     response = { language: 'en', confidence: 1 }.to_json
-  #     WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
-  #     pm = create_project_media project: p, quote: text
-  #     mt = pm.annotations.where(annotation_type: 'mt').last
-  #     Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
-  #     assert_nil mt
-  #     p.settings = {:languages => ['ar']}; p.save!
-  #     pm = create_project_media project: p, quote: text
-  #     Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
-  #     mt = pm.annotations.where(annotation_type: 'mt').last
-  #     assert_not_nil mt
-  #   end
-  # end
-
-  # test "should update mt annotation" do
-  #   ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-  #   at = create_annotation_type annotation_type: 'language', label: 'Language'
-  #   create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-
-  #   ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON structure')
-  #   at = create_annotation_type annotation_type: 'mt', label: 'Machine translation'
-  #   create_field_instance annotation_type_object: at, name: 'mt_translations', label: 'Machine translations', field_type_object: ft, optional: false
-
-  #   u = create_user
-  #   t = create_team
-  #   create_team_user team: t, user: u, role: 'owner'
-  #   u = User.find(u.id)
-  #   with_current_user_and_team(u, t) do
-  #     p = create_project team: t
-  #     p.settings = {:languages => ['ar', 'en']}; p.save!
-  #     text = 'Testing'
-  #     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-  #       url = CONFIG['alegre_host'] + '/langid/'
-  #       response = { language: 'en', confidence: 1 }.to_json
-  #       WebMock.stub_request(:post, url).with(body: { text: text }).to_return(body: response)
-  #       pm = create_project_media project: p, quote: text
-  #       Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm.id } }.to_json)
-  #       pm2 = create_project_media project: p, quote: text
-  #       Bot::Alegre.run({ event: 'create_project_media', data: { dbid: pm2.id } }.to_json)
-  #       Sidekiq::Testing.inline! do
-  #         url = CONFIG['alegre_host'] + '/mt/'
-  #         # Test with machine translation
-  #         # Test handle raising an error
-  #         WebMock.stub_request(:post, url).to_return(body: 'error')
-  #         pm.update_mt=1
-  #         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
-  #         assert_equal 0, JSON.parse(mt_field.value).size
-  #         # Test with valid response
-  #         response = { text: 'testing' }.to_json
-  #         WebMock.stub_request(:post, url).to_return(body: response)
-  #         pm.update_mt=1
-  #         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: 'json').first
-  #         assert_equal 1, JSON.parse(mt_field.value).size
-  #         # Test with type => error
-  #         response = { error: 'not supported' }.to_json
-  #         WebMock.stub_request(:post, url).to_return(body: response)
-  #         pm2.update_mt=1
-  #         mt_field = DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => 'mt', 'annotations.annotated_type' => pm2.class.name, 'annotations.annotated_id' => pm2.id.to_s, field_type: 'json').first
-  #         assert_equal 0, JSON.parse(mt_field.value).size
-  #       end
-  #     end
-  #   end
-  # end
-
   test "should get dynamic annotation by type" do
     create_annotation_type annotation_type: 'foo'
     create_annotation_type annotation_type: 'bar'
@@ -1240,6 +1162,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get claim description only if it has been set" do
+    RequestStore.store[:skip_cached_field_update] = false
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_nil pm.reload.description
@@ -1688,6 +1611,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache project source id" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     pm = create_project_media project: p
     ps = pm.send :get_project_source, p.id
@@ -1782,6 +1706,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache demand" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media project: p
@@ -1817,6 +1742,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of linked items" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     pm = create_project_media project: p
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
@@ -1839,6 +1765,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache number of requests" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media
     assert_queries(0, '=') { assert_equal(0, pm.requests_count) }
@@ -1850,6 +1777,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache last seen" do
+    RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     pm = create_project_media project: p
@@ -1875,6 +1803,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache status" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff(false)
     pm = create_project_media
     assert pm.respond_to?(:status)
@@ -1893,6 +1822,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache title" do
+    RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
     pm.metadata = { title: 'Title 1' }.to_json
     pm.save!
@@ -1912,6 +1842,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache description" do
+    RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
     pm.metadata = { description: 'Description 1' }.to_json
     pm.save!
@@ -1931,7 +1862,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should index sortable fields" do
-    # sortable fields are [linked_items_count, requests_count and last_seen]
+    RequestStore.store[:skip_cached_field_update] = false
+    # sortable fields are [linked_items_count, requests_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
@@ -2111,9 +2043,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     setup_elasticsearch
-    
+
     threads = []
     pm = create_project_media media: nil, quote: 'test', disable_es_callbacks: false
     id = get_es_id(pm)
