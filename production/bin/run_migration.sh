@@ -16,7 +16,7 @@ d=configurator/check/${DEPLOY_ENV}/${APP}/; for f in $(find $d -type f); do cp "
 
 echo "running migrations"
 # su to DEPLOYUSER and be sure to exit with the proper exit both inside and outside the migration
-su ${DEPLOYUSER} -c 'bundle exec rake db:migrate; exit $?'
+bundle exec rake db:migrate
 STATUS=$?
 
 echo "migrations completed with exit $STATUS"
