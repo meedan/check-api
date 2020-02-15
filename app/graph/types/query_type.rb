@@ -66,7 +66,17 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, args, _ctx) do
       team = args['slug'].blank? ? Team.current : Team.where(slug: args['slug']).last
       id = team.blank? ? 0 : team.id
-      Team.where(id: id).last
+      Team.find(id)
+    end
+  end
+
+  field :find_public_team do
+    type PublicTeamType
+    description 'Find whether a team exists'
+    argument :slug, !types.String
+
+    resolve -> (_obj, args, _ctx) do
+      Team.where(slug: args['slug']).last
     end
   end
 
