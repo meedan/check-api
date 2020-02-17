@@ -177,5 +177,8 @@ class VersionTest < ActiveSupport::TestCase
     v.associated_type = 'ProjectMedia'
     v.associated_id = pm.id
     assert_equal pm, v.associated
+    v.associated_type = 'FooBar'
+    v.associated_id = random_number
+    assert_nil v.associated
   end
 end

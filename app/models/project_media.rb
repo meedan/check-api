@@ -191,8 +191,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def update_mt=(_update)
-    #mt = self.annotations.where(annotation_type: 'mt').last
-    #MachineTranslationWorker.perform_in(1.second, YAML::dump(self), YAML::dump(User.current)) unless mt.nil?
   end
 
   def get_dynamic_annotation(type)
@@ -362,6 +360,7 @@ class ProjectMedia < ActiveRecord::Base
     ms.sources_count = self.sources_count.to_i
     ms.requests_count = self.requests_count.to_i
     ms.linked_items_count = self.linked_items_count.to_i
+    ms.share_count = self.share_count.to_i
     ms.last_seen = self.last_seen.to_i
   end
 

@@ -55,26 +55,30 @@ class Bot::Keep < BotUser
     payload = JSON.parse(request.raw_post)
     if payload['url']
       link = Link.where(url: payload['url']).last
-      type = Bot::Keep.archiver_to_annotation_type(payload['type'])
       unless link.nil?
-        response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
-        m = link.metadata_annotation
-        data = JSON.parse(m.get_field_value('metadata_value'))
-        data['archives'] ||= {}
-        data['archives'][payload['type']] = response
-        response.each { |key, value| data[key] = value }
-        m.set_fields = { metadata_value: data.to_json }.to_json
-        m.save!
+        if payload['type'] == 'metrics'
+          Bot::Keep.update_metrics(link, payload['metrics'])
+        else
+          type = Bot::Keep.archiver_to_annotation_type(payload['type'])
+          response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
+          m = link.metadata_annotation
+          data = JSON.parse(m.get_field_value('metadata_value'))
+          data['archives'] ||= {}
+          data['archives'][payload['type']] = response
+          response.each { |key, value| data[key] = value }
+          m.set_fields = { metadata_value: data.to_json }.to_json
+          m.save!
 
-        ProjectMedia.where(media_id: link.id).each do |pm|
-          annotation = pm.annotations.where(annotation_type: 'archiver').last
+          ProjectMedia.where(media_id: link.id).find_each do |pm|
+            annotation = pm.annotations.where(annotation_type: 'archiver').last
 
-          unless annotation.nil? || !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
-            annotation = annotation.load
-            annotation.skip_check_ability = true
-            annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-            annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
-            annotation.save!
+            unless annotation.nil? || !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
+              annotation = annotation.load
+              annotation.skip_check_ability = true
+              annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+              annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
+              annotation.save!
+            end
           end
         end
       end
@@ -88,6 +92,23 @@ class Bot::Keep < BotUser
 
   def self.set_pender_archive_response_based_on_pender_data(data)
     (!data.nil? && data['screenshot_taken'].to_i == 1) ? { screenshot_taken: 1, screenshot_url: data['screenshot'] || data['screenshot_url'] } : {}
+  end
+
+  def self.update_metrics(link, metrics)
+    ProjectMedia.where(media_id: link.id).find_each do |pm|
+      a = Dynamic.where(annotation_type: 'metrics', annotated_type: 'ProjectMedia', annotated_id: pm.id).last
+      if a.nil?
+        a = Dynamic.new
+        a.skip_check_ability = true
+        a.skip_notifications = true
+        a.disable_es_callbacks = Rails.env.to_s == 'test'
+        a.annotation_type = 'metrics'
+        a.annotated = pm
+      end
+      current = begin JSON.parse(a.get_field_value('metrics_data')) rescue {} end
+      a.set_fields = { metrics_data: current.merge(metrics).to_json }.to_json
+      a.save!
+    end
   end
 
   ProjectMedia.class_eval do
