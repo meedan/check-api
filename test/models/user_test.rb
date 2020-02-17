@@ -576,7 +576,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should save valid languages" do
     u = create_user
-    value = [{"id": "en","title": "English"}]
+    value = ["en"]
     assert_nothing_raised do
       u.set_languages(value)
       u.save!
@@ -587,9 +587,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     variations = [
       'invalid_language',
-      ['invalid_language'],
-      [{ id: 'en' }],
-      [{ title: 'English' }]
+      10
     ]
     variations.each do |value|
       assert_raises ActiveRecord::RecordInvalid do

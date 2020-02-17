@@ -18,7 +18,7 @@ class CheckSearch
   MEDIA_TYPES = %w[claims links images videos]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'requests' => 'requests_count',
-    'related' => 'linked_items_count', 'last_seen' => 'last_seen'
+    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count'
   }
 
   def pusher_channel
