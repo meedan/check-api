@@ -10,7 +10,8 @@ class CreateArchiverAnnotationAndFields < ActiveRecord::Migration
     create_field_instance annotation_type_object: at, name: name, label: name.titleize, field_type_object: json, optional: true unless DynamicAnnotation::FieldInstance.where(name: name).exists?
 
     Bot::Keep.archiver_annotation_types.each do |type|
-      DynamicAnnotation::FieldInstance.where(name: "#{type}_response").last.update_columns(optional: true)
+      field = DynamicAnnotation::FieldInstance.where(name: "#{type}_response").last
+      field.update_columns(optional: true) if field
     end
   end
 end
