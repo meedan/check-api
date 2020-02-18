@@ -511,14 +511,11 @@ ro:
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
-  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: Iată un meme, pe care l-am creat
-    în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe
-    %{url}.
+  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''

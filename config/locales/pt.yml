@@ -745,7 +745,6 @@ pt:
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
-  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
