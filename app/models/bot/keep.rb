@@ -18,7 +18,8 @@ class Bot::Keep < BotUser
       'pender_archive', # Screenshot
       'archive_is',     # Archive.is
       'archive_org',    # Archive.org
-      'perma_cc'        # Perma.cc
+      'perma_cc',       # Perma.cc
+      'video_archiver'  # Video download
     ]
   end
 
