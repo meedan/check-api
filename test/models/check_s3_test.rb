@@ -28,4 +28,11 @@ class CheckS3Test < ActiveSupport::TestCase
     assert_nil CheckS3.read(path)
     assert_nil CheckS3.get(path)
   end
+
+  test "should get public URL" do
+    assert_kind_of String, CheckS3.public_url('foo/bar')
+    stub_config('storage', nil) do
+      assert_nil CheckS3.public_url('foo/bar')
+    end
+  end
 end

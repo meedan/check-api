@@ -58,35 +58,16 @@ bn:
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
-  custom_message_smooch_bot_result_boom-factcheck: |
-    [ভেরিফিকেশান রিপোর্ট]
-    আপনি যে বার্তাটি আমাদের সাথে শেয়ার করেছেন তা *%{status}* চিহ্নিত করা হয়েছে। এটিকে নির্ণয় করতে আমরা নীচের ধাপগুলি অনুসরণ  করি: %{url}
-  custom_message_smooch_bot_result_changed_boom-factcheck: |+
-    (সংশোধিত যাচাই রিপোর্ট)
-
-    আপনি যে বার্তাটি শেয়ার করেছেন তা বদলানো হয়েছে %{previous-status} থেকে %{previous-status}
-
-    এটি চিহ্নিত করতে আমরা নীচের ধাপগুলি অনুসরণ করি: %{url}
-
-
-  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
-    তথ্য যাচাই অনুরোধের জন্য ধন্যবাদ। আপনি কি বিষয়টি যাচাই করতে চান?
-    হ্যাঁ বলার জন্যে, *উত্তরে 1 লিখুন*; অন্য কিছু প্রত্যুত্তর এলে এখানেই আমাদের কথোপকথন সমাপ্ত হবে।
+  custom_message_smooch_bot_result_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 রিপ্লাই না দেওয়ার
     জন্য আপনার এই নিবেদন এখানেই সমাপ্ত হল।  ধন্যবাদ।
-  custom_message_smooch_bot_not_final_boom-factcheck: "[ভেরিফিকেশান রিপোর্ট -  সংশোধন]\n\nআপনি
-    যে বার্তা আমাদের পাঠিয়েছিলেন তা ভুলবশত এভাবে *%{status}*  \n\nচিহ্নিত করা হয়েছে।
-    এটি এখনও তদন্তাধীন।\n"
-  custom_message_smooch_bot_meme_boom-factcheck: আপনি যা যাচাই করতে চেয়েছিলেন এবং
-    আমরা যা যাচাই করেছি তার ভিত্তিতে এই মিমটি তৈরি করা হয়েছে। আরও জানতে এখানে ক্লিক
-    করুন %{url}
-  custom_message_smooch_bot_window_closing_boom-factcheck: |2
-
-    এই মাধ্যমে অনুরোধের ভার প্রচুর হওয়ায় এখনও আমরা আপনার অনুরোধ সমাধান করতে পারিনি। আপনার ধৈর্যের জন্য ধন্যবাদ।
-  custom_message_smooch_bot_disabled_boom-factcheck: 'এই বার্তাটি পাঠানোর জন্য ধন্যবাদ।
-    এই প্রকল্পটির মেয়াদোত্তীর্ণ হওয়ার কারণে আমরা যাচাইয়ের প্রত্যুত্তর দিতে অসক্ষম। '
+  custom_message_smooch_bot_not_final_boom-factcheck: ''
+  custom_message_smooch_bot_meme_boom-factcheck: ''
+  custom_message_smooch_bot_window_closing_boom-factcheck: ''
+  custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
