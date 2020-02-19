@@ -585,5 +585,10 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     assert_equal 'Foo', l.metadata['description']
+    assert_not_equal({}, l.get_saved_pender_data)
+    assert_not_equal({}, l.metadata)
+    l.annotations.delete_all
+    assert_equal({}, l.get_saved_pender_data)
+    assert_equal({}, l.metadata)
   end
 end

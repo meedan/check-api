@@ -721,13 +721,13 @@ en:
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
-    The item that you shared with us is marked *%{status}*.
+    The item that you shared with us is marked %{status}.
 
     Here are the steps we took to determine this: %{url}
   custom_message_smooch_bot_result_changed_afp-fact-check: |
     [Verification Report - CORRECTION]
 
-    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+    The message you shared with us has changed from %{previous_status} to %{status}.
 
     Here are the steps we took to determine this: %{url}
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: |
@@ -746,7 +746,7 @@ en:
   custom_message_smooch_bot_not_final_afp-fact-check: |
     [Verification Report - CORRECTION]
 
-    The message you shared with us was wrongly marked as *%{status}*.
+    The message you shared with us was wrongly marked as %{status}.
 
     It is still in our queue for further verification.
   custom_message_smooch_bot_meme_afp-fact-check: Here's a meme we created based on
@@ -761,42 +761,39 @@ en:
     The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
     By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
-  custom_message_smooch_bot_result_boom-factcheck: |
-    [Verification Report]
+  custom_message_smooch_bot_result_boom-factcheck: "UPDATE\n\nOur Fact Check Team
+    found this message \nto be %{status}.\n\nRead and share the fact check story with
+    \nyour friends and family\n\nLink: %{url}"
+  custom_message_smooch_bot_result_changed_boom-factcheck: |-
+    CORRECTION
 
-    The item that you shared with us is marked *%{status}*.
+    We've changed our status of the message you sent us from *%{previous_status}* to *%{status}*.
 
-    For more information: %{url}
-  custom_message_smooch_bot_result_changed_boom-factcheck: "[Verification Report -
-    CORRECTION]\n\nThe message you shared with us has changed from *%{previous_status}*
-    to *%{status}*.\n\nHere are the steps we took to determine this: %{url}\n \n"
-  custom_message_smooch_bot_ask_for_confirmation_boom-factcheck: |
-    Thank you for sending this request. Do you want us to verify its content?
+    Read our fact check and share with your groups %{url}
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: |-
+    Thanks for messaging us! We'll review your message and get back to you soon if it's something we can fact check.
 
-    To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: |+
-    Thank you. Your request has been received and we will send you a report as soon as possible.
-
-    Please note that we are not able to respond to every request.
-
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: Sorry, we currently
-    do not support audio messages uploaded directly on WhatsApp.
+    Take a look at the other fact checks on our site in the meantime, and share with your friends and family: boomlive.in
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: "\U0001F645‍♂️\U0001F645‍♀️
+    Ops, we don't support these types of messages currently. You could send us a text
+    / image / video that you suspect to be misleading."
   custom_message_smooch_bot_message_unconfirmed_boom-factcheck: Since you didn't reply
     with 1, we will not process your request further. Thank you.
-  custom_message_smooch_bot_not_final_boom-factcheck: |
-    [Verification Report - CORRECTION]
+  custom_message_smooch_bot_not_final_boom-factcheck: "CORRECTION\n\n\U0001F926‍♂️We're
+    reviewing our conclusion on the message you sent that we marked *%{status}*.\n\nWe'll
+    let you know when we've completed our review."
+  custom_message_smooch_bot_meme_boom-factcheck: "Check our fact card for the message
+    \nyou had sent us. Forward the fact card!\nRead and share our story here:  %{url}"
+  custom_message_smooch_bot_window_closing_boom-factcheck: "Thanks for waiting - we
+    receive a lot of messages and we can only fact check the stories and topics we
+    see trending right now. Please keep sending us the things you're seeing to help
+    us know what is going viral on WhatsApp. \U0001F64F\n\nTake a look at the other
+    fact checks on our site in the meantime, and share with your friends and family:
+    boomlive.in"
+  custom_message_smooch_bot_disabled_boom-factcheck: |-
+    We're away from our WhatsApp right now - please send us a message again later.
 
-    The message you shared with us was wrongly marked as *%{status}*.
-
-    It is still in our queue for further verification.
-  custom_message_smooch_bot_meme_boom-factcheck: Here's a meme we created based on
-    the item you have requested that we verify. Read more at %{url}.
-  custom_message_smooch_bot_window_closing_boom-factcheck: |2
-
-    The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
-  custom_message_smooch_bot_disabled_boom-factcheck: Thank you for sending this message.
-    We are unable to send back any verification reports because this project is no
-    longer active.
+    Take a look at the other fact checks on our site in the meantime, and share with your friends and family: boomlive.in
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: |+
     The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
@@ -883,48 +880,48 @@ en:
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
   custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
-  custom_message_smooch_bot_result_india-today: "Congrats, here is the India Today
-    Fact Check report you wanted. \n\n*%{status}*\n\nClick on the link to see details
-    of the Fact Check: %{url}\n\nThanks for reaching out to us. Help us fight the
-    fake by sharing it. "
-  custom_message_smooch_bot_result_changed_india-today: |
-    [Verification Report - CORRECTION]
-
-    Oops! The message you shared with us has changed from *%{previous_status}* to *%{status}*.
+  custom_message_smooch_bot_result_india-today: |
+    Congrats, here is the India Today Fact Check report you wanted. %{status}
 
     Here are the steps we took to determine this: %{url}
+
+    Thanks again for reaching out to us. Help us fight the fake by sharing it.
+  custom_message_smooch_bot_result_changed_india-today: |+
+    Oops! The message you shared with us has changed from %{previous_status} to %{status}.
+
+    Here are the steps we took to determine this: %{url}
+
   custom_message_smooch_bot_ask_for_confirmation_india-today: "Thank you for reaching
     out to India Today Fact Check. \n\nIs this a request to verify the content of
     the message you’ve sent?  \n\nPlease press 1 to Confirm. "
   custom_message_smooch_bot_message_confirmed_india-today: "Thanks. Your request is
     being forwarded to the Fact Check team.\n\nIf we publish a story about your message,
-    you will receive a report and it will appear within 48 hours at https://www.indiatoday.in/fact-check
+    you will receive a report and it will appear within 48 hours at https://aajtak.intoday.in/fact-check.html
     \ \n\nPlease note it’s not possible to check every message. \nBut you can check
     out our latest fact check stories at https://www.indiatoday.in/fact-check"
   custom_message_smooch_bot_message_type_unsupported_india-today: "Oh ! Sorry, we
     can't process the requests in this format. \n\nCan you please send it in a different
-    format? "
+    format? \n"
   custom_message_smooch_bot_message_unconfirmed_india-today: "Sorry, this WhatsApp
     is only for ‘India Today Fact Check’ requests. Have a great time. Bye. \n\nWant
     the trending fact check stories in Hindi? Go to: https://aajtak.intoday.in/fact-check.html "
-  custom_message_smooch_bot_not_final_india-today: |-
-    Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as *%{status}*.
+  custom_message_smooch_bot_not_final_india-today: |+
+    Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as %{status}.
 
     We’re still working on your request. Wait for the final report.
-  custom_message_smooch_bot_meme_india-today: "Hey, how do you like this? \n\nA meme,
-    based on your verification request.\n"
-  custom_message_smooch_bot_window_closing_india-today: |-
-    Thank you for your patience. However, please understand it's not possible for us to process all the requests that we get due to very high volume.
 
-    You can read our latest Fact Check stories at :
-    https://www.indiatoday.in/fact-check
+  custom_message_smooch_bot_meme_india-today: "Hey, how do you like this ? \n\nA meme,
+    based on your verification request. \n"
+  custom_message_smooch_bot_window_closing_india-today: "Thanks for reaching out to
+    India Today Fact Check. But sorry, we’re not able to respond back currently. \n\nBut
+    you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html"
   custom_message_smooch_bot_disabled_india-today: "Thanks for reaching out to India
     Today Fact Check.\n\nBut sorry, we’re not able to respond back currently. \n\nBut
     you can check latest fact check stories here: https://www.indiatoday.in/fact-check"
   custom_message_smooch_bot_ask_for_tos_india-today: |-
     The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
-    By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
+    By continuing to use this service, you agree to be bound by these terms. You should discontinue your use of the tipline if you do not agree.
 
     You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
