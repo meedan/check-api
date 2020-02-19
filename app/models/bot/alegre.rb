@@ -97,7 +97,7 @@ class Bot::Alegre < BotUser
   end
 
   def get_image_similarities(pm)
-    return if pm.report_type != 'uploadedimage' or CONFIG['vframe_host'].blank?
+    return if pm.report_type != 'uploadedimage' or CONFIG['alegre_host'].blank?
 
     require 'net/http/post/multipart'
 
@@ -124,4 +124,8 @@ class Bot::Alegre < BotUser
     pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}
     self.add_relationships(pm, pm_ids)
   end
+
+  private
+
+  def call_alegre(endpoint, method,)
 end
