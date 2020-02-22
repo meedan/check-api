@@ -2046,4 +2046,53 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['ar', 'en'], t.get_languages
   end
 
+  test "should match rule and trigger action to send message to user" do
+    setup_smooch_bot
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "status_is",
+          "rule_value": "in_progress"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "send_message_to_user",
+          "action_value": random_string
+        }
+      ]
+    }
+    @team.rules = rules.to_json
+    @team.save!
+    messages = [
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'text',
+        text: 'foo bar'
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    Bot::Smooch.expects(:send_message_to_user).once
+    pm = ProjectMedia.last
+    s = pm.last_status_obj
+    s.status = 'in_progress'
+    s.save!
+    Bot::Smooch.unstub(:send_message_to_user)
+  end
 end
