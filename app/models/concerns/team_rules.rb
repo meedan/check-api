@@ -104,7 +104,7 @@ module TeamRules
       Team.delay_for(1.second).send_message_to_user(pm.id, value)
     end
   end
-  
+
   module ClassMethods
     def send_message_to_user(pmid, value)
       pm = ProjectMedia.where(id: pmid).last
