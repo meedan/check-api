@@ -10,19 +10,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project
     p.team.set_languages = ['en','pt','es']
     p.team.save!
-    p.save!
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
-    AlegreClient.host = 'http://alegre'
   end
 
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert_difference 'Annotation.count' do
-          assert_equal 'en', @bot.get_language(@pm)
-        end
+      WebMock.stub_request(:get, 'http://alegre').with({ query: { url: '/text/langid' } }).to_return(body: {
+        'type': 'language',
+        'data': {
+          'language': 'en',
+          'confidence': 1.0
+        }
+      })
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+      assert_difference 'Annotation.count' do
+        assert_equal 'en', @bot.get_language(@pm)
       end
     end
   end

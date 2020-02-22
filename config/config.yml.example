@@ -85,7 +85,7 @@ development: &default
     #       "Resource": [
     #         "arn:aws:s3:::bucket-name/*",
     #         "arn:aws:s3:::bucket-name"
-    #       ]vfr
+    #       ]
     #     }
     #   ]
     # }
