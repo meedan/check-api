@@ -1,16 +1,18 @@
 namespace :check do
   namespace :migrate do
     task delete_smooch_bot_comments: :environment do
-    	smooch_bot = BotUser.where(login: 'smooch').last.id
+    	smooch_bot = BotUser.where(login: 'smooch').last
     	index_alias = CheckElasticSearchModel.get_index_alias
       client = MediaSearch.gateway.client
-    	Annotation.where(annotation_type: 'comment').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
-    	.where('pm.user_id' => smooch_bot).find_in_batches(:batch_size => 5000) do |comments|
+      Comment.where(annotation_type: 'comment', annotator_type: smooch_bot.class.name, annotator_id: smooch_bot.id)
+      .find_in_batches(:batch_size => 5000) do |comments|
         es_body = []
         pm_comments = {}
         comments.each do |c|
           pm_comments[c.annotated_id] = [] if pm_comments[c.annotated_id].nil?
           pm_comments[c.annotated_id] << c.id
+          # delete all versions
+          c.annotation_versions.delete_all
         end
         pm_comments.each do |pm, ids|
           print "."
