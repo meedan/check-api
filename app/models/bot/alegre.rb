@@ -23,8 +23,6 @@ class Bot::Alegre < BotUser
     handled
   end
 
-  private
-
   def self.get_language(pm)
     lang = pm.text.blank? ? 'und' : self.get_language_from_alegre(pm.text)
     self.save_language(pm, lang)
@@ -35,7 +33,7 @@ class Bot::Alegre < BotUser
     lang = 'und'
     begin
       response = self.request_api('get', '/text/langid', { text: text })
-      lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
+      lang = response['result']['language']
     rescue
     end
     lang
@@ -107,7 +105,7 @@ class Bot::Alegre < BotUser
       context: self.get_context(pm),
       threshold: 1
     })
-    pm_ids = similar.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}
+    pm_ids = similar.dig('result')&.collect{|r| r.dig('context', 'project_media_id')}
     self.add_relationships(pm, pm_ids)
 
     # Add image to similarity database.
