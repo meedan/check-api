@@ -41,7 +41,7 @@ bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - cd test && ./setup-parallel-env.sh && cd -
 - bundle exec rake assets:precompile
-- bundle exec thin -p 3000 -e test -t 60 --threadpool-size=60 --threaded start >/dev/null &
+- RAILS_ENV=test bundle exec puma -w 3 -t 8:60 --preload -b tcp://127.0.0.1:3000 >/dev/null &
 - sleep 10
 - touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
