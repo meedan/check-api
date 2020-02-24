@@ -77,7 +77,6 @@ gem 'transifex-interface-ruby', git: 'https://github.com/meedan/transifex-interf
 gem 'http_accept_language', git: 'https://github.com/iain/http_accept_language.git'
 gem 'i18n-generators'
 gem 'rails-i18n', git: 'https://github.com/svenfuchs/rails-i18n.git', branch: 'rails-4-x', ref: 'f8c83ec'
-gem 'alegre_client', git: 'https://github.com/meedan/alegre-client.git', ref: 'a78f321'
 gem 'devise-i18n'
 gem 'ruby-cldr'
 gem 'twitter'

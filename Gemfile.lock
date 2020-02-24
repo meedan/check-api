@@ -27,13 +27,6 @@ GIT
     http_accept_language (2.1.0)
 
 GIT
-  remote: https://github.com/meedan/alegre-client.git
-  revision: a78f32125ceae16498cc42216c442fe6a3c1c854
-  ref: a78f321
-  specs:
-    alegre_client (0.0.11)
-
-GIT
   remote: https://github.com/meedan/carrierwave_backgrounder
   revision: 518cfd659719a282fcc9d343f6437cb3526f337d
   specs:
@@ -789,7 +782,6 @@ DEPENDENCIES
   activerecord-import
   activerecord-redshift-adapter!
   airbrake (= 9.4.4)
-  alegre_client!
   apollo-tracing (= 1.5.0)
   authtrail
   awesome_print
