@@ -112,13 +112,14 @@ class Bot::KeepTest < ActiveSupport::TestCase
   end
 
   test "should update metrics" do
+    setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Metrics', { 'Data' => ['JSON', false] })
     url = 'http://test.com'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm = create_project_media media: nil, url: url
+    pm = create_project_media media: nil, url: url, disable_es_callbacks: false
     payload = { type: 'metrics', url: url, metrics: { facebook: { share_count: 123 } } }.to_json
     request = OpenStruct.new(raw_post: nil)
     request.raw_post = payload
@@ -128,6 +129,9 @@ class Bot::KeepTest < ActiveSupport::TestCase
     data = JSON.parse(pm.reload.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     assert_equal({ 'facebook' => { 'share_count' => 123 } }, data)
     assert_equal 123, pm.reload.share_count
+    es_id = get_es_id(pm)
+    result = MediaSearch.find(es_id)
+    assert_equal 123, result.share_count
     payload = { type: 'metrics', url: url, metrics: { facebook: { share_count: 321, comments_count: 456 }, twitter: { retweet_count: 789 } } }.to_json
     request = OpenStruct.new(raw_post: nil)
     request.raw_post = payload
@@ -137,5 +141,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     data = JSON.parse(pm.reload.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     assert_equal({ 'facebook' => { 'share_count' => 321, 'comments_count' => 456 }, 'twitter' => { 'retweet_count' => 789 } }, data)
     assert_equal 321, pm.reload.share_count
+    result = MediaSearch.find(es_id)
+    assert_equal 321, result.share_count
   end
 end
