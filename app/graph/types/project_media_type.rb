@@ -215,7 +215,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      Bot::Alegre.default.language_object(project_media, :to_s)
+      # FIXME Change to access field value from annotation model
+      Bot::Alegre.language_object(project_media, :to_s)
     }
   end
 
@@ -223,7 +224,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      Bot::Alegre.default.language_object(project_media, :value)
+      # FIXME Change to access field value from annotation model
+      Bot::Alegre.language_object(project_media, :value)
     }
   end
 
