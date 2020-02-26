@@ -1,0 +1,9 @@
+require 'sample_data'
+include SampleData
+
+class CreateVideoComponentAnnotations < ActiveRecord::Migration
+  def change
+    create_annotation_type_and_fields('Transcript', { 'Language' => ['Language', false], 'Transcript' => ['JSON', false] })
+    create_annotation_type_and_fields('Geolocation', { 'Viewport' => ['JSON', false], 'Location' => ['GeoJSON', false] })
+  end
+end
