@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as', 'status_is', 'title_contains_keyword']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
   RULES_JSON_SCHEMA_VALIDATOR = JSON.parse(File.read(File.join(Rails.root, 'public', 'rules_json_schema_validator.json')))
@@ -98,6 +98,23 @@ module TeamRules
     def copy_to_project(pm, value)
       project = Project.where(team_id: self.id, id: value.to_i).last
       ProjectMediaProject.create!(project: project, project_media: pm) if !project.nil? && ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
+    end
+
+    def send_message_to_user(pm, value)
+      Team.delay_for(1.second).send_message_to_user(pm.id, value)
+    end
+  end
+
+  module ClassMethods
+    def send_message_to_user(pmid, value)
+      pm = ProjectMedia.where(id: pmid).last
+      unless pm.nil?
+        pm.get_annotations('smooch').find_each do |annotation|
+          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+          Bot::Smooch.get_installation('smooch_app_id', data['app_id']) if Bot::Smooch.config.blank?
+          Bot::Smooch.send_message_to_user(data['authorId'], value)
+        end
+      end
     end
   end
 

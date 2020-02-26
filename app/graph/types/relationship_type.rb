@@ -8,6 +8,7 @@ RelationshipType = GraphQL::ObjectType.define do
   field :target_id, types.Int
   field :source_id, types.Int
   field :permissions, types.String
+  field :relationship_type, types.String
 
   field :target, ProjectMediaType
   field :source, ProjectMediaType
