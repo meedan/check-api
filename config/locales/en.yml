@@ -717,8 +717,6 @@ en:
   team_rule_copy_to_project: Add item to list
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
-  team_rule_send_message_to_user: Send message to user
-  team_rule_action_value: Type message here
   relationship_not_same_team: Related items must exist in the same workspace
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
@@ -764,8 +762,8 @@ en:
 
     By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
   custom_message_smooch_bot_result_boom-factcheck: "UPDATE\n\nOur Fact Check Team
-    found this message \nto be %{status}.\n\nRead and share the fact check story with
-    \nyour friends and family\n\nLink: %{url}"
+    found this message \nto be *%{status}*.\n\nRead and share the fact check story
+    with \nyour friends and family\n\nLink: %{url}"
   custom_message_smooch_bot_result_changed_boom-factcheck: |-
     CORRECTION
 
@@ -779,13 +777,11 @@ en:
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: "\U0001F645‍♂️\U0001F645‍♀️
     Ops, we don't support these types of messages currently. You could send us a text
     / image / video that you suspect to be misleading."
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: Since you didn't reply
-    with 1, we will not process your request further. Thank you.
   custom_message_smooch_bot_not_final_boom-factcheck: "CORRECTION\n\n\U0001F926‍♂️We're
     reviewing our conclusion on the message you sent that we marked *%{status}*.\n\nWe'll
     let you know when we've completed our review."
   custom_message_smooch_bot_meme_boom-factcheck: "Check our fact card for the message
-    \nyou had sent us. Forward the fact card!\nRead and share our story here:  %{url}"
+    \nyou had sent us. Forward the fact card!\n\nRead and share our story here:  %{url}"
   custom_message_smooch_bot_window_closing_boom-factcheck: "Thanks for waiting - we
     receive a lot of messages and we can only fact check the stories and topics we
     see trending right now. Please keep sending us the things you're seeing to help
