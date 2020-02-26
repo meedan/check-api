@@ -58,16 +58,32 @@ bn:
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
-  custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_result_changed_boom-factcheck: ''
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: 1 রিপ্লাই না দেওয়ার
-    জন্য আপনার এই নিবেদন এখানেই সমাপ্ত হল।  ধন্যবাদ।
-  custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
-  custom_message_smooch_bot_window_closing_boom-factcheck: ''
-  custom_message_smooch_bot_disabled_boom-factcheck: ''
+  custom_message_smooch_bot_result_boom-factcheck: 'আপডেট আমাদের ফ্যাক্ট চেক টিম এই
+    বার্তাটি পেয়েছে *%(status)* ফ্যাক্ট চেকটি পড়ুন এবং আপনার বন্ধু ও পরিবারের সঙ্গে
+    শেয়ার করুন লিঙ্ক: %(url)'
+  custom_message_smooch_bot_result_changed_boom-factcheck: সংশোধন আমরা আপনার পাঠানো
+    বার্তাটির আমাদের স্ট্যাটাস আগের *%(previous_status)* খেকে *%(status)* এটাতে বদলালাম।
+    আমাদের তথ্য যাচাইটি পড়ুন এবং আপনার গ্রুপে শেয়ার করুন %{url}
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: 'আমাদের বার্তা পাঠানোর
+    জন্য ধন্যবাদ! আমরা আপনার বার্তাটি ভেবে দেখবো এবং সত্ত্বর প্রত্যুত্বর দেব এটি তথ্য
+    যাচাই করার আছে কিনা। ততক্ষণ আমাদের সাইটের অন্যান্য তথ্য যাচাইগুলি দেখুন আর বন্ধু
+    ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in '
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: "\U0001F645‍♂️\U0001F645‍♀️আমরা
+    এই ধরণের বার্তা এখন সমর্থণ করিনা। আপনি আমাদের কোনও বার্তা/ ছবি/ ভিডিও পাঠাতে পারেন
+    যেটা আপনার বিভ্রান্তিকর মনে হচ্ছে।"
+  custom_message_smooch_bot_not_final_boom-factcheck: সংশোধন আমরা আমাদের সিদ্ধান্তের
+    পুনর্বিবেচনা করছি আপনি যে বার্তাটি পাঠিয়েছিলেন আর আমরা তাকে বলেছি *%(status)*
+    আমরা আপনাকে জানাবো যখন আমাদের পুনর্বিবেচনা সম্পন্ন হবে।
+  custom_message_smooch_bot_meme_boom-factcheck: আপনার পাঠানো বার্তার জন্য আমাদের
+    ফ্যাক্ট কার্ডটি দেখুন। ফ্যাক্ট কার্ডটি ফরোয়ার্ড করুন। আমাদের প্রতিবেদনটি পড়ুন
+    এবং শেয়ার করুন। %(url)
+  custom_message_smooch_bot_window_closing_boom-factcheck: অপেক্ষা করার জন্য ধন্যবাদ-
+    আমরা আনেক বার্তা পায় এবং আমরা শুধুমাত্র সেই বিষয়গুলি তথ্যযাচাই করি যেগুলি এই মুহূর্তে
+    ট্রেন্ডিং। দয়া করে বিষয়গুলি পাঠাতে থাকুন আমাদের সাহাযার্থে। ততক্ষণ আমাদের সাইটের
+    অন্যান্য তথ্য যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
+  custom_message_smooch_bot_disabled_boom-factcheck: আমরা আমাদের হোয়াটসঅ্যাপ থেকে
+    এখন দুরে আছি। দয়া করে পরে আমোদের আরেকটি বার্তা পাঠান। আমাদের সাইটের অন্যান্য তথ্য
+    যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_confirmation_caio-bot-garden-refactoring: ''
   custom_message_smooch_bot_message_confirmed_caio-bot-garden-refactoring: ''
