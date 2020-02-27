@@ -719,6 +719,8 @@ en:
   team_rule_all_items: All items
   team_rule_send_message_to_user: Send message to user
   team_rule_action_value: Type message here
+  team_rule_json_schema_validation: Rules must follow the JSON Schema
+  team_rule_regexp_invalid: "Invalid regular expression: %{error}"
   relationship_not_same_team: Related items must exist in the same workspace
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
