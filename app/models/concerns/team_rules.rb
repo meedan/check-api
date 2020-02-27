@@ -123,7 +123,7 @@ module TeamRules
     include ::TeamRules::Actions
     include ErrorNotification
 
-    validate :rules_follow_schema
+    validate :rules_follow_schema, :rules_regular_expressions_are_valid
     after_save :update_rules_index
 
     def self.rule_id(rule)
@@ -211,13 +211,29 @@ module TeamRules
   private
 
   def rules_follow_schema
-    errors.add(:settings, 'must follow the schema') if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
+    errors.add(:base, I18n.t(:team_rule_json_schema_validation)) if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
   end
 
   def update_rules_index
     if self.rules_changed?
       Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
       RulesIndexWorker.perform_in(5.seconds, self.id)
+    end
+  end
+
+  def rules_regular_expressions_are_valid
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        rule['rules'].to_a.each do |condition|
+          if condition['rule_definition'] =~ /regexp/
+            begin
+              Regexp.new(condition['rule_value'])
+            rescue RegexpError => e
+              errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+            end
+          end
+        end
+      end
     end
   end
 end

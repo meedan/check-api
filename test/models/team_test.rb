@@ -2095,4 +2095,56 @@ class TeamTest < ActiveSupport::TestCase
     s.save!
     Bot::Smooch.unstub(:send_message_to_user)
   end
+
+  test "should support emojis in regexp rule" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = [{
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "/(\\u00a9|\\u00ae|[\\u2000-\\u3300]|\\ud83c[\\ud000-\\udfff]|\\ud83d[\\ud000-\\udfff]|\\ud83e[\\ud000-\\udfff])/gmi"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }]
+    t.rules = rules.to_json
+    assert_raises ActiveRecord::RecordInvalid do
+      t.save!
+    end
+    rules = [{
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "title_matches_regexp",
+          "rule_value": "[\\u{1F300}-\\u{1F5FF}|\\u{1F1E6}-\\u{1F1FF}|\\u{2700}-\\u{27BF}|\\u{1F900}-\\u{1F9FF}|\\u{1F600}-\\u{1F64F}|\\u{1F680}-\\u{1F6FF}|\\u{2600}-\\u{26FF}]"
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }]
+    t.rules = rules.to_json
+    assert_nothing_raised do
+      t.save!
+    end
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    m = create_claim_media quote: '😊'
+    create_project_media project: p0, media: m, smooch_message: { 'text' => '😊' }
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
 end
