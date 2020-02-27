@@ -176,18 +176,23 @@ module TeamRules
 
   def apply_rules_and_actions(pm, obj = nil)
     return if pm.skip_rules
-    matched_rules_ids = []
-    self.apply_rules(pm, obj) do |rules_and_actions|
-      rules_and_actions[:actions].each do |action|
-        if ::TeamRules::ACTIONS.include?(action[:action_definition])
-          pm.skip_check_ability = true
-          self.send(action[:action_definition], pm, action[:action_value])
-          pm.skip_check_ability = false
+    begin
+      matched_rules_ids = []
+      self.apply_rules(pm, obj) do |rules_and_actions|
+        rules_and_actions[:actions].each do |action|
+          if ::TeamRules::ACTIONS.include?(action[:action_definition])
+            pm.skip_check_ability = true
+            self.send(action[:action_definition], pm, action[:action_value])
+            pm.skip_check_ability = false
+          end
+          matched_rules_ids << Team.rule_id(rules_and_actions)
         end
-        matched_rules_ids << Team.rule_id(rules_and_actions)
       end
+      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
+    rescue StandardError => e
+      Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
+      Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
     end
-    pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
   end
 
   def rules_changed?
