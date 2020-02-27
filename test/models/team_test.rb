@@ -2147,4 +2147,17 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
+
+  test "should not crash if rules throw exception" do
+    Team.any_instance.stubs(:apply_rules).raises(RuntimeError)
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    create_project_media project: p0
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    Team.any_instance.unstub(:apply_rules)
+  end
 end
