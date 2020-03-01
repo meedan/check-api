@@ -1137,12 +1137,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     assert_equal 'stop', pm.last_status
-    assert_equal '<span id="oembed__status">Stopped</span>', pm.last_status_html
+    assert_equal '<span id="oembed__status" class="l">status_stop</span>', pm.last_status_html
     assert_equal '#a00', pm.last_status_color
     s = pm.last_status_obj
     s.status = 'done'
     s.save!
-    assert_equal '<span id="oembed__status">Done!</span>', pm.last_status_html
+    assert_equal '<span id="oembed__status" class="l">status_done</span>', pm.last_status_html
     assert_equal '#fc3', pm.last_status_color
   end
 
@@ -2057,5 +2057,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
     threads.map(&:join)
+  end
+
+  test "should localize status" do
+    t = create_team slug: 'test'
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal 'Pendente', pm.status_i18n(nil, { locale: 'pt' })
+    I18n.stubs(:exists?).with('custom_message_status_test_test').returns(true)
+    I18n.stubs(:t).returns('')
+    I18n.stubs(:t).with(:custom_message_status_test_test, { locale: 'pt' }).returns('Teste')
+    ::Workflow::Workflow.stubs(:options).returns({ statuses: [{ 'label' => 'Test', 'id' => 'test' }]})
+    assert_equal 'Teste', pm.status_i18n('test', { locale: 'pt' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
+    ::Workflow::Workflow.unstub(:options)
   end
 end

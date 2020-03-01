@@ -58,4 +58,14 @@ module TeamPrivate
   def destroy_versions
     Version.from_partition(self.id).where(team_id: self.id).destroy_all
   end
+
+  def upload_custom_status_strings_to_transifex
+    strings = {}
+    statuses = self.settings.to_h.with_indifferent_access['media_verification_statuses'].to_h.with_indifferent_access['statuses'].to_a
+    statuses.each do |s|
+      status = s.with_indifferent_access
+      strings[status[:id]] = status[:label]
+    end
+    CheckI18n.upload_custom_strings_to_transifex_in_background(self, 'status', strings) unless strings.blank?
+  end
 end

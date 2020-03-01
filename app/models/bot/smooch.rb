@@ -4,8 +4,6 @@ class Bot::Smooch < BotUser
 
   check_settings
 
-  include CheckI18n
-
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
   end
@@ -120,7 +118,7 @@ class Bot::Smooch < BotUser
         CheckS3.delete(meme.memebuster_filepath)
         status = ::Workflow::Workflow.get_status(self.annotation.annotated, 'verification_status', self.value)
         meme.set_fields = {
-          memebuster_status: ::Bot::Smooch.get_status_label(self.annotation.annotated, self.value, I18n.locale),
+          memebuster_status: ::Bot::Smooch.get_status_label(self.annotation.annotated, I18n.locale, self.value),
           memebuster_overlay: status&.dig('style', 'backgroundColor')
         }.to_json
         meme.skip_check_ability = true
@@ -131,65 +129,17 @@ class Bot::Smooch < BotUser
 
   TeamBotInstallation.class_eval do
     after_create :save_twitter_token_and_authorization_url
-    after_save :upload_smooch_strings_to_transifex
-
-    def self.lock_and_upload_smooch_strings_to_transifex(id)
-      tbi = TeamBotInstallation.where(id: id).last
-      return if tbi.nil?
-      raise('Smooch Transifex lock found') if Rails.cache.read('smooch:transifex:locked').to_i == 1
-      begin
-        Rails.cache.write('smooch:transifex:locked', 1)
-        TeamBotInstallation.upload_smooch_strings_to_transifex(tbi)
-        Rails.cache.write('smooch:transifex:locked', 0)
-      rescue StandardError => e
-        Rails.cache.write('smooch:transifex:locked', 0)
-        raise e
-      end
-    end
-
-    def self.upload_smooch_strings_to_transifex(tbi)
-      require 'transifex'
-      Transifex.configure do |c|
-        c.client_login = CONFIG['transifex_user']
-        c.client_secret = CONFIG['transifex_password']
-      end
-      project = Transifex::Project.new(CONFIG['transifex_project'])
-      slug = tbi.team.slug
-      resource_slug = 'api-custom-messages-' + slug
-      resource = nil
-      yaml = { 'en' => {} }
-
-      begin
-        resource = project.resource(resource_slug)
-        resource.fetch
-      rescue Transifex::TransifexError
-        resource = nil
-      end
-
-      count = 0
-      tbi.settings.each do |key, value|
-        if tbi.get_smooch_localize_messages && key.to_s =~ /^smooch_message_/ && !value.blank?
-          count += 1
-          yaml['en'][key.gsub(/^smooch_message_/, 'custom_message_') + '_' + slug] = value
-        end
-      end
-
-      if count > 0
-        if resource.nil?
-          Transifex::Resources.new(CONFIG['transifex_project']).create({ slug: resource_slug, name: "Custom Messages: #{tbi.team.name}", i18n_type: 'YML', content: yaml.to_yaml })
-        else
-          resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
-        end
-      elsif resource
-        resource.delete
-      end
-    end
+    after_save :upload_custom_strings_to_transifex
 
     private
 
-    def upload_smooch_strings_to_transifex
-      if self.bot_user.identifier == 'smooch' && !CONFIG['transifex_user'].blank? && !CONFIG['transifex_password'].blank?
-        TeamBotInstallation.delay_for(1.second).lock_and_upload_smooch_strings_to_transifex(self.id)
+    def upload_custom_strings_to_transifex
+      if self.bot_user.identifier == 'smooch'
+        strings = {}
+        self.settings.each do |key, value|
+          strings[key.to_s.gsub(/^smooch_message_smooch_bot_/, '')] = value if key.to_s =~ /^smooch_message_/ && !value.blank?
+        end
+        CheckI18n.upload_custom_strings_to_transifex_in_background(self.team, 'smooch_bot', strings) unless strings.blank?
       end
     end
 
@@ -385,23 +335,14 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_status_label(pm, status, lang)
-    label = I18n.t('statuses.media.' + status.gsub(/^false$/, 'not_true') + '.label', locale: lang)
-    ::Workflow::Workflow.options(pm, 'verification_status').with_indifferent_access['statuses'].each { |s| label = s['label'] if s['id'] == status } if lang.to_s == 'en'
-    label
+  def self.get_status_label(pm, lang, status = nil)
+    pm.status_i18n(status, { locale: lang.to_s })
   end
 
   def self.i18n_t(key, options = {})
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
-    # Override reply language with team language if present
-    options.merge!({ locale: team.get_language }) if team&.get_language
-    if team && !config["smooch_message_#{key}"].blank?
-      i18nkey = "custom_message_#{key}_#{team.slug}"
-      (config['smooch_localize_messages'] && I18n.exists?(i18nkey) && !I18n.t(i18nkey.to_sym, options).blank?) ? I18n.t(i18nkey.to_sym, options) : config["smooch_message_#{key}"].gsub(/%{[^}]+}/) { |x| options.with_indifferent_access[x.gsub(/[%{}]/, '')] }
-    else
-      I18n.t(key.to_sym, options)
-    end
+    CheckI18n.i18n_t(team, key, config["smooch_message_#{key}"], options)
   end
 
   def self.resend_message_after_window(message)
@@ -412,7 +353,7 @@ class Bot::Smooch < BotUser
     unless pm.nil?
       lang = Bot::Alegre.default.language_object(pm, :value)
       lang = 'en' if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
-      status = self.get_status_label(pm, pm.last_verification_status, lang)
+      status = self.get_status_label(pm, lang, pm.last_verification_status)
       fallback = ::Bot::Smooch.i18n_t(:smooch_bot_result, { status: status, url: Bot::Smooch.embed_url(pm), locale: lang })
       ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{Bot::Smooch.embed_url(pm)})")
     end
@@ -810,7 +751,7 @@ class Bot::Smooch < BotUser
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
         next if self.config['smooch_disabled']
-        status_label = self.get_status_label(pm, status, data['language'])
+        status_label = self.get_status_label(pm, data['language'], status)
         response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: data['language'], status: status_label }))
         self.save_smooch_response(response, pm)
       end
@@ -839,12 +780,12 @@ class Bot::Smooch < BotUser
         id: pm.id
       }
     }
-    status_label = self.get_status_label(pm, status, lang)
+    status_label = self.get_status_label(pm, lang, status)
     params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
     i18n_key = :smooch_bot_result
     unless previous_final_status.blank?
       i18n_key = :smooch_bot_result_changed
-      params[:previous_status] = self.get_status_label(pm, previous_final_status, lang)
+      params[:previous_status] = self.get_status_label(pm, lang, previous_final_status)
     end
     response = ::Bot::Smooch.send_message_to_user(uid, ::Bot::Smooch.i18n_t(i18n_key, params), extra)
     self.save_smooch_response(response, pm)

@@ -1106,18 +1106,18 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should not copy invalid statuses" do
     team = create_team
-    value = { default: '1', active: '1' }
+    value = { 'default' => '1', 'active' => '1' }
     team.set_media_verification_statuses(value)
     assert_raises NoMethodError do
       assert !team.valid?
     end
     team.save(validate: false)
-    assert_equal value, team.get_media_verification_statuses(value)
+    assert_equal value, team.get_media_verification_statuses
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert copy.errors[:statuses].blank?
-    assert_equal team.get_media_verification_statuses(value), copy.get_media_verification_statuses(value)
+    assert_equal team.get_media_verification_statuses, copy.get_media_verification_statuses
   end
 
   test "should not notify slack if is being copied" do

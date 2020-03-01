@@ -52,6 +52,18 @@ class Workflow::VerificationStatus < Workflow::Base
       perms["update Status"] = ability.can?(:update, Dynamic.new(annotation_type: 'verification_status', annotated: self))
       perms
     end
+
+    def status_i18n(key = nil, options = {})
+      key ||= self.last_status
+      core_status_ids = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)['MEDIA_CORE_VERIFICATION_STATUSES'].collect{ |st| st[:id] }
+      if core_status_ids.include?(key.to_s)
+        I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', options)
+      else
+        fallback = nil
+        ::Workflow::Workflow.options(self, 'verification_status').with_indifferent_access['statuses'].each { |s| fallback = s['label'] if s['id'] == key }
+        CheckI18n.i18n_t(self.team, 'status_' + key.to_s, fallback, options)
+      end
+    end
   end
 
   DynamicAnnotation::Field.class_eval do
@@ -98,6 +110,20 @@ class Workflow::VerificationStatus < Workflow::Base
       status = self.annotation&.load
       team = Team.where(id: status.get_team.last.to_i).last
       team.apply_rules_and_actions(status.annotated, self) if !team.nil? && status.annotated_type == 'ProjectMedia'
+    end
+  end
+
+  Team.class_eval do
+    def get_media_verification_statuses
+      settings = self.settings || {}
+      custom_statuses = settings.with_indifferent_access[:media_verification_statuses]
+      return custom_statuses unless custom_statuses.is_a?(Hash)
+      if custom_statuses
+        custom_statuses.with_indifferent_access['statuses'].to_a.each do |s|
+          s[:label] = CheckI18n.i18n_t(self, 'status_' + s[:id], s[:label])
+        end
+      end
+      custom_statuses
     end
   end
 end
