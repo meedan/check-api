@@ -216,15 +216,15 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       assert Bot::Smooch.run(confirmation.to_json)
     end
     # test with empty text
-    assert_nil Bot::Smooch.convert_numbers(nil)
-    assert_nil Bot::Smooch.convert_numbers('')
+    assert_nil CheckI18n.convert_numbers(nil)
+    assert_nil CheckI18n.convert_numbers('')
   end
 
   test "should get is rtl lang" do
     I18n.locale = :ar
-    assert Bot::Smooch.is_rtl_lang?
+    assert CheckI18n.is_rtl_lang?
     I18n.locale = :en
-    assert_not Bot::Smooch.is_rtl_lang?
+    assert_not CheckI18n.is_rtl_lang?
   end
 
   test "should support file only if image or video" do
@@ -303,14 +303,14 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       assert_nothing_raised do
         tbi.save!
       end
-      TeamBotInstallation.stubs(:upload_smooch_strings_to_transifex).raises(StandardError)
+      CheckI18n.stubs(:upload_custom_strings_to_transifex).raises(StandardError)
       s['smooch_message_smooch_bot_meme'] = random_string
       s['smooch_message_smooch_bot_not_final'] = random_string
       tbi.settings = s
       assert_raises StandardError do
         tbi.save!
       end
-      TeamBotInstallation.unstub(:upload_smooch_strings_to_transifex)
+      CheckI18n.unstub(:upload_custom_strings_to_transifex)
     end
   end
 

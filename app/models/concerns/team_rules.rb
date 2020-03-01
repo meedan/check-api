@@ -101,18 +101,22 @@ module TeamRules
     end
 
     def send_message_to_user(pm, value)
-      Team.delay_for(1.second).send_message_to_user(pm.id, value)
+      Team.delay_for(1.second).send_message_to_user(self.id, pm.id, value)
     end
   end
 
   module ClassMethods
-    def send_message_to_user(pmid, value)
+    def send_message_to_user(team_id, pmid, value)
+      team = Team.where(id: team_id).last
+      return if team.nil?
       pm = ProjectMedia.where(id: pmid).last
       unless pm.nil?
         pm.get_annotations('smooch').find_each do |annotation|
           data = JSON.parse(annotation.load.get_field_value('smooch_data'))
           Bot::Smooch.get_installation('smooch_app_id', data['app_id']) if Bot::Smooch.config.blank?
-          Bot::Smooch.send_message_to_user(data['authorId'], value)
+          key = 'rule_action_send_message_' + Digest::MD5.hexdigest(value)
+          message = CheckI18n.i18n_t(team, key, value, { locale: data['language'] })
+          Bot::Smooch.send_message_to_user(data['authorId'], message)
         end
       end
     end
@@ -124,7 +128,7 @@ module TeamRules
     include ErrorNotification
 
     validate :rules_follow_schema, :rules_regular_expressions_are_valid
-    after_save :update_rules_index
+    after_save :update_rules_index, :upload_custom_rules_strings_to_transifex
 
     def self.rule_id(rule)
       rule.with_indifferent_access[:name].parameterize.tr('-', '_')
@@ -240,5 +244,20 @@ module TeamRules
         end
       end
     end
+  end
+
+  def upload_custom_rules_strings_to_transifex
+    strings = {}
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        rule['actions'].to_a.each do |action|
+          if action['action_definition'] == 'send_message_to_user'
+            key = Digest::MD5.hexdigest(action['action_value'])
+            strings[key] = action['action_value']
+          end
+        end
+      end
+    end
+    CheckI18n.upload_custom_strings_to_transifex_in_background(self, 'rule_action_send_message', strings) unless strings.blank?
   end
 end
