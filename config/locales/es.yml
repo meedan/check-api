@@ -738,6 +738,8 @@ es:
   team_rule_ban_submitter: Prohibir el remitente (sus mensajes futuros no aparecerán
     en Check)
   team_rule_all_items: Todos los ítems
+  team_rule_send_message_to_user: Enviar mensaje al usuario
+  team_rule_action_value: Escribe mensaje aquí
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
   custom_message_smooch_bot_result_afp-fact-check: ''
@@ -755,7 +757,6 @@ es:
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
   custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''

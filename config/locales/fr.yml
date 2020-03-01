@@ -751,6 +751,8 @@ fr:
   team_rule_ban_submitter: Exclure l'expéditeur (ses futurs messages n'apparaîtront
     plus dans Check)
   team_rule_all_items: Tous les éléments
+  team_rule_send_message_to_user: Envoyed un message à l'utilisateur
+  team_rule_action_value: Taper votre message ici
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
   custom_message_smooch_bot_result_afp-fact-check: ''
@@ -768,7 +770,6 @@ fr:
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
   custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''

@@ -123,7 +123,7 @@ module TeamRules
     include ::TeamRules::Actions
     include ErrorNotification
 
-    validate :rules_follow_schema
+    validate :rules_follow_schema, :rules_regular_expressions_are_valid
     after_save :update_rules_index
 
     def self.rule_id(rule)
@@ -176,18 +176,23 @@ module TeamRules
 
   def apply_rules_and_actions(pm, obj = nil)
     return if pm.skip_rules
-    matched_rules_ids = []
-    self.apply_rules(pm, obj) do |rules_and_actions|
-      rules_and_actions[:actions].each do |action|
-        if ::TeamRules::ACTIONS.include?(action[:action_definition])
-          pm.skip_check_ability = true
-          self.send(action[:action_definition], pm, action[:action_value])
-          pm.skip_check_ability = false
+    begin
+      matched_rules_ids = []
+      self.apply_rules(pm, obj) do |rules_and_actions|
+        rules_and_actions[:actions].each do |action|
+          if ::TeamRules::ACTIONS.include?(action[:action_definition])
+            pm.skip_check_ability = true
+            self.send(action[:action_definition], pm, action[:action_value])
+            pm.skip_check_ability = false
+          end
+          matched_rules_ids << Team.rule_id(rules_and_actions)
         end
-        matched_rules_ids << Team.rule_id(rules_and_actions)
       end
+      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
+    rescue StandardError => e
+      Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
+      Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
     end
-    pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
   end
 
   def rules_changed?
@@ -211,13 +216,29 @@ module TeamRules
   private
 
   def rules_follow_schema
-    errors.add(:settings, 'must follow the schema') if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
+    errors.add(:base, I18n.t(:team_rule_json_schema_validation)) if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
   end
 
   def update_rules_index
     if self.rules_changed?
       Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
       RulesIndexWorker.perform_in(5.seconds, self.id)
+    end
+  end
+
+  def rules_regular_expressions_are_valid
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        rule['rules'].to_a.each do |condition|
+          if condition['rule_definition'] =~ /regexp/
+            begin
+              Regexp.new(condition['rule_value'])
+            rescue RegexpError => e
+              errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+            end
+          end
+        end
+      end
     end
   end
 end

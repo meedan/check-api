@@ -130,6 +130,7 @@ module ProjectMediaCachedFields
 
     cached_field :share_count,
       start_as: 0,
+      update_es: true,
       recalculate: proc { |pm| begin JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']['share_count'] rescue 0 end },
       update_on: [
         {

@@ -731,6 +731,8 @@ pt:
   team_rule_ban_submitter: Banir remetente (as futuras mensagens não aparecerão no
     Check)
   team_rule_all_items: Todos os itens
+  team_rule_send_message_to_user: Enviar mensagem para o usuário
+  team_rule_action_value: Digite mensagem aqui
   relationship_not_same_team: Itens relacionados devem existir na mesma área de trabalho
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
@@ -747,7 +749,6 @@ pt:
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_message_unconfirmed_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
   custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
