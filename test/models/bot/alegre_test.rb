@@ -116,19 +116,23 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm3, r.source
   end
 
-  test "should capture error when calling bot" do
-    Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
-    assert_nothing_raised do
-      Bot::Alegre.run('test')
-    end
-    Bot::Alegre.any_instance.unstub(:get_language)
-  end
-
   test "should capture error when failing to call service" do
-    Bot::Alegre.any_instance.stubs(:request_api).raises(RuntimeError)
-    assert_nothing_raised do
-      Bot::Alegre.request_api('post', '/image/similarity/')
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+      Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
+      assert_nothing_raised do
+        Bot::Alegre.run('test')
+      end
+      Bot::Alegre.any_instance.unstub(:get_language)
+      assert_nothing_raised do
+        assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
+      end
+      Net::HTTP.any_instance.stubs(:request).raises(StandardError)
+      assert_nothing_raised do
+        assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
+      end
+      Net::HTTP.any_instance.unstub(:request)
     end
-    Bot::Alegre.any_instance.unstub(:request_api)
   end
 end
