@@ -16,7 +16,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
         'result': {
           'language': 'en',
           'confidence': 1.0
@@ -31,7 +31,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should return language und if there is an error" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
         'foo': 'bar'
       }.to_json)
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
@@ -50,14 +50,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-      WebMock.stub_request(:post, 'http://alegre/image/similarity').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": []
       }.to_json)
       Bot::Alegre.get_image_similarities(pm1)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": [
           {
             "id": 1,
@@ -83,7 +83,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should return true when bot is called successfully" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
         'result': {
           'language': 'en',
           'confidence': 1.0
@@ -96,24 +96,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should return false when bot cannot be called" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:get, 'http://alegre/text/langid').to_return(body: {
-        'result': {
-          'language': 'en',
-          'confidence': 1.0
-        }
-      }.to_json)
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
       assert !Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'some_other_event' })
       assert !Bot::Alegre.run({ event: 'create_project_media' })
     end
-  end
-
-  test "should capture error when calling bot" do
-    Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
-    assert_nothing_raised do
-      Bot::Alegre.run('test')
+    stub_configs({ 'alegre_host' => '' }) do
+      assert !Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
     end
-    Bot::Alegre.any_instance.unstub(:get_language)
   end
 
   test "should add relationships" do
@@ -126,5 +114,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
+  end
+
+  test "should capture error when calling bot" do
+    Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
+    assert_nothing_raised do
+      Bot::Alegre.run('test')
+    end
+    Bot::Alegre.any_instance.unstub(:get_language)
+  end
+
+  test "should capture error when failing to call service" do
+    Bot::Alegre.any_instance.stubs(:request_api).raises(RuntimeError)
+    assert_nothing_raised do
+      Bot::Alegre.request_api('post', '/image/similarity/')
+    end
+    Bot::Alegre.any_instance.unstub(:request_api)
   end
 end

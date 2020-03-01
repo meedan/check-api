@@ -410,7 +410,7 @@ class Bot::Smooch < BotUser
     pm_id = Rails.cache.read('smooch:response:' + message['message']['_id']).to_i
     pm = ProjectMedia.where(id: pm_id).last
     unless pm.nil?
-      lang = Bot::Alegre.language_object(pm, :value)
+      lang = pm.get_dynamic_annotation('language')&.get_field_value('language')
       lang = 'en' if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
       status = self.get_status_label(pm, pm.last_verification_status, lang)
       fallback = ::Bot::Smooch.i18n_t(:smooch_bot_result, { status: status, url: Bot::Smooch.embed_url(pm), locale: lang })

@@ -32,7 +32,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('get', '/text/langid', { text: text })
+      response = self.request_api('get', '/text/langid/', { text: text })
       lang = response['result']['language']
     rescue
     end
@@ -49,23 +49,6 @@ class Bot::Alegre < BotUser
     annotation.skip_check_ability = true
     annotation.save!
     annotation
-  end
-
-  def self.language_object(pm, attr = nil)
-    field = self.get_dynamic_field_value(pm, 'language', 'language')
-    return nil if field.nil?
-    attr.nil? ? field : field.send(attr)
-  end
-
-  def self.get_dynamic_field_value(pm, annotation_type, field_type)
-    DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => annotation_type, 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: field_type).first
-  end
-
-  def self.get_context(pm)
-    {
-      team_id: pm.team_id,
-      project_media_id: pm.id
-    }
   end
 
   def self.add_relationships(pm, pm_ids)
@@ -100,18 +83,23 @@ class Bot::Alegre < BotUser
     return if pm.report_type != 'uploadedimage'
 
     # Query for similar images.
-    similar = self.request_api('get', '/image/similarity', {
+    similar = self.request_api('get', '/image/similarity/', {
       url: pm.media.file.file.public_url,
-      context: self.get_context(pm),
-      threshold: 1
+      context: {
+        team_id: pm.team_id,
+      },
+      threshold: 5 # TODO This will eventually change to a user-selectable threshold
     })
     pm_ids = similar.dig('result')&.collect{|r| r.dig('context', 'project_media_id')}
     self.add_relationships(pm, pm_ids)
 
     # Add image to similarity database.
-    self.request_api('post', '/image/similarity', {
+    self.request_api('post', '/image/similarity/', {
       url: pm.media.file.file.public_url,
-      context: self.get_context(pm)
+      context: {
+        team_id: pm.team_id,
+        project_media_id: pm.id
+      }
     })
   end
 
