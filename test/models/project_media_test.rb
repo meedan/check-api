@@ -2060,17 +2060,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should localize status" do
+    I18n.locale = :pt
+    pm = create_project_media
+    assert_equal 'Pendente', pm.status_i18n(nil, { locale: 'pt' })
+    create_verification_status_stuff(false)
     t = create_team slug: 'test'
+    value = {
+      label: 'Field label',
+      active: 'test',
+      default: 'undetermined',
+      statuses: [
+        { id: 'undetermined', label: 'Undetermined', completed: '0', description: 'The meaning of this status', style: 'blue' },
+        { id: 'test', label: 'Test', completed: '1', description: 'The meaning of this status', style: 'red' }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
     p = create_project team: t
     pm = create_project_media project: p
-    assert_equal 'Pendente', pm.status_i18n(nil, { locale: 'pt' })
+    assert_equal 'Undetermined', pm.status_i18n(nil, { locale: 'pt' })
     I18n.stubs(:exists?).with('custom_message_status_test_test').returns(true)
     I18n.stubs(:t).returns('')
     I18n.stubs(:t).with(:custom_message_status_test_test, { locale: 'pt' }).returns('Teste')
-    ::Workflow::Workflow.stubs(:options).returns({ statuses: [{ 'label' => 'Test', 'id' => 'test' }]})
     assert_equal 'Teste', pm.status_i18n('test', { locale: 'pt' })
     I18n.unstub(:t)
     I18n.unstub(:exists?)
-    ::Workflow::Workflow.unstub(:options)
+    I18n.locale = :en
   end
 end
