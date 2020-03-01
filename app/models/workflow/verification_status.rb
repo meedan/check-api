@@ -56,11 +56,12 @@ class Workflow::VerificationStatus < Workflow::Base
     def status_i18n(key = nil, options = {})
       key ||= self.last_status
       core_status_ids = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)['MEDIA_CORE_VERIFICATION_STATUSES'].collect{ |st| st[:id] }
-      if core_status_ids.include?(key.to_s) && self.team&.get_media_verification_statuses&.blank?
+      custom_statuses = self.team.settings.to_h.with_indifferent_access['media_verification_statuses'].to_h.with_indifferent_access['statuses'].to_a
+      if core_status_ids.include?(key.to_s) && custom_statuses.blank?
         I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', options)
       else
         fallback = nil
-        ::Workflow::Workflow.options(self, 'verification_status').with_indifferent_access['statuses'].each { |s| fallback = s['label'] if s['id'] == key }
+        custom_statuses.each { |s| fallback = s['label'] if s['id'] == key }
         CheckI18n.i18n_t(self.team, 'status_' + key.to_s, fallback, options)
       end
     end
