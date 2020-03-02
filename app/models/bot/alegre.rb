@@ -79,12 +79,18 @@ class Bot::Alegre < BotUser
     r.save!
   end
 
+  def self.media_file_url(pm)
+    # FIXME Ugly hack to get a usable URL in docker-compose development environment.
+    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}/#{pm.media.file.file.path}"
+  end
+
   def self.get_image_similarities(pm)
     return if pm.report_type != 'uploadedimage'
 
     # Query for similar images.
+    puts(self.media_file_url(pm))
     similar = self.request_api('get', '/image/similarity/', {
-      url: pm.media.file.file.public_url,
+      url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
       },
@@ -95,7 +101,7 @@ class Bot::Alegre < BotUser
 
     # Add image to similarity database.
     self.request_api('post', '/image/similarity/', {
-      url: pm.media.file.file.public_url,
+      url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
         project_media_id: pm.id
