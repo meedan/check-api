@@ -88,7 +88,6 @@ class Bot::Alegre < BotUser
     return if pm.report_type != 'uploadedimage'
 
     # Query for similar images.
-    puts(self.media_file_url(pm))
     similar = self.request_api('get', '/image/similarity/', {
       url: self.media_file_url(pm),
       context: {
