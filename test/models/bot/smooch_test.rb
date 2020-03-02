@@ -190,7 +190,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     assert_difference 'ProjectMedia.count', 6 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
-        assert_difference 'Comment.length', 19 do
+        assert_no_difference 'Comment.length' do
           messages.each do |message|
             uid = message[:authorId]
 
