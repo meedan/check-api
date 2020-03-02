@@ -11,6 +11,7 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :get_source_code_url, types.String
   field :get_role, types.String
   field :identifier, types.String
+  field :login, types.String
   field :dbid, types.Int
   field :installed, types.Boolean
   field :installations_count, types.Int
