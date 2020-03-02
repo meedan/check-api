@@ -1137,12 +1137,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     assert_equal 'stop', pm.last_status
-    assert_equal '<span id="oembed__status">Stopped</span>', pm.last_status_html
+    assert_equal '<span id="oembed__status" class="l">status_stop</span>', pm.last_status_html
     assert_equal '#a00', pm.last_status_color
     s = pm.last_status_obj
     s.status = 'done'
     s.save!
-    assert_equal '<span id="oembed__status">Done!</span>', pm.last_status_html
+    assert_equal '<span id="oembed__status" class="l">status_done</span>', pm.last_status_html
     assert_equal '#fc3', pm.last_status_color
   end
 
@@ -2057,5 +2057,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
     threads.map(&:join)
+  end
+
+  test "should localize status" do
+    I18n.locale = :pt
+    pm = create_project_media
+    assert_equal 'Pendente', pm.status_i18n(nil, { locale: 'pt' })
+    create_verification_status_stuff(false)
+    t = create_team slug: 'test'
+    value = {
+      label: 'Field label',
+      active: 'test',
+      default: 'undetermined',
+      statuses: [
+        { id: 'undetermined', label: 'Undetermined', completed: '0', description: 'The meaning of this status', style: 'blue' },
+        { id: 'test', label: 'Test', completed: '1', description: 'The meaning of this status', style: 'red' }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_equal 'Undetermined', pm.status_i18n(nil, { locale: 'pt' })
+    I18n.stubs(:exists?).with('custom_message_status_test_test').returns(true)
+    I18n.stubs(:t).returns('')
+    I18n.stubs(:t).with(:custom_message_status_test_test, { locale: 'pt' }).returns('Teste')
+    assert_equal 'Teste', pm.status_i18n('test', { locale: 'pt' })
+    I18n.unstub(:t)
+    I18n.unstub(:exists?)
+    I18n.locale = :en
   end
 end
