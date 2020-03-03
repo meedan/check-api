@@ -14,7 +14,6 @@ module CheckNotifications
       end
 
       def send_to_pusher(channels, event, data, actor_session_id)
-        return if Rails.env == 'test'
         ::Pusher.trigger(channels, event, { message: data, actor_session_id: actor_session_id }) unless CONFIG['pusher_key'].blank?
       end
 
