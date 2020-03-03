@@ -143,6 +143,12 @@ module AnnotationBase
     def parsed_fragment
       begin URI.media_fragment(self.fragment) rescue {} end
     end
+
+    def custom_permissions(ability = nil)
+      perms = {}
+      perms["destroy Smooch"] = ability.can?(:destroy, self) if self.annotation_type == 'smooch'
+      perms
+    end
   end
 
   module ClassMethods
