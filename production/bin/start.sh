@@ -24,7 +24,8 @@ cat << EOF >> ${puma}
 pidfile '/app/current/tmp/pids/server-${RAILS_ENV}.pid'
 environment '${RAILS_ENV}'
 port ${SERVER_PORT} 
-workers 3 
+workers 2 
+worker_timeout 120
 EOF
 
-bundle exec puma -C ${puma} -t 8:32
+bundle exec puma -C ${puma} -t 4:32
