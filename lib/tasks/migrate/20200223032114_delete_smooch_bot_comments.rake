@@ -1,8 +1,8 @@
 namespace :check do
   namespace :migrate do
     task delete_smooch_bot_comments: :environment do
-    	smooch_bot = BotUser.where(login: 'smooch').last
-    	index_alias = CheckElasticSearchModel.get_index_alias
+      smooch_bot = BotUser.where(login: 'smooch').last
+      index_alias = CheckElasticSearchModel.get_index_alias
       client = MediaSearch.gateway.client
       Comment.where(annotation_type: 'comment', annotator_type: smooch_bot.class.name, annotator_id: smooch_bot.id)
       .find_in_batches(:batch_size => 5000) do |comments|
@@ -11,19 +11,18 @@ namespace :check do
         comments.each do |c|
           pm_comments[c.annotated_id] = [] if pm_comments[c.annotated_id].nil?
           pm_comments[c.annotated_id] << c.id
-          # delete all versions
           c.annotation_versions.delete_all
         end
         pm_comments.each do |pm, ids|
           print "."
           doc_id = Base64.encode64("ProjectMedia/#{pm}")
-          script = "for (int i = 0; i < ctx._source.comments.size(); i++) { if(params.ids.contains(ctx._source.comments[i].id)){ctx._source.comments.remove(i);}}"      
+          script = "for (int i = 0; i < ctx._source.comments.size(); i++) { if(params.ids.contains(ctx._source.comments[i].id)){ctx._source.comments.remove(i);}}"
           data = { script: { source: script, params: { ids: ids } } }
           es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: data } }
         end
-    		Comment.where(id: comments.map(&:id)).delete_all
-        client.bulk body: es_body unless es_body.blank?  
-    	end
+        Comment.where(id: comments.map(&:id)).delete_all
+        client.bulk body: es_body unless es_body.blank?
+      end
     end
   end
 end
