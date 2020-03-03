@@ -491,6 +491,6 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       I18n.unstub(:t)
     end
   end
- 
+
   # Add tests to test/models/bot/smooch_3_test.rb
 end
