@@ -1918,6 +1918,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [pm2.id, pm.id, pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({projects: [p2.id], sort: 'requests', sort_type: 'asc'}.to_json)
     assert_equal [pm3.id, pm.id, pm2.id], result.medias.map(&:id)
+    # destroy request
+    r = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_equal 3, pm.requests_count
+    r.destroy!
+    assert_equal 2, pm.reload.requests_count
+    result = MediaSearch.find(get_es_id(pm))
+    assert_equal 2, result.requests_count
   end
 
   test "should get team" do
