@@ -4,8 +4,10 @@ namespace :check do
       smooch_bot = BotUser.where(login: 'smooch').last
       index_alias = CheckElasticSearchModel.get_index_alias
       client = MediaSearch.gateway.client
-      Comment.where(annotation_type: 'comment', annotator_type: smooch_bot.class.name, annotator_id: smooch_bot.id)
-      .find_in_batches(:batch_size => 5000) do |comments|
+      Comment.where(annotation_type: 'comment', annotator_type: [smooch_bot.class.name, nil], annotator_id: [smooch_bot.id, nil])
+      .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
+      .where('pm.user_id' => smooch_bot.id)
+      .find_in_batches(:batch_size => 2500) do |comments|
         es_body = []
         pm_comments = {}
         comments.each do |c|
