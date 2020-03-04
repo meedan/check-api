@@ -10,8 +10,6 @@ end
 group :test do
   gem 'parallel_tests'
   gem 'minitest-hooks'
-  gem 'webmock'
-  gem 'mocha'
   gem 'simplecov', '0.13.0'
   gem 'simplecov-console'
   gem 'codeclimate-test-reporter', '1.0.8'
@@ -31,8 +29,11 @@ group :development do
   gem 'htmlentities', require: false
 end
 
-# Use pender from git
+# Pender Client
+gem 'webmock'
+gem 'mocha'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
+
 gem 'lograge'
 gem 'rails', '4.2.11.1'
 gem 'pg', '~> 0.15'
