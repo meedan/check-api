@@ -5,7 +5,7 @@ namespace :check do
       index_alias = CheckElasticSearchModel.get_index_alias
       client = MediaSearch.gateway.client
       Comment.where(annotation_type: 'comment', annotator_type: smooch_bot.class.name, annotator_id: smooch_bot.id)
-      .find_in_batches(:batch_size => 5000) do |comments|
+      .find_in_batches(:batch_size => 2500) do |comments|
         es_body = []
         pm_comments = {}
         comments.each do |c|
