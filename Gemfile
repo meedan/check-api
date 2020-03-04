@@ -4,7 +4,6 @@ group :development, :test do
   gem 'byebug', require: false
   gem 'rubocop', '0.49.0', require: false
   gem 'rails-graphql-generator', require: false
-  gem 'sqlite3', require: false
 end
 
 group :test do
@@ -33,7 +32,7 @@ end
 gem 'webmock'
 gem 'mocha'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
-
+gem 'sqlite3', require: false
 gem 'lograge'
 gem 'rails', '4.2.11.1'
 gem 'pg', '~> 0.15'
