@@ -477,6 +477,8 @@ class GraphqlCrudOperations
 
       field :project, ProjectType
 
+      field :image_data, JsonStringType
+
       instance_eval(&block) if block_given?
     end
   end

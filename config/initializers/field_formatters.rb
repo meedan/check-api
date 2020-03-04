@@ -42,7 +42,7 @@ DynamicAnnotation::Field.class_eval do
     I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 
-  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime'].each do |type|
+  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'image_upload'].each do |type|
     define_method "field_formatter_name_suggestion_#{type}" do
       JSON.parse(self.value)['suggestion']
     end

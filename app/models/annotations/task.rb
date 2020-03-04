@@ -1,6 +1,8 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
 
+  attr_accessor :file
+
   has_annotations
 
   before_validation :set_slug, on: :create
@@ -13,7 +15,7 @@ class Task < ActiveRecord::Base
 
   field :type
   def self.task_types
-    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime']
+    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'image_upload']
   end
   validates :type, included: { values: self.task_types }
 
@@ -186,6 +188,8 @@ class Task < ActiveRecord::Base
     response.disable_es_callbacks = Rails.env.to_s == 'test'
     response.set_fields = params['set_fields']
     response.updated_at = Time.now
+    response.file = [self.file]
+    self.file = nil
     response.save!
     @response = response
     self.record_timestamps = false

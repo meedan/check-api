@@ -285,7 +285,9 @@ module AnnotationBase
   end
 
   def image_data
-    self.file.nil? ? {} : { embed: self.load.embed_path, thumbnail: self.load.thumbnail_path, original: self.load.image_path }
+    a = Annotation.where(id: self.id).last
+    return {} if a.nil?
+    a.file.nil? ? {} : (a.load&.file&.is_a?(Array) ? a.load.file.collect{ |f| f.file.public_url } : { embed: a.load&.embed_path, thumbnail: a.load&.thumbnail_path, original: a.load&.image_path })
   end
 
   def annotator_id_callback(value, _mapping_ids = nil)
