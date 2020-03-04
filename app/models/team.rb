@@ -25,6 +25,7 @@ class Team < ActiveRecord::Base
       Ability.new(User.current, team)
     end
   end
+  after_save :upload_custom_status_strings_to_transifex, if: proc { |t| t.custom_statuses_changed? }
   after_update :archive_or_restore_projects_if_needed
   before_destroy :destroy_versions
   after_destroy :reset_current_team

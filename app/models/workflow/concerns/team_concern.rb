@@ -57,7 +57,7 @@ module Workflow
           changed = false
           ::Workflow::Workflow.workflow_ids.each do |id|
             statuses_were = self.settings_was.to_h.with_indifferent_access["media_#{id.pluralize}"]
-            statuses_are = self.send("get_media_#{id.pluralize}")
+            statuses_are = self.settings.to_h.with_indifferent_access["media_#{id.pluralize}"]
             changed = true if (statuses_were != statuses_are && (!statuses_were.blank? || !statuses_are.blank?))
           end
           changed
