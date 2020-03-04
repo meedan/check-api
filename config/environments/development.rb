@@ -42,9 +42,6 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  # Whitelist docker access
-  config.web_console.whitelisted_ips = '172.0.0.0/8'
-
   # http://guides.rubyonrails.org/caching_with_rails.html#configuration
   # config.cache_store = :memory_store, { size: 64.megabytes }
   file = File.join(Rails.root, 'config', "sidekiq-#{Rails.env}.yml")

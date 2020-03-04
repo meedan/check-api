@@ -53,7 +53,8 @@ module ProjectMediaCachedFields
           if: proc { |d| d.annotation_type == 'smooch' },
           affected_ids: proc { |d| [d.annotated_id] },
           events: {
-            create: proc { |pm, _d| pm.requests_count + 1 }
+            create: proc { |pm, _d| pm.requests_count + 1 },
+            destroy: proc { |pm, _d| pm.requests_count - 1 }
           }
         }
       ]

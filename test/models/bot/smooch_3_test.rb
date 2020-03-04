@@ -272,6 +272,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal 'undetermined', pm.last_verification_status
+    # Get requests data
+    requests =  pm.get_versions_log(['create_dynamicannotationfield'], ['smooch_data'], [], ['smooch'])
+    assert_equal 1, requests.count
   end
 
   test "should bundle messages" do
@@ -326,10 +329,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       end
       pm = ProjectMedia.last
       assert_no_match /#{@media_url}/, pm.text
-      assert_match /#{@media_url_2}/, pm.comments.last.text
       assert_equal 'UploadedImage', pm.media.type
-      assert_match /foo/, pm.comments.last.text
-      assert_match /bar/, pm.comments.last.text
     end
   end
 
@@ -404,7 +404,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       sm.enter_human_mode
       sm = CheckStateMachine.new(uid)
       assert_equal 'human_mode', sm.state.value
-      Bot::Smooch.ban_user({ 'authorId' => uid }) 
+      Bot::Smooch.ban_user({ 'authorId' => uid })
       assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
       a = Dynamic.where(annotation_type: 'smooch_user').last
       assert_not_nil a
@@ -413,7 +413,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
       assert_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
       sm = CheckStateMachine.new(uid)
-      assert_equal 'waiting_for_message', sm.state.value   
+      assert_equal 'waiting_for_message', sm.state.value
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
     end
     Bot::Smooch.stubs(:save_user_information).returns(nil)

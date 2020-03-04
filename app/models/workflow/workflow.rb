@@ -41,7 +41,7 @@ module Workflow
     end
 
     def self.validate_custom_statuses(team_id, statuses, id)
-      keys = statuses[:statuses].collect{|s| s[:id]}
+      keys = statuses[:statuses].collect{ |s| s[:id] }
       project_medias = ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id })
       project_medias.collect{ |pm| s = pm.send("last_#{id}"); { project_media: pm.id, url: pm.full_url, status: s } unless keys.include?(s) }.compact
     end

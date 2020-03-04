@@ -101,18 +101,22 @@ module TeamRules
     end
 
     def send_message_to_user(pm, value)
-      Team.delay_for(1.second).send_message_to_user(pm.id, value)
+      Team.delay_for(1.second).send_message_to_user(self.id, pm.id, value)
     end
   end
 
   module ClassMethods
-    def send_message_to_user(pmid, value)
+    def send_message_to_user(team_id, pmid, value)
+      team = Team.where(id: team_id).last
+      return if team.nil?
       pm = ProjectMedia.where(id: pmid).last
       unless pm.nil?
         pm.get_annotations('smooch').find_each do |annotation|
           data = JSON.parse(annotation.load.get_field_value('smooch_data'))
           Bot::Smooch.get_installation('smooch_app_id', data['app_id']) if Bot::Smooch.config.blank?
-          Bot::Smooch.send_message_to_user(data['authorId'], value)
+          key = 'rule_action_send_message_' + Digest::MD5.hexdigest(value)
+          message = CheckI18n.i18n_t(team, key, value, { locale: data['language'] })
+          Bot::Smooch.send_message_to_user(data['authorId'], message)
         end
       end
     end
@@ -123,8 +127,8 @@ module TeamRules
     include ::TeamRules::Actions
     include ErrorNotification
 
-    validate :rules_follow_schema
-    after_save :update_rules_index
+    validate :rules_follow_schema, :rules_regular_expressions_are_valid
+    after_save :update_rules_index, :upload_custom_rules_strings_to_transifex
 
     def self.rule_id(rule)
       rule.with_indifferent_access[:name].parameterize.tr('-', '_')
@@ -176,18 +180,23 @@ module TeamRules
 
   def apply_rules_and_actions(pm, obj = nil)
     return if pm.skip_rules
-    matched_rules_ids = []
-    self.apply_rules(pm, obj) do |rules_and_actions|
-      rules_and_actions[:actions].each do |action|
-        if ::TeamRules::ACTIONS.include?(action[:action_definition])
-          pm.skip_check_ability = true
-          self.send(action[:action_definition], pm, action[:action_value])
-          pm.skip_check_ability = false
+    begin
+      matched_rules_ids = []
+      self.apply_rules(pm, obj) do |rules_and_actions|
+        rules_and_actions[:actions].each do |action|
+          if ::TeamRules::ACTIONS.include?(action[:action_definition])
+            pm.skip_check_ability = true
+            self.send(action[:action_definition], pm, action[:action_value])
+            pm.skip_check_ability = false
+          end
+          matched_rules_ids << Team.rule_id(rules_and_actions)
         end
-        matched_rules_ids << Team.rule_id(rules_and_actions)
       end
+      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
+    rescue StandardError => e
+      Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
+      Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
     end
-    pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
   end
 
   def rules_changed?
@@ -211,7 +220,7 @@ module TeamRules
   private
 
   def rules_follow_schema
-    errors.add(:settings, 'must follow the schema') if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
+    errors.add(:base, I18n.t(:team_rule_json_schema_validation)) if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
   end
 
   def update_rules_index
@@ -219,5 +228,36 @@ module TeamRules
       Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
       RulesIndexWorker.perform_in(5.seconds, self.id)
     end
+  end
+
+  def rules_regular_expressions_are_valid
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        rule['rules'].to_a.each do |condition|
+          if condition['rule_definition'] =~ /regexp/
+            begin
+              Regexp.new(condition['rule_value'])
+            rescue RegexpError => e
+              errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def upload_custom_rules_strings_to_transifex
+    strings = {}
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        rule['actions'].to_a.each do |action|
+          if action['action_definition'] == 'send_message_to_user'
+            key = Digest::MD5.hexdigest(action['action_value'])
+            strings[key] = action['action_value']
+          end
+        end
+      end
+    end
+    CheckI18n.upload_custom_strings_to_transifex_in_background(self, 'rule_action_send_message', strings) unless strings.blank?
   end
 end

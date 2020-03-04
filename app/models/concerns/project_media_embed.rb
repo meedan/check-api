@@ -196,16 +196,7 @@ module ProjectMediaEmbed
   end
 
   def last_status_html
-    custom_statuses = self.team.get_media_statuses
-    if custom_statuses.nil?
-      "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
-    else
-      label = self.last_status.titleize
-      custom_statuses.with_indifferent_access['statuses'].each do |custom_status|
-        label = custom_status['label'] if custom_status['id'] == self.last_status
-      end
-      "<span id=\"oembed__status\">#{label}</span>".html_safe
-    end
+    "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
   end
 
   def last_status_color
