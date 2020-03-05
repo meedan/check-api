@@ -545,7 +545,7 @@ class Bot::Smooch < BotUser
     SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id)
   end
 
-  def self.save_message(message_json, app_id)
+  def self.save_message(message_json, app_id, author = nil)
     message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
     Team.current = Team.where(id: self.config['team_id']).last
@@ -574,25 +574,27 @@ class Bot::Smooch < BotUser
 
     # Only save the annotation for the same requester once.
     key = 'smooch:request:' + message['authorId'] + ':' + pm.id.to_s
-    if !Rails.cache.read(key)
-      # TODO: fix me by Sawy - should handle User.current value
-      # In this case User.current was reset by SlackNotificationWorker worker
-      # Quik fix - assing it again using pm object and rest it's value at the end of creation
-      current_user = User.current
-      User.current ||= pm.user
-      a = Dynamic.new
-      a.skip_check_ability = true
-      a.skip_notifications = true
-      a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.annotation_type = 'smooch'
-      a.annotated = pm
-      a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
-      a.save!
-      User.current = current_user
-    end
+    self.create_smooch_request(pm, message, app_id, author) if !Rails.cache.read(key)
     Rails.cache.write(key, hash)
 
     self.send_results_if_item_is_finished(pm, message)
+  end
+
+  def self.create_smooch_request(pm, message, app_id, author)
+    # TODO: fix me by Sawy - should handle User.current value
+    # In this case User.current was reset by SlackNotificationWorker worker
+    # Quik fix - assing it again using pm object and rest it's value at the end of creation
+    current_user = User.current
+    User.current = author || pm.user
+    a = Dynamic.new
+    a.skip_check_ability = true
+    a.skip_notifications = true
+    a.disable_es_callbacks = Rails.env.to_s == 'test'
+    a.annotation_type = 'smooch'
+    a.annotated = pm
+    a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
+    a.save!
+    User.current = current_user
   end
 
   def self.send_results_if_item_is_finished(pm, message)
