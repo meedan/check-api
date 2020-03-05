@@ -545,7 +545,7 @@ class Bot::Smooch < BotUser
     SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id)
   end
 
-  def self.save_message(message_json, app_id)
+  def self.save_message(message_json, app_id, author = nil)
     message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
     Team.current = Team.where(id: self.config['team_id']).last
@@ -579,7 +579,7 @@ class Bot::Smooch < BotUser
       # In this case User.current was reset by SlackNotificationWorker worker
       # Quik fix - assing it again using pm object and rest it's value at the end of creation
       current_user = User.current
-      User.current ||= pm.user
+      User.current = author || pm.user
       a = Dynamic.new
       a.skip_check_ability = true
       a.skip_notifications = true
