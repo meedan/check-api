@@ -75,8 +75,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def get_field_value(name)
-    field = self.get_field(name)
-    field.nil? ? nil : field.value
+    self.get_field(name)&.value
   end
 
   def get_elasticsearch_options_dynamic

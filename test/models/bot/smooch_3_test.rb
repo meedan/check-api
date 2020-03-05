@@ -339,7 +339,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     bot = create_alegre_bot
     pm = create_project_media
-    bot.save_language(pm, 'und')
+    Bot::Alegre.save_language(pm, 'und')
     payload = {
       trigger: 'message:appUser',
       app: {

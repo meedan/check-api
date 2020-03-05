@@ -190,9 +190,6 @@ class ProjectMedia < ActiveRecord::Base
     self.project ? "#{self.project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 
-  def update_mt=(_update)
-  end
-
   def get_dynamic_annotation(type)
     Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
   end
