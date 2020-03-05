@@ -5,7 +5,7 @@ namespace :check do
       Dynamic.where(annotation_type: 'smooch', annotator_type: [nil], annotator_id: [nil])
       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
       .where('pm.user_id' => smooch_bot.id)
-      .find_in_batches(:batch_size => 25) do |dynamics|
+      .find_in_batches(:batch_size => 2500) do |dynamics|
         dynamics.each do |d|
         	print "."
           df = DynamicAnnotation::Field.where(annotation_id: d.id,  field_name: "smooch_data").last
