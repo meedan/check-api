@@ -266,7 +266,7 @@ class User < ActiveRecord::Base
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
-    Time.parse(open(CheckConfig.get(mapping[page])).read.gsub(/\R+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+    Time.parse(open(CheckConfig.get(mapping[page])).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
   end
 
   def self.terms_last_updated_at
