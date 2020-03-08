@@ -47,6 +47,25 @@ bn:
 
     এটি নির্ধারণ করতে আমরা যে পদক্ষেপগুলি গ্রহণ করেছি তা এখানে:
     {url}
+  custom_message_status_undetermined_afp-checamos: ''
+  custom_message_status_in_progress_afp-checamos: ''
+  custom_message_status_inconclusive_afp-checamos: ''
+  custom_message_status_false_afp-checamos: ''
+  custom_message_status_verified_afp-checamos: ''
+  custom_message_status_true_afp-checamos: ''
+  custom_message_status_misleading_afp-checamos: ''
+  custom_message_status_satire_afp-checamos: ''
+  custom_message_status_out_of_scope_afp-checamos: ''
+  custom_message_status_report-verdadeiro_afp-checamos: ''
+  custom_message_status_report-satira_afp-checamos: ''
+  custom_message_status_report-falso_afp-checamos: ''
+  custom_message_status_report-enganoso_afp-checamos: ''
+  custom_message_status_warning_afp-checamos: ''
+  custom_message_status_sugestao_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_f0b04e39fe78ea5f5628d0ab4a21ac00_afp-checamos: ''
+  custom_message_rule_action_send_message_c6a992146bb63d9c1fc0e74f05ff6299_afp-checamos: ''
+  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -58,6 +77,9 @@ bn:
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
+  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
+  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: ''
+  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
   custom_message_smooch_bot_result_boom-factcheck: 'আপডেট আমাদের ফ্যাক্ট চেক টিম এই
     বার্তাটি পেয়েছে *%(status)* ফ্যাক্ট চেকটি পড়ুন এবং আপনার বন্ধু ও পরিবারের সঙ্গে
     শেয়ার করুন লিঙ্ক: %(url)'
@@ -84,10 +106,17 @@ bn:
   custom_message_smooch_bot_disabled_boom-factcheck: আমরা আমাদের হোয়াটসঅ্যাপ থেকে
     এখন দুরে আছি। দয়া করে পরে আমোদের আরেকটি বার্তা পাঠান। আমাদের সাইটের অন্যান্য তথ্য
     যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: "যে সফ্টওয়্যারটি এই টিপলাইনটিকে
+    চেক মেসেজ দেয় তাকে এই পরিষেবার শর্তাদি: %{tos}.\n। সরবরাহ করে আপনি যদি রাজি না
+    হন তবে আপনার টিপলাইনটি ব্যবহার বন্ধ করা উচিত \n"
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: আপনার
+    পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
+    পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
+    দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: আপনার
+    বার্তার জন্য ধন্যবাদ। আমরা এখন আপনার বিষয়টি তথ্য যাচাই করছি যা আপনি আমাদের পাঠিয়েছিলেন।
+    আমরা শীঘ্রই একটি বিস্তারিত প্রতিবেদন পাঠাবো। ততক্ষণ আমাদের সাইটের অন্যান্য তথ্য
+    যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
   custom_message_status_inconclusive_check-message-demo: ''
@@ -96,6 +125,19 @@ bn:
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
+  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
+  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 
