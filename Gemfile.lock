@@ -172,13 +172,14 @@ GEM
     bumbler (0.6.0)
     byebug (9.0.6)
     cancancan (1.16.0)
-    capybara (2.18.0)
+    capybara (3.31.0)
       addressable
       mini_mime (>= 0.1.3)
-      nokogiri (>= 1.3.3)
-      rack (>= 1.0.0)
-      rack-test (>= 0.5.4)
-      xpath (>= 2.0, < 4.0)
+      nokogiri (~> 1.8)
+      rack (>= 1.6.0)
+      rack-test (>= 0.6.3)
+      regexp_parser (~> 1.5)
+      xpath (~> 3.2)
     carrierwave (1.3.1)
       activemodel (>= 4.0.0)
       activesupport (>= 4.0.0)
@@ -267,9 +268,9 @@ GEM
     execjs (2.7.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
-    faye-websocket (0.7.5)
+    faye-websocket (0.10.9)
       eventmachine (>= 0.12.0)
-      websocket-driver (>= 0.3.5)
+      websocket-driver (>= 0.5.1)
     ffi (1.9.24)
     file_validators (2.1.0)
       activemodel (>= 3.0)
@@ -418,7 +419,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
     mimemagic (0.3.3)
-    mini_magick (4.3.3)
+    mini_magick (4.9.4)
     mini_mime (1.0.1)
     mini_portile2 (2.4.0)
     minitest (5.13.0)
@@ -498,8 +499,8 @@ GEM
     phony_rails (0.14.5)
       activesupport (>= 3.0)
       phony (~> 2.15)
-    poltergeist (1.12.0)
-      capybara (~> 2.1)
+    poltergeist (1.18.1)
+      capybara (>= 2.1, < 4)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
     powerpack (0.1.1)
@@ -512,8 +513,9 @@ GEM
       multi_json (~> 1.0)
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
-    rack (1.6.12)
-    rack-cors (0.4.1)
+    rack (1.6.13)
+    rack-cors (1.0.6)
+      rack (>= 1.6.0)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
       rack (>= 1.1)
@@ -594,6 +596,7 @@ GEM
     redis-store (1.6.0)
       redis (>= 2.2, < 5)
     ref (2.0.0)
+    regexp_parser (1.7.0)
     remotipart (1.3.1)
     representable (3.0.4)
       declarative (< 0.1.0)
@@ -756,14 +759,14 @@ GEM
       crack (>= 0.3.2)
       hashdiff
     webrobots (0.1.2)
-    webshot (0.1.0)
+    webshot (0.1.1)
       activesupport
-      faye-websocket (~> 0.7.3)
-      mini_magick (~> 4.3.3)
-      poltergeist (~> 1.12.0)
-    websocket-driver (0.7.0)
+      faye-websocket (>= 0.7.3, <= 0.10.9)
+      mini_magick (~> 4.3)
+      poltergeist (>= 1.12.0, <= 1.18.1)
+    websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.3)
+    websocket-extensions (0.1.4)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     ya2yaml (0.31)
@@ -829,7 +832,7 @@ DEPENDENCIES
   lograge
   loofah (= 2.3.1)
   mimemagic (~> 0.3.3)
-  mini_magick (= 4.3.3)
+  mini_magick (= 4.9.4)
   minitest-hooks
   minitest-retry
   mocha
@@ -852,7 +855,7 @@ DEPENDENCIES
   puma
   pusher
   rack (>= 1.6.11)
-  rack-cors
+  rack-cors (= 1.0.6)
   rack-protection (= 1.5.5)
   railroady
   rails (= 4.2.11.1)
@@ -895,7 +898,7 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   useragent (~> 0.16.10)
   webmock
-  webshot (= 0.1.0)
+  webshot (= 0.1.1)
 
 BUNDLED WITH
    1.17.3
