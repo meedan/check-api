@@ -338,19 +338,26 @@ RailsAdmin.config do |config|
       configure :projects do
         visible_only_for_admin
       end
-      configure :accounts do
-        visible_only_for_admin
-      end
-      configure :team_users do
-        visible_only_for_admin
-      end
       configure :users do
         visible_only_for_admin
       end
-      configure :sources do
-        visible_only_for_admin
-      end
       configure :settings do
+        hide
+      end
+      configure :accounts do
+        eager_load false
+        hide
+      end
+      configure :team_users do
+        eager_load false
+        hide
+      end
+      configure :sources do
+        eager_load false
+        hide
+      end
+      configure :project_medias do
+        eager_load false
         hide
       end
     end
