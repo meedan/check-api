@@ -29,11 +29,21 @@ namespace :check do
         Comment.where(id: comments.map(&:id)).delete_all
       end
       # Change annotator from Alegre to Smooch for smooch data annotations
-      ProjectMedia.where(user_id: smooch_bot.id).find_in_batches(:batch_size => 2500) do |pms|
-        pms.each do |pm|
+      Team.find_each do |t|
+        ProjectMedia.where(user_id: smooch_bot.id)
+        .joins("INNER JOIN projects p ON p.id = project_medias.project_id")
+        .joins("INNER JOIN teams t ON t.id = p.team_id AND t.id = #{t.id}")
+        .find_in_batches(:batch_size => 2500) do |pms|
           print "."
-          logs = pm.get_versions_log(['create_dynamicannotationfield'], ['smooch_data'], [], [alegre_bot.login])
-          logs.update_all(whodunnit: smooch_bot.id)
+          Version.from_partition(t.id)
+          .where(
+            associated_type: 'ProjectMedia',
+            associated_id: pms.map(&:id),
+            event_type: 'create_dynamicannotationfield',
+            whodunnit: alegre_bot.id
+            )
+          .where('version_field_name(event_type, object_after) IN (?)', ['smooch_data'].concat(['']))
+          .update_all(whodunnit: smooch_bot.id)
         end
       end
     end
