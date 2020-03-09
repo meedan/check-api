@@ -2160,4 +2160,11 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p1.id).project_media_projects.count
     Team.any_instance.unstub(:apply_rules)
   end
+
+  test "should not crash if text for keyword rule is nil" do
+    t = create_team
+    assert_nothing_raised do
+      assert !t.text_contains_keyword(nil, 'foo,bar')
+    end
+  end
 end
