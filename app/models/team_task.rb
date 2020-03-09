@@ -126,7 +126,7 @@ class TeamTask < ActiveRecord::Base
   def handle_added_projects(projects)
     excluded_ids = []
     if self.required?
-      # Get items in termainl status
+      # Get items with terminal status
       team_statuses = team.final_media_statuses.map(&:to_yaml)
       excluded_ids =
       ProjectMedia.where(project: projects)

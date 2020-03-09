@@ -328,4 +328,14 @@ class TeamTaskTest < ActiveSupport::TestCase
     end
     Team.unstub(:current)
   end
+
+  test "should notify error when handling team tasks" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tt = create_team_task team_id: t.id, project_ids: [p.id]
+    ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    tt.send(:handle_added_projects, [p])
+    ProjectMedia.any_instance.unstub(:create_auto_tasks)
+  end
 end
