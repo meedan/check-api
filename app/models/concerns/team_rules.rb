@@ -30,7 +30,7 @@ module TeamRules
     end
 
     def text_contains_keyword(text, value)
-      words = text.scan(/\w+/).to_a.map(&:downcase)
+      words = text.to_s.scan(/\w+/).to_a.map(&:downcase)
       keywords = value.to_s.split(',').map(&:strip).map(&:downcase)
       !(words & keywords).empty?
     end
