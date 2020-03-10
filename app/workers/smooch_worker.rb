@@ -9,7 +9,7 @@ class SmoochWorker
   def perform(json_message, type, app_id)
     User.current = BotUser.where(login: 'smooch').last
     benchmark.send("smooch_save_#{type}_message") do
-      Bot::Smooch.save_message(json_message, app_id)
+      Bot::Smooch.save_message(json_message, app_id, User.current)
     end
     benchmark.finish
     User.current = nil

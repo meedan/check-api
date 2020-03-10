@@ -439,10 +439,14 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should get language" do
     Bot::Smooch.unstub(:get_language)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      AlegreClient::Mock.mock_languages_identification_returns_text_language do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
-        assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' })
-      end
+      WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
+        'result': {
+          'language': 'en',
+          'confidence': 1.0
+        }
+      }.to_json)
+      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+      assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' })
     end
   end
 

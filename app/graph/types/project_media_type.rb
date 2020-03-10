@@ -215,7 +215,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      Bot::Alegre.default.language_object(project_media, :to_s)
+      project_media.get_dynamic_annotation('language')&.get_field('language')&.send(:to_s)
     }
   end
 
@@ -223,7 +223,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type types.String
 
     resolve ->(project_media, _args, _ctx) {
-      Bot::Alegre.default.language_object(project_media, :value)
+      project_media.get_dynamic_annotation('language')&.get_field_value('language')
     }
   end
 

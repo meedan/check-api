@@ -3,42 +3,43 @@ class Bot::Alegre < BotUser
   check_settings
 
   def self.run(body)
+    if CONFIG['alegre_host'].blank?
+      Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
+      return false
+    end
+
     handled = false
     begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
-        Bot::Alegre.default.get_language(pm)
-        Bot::Alegre.default.get_image_similarities(pm)
+        self.get_language(pm)
+        self.get_image_similarities(pm)
         handled = true
       end
     rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Exception for event #{body['event']}: #{e.message}")
+      Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
     end
     handled
   end
 
-  def self.default
-    Bot::Alegre.new
-  end
-
-  def get_language(pm)
-    lang = pm.text.blank? || CONFIG['alegre_host'].blank? ? 'und' : self.get_language_from_alegre(pm.text)
+  def self.get_language(pm)
+    lang = pm.text.blank? ? 'und' : self.get_language_from_alegre(pm.text)
     self.save_language(pm, lang)
     lang
   end
 
-  def get_language_from_alegre(text)
+  def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = AlegreClient::Request.get_languages_identification(CONFIG['alegre_host'], { text: text }, CONFIG['alegre_token'])
-      lang = response['data'][0][0].split(',').first.downcase if response['type'] == 'language'
+      response = self.request_api('get', '/text/langid/', { text: text })
+      lang = response['result']['language']
     rescue
     end
     lang
   end
 
-  def save_language(pm, lang)
+  def self.save_language(pm, lang)
     annotation = Dynamic.new
     annotation.annotated = pm
     annotation.annotator = BotUser.where(login: 'alegre').first
@@ -50,25 +51,7 @@ class Bot::Alegre < BotUser
     annotation
   end
 
-  def language_object(pm, attr = nil)
-    field = self.get_dynamic_field_value(pm, 'language', 'language')
-    return nil if field.nil?
-    attr.nil? ? field : field.send(attr)
-  end
-
-  def get_dynamic_field_value(pm, annotation_type, field_type)
-    DynamicAnnotation::Field.joins(:annotation).where('annotations.annotation_type' => annotation_type, 'annotations.annotated_type' => pm.class.name, 'annotations.annotated_id' => pm.id.to_s, field_type: field_type).first
-  end
-
-  def get_context(pm)
-    {
-      team_id: pm.team_id,
-      project_id: pm.project_id,
-      project_media_id: pm.id
-    }
-  end
-
-  def add_relationships(pm, pm_ids)
+  def self.add_relationships(pm, pm_ids)
     return if pm_ids.blank? || pm_ids.include?(pm.id)
 
     # Take first match as being the best potential parent.
@@ -96,32 +79,50 @@ class Bot::Alegre < BotUser
     r.save!
   end
 
-  def get_image_similarities(pm)
-    return if pm.report_type != 'uploadedimage' or CONFIG['vframe_host'].blank?
-
-    require 'net/http/post/multipart'
-
-    # Send image to VFRAME to get matches.
-    url = URI.parse(CONFIG['vframe_host'] + '/api/v1/match')
-    response = { 'results' => [] }
-    context = self.get_context(pm).to_json
-    Net::HTTP.start(url.host, url.port, :use_ssl => url.scheme == 'https') do |http|
-      req = Net::HTTP::Post::Multipart.new(url, {
-        'url' => pm.media.file.file.public_url,
-        'context' => context,
-        'filter' => { project_id: pm.project.id }.to_json,
-        'threshold' => 1,
-        'limit' => 1
-      })
-
-      begin
-        response = JSON.parse(http.request(req).body)
-      rescue StandardError => e
-        Rails.logger.error("[Alegre Bot] Bad response from VFRAME: #{e.message}")
-        self.class.notify_error(e, { bot_id: self.id, vframe_url: url, context: context }, RequestStore[:request] )
-      end
-    end
-    pm_ids = response.dig('results')&.collect{|r| r.dig('context', 'project_media_id')}
-    self.add_relationships(pm, pm_ids)
+  def self.media_file_url(pm)
+    # FIXME Ugly hack to get a usable URL in docker-compose development environment.
+    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}/#{pm.media.file.file.path}"
   end
+
+  def self.get_image_similarities(pm)
+    return if pm.report_type != 'uploadedimage'
+
+    # Query for similar images.
+    similar = self.request_api('get', '/image/similarity/', {
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+      },
+      threshold: 5 # TODO This will eventually change to a user-selectable threshold
+    })
+    pm_ids = similar.dig('result')&.collect{|r| r.dig('context', 'project_media_id')}
+    self.add_relationships(pm, pm_ids)
+
+    # Add image to similarity database.
+    self.request_api('post', '/image/similarity/', {
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+        project_media_id: pm.id
+      }
+    })
+  end
+
+  def self.request_api(method, path, params = {})
+    uri = URI(CONFIG['alegre_host'] + path)
+    klass = 'Net::HTTP::' + method.capitalize
+    request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
+    request.body = params.to_json
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    begin
+      response = http.request(request)
+      JSON.parse(response.body)
+    rescue StandardError => e
+      Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
+      self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
+      { 'type' => 'error', 'data' => { 'message' => e.message } }
+    end
+  end
+
 end
