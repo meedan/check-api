@@ -89,7 +89,7 @@ module AnnotationBase
 
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' && a.annotated_type == 'Source' }
 
-    validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }
+    validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }, if: proc { |_a| !User.current.nil? && User.current.type != 'BotUser' }
 
     def annotations
       Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Flag', 'Tag', 'Comment'], annotated_id: self.id)

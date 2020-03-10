@@ -208,18 +208,6 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal pm.id, v.associated_id
   end
 
-  test "should not add note do archived item" do
-    pm = create_project_media archived: false
-    assert_nothing_raised do
-      create_comment annotated: pm
-    end
-    pm.archived = true
-    pm.save!
-    assert_raises ActiveRecord::RecordInvalid do
-      create_comment annotated: pm
-    end
-  end
-
   test "should reset archive response" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     l = create_link

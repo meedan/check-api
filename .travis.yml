@@ -5,8 +5,8 @@ services:
 before_install:
 - export APP=check
 - export RECORD_RUNTIME=true
-- export PATH=/tmp/bundler/ruby/2.3.0/bin:$PATH
-- export GEM_PATH=/tmp/bundler/ruby/2.3.0/gems:$GEM_PATH
+- export PATH=/tmp/bundler/ruby/2.4.0/bin:$PATH
+- export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get update
@@ -51,7 +51,7 @@ after_script:
 - echo 'Combining and uploading coverage...' && cd test && ./sum-upload-coverage.sh && cd -
 - echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
 rvm:
-- 2.3.8
+- 2.4
 jobs:
   include:
     - stage: test

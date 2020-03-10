@@ -2094,4 +2094,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     I18n.unstub(:exists?)
     I18n.locale = :en
   end
+
+  test "should not throw exception for trashed item if request does not come from a client" do
+    pm = create_project_media project: p
+    pm.archived = true
+    pm.save!
+    User.current = nil
+    assert_nothing_raised do
+      create_comment annotated: pm
+    end
+    u = create_user(is_admin: true)
+    User.current = u
+    assert_raises ActiveRecord::RecordInvalid do
+      create_comment annotated: pm
+    end
+    User.current = nil
+  end
 end
