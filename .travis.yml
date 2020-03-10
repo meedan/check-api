@@ -10,7 +10,7 @@ before_install:
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get update
-- sudo apt-get install -y wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer 
+- sudo apt-get install -y wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer golang-go golang-glide
 - mkdir -p /tmp/downloads &&
   cd /tmp/downloads &&
   (ls elasticsearch-6.3.1.deb || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb) &&
@@ -45,8 +45,10 @@ before_script:
 - sleep 10
 - touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
-- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > test/cc-test-reporter
-- chmod +x ./test/cc-test-reporter
+- printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
+- export GOPATH=/tmp/go
+- mkdir -p /tmp/go/src/github.com/codeclimate
+- git clone https://github.com/meedan/test-reporter /tmp/go/src/github.com/codeclimate/test-reporter
 after_script:
 - echo 'Combining and uploading coverage...' && cd test && ./sum-upload-coverage.sh && cd -
 - echo 'Parallel tests runtime log' && cat tmp/parallel_runtime_test.log
