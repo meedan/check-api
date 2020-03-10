@@ -102,6 +102,16 @@ hi:
     इस सेवा का इस्तेमाल आप सूचनाओं/समाचार की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. 
 
     यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
+  custom_message_status_undetermined_afp-fact-check: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_afp-fact-check: 'काम जारी है '
+  custom_message_status_inconclusive_afp-fact-check: 'दायरे से बाहर '
+  custom_message_status_false_afp-fact-check: 'ग़लत '
+  custom_message_status_verified_afp-fact-check: 'सही '
+  custom_message_status_misleading_afp-fact-check: 'भ्रामक '
+  custom_message_status_report-misleading_afp-fact-check: रिपोर्ट भ्रामक
+  custom_message_status_report-correct_afp-fact-check: रिपोर्ट सही
+  custom_message_status_report-false_afp-fact-check: रिपोर्ट ग़लत
+  custom_message_status_need-orientation_afp-fact-check: एएफपी फैक्ट चेक क्या है?
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: |-
     एएफपी फैक्ट-चेक के बारे में पूछताछ के लिए धन्यवाद। हमारे पत्रकारों की टीम डिजिटल वेरिफिकेशन टूल्स और पारंपरिक रिपोर्टिंग का बेहतर उपयोग कर इंटरनेट पर फैलाई जा रहीं भ्रामक और झूठी ख़बरों (फेक न्यूज़) की जांच करती है। जैसे कई बार सोशल मीडिया में एडिटेड फोटो, वीडियो और झूठे दावों को तथ्य के बतौर शेयर किया जाता है। स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं।
 
@@ -150,6 +160,19 @@ hi:
 
     यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
 
+  custom_message_status_verified_boom-factcheck: 'सही '
+  custom_message_status_false_boom-factcheck: 'ग़लत '
+  custom_message_status_not_applicable_boom-factcheck: 'अनिर्णायक '
+  custom_message_status_misleading_boom-factcheck: 'भ्रामक '
+  custom_message_status_partly-true_boom-factcheck: 'कुछ हद तक सही '
+  custom_message_status_undetermined_boom-factcheck: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_boom-factcheck: 'काम जारी है '
+  custom_message_status_out_of_scope_boom-factcheck: 'दायरे से बाहर '
+  custom_message_status_in_the_news_boom-factcheck: 'ख़बरों में '
+  custom_message_status_junk_boom-factcheck: 'स्वीकार नहीं '
+  custom_message_status_report-true_boom-factcheck: 'रिपोर्ट सही '
+  custom_message_status_report-false_boom-factcheck: 'रिपोर्ट ग़लत '
+  custom_message_status_report-misleading_boom-factcheck: 'रिपोर्ट भ्रामक '
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
     आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
     भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
@@ -271,6 +294,19 @@ hi:
     को स्वीकार करते हैं*. यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे.
     यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं. हमारे ताज़ा
     फैक्ट चेक आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html
+  custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_india-today: 'काम जारी है '
+  custom_message_status_inconclusive_india-today: 'हम अफवाह की जांच नहीं करते '
+  custom_message_status_false_india-today: 'ग़लत '
+  custom_message_status_verified_india-today: 'सही '
+  custom_message_status_half_true_india-today: 'आधा सच '
+  custom_message_status_misleading_india-today: 'हैडलाइन नहीं है '
+  custom_message_status_report-false_india-today: 'रिपोर्ट: ग़लत '
+  custom_message_status_report-true_india-today: 'रिपोर्ट: सही '
+  custom_message_status_report_misleading_india-today: 'रिपोर्ट: हैडलाइन नहीं है '
+  custom_message_status_report-inconclusive_india-today: 'रिपोर्ट: जांच नहीं की जा
+    सकती '
+  custom_message_status_report_half_true_india-today: 'रिपोर्ट: आधा सच '
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
