@@ -723,16 +723,16 @@ en:
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
-  custom_message_status_false_afp-checamos: Falso
-  custom_message_status_verified_afp-checamos: Checamos
-  custom_message_status_true_afp-checamos: Verdadeiro
-  custom_message_status_misleading_afp-checamos: Enganoso
-  custom_message_status_satire_afp-checamos: Sátira
-  custom_message_status_out_of_scope_afp-checamos: Fora do Escopo
-  custom_message_status_report-verdadeiro_afp-checamos: 'Report: Verdadeiro'
-  custom_message_status_report-satira_afp-checamos: 'Report: Sátira'
-  custom_message_status_report-falso_afp-checamos: 'Report: Falso'
-  custom_message_status_report-enganoso_afp-checamos: 'Report: Enganoso'
+  custom_message_status_false_afp-checamos: In progress - Falso
+  custom_message_status_verified_afp-checamos: In progress - Checamos
+  custom_message_status_true_afp-checamos: In progress - Verdadeiro
+  custom_message_status_misleading_afp-checamos: In progress - Enganoso
+  custom_message_status_satire_afp-checamos: In progress - Sátira
+  custom_message_status_out_of_scope_afp-checamos: In progress - Fora do Escopo
+  custom_message_status_report-verdadeiro_afp-checamos: Verdadeiro
+  custom_message_status_report-satira_afp-checamos: Sátira
+  custom_message_status_report-falso_afp-checamos: Falso
+  custom_message_status_report-enganoso_afp-checamos: Enganoso
   custom_message_status_warning_afp-checamos: Serviço gratuito
   custom_message_status_sugestao_afp-checamos: Sugestão
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: Olá,
@@ -797,6 +797,16 @@ en:
     The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
 
     By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
+  custom_message_status_undetermined_afp-fact-check: Unstarted
+  custom_message_status_in_progress_afp-fact-check: In progress
+  custom_message_status_inconclusive_afp-fact-check: Out of scope
+  custom_message_status_false_afp-fact-check: 'False'
+  custom_message_status_verified_afp-fact-check: Correct
+  custom_message_status_misleading_afp-fact-check: Misleading
+  custom_message_status_report-misleading_afp-fact-check: 'Report: Misleading'
+  custom_message_status_report-correct_afp-fact-check: 'Report: Correct'
+  custom_message_status_report-false_afp-fact-check: 'Report: False'
+  custom_message_status_need-orientation_afp-fact-check: What is AFP Fact Check?
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: Thanks
     for inquiring about AFP Fact Check. Our team of journalists use digital verification
     tools and traditional reporting skills to debunk misleading content or fake messages
@@ -851,6 +861,19 @@ en:
 
     By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
 
+  custom_message_status_verified_boom-factcheck: 'True'
+  custom_message_status_false_boom-factcheck: 'False'
+  custom_message_status_not_applicable_boom-factcheck: Inconclusive
+  custom_message_status_misleading_boom-factcheck: Misleading
+  custom_message_status_partly-true_boom-factcheck: Partly True
+  custom_message_status_undetermined_boom-factcheck: Unstarted
+  custom_message_status_in_progress_boom-factcheck: In progress
+  custom_message_status_out_of_scope_boom-factcheck: Out of scope
+  custom_message_status_in_the_news_boom-factcheck: In the news
+  custom_message_status_junk_boom-factcheck: Junk
+  custom_message_status_report-true_boom-factcheck: 'Report: True'
+  custom_message_status_report-false_boom-factcheck: 'Report: False'
+  custom_message_status_report-misleading_boom-factcheck: 'Report: Misleading'
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: 'The
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
@@ -990,6 +1013,18 @@ en:
     By continuing to use this service, you agree to be bound by these terms. You should discontinue your use of the tipline if you do not agree.
 
     You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
+  custom_message_status_undetermined_india-today: Unstarted
+  custom_message_status_in_progress_india-today: In progress
+  custom_message_status_inconclusive_india-today: We don't Fact Check rumours
+  custom_message_status_false_india-today: 'False'
+  custom_message_status_verified_india-today: 'True'
+  custom_message_status_half_true_india-today: Half True
+  custom_message_status_misleading_india-today: Misleading Headline
+  custom_message_status_report-false_india-today: 'Report: False'
+  custom_message_status_report-true_india-today: 'Report: True'
+  custom_message_status_report_misleading_india-today: 'Report: Misleading headline'
+  custom_message_status_report-inconclusive_india-today: 'Report: Can''t be verified'
+  custom_message_status_report_half_true_india-today: 'Report: Half true'
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
     y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
   custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue
