@@ -25,6 +25,10 @@ class ProjectSource < ActiveRecord::Base
     self.project.team_id
   end
 
+  def team
+    self.project.team
+  end
+
   def collaborators
     self.annotators
   end
