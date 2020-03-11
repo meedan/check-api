@@ -42,6 +42,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     s = create_project_source project: p
+    assert_equal t, s.team
     assert_equal [t.id], s.get_team
     s.project = nil
     assert_equal [], s.get_team

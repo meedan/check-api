@@ -2110,4 +2110,44 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     User.current = nil
   end
+
+  test "should set initial custom status of orphan item" do
+    create_verification_status_stuff(false)
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      active: 'done',
+      statuses: [
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.send :set_media_verification_statuses, value
+    t.save!
+    pm = create_project_media project: nil, team: t
+    assert_equal 'stop', pm.last_status
+  end
+
+  test "should change custom status of orphan item" do
+    create_verification_status_stuff(false)
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      active: 'done',
+      statuses: [
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.send :set_media_verification_statuses, value
+    t.save!
+    pm = create_project_media project: nil, team: t
+    assert_nothing_raised do
+      s = pm.last_status_obj
+      s.status = 'done'
+      s.save!
+    end
+  end
 end
