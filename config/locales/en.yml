@@ -728,27 +728,33 @@ en:
   custom_message_status_true_afp-checamos: In progress - Verdadeiro
   custom_message_status_misleading_afp-checamos: In progress - Enganoso
   custom_message_status_satire_afp-checamos: In progress - Sátira
-  custom_message_status_out_of_scope_afp-checamos: In progress - Fora do Escopo
+  custom_message_status_out_of_scope_afp-checamos: Fora do Escopo
   custom_message_status_report-verdadeiro_afp-checamos: Verdadeiro
   custom_message_status_report-satira_afp-checamos: Sátira
   custom_message_status_report-falso_afp-checamos: Falso
   custom_message_status_report-enganoso_afp-checamos: Enganoso
   custom_message_status_warning_afp-checamos: Serviço gratuito
   custom_message_status_sugestao_afp-checamos: Sugestão
+  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: 'Olá,
+    agradecemos o contato e a sugestão.  Nossa equipe tem trabalhado diariamente para
+    verificar boatos relacionados ao novo coronavírus. Você pode conferir tudo que
+    já checamos no link a seguir: http://u.afp.com/CompiladoCoronavirus Caso o conteúdo
+    que você nos enviou seja verificado, você receberá a conclusão via WhatsApp e
+    o artigo será publicado em nosso site: https://checamos.afp.com/'
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: Olá,
     infelizmente o conteúdo que você compartilhou conosco está fora do nosso escopo
     de checagem. Esperamos poder ajudá-lo em outra oportunidade.   O AFP Checamos
     verifica informações, fotos e vídeos amplamente compartilhados em redes sociais,
     sobre temas como Política, Cultura, Meio Ambiente, Saúde e Economia.
-  custom_message_rule_action_send_message_f0b04e39fe78ea5f5628d0ab4a21ac00_afp-checamos: "\U0001F50DOlá,
-    agradecemos o contato e a sugestão. Nossa equipe irá analisar o conteúdo e, caso
-    seja feita uma checagem, você receberá a conclusão via WhatsApp. O artigo também
-    será publicado em nosso site: https://checamos.afp.com/"
-  custom_message_rule_action_send_message_c6a992146bb63d9c1fc0e74f05ff6299_afp-checamos: 'A
+  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: "\U0001F50D
+    Olá, agradecemos o contato e a sugestão.   Nossa equipe irá analisar o conteúdo
+    e, caso seja feita uma checagem, você receberá a conclusão via WhatsApp.  O artigo
+    também será publicado em nosso site: https://checamos.afp.com/\""
+  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: 'A
     France-Presse (AFP) é uma agência internacional de notícias fundada na França
-    há mais de 180 anos. Em 2017, foi criado o serviço de verificação de informações,
-    hoje disponível em vários idiomas, entre eles, português, espanhol, inglês e francês.
-    Gostaria de saber mais sobre o nosso trabalho? Basta clicar neste link: https://checamos.afp.com/sobre-nos'
+    há mais de 180 anos.   Em 2017, foi criado o serviço de verificação de informações,
+    hoje disponível em vários idiomas, entre eles, português, espanhol, inglês e francês.  Gostaria
+    de saber mais sobre o nosso trabalho? Basta clicar neste link: https://checamos.afp.com/sobre-nos'
   custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: 'O
     serviço de checagem da AFP é gratuito e você pode enviar solicitações de verificação
     para este número. Caso a sugestão esteja dentro de nosso escopo, ela será analisada
@@ -882,6 +888,9 @@ en:
     for your message! We''re currently fact checking what you sent us and we''ll share
     a detailed report soon.   Take a look at the other fact checks on our site in
     the meantime, and share with your friends and family: boomlive.in'
+  custom_message_rule_action_send_message_d79b014e6dbf4b831a05aea5809ceb41_boom-factcheck: Thank
+    you for your message. Here's a relevant news link on this developing story.  Also,
+    take a look at some of the other fact-checks we've published.
   custom_message_status_undetermined_check-message-demo: Unstarted
   custom_message_status_in_progress_check-message-demo: In Progress
   custom_message_status_inconclusive_check-message-demo: Needs onboarding
@@ -890,11 +899,6 @@ en:
   custom_message_status_not_applicable_check-message-demo: Out of scope
   custom_message_status_report-true_check-message-demo: 'Report: Correct'
   custom_message_status_report-false_check-message-demo: 'Report: False'
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: We
-    started to look at your request! Stay tuned!
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: 'Thank
-    you! We could not fact-check this item. Here is a guide to submit content that
-    we can work with. '
   custom_message_smooch_bot_result_check-message-demo: |
     [Verification Report]
 
@@ -939,6 +943,11 @@ en:
     Check Message is provided to you under these Terms of Service: %{tos}. By continuing
     to use this service, *you agree to be bound by these terms*. You should discontinue
     your use of Check Message if you do not agree.'
+  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: We
+    started to look at your request! Stay tuned!
+  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: 'Thank
+    you! We could not fact-check this item. Here is a guide to submit content that
+    we can work with. '
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -969,50 +978,6 @@ en:
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
   custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
-  custom_message_smooch_bot_result_india-today: |
-    Congrats, here is the India Today Fact Check report you wanted. %{status}
-
-    Here are the steps we took to determine this: %{url}
-
-    Thanks again for reaching out to us. Help us fight the fake by sharing it.
-  custom_message_smooch_bot_result_changed_india-today: |+
-    Oops! The message you shared with us has changed from %{previous_status} to %{status}.
-
-    Here are the steps we took to determine this: %{url}
-
-  custom_message_smooch_bot_ask_for_confirmation_india-today: "Thank you for reaching
-    out to India Today Fact Check. \n\nIs this a request to verify the content of
-    the message you’ve sent?  \n\nPlease press 1 to Confirm. "
-  custom_message_smooch_bot_message_confirmed_india-today: "Thanks. Your request is
-    being forwarded to the Fact Check team.\n\nIf we publish a story about your message,
-    you will receive a report and it will appear within 48 hours at https://aajtak.intoday.in/fact-check.html
-    \ \n\nPlease note it’s not possible to check every message. \nBut you can check
-    out our latest fact check stories at https://www.indiatoday.in/fact-check"
-  custom_message_smooch_bot_message_type_unsupported_india-today: "Oh ! Sorry, we
-    can't process the requests in this format. \n\nCan you please send it in a different
-    format? \n"
-  custom_message_smooch_bot_message_unconfirmed_india-today: "Sorry, this WhatsApp
-    is only for ‘India Today Fact Check’ requests. Have a great time. Bye. \n\nWant
-    the trending fact check stories in Hindi? Go to: https://aajtak.intoday.in/fact-check.html "
-  custom_message_smooch_bot_not_final_india-today: |+
-    Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as %{status}.
-
-    We’re still working on your request. Wait for the final report.
-
-  custom_message_smooch_bot_meme_india-today: "Hey, how do you like this ? \n\nA meme,
-    based on your verification request. \n"
-  custom_message_smooch_bot_window_closing_india-today: "Thanks for reaching out to
-    India Today Fact Check. But sorry, we’re not able to respond back currently. \n\nBut
-    you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html"
-  custom_message_smooch_bot_disabled_india-today: "Thanks for reaching out to India
-    Today Fact Check.\n\nBut sorry, we’re not able to respond back currently. \n\nBut
-    you can check latest fact check stories here: https://www.indiatoday.in/fact-check"
-  custom_message_smooch_bot_ask_for_tos_india-today: |-
-    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
-
-    By continuing to use this service, you agree to be bound by these terms. You should discontinue your use of the tipline if you do not agree.
-
-    You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
   custom_message_status_undetermined_india-today: Unstarted
   custom_message_status_in_progress_india-today: In progress
   custom_message_status_inconclusive_india-today: We don't Fact Check rumours
@@ -1025,6 +990,60 @@ en:
   custom_message_status_report_misleading_india-today: 'Report: Misleading headline'
   custom_message_status_report-inconclusive_india-today: 'Report: Can''t be verified'
   custom_message_status_report_half_true_india-today: 'Report: Half true'
+  custom_message_smooch_bot_result_india-today: "Congrats! Here’s the Fact Check you
+    asked for. *%{status}*\n\nHere are the steps we took to determine this: %{url}\n
+    \nThanks again! Keep the fight against fake news going and share this fact-check
+    story with your friends."
+  custom_message_smooch_bot_result_changed_india-today: "Oops! \n\nThere is a change
+    in the report that we sent you earlier regarding your message. It has changed
+    from *%{previous_status}* to *%{status}*.\n\nHere are the steps we took to determine
+    this: %{url}"
+  custom_message_smooch_bot_message_confirmed_india-today: "Thanks for reaching out.
+    The Fact Check team is on it.\n\nOnce we verify this message, we'll get back to
+    you with details.\n \nFor latest fact check stories, click https://www.indiatoday.in/fact-check"
+  custom_message_smooch_bot_message_type_unsupported_india-today: "Sorry, your format
+    isn’t working. \n \nPlease send a photo, video or a link/URL with your query."
+  custom_message_smooch_bot_message_unconfirmed_india-today: "Sorry, this WhatsApp
+    is only for ‘India Today Fact Check’ requests. Have a great time. Bye. \n\nWant
+    the trending fact check stories in Hindi? Go to: https://aajtak.intoday.in/fact-check.html "
+  custom_message_smooch_bot_not_final_india-today: |+
+    Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as %{status}.
+
+    We’re still working on your request. Wait for the final report.
+
+  custom_message_smooch_bot_meme_india-today: 'Hey, do you like this meme we made
+    on your query? Please share it with your friends and family if you liked it.
+
+'
+  custom_message_smooch_bot_window_closing_india-today: "Thanks for reaching out to
+    India Today Fact Check. But sorry, we’re not able to respond back currently. \n\nBut
+    you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html"
+  custom_message_smooch_bot_disabled_india-today: "Thanks for reaching out to India
+    Today Fact Check.\n \nWe’re currently unable to respond. \n \nYou can see the
+    latest fact check reports here:  \nhttps://www.indiatoday.in/fact-check"
+  custom_message_smooch_bot_ask_for_tos_india-today: |-
+    The software that powers this tipline, Check Message, is provided to you under these Terms of Service: %{tos}.
+
+    By continuing to use this service, you agree to be bound by these terms. You should discontinue your use of the tipline if you do not agree.
+
+    You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
+  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: Thanks
+    again for reaching out to India Today Fact Check.  Our team is currenlty working
+    on your request and we will get back to you. Meanwhile, you can read our latest
+    fact check stories here. https://www.indiatoday.in/fact-check
+  custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: Sorry,
+    we're are not able to verify your request currrenly. It is not possible to fact-check
+    everything. Moreover, opinion, satire or vague claims are out of scope.
+  custom_message_status_undetermined_mmtan: D - in progress
+  custom_message_status_standard_mmtan: D - Archive
+  custom_message_status_moderate_mmtan: F - In progress
+  custom_message_status_urgent_mmtan: F - Archive
+  custom_message_status_all_items_mmtan: All items
+  custom_message_status_unstarted_mmtan-2: Unstarted
+  custom_message_status_d-progress_mmtan-2: D - In progress
+  custom_message_status_d-archive_mmtan-2: D - Archived
+  custom_message_status_f-progress_mmtan-2: F - In progress
+  custom_message_status_f-archived_mmtan-2: F - Archived
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
     y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
   custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue
@@ -1063,3 +1082,7 @@ en:
     Si continuás usando este servicio reconocés que aceptás estos Términos y estás
     de acuerdo en vincularte a los mismos. Si no estás de acuerdo (o no podés cumplir)
     con los Términos, debés dejar de utilizar el servicio.
+  custom_message_status_1_xrizltkpie: Custom Status 1
+  custom_message_status_2_xrizltkpie: Custom Status 2
+  custom_message_status_1_ynmtrngbew: Custom Status 1
+  custom_message_status_2_ynmtrngbew: Custom Status 2
