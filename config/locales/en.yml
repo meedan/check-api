@@ -708,6 +708,7 @@ en:
   team_rule_select_status: Select status
   team_rule_status_is: Item status is
   team_rule_type_regexp: Type a regular expression
+  team_rule_type_number: Enter the number of words
   team_rule_value: Type a list of keywords separated by commas
   team_rule_actions: Then
   team_rule_action: Then

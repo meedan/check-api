@@ -152,6 +152,7 @@ module TeamRules
         'action_value_copy_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects }
       },
       'rules' => {
+        'rule_value_max_number_of_words' => { title: I18n.t(:team_rule_type_number), type: 'string' },
         'rule_value_type_is' => { title: I18n.t(:team_rule_select_type), type: 'string', enum: types },
         'rule_value_tagged_as' => { title: I18n.t(:team_rule_select_tag), type: 'string', enum: tags },
         'rule_value_status_is' => { title: I18n.t(:team_rule_select_status), type: 'string', enum: statuses },
