@@ -61,9 +61,10 @@ hi:
   custom_message_status_report-enganoso_afp-checamos: ''
   custom_message_status_warning_afp-checamos: ''
   custom_message_status_sugestao_afp-checamos: ''
+  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_f0b04e39fe78ea5f5628d0ab4a21ac00_afp-checamos: ''
-  custom_message_rule_action_send_message_c6a992146bb63d9c1fc0e74f05ff6299_afp-checamos: ''
+  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
+  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
   custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: "[वेरिफिकेशन रिपोर्ट] आपने जो सामग्री
     साझा की थी उसे *%{status}* चिन्हित किया गया है. यह हमारी जांच प्रणाली रही है:
@@ -181,6 +182,9 @@ hi:
     सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
     जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
     और परिवार के साथ साझा करें: boomlive.in "
+  custom_message_rule_action_send_message_d79b014e6dbf4b831a05aea5809ceb41_boom-factcheck: आपके
+    सन्देश के लिए धन्यवाद| यहाँ पर विकासाधीन स्टोरी के लिए उचित लिंक है| हमारे कई
+    और फ़ैक्ट चेक लेखों को पढ़ें जो हमनें प्रकाशित किये हैं|
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
   custom_message_status_inconclusive_check-message-demo: ''
@@ -189,8 +193,6 @@ hi:
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
@@ -202,6 +204,8 @@ hi:
   custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
+  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
+  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -230,70 +234,6 @@ hi:
     द्वारा हमारे साथ साझा किया गया संदेश गलत तरीके से चिह्नित किया गया था। *%{status}*
     आगे के सत्यापन के लिए यह अभी भी हमारी पंक्ति में है।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
-  custom_message_smooch_bot_result_india-today: 'बधाई हो, जो मैसेज आपने हमें भेजा
-    था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*. इस रिपोर्ट को
-    तैयार करने के लिए हमने इस तरीके से जांच की: %{url} आजतक फैक्ट-चेक से संपर्क करने
-    के लिए एक बार फिर से आपका शुक्रिया.
-
-'
-  custom_message_smooch_bot_result_changed_india-today: "[रिपोर्ट में सुधार] ओह !
-    आपके द्वारा भेजे सन्देश में सुधार हुआ है और उसका निष्कर्ष *%{previous_status}*
-    *%{status}* में हुआ है इस रिपोर्ट को तैयार करने के लिए हमने इस तरीके से जांच की:
-    %{url}\n"
-  custom_message_smooch_bot_ask_for_confirmation_india-today: |-
-    आज तक फैक्ट-चेक तक अपनी बात पहुंचाने के लिए आपका धन्यवाद.
-
-
-    अगर आप चाहते हैं  कि हम इस मैसेज की सच्चाई का पता लगाएं,  तो *कृपया 1 लिख कर हमें भेजें*. कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
-  custom_message_smooch_bot_message_confirmed_india-today: |-
-    धन्यवाद, आपका मैसेज हम जांच करने के फैक्ट-चेक टीम को भेज रहे हैं.
-
-    अगर आपके मैसेज के बारे में हम रिपोर्ट प्रकाशित करते हैं तो आप अगले 48 घंटे के भीतर उसे यहां देख सकते हैं. 
-
-    https://aajtak.intoday.in/fact-check.html
-
-    लेकिन माफ करें, हर मैजेस का जवाब देना या उस पर रिपोर्ट छापना संभव नहीं है.
-  custom_message_smooch_bot_message_type_unsupported_india-today: |
-    ओह ! माफ़ कीजिए. 
-
-    इस तरह की फाइल को समझ पाना इस समय हमारे लिए मुश्किल है.
-  custom_message_smooch_bot_message_unconfirmed_india-today: |-
-    माफ करें, ये नंबर सिर्फ आज तक फैक्ट-चेक के लिए है.
-
-
-    अगर आप इंडिया टुडे की फैक्ट- चेक स्टोरी देखना चाहते हैं तो यहां जाएं
-
-     https://aajtak.intoday.in/fact-check.html
-  custom_message_smooch_bot_not_final_india-today: 'ओह ! लगता है हमारे कंप्यूटर जी
-    ने ज़रा जल्दबाजी कर दी. ग़लती से आपके सन्देश का निष्कर्ष यह भेजा *%{status}*. आपके
-    मैसेज पर हम अभी भी काम कर रहे हैं. जो रिपोर्ट आपको मिली है उसे अभी नज़रअंदाज़
-    कर दें और फाइनल रिपोर्ट का इंतज़ार करें. तब तक आप देखें की इंडिया टुडे फैक्ट चेक
-    की टीम ने ऐसे ही किन बातों की सच्चाई पता लगाई. https://aajtak.intoday.in/fact-check.html
-
-'
-  custom_message_smooch_bot_meme_india-today: |
-    Hey, how do you like this? 
-
-    A meme, based on your verification request.
-  custom_message_smooch_bot_window_closing_india-today: |-
-    Thanks for reaching out to India Today Fact Check.
-
-    But sorry, we’re not able to respond back currently. 
-
-    But you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html
-  custom_message_smooch_bot_disabled_india-today: |-
-    आज तक फैक्ट चेक से संपर्क करने के लिए आपका धन्यवाद.
-
-    लेकिन, माफ कीजिए, अभी हम आपको जवाब नहीं दे सकते.
-
-    आप चाहें तो तमाम  ताज़ातरीन फैक्ट चेक स्टोरी यहां देख सकते हैं.  
-
-    https://aajtak.intoday.in/fact-check.html
-  custom_message_smooch_bot_ask_for_tos_india-today: इस टिपलाइन का सॉफ्टवेर चेक मेसेज
-    आपको इन नियमों के तहत पहुँचाया गया है. %{tos} इस सेवा को जारी रखकर *आप इन शर्तों
-    को स्वीकार करते हैं*. यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे.
-    यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं. हमारे ताज़ा
-    फैक्ट चेक आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html
   custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
   custom_message_status_in_progress_india-today: 'काम जारी है '
   custom_message_status_inconclusive_india-today: 'हम अफवाह की जांच नहीं करते '
@@ -307,6 +247,75 @@ hi:
   custom_message_status_report-inconclusive_india-today: 'रिपोर्ट: जांच नहीं की जा
     सकती '
   custom_message_status_report_half_true_india-today: 'रिपोर्ट: आधा सच '
+  custom_message_smooch_bot_result_india-today: |-
+    बधाई हो, जो मैसेज आपने हमें भेजा था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*.
+
+    आप देख सकते हैं कि इस नजीजे पर हम कैसे पहुंचे: %{url}
+
+    आजतक फैक्ट-चेक से संपर्क करने के लिए एक बार फिर से आपका शुक्रिया. अगर आपको ये पसंद आया तो दोस्तों के साथ इसे शेयर करना ना भूलें.
+  custom_message_smooch_bot_result_changed_india-today: |-
+    [रिपोर्ट में सुधार]
+
+    ओह ! आपने जो मैसेज हमें भेजा था उसकी रिपोर्ट में हमें कुछ सुधार करना पड़ा है. इसे *%{previous_status}* से बदल कर अब *%{status}* कर दिया गया है.
+
+    आप यहां देख सकते हैं कि हम इस नजीजे पर कैसे पहुंचे: %{url}
+  custom_message_smooch_bot_message_confirmed_india-today: "धन्यवाद, आपका मैसेज हम
+    जांच करने के लिए फैक्ट-चेक टीम को भेज रहे हैं.\n\nअगर आपके मैसेज के बारे में हम
+    किसी नतीजे पर पहुंच सके तो आपसे फिर संपर्क करेंगे. \n\n\nमगर हर मैजेस का जवाब
+    देना या उस पर रिपोर्ट छापना संभव नहीं है.\n\nतब तक आप हमारी ताज़ा फैक्ट चेक स्टोरी
+    यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html"
+  custom_message_smooch_bot_message_type_unsupported_india-today: |-
+    माफ़ कीजिए. आपकी भेजे मैसेज को हम ठीक से नहीं देख पा रहे हैं.
+    क्या आप अपने सवाल के साथ हमें इससे संबंधित फोटो, वीडियो या लिंक भेज सकते हैं?
+  custom_message_smooch_bot_message_unconfirmed_india-today: |-
+    माफ करें, ये नंबर सिर्फ आज तक फैक्ट-चेक के लिए है.
+
+
+    अगर आप इंडिया टुडे की फैक्ट- चेक स्टोरी देखना चाहते हैं तो यहां जाएं
+
+     https://aajtak.intoday.in/fact-check.html
+  custom_message_smooch_bot_not_final_india-today: "ओह ! \nलगता है हमारे कंप्यूटर
+    जी ने ज़रा जल्दबाजी कर दी. ग़लती से आपके सन्देश का निष्कर्ष यह भेजा *%{status}*.
+    \n\nआपके मैसेज पर हम अभी भी काम कर रहे हैं. जो रिपोर्ट आपको मिली है उसे अभी नज़रअंदाज़
+    कर दें और फाइनल रिपोर्ट का इंतज़ार करें. \nतब तक आप देखें की इंडिया टुडे फैक्ट
+    चेक की टीम ने ऐसे ही किन बातों की सच्चाई पता लगाई. https://aajtak.intoday.in/fact-check.html\n"
+  custom_message_smooch_bot_meme_india-today: 'ये हैं आपके भेजे मैसेज की रिपोर्ट कुछ
+    नए अंदाज़ में. अगर ये आपको पसंद आये तो अपने दोस्तों के साथ शेयर करें. क्या आप
+    देखना चाहते हैं कि हमने किन और झूठी खबरों का पर्दाफ़ाश किया https://aajtak.intoday.in/fact-check.html
+
+'
+  custom_message_smooch_bot_window_closing_india-today: |-
+    Thanks for reaching out to India Today Fact Check.
+
+    But sorry, we’re not able to respond back currently. 
+
+    But you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html
+  custom_message_smooch_bot_disabled_india-today: "आज तक फैक्ट चेक से संपर्क करने
+    के लिए आपका धन्यवाद.\n\nमाफ कीजिए, अभी हम आपको जवाब नहीं दे सकते.\n\nआप चाहें
+    तो तमाम ताज़ा-तरीन फैक्ट चेक स्टोरी यहां पढ़ सकते हैं. \nhttps://aajtak.intoday.in/fact-check.html"
+  custom_message_smooch_bot_ask_for_tos_india-today: इस टिपलाइन का सॉफ्टवेर चेक मेसेज
+    आपको इन नियमों के तहत पहुँचाया गया है. %{tos} इस सेवा को जारी रखकर *आप इन शर्तों
+    को स्वीकार करते हैं*. यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे.
+    यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं. हमारे ताज़ा
+    फैक्ट चेक आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html
+  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: "आपने
+    फैक्ट चेक के लिए जो मैसेज हमें भेजा था, हमारी टीम उसका पता लगाने में जुटी है.
+    \nजवाब तैयार होने पर हम आपसे संपर्क करेंगे. आजतक फैक्ट चेक तक अपनी बात पहुंचाने
+    के लिए आपके फिर से शुक्रिया."
+  custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: अफसोस,
+    आपने जो मैसेज हमें भेजा था उसके बारे में हम किसी नतीजे तक नहीं पहुंच सके. चाह
+    कर भी हर बात का फैक्ट चेक कर पाना संभव नहीं होता. इसके अलावा हम उन दावों की भी
+    जांच नहीं कर सकते जो किसी का अपना विचार हो.
+  custom_message_status_undetermined_mmtan: ''
+  custom_message_status_standard_mmtan: ''
+  custom_message_status_moderate_mmtan: ''
+  custom_message_status_urgent_mmtan: ''
+  custom_message_status_all_items_mmtan: ''
+  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_d-progress_mmtan-2: ''
+  custom_message_status_d-archive_mmtan-2: ''
+  custom_message_status_f-progress_mmtan-2: ''
+  custom_message_status_f-archived_mmtan-2: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
@@ -317,3 +326,7 @@ hi:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_status_1_xrizltkpie: ''
+  custom_message_status_2_xrizltkpie: ''
+  custom_message_status_1_ynmtrngbew: ''
+  custom_message_status_2_ynmtrngbew: ''
