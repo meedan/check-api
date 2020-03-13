@@ -1328,6 +1328,11 @@ class UserTest < ActiveSupport::TestCase
     # test otp_backup codes
     codes = u.generate_otp_codes
     assert_equal 5, codes.size
+    # test with nil email
+    u.update_columns(email: nil)
+    ssert_raise RuntimeError do
+      u.reload.two_factor=(options)
+    end
     # should not allow user to enable 2FA for social accounts
     u2 = create_omniauth_user
     data = u2.two_factor
