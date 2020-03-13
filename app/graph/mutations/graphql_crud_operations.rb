@@ -394,9 +394,10 @@ class GraphqlCrudOperations
         argument :field_names, types[types.String]
         argument :annotation_types, types[types.String]
         argument :who_dunnit, types[types.String]
+        argument :include_related, types.Boolean
 
         resolve ->(obj, args, _ctx) {
-          obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'])
+          obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'], args['include_related'])
         }
       end
     end

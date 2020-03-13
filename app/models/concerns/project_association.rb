@@ -56,9 +56,10 @@ module ProjectAssociation
     after_commit :update_elasticsearch_data, on: :update
     after_commit :destroy_elasticsearch_media , on: :destroy
 
-    def get_versions_log(event_types = nil, field_names = nil, annotation_types = nil, whodunnit = nil)
+    def get_versions_log(event_types = nil, field_names = nil, annotation_types = nil, whodunnit = nil, include_related = false)
       whodunnit = User.where(login: whodunnit).last unless whodunnit.blank?
-      log = Version.from_partition(self.team_id).where(associated_type: self.class.name, associated_id: self.id)
+      associated_ids = (self.is_a?(ProjectMedia) && include_related) ? self.related_items_ids : [self.id]
+      log = Version.from_partition(self.team_id).where(associated_type: self.class.name, associated_id: associated_ids)
       log = log.where(event_type: event_types) unless event_types.blank?
       log = log.where(whodunnit: whodunnit.id) unless whodunnit.nil?
       log = log.where('version_field_name(event_type, object_after) IN (?)', field_names.concat([''])) unless field_names.blank?
