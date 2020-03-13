@@ -141,7 +141,7 @@ module TeamRules
     projects = self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } }
     types = ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } }
     tags = self.tag_texts.collect{ |t| { key: t.text, value: t.text } }
-    pm = ProjectMedia.new(project: Project.new(team_id: self.id))
+    pm = ProjectMedia.new(project: Project.new(team_id: self.id), team: self, team_id: self.id)
     statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
 
