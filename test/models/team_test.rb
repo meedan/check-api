@@ -2167,4 +2167,21 @@ class TeamTest < ActiveSupport::TestCase
       assert !t.text_contains_keyword(nil, 'foo,bar')
     end
   end
+
+  test "should list custom statuses as options for rule" do
+    create_verification_status_stuff(false)
+    t = create_team
+    value = {
+      label: 'Status',
+      default: 'stop',
+      active: 'done',
+      statuses: [
+        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
+        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
+      ]
+    }
+    t.send :set_media_verification_statuses, value
+    t.save!
+    assert_match /.*stop.*done.*/, t.reload.rules_json_schema
+  end
 end
