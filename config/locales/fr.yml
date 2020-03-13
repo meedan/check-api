@@ -741,6 +741,7 @@ fr:
   team_rule_select_status: Sélectionner le statut
   team_rule_status_is: Le statut de l'élément est
   team_rule_type_regexp: Tapez une expression régulière
+  team_rule_type_number: Saisir le nombre de mots
   team_rule_value: 'Tapez une liste de mots-clés séparés par des virgules '
   team_rule_actions: Alors
   team_rule_action: Alors
@@ -900,6 +901,8 @@ fr:
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: ''
+  custom_message_status_start_mantis-8135: ''
+  custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
@@ -920,7 +923,3 @@ fr:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
-  custom_message_status_1_xrizltkpie: ''
-  custom_message_status_2_xrizltkpie: ''
-  custom_message_status_1_ynmtrngbew: ''
-  custom_message_status_2_ynmtrngbew: ''
