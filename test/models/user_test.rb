@@ -1330,7 +1330,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 5, codes.size
     # test with nil email
     u.update_columns(email: nil)
-    ssert_raise RuntimeError do
+    assert_raise RuntimeError do
       u.reload.two_factor=(options)
     end
     # should not allow user to enable 2FA for social accounts
