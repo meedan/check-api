@@ -1200,6 +1200,36 @@ class GraphqlController2Test < ActionController::TestCase
     end
   end
 
+  # test "should set slack URL for smooch requests" do
+  #   create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false], 'Slack Url' => ['text', false] })
+  #   BotUser.delete_all
+  #   b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: []
+  #   u = create_user
+  #   t = create_team
+  #   create_team_bot_installation user_id: b.id, team_id: t.id
+  #   create_team_user team: t, user: u, role: 'owner'
+  #   p = create_project team: t
+  #   pm = create_project_media project: p
+  #   authenticate_with_user(u)
+  #   d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'text' => 'for testing' }.to_json }.to_json
+  #   query = 'mutation update { updateDynamicAnnotationSmooch(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"smooch_slack_url\":\"http://randonurl.local\"}" }) { project_media { targets_by_users(first: 10) { edges { node { last_status } } } } } }'
+  #   post :create, query: query, team: t.slug
+  #   assert_response :success
+  #   assert_not_nil d.get_field_value('smooch_slack_url')
+  #   query = "query { project_media(ids: \"#{pm.id},#{p.id}\") {
+  #     log(
+  #       last: 30,
+  #       event_types: ['create_dynamicannotationfield'],
+  #       field_names: ['smooch_data'],
+  #       annotation_types: [],
+  #       who_dunnit: ['smooch'], include_related: true
+  #       ) { edges { node { annotation { smooch_slack_url } } } } } }"
+  #   post :create, query: query, team: t.slug
+  #   logs = JSON.parse(@response.body)['data']['project_media']['logs']['edges']
+  #   assert_equal 1, logs.size
+  #   assert_equal 'http://randonurl.local', logs.first['node']['annotation']['smooch_slack_url']
+  # end
+
   test "should not remove logo when update team" do
     u = create_user
     team = create_team
