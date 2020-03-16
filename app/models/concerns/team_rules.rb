@@ -185,6 +185,7 @@ module TeamRules
     statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
     flags = DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a.collect{ |f| { key: f, value: I18n.t("flag_#{f}") } }
+    likelihoods = (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } }
 
     {
       'actions' => {
@@ -193,7 +194,7 @@ module TeamRules
       },
       'rules' => {
         'rule_value_flagged_as' => { title: I18n.t(:team_rule_select_flag), type: 'string', enum: flags },
-        'rule_value_flag_threshold' => { title: I18n.t(:team_rule_type_flag_threshold), type: 'integer' },
+        'rule_value_flag_threshold' => { title: I18n.t(:team_rule_type_flag_threshold), type: 'string', enum: likelihoods },
         'rule_value_similar_titles' => { title: I18n.t(:team_rule_type_title_threshold), type: 'integer' },
         'rule_value_similar_images' => { title: I18n.t(:team_rule_type_image_threshold), type: 'integer' },
         'rule_value_max_number_of_words' => { title: I18n.t(:team_rule_type_number), type: 'string' },

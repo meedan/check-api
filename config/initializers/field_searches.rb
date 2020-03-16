@@ -46,7 +46,7 @@ Dynamic.class_eval do
     values = (0..5).to_a.map(&:to_s)
     [
       { id: 'flag_name', type: 'array', title: I18n.t(:annotation_type_flag_name_label), items: { type: 'string', enum: keys, enumNames: labels } },
-      { id: 'flag_value', type: 'array', title: I18n.t(:annotation_type_flag_value_label), items: { type: 'string', enum: values, enumNames: values } }
+      { id: 'flag_value', type: 'array', title: I18n.t(:annotation_type_flag_value_label), items: { type: 'string', enum: values, enumNames: values.collect{ |v| I18n.t("flag_likelihood_#{v}") } } }
     ]
   end
 
