@@ -92,7 +92,7 @@ module AnnotationBase
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }, if: proc { |_a| !User.current.nil? && User.current.type != 'BotUser' }
 
     def annotations
-      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Flag', 'Tag', 'Comment'], annotated_id: self.id)
+      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Tag', 'Comment'], annotated_id: self.id)
     end
 
     def start_serialized_fields
@@ -222,7 +222,16 @@ module AnnotationBase
   end
 
   def get_fields
-    DynamicAnnotation::Field.where(annotation_id: self.id).to_a
+    if self.json_schema.blank?
+      DynamicAnnotation::Field.where(annotation_id: self.id).to_a
+    else
+      data = self.read_attribute(:data) || {}
+      fields = []
+      data.each do |key, value|
+        fields << OpenStruct.new({ field_name: key, value: value })
+      end
+      fields
+    end
   end
 
   def is_annotation?

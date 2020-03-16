@@ -164,6 +164,15 @@ class ActiveSupport::TestCase
     RequestStore.clear!
   end
 
+  def valid_flags_data(random = true)
+    keys = ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam']
+    flags = {}
+    keys.each do |key|
+      flags[key] = (random ? random_number(4) : 1)
+    end
+    { flags: flags }
+  end
+
   def assert_queries(num = 1, operator = '=', test = true, &block)
     old = ActiveRecord::Base.connection.query_cache_enabled
     ActiveRecord::Base.connection.enable_query_cache!
@@ -309,7 +318,7 @@ class ActiveSupport::TestCase
     post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    n = [Comment, Tag, Flag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
+    n = [Comment, Tag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
     assert_equal n, edges.size
     edges = edges.collect{ |e| e['node'][field].to_s }
     assert edges.include?(x1.send(field).to_s)

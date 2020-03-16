@@ -12,6 +12,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p.team.save!
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
+    create_flag_annotation_type
   end
 
   test "should return language" do
@@ -41,7 +42,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should link similar images" do
+  test "should link similar images and get flags" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
@@ -55,9 +56,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": []
       }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
+        "result": "invalid"
+      }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       pm1 = create_project_media project: @pm.project, media: create_uploaded_image
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      assert_nil pm1.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": [
           {
@@ -75,6 +80,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       pm2 = create_project_media project: @pm.project, media: create_uploaded_image
       assert_equal [pm1.id], Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
+      assert_nil pm2.get_annotations('flag').last
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
+        "result": valid_flags_data
+      }.to_json)
+      pm3 = create_project_media project: @pm.project, media: create_uploaded_image
+      assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
+      assert_not_nil pm3.get_annotations('flag').last
     end
   end
 

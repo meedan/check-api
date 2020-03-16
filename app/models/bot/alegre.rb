@@ -19,6 +19,7 @@ class Bot::Alegre < BotUser
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
         self.send_to_title_similarity_index(pm)
+        self.get_flags(pm)
         handled = true
       end
     rescue StandardError => e
@@ -45,15 +46,31 @@ class Bot::Alegre < BotUser
   end
 
   def self.save_language(pm, lang)
+    self.save_annotation(pm, 'language', { language: lang })
+  end
+
+  def self.save_annotation(pm, type, fields)
     annotation = Dynamic.new
     annotation.annotated = pm
     annotation.annotator = BotUser.where(login: 'alegre').first
-    annotation.annotation_type = 'language'
+    annotation.annotation_type = type
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-    annotation.set_fields = { language: lang }.to_json
+    annotation.set_fields = fields.to_json
     annotation.skip_check_ability = true
     annotation.save!
     annotation
+  end
+
+  def self.get_flags(pm, attempts = 0)
+    return if pm.report_type != 'uploadedimage'
+
+    begin
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      self.save_annotation(pm, 'flag', result['result'])
+    rescue
+      sleep 1
+      self.get_flags(pm, attempts + 1) if attempts < 5
+    end
   end
 
   def self.media_file_url(pm)

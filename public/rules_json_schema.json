@@ -36,6 +36,10 @@
                       "value": "%{team_rule_tagged_as}"
                     },
                     {
+                      "key": "flagged_as",
+                      "value": "%{team_rule_flagged_as}"
+                    },
+                    {
                       "key": "status_is",
                       "value": "%{team_rule_status_is}"
                     },

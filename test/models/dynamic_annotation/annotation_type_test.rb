@@ -63,4 +63,13 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
     a2 = create_dynamic_annotation annotation_type: 'task_response_free_text'
     assert_equal [a1, a2].sort, at.reload.annotations.sort
   end
+
+  test "should have a valid JSON schema" do
+    assert_raises ActiveRecord::RecordInvalid do
+      create_annotation_type json_schema: { type: 'foo' }
+    end
+    assert_nothing_raised do
+      create_annotation_type json_schema: { type: 'object' }
+    end
+  end
 end

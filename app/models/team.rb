@@ -306,7 +306,10 @@ class Team < ActiveRecord::Base
     }
     annotation_types.each do |type|
       method = "field_search_json_schema_type_#{type}"
-      properties[type] = Dynamic.send(method, self) if Dynamic.respond_to?(method)
+      if Dynamic.respond_to?(method)
+        schema = Dynamic.send(method, self)
+        [schema].flatten.each { |subschema| properties[subschema[:id] || type] = subschema }
+      end
       method = "field_sort_json_schema_type_#{type}"
       if Dynamic.respond_to?(method)
         sort = Dynamic.send(method, self)

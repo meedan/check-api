@@ -241,7 +241,7 @@ class CheckSearch
       method = "field_search_query_type_#{name}"
       condition = nil
       if Dynamic.respond_to?(method)
-        condition = Dynamic.send(method, values)
+        condition = Dynamic.send(method, values, @options['dynamic'])
       # To be enabled for other dynamic filters
       # else
       #   queries = []
