@@ -38,7 +38,7 @@ class AdminAbility
     can :destroy, ProjectMediaProject do |obj|
       @teams.include?(obj.project&.team_id) && @teams.include?(obj.project_media&.team_id)
     end
-    %w(annotation comment flag tag dynamic task).each do |annotation_type|
+    %w(annotation comment tag dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         !(obj.get_team & @teams).empty?
       end

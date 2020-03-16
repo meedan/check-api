@@ -68,7 +68,7 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Flag', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation', 'Dynamic']
+  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation', 'Dynamic']
 
   config.navigation_static_links = {
     'Web Client' => CONFIG['checkdesk_client'],
@@ -195,20 +195,6 @@ RailsAdmin.config do |config|
   config.model 'Comment' do
     annotation_config('comment', [:text])
     parent Annotation
-  end
-
-  config.model 'Flag' do
-    annotation_config('flag', [:flag])
-    parent Annotation
-
-    edit do
-      field :flag, :enum do
-        enum do
-          Flag.flag_types
-        end
-      end
-    end
-
   end
 
   config.model 'Media' do

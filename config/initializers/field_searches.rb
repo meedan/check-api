@@ -36,6 +36,20 @@ Dynamic.class_eval do
     { id: :deadline, label: I18n.t(:verification_status_deadline), asc_label: I18n.t(:verification_status_deadline_asc), desc_label: I18n.t(:verification_status_deadline_desc) } unless team.get_status_target_turnaround.blank?
   end
 
+  def self.field_search_json_schema_type_flag(_team = nil)
+    keys = []
+    labels = []
+    DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a.each do |flag|
+      keys << flag
+      labels << I18n.t("flag_#{flag}")
+    end
+    values = (0..5).to_a.map(&:to_s)
+    [
+      { id: 'flag_name', type: 'array', title: I18n.t(:annotation_type_flag_name_label), items: { type: 'string', enum: keys, enumNames: labels } },
+      { id: 'flag_value', type: 'array', title: I18n.t(:annotation_type_flag_value_label), items: { type: 'string', enum: values, enumNames: values } }
+    ]
+  end
+
   # How a field should be INDEXED BY ELASTICSEARCH
 
   def get_elasticsearch_options_dynamic_annotation_verification_status
@@ -85,13 +99,24 @@ Dynamic.class_eval do
     { keys: [:smooch, :indexable, :id], data: data }
   end
 
+  def get_elasticsearch_options_dynamic_annotation_flag
+    flags = self.get_field_value('flags')
+    keys = ['indexable'],
+    data = { 'indexable' => flags.to_json }
+    flags.each do |key, value|
+      keys << "flag_#{key}"
+      data["flag_#{key}"] = value
+    end
+    { keys: keys, data: data }
+  end
+
   # How a field should be SEARCHED
 
   def self.languages_present_query(queries)
     { nested: { path: 'dynamics', query: { bool: { should: queries }}}}
   end
 
-  def self.field_search_query_type_language(values)
+  def self.field_search_query_type_language(values, _options = nil)
     bool = []
     other = values.select{ |v| v =~ /^not:/ }.last
     unidentified = values.select{ |v| v == 'und' }
@@ -139,11 +164,31 @@ Dynamic.class_eval do
 
     { bool: { should: bool } }
   end
+
+  def self.field_search_query_type_flag_name(values, options)
+    flag_names = values
+    flag_values = options['flag_value'].map(&:to_i)
+    queries = []
+    flag_names.each do |flag_name|
+      flag_values.each do |flag_value|
+        queries << { term: { "dynamics.flag_#{flag_name}": flag_value } }
+      end
+    end
+    {
+      nested: {
+        path: 'dynamics',
+        query: {
+          bool: {
+            should: queries
+          }
+        }
+      }
+    }
+  end
 end
 
 ProjectMedia.class_eval do
-
-  def self.field_search_query_type_range(field, range, tzinfo)
+  def self.field_search_query_type_range(field, range, tzinfo, _options = nil)
     timezone = ActiveSupport::TimeZone[tzinfo] if tzinfo
     timezone = timezone ? timezone.formatted_offset : '+00:00'
 
@@ -159,12 +204,11 @@ ProjectMedia.class_eval do
     }
   end
 
-  def self.field_search_query_type_range_created_at(range, timezone)
+  def self.field_search_query_type_range_created_at(range, timezone, _options = nil)
     self.field_search_query_type_range(:created_at, range, timezone)
   end
 
-  def self.field_search_query_type_range_updated_at(range, timezone)
+  def self.field_search_query_type_range_updated_at(range, timezone, _options = nil)
     self.field_search_query_type_range(:updated_at, range, timezone)
   end
-
 end

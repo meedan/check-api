@@ -1557,6 +1557,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get dynamic fields schema" do
     create_verification_status_stuff
+    create_flag_annotation_type
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
     ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
     create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
@@ -1572,9 +1573,12 @@ class TeamTest < ActiveSupport::TestCase
     create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
     pm2 = create_project_media disable_es_callbacks: false, project: p
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+    create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
     assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
     assert_not_nil schema[:properties][:sort][:properties][:deadline]
+    assert_not_nil schema[:properties]['flag_name']
+    assert_not_nil schema[:properties]['flag_value']
   end
 
   test "should return search object" do
@@ -2262,5 +2266,43 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     assert !t.items_are_similar('image', pm, pm, 50, random_string)
+  end
+
+  test "should match rule by flags" do
+    create_flag_annotation_type
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "flagged_as",
+          "rule_value": { flag: 'spam', threshold: 3 }.to_json
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    pm = create_project_media project: p0
+    data = valid_flags_data
+    data[:flags]['spam'] = 2
+    create_flag set_fields: data.to_json, annotated: pm
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    data[:flags]['spam'] = 3
+    create_flag set_fields: data.to_json, annotated: pm
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
 end
