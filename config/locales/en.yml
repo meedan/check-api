@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out Of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -1057,6 +1057,27 @@ en:
   custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: Sorry,
     we're are not able to verify your request currrenly. It is not possible to fact-check
     everything. Moreover, opinion, satire or vague claims are out of scope.
+  custom_message_status_undetermined_africa-check: Unstarted
+  custom_message_status_in_progress_africa-check: In progress
+  custom_message_status_false_africa-check: 'Fact-checked: Incorrect'
+  custom_message_status_verified_africa-check: 'Fact-checked: Correct'
+  custom_message_status_mostly-correct_africa-check: 'Fact-checked: Mostly Correct'
+  custom_message_status_misleading_africa-check: 'Fact-checked: Misleading'
+  custom_message_status_inconclusive_africa-check: 'Fact-checked: Unproven'
+  custom_message_status_report_correct_africa-check: Correct
+  custom_message_status_report_mostly-correct_africa-check: Mostly Correct
+  custom_message_status_report_misleading_africa-check: Misleading
+  custom_message_status_report_false_africa-check: Incorrect
+  custom_message_status_more-information_africa-check: More information
+  custom_message_status_out-of-scope_africa-check: Out of Scope
+  custom_message_status_more-about-africa-check_africa-check: More about Africa Check
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: "We
+    can’t fact-check the message you sent us. Please read our submission guidelines
+    here: \nhttps://africacheck.org/how-to-fact-check/submit-a-claim-to-check/"
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: Africa
+    Check is a non-profit organisation working to promote accuracy in public debate
+    and the media in Africa. We try to raise the quality of information available
+    to society across the continent. We can help you sort fact from fiction. https://africacheck.org/
   custom_message_status_start_mantis-8135: Starting
   custom_message_status_pause_mantis-8135: Paused
   custom_message_status_undetermined_mmtan: D-in progress
