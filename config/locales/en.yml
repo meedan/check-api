@@ -42,25 +42,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -723,7 +723,7 @@ en:
   team_rule_item_titles_are_similar: Item titles are similar
   team_rule_item_images_are_similar: Images are similar
   team_rule_relate_similar_items: Relate items
-  team_rule_type_title_threshold: Distance between item title
+  team_rule_type_title_threshold: Distance between item titles
   team_rule_type_image_threshold: Distance between images
   team_rule_type_flag_threshold: With a likelihood of at least (0 - 5)
   team_rule_select_flag: Select flag
@@ -733,7 +733,7 @@ en:
   flag_medical: Medical
   flag_violence: Violence
   flag_racy: Racy
-  flag_spam: SPAM
+  flag_spam: Spam
   annotation_type_flag_name_label: Flag
   annotation_type_flag_value_label: Flag likelihood
   relationship_not_same_team: Related items must exist in the same workspace
