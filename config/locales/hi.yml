@@ -306,6 +306,22 @@ hi:
     आपने जो मैसेज हमें भेजा था उसके बारे में हम किसी नतीजे तक नहीं पहुंच सके. चाह
     कर भी हर बात का फैक्ट चेक कर पाना संभव नहीं होता. इसके अलावा हम उन दावों की भी
     जांच नहीं कर सकते जो किसी का अपना विचार हो.
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_report_correct_africa-check: ''
+  custom_message_status_report_mostly-correct_africa-check: ''
+  custom_message_status_report_misleading_africa-check: ''
+  custom_message_status_report_false_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
