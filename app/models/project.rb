@@ -227,6 +227,12 @@ class Project < ActiveRecord::Base
     team.inactive
   end
 
+  def smooch_users_slack_channel_url
+    DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user')
+    .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
+    .where("a.annotated_type = ? AND a.annotated_id = ?", self.class.name, self.id)
+  end
+
   private
 
   def set_description_and_team_and_user

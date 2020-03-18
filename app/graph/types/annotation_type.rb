@@ -19,13 +19,5 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
   field :locked, types.Boolean
 
   connection :annotations, -> { AnnotationType.connection_type }
-
-  field :smooch_slack_url do
-    type types.String
-
-    resolve ->(annotation, _args, _ctx) {
-      annotation.load.get_field_value('smooch_slack_url') if annotation.annotation_type == 'smooch'
-    }
-  end
-
+  
 end

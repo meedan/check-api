@@ -42,6 +42,12 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :smooch_users_slack_channel_url, -> { DynamicAnnotationFieldType.connection_type } do
+    resolve ->(project, _args, _ctx) {
+      project.smooch_users_slack_channel_url
+    }
+  end
+
   # TODO Remove this when `check-web` is updated
   connection :sources, -> { SourceType.connection_type } do
     resolve ->(project, _args, _ctx) {

@@ -4,5 +4,6 @@ DynamicAnnotationFieldType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :value, JsonStringType
   field :annotation, AnnotationType
 end
