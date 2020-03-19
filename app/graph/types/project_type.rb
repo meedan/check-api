@@ -42,9 +42,9 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :smooch_users_slack_channel_url, -> { DynamicAnnotationFieldType.connection_type } do
+  connection :smooch_user_fields, -> { DynamicAnnotationFieldType.connection_type } do
     resolve ->(project, _args, _ctx) {
-      project.smooch_users_slack_channel_url
+      project.smooch_user_fields
     }
   end
 

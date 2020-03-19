@@ -82,6 +82,8 @@ MutationType = GraphQL::ObjectType.define do
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
   field :destroyTeamBotInstallation, field: TeamBotInstallationMutations::Destroy.field
 
+  field :smoochBotAddSlackChannelUrl, field: SmoochBotAddSlackChannelUrlMutation.field
+
   field :createTagText, field: TagTextMutations::Create.field
   field :updateTagText, field: TagTextMutations::Update.field
   field :destroyTagText, field: TagTextMutations::Destroy.field
