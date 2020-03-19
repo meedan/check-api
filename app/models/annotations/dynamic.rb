@@ -9,9 +9,10 @@ class Dynamic < ActiveRecord::Base
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
-  before_validation :update_attribution, :update_timestamp
+  before_validation :update_attribution, :update_timestamp, :set_data
   after_create :create_fields
   after_update :update_fields
+  after_commit :apply_rules_and_actions, on: [:create]
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
@@ -20,6 +21,7 @@ class Dynamic < ActiveRecord::Base
   validate :annotation_type_exists
   validate :mandatory_fields_are_set, on: :create
   validate :attribution_contains_only_team_members
+  validate :fields_against_json_schema
 
   def slack_notification_message
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
@@ -48,10 +50,14 @@ class Dynamic < ActiveRecord::Base
 
   def data
     fields = self.fields
-    {
-      'fields' => fields.to_a,
-      'indexable' => fields.map(&:value).select{ |v| v.is_a?(String) }.join('. ')
-    }.with_indifferent_access
+    if fields.empty?
+      self.read_attribute(:data)
+    else
+      {
+        'fields' => fields.to_a,
+        'indexable' => fields.map(&:value).select{ |v| v.is_a?(String) }.join('. ')
+      }.with_indifferent_access
+    end
   end
 
   # Given field names, return a hash of the corresponding field values.
@@ -71,7 +77,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def get_field(name)
-    self.get_fields.select{ |f| f['field_name'] == name.to_s }.first
+    self.get_fields.select{ |f| f.field_name == name.to_s }.first
   end
 
   def get_field_value(name)
@@ -97,6 +103,10 @@ class Dynamic < ActiveRecord::Base
     f.value = value
     f.annotation_id = self.id
     f
+  end
+
+  def json_schema
+    self.annotation_type_object.json_schema if self.annotation_type_object && self.annotation_type_object.json_schema_enabled?
   end
 
   private
@@ -127,7 +137,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def create_fields
-    unless self.set_fields.blank?
+    if !self.set_fields.blank? && self.json_schema.blank?
       @fields = []
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
@@ -140,7 +150,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def update_fields
-    unless self.set_fields.blank?
+    if !self.set_fields.blank? && self.json_schema.blank?
       fields = self.fields
       data = JSON.parse(self.set_fields)
       data.each do |field, value|
@@ -149,6 +159,10 @@ class Dynamic < ActiveRecord::Base
         f.save!
       end
     end
+  end
+
+  def set_data
+    self.data = JSON.parse(self.set_fields).with_indifferent_access if !self.set_fields.blank? && !self.json_schema.blank?
   end
 
   def mandatory_fields_are_set
@@ -189,6 +203,21 @@ class Dynamic < ActiveRecord::Base
         invalid << uid if !members_ids.include?(uid.to_i) && User.where(id: uid.to_i, is_admin: true).last.nil?
       end
       errors.add(:base, I18n.t('errors.messages.invalid_attribution')) unless invalid.empty?
+    end
+  end
+
+  def fields_against_json_schema
+    begin
+      JSON::Validator.validate!(self.json_schema, self.read_attribute(:data), strict: true) unless self.json_schema.blank?
+    rescue JSON::Schema::ValidationError => e
+      errors.add(:base, e.message)
+    end
+  end
+
+  def apply_rules_and_actions
+    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'flag'
+      team = self.annotated.team
+      team.apply_rules_and_actions(self.annotated, self) unless team.nil?
     end
   end
 end

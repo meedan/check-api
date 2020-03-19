@@ -248,38 +248,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for flag" do
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
-
-    with_current_user_and_team(u) do
-      ability = AdminAbility.new
-      assert ability.cannot?(:create, f)
-      f.flag = 'Graphic content'
-      assert ability.cannot?(:create, f)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, f)
-    end
-  end
-
-  test "owner of other team permissions for flag" do
-    p = create_project team: t
-    pm = create_project_media project: p
-    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
-
-    other_user = create_user
-    create_team_user user: other_user, team: create_team, role: 'owner'
-
-    with_current_user_and_team(other_user) do
-      ability = AdminAbility.new
-      assert ability.cannot?(:create, Flag)
-      assert ability.cannot?(:update, f)
-      assert ability.cannot?(:destroy, f)
-    end
-  end
-
   test "owner permissions for status" do
     p = create_project team: t
     m = create_valid_media

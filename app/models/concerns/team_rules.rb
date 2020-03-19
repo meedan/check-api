@@ -3,8 +3,8 @@ require 'active_support/concern'
 module TeamRules
   extend ActiveSupport::Concern
 
-  RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is',
-           'tagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar']
+  RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
+           'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -90,6 +90,11 @@ module TeamRules
       else
         false
       end
+    end
+
+    def flagged_as(_pm, flag, json_value, _rule_id)
+      value = JSON.parse(json_value)
+      flag.is_a?(Dynamic) && flag.annotation_type == 'flag' && flag.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
     end
   end
 
@@ -179,7 +184,8 @@ module TeamRules
     pm = ProjectMedia.new(project: Project.new(team_id: self.id), team: self, team_id: self.id)
     statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
-
+    flags = DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a.collect{ |f| { key: f, value: I18n.t("flag_#{f}") } }
+    likelihoods = (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } }
 
     {
       'actions' => {
@@ -187,6 +193,8 @@ module TeamRules
         'action_value_copy_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects }
       },
       'rules' => {
+        'rule_value_flagged_as' => { title: I18n.t(:team_rule_select_flag), type: 'string', enum: flags },
+        'rule_value_flag_threshold' => { title: I18n.t(:team_rule_type_flag_threshold), type: 'string', enum: likelihoods },
         'rule_value_similar_titles' => { title: I18n.t(:team_rule_type_title_threshold), type: 'integer' },
         'rule_value_similar_images' => { title: I18n.t(:team_rule_type_image_threshold), type: 'integer' },
         'rule_value_max_number_of_words' => { title: I18n.t(:team_rule_type_number), type: 'string' },

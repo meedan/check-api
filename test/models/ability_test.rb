@@ -676,46 +676,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, f)
-      f.flag = 'Graphic content'
-      assert ability.can?(:create, f)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, f)
-    end
-  end
-
-  test "contributor permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f = create_flag flag: 'Spam', annotator: u, annotated: pm
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, f)
-      f.flag = 'Graphic content'
-      assert ability.can?(:create, f)
-      f.flag = 'Needing deletion'
-      assert ability.cannot?(:create, f)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, f)
-    end
-  end
-
   test "contributor permissions for status" do
     u = create_user
     t = create_team
@@ -1000,42 +960,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, own_project)
       assert ability.can?(:update, p2)
       assert ability.can?(:destroy, p2)
-    end
-  end
-
-  test "editor permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, f)
-      assert ability.can?(:destroy, f)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:update, f)
-      assert ability.cannot?(:destroy, f)
-    end
-  end
-
-  test "journalist permissions for flag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    f = create_flag flag: 'Mark as graphic', annotator: u, annotated: pm
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, f)
-      assert ability.cannot?(:destroy, f)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:update, f)
-      assert ability.cannot?(:destroy, f)
     end
   end
 

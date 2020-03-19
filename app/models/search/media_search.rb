@@ -47,7 +47,13 @@ class MediaSearch
       indexable: { type: 'text', analyzer: 'check'},
       language: { type: 'text', analyzer: 'keyword' },
       deadline: { type: 'integer' },
-      smooch: { type: 'integer' }
+      smooch: { type: 'integer' },
+      flag_adult: { type: 'integer' },
+      flag_spoof: { type: 'integer' },
+      flag_medical: { type: 'integer' },
+      flag_violence: { type: 'integer' },
+      flag_racy: { type: 'integer' },
+      flag_spam: { type: 'integer' }
     }
   }
 

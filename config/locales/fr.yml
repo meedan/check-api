@@ -754,6 +754,28 @@ fr:
   team_rule_all_items: Tous les éléments
   team_rule_send_message_to_user: Envoyed un message à l'utilisateur
   team_rule_action_value: Taper votre message ici
+  team_rule_item_titles_are_similar: Les titres des éléments sont similaires
+  team_rule_item_images_are_similar: Les images sont similaires
+  team_rule_relate_similar_items: Associer éléments
+  team_rule_type_title_threshold: Distance entre les titres d'éléments
+  team_rule_type_image_threshold: Distance entre les images
+  team_rule_type_flag_threshold: Avec une probabilité d'au moins
+  team_rule_select_flag: Sélectionner un indicateur
+  team_rule_flagged_as: L'élément est signalé comme
+  flag_adult: Adulte
+  flag_spoof: Usurpation d’identité
+  flag_medical: Médical
+  flag_violence: Violence
+  flag_racy: Suggestif
+  flag_spam: Spam
+  annotation_type_flag_name_label: Indicateur
+  annotation_type_flag_value_label: Probabilité de l'indicateur
+  flag_likelihood_0: Inconnu
+  flag_likelihood_1: Très peu probable
+  flag_likelihood_2: Peu probable
+  flag_likelihood_3: Possible
+  flag_likelihood_4: Probable
+  flag_likelihood_5: Très probable
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
   custom_message_status_undetermined_afp-checamos: ''
@@ -901,6 +923,22 @@ fr:
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: ''
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_report_correct_africa-check: ''
+  custom_message_status_report_mostly-correct_africa-check: ''
+  custom_message_status_report_misleading_africa-check: ''
+  custom_message_status_report_false_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
