@@ -1689,9 +1689,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should fallback to original URL if Bit.ly raises exception" do
     pm = create_project_media
-    Bitly.stubs(:client).raises(StandardError)
+    Bitly::API::Client.any_instance.stubs(:shorten).raises(StandardError)
     assert_match /medias.html/, pm.embed_url(true)
-    Bitly.unstub(:client)
+    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
   end
 
   test "should clone project media to another project" do
