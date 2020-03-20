@@ -6,6 +6,16 @@ class Bot::Slack < BotUser
     Bot::Slack.first || Bot::Slack.new
   end
 
+  def self.send_message_to_slack_conversation(text, token, channel)
+    query = {
+      response_type: 'in_channel',
+      text: text,
+      token: token,
+      channel: channel
+    };
+    Net::HTTP.get_response(URI('https://slack.com/api/chat.postMessage?' + URI.encode_www_form(query)))
+  end
+
   def should_notify?(target, model)
     RequestStore.store[:skip_notifications].blank? &&
     !model.skip_notifications && target.present? &&
