@@ -77,6 +77,8 @@ class Bot::Smooch < BotUser
           sm.enter_human_mode
         when 'reactivate'
           sm.leave_human_mode
+        when 'refresh_timeout'
+          Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
         else
           app_id = self.get_field_value('smooch_user_app_id')
           message = self.action.to_s.match(/^send (.*)$/)
@@ -288,11 +290,14 @@ class Bot::Smooch < BotUser
   end
 
   def self.group_messages(message, app_id)
-    sm = CheckStateMachine.new(message['authorId'])
-    return if sm.state.value == 'human_mode'
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value == 'human_mode'
+      self.refresh_smooch_slack_timeout(uid)
+      return
+    end
     self.send_tos_if_needed(message)
     redis = Redis.new(REDIS_CONFIG)
-    uid = message['authorId']
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
     redis.rpush(key, message.to_json)
@@ -445,16 +450,12 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.message_should_be_ignored(message)
-    !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
-  end
-
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'waiting_for_message'
-      return if self.message_should_be_ignored(message)
+      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
@@ -866,5 +867,30 @@ class Bot::Smooch < BotUser
     end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
     annotation.save!
+  end
+
+  def self.refresh_smooch_slack_timeout(uid, slack_data = {})
+    time = Time.now.to_i
+    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}") || {}
+    data.merge!(slack_data.merge({ 'time' => time }))
+    Rails.cache.write("smooch:slack:last_human_message:#{uid}", data)
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value != 'human_mode'
+      sm.enter_human_mode
+      text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <https://intercom.help/meedan/en/articles/3365307-slack-integration|Learn about more features of the Slack integration here.>'
+      Bot::Slack.delay_for(1.second).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
+    end
+    self.delay_for(15.minutes).timeout_smooch_slack_human_conversation(uid, time)
+  end
+
+  def self.timeout_smooch_slack_human_conversation(uid, time)
+    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}")
+    return if !data || data['time'].to_i > time
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value == 'human_mode'
+      sm.leave_human_mode
+      text = 'Automated bot-message reactivated after 15 min of inactivity. <http://help.checkmedia.org/en/articles/3336466-talk-to-users-on-your-check-message-tip-line|Learn more here>.'
+      Bot::Slack.send_message_to_slack_conversation(text, data['token'], data['channel'])
+    end
   end
 end
