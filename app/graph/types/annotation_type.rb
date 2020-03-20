@@ -19,5 +19,4 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
   field :locked, types.Boolean
 
   connection :annotations, -> { AnnotationType.connection_type }
-
 end
