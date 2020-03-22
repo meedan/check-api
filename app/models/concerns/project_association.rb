@@ -17,7 +17,7 @@ module ProjectAssociation
   def check_search_project(project = nil)
     project ||= self.project
     return nil if project.nil?
-    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => project.id }, 'projects' => [project.id] }.to_json)
+    project.check_search_project
   end
 
   def check_search_project_was
