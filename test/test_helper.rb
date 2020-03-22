@@ -125,7 +125,7 @@ class ActiveSupport::TestCase
     Pusher::Client.any_instance.stubs(:trigger)
     Pusher::Client.any_instance.stubs(:post)
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
-    Bitly::V3::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ short_url: "http://bit.ly/#{random_string}" }))
+    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
   end
@@ -575,7 +575,7 @@ class ActiveSupport::TestCase
     create_alegre_bot
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
-    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v4/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
     WebMock.stub_request(:get, "https://meedan.com/en/check/check_message_tos.html").to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
