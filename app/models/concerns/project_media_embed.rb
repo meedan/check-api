@@ -22,8 +22,9 @@ module ProjectMediaEmbed
     Rails.cache.fetch("shorten-url-#{self.full_url}") do
       # Shorten using Bit.ly and return the shortened URL
       begin
-        bitly = Bitly.client.shorten(url)
-        bitly.short_url
+        client = Bitly::API::Client.new(token: CONFIG['bitly_key'])
+        bitly = client.shorten(long_url: url)
+        bitly.link
       rescue StandardError => e
         Rails.logger.error "[ProjectMedia] Exception when generating Bitly link for #{url}: #{e.message}"
         url
