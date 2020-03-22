@@ -44,6 +44,10 @@ class Project < ActiveRecord::Base
     self.team.check_search_team
   end
 
+  def check_search_project
+    CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+  end
+
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
   end
