@@ -1,5 +1,5 @@
 class AddSmoochSlackUrlAnnotationField < ActiveRecord::Migration
-	require 'sample_data'
+  require 'sample_data'
   include SampleData
 
   def change

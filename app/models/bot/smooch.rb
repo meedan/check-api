@@ -98,6 +98,16 @@ class Bot::Smooch < BotUser
   end
 
   ::DynamicAnnotation::Field.class_eval do
+    after_create :set_author_slack_channel_url, if: proc { |f| f.field_name == 'smooch_user_slack_channel_url' }
+
+    private
+
+    def set_author_slack_channel_url
+      a = self.annotation.load
+      value = a.get_field('smooch_user_data')&.value_json
+      Rails.cache.write("SmoochUserSlackChannelUrl:#{a.annotated_type}:#{a.annotated_id}:#{value['id']}", self.value) unless value.nil?
+    end
+
     protected
 
     def replicate_status_to_children
@@ -126,6 +136,31 @@ class Bot::Smooch < BotUser
         meme.skip_check_ability = true
         meme.save!
       end
+    end
+  end
+
+  ::Version.class_eval do
+    def smooch_user_slack_channel_url
+      object_after = JSON.parse(self.object_after)
+      return unless object_after['field_name'] == 'smooch_data'
+      slack_channel_url = ''
+      data = JSON.parse(object_after['value'])
+      unless data.nil?
+        obj = self.associated
+        key = "SmoochUserSlackChannelUrl:Project:#{obj.project_id}:#{data['authorId']}"
+        slack_channel_url = Rails.cache.fetch(key) do
+          # Retrieve URL
+          smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
+          .where("value_json ->> 'id' = ?", data['authorId'])
+          .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
+          .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', obj.project_id).last
+          unless smooch_user_data.nil?
+            smooch_user = smooch_user_data.annotation.load
+            smooch_user.get_field_value('smooch_user_slack_channel_url')
+          end
+        end
+      end
+      slack_channel_url
     end
   end
 

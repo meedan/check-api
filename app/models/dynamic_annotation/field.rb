@@ -10,8 +10,6 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   validate :field_format
 
-  after_create :set_author_slack_channel_url, if: proc { |f| f.field_name == 'smooch_user_slack_channel_url' }
-
   # pairs = { key => value, ... }
   def self.find_in_json(pairs)
     conditions = {}
@@ -63,11 +61,5 @@ class DynamicAnnotation::Field < ActiveRecord::Base
 
   def set_json_value
     self.value_json = self.value if self.field_type == 'json' && self.respond_to?(:value_json)
-  end
-
-  def set_author_slack_channel_url
-    a = self.annotation.load
-    value = a.get_field('smooch_user_data')&.value_json
-    Rails.cache.write("SmoochUserSlackChannelUrl:#{a.annotated_type}:#{a.annotated_id}:#{value['id']}", self.value) unless value.nil?
   end
 end
