@@ -266,6 +266,29 @@ class Version < Partitioned::ByForeignKey
     Version.get_team_id_from_item_type(self.item_type, item)
   end
 
+  def smooch_user_slack_channel_url
+    object_after = JSON.parse(self.object_after)
+    return unless object_after['field_name'] == 'smooch_data'
+    slack_channel_url = ''
+    data = JSON.parse(object_after['value'])
+    unless data.nil?
+      obj = self.associated
+      key = "SmoochUserSlackChannelUrl:Project:#{obj.project_id}:#{data['authorId']}"
+      slack_channel_url = Rails.cache.fetch(key) do
+        # Retrive URl
+        smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
+        .where("value_json ->> 'id' = ?", data['authorId'])
+        .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
+        .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', obj.project_id).last
+        unless smooch_user_data.nil?
+          smooch_user = smooch_user_data.annotation.load
+          smooch_user.get_field_value('smooch_user_slack_channel_url')
+        end
+      end
+    end
+    slack_channel_url
+  end
+
   private
 
   def set_team_id

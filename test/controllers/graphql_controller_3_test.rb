@@ -688,14 +688,19 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['secondary_items']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-  test "update slack channel in bg" do
+  test "should set smooch user slack channel url in background" do
     Sidekiq::Testing.fake! do
-        create_annotation_type_and_fields('Smooch User', { 'Slack Channel Url' => ['Text', false] })
+        create_annotation_type_and_fields('Smooch User', {
+            'Data' => ['JSON', false],
+            'Slack Channel Url' => ['Text', true]
+        })
         u = create_user
         t = create_team
         create_team_user team: t, user: u, role: 'owner'
         p = create_project team: t
-        d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
+        author_id = random_string
+        set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
+        d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
         Sidekiq::Worker.drain_all
         assert_equal 0, Sidekiq::Worker.jobs.size
         authenticate_with_token
@@ -704,14 +709,13 @@ class GraphqlController3Test < ActionController::TestCase
         post :create, query: query
         assert_response :success
         assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_nil d.get_field_value('smooch_user_slack_channel_url')
+        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
         # execute job and check that url was set
         Sidekiq::Worker.drain_all
         assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
-        # read project with smooch user data
-        query = "query GetById { project(ids: \"#{p.id},#{t.id}\") { smooch_user_fields(first: 10000) { edges { node { field_name, value } } } } }"
-        post :create, query: query
-        assert_equal 1, JSON.parse(@response.body)['data']['project']['smooch_user_fields']['edges'].size
+        # check that cache key exists
+        key = "SmoochUserSlackChannelUrl:#{d.annotated_type}:#{d.annotated_id}:#{author_id}"
+        assert_equal url, Rails.cache.read(key)
     end
   end
 end
