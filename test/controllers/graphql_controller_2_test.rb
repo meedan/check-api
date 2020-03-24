@@ -1083,8 +1083,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id, pm3.graphql_id, pm4.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
       sleep 1
-      # size change due to obj.save! instead of update_all in `freeze_or_unfreeze_objects` method
-      # assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal 1, Sidekiq::Worker.jobs.size
       assert_equal p1, pm1.reload.project
       assert_equal p1, pm2.reload.project
       assert_equal p1, pm3.reload.project

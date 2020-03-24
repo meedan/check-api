@@ -687,4 +687,35 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { secondary_items(source_type: \"full_video\", target_type: \"clip\", first: 10000) { edges { node { dbid } } } } }", team: t.slug
     assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['secondary_items']['edges'].collect{ |x| x['node']['dbid'] }
   end
+
+  test "should set smooch user slack channel url in background" do
+    Sidekiq::Testing.fake! do
+        create_annotation_type_and_fields('Smooch User', {
+            'Data' => ['JSON', false],
+            'Slack Channel Url' => ['Text', true]
+        })
+        u = create_user
+        t = create_team
+        create_team_user team: t, user: u, role: 'owner'
+        p = create_project team: t
+        author_id = random_string
+        set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
+        d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
+        Sidekiq::Worker.drain_all
+        assert_equal 0, Sidekiq::Worker.jobs.size
+        authenticate_with_token
+        url = random_url
+        query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
+        post :create, query: query
+        assert_response :success
+        assert_equal 1, Sidekiq::Worker.jobs.size
+        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
+        # execute job and check that url was set
+        Sidekiq::Worker.drain_all
+        assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
+        # check that cache key exists
+        key = "SmoochUserSlackChannelUrl:#{d.annotated_type}:#{d.annotated_id}:#{author_id}"
+        assert_equal url, Rails.cache.read(key)
+    end
+  end
 end
