@@ -16,13 +16,8 @@ class Bot::Smooch < BotUser
   end
 
   ::Relationship.class_eval do
-    after_create :inherit_status_from_parent
-    after_destroy :reset_child_status
-
-    private
-
-    def inherit_status_from_parent
-      return if self.user.nil? || self.user.type == 'BotUser'
+    after_create do
+      next if self.user.nil? || self.user.type == 'BotUser'
       target = self.target
       parent = self.source
       if Bot::Smooch.team_has_smooch_bot_installed(target)
@@ -36,7 +31,7 @@ class Bot::Smooch < BotUser
       end
     end
 
-    def reset_child_status
+    after_destroy do
       target = self.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
