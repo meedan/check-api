@@ -8,8 +8,10 @@ namespace :check do
         team_slack[t.first] = t.last
       end
       redis = Redis.new
-      errors = []
-      redis.keys("slack_channel_smooch:*").each_slice(1250) do |bulk|
+      redis.keys("slack_channel_smooch:*").each_slice(2500) do |bulk|
+        fields = []
+        dynamic_projects = {}
+        dynamic_slack_url = {}
         redis.mget(bulk).each.with_index do |v, index|
           print "."
           value = JSON.parse(v)
@@ -18,24 +20,40 @@ namespace :check do
           unless a.nil?
             workspace_id = team_slack[value['team_slug']]
             channel_id = bulk[index].split(':').last
-            f = DynamicAnnotation::Field.new
-            f.annotation_id = a.id
-            f.annotation_type = a.annotation_type
-            f.field_type = 'text'
-            f.field_name = 'smooch_user_slack_channel_url'
-            f.value = "https://app.slack.com/client/#{workspace_id}/#{channel_id}"
-            f.skip_notifications = true
+            slack_channel_url = "https://app.slack.com/client/#{workspace_id}/#{channel_id}"
+            fields << DynamicAnnotation::Field.new({
+              annotation_id: a.id,
+              annotation_type: a.annotation_type,
+              field_type: 'text',
+              field_name:'smooch_user_slack_channel_url',
+              value: slack_channel_url,
+              skip_notifications: true
+            })
+            dynamic_projects[a.id] = a.annotated_id
+            dynamic_slack_url[a.id] = slack_channel_url
+          end
+        end
+        if fields.size > 0
+          DynamicAnnotation::Field.import(fields, recursive: false, validate: false)
+          # cache slack check url values
+          DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_id: dynamic_projects.keys)
+          .find_in_batches(:batch_size => 2500) do |objs|
+            cached_values = {}
+            objs.each do |obj|
+              # cache the value
+              user_data = obj.value_json
+              cache_k = "SmoochUserSlackChannelUrl:Project:#{dynamic_projects[obj.annotation_id]}:#{user_data['id']}"
+              cached_values[cache_k] = dynamic_slack_url[obj.annotation_id]
+            end
             begin
-              f.save!
-            rescue
-              errors << {id: a.id, key: bulk[index]}
+              redis.mapped_mset(cached_values) if cached_values.size > 0
+            rescue Exception => e
+              puts "Restarting redis ...."
+              redis = Redis.new
+              redis.mapped_mset(cached_values) if cached_values.size > 0
             end
           end
         end
-      end
-      unless errors.blank?
-        puts "Failed to save #{errors.size} annotations."
-        pp errors
       end
     end
   end
