@@ -9,7 +9,7 @@ namespace :check do
       end
       redis = Redis.new
       errors = []
-      redis.keys("slack_channel_smooch:*").each_slice(2500) do |bulk|
+      redis.keys("slack_channel_smooch:*").each_slice(1250) do |bulk|
         redis.mget(bulk).each.with_index do |v, index|
           print "."
           value = JSON.parse(v)
