@@ -30,7 +30,6 @@ namespace :check do
             rescue
               errors << {id: a.id, key: bulk[index]}
             end
-            puts "[#{f.id}]"
           end
         end
       end
