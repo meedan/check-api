@@ -10,6 +10,7 @@ namespace :check do
       redis = Redis.new
       redis.keys("slack_channel_smooch:*").each_slice(2500) do |bulk|
         fields = []
+        dynamic_teams = {}
         dynamic_projects = {}
         dynamic_slack_url = {}
         redis.mget(bulk).each.with_index do |v, index|
@@ -29,6 +30,7 @@ namespace :check do
               value: slack_channel_url,
               skip_notifications: true
             })
+            dynamic_teams[a.id] = a.team_id
             dynamic_projects[a.id] = a.annotated_id
             dynamic_slack_url[a.id] = slack_channel_url
           end
@@ -42,7 +44,7 @@ namespace :check do
             objs.each do |obj|
               # cache the value
               user_data = obj.value_json
-              cache_k = "SmoochUserSlackChannelUrl:Project:#{dynamic_projects[obj.annotation_id]}:#{user_data['id']}"
+              cache_k = "SmoochUserSlackChannelUrl:Team:#{dynamic_teams[obj.annotation_id]}:#{user_data['id']}"
               cached_values[cache_k] = dynamic_slack_url[obj.annotation_id]
             end
             begin
