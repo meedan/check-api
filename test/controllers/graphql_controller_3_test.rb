@@ -714,7 +714,7 @@ class GraphqlController3Test < ActionController::TestCase
         Sidekiq::Worker.drain_all
         assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
         # check that cache key exists
-        key = "SmoochUserSlackChannelUrl:#{d.annotated_type}:#{d.annotated_id}:#{author_id}"
+        key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
         assert_equal url, Rails.cache.read(key)
     end
   end
