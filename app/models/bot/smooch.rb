@@ -100,7 +100,7 @@ class Bot::Smooch < BotUser
     def set_author_slack_channel_url
       a = self.annotation.load
       value = a.get_field('smooch_user_data')&.value_json
-      Rails.cache.write("SmoochUserSlackChannelUrl:#{a.annotated_type}:#{a.annotated_id}:#{value['id']}", self.value) unless value.nil?
+      Rails.cache.write("SmoochUserSlackChannelUrl:#{a.annotated_type}:#{a.annotated_id}:#{value['id']}", self.value) unless value.blank?
     end
 
     protected
@@ -469,6 +469,9 @@ class Bot::Smooch < BotUser
       query = { field_name: 'smooch_user_data', json: { app_name: app.app.name, identifier: identifier } }.to_json
       cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
       Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
+      # cache SmoochUserSlackChannelUrl if smooch_user_slack_channel_url exist
+      slack_channel_url = a.get_field_value('smooch_user_slack_channel_url')
+      Rails.cache.write("SmoochUserSlackChannelUrl:Project:#{a.annotated_id}:#{uid}", slack_channel_url) unless slack_channel_url.blank?
     end
   end
 
