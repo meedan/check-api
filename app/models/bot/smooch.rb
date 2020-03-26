@@ -100,7 +100,7 @@ class Bot::Smooch < BotUser
     def set_author_slack_channel_url
       a = self.annotation.load
       value = a.get_field('smooch_user_data')&.value_json
-      Rails.cache.write("SmoochUserSlackChannelUrl:#{a.annotated_type}:#{a.annotated_id}:#{value['id']}", self.value) unless value.blank?
+      Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
     end
 
     protected
@@ -142,13 +142,15 @@ class Bot::Smooch < BotUser
       data = JSON.parse(object_after['value'])
       unless data.nil?
         obj = self.associated
-        key = "SmoochUserSlackChannelUrl:Project:#{obj.project_id}:#{data['authorId']}"
+        key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
         slack_channel_url = Rails.cache.fetch(key) do
           # Retrieve URL
+          bot = BotUser.where(login: 'smooch').last
+          tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
           smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
           .where("value_json ->> 'id' = ?", data['authorId'])
           .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
-          .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', obj.project_id).last
+          .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', tbi.get_smooch_project_id).last
           unless smooch_user_data.nil?
             smooch_user = smooch_user_data.annotation.load
             smooch_user.get_field_value('smooch_user_slack_channel_url')
@@ -470,8 +472,11 @@ class Bot::Smooch < BotUser
       cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
       Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
       # cache SmoochUserSlackChannelUrl if smooch_user_slack_channel_url exist
-      slack_channel_url = a.get_field_value('smooch_user_slack_channel_url')
-      Rails.cache.write("SmoochUserSlackChannelUrl:Project:#{a.annotated_id}:#{uid}", slack_channel_url) unless slack_channel_url.blank?
+      cache_slack_key = "SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{uid}"
+      if Rails.cache.read(cache_slack_key).blank?
+        slack_channel_url = a.get_field_value('smooch_user_slack_channel_url')
+        Rails.cache.write(cache_slack_key, slack_channel_url) unless slack_channel_url.blank?
+      end
     end
   end
 
