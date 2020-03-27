@@ -93,14 +93,12 @@ class Bot::Smooch < BotUser
   end
 
   ::DynamicAnnotation::Field.class_eval do
-    after_create :set_author_slack_channel_url, if: proc { |f| f.field_name == 'smooch_user_slack_channel_url' }
-
-    private
-
-    def set_author_slack_channel_url
-      a = self.annotation.load
-      value = a.get_field('smooch_user_data')&.value_json
-      Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
+    after_create do
+      if self.field_name == 'smooch_user_slack_channel_url'
+        a = self.annotation.load
+        value = a.get_field('smooch_user_data')&.value_json
+        Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
+      end
     end
 
     protected
@@ -145,19 +143,32 @@ class Bot::Smooch < BotUser
         key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
         slack_channel_url = Rails.cache.fetch(key) do
           # Retrieve URL
-          bot = BotUser.where(login: 'smooch').last
-          tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
-          smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
-          .where("value_json ->> 'id' = ?", data['authorId'])
-          .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
-          .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', tbi.get_smooch_project_id).last
-          unless smooch_user_data.nil?
-            smooch_user = smooch_user_data.annotation.load
-            smooch_user.get_field_value('smooch_user_slack_channel_url')
-          end
+          get_slack_channel_url(obj, data)
         end
       end
       slack_channel_url
+    end
+
+    private
+
+    def get_slack_channel_url(obj, data)
+      # fetch project from smooch bot and fallback to obj.project_id
+      pid = nil
+      bot = BotUser.where(login: 'smooch').last
+      tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
+      pid =  tbi.get_smooch_project_id unless tbi.nil?
+      pid ||= obj.project_id
+      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
+      .where("value_json ->> 'id' = ?", data['authorId'])
+      .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
+      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).uniq
+      field_value = nil
+      smooch_user_data.each do |f|
+        smooch_user = f.annotation.load
+        field_value = smooch_user.get_field_value('smooch_user_slack_channel_url')
+        break unless field_value.nil?
+      end
+      field_value
     end
   end
 
