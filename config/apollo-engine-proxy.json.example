@@ -1,5 +1,5 @@
 {
-  "apiKey": "",
+  "apiKey": "<APOLLO ENGINE API KEY>",
   "logging": { "level": "INFO" },
   "origins": [{
     "http": { "url": "http://localhost:3000/api/graphql" }
