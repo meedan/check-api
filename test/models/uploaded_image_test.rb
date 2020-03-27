@@ -116,4 +116,10 @@ class UploadedImageTest < ActiveSupport::TestCase
     pm = create_project_media media: i
     assert_match /^http/, pm.media.picture
   end
+
+  test "should create image with accents in its name" do
+    assert_difference 'UploadedImage.count' do
+      create_uploaded_image file: 'maçã.png'
+    end
+  end
 end
