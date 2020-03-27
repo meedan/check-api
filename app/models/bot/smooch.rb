@@ -93,14 +93,12 @@ class Bot::Smooch < BotUser
   end
 
   ::DynamicAnnotation::Field.class_eval do
-    after_create :set_author_slack_channel_url, if: proc { |f| f.field_name == 'smooch_user_slack_channel_url' }
-
-    private
-
-    def set_author_slack_channel_url
-      a = self.annotation.load
-      value = a.get_field('smooch_user_data')&.value_json
-      Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
+    after_create do
+      if self.field_name == 'smooch_user_slack_channel_url'
+        a = self.annotation.load
+        value = a.get_field('smooch_user_data')&.value_json
+        Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
+      end
     end
 
     protected
