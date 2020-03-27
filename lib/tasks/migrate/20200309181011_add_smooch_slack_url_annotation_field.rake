@@ -40,19 +40,11 @@ namespace :check do
           # cache slack check url values
           DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_id: dynamic_projects.keys)
           .find_in_batches(:batch_size => 2500) do |objs|
-            cached_values = {}
             objs.each do |obj|
               # cache the value
               user_data = obj.value_json
               cache_k = "SmoochUserSlackChannelUrl:Team:#{dynamic_teams[obj.annotation_id]}:#{user_data['id']}"
-              cached_values[cache_k] = dynamic_slack_url[obj.annotation_id]
-            end
-            begin
-              redis.mapped_mset(cached_values) if cached_values.size > 0
-            rescue Exception => e
-              puts "Restarting redis ...."
-              redis = Redis.new
-              redis.mapped_mset(cached_values) if cached_values.size > 0
+              Rails.cache.write(cache_k, dynamic_slack_url[obj.annotation_id])
             end
           end
         end
