@@ -2,6 +2,7 @@ namespace :check do
   namespace :migrate do
     # bundle exec rake check:migrate:add_smooch_slack_url_annotation_field[team_slug:workspace_id]
     task add_smooch_slack_url_annotation_field: :environment do |_t, args|
+      # collect team_slug and workspace id for rake input
       team_slack = {}
       args.extras.each do |arg|
         t = arg.split(":")
@@ -12,6 +13,7 @@ namespace :check do
         smooch_users = {}
         redis.mget(bulk).each.with_index do |v, index|
           print "."
+          # read values from redis and collect it in format smooch_user.id => slack channel url
           value = JSON.parse(v)
           _Klass, id = CheckGraphql.decode_id(value["annotation_id"])
           workspace_id = team_slack[value['team_slug']]
@@ -21,6 +23,11 @@ namespace :check do
         end
         Annotation.where(annotation_type: 'smooch_user', id: smooch_users.keys).find_in_batches(:batch_size => 2000) do |objs|
           print "."
+          # get project teams
+          project_team = {}
+          Project.select(:id, :team_id).where(id: objs.map(&:annotated_id)).find_each do |pt|
+            project_team[pt.id] = pt.team_id
+          end
           fields = []
           dynamic_teams = {}
           dynamic_projects = {}
@@ -33,7 +40,7 @@ namespace :check do
               value: smooch_users[obj.id],
               skip_notifications: true
             })
-            dynamic_teams[obj.id] = obj.team_id
+            dynamic_teams[obj.id] = project_team[obj.annotated_id]
             dynamic_projects[obj.id] = obj.annotated_id
           end
           if fields.size > 0
