@@ -716,6 +716,21 @@ class GraphqlController3Test < ActionController::TestCase
         # check that cache key exists
         key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
         assert_equal url, Rails.cache.read(key)
+        # test using a new mutation `smoochBotAddSlackChannelUrl`
+        d.get_field('smooch_user_slack_channel_url').destroy
+        Sidekiq::Worker.drain_all
+        assert_equal 0, Sidekiq::Worker.jobs.size
+        url2 = random_url
+        query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
+        post :create, query: query
+        assert_response :success
+        assert_equal 1, Sidekiq::Worker.jobs.size
+        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
+        # execute job and check that url was set
+        Sidekiq::Worker.drain_all
+        assert_equal url2, d.get_field_value('smooch_user_slack_channel_url')
+        # check that cache key exists
+        assert_equal url2, Rails.cache.read(key)
     end
   end
 end
