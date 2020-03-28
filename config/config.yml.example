@@ -16,9 +16,6 @@ development: &default
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
-  elasticsearch_cloud_id: 'qa:ZXUtd2VzdC0xLmF3cy5mb3VuZC5pbyQxZDkxYjk4YzZmZjQ0YjA0OGZhNDc2NzI4ZTQ2ZTAzMSRhMjE1ODRmZGVkOTM0MzFiYjkyOWU5OGQ3OWYyMzUxMQ=='
-  elasticsearch_user: 'elastic'
-  elasticsearch_password: 'HzzENVbibvxsl4LaykQqqOlW'
 
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
@@ -47,21 +44,6 @@ development: &default
   # REQUIRED
   # Use values below for local development
   #
-  # For AWS S3, the user should have permissions like the one below and the bucket must be publicly readable, e.g.
-  # {
-  #   "Version": "2012-10-17",
-  #   "Statement": [
-  #     {
-  #       "Sid": "VisualEditor0",
-  #       "Effect": "Allow",
-  #       "Action": "s3:*",
-  #       "Resource": [
-  #         "arn:aws:s3:::bucket-name/*",
-  #         "arn:aws:s3:::bucket-name"
-  #       ]
-  #     }
-  #   ]
-  # }
   storage:
     endpoint: 'http://minio:9000'
     asset_host: 'http://localhost:9000/check-api-dev'
@@ -83,7 +65,7 @@ development: &default
   smtp_user: '<GMAIL USERNAME>'
   smtp_pass: '<GMAIL PASSWORD>'
 
-  # Pusher is used for push notifications from backend to frontend https://pusher.com/channels
+  # Pusher notification service https://pusher.com/channels
   #
   # REQUIRED
   #
@@ -92,9 +74,10 @@ development: &default
   pusher_secret: '<PUSHER SECRET>'
   pusher_cluster: '<PUSHER CLUSTER>'
 
-  # Transifex is used to localize strings https://transifex.com
+  # Transifex localization platform https://transifex.com
   #
-  # REQUIRED for tasks `rake transifex:XXX` and dynamic string localization
+  # REQUIRED for dynamic string localization
+  # OPTIONAL for tasks `rake transifex:XXX`
   # By default, latest localizations are included in the codebase
   #
   # Offical Check localization at https://transifex.com/meedan/check-2
@@ -134,14 +117,15 @@ development: &default
   google_auth_redirect_uri: 'http://localhost:3000/api/users/auth/google_oauth2/callback'
   google_credentials_path: '/app/config/credentials.json'
 
-  # Smooch (Zendesk Sunshine Conversations) messaging platform gateway
+  # Smooch (Zendesk Sunshine Conversations) messaging platform gateway https://smooch.io/
   #
-  # REQUIRED for Check Message
+  # REQUIRED for Check Message Twitter integration
+  # https://docs.smooch.io/guide/twitter/#using-the-integration-api
   #
-  smooch_twitter_consumer_key: '<SMOOCH CONSUMER KEY>'
-  smooch_twitter_consumer_secret: '<SMOOCH CONSUMER SECRET>'
-  smooch_twitter_tier: 'sandbox'
-  smooch_twitter_env_name: 'checkmessage'
+  smooch_twitter_consumer_key: '<SMOOCH TWITTER APP CONSUMER KEY>'
+  smooch_twitter_consumer_secret: '<SMOOCH TWITTER APP CONSUMER SECRET>'
+  smooch_twitter_tier: '<SMOOCH TWITTER SUBSCRIPTION TIER>'
+  smooch_twitter_env_name: '<SMOOCH TWITTER APP ENVIRONMENT LABEL>'
 
   # Bitly link shortening
   #
