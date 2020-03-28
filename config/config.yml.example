@@ -146,6 +146,8 @@ development: &default
   viber_token:
   clamav_service_path:
   cc_deville_host:
+  cc_deville_token:
+  cc_deville_httpauth:
 
 test:
   <<: *default
