@@ -11,12 +11,12 @@ development:
   <<: *default
   database: check_development
 
-# Warning: The database(s) defined as "testXXX" will be erased and
+# Warning: The database(s) defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set to the same as development or production.
 test:
   <<: *default
-  database: check_test<%= ENV['TEST_ENV_NUMBER'] %>
+  database: check_test
 
 production:
   <<: *default
