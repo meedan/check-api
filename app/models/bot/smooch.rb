@@ -95,8 +95,9 @@ class Bot::Smooch < BotUser
   ::DynamicAnnotation::Field.class_eval do
     after_save do
       if self.field_name == 'smooch_user_slack_channel_url'
-        a = self.annotation.load
-        value = a.get_field('smooch_user_data')&.value_json
+        smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user', annotation_id: self.annotation.id).last
+        value = smooch_user_data.value_json unless smooch_user_data.nil?
+        a = self.annotation
         Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
       end
     end
@@ -164,8 +165,8 @@ class Bot::Smooch < BotUser
       .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).uniq
       field_value = nil
       smooch_user_data.each do |f|
-        smooch_user = f.annotation.load
-        field_value = smooch_user.get_field_value('smooch_user_slack_channel_url')
+        slack_channel_url = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: f.annotation.id).last
+        field_value = slack_channel_url.value unless slack_channel_url.nil?
         break unless field_value.nil?
       end
       field_value
