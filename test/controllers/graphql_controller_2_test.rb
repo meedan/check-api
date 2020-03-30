@@ -1083,8 +1083,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id, pm3.graphql_id, pm4.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
       sleep 1
-      # size change due to obj.save! instead of update_all in `freeze_or_unfreeze_objects` method
-      # assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal 1, Sidekiq::Worker.jobs.size
       assert_equal p1, pm1.reload.project
       assert_equal p1, pm2.reload.project
       assert_equal p1, pm3.reload.project
@@ -1116,7 +1115,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal 0, Sidekiq::Worker.jobs.size
       
       authenticate_with_user(u)
-      query = "mutation { destroyProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"] }) { affectedIds, check_search_team { number_of_results } } }"
+      query = "mutation { destroyProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"] }) { affectedIds, check_search_team { number_of_results }, project { medias_count } } }"
       post :create, query: query, team: t.slug
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['destroyProjectMedia']['affectedIds'].sort

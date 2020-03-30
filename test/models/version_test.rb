@@ -181,4 +181,31 @@ class VersionTest < ActiveSupport::TestCase
     v.associated_id = random_number
     assert_nil v.associated
   end
+
+  test "should get smooch user slack channel url" do
+    b = create_team_bot login: 'smooch', set_approved: true
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    create_annotation_type_and_fields('Smooch User', {
+      'Data' => ['JSON', false],
+      'Slack Channel Url' => ['Text', true]
+    })
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    author_id = random_string
+    url = random_url
+    set_fields = { smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
+    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
+    tb = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_project_id: p.id }
+    with_current_user_and_team(u, t) do
+      ds = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: { 'authorId' => author_id }.to_json }.to_json
+      f = ds.get_field('smooch_data')
+      v = f.versions.last
+      assert_equal url, v.smooch_user_slack_channel_url
+      assert 1, Rails.cache.delete_matched("SmoochUserSlackChannelUrl:Team:*")
+      assert_equal url, v.smooch_user_slack_channel_url
+    end
+  end
 end

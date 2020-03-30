@@ -36,6 +36,10 @@
                       "value": "%{team_rule_tagged_as}"
                     },
                     {
+                      "key": "flagged_as",
+                      "value": "%{team_rule_flagged_as}"
+                    },
+                    {
                       "key": "status_is",
                       "value": "%{team_rule_status_is}"
                     },
@@ -54,6 +58,14 @@
                     {
                       "key": "title_contains_keyword",
                       "value": "%{team_rule_title_contains_keyword}"
+                    },
+                    {
+                      "key": "item_titles_are_similar",
+                      "value": "%{team_rule_item_titles_are_similar}"
+                    },
+                    {
+                      "key": "item_images_are_similar",
+                      "value": "%{team_rule_item_images_are_similar}"
                     }
                   ]
                 },
@@ -82,6 +94,10 @@
                     {
                       "key": "copy_to_project",
                       "value": "%{team_rule_copy_to_project}"
+                    },
+                    {
+                      "key": "relate_similar_items",
+                      "value": "%{team_rule_relate_similar_items}"
                     },
                     {
                       "key": "send_message_to_user",

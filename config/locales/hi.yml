@@ -169,7 +169,7 @@ hi:
   custom_message_status_undetermined_boom-factcheck: 'शुरू नहीं किया है '
   custom_message_status_in_progress_boom-factcheck: 'काम जारी है '
   custom_message_status_out_of_scope_boom-factcheck: 'दायरे से बाहर '
-  custom_message_status_in_the_news_boom-factcheck: 'ख़बरों में '
+  custom_message_status_in_the_news_boom-factcheck: ''
   custom_message_status_junk_boom-factcheck: 'स्वीकार नहीं '
   custom_message_status_report-true_boom-factcheck: 'रिपोर्ट सही '
   custom_message_status_report-false_boom-factcheck: 'रिपोर्ट ग़लत '
@@ -204,8 +204,7 @@ hi:
   custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -234,19 +233,6 @@ hi:
     द्वारा हमारे साथ साझा किया गया संदेश गलत तरीके से चिह्नित किया गया था। *%{status}*
     आगे के सत्यापन के लिए यह अभी भी हमारी पंक्ति में है।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
-  custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
-  custom_message_status_in_progress_india-today: 'काम जारी है '
-  custom_message_status_inconclusive_india-today: 'हम अफवाह की जांच नहीं करते '
-  custom_message_status_false_india-today: 'ग़लत '
-  custom_message_status_verified_india-today: 'सही '
-  custom_message_status_half_true_india-today: 'आधा सच '
-  custom_message_status_misleading_india-today: 'हैडलाइन नहीं है '
-  custom_message_status_report-false_india-today: 'रिपोर्ट: ग़लत '
-  custom_message_status_report-true_india-today: 'रिपोर्ट: सही '
-  custom_message_status_report_misleading_india-today: 'रिपोर्ट: हैडलाइन नहीं है '
-  custom_message_status_report-inconclusive_india-today: 'रिपोर्ट: जांच नहीं की जा
-    सकती '
-  custom_message_status_report_half_true_india-today: 'रिपोर्ट: आधा सच '
   custom_message_smooch_bot_result_india-today: |-
     बधाई हो, जो मैसेज आपने हमें भेजा था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*.
 
@@ -298,6 +284,19 @@ hi:
     को स्वीकार करते हैं*. यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे.
     यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं. हमारे ताज़ा
     फैक्ट चेक आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html
+  custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_india-today: 'काम जारी है '
+  custom_message_status_inconclusive_india-today: ''
+  custom_message_status_false_india-today: 'ग़लत '
+  custom_message_status_verified_india-today: 'सही '
+  custom_message_status_half_true_india-today: 'आधा सच '
+  custom_message_status_misleading_india-today: 'हैडलाइन नहीं है '
+  custom_message_status_report-false_india-today: 'रिपोर्ट: ग़लत '
+  custom_message_status_report-true_india-today: 'रिपोर्ट: सही '
+  custom_message_status_report_misleading_india-today: 'रिपोर्ट: हैडलाइन नहीं है '
+  custom_message_status_report-inconclusive_india-today: 'रिपोर्ट: जांच नहीं की जा
+    सकती '
+  custom_message_status_report_half_true_india-today: 'रिपोर्ट: आधा सच '
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: "आपने
     फैक्ट चेक के लिए जो मैसेज हमें भेजा था, हमारी टीम उसका पता लगाने में जुटी है.
     \nजवाब तैयार होने पर हम आपसे संपर्क करेंगे. आजतक फैक्ट चेक तक अपनी बात पहुंचाने
@@ -306,6 +305,22 @@ hi:
     आपने जो मैसेज हमें भेजा था उसके बारे में हम किसी नतीजे तक नहीं पहुंच सके. चाह
     कर भी हर बात का फैक्ट चेक कर पाना संभव नहीं होता. इसके अलावा हम उन दावों की भी
     जांच नहीं कर सकते जो किसी का अपना विचार हो.
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_report_correct_africa-check: ''
+  custom_message_status_report_mostly-correct_africa-check: ''
+  custom_message_status_report_misleading_africa-check: ''
+  custom_message_status_report_false_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
@@ -328,3 +343,10 @@ hi:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_smooch_bot_result_test-govtech-pap: ''
+  custom_message_smooch_bot_result_changed_test-govtech-pap: ''
+  custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: ''
+  custom_message_smooch_bot_message_confirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
+  custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_not_final_test-govtech-pap: ''

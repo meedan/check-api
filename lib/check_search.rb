@@ -17,7 +17,7 @@ class CheckSearch
 
   MEDIA_TYPES = %w[claims links images videos]
   SORT_MAPPING = {
-    'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'requests' => 'requests_count',
+    'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'requests' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count'
   }
 
@@ -241,7 +241,7 @@ class CheckSearch
       method = "field_search_query_type_#{name}"
       condition = nil
       if Dynamic.respond_to?(method)
-        condition = Dynamic.send(method, values)
+        condition = Dynamic.send(method, values, @options['dynamic'])
       # To be enabled for other dynamic filters
       # else
       #   queries = []

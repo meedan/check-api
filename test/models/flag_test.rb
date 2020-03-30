@@ -1,8 +1,13 @@
 require_relative '../test_helper'
 
 class FlagTest < ActiveSupport::TestCase
+  def setup
+    super
+    create_flag_annotation_type
+  end
+
   test "should create flag" do
-    assert_difference 'Flag.length' do
+    assert_difference "Dynamic.where(annotation_type: 'flag').count" do
       create_flag
     end
   end
@@ -10,69 +15,6 @@ class FlagTest < ActiveSupport::TestCase
   test "should set type automatically" do
     f = create_flag
     assert_equal 'flag', f.annotation_type
-  end
-
-  test "should have flag" do
-    assert_no_difference 'Flag.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_flag(flag: nil)
-      end
-      assert_raises ActiveRecord::RecordInvalid do
-        create_flag(flag: '')
-      end
-    end
-  end
-
-  test "should create version when flag is created" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
-    f = nil
-    with_current_user_and_team(u, t) do
-      f = create_flag(flag: 'Spam', annotated: pm)
-    end
-    assert_equal 1, f.versions.count
-    v = f.versions.last
-    assert_equal 'create', v.event
-    assert_equal({"data"=>[{}, {"flag"=>"Spam"}], "annotator_type"=>[nil, "User"], "annotated_type"=>[nil, "ProjectMedia"], "annotated_id"=>[nil, pm.id], "annotator_id"=>[nil, f.annotator_id], "annotation_type"=>[nil, "flag"]}, v.changeset)
-  end
-
-  test "should create version when flag is updated" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t, user: u
-    pm = create_project_media project: p, user: u
-    f = nil
-    with_current_user_and_team(u, t) do
-      f = create_flag(flag: 'Spam', annotated: pm, annotator: u)
-      f = Flag.last
-      f.flag = 'Graphic content'
-      f.save
-      assert_equal 2, f.versions.count
-      v = PaperTrail::Version.last
-      assert_equal 'update', v.event
-      assert_equal({"data"=>[{"flag"=>"Spam"}, {"flag"=>"Graphic content"}]}, v.changeset)
-    end
-  end
-
-  test "should get columns as array" do
-    assert_kind_of Array, Flag.columns
-  end
-
-  test "should get columns as hash" do
-    assert_kind_of Hash, Flag.columns_hash
-  end
-
-  test "should not be abstract" do
-    assert_not Flag.abstract_class?
-  end
-
-  test "should have content" do
-    f = create_flag
-    assert_equal ['flag'], JSON.parse(f.content).keys
   end
 
   test "should have annotators" do
@@ -93,58 +35,45 @@ class FlagTest < ActiveSupport::TestCase
     assert_equal [u3.id], s2.annotators.map(&:id)
   end
 
-  test "should set annotator if not set" do
-    u1 = create_user
-    u2 = create_user
-    t = create_team
-    p = create_project team: t
-    create_team_user team: t, user: u2, role: 'contributor'
-    pm = create_project_media project: p
-    with_current_user_and_team(u2, t) do
-      f = create_flag annotated: pm, annotator: nil
-      assert_equal u2, f.annotator
+  test "should get flag values" do
+    keys = ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam']
+    flags = {}
+    keys.each do |key|
+      flags[key] = random_number(4)
+    end
+    f = nil
+    assert_nothing_raised do
+      f = create_flag set_fields: { flags: flags }.to_json
+    end
+    keys.each do |key|
+      assert_equal flags[key], f.get_field_value('flags')[key]
     end
   end
 
-  test "should not set annotator if set" do
-    u1 = create_user
-    u2 = create_user
-    t = create_team
-    p  = create_project team: t
-    create_team_user team: t, user: u2, role: 'contributor'
-    m = create_valid_media team: t, user: u2
-    pm = create_project_media project: p, user: u2
-    with_current_user_and_team(u2, t) do
-      f = create_flag annotated: pm, annotator: u1
-      assert_equal u1, f.annotator
+  test "should validate flag against JSON schema" do
+    assert_nothing_raised do
+      create_flag set_fields: valid_flags_data.to_json
     end
-  end
-
-  test "should not create flag with invalid value" do
-    assert_no_difference 'Flag.length' do
+    missing_key = valid_flags_data ; missing_key[:flags].delete('spam')
+    extra_key = valid_flags_data ; extra_key[:flags]['foo'] = 3
+    value_less_than_min = valid_flags_data ; value_less_than_min[:flags]['spam'] = -1
+    value_greater_than_max = valid_flags_data ; value_greater_than_max[:flags]['spam'] = 6
+    [
+      { noflags: 'test' },
+      { flags: ['foo', 'bar'] },
+      missing_key,
+      extra_key,
+      value_less_than_min,
+      value_greater_than_max
+    ].each do |data|
       assert_raises ActiveRecord::RecordInvalid do
-        create_flag flag: 'invalid'
+        create_flag set_fields: data.to_json
       end
     end
-    assert_difference 'Flag.length' do
-      create_flag flag: 'Spam'
-    end
   end
 
- test "should get flag" do
+  test "should get flag data" do
     f = create_flag
-    assert_equal 'Graphic content', f.flag_callback('graphic_journalist')
-    assert_equal 'Invalid', f.flag_callback('Invalid')
+    assert_not_nil f.data
   end
-
-  test "should protect attributes from mass assignment" do
-    raw_params = { flag: 'Spam', annotated: create_project_media }
-
-    params = ActionController::Parameters.new(raw_params)
-
-    assert_raise ActiveModel::ForbiddenAttributesError do
-      Flag.create(params)
-    end
-  end
-
 end

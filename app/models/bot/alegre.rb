@@ -2,6 +2,10 @@ class Bot::Alegre < BotUser
 
   check_settings
 
+  ::ProjectMedia.class_eval do
+    attr_accessor :alegre_similarity_thresholds
+  end
+
   def self.run(body)
     if CONFIG['alegre_host'].blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
@@ -13,7 +17,9 @@ class Bot::Alegre < BotUser
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
-        self.get_image_similarities(pm)
+        self.send_to_image_similarity_index(pm)
+        self.send_to_title_similarity_index(pm)
+        self.get_flags(pm)
         handled = true
       end
     rescue StandardError => e
@@ -40,15 +46,108 @@ class Bot::Alegre < BotUser
   end
 
   def self.save_language(pm, lang)
+    self.save_annotation(pm, 'language', { language: lang })
+  end
+
+  def self.save_annotation(pm, type, fields)
     annotation = Dynamic.new
     annotation.annotated = pm
     annotation.annotator = BotUser.where(login: 'alegre').first
-    annotation.annotation_type = 'language'
+    annotation.annotation_type = type
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-    annotation.set_fields = { language: lang }.to_json
+    annotation.set_fields = fields.to_json
     annotation.skip_check_ability = true
     annotation.save!
     annotation
+  end
+
+  def self.get_flags(pm, attempts = 0)
+    return if pm.report_type != 'uploadedimage'
+
+    begin
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      self.save_annotation(pm, 'flag', result['result'])
+    rescue
+      sleep 1
+      self.get_flags(pm, attempts + 1) if attempts < 5
+    end
+  end
+
+  def self.media_file_url(pm)
+    # FIXME Ugly hack to get a usable URL in docker-compose development environment.
+    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}/#{pm.media.file.file.path}"
+  end
+
+  def self.send_to_title_similarity_index(pm)
+    return if pm.title.blank?
+    self.send_to_text_similarity_index(pm, 'title', pm.title)
+  end
+
+  def self.send_to_text_similarity_index(pm, field, text)
+    self.request_api('post', '/text/similarity/', {
+      text: text,
+      context: {
+        team_id: pm.team_id,
+        field: field,
+        project_media_id: pm.id
+      }
+    })
+  end
+
+  def self.send_to_image_similarity_index(pm)
+    return if pm.report_type != 'uploadedimage'
+
+    self.request_api('post', '/image/similarity/', {
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+        project_media_id: pm.id
+      }
+    })
+  end
+
+  def self.request_api(method, path, params = {})
+    uri = URI(CONFIG['alegre_host'] + path)
+    klass = 'Net::HTTP::' + method.capitalize
+    request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
+    request.body = params.to_json
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    begin
+      response = http.request(request)
+      JSON.parse(response.body)
+    rescue StandardError => e
+      Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
+      self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
+      { 'type' => 'error', 'data' => { 'message' => e.message } }
+    end
+  end
+
+  def self.get_items_with_similar_title(pm, threshold)
+    self.get_items_with_similar_text(pm, 'title', threshold, pm.title)
+  end
+
+  def self.get_items_with_similar_text(pm, field, threshold, text)
+    similar = self.request_api('get', '/text/similarity/', {
+      text: text,
+      context: {
+        team_id: pm.team_id,
+        field: field
+      },
+      threshold: threshold
+    })
+    similar.dig('result')&.collect{ |r| r.dig('_source', 'context', 'project_media_id') }.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+  end
+
+  def self.get_items_with_similar_image(pm, threshold)
+    similar = self.request_api('get', '/image/similarity/', {
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+      },
+      threshold: threshold
+    })
+    similar.dig('result')&.collect{ |r| r.dig('context', 'project_media_id') }.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
   end
 
   def self.add_relationships(pm, pm_ids)
@@ -78,51 +177,4 @@ class Bot::Alegre < BotUser
     r.target_id = pm.id
     r.save!
   end
-
-  def self.media_file_url(pm)
-    # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}/#{pm.media.file.file.path}"
-  end
-
-  def self.get_image_similarities(pm)
-    return if pm.report_type != 'uploadedimage'
-
-    # Query for similar images.
-    similar = self.request_api('get', '/image/similarity/', {
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-      },
-      threshold: 5 # TODO This will eventually change to a user-selectable threshold
-    })
-    pm_ids = similar.dig('result')&.collect{|r| r.dig('context', 'project_media_id')}
-    self.add_relationships(pm, pm_ids)
-
-    # Add image to similarity database.
-    self.request_api('post', '/image/similarity/', {
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id
-      }
-    })
-  end
-
-  def self.request_api(method, path, params = {})
-    uri = URI(CONFIG['alegre_host'] + path)
-    klass = 'Net::HTTP::' + method.capitalize
-    request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
-    request.body = params.to_json
-    http = Net::HTTP.new(uri.hostname, uri.port)
-    http.use_ssl = uri.scheme == 'https'
-    begin
-      response = http.request(request)
-      JSON.parse(response.body)
-    rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
-      self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
-      { 'type' => 'error', 'data' => { 'message' => e.message } }
-    end
-  end
-
 end

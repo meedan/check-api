@@ -273,7 +273,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment", "create Flag",
+    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation",
       "update Status", "administer Content"].sort
     User.stubs(:current).returns(u)
@@ -464,7 +464,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_flag", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
       assert_equal 14, pm.get_versions_log_count
       c.destroy
       assert_equal 14, pm.get_versions_log_count
@@ -1689,9 +1689,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should fallback to original URL if Bit.ly raises exception" do
     pm = create_project_media
-    Bitly.stubs(:client).raises(StandardError)
+    Bitly::API::Client.any_instance.stubs(:shorten).raises(StandardError)
     assert_match /medias.html/, pm.embed_url(true)
-    Bitly.unstub(:client)
+    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
   end
 
   test "should clone project media to another project" do
@@ -1705,22 +1705,35 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should cache demand" do
+  test "should cache and sort by demand" do
+    setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     p = create_project
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media project: p
+    pm = create_project_media project: p, disable_es_callbacks: false
+    ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media project: p
+    pm2 = create_project_media project: p, disable_es_callbacks: false
+    ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
     assert_queries(0, '=') { assert_equal(2, pm2.demand) }
+    # test sorting
+    result = MediaSearch.find(ms_pm)
+    assert_equal result.demand, 1
+    result = MediaSearch.find(ms_pm2)
+    assert_equal result.demand, 2
+    result = CheckSearch.new({projects: [p.id], sort: 'requests'}.to_json)
+    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({projects: [p.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id)
     r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
     pm3 = create_project_media project: p
+    ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
@@ -1863,7 +1876,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should index sortable fields" do
     RequestStore.store[:skip_cached_field_update] = false
-    # sortable fields are [linked_items_count, requests_count, last_seen and share_count]
+    # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
@@ -1871,12 +1884,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 3
     result = MediaSearch.find(get_es_id(pm))
-    assert_equal 0, result.requests_count
     assert_equal 0, result.linked_items_count
     assert_equal pm.created_at.to_i, result.last_seen
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
     result = MediaSearch.find(get_es_id(pm))
-    assert_equal 1, result.requests_count
     assert_equal t, result.last_seen
 
     pm2 = create_project_media project: p, disable_es_callbacks: false
@@ -1900,31 +1911,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result2 = MediaSearch.find(get_es_id(pm2))
     assert_equal 0, result.linked_items_count
     assert_equal 0, result2.linked_items_count
-
-
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal 2, result.requests_count
-    # test sorting
-    p2 = create_project
-    pm = create_project_media project: p2, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, disable_es_callbacks: false
-    pm3 = create_project_media project: p2, disable_es_callbacks: false
-    sleep 3
-    [pm, pm2, pm3, pm, pm2, pm2].each do |obj|
-      create_dynamic_annotation(annotation_type: 'smooch', annotated: obj)
-    end
-    result = CheckSearch.new({projects: [p2.id], sort: 'requests'}.to_json)
-    assert_equal [pm2.id, pm.id, pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p2.id], sort: 'requests', sort_type: 'asc'}.to_json)
-    assert_equal [pm3.id, pm.id, pm2.id], result.medias.map(&:id)
-    # destroy request
-    r = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    assert_equal 3, pm.requests_count
-    r.destroy!
-    assert_equal 2, pm.reload.requests_count
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal 2, result.requests_count
   end
 
   test "should get team" do

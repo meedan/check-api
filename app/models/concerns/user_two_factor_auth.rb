@@ -11,7 +11,7 @@ module UserTwoFactorAuth
     def two_factor
       data = {}
       # enable otp for email based only
-      data[:can_enable_otp] = self.encrypted_password?
+      data[:can_enable_otp] = self.encrypted_password? && !self.email.blank?
       data[:otp_required] = self.otp_required_for_login?
       data[:qrcode_svg] = ''
       if data[:can_enable_otp] && !data[:otp_required]
@@ -44,7 +44,7 @@ module UserTwoFactorAuth
     private
 
     def validate_two_factor(options)
-      return { user: false } unless self.encrypted_password?
+      return { user: false } if !self.encrypted_password? || self.email.blank?
       errors = []
       errors << {
         message: I18n.t(:"errors.messages.invalid_password"),

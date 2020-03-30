@@ -45,7 +45,6 @@ module ProjectMediaCachedFields
 
     cached_field :requests_count,
       start_as: 0,
-      update_es: true,
       recalculate: proc { |pm| Dynamic.where(annotation_type: 'smooch', annotated_id: pm.id).count },
       update_on: [
         {
@@ -61,6 +60,7 @@ module ProjectMediaCachedFields
 
     cached_field :demand,
       start_as: 0,
+      update_es: true,
       recalculate: proc { |pm|
         n = 0
         pm.related_items_ids.collect{ |id| n += ProjectMedia.find(id).requests_count }

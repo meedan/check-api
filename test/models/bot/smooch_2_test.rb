@@ -447,33 +447,64 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   end
 
   test "should save last message and ignore if in human mode" do
-    uid = random_string
-    sm = CheckStateMachine.new(uid)
-    assert_equal 'waiting_for_message', sm.state.value
-    sm.enter_human_mode
-    sm = CheckStateMachine.new(uid)
-    assert_equal 'human_mode', sm.state.value
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text',
-        text: random_string
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    Bot::Smooch.run(payload)
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.unstub(:save_user_information)
+      SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
+      { 'whatsapp' => '', 'messenger' => 'http://facebook.com/psid=1234', 'twitter' => 'http://twitter.com/profile_images/1234/image.jpg', 'other' => '' }.each do |platform, url|
+        SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
+      end
+      create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
+      WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\.postMessage.*/)
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      Bot::Smooch.run(payload)
+      d = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last.annotation.load
+      d.action = 'refresh_timeout'
+      d.action_data = { token: random_string, channel: random_string }.to_json
+      d.save!
+      sm = CheckStateMachine.new(uid)
+      sm.enter_human_mode
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert Bot::Smooch.run(payload)
+    end
   end
 
   test "should create Transifex resource if it does not exist" do

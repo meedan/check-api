@@ -149,7 +149,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should get right number of annotations" do
     f = create_flag
     c = create_comment
-    assert_equal 1, Flag.length
+    assert_equal 1, Dynamic.where(annotation_type: 'flag').count
     assert_equal 1, Comment.length
   end
 

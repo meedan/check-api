@@ -6,5 +6,8 @@ until curl --silent -XGET --fail http://api:${SERVER_PORT}; do printf '.'; sleep
 # Static Files Server
 bundle exec ruby bin/static-files-server &
 
-# Sidekiq
-bundle exec sidekiq
+if [[ ${RAILS_ENV} == "development" ]]; then
+  bin/sidekiq
+else
+  bundle exec sidekiq
+fi

@@ -244,14 +244,46 @@ module SampleData
     s
   end
 
+  def create_flag_annotation_type
+    json_schema = {
+      type: 'object',
+      required: ['flags'],
+      properties: {
+        flags: {
+          type: 'object',
+          required: ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam'],
+          properties: {
+            adult: { type: 'integer', minimum: 0, maximum: 5 },
+            spoof: { type: 'integer', minimum: 0, maximum: 5 },
+            medical: { type: 'integer', minimum: 0, maximum: 5 },
+            violence: { type: 'integer', minimum: 0, maximum: 5 },
+            racy: { type: 'integer', minimum: 0, maximum: 5 },
+            spam: { type: 'integer', minimum: 0, maximum: 5 }
+          }
+        }
+      }
+    }
+    create_annotation_type_and_fields('Flag', {}, json_schema)
+  end
+
   def create_flag(options = {})
-    options = { flag: 'Spam', annotator: create_user }.merge(options)
+    create_flag_annotation_type if DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last.nil?
+    flags = {
+      'adult': 0,
+      'spoof': 1,
+      'medical': 2,
+      'violence': 3,
+      'racy': 4,
+      'spam': 5
+    }
+    options = { set_fields: { flags: flags }.to_json, annotator: create_user }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
       options[:annotated] = create_project_media project: p
     end
-    f = Flag.new
+    f = Dynamic.new
+    f.annotation_type = 'flag'
     options.each do |key, value|
       f.send("#{key}=", value)
     end
@@ -614,6 +646,8 @@ module SampleData
     at.label = options.has_key?(:label) ? options[:label] : random_string(10)
     at.description = options.has_key?(:description) ? options[:description] : ''
     at.singleton = options[:singleton] if options.has_key?(:singleton)
+    at.json_schema = options[:json_schema] if at.respond_to?('json_schema=') && options.has_key?(:json_schema)
+    at.skip_check_ability = true
     at.save!
     at
   end
@@ -706,7 +740,7 @@ module SampleData
     t
   end
 
-  def create_annotation_type_and_fields(annotation_type_label, fields)
+  def create_annotation_type_and_fields(annotation_type_label, fields, json_schema = nil)
     # annotation_type_label = 'Annotation Type'
     # fields = {
     #   Name => [Type Label, optional = true, settings (optional)],
@@ -718,20 +752,22 @@ module SampleData
       annotation_type_name = 'archiver'
       annotation_type_label = 'Archiver'
     end
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label)
-    fts = fields.values.collect{ |v| v.first }
-    fts.each do |label|
-      type = label.parameterize.tr('-', '_')
-      DynamicAnnotation::FieldType.where(field_type: type).last || create_field_type(field_type: type, label: label)
-    end
-    fields.each do |label, type|
-      field_label = annotation_type_label + ' ' + label
-      field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
-      optional = type[1].nil? ? true : type[1]
-      settings = type[2] || {}
-      field_type = type[0].parameterize.tr('-', '_')
-      type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
-      DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
+    at = DynamicAnnotation::AnnotationType.where(annotation_type: annotation_type_name).last || create_annotation_type(annotation_type: annotation_type_name, label: annotation_type_label, json_schema: json_schema)
+    if json_schema.nil?
+      fts = fields.values.collect{ |v| v.first }
+      fts.each do |label|
+        type = label.parameterize.tr('-', '_')
+        DynamicAnnotation::FieldType.where(field_type: type).last || create_field_type(field_type: type, label: label)
+      end
+      fields.each do |label, type|
+        field_label = annotation_type_label + ' ' + label
+        field_name = (field_name_prefix || annotation_type_name) + '_' + label.parameterize.tr('-', '_')
+        optional = type[1].nil? ? true : type[1]
+        settings = type[2] || {}
+        field_type = type[0].parameterize.tr('-', '_')
+        type_object = DynamicAnnotation::FieldType.where(field_type: field_type).last
+        DynamicAnnotation::FieldInstance.where(name: field_name).last || create_field_instance(annotation_type_object: at, name: field_name, label: field_label, field_type_object: type_object, optional: optional, settings: settings)
+      end
     end
   end
 

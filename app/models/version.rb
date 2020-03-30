@@ -18,7 +18,7 @@ class Version < Partitioned::ByForeignKey
 
   def self.get_team_id_from_item_type(item_type, item)
     case item_type
-    when 'Dynamic', 'Task', 'Tag', 'Comment', 'Annotation', 'Flag'
+    when 'Dynamic', 'Task', 'Tag', 'Comment', 'Annotation'
       item.get_team.last
     when 'DynamicAnnotation::Field'
       item.annotation&.get_team&.last
@@ -174,7 +174,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated
     case self.event_type
-    when 'create_comment', 'create_tag', 'create_task', 'create_flag', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'destroy_flag', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
+    when 'create_comment', 'create_tag', 'create_task', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
     when 'update_projectmedia', 'update_projectsource', 'copy_projectmedia'
       [self.item.class.name, self.item_id.to_i]
