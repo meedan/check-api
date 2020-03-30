@@ -717,7 +717,6 @@ class GraphqlController3Test < ActionController::TestCase
         key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
         assert_equal url, Rails.cache.read(key)
         # test using a new mutation `smoochBotAddSlackChannelUrl`
-        d.get_field('smooch_user_slack_channel_url').destroy
         Sidekiq::Worker.drain_all
         assert_equal 0, Sidekiq::Worker.jobs.size
         url2 = random_url
@@ -725,7 +724,7 @@ class GraphqlController3Test < ActionController::TestCase
         post :create, query: query
         assert_response :success
         assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
+        assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # execute job and check that url was set
         Sidekiq::Worker.drain_all
         assert_equal url2, d.get_field_value('smooch_user_slack_channel_url')
