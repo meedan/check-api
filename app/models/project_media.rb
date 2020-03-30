@@ -353,7 +353,7 @@ class ProjectMedia < ActiveRecord::Base
     ts = self.annotations.where(annotation_type: "translation_status").last
     ms.translation_status = ts.load.status unless ts.nil?
     # set fields with interger value
-    fields_i = ['archived', 'inactive', 'sources_count', 'requests_count', 'linked_items_count', 'share_count', 'last_seen', 'demand']
+    fields_i = ['archived', 'inactive', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand']
     fields_i.each{ |f| ms.send("#{f}=", self.send(f).to_i) }
   end
 

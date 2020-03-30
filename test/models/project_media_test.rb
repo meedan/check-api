@@ -1876,7 +1876,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should index sortable fields" do
     RequestStore.store[:skip_cached_field_update] = false
-    # sortable fields are [linked_items_count, requests_count, last_seen and share_count]
+    # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     t = create_team
@@ -1884,12 +1884,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 3
     result = MediaSearch.find(get_es_id(pm))
-    assert_equal 0, result.requests_count
     assert_equal 0, result.linked_items_count
     assert_equal pm.created_at.to_i, result.last_seen
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
     result = MediaSearch.find(get_es_id(pm))
-    assert_equal 1, result.requests_count
     assert_equal t, result.last_seen
 
     pm2 = create_project_media project: p, disable_es_callbacks: false
@@ -1913,11 +1911,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result2 = MediaSearch.find(get_es_id(pm2))
     assert_equal 0, result.linked_items_count
     assert_equal 0, result2.linked_items_count
-
-
-    create_dynamic_annotation annotation_type: 'smooch', annotated: pm
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal 2, result.requests_count
   end
 
   test "should get team" do

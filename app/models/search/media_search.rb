@@ -59,8 +59,6 @@ class MediaSearch
 
   attribute :rules, Array, mapping: { type: 'keyword' }
 
-  attribute :requests_count, Integer, mapping: { type: 'long' }
-
   attribute :linked_items_count, Integer, mapping: { type: 'long' }
 
   attribute :last_seen, Integer, mapping: { type: 'long' }

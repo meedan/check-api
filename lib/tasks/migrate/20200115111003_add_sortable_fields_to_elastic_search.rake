@@ -11,8 +11,9 @@ namespace :check do
         pms.each do |pm|
           print "."
           doc_id = pm.get_es_doc_id(pm)
-          fields.each{ |k, _v| fields[k] = pm.send(k).to_i }
-          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          data = {}
+          fields.each{ |k, _v| data[k] = pm.send(k).to_i }
+          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
         end
         client.bulk body: es_body unless es_body.blank?
       end
