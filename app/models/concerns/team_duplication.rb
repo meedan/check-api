@@ -101,6 +101,7 @@ module TeamDuplication
 
     def self.copy_annotation_fields(original, copy)
       original.get_fields.each do |f|
+        next unless f.is_a?(DynamicAnnotation::Field)
         field = f.dup
         field.annotation_id = copy.id
         field.save(validate: false)

@@ -47,19 +47,25 @@ class MediaSearch
       indexable: { type: 'text', analyzer: 'check'},
       language: { type: 'text', analyzer: 'keyword' },
       deadline: { type: 'integer' },
-      smooch: { type: 'integer' }
+      smooch: { type: 'integer' },
+      flag_adult: { type: 'integer' },
+      flag_spoof: { type: 'integer' },
+      flag_medical: { type: 'integer' },
+      flag_violence: { type: 'integer' },
+      flag_racy: { type: 'integer' },
+      flag_spam: { type: 'integer' }
     }
   }
 
   attribute :rules, Array, mapping: { type: 'keyword' }
-
-  attribute :requests_count, Integer, mapping: { type: 'long' }
 
   attribute :linked_items_count, Integer, mapping: { type: 'long' }
 
   attribute :last_seen, Integer, mapping: { type: 'long' }
 
   attribute :share_count, Integer, mapping: { type: 'long' }
+
+  attribute :demand, Integer, mapping: { type: 'long' }
 
   def set_es_annotated(obj)
     self.send("annotated_type=", obj.class.name)

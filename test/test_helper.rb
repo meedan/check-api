@@ -125,7 +125,7 @@ class ActiveSupport::TestCase
     Pusher::Client.any_instance.stubs(:trigger)
     Pusher::Client.any_instance.stubs(:post)
     ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
-    Bitly::V3::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ short_url: "http://bit.ly/#{random_string}" }))
+    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
     # URL mocked by pender-client
     @url = 'https://www.youtube.com/user/MeedanTube'
   end
@@ -162,6 +162,15 @@ class ActiveSupport::TestCase
     RequestStore.unstub(:[])
     User.current = nil
     RequestStore.clear!
+  end
+
+  def valid_flags_data(random = true)
+    keys = ['adult', 'spoof', 'medical', 'violence', 'racy', 'spam']
+    flags = {}
+    keys.each do |key|
+      flags[key] = (random ? random_number(4) : 1)
+    end
+    { flags: flags }
   end
 
   def assert_queries(num = 1, operator = '=', test = true, &block)
@@ -309,7 +318,7 @@ class ActiveSupport::TestCase
     post :create, query: query
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    n = [Comment, Tag, Flag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
+    n = [Comment, Tag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
     assert_equal n, edges.size
     edges = edges.collect{ |e| e['node'][field].to_s }
     assert edges.include?(x1.send(field).to_s)
@@ -566,8 +575,8 @@ class ActiveSupport::TestCase
     create_alegre_bot
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://www.instagram.com/p/Bu3enV8Fjcy/?utm_source=ig_web_copy_link' } }).to_return({ body: '{"type":"media","data":{"url":"https://www.instagram.com/p/Bu3enV8Fjcy","type":"item"}}' })
-    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v3/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
-    WebMock.stub_request(:get, "https://meedan.com/en/check/check_message_tos.html").to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
+    WebMock.stub_request(:get, "https://api-ssl.bitly.com/v4/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
+    WebMock.stub_request(:get, /check_message_tos/).to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 

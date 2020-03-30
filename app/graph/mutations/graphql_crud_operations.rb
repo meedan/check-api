@@ -183,6 +183,10 @@ class GraphqlCrudOperations
       obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
     end
 
+    if inputs[:ids] && name =~ /^project/
+      obj = self.define_optimistic_fields_for_project(obj, inputs, name)
+    end
+
     if name == 'project_media'
       obj = self.define_optimistic_fields_for_project_media(obj, inputs, name)
     end
@@ -199,7 +203,18 @@ class GraphqlCrudOperations
     obj
   end
 
+  def self.define_optimistic_fields_for_project(obj, inputs, name)
+    obj = Project.where(id: inputs['add_to_project_id']).last if name == 'project' && inputs['add_to_project_id']
+    return nil if obj.nil?
+    n = obj.medias_count
+    obj.define_singleton_method(:medias_count) { n - inputs[:ids].size } if name == 'project_was'
+    obj.define_singleton_method(:medias_count) { n + inputs[:ids].size } if name == 'project'
+    obj
+  end
+
   def self.define_optimistic_fields_for_check_search(obj, inputs, name)
+    obj = Project.where(id: inputs['add_to_project_id']).last&.check_search_project if name == 'check_search_project' && inputs['add_to_project_id']
+    return nil if obj.nil?
     n = obj.number_of_results
     obj.define_singleton_method(:number_of_results) { n - inputs[:ids].size } if name == 'check_search_project_was'
     if name == 'check_search_project'
@@ -394,9 +409,10 @@ class GraphqlCrudOperations
         argument :field_names, types[types.String]
         argument :annotation_types, types[types.String]
         argument :who_dunnit, types[types.String]
+        argument :include_related, types.Boolean
 
         resolve ->(obj, args, _ctx) {
-          obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'])
+          obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'], args['include_related'])
         }
       end
     end

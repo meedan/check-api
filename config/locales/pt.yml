@@ -734,6 +734,28 @@ pt:
   team_rule_all_items: Todos os itens
   team_rule_send_message_to_user: Enviar mensagem para o usuário
   team_rule_action_value: Digite mensagem aqui
+  team_rule_item_titles_are_similar: Os títulos dos itens são semelhantes
+  team_rule_item_images_are_similar: As imagens são semelhantes
+  team_rule_relate_similar_items: Relacionar itens
+  team_rule_type_title_threshold: Distância entre títulos de itens
+  team_rule_type_image_threshold: Distância entre imagens
+  team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
+  team_rule_select_flag: Selecione indicador
+  team_rule_flagged_as: O item está sinalizado como
+  flag_adult: Adulto
+  flag_spoof: Falsificação
+  flag_medical: Médico
+  flag_violence: Violência
+  flag_racy: Sugestivo
+  flag_spam: Spam
+  annotation_type_flag_name_label: Indicador
+  annotation_type_flag_value_label: Probabilidade do indicador
+  flag_likelihood_0: Desconhecido
+  flag_likelihood_1: Muito improvável
+  flag_likelihood_2: Improvável
+  flag_likelihood_3: Possível
+  flag_likelihood_4: Provável
+  flag_likelihood_5: Muito provável
   relationship_not_same_team: Itens relacionados devem existir na mesma área de trabalho
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
@@ -823,8 +845,7 @@ pt:
   custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
@@ -856,6 +877,16 @@ pt:
     A mensagem que você compartilhou conosco foi incorretamente marcada como *%{status}*.
     Ainda está em nossa fila para verificação adicional."
   custom_message_smooch_bot_ask_for_tos_checkpoint: Olá e por favor leia %{tos}
+  custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: ''
+  custom_message_smooch_bot_message_confirmed_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_unconfirmed_india-today: ''
+  custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
+  custom_message_smooch_bot_window_closing_india-today: ''
+  custom_message_smooch_bot_disabled_india-today: ''
+  custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_status_undetermined_india-today: ''
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
@@ -868,18 +899,24 @@ pt:
   custom_message_status_report_misleading_india-today: ''
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
-  custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
-  custom_message_smooch_bot_message_confirmed_india-today: ''
-  custom_message_smooch_bot_message_type_unsupported_india-today: ''
-  custom_message_smooch_bot_message_unconfirmed_india-today: ''
-  custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
-  custom_message_smooch_bot_window_closing_india-today: ''
-  custom_message_smooch_bot_disabled_india-today: ''
-  custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: ''
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_report_correct_africa-check: ''
+  custom_message_status_report_mostly-correct_africa-check: ''
+  custom_message_status_report_misleading_africa-check: ''
+  custom_message_status_report_false_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
@@ -902,3 +939,10 @@ pt:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_smooch_bot_result_test-govtech-pap: ''
+  custom_message_smooch_bot_result_changed_test-govtech-pap: ''
+  custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: ''
+  custom_message_smooch_bot_message_confirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
+  custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_not_final_test-govtech-pap: ''

@@ -1,4 +1,4 @@
 ---
-:redis_host: 'api.test'
+:redis_host: 'redis'
 :redis_port: 6379
-:redis_database: 1
+:redis_database: 0

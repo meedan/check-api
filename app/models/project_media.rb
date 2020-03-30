@@ -352,13 +352,9 @@ class ProjectMedia < ActiveRecord::Base
     ms.verification_status = self.last_status
     ts = self.annotations.where(annotation_type: "translation_status").last
     ms.translation_status = ts.load.status unless ts.nil?
-    ms.archived = self.archived.to_i
-    ms.inactive = self.inactive.to_i
-    ms.sources_count = self.sources_count.to_i
-    ms.requests_count = self.requests_count.to_i
-    ms.linked_items_count = self.linked_items_count.to_i
-    ms.share_count = self.share_count.to_i
-    ms.last_seen = self.last_seen.to_i
+    # set fields with interger value
+    fields_i = ['archived', 'inactive', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand']
+    fields_i.each{ |f| ms.send("#{f}=", self.send(f).to_i) }
   end
 
   # private

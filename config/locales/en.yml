@@ -720,6 +720,28 @@ en:
   team_rule_all_items: All items
   team_rule_send_message_to_user: Send message to user
   team_rule_action_value: Type message here
+  team_rule_item_titles_are_similar: Item titles are similar
+  team_rule_item_images_are_similar: Images are similar
+  team_rule_relate_similar_items: Relate items
+  team_rule_type_title_threshold: Distance between item titles
+  team_rule_type_image_threshold: Distance between images
+  team_rule_type_flag_threshold: With a likelihood of at least
+  team_rule_select_flag: Select flag
+  team_rule_flagged_as: Item is flagged as
+  flag_adult: Adult
+  flag_spoof: Spoof
+  flag_medical: Medical
+  flag_violence: Violence
+  flag_racy: Racy
+  flag_spam: Spam
+  annotation_type_flag_name_label: Flag
+  annotation_type_flag_value_label: Flag likelihood
+  flag_likelihood_0: Unknown
+  flag_likelihood_1: Very unlikely
+  flag_likelihood_2: Unlikely
+  flag_likelihood_3: Possible
+  flag_likelihood_4: Likely
+  flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
@@ -876,7 +898,7 @@ en:
   custom_message_status_undetermined_boom-factcheck: Unstarted
   custom_message_status_in_progress_boom-factcheck: In progress
   custom_message_status_out_of_scope_boom-factcheck: Out of scope
-  custom_message_status_in_the_news_boom-factcheck: In the news
+  custom_message_status_in_the_news_boom-factcheck: 'Report: In the news'
   custom_message_status_junk_boom-factcheck: Junk
   custom_message_status_report-true_boom-factcheck: 'Report: True'
   custom_message_status_report-false_boom-factcheck: 'Report: False'
@@ -944,11 +966,8 @@ en:
     Check Message is provided to you under these Terms of Service: %{tos}. By continuing
     to use this service, *you agree to be bound by these terms*. You should discontinue
     your use of Check Message if you do not agree.'
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: We
-    started to look at your request! Stay tuned!
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: 'Thank
-    you! We could not fact-check this item. Here is a guide to submit content that
-    we can work with. '
+  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: We
+    started looking at your request now.
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -979,18 +998,6 @@ en:
     The message you shared with us was wrongly marked as *%{status}*. It is still
     in our queue for further verification."'
   custom_message_smooch_bot_ask_for_tos_checkpoint: Hello and plz read %{tos}
-  custom_message_status_undetermined_india-today: Unstarted
-  custom_message_status_in_progress_india-today: In progress
-  custom_message_status_inconclusive_india-today: We don't Fact Check rumours
-  custom_message_status_false_india-today: 'False'
-  custom_message_status_verified_india-today: 'True'
-  custom_message_status_half_true_india-today: Half True
-  custom_message_status_misleading_india-today: Misleading Headline
-  custom_message_status_report-false_india-today: 'Report: False'
-  custom_message_status_report-true_india-today: 'Report: True'
-  custom_message_status_report_misleading_india-today: 'Report: Misleading headline'
-  custom_message_status_report-inconclusive_india-today: 'Report: Can''t be verified'
-  custom_message_status_report_half_true_india-today: 'Report: Half true'
   custom_message_smooch_bot_result_india-today: "Congrats! Here’s the Fact Check you
     asked for. *%{status}*\n\nHere are the steps we took to determine this: %{url}\n
     \nThanks again! Keep the fight against fake news going and share this fact-check
@@ -1028,6 +1035,18 @@ en:
     By continuing to use this service, you agree to be bound by these terms. You should discontinue your use of the tipline if you do not agree.
 
     You can read the latest Fact Check stories at  https://www.indiatoday.in/fact-check
+  custom_message_status_undetermined_india-today: Unstarted
+  custom_message_status_in_progress_india-today: In progress
+  custom_message_status_inconclusive_india-today: Out of scope
+  custom_message_status_false_india-today: 'False'
+  custom_message_status_verified_india-today: 'True'
+  custom_message_status_half_true_india-today: Half True
+  custom_message_status_misleading_india-today: Misleading Headline
+  custom_message_status_report-false_india-today: 'Report: False'
+  custom_message_status_report-true_india-today: 'Report: True'
+  custom_message_status_report_misleading_india-today: 'Report: Misleading headline'
+  custom_message_status_report-inconclusive_india-today: 'Report: Can''t be verified'
+  custom_message_status_report_half_true_india-today: 'Report: Half true'
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: Thanks
     again for reaching out to India Today Fact Check.  Our team is currenlty working
     on your request and we will get back to you. Meanwhile, you can read our latest
@@ -1035,6 +1054,27 @@ en:
   custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: Sorry,
     we're are not able to verify your request currrenly. It is not possible to fact-check
     everything. Moreover, opinion, satire or vague claims are out of scope.
+  custom_message_status_undetermined_africa-check: Unstarted
+  custom_message_status_in_progress_africa-check: In progress
+  custom_message_status_false_africa-check: 'Fact-checked: Incorrect'
+  custom_message_status_verified_africa-check: 'Fact-checked: Correct'
+  custom_message_status_mostly-correct_africa-check: 'Fact-checked: Mostly Correct'
+  custom_message_status_misleading_africa-check: 'Fact-checked: Misleading'
+  custom_message_status_inconclusive_africa-check: 'Fact-checked: Unproven'
+  custom_message_status_report_correct_africa-check: Correct
+  custom_message_status_report_mostly-correct_africa-check: Mostly Correct
+  custom_message_status_report_misleading_africa-check: Misleading
+  custom_message_status_report_false_africa-check: Incorrect
+  custom_message_status_more-information_africa-check: More information
+  custom_message_status_out-of-scope_africa-check: Out of Scope
+  custom_message_status_more-about-africa-check_africa-check: More about Africa Check
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: "We
+    can’t fact-check the message you sent us. Please read our submission guidelines
+    here: \nhttps://africacheck.org/how-to-fact-check/submit-a-claim-to-check/"
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: Africa
+    Check is a non-profit organisation working to promote accuracy in public debate
+    and the media in Africa. We try to raise the quality of information available
+    to society across the continent. We can help you sort fact from fiction. https://africacheck.org/
   custom_message_status_start_mantis-8135: Starting
   custom_message_status_pause_mantis-8135: Paused
   custom_message_status_undetermined_mmtan: D-in progress
@@ -1085,3 +1125,11 @@ en:
     Si continuás usando este servicio reconocés que aceptás estos Términos y estás
     de acuerdo en vincularte a los mismos. Si no estás de acuerdo (o no podés cumplir)
     con los Términos, debés dejar de utilizar el servicio.
+  custom_message_smooch_bot_result_test-govtech-pap: Wiadomośc zweryfikowana!
+  custom_message_smooch_bot_result_changed_test-govtech-pap: MEga! Zmiana statusu
+  custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: Potwierdź status
+  custom_message_smooch_bot_message_confirmed_test-govtech-pap: Potwierdź że chcesz
+    dodać
+  custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: dasdsa
+  custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: erwet3t
+  custom_message_smooch_bot_not_final_test-govtech-pap: dsvcbcnbcbxvzsdfghjh

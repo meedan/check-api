@@ -157,7 +157,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
       s.name = 'update name'; s.skip_check_ability = true; s.save!
       ps.project_id = p2.id; ps.save!
       ps = ProjectSource.find(ps.id)
-      assert_equal ["create_comment", "create_tag", "create_flag", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
+      assert_equal ["create_comment", "create_tag", "create_dynamic", "update_projectsource", "update_source"].sort, ps.get_versions_log.map(&:event_type).sort
       assert_equal 5, ps.get_versions_log_count
       c.destroy
       assert_equal 5, ps.get_versions_log_count

@@ -16,13 +16,8 @@ class Bot::Smooch < BotUser
   end
 
   ::Relationship.class_eval do
-    after_create :inherit_status_from_parent
-    after_destroy :reset_child_status
-
-    private
-
-    def inherit_status_from_parent
-      return if self.user.nil? || self.user.type == 'BotUser'
+    after_create do
+      next if self.user.nil? || self.user.type == 'BotUser'
       target = self.target
       parent = self.source
       if Bot::Smooch.team_has_smooch_bot_installed(target)
@@ -36,7 +31,7 @@ class Bot::Smooch < BotUser
       end
     end
 
-    def reset_child_status
+    after_destroy do
       target = self.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
@@ -77,6 +72,8 @@ class Bot::Smooch < BotUser
           sm.enter_human_mode
         when 'reactivate'
           sm.leave_human_mode
+        when 'refresh_timeout'
+          Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
         else
           app_id = self.get_field_value('smooch_user_app_id')
           message = self.action.to_s.match(/^send (.*)$/)
@@ -96,6 +93,15 @@ class Bot::Smooch < BotUser
   end
 
   ::DynamicAnnotation::Field.class_eval do
+    after_save do
+      if self.field_name == 'smooch_user_slack_channel_url'
+        smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user', annotation_id: self.annotation.id).last
+        value = smooch_user_data.value_json unless smooch_user_data.nil?
+        a = self.annotation
+        Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
+      end
+    end
+
     protected
 
     def replicate_status_to_children
@@ -124,6 +130,46 @@ class Bot::Smooch < BotUser
         meme.skip_check_ability = true
         meme.save!
       end
+    end
+  end
+
+  ::Version.class_eval do
+    def smooch_user_slack_channel_url
+      object_after = JSON.parse(self.object_after)
+      return unless object_after['field_name'] == 'smooch_data'
+      slack_channel_url = ''
+      data = JSON.parse(object_after['value'])
+      unless data.nil?
+        obj = self.associated
+        key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
+        slack_channel_url = Rails.cache.fetch(key) do
+          # Retrieve URL
+          get_slack_channel_url(obj, data)
+        end
+      end
+      slack_channel_url
+    end
+
+    private
+
+    def get_slack_channel_url(obj, data)
+      # fetch project from smooch bot and fallback to obj.project_id
+      pid = nil
+      bot = BotUser.where(login: 'smooch').last
+      tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
+      pid =  tbi.get_smooch_project_id unless tbi.nil?
+      pid ||= obj.project_id
+      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
+      .where("value_json ->> 'id' = ?", data['authorId'])
+      .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
+      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).uniq
+      field_value = nil
+      smooch_user_data.each do |f|
+        slack_channel_url = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: f.annotation.id).last
+        field_value = slack_channel_url.value unless slack_channel_url.nil?
+        break unless field_value.nil?
+      end
+      field_value
     end
   end
 
@@ -288,11 +334,14 @@ class Bot::Smooch < BotUser
   end
 
   def self.group_messages(message, app_id)
-    sm = CheckStateMachine.new(message['authorId'])
-    return if sm.state.value == 'human_mode'
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value == 'human_mode'
+      self.refresh_smooch_slack_timeout(uid)
+      return
+    end
     self.send_tos_if_needed(message)
     redis = Redis.new(REDIS_CONFIG)
-    uid = message['authorId']
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
     redis.rpush(key, message.to_json)
@@ -434,6 +483,12 @@ class Bot::Smooch < BotUser
       query = { field_name: 'smooch_user_data', json: { app_name: app.app.name, identifier: identifier } }.to_json
       cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
       Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
+      # cache SmoochUserSlackChannelUrl if smooch_user_slack_channel_url exist
+      cache_slack_key = "SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{uid}"
+      if Rails.cache.read(cache_slack_key).blank?
+        slack_channel_url = a.get_field_value('smooch_user_slack_channel_url')
+        Rails.cache.write(cache_slack_key, slack_channel_url) unless slack_channel_url.blank?
+      end
     end
   end
 
@@ -445,16 +500,12 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.message_should_be_ignored(message)
-    !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
-  end
-
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
     sm = CheckStateMachine.new(message['authorId'])
 
     if sm.state.value == 'waiting_for_message'
-      return if self.message_should_be_ignored(message)
+      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
       hash = self.message_hash(message)
       pm_id = Rails.cache.read("smooch:message:#{hash}")
@@ -866,5 +917,30 @@ class Bot::Smooch < BotUser
     end
     annotation.set_fields = { memebuster_published_at: Time.now }.to_json
     annotation.save!
+  end
+
+  def self.refresh_smooch_slack_timeout(uid, slack_data = {})
+    time = Time.now.to_i
+    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}") || {}
+    data.merge!(slack_data.merge({ 'time' => time }))
+    Rails.cache.write("smooch:slack:last_human_message:#{uid}", data)
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value != 'human_mode'
+      sm.enter_human_mode
+      text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <https://intercom.help/meedan/en/articles/3365307-slack-integration|Learn about more features of the Slack integration here.>'
+      Bot::Slack.delay_for(1.second).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
+    end
+    self.delay_for(15.minutes).timeout_smooch_slack_human_conversation(uid, time)
+  end
+
+  def self.timeout_smooch_slack_human_conversation(uid, time)
+    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}")
+    return if !data || data['time'].to_i > time
+    sm = CheckStateMachine.new(uid)
+    if sm.state.value == 'human_mode'
+      sm.leave_human_mode
+      text = 'Automated bot-message reactivated after 15 min of inactivity. <http://help.checkmedia.org/en/articles/3336466-talk-to-users-on-your-check-message-tip-line|Learn more here>.'
+      Bot::Slack.send_message_to_slack_conversation(text, data['token'], data['channel'])
+    end
   end
 end

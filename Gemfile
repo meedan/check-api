@@ -112,7 +112,7 @@ gem 'smooch-api', git: 'https://github.com/smooch/smooch-ruby.git', ref: 'a2c164
 gem 'typhoeus'
 gem 'sidekiq-benchmark'
 gem 'sidekiq-status'
-gem 'mini_magick', '4.9.4'
+gem 'mini_magick', '4.10.1'
 gem 'webshot', '0.1.1'
 gem 'peek-rblineprof'
 gem 'request_store-sidekiq', '~> 0.1'

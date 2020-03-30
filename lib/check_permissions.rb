@@ -65,11 +65,11 @@ module CheckPermissions
     {
       'Team' => [Project, Account, TeamUser, User, Contact, TagText, ProjectMedia],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
-      'Link' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
-      'Claim' => [ProjectMedia, Comment, Flag, Tag, Dynamic, Task],
+      'Media' => [ProjectMedia, Comment, Tag, Dynamic, Task],
+      'Link' => [ProjectMedia, Comment, Tag, Dynamic, Task],
+      'Claim' => [ProjectMedia, Comment, Tag, Dynamic, Task],
       'Project' => [ProjectSource, Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Flag, Tag, Dynamic, Task],
+      'ProjectMedia' => [Comment, Tag, Dynamic, Task],
       'Source' => [Account, ProjectSource, Project],
       'User' => [Source, TeamUser, Team, Project]
     }
