@@ -730,6 +730,26 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal url2, d.get_field_value('smooch_user_slack_channel_url')
         # check that cache key exists
         assert_equal url2, Rails.cache.read(key)
+        # call mutation with non existing id
+        query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "99999", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
+        post :create, query: query
+        assert_response 404
     end
+  end
+
+  test "should check permission before set slack channel url" do
+    create_annotation_type_and_fields('Smooch User', {
+        'Slack Channel Url' => ['Text', true]
+    })
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
+    u2 = create_user
+    authenticate_with_user(u2)
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
+    post :create, query: query
+    assert_response 400
   end
 end
