@@ -1,6 +1,7 @@
 namespace :check do
   namespace :migrate do
     # bundle exec rake check:migrate:add_smooch_slack_url_annotation_field[team_slug:workspace_id]
+    # first args should be redis_prefix
     task add_smooch_slack_url_annotation_field: :environment do |_t, args|
       # collect team_slug and workspace id for rake input
       team_slack = {}
@@ -8,8 +9,9 @@ namespace :check do
         t = arg.split(":")
         team_slack[t.first] = t.last
       end
+      redis_prefix = team_slack['redis_prefix']
       redis = Redis.new
-      redis.keys("slack_channel_smooch:*").each_slice(2000) do |bulk|
+      redis.keys("slack_channel_smooch:#{redis_prefix}:*").each_slice(2000) do |bulk|
         smooch_users = {}
         redis.mget(bulk).each.with_index do |v, index|
           print "."
