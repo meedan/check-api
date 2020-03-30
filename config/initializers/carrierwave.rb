@@ -22,11 +22,10 @@ unless bucket_name.blank?
     config.asset_host = CONFIG['storage']['asset_host']
   end
 
-  connection = Fog::Storage.new(credentials)
-  bucket = connection.directories.get(bucket_name)
-
-  if bucket.nil?
-    begin
+  begin
+    connection = Fog::Storage.new(credentials)
+    bucket = connection.directories.get(bucket_name)
+    if bucket.nil?
       connection.directories.create(key: bucket_name, public: true)
       policy = {
         'Version' => '2012-10-17',
@@ -43,8 +42,10 @@ unless bucket_name.blank?
       }
       bucket = connection.directories.get(bucket_name)
       bucket.service.put_bucket_policy(bucket_name, policy)
-    rescue Excon::Error::Conflict
-      puts 'Bucket already exists'
     end
+  rescue Excon::Error::Socket
+    puts '[CarrierWave] Failure to connect to storage'
+  rescue Excon::Error::Conflict
+    puts '[CarrierWave] Bucket already exists'
   end
 end

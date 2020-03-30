@@ -1,7 +1,0 @@
-Airbrake.configure do |config|
-  config.project_key = '%errbit_token%'
-  config.project_id = 1
-  config.host    = 'https://%errbit_host%:%errbit_port%'
-  config.ignore_environments = %w(development test cucumber)
-  config.environment = `hostname`
-end
