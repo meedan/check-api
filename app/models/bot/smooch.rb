@@ -93,7 +93,7 @@ class Bot::Smooch < BotUser
   end
 
   ::DynamicAnnotation::Field.class_eval do
-    after_create do
+    after_save do
       if self.field_name == 'smooch_user_slack_channel_url'
         a = self.annotation.load
         value = a.get_field('smooch_user_data')&.value_json
