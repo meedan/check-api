@@ -157,12 +157,8 @@ class TeamTaskTest < ActiveSupport::TestCase
       tt.save!
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
-      assert_raises ActiveRecord::RecordNotFound do
-        pm2_tt.reload
-      end
-      assert_raises ActiveRecord::RecordNotFound do
-        pm3_tt.reload
-      end
+      assert_not_nil pm2_tt.reload
+      assert_not_nil pm3_tt.reload
     end
     Team.unstub(:current)
   end
@@ -236,12 +232,10 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
-      assert_nil pm1_tt
+      assert_not_nil pm1_tt
       assert_nothing_raised ActiveRecord::RecordNotFound do
         pm2_tt.reload
         pm4_tt.reload
-      end
-      assert_raises ActiveRecord::RecordNotFound do
         pm3_tt.reload
       end
     end
@@ -291,8 +285,12 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm2_tt.reload
       end
-      assert_not_nil pm3_tt.reload
-      assert_not_nil pm4_tt.reload
+      assert_raises ActiveRecord::RecordNotFound do
+        pm3_tt.reload
+      end
+      assert_raises ActiveRecord::RecordNotFound do
+        pm4_tt.reload
+      end
     end
     Team.unstub(:current)
   end

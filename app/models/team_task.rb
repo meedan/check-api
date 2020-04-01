@@ -46,9 +46,9 @@ class TeamTask < ActiveRecord::Base
 
   def update_teamwide_tasks_bg(options, projects)
     # get project medias for deleted projects
-    pm_ids = handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
+    handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
     # update tasks with zero answer
-    update_tasks_with_zero_answer(options, pm_ids)
+    update_tasks_with_zero_answer(options)
     # handle tasks with answers
     update_tasks_with_answer if options[:required]
     # items related to added projects
@@ -56,7 +56,8 @@ class TeamTask < ActiveRecord::Base
   end
 
   def self.destroy_teamwide_tasks_bg(id)
-    TeamTask.get_teamwide_tasks_zero_answers(id).find_each do |t|
+    Task.where(annotation_type: 'task')
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
       t.destroy
     end
   end
@@ -84,32 +85,29 @@ class TeamTask < ActiveRecord::Base
   end
 
   def handle_removed_projects(projects)
-    ProjectMedia.where(project: projects).map(&:id)
+    pms_id = ProjectMedia.where(project: projects).map(&:id)
+    Task.where(annotation_type: 'task', 'annotations.id' => pms_id)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id).find_each { |t| t.destroy }
   end
 
-  def update_tasks_with_zero_answer(options, pm_ids)
+  def update_tasks_with_zero_answer(options)
     # collect updated fields with new values
     colums = {}
     options.each do |k, _v|
       colums[k] = self.read_attribute(k)
     end
-    pm_ids ||= []
     excluded_ids = []
     # working with required options (F => T)
     if self.required? && options[:required]
       # Get tasks that are unresolved AND their item is at a terminal status
       colums.delete_if{|k, _v| k == :required}
-      get_teamwide_tasks_unresolved_with_terminal.find_each { |t| excluded_ids << t.id ; (pm_ids.include?(t.annotated_id) ? t.destroy : (!colums.blank? ? t.update(colums) : nil)) }
+      get_teamwide_tasks_unresolved_with_terminal.find_each { |t| excluded_ids << t.id ; t.update(colums) unless colums.blank? }
     end
     colums[:required] = self.read_attribute(:required) if options[:required]
     # get tasks with zero ansers expect unresolved and their item in terminal status
     # and apply updates for (title/description/options) only
     TeamTask.get_teamwide_tasks_zero_answers(self.id, excluded_ids).find_each do |t|
-      if pm_ids.include?(t.annotated_id)
-        t.destroy
-      elsif !colums.blank?
-        t.update(colums)
-      end
+      t.update(colums) unless colums.blank?
     end
   end
 
@@ -145,11 +143,15 @@ class TeamTask < ActiveRecord::Base
           AND task_team_task_id(s.annotation_type, s.data) = ?",
           self.id])
         )
-    .where.not(id: excluded_ids)
     .where('s.id' => nil)
     .find_each do |pm|
       begin
         pm.create_auto_tasks([self])
+        if excluded_ids.include?(pm.id)
+          # TODO:
+          # A) Resolve task if task is required
+          # B) Assign task if item already assigned to user
+        end
       rescue StandardError => e
         TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
         Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
