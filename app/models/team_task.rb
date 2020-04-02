@@ -10,6 +10,7 @@ class TeamTask < ActiveRecord::Base
 
   belongs_to :team
 
+  after_create :add_teamwide_tasks
   after_update :update_teamwide_tasks
   after_commit :delete_teamwide_tasks, on: :destroy
 
@@ -44,25 +45,32 @@ class TeamTask < ActiveRecord::Base
     self.task_type = value
   end
 
-  def update_teamwide_tasks_bg(options, projects)
-    # get project medias for deleted projects
-    handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
-    # update tasks with zero answer
-    update_tasks_with_zero_answer(options)
-    # handle tasks with answers
-    update_tasks_with_answer if options[:required]
+  def add_update_teamwide_tasks_bg(action, options, projects)
+    if action == 'update'
+      # get project medias for deleted projects
+      handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
+      # update tasks with zero answer
+      update_tasks_with_zero_answer(options)
+      # handle tasks with answers
+      update_tasks_with_answer if options[:required]
+    end
     # items related to added projects
     handle_added_projects(projects[:added]) unless projects[:added].blank?
   end
 
   def self.destroy_teamwide_tasks_bg(id)
-    Task.where(annotation_type: 'task')
+    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
       t.destroy
     end
   end
 
   private
+
+  def add_teamwide_tasks
+    projects = { added: self.project_ids }
+    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects)) unless projects.blank?
+  end
 
   def update_teamwide_tasks
     options = {
@@ -86,7 +94,7 @@ class TeamTask < ActiveRecord::Base
 
   def handle_removed_projects(projects)
     pms_id = ProjectMedia.where(project: projects).map(&:id)
-    Task.where(annotation_type: 'task', 'annotations.id' => pms_id)
+    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: pms_id)
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id).find_each { |t| t.destroy }
   end
 
@@ -147,14 +155,18 @@ class TeamTask < ActiveRecord::Base
     .find_each do |pm|
       begin
         pm.create_auto_tasks([self])
-        if excluded_ids.include?(pm.id)
-          # TODO:
-          # A) Resolve task if task is required
-          # B) Assign task if item already assigned to user
-        end
       rescue StandardError => e
         TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
         Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
+      end
+    end
+    if self.required?
+      # resolve tasks that added to terminal status items
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: excluded_ids)
+      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+      .find_each do |t|
+        t.status = 'resolved'
+        t.save!
       end
     end
   end

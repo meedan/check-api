@@ -86,6 +86,27 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal 'free_text', tt.type
   end
 
+  test "should add teamwide task to existing items" do
+    t =  create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    # set pm2 in final state
+    s = pm2.last_status_obj
+    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    s.save!
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      tt = create_team_task team_id: t.id, project_ids: [p.id],required: true, description: 'Foo', options: [{ label: 'Foo' }]
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm2_tt
+      assert_equal 'resolved', pm2_tt.status
+    end
+    Team.unstub(:current)
+  end
+
   test "should update teamwide tasks with zero answers" do
     t =  create_team
     p = create_project team: t
@@ -105,7 +126,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
     assert_nil pm_tt
     assert_not_nil pm2_tt
-    assert_not_nil pm2_tt
+    assert_not_nil pm3_tt
     Sidekiq::Testing.inline! do
       # update title
       tt.label = 'update label'; tt.save!
@@ -157,8 +178,12 @@ class TeamTaskTest < ActiveSupport::TestCase
       tt.save!
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
-      assert_not_nil pm2_tt.reload
-      assert_not_nil pm3_tt.reload
+      assert_raises ActiveRecord::RecordNotFound do
+        pm2_tt.reload
+      end
+      assert_raises ActiveRecord::RecordNotFound do
+        pm3_tt.reload
+      end
     end
     Team.unstub(:current)
   end
@@ -186,7 +211,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
     s.save!
     pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm1_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -233,10 +258,15 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
       assert_not_nil pm1_tt
-      assert_nothing_raised ActiveRecord::RecordNotFound do
+      assert_equal 'resolved', pm1_tt.status
+      assert_raises ActiveRecord::RecordNotFound do
         pm2_tt.reload
-        pm4_tt.reload
+      end
+      assert_raises ActiveRecord::RecordNotFound do
         pm3_tt.reload
+      end
+      assert_raises ActiveRecord::RecordNotFound do
+        pm4_tt.reload
       end
     end
     Team.unstub(:current)
@@ -291,38 +321,6 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm4_tt.reload
       end
-    end
-    Team.unstub(:current)
-  end
-
-  test "should not duplicate team task when add a project" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    Team.stubs(:current).returns(t)
-    tt = create_team_task team_id: t.id, project_ids: [p.id]
-    pm = create_project_media project: p
-    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    # add response to task for pm
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    pm_tt.save!
-    Sidekiq::Testing.inline! do
-      # test add/remove projects
-      tt.json_project_ids = [p2.id].to_json
-      tt.save!
-      assert_nothing_raised ActiveRecord::RecordNotFound do
-        pm_tt.reload
-      end
-      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
-      tt.json_project_ids = [p.id].to_json
-      tt.save!
-      assert_nothing_raised ActiveRecord::RecordNotFound do
-        pm_tt.reload
-      end
-      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
     end
     Team.unstub(:current)
   end
