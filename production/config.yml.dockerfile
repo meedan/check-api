@@ -1,0 +1,230 @@
+development: &default
+  secret_token: 'somethingsecret'
+  app_name: 'Check'
+  authorization_header: 'X-Check-Token'
+  checkdesk_base_url: 'http://localhost:3000'
+  checkdesk_base_url_private: 'http://localhost:3000'
+  checkdesk_client: 'http://localhost:3333'
+  app_url: 'http://localhost:3333'
+  pender_url: 'http://localhost:3200'
+  pender_url_private: 'http://pender:3200'
+  pender_key: 'dev'
+  alegre_host: 'http://alegre:3100'
+  alegre_token: 'dev'
+  elasticsearch_host: 'elasticsearch'
+  elasticsearch_port: 9200
+  elasticsearch_index:
+  elasticsearch_log: true
+  elasticsearch_sync: false
+  pghero_enabled: false
+
+  # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
+  # '(https?://.*\.?(meedan.com|meedan.org))'
+  allowed_origins: '.*'
+
+  # Localization
+  #
+  # OPTIONAL
+  # Leave blank to use locale in `Accept-Language` HTTP header
+  # Otherwise set to a single language code
+  #
+  locale:
+
+  # File upload settings
+  #
+  video_file_max_size: 20971520
+  uploaded_file_max_size: 1000000
+  image_min_width: 1
+  image_max_width: 10000
+  image_min_height: 1
+  image_max_height: 10000
+  image_embed_size:
+  image_thumbnail_size:
+
+  # Legal documents settings
+  #
+  tos_url: 'https://meedan.com/en/check/check_tos.html'
+  tos_smooch_url:
+    lang:
+      en: 'https://meedan.com/en/check/check_message_tos.html'
+      es: 'https://meedan.com/es/check/check_message_tos.html'
+  privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
+  privacy_email: 'privacy@meedan.com'
+
+  # 2FA/OTP settings
+  #
+  two_factor_key: 'a3ebaae85c248da81427623959753e46b9fcb8a0d630a1e41c1dffe03596bf2ffd9701bf69fa0dd598f3c45103bdba7e956d0d3560916859884de92d1f51fe16'
+
+  # File storage on S3 or API equivalent
+  #
+  # REQUIRED
+  # Use values below for local development
+  #
+  storage:
+    endpoint: 'http://minio:9000'
+    asset_host: 'http://localhost:9000/check-api-dev'
+    access_key: 'AKIAIOSFODNN7EXAMPLE'
+    secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    bucket: 'check-api-dev'
+    bucket_region: 'us-east-1'
+    path_style:
+
+  # Exception reporting using Airbrake or API equivalent https://airbrake.io/
+  #
+  # OPTIONAL
+  #
+  airbrake:
+    host: # '<AIRBRAKE HOST>'
+    port: # '<AIRBRAKE PORT>'
+    project_key: # '<AIRBRAKE PROJECT KEY>'
+    environment: # '<AIRBRAKE ENVIRONMENT>'
+
+  # Email settings
+  #
+  # REQUIRED for notification emails
+  #
+  support_email: 'check@meedan.com'
+  default_mail: 'Meedan Check <root@localhost>'
+  send_welcome_email_on_registration: false
+  smtp_host: 'smtp.gmail.com'
+  smtp_port: 587
+  smtp_user: # '<GMAIL USERNAME>'
+  smtp_pass: # '<GMAIL PASSWORD>'
+
+  # Pusher notification service https://pusher.com/channels
+  #
+  # REQUIRED
+  #
+  pusher_app_id: # '<PUSHER APP ID>'
+  pusher_key: # '<PUSHER KEY>'
+  pusher_secret: # '<PUSHER SECRET>'
+  pusher_cluster: # '<PUSHER CLUSTER>'
+
+  # Transifex localization platform https://transifex.com
+  #
+  # REQUIRED for dynamic string localization
+  # OPTIONAL for tasks `rake transifex:XXX`
+  # By default, latest localizations are included in the codebase
+  #
+  # Offical Check localization at https://transifex.com/meedan/check-2
+  # The user should have a Transifex role of Project Maintainer
+  #
+  transifex_user: # '<TRANSIFEX USERNAME>'
+  transifex_password: # '<TRANSIFEX PASSWORD>'
+  transifex_project: 'check-2'
+
+  # Twitter social login
+  #
+  # REQUIRED for Twitter social login
+  #
+  twitter_consumer_key: # '<TWITTER APP CONSUMER KEY>'
+  twitter_consumer_secret: # '<TWITTER APP CONSUMER SECRET>'
+
+  # Facebook social login
+  #
+  # REQUIRED for Facebook social login
+  #
+  facebook_app_id: # '<FACEBOOK APP ID>'
+  facebook_app_secret: # '<FACEBOOK APP SECRET>'
+
+  # Slack social login
+  #
+  # REQUIRED for Slack social login
+  #
+  slack_app_id: # '<SLACK APP ID>'
+  slack_app_secret: # '<SLACK APP SECRET>'
+
+  # Google social login
+  #
+  # REQUIRED for Google social login
+  #
+  google_client_id: # '<GOOGLE CLIENT ID>'
+  google_client_secret: # '<GOOGLE CLIENT SECRET>'
+  google_auth_redirect_uri: 'http://localhost:3000/api/users/auth/google_oauth2/callback'
+  google_credentials_path: '/app/config/credentials.json'
+
+  # Smooch (Zendesk Sunshine Conversations) messaging platform gateway https://smooch.io/
+  #
+  # REQUIRED for Check Message Twitter integration
+  # https://docs.smooch.io/guide/twitter/#using-the-integration-api
+  #
+  smooch_twitter_consumer_key: # '<SMOOCH TWITTER APP CONSUMER KEY>'
+  smooch_twitter_consumer_secret: # '<SMOOCH TWITTER APP CONSUMER SECRET>'
+  smooch_twitter_tier: # '<SMOOCH TWITTER SUBSCRIPTION TIER>'
+  smooch_twitter_env_name: # '<SMOOCH TWITTER APP ENVIRONMENT LABEL>'
+
+  # Bitly link shortening service https://bitly.com/
+  #
+  # OPTIONAL for public report view link shortening
+  #
+  bitly_key: # '<BITLY OAUTH KEY>'
+
+  # Google Analytics https://analytics.google.com
+  #
+  # OPTIONAL
+  #
+  google_analytics_code: # '<GOOGLE ANAYTICS CODE>'
+
+  # Honeycomb analytics service https://www.honeycomb.io
+  #
+  # OPTIONAL
+  #
+  honeycomb_key: # '<HONEYCOMB KEY>'
+  honeycomb_dataset: # '<HONEYCOMB DATASET>'
+
+  # DEPRECATED
+  #
+  optics_api_key:
+  slack_token:
+  viber_token:
+  clamav_service_path:
+  cc_deville_host:
+  cc_deville_token:
+  cc_deville_httpauth:
+
+test:
+  <<: *default
+  checkdesk_base_url: 'http://api:3000'
+  checkdesk_client: 'http://web:3333'
+  pender_key: 'test'
+  alegre_token: 'test'
+  elasticsearch_index: 'check_test<%= ENV["TEST_ENV_NUMBER"] %>'
+  elasticsearch_sync: true
+  elasticsearch_log: false
+  google_analytics_code:
+  video_file_max_size:
+  uploaded_file_max_size:
+  image_min_width:
+  image_max_width:
+  image_min_height:
+  image_max_height:
+  image_embed_size:
+  image_thumbnail_size:
+  default_mail: 'root@localhost'
+  transifex_user:
+  transifex_password:
+  transifex_project:
+  storage:
+    endpoint: 'http://minio:9000'
+    public_endpoint: 'http://localhost:9000/check-api-test'
+    access_key: 'AKIAIOSFODNN7EXAMPLE'
+    secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    bucket: 'check-api-test'
+    bucket_region: 'us-east-1'
+
+  # Facebook social login
+  #
+  # REQUIRED to pass Facebook social login tests
+  #
+  facebook_app_id: # '<FACEBOOK APP ID>'
+  facebook_app_secret: # '<FACEBOOK APP SECRET>'
+
+  # Slack social login
+  #
+  # REQUIRED to pass Slack social login tests
+  #
+  slack_app_id: # '<SLACK APP ID>'
+  slack_app_secret: # '<SLACK APP SECRET>'
+
+production:
+  <<: *default
