@@ -56,11 +56,15 @@ module ProjectMediaPrivate
     m.save!
     a.skip_check_ability = true
     a.account_sources.each { |as| as.skip_check_ability = true }
-    a.destroy if a.medias.count == 0
+    if a.medias.count == 0
+      # Remove from ES and destroy
+      a.destroy_es_items('accounts', 'destroy_doc_nested', self)
+      a.destroy
+    end
     # Add a project source if new source was created
     self.create_project_source if source.nil?
     # update es
-    self.update_elasticsearch_doc(['account'], {account: self.set_es_account_data}, self.id)
+    self.add_update_nested_obj({ op: 'create', nested_key: 'accounts', keys: %w(id title description username), data: self.set_es_account_data.first , obj: self})
   end
 
   def archive_or_restore_related_medias_if_needed
