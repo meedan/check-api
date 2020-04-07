@@ -1,6 +1,8 @@
 class TeamTask < ActiveRecord::Base
   include ErrorNotification
 
+  attr_accessor :skip_update_media_status
+
   validates_presence_of :label, :team_id
   validates :task_type, included: { values: Task.task_types }
 
@@ -45,17 +47,30 @@ class TeamTask < ActiveRecord::Base
     self.task_type = value
   end
 
-  def add_update_teamwide_tasks_bg(action, options, projects)
-    if action == 'update'
-      # get project medias for deleted projects
-      handle_removed_projects(projects[:removed]) unless projects[:removed].blank?
-      # update tasks with zero answer
-      update_tasks_with_zero_answer(options)
-      # handle tasks with answers
-      update_tasks_with_answer if options[:required]
-    end
+  def add_teamwide_tasks_bg(options, projects)
     # items related to added projects
-    handle_added_projects(projects[:added]) unless projects[:added].blank?
+    condition = self.project_ids.blank? ? { team_id: self.team_id } : { project_id: self.project_ids }
+    handle_add_projects(condition)
+  end
+
+  def update_teamwide_tasks_bg(options, projects)
+    # get project medias for deleted projects
+    handle_remove_projects(projects) unless projects.blank?
+    # update tasks with zero answer
+    update_tasks_with_zero_answer(options)
+    # handle tasks with answers
+    update_tasks_with_answer if options[:required]
+    # items related to added projects
+    unless projects.blank?
+      condition = excluded_ids = {}
+      if projects[:new].blank?
+        condition = { team_id: self.team_id }
+        excluded_ids = { project_id: projects[:old] }
+      elsif !projects[:old].blank?
+        condition = { project_id: projects[:new] }
+      end
+      handle_add_projects(condition, excluded_ids) unless condition.blank?
+    end
   end
 
   def self.destroy_teamwide_tasks_bg(id)
@@ -68,8 +83,8 @@ class TeamTask < ActiveRecord::Base
   private
 
   def add_teamwide_tasks
-    projects = { added: self.project_ids }
-    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects)) unless projects.blank?
+    projects = { new: self.project_ids }
+    TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects))
   end
 
   def update_teamwide_tasks
@@ -80,22 +95,38 @@ class TeamTask < ActiveRecord::Base
       options: self.options_changed?
     }
     options.delete_if{|_k, v| v == false || v.nil?}
-    projects = {
-      added: self.project_ids - self.project_ids_was,
-      removed: self.project_ids_was - self.project_ids,
-    }
-    update_tasks = !options.blank? || projects.any?{|_k, v| !v.blank?}
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects)) if update_tasks
+    Rails.logger.info "TeamTaskDebug: [#{self.project_ids_changed?}] -- [#{self.project_ids}] -- [#{self.project_ids_was}]"
+    projects = {}
+    if self.project_ids_changed?
+      projects = {
+        old: self.project_ids_was,
+        new: self.project_ids,
+      }
+    end
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects)) unless options.blank? && projects.blank?
   end
 
   def delete_teamwide_tasks
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id, User.current)
   end
 
-  def handle_removed_projects(projects)
-    pms_id = ProjectMedia.where(project: projects).map(&:id)
-    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: pms_id)
-    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id).find_each { |t| t.destroy }
+  def handle_remove_projects(projects)
+    # remove cases [] => [list] or [list] => [list]
+    condition = excluded_ids = {}
+    if projects[:old].blank?
+      condition = { 'pm.team_id': self.team_id }
+      excluded_ids = { 'pm.project_id': projects[:new] }
+    elsif !projects[:new].blank?
+      condition = { 'pm.project_id': projects[:old] }
+    end
+    unless condition.blank?
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
+      .joins("INNER JOIN project_medias pm ON annotations.annotated_id = pm.id")
+      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+      .where(condition)
+      .where.not(excluded_ids)
+      .find_each { |t| t.destroy }
+    end
   end
 
   def update_tasks_with_zero_answer(options)
@@ -129,40 +160,37 @@ class TeamTask < ActiveRecord::Base
     end
   end
 
-  def handle_added_projects(projects)
-    excluded_ids = []
-    if self.required?
-      # Get items with terminal status
-      team_statuses = team.final_media_statuses.map(&:to_yaml)
-      excluded_ids =
-      ProjectMedia.where(project: projects)
-      .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
-        AND s2.annotated_id = project_medias.id")
-      .joins(ActiveRecord::Base.send(:sanitize_sql_array,
-        ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
-          AND f2.value IN (?)
-          AND f2.annotation_id = s2.id",
-          team_statuses])
-        ).map(&:id)
-    end
-    ProjectMedia.where(project: projects)
-    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
-        ["LEFT JOIN annotations s ON s.annotated_id = project_medias.id
-          AND task_team_task_id(s.annotation_type, s.data) = ?",
-          self.id])
-        )
-    .where('s.id' => nil)
+  def handle_add_projects(condition, excluded_ids = {})
+    ProjectMedia.where(condition)
+    .where.not(excluded_ids)
     .find_each do |pm|
       begin
+        self.skip_update_media_status = true if self.required?
         pm.create_auto_tasks([self])
       rescue StandardError => e
         TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
         Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
       end
     end
-    if self.required?
+    handle_added_tasks_to_terminal_status_item(condition) if self.required?
+  end
+
+  def handle_added_tasks_to_terminal_status_item(condition)
+    # Get items with terminal status
+    team_statuses = self.team.final_media_statuses.map(&:to_yaml)
+    terminal_ids =
+    ProjectMedia.where(condition)
+    .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
+      AND s2.annotated_id = project_medias.id")
+    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+      ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
+        AND f2.value IN (?)
+        AND f2.annotation_id = s2.id",
+        team_statuses])
+      ).map(&:id)
+    unless terminal_ids.blank?
       # resolve tasks that added to terminal status items
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: excluded_ids)
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: terminal_ids)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
       .find_each do |t|
         t.status = 'resolved'
@@ -192,7 +220,7 @@ class TeamTask < ActiveRecord::Base
   end
 
   def get_teamwide_tasks_unresolved_with_terminal
-    team_statuses = team.final_media_statuses.map(&:to_yaml)
+    team_statuses = self.team.final_media_statuses.map(&:to_yaml)
     Task.where('annotations.annotation_type' => 'task')
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
     .joins("INNER JOIN annotations s ON s.annotation_type = 'task_status' AND s.annotated_id = annotations.id")

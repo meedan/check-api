@@ -10,7 +10,8 @@ class TeamTaskWorker
       unless team_task.nil?
         Team.current = team_task.team
         User.current = author
-        team_task.add_update_teamwide_tasks_bg(action, options, projects)
+        fun = "#{action}_teamwide_tasks_bg"
+        team_task.send(fun, options, projects) if team_task.respond_to?(fun)
         Team.current = User.current = nil
       end
     elsif action == 'destroy'
