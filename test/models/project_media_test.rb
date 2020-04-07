@@ -1363,6 +1363,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update media account when change author_url" do
+    setup_elasticsearch
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
@@ -1393,14 +1394,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_media url: url, account: nil, account_id: nil
     a = m.account
     p = create_project team: t
-    pm = create_project_media media: m, project: p
-    sleep 1
-    pm = ProjectMedia.find(pm.id)
-    with_current_user_and_team(u, t) do
-      pm.refresh_media = true
+    Sidekiq::Testing.inline! do
+      pm = create_project_media media: m, project: p, disable_es_callbacks: false
+      sleep 2
+      pm = ProjectMedia.find(pm.id)
+      with_current_user_and_team(u, t) do
+        pm.refresh_media = true
+        sleep 2
+      end
+      new_account = m.reload.account
+      assert_not_equal a, new_account
+      assert_nil Account.where(id: a.id).last
+      result = MediaSearch.find(get_es_id(pm)).accounts
+      assert_equal 1, result.size
+      assert_equal result.first['id'], new_account.id
     end
-    assert_not_equal a, m.reload.account
-    assert_nil Account.where(id: a.id).last
   end
 
   test "should create media when normalized URL exists" do
