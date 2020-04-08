@@ -158,10 +158,6 @@ RailsAdmin.config do |config|
     end
   end
 
-  def render_settings(field_type)
-    partial "form_settings_#{field_type}"
-  end
-
   def visible_only_for_admin
     visible do
       bindings[:view]._current_user.is_admin?
@@ -252,11 +248,13 @@ RailsAdmin.config do |config|
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        visible_only_for_existing
       end
       field :slack_channel do
         label 'Slack channel'
         formatted_value{ bindings[:object].get_slack_channel }
-        render_settings('field')
+        partial 'form_settings_field'
+        visible_only_for_existing
       end
     end
   end
@@ -368,6 +366,7 @@ RailsAdmin.config do |config|
         label 'Slack webhook'
         help 'A <a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank" rel="noopener noreferrer">webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.'.html_safe
         formatted_value{ bindings[:object].get_slack_webhook }
+        visible_only_for_existing
       end
 
       field :slack_channel do
@@ -375,6 +374,7 @@ RailsAdmin.config do |config|
         label 'Slack channel'
         help 'The Slack channel to which Check should send notifications about events that occur in your workspace.'
         formatted_value{ bindings[:object].get_slack_channel }
+        visible_only_for_existing
       end
     end
 
