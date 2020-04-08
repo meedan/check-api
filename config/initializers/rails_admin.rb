@@ -359,6 +359,7 @@ RailsAdmin.config do |config|
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
+        visible_only_for_existing
       end
 
       field :slack_webhook do
