@@ -164,7 +164,7 @@ class Account < ActiveRecord::Base
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     parents = self.get_parents
     parents.each do |parent|
-      self.add_update_nested_obj({op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent})
+      self.add_update_nested_obj({ op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent })
     end unless parents.blank?
   end
 
