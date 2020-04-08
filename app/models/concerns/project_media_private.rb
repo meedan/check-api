@@ -56,11 +56,9 @@ module ProjectMediaPrivate
     m.save!
     a.skip_check_ability = true
     a.account_sources.each { |as| as.skip_check_ability = true }
-    if a.medias.count == 0
-      # Remove from ES and destroy
-      a.destroy_es_items('accounts', 'destroy_doc_nested', self)
-      a.destroy
-    end
+    # Remove old account from ES
+    a.destroy_es_items('accounts', 'destroy_doc_nested', self)
+    a.destroy if a.medias.count == 0
     # Add a project source if new source was created
     self.create_project_source if source.nil?
     # update es

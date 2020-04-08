@@ -62,10 +62,11 @@ class TeamTask < ActiveRecord::Base
     update_tasks_with_answer if options[:required]
     # items related to added projects
     unless projects.blank?
-      condition = excluded_ids = {}
+      condition = {}
+      excluded_ids = [0]
       if projects[:new].blank?
         condition = { team_id: self.team_id }
-        excluded_ids = { project_id: projects[:old] }
+        excluded_ids = projects[:old]
       elsif !projects[:old].blank?
         condition = { project_id: projects[:new] }
       end
@@ -95,7 +96,6 @@ class TeamTask < ActiveRecord::Base
       options: self.options_changed?
     }
     options.delete_if{|_k, v| v == false || v.nil?}
-    Rails.logger.info "TeamTaskDebug: [#{self.project_ids_changed?}] -- [#{self.project_ids}] -- [#{self.project_ids_was}]"
     projects = {}
     if self.project_ids_changed?
       projects = {
@@ -112,10 +112,11 @@ class TeamTask < ActiveRecord::Base
 
   def handle_remove_projects(projects)
     # remove cases [] => [list] or [list] => [list]
-    condition = excluded_ids = {}
+    condition = {}
+    excluded_ids = [0]
     if projects[:old].blank?
       condition = { 'pm.team_id': self.team_id }
-      excluded_ids = { 'pm.project_id': projects[:new] }
+      excluded_ids = projects[:new]
     elsif !projects[:new].blank?
       condition = { 'pm.project_id': projects[:old] }
     end
@@ -124,7 +125,7 @@ class TeamTask < ActiveRecord::Base
       .joins("INNER JOIN project_medias pm ON annotations.annotated_id = pm.id")
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
       .where(condition)
-      .where.not(excluded_ids)
+      .where("pm.project_id NOT IN (?) OR pm.project_id IS NULL", excluded_ids)
       .find_each { |t| t.destroy }
     end
   end
@@ -160,9 +161,9 @@ class TeamTask < ActiveRecord::Base
     end
   end
 
-  def handle_add_projects(condition, excluded_ids = {})
+  def handle_add_projects(condition, excluded_ids = [0])
     ProjectMedia.where(condition)
-    .where.not(excluded_ids)
+    .where("project_id NOT IN (?) OR project_id IS NULL", excluded_ids)
     .find_each do |pm|
       begin
         self.skip_update_media_status = true if self.required?
