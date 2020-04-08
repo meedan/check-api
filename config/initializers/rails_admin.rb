@@ -68,7 +68,26 @@ RailsAdmin.config do |config|
 
   config.main_app_name = ['Check']
 
-  config.included_models = ['Account', 'Annotation', 'ApiKey', 'Bot', 'Bounce', 'Claim', 'Comment', 'Contact', 'Link', 'Media', 'Project', 'ProjectMedia', 'ProjectSource', 'Source', 'Tag', 'Team', 'TeamUser', 'User', 'BotUser', 'TeamBotInstallation', 'Dynamic']
+  config.included_models = [
+    'Account',
+    'Annotation',
+    'ApiKey',
+    'Bot',
+    'Bounce',
+    'Claim',
+    'Link',
+    'Media',
+    'Project',
+    'ProjectMedia',
+    'ProjectSource',
+    'Source',
+    'Team',
+    'TeamUser',
+    'User',
+    'BotUser',
+    'TeamBotInstallation',
+    'Dynamic'
+  ]
 
   config.navigation_static_links = {
     'Web Client' => CONFIG['checkdesk_client'],
@@ -76,7 +95,8 @@ RailsAdmin.config do |config|
     'GraphiQL' => '/graphiql',
     'Sidekiq' => '/sidekiq',
     'PG Hero' => '/pghero',
-    'Pender API Explorer' => "#{CONFIG['pender_url']}/api"
+    'Pender API Explorer' => "#{CONFIG['pender_url']}/api",
+    'Alegre API Explorer' => "#{CONFIG['alegre_host']}"
   }
 
   config.navigation_static_label = 'External Tools'
@@ -105,7 +125,6 @@ RailsAdmin.config do |config|
     edit do
       field :annotation_type do
         read_only true
-        help ''
       end
       field :annotated_type
       field :annotated_id
@@ -139,11 +158,8 @@ RailsAdmin.config do |config|
     end
   end
 
-  def render_settings(field_type, only_admin = false)
+  def render_settings(field_type)
     partial "form_settings_#{field_type}"
-    hide do
-      bindings[:object].new_record? || (only_admin && !bindings[:view]._current_user.is_admin?)
-    end
   end
 
   def visible_only_for_admin
@@ -152,28 +168,26 @@ RailsAdmin.config do |config|
     end
   end
 
-  def visible_only_for_allowed_teams(_setting, hide_for_new = false)
+  def visible_only_for_existing
     hide do
-      hide_for_new && bindings[:object].new_record?
+      bindings[:object].new_record?
     end
   end
 
   def formatted_yaml(method_name)
     formatted_value do
       begin
-        value = bindings[:object].send(method_name)
-        value.present? ? JSON.pretty_generate(value) : nil
+        JSON.pretty_generate(bindings[:object].send(method_name))
       rescue JSON::GeneratorError
         nil
       end
     end
-    hide do
-      bindings[:object].new_record?
-    end
   end
 
-
   config.model 'ApiKey' do
+    label 'API Key'
+    label_plural 'API Keys'
+
     list do
       field :access_token
       field :expire_at
@@ -192,11 +206,6 @@ RailsAdmin.config do |config|
     end
   end
 
-  config.model 'Comment' do
-    annotation_config('comment', [:text])
-    parent Annotation
-  end
-
   config.model 'Media' do
     media_config
   end
@@ -207,11 +216,6 @@ RailsAdmin.config do |config|
 
   config.model 'Claim' do
     media_config
-  end
-
-  config.model 'Tag' do
-    annotation_config('tag', [:tag])
-    parent Annotation
   end
 
   config.model 'Project' do
@@ -227,69 +231,37 @@ RailsAdmin.config do |config|
       field :archived do
         visible_only_for_admin
       end
-      field :settings do
-        label 'Link to authorize Bridge to publish translations automatically'
-        formatted_value do
-          project = bindings[:object]
-          token = project.token
-          host = CONFIG['checkdesk_base_url']
-          %w(twitter facebook).collect do |p|
-            dest = "#{host}/api/admin/project/#{project.id}/add_publisher/#{p}?token=#{token}"
-            link = "#{host}/api/users/auth/#{p}?destination=#{dest}"
-            bindings[:view].link_to(p.capitalize, link)
-          end.join(' | ').html_safe
-        end
-        visible_only_for_admin
-      end
     end
 
     show do
-      configure :get_viber_token do
-        label 'Viber token'
-      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
       configure :get_slack_channel do
-        label 'Slack #channel'
+        label 'Slack channel'
       end
     end
 
     edit do
       field :title
       field :description
-      field :team do
-      end
+      field :team
       field :archived
       field :lead_image
       field :user
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
-        help ''
-        hide do
-          bindings[:object].new_record?
-        end
-      end
-      field :viber_token do
-        label 'Viber token'
-        formatted_value{ bindings[:object].get_viber_token }
-        help ''
-        hide do
-          bindings[:object].new_record?
-        end
       end
       field :slack_channel do
-        label 'Slack default #channel'
+        label 'Slack channel'
         formatted_value{ bindings[:object].get_slack_channel }
-        help 'The Slack channel to which Check should send notifications about events that occur in this project.'
         render_settings('field')
       end
     end
   end
 
   config.model 'Team' do
-
     list do
       field :id
       field :name
@@ -316,7 +288,7 @@ RailsAdmin.config do |config|
         label 'Slack webhook'
       end
       configure :get_slack_channel do
-        label 'Slack default #channel'
+        label 'Slack channel'
       end
       configure :private do
         visible_only_for_admin
@@ -350,72 +322,65 @@ RailsAdmin.config do |config|
 
     edit do
       field :name do
-        read_only do
-          !bindings[:view]._current_user.is_admin?
-        end
-        help ''
+        visible_only_for_admin
       end
+
       field :description do
         visible_only_for_admin
       end
+
       field :logo do
         visible_only_for_admin
       end
+
       field :slug do
-        read_only do
-          !bindings[:view]._current_user.is_admin?
-        end
-        help "Accepts only letters, numbers and hyphens."
+        visible_only_for_admin
+        help 'Accepts only letters, numbers and hyphens.'
       end
+
       field :private do
         visible_only_for_admin
       end
+
       field :archived do
         visible_only_for_admin
       end
+
       field :max_number_of_members do
         label 'Maximum number of members'
         formatted_value{ bindings[:object].get_max_number_of_members }
-        help ''
-        hide do
-          bindings[:object].new_record?
-        end
         visible_only_for_admin
       end
 
       id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
-        partial "json_editor"
+        partial 'json_editor'
         help "A list of custom #{id.pluralize.tr('_', ' ')} for items that match your team's guidelines."
-        visible_only_for_allowed_teams 'custom_statuses'
       end
 
       field :slack_notifications_enabled, :boolean do
         label 'Enable Slack notifications'
         formatted_value{ bindings[:object].get_slack_notifications_enabled }
-        help ''
-        visible_only_for_allowed_teams 'slack_integration', true
       end
+
       field :slack_webhook do
-        partial "form_settings_field"
+        partial 'form_settings_field'
         label 'Slack webhook'
-        formatted_value{ bindings[:object].get_slack_webhook }
         help 'A <a href="https://my.slack.com/services/new/incoming-webhook/" target="_blank" rel="noopener noreferrer">webhook supplied by Slack</a> and that Check uses to send notifications about events that occur in your team.'.html_safe
-        visible_only_for_allowed_teams 'slack_integration', true
+        formatted_value{ bindings[:object].get_slack_webhook }
       end
+
       field :slack_channel do
-        partial "form_settings_field"
-        label 'Slack default #channel'
+        partial 'form_settings_field'
+        label 'Slack channel'
+        help 'The Slack channel to which Check should send notifications about events that occur in your workspace.'
         formatted_value{ bindings[:object].get_slack_channel }
-        help "The Slack channel to which Check should send notifications about events that occur in your team."
-        visible_only_for_allowed_teams 'slack_integration', true
       end
     end
 
   end
 
   config.model 'TeamUser' do
-
     list do
       field :team
       field :user
@@ -437,19 +402,15 @@ RailsAdmin.config do |config|
         end
       end
     end
-
   end
 
   config.model 'User' do
-
     list do
       field :name
       field :login
       field :email
       field :is_admin do
-        visible do
-          bindings[:view]._current_user.is_admin?
-        end
+        visible_only_for_admin
       end
       field :is_active
     end
@@ -464,37 +425,26 @@ RailsAdmin.config do |config|
       field :name
       field :login
       field :password do
+        visible_only_for_admin
         visible do
-          bindings[:view]._current_user.is_admin? && bindings[:object].encrypted_password?
+          bindings[:object].encrypted_password?
         end
         formatted_value do
-          ''
+          '****'
         end
       end
       field :email
-      field :image do
-        show do
-          bindings[:object].new_record?
-        end
-      end
+      field :image
       field :current_team_id
       field :is_admin do
-        visible do
-          bindings[:view]._current_user.is_admin?
-        end
+        visible_only_for_admin
       end
       field :is_active do
-        visible do
-          bindings[:view]._current_user.is_admin?
-        end
+        visible_only_for_admin
       end
       field :send_email_notifications, :boolean do
         label 'Email notifications'
-        formatted_value{ bindings[:object].get_send_email_notifications == false ? "0" : "1"}
-        help ''
-        hide do
-          bindings[:object].new_record?
-        end
+        formatted_value{ bindings[:object].get_send_email_notifications ? "Yes" : "No" }
       end
     end
   end
@@ -512,22 +462,24 @@ RailsAdmin.config do |config|
     show do
       field :name
       field :login
+      field :image
       field :api_key
     end
 
     edit do
       field :name
       field :login
-      field :image do
-        show do
-          bindings[:object].new_record?
-        end
-      end
+      field :image
       field :api_key
+      field :settings do
+        label 'Settings'
+        formatted_yaml(:settings)
+      end
     end
   end
 
   config.model 'ProjectMedia' do
+    label 'ProjectMedia'
     list do
       configure :project do
         queryable true
@@ -536,10 +488,11 @@ RailsAdmin.config do |config|
     end
   end
 
-  config.model 'TeamBotInstallation' do
-    label 'Installed Bot'
-    label_plural 'Installed Bots'
+  config.model 'ProjectSource' do
+    label 'ProjectSource'
+  end
 
+  config.model 'TeamBotInstallation' do
     list do
       field :bot_user
       field :team

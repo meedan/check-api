@@ -92,8 +92,8 @@ class BotUser < User
     self.get_events
   end
 
-  def events=(list)
-    self.set_events(list)
+  def events=(events)
+    self.send(:set_events, events)
   end
 
   def json_schema_url(field)
