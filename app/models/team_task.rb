@@ -77,7 +77,33 @@ class TeamTask < ActiveRecord::Base
   def self.destroy_teamwide_tasks_bg(id)
     Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
     .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
+      t.skip_check_ability = true
       t.destroy
+    end
+  end
+
+  def handle_added_tasks_to_terminal_status_item(condition)
+    # Get items with terminal status
+    team_statuses = self.team.final_media_statuses.map(&:to_yaml)
+    terminal_ids =
+    ProjectMedia.where(condition)
+    .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
+      AND s2.annotated_id = project_medias.id")
+    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+      ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
+        AND f2.value IN (?)
+        AND f2.annotation_id = s2.id",
+        team_statuses])
+      ).map(&:id)
+    unless terminal_ids.blank?
+      # resolve tasks that added to terminal status items
+      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: terminal_ids)
+      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
+      .find_each do |t|
+        t.status = 'resolved'
+        t.skip_check_ability = true
+        t.save!
+      end
     end
   end
 
@@ -107,7 +133,7 @@ class TeamTask < ActiveRecord::Base
   end
 
   def delete_teamwide_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, User.current)
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current))
   end
 
   def handle_remove_projects(projects)
@@ -174,30 +200,6 @@ class TeamTask < ActiveRecord::Base
       end
     end
     handle_added_tasks_to_terminal_status_item(condition) if self.required?
-  end
-
-  def handle_added_tasks_to_terminal_status_item(condition)
-    # Get items with terminal status
-    team_statuses = self.team.final_media_statuses.map(&:to_yaml)
-    terminal_ids =
-    ProjectMedia.where(condition)
-    .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
-      AND s2.annotated_id = project_medias.id")
-    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
-      ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
-        AND f2.value IN (?)
-        AND f2.annotation_id = s2.id",
-        team_statuses])
-      ).map(&:id)
-    unless terminal_ids.blank?
-      # resolve tasks that added to terminal status items
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia' , annotated_id: terminal_ids)
-      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
-      .find_each do |t|
-        t.status = 'resolved'
-        t.save!
-      end
-    end
   end
 
   def self.get_teamwide_tasks_zero_answers(id, excluded_ids = [])

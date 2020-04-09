@@ -309,6 +309,17 @@ class ProjectMedia < ActiveRecord::Base
     ProjectMediaProject.where(project_media_id: self.id).map(&:project_id)
   end
 
+  def add_destination_team_tasks_bg(project)
+    tasks = project.auto_tasks(true)
+    tasks.each do |task|
+      task.skip_update_media_status = true
+      self.create_auto_tasks([task])
+      if task.required? && self.is_finished?
+        task.handle_added_tasks_to_terminal_status_item({id: self.id})
+      end
+    end unless tasks.nil?
+  end
+
   protected
 
   def initiate_metadata_annotation(info)
