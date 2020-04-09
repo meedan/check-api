@@ -47,7 +47,7 @@ class TeamTask < ActiveRecord::Base
     self.task_type = value
   end
 
-  def add_teamwide_tasks_bg(options, projects)
+  def add_teamwide_tasks_bg(_options, _projects)
     # items related to added projects
     condition = self.project_ids.blank? ? { team_id: self.team_id } : { project_id: self.project_ids }
     handle_add_projects(condition)
@@ -62,15 +62,15 @@ class TeamTask < ActiveRecord::Base
     update_tasks_with_answer if options[:required]
     # items related to added projects
     unless projects.blank?
-      condition = {}
-      excluded_ids = [0]
+      add_c = {}
+      keep_ids = [0]
       if projects[:new].blank?
-        condition = { team_id: self.team_id }
-        excluded_ids = projects[:old]
+        add_c = { team_id: self.team_id }
+        keep_ids = projects[:old]
       elsif !projects[:old].blank?
-        condition = { project_id: projects[:new] }
+        add_c = { project_id: projects[:new] }
       end
-      handle_add_projects(condition, excluded_ids) unless condition.blank?
+      handle_add_projects(add_c, keep_ids) unless add_c.blank?
     end
   end
 
@@ -137,7 +137,6 @@ class TeamTask < ActiveRecord::Base
   end
 
   def handle_remove_projects(projects)
-    # remove cases [] => [list] or [list] => [list]
     condition = {}
     excluded_ids = [0]
     if projects[:old].blank?
