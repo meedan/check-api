@@ -380,6 +380,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should add team tasks when adding or moving items" do
     create_verification_status_stuff
+    create_task_status_stuff(false)
     t =  create_team
     p = create_project team: t
     p2 = create_project team: t
@@ -407,9 +408,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm3.add_to_project_id = p2.id
       pm3.save!
       assert_equal 3, pm3.annotations('task').count
-      # TODO: Fix test
-      # pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
-      # assert_equal 'resolved', pm3_tt.status
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      assert_equal 'resolved', pm3_tt.status
     end
     Team.unstub(:current)
   end
