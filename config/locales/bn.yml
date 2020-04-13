@@ -62,11 +62,14 @@ bn:
   custom_message_status_report-enganoso_afp-checamos: ''
   custom_message_status_warning_afp-checamos: ''
   custom_message_status_sugestao_afp-checamos: ''
+  custom_message_status_necessario-mais-dados_afp-checamos: ''
+  custom_message_status_checamos_afp-checamos: ''
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
   custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -128,7 +131,7 @@ bn:
   custom_message_status_undetermined_boom-factcheck: শুরু করা যায়নি
   custom_message_status_in_progress_boom-factcheck: প্রক্রিয়া চলছে
   custom_message_status_out_of_scope_boom-factcheck: কর্ম পরিধির বাইরে
-  custom_message_status_in_the_news_boom-factcheck: ''
+  custom_message_status_in_the_news_boom-factcheck: রিপোর্ট খবরেই আছে
   custom_message_status_junk_boom-factcheck: আবর্জনা
   custom_message_status_report-true_boom-factcheck: রিপোর্ট সত্য
   custom_message_status_report-false_boom-factcheck: রিপোর্ট মিথ্যা
@@ -164,6 +167,7 @@ bn:
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
+  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 
@@ -217,7 +221,7 @@ bn:
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
-  custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: ''
+  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
   custom_message_status_undetermined_africa-check: ''
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
@@ -256,6 +260,9 @@ bn:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_greetings_test: ''
+  custom_message_smooch_bot_option_not_available_test: ''
   custom_message_smooch_bot_result_test-govtech-pap: ''
   custom_message_smooch_bot_result_changed_test-govtech-pap: ''
   custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: ''
