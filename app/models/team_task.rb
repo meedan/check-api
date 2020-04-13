@@ -62,15 +62,8 @@ class TeamTask < ActiveRecord::Base
     update_tasks_with_answer if options[:required]
     # items related to added projects
     unless projects.blank?
-      add_c = {}
-      keep_ids = [0]
-      if projects[:new].blank?
-        add_c = { team_id: self.team_id }
-        keep_ids = projects[:old]
-      elsif !projects[:old].blank?
-        add_c = { project_id: projects[:new] }
-      end
-      handle_add_projects(add_c, keep_ids) unless add_c.blank?
+      condition, excluded_ids = build_add_remove_project_condition('add', projects)
+      handle_add_projects(condition, excluded_ids) unless condition.blank?
     end
   end
 
@@ -137,14 +130,7 @@ class TeamTask < ActiveRecord::Base
   end
 
   def handle_remove_projects(projects)
-    condition = {}
-    excluded_ids = [0]
-    if projects[:old].blank?
-      condition = { 'pm.team_id': self.team_id }
-      excluded_ids = projects[:new]
-    elsif !projects[:new].blank?
-      condition = { 'pm.project_id': projects[:old] }
-    end
+    condition, excluded_ids = build_add_remove_project_condition('remove', projects)
     unless condition.blank?
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
       .joins("INNER JOIN project_medias pm ON annotations.annotated_id = pm.id")
@@ -153,6 +139,20 @@ class TeamTask < ActiveRecord::Base
       .where("pm.project_id NOT IN (?) OR pm.project_id IS NULL", excluded_ids)
       .find_each { |t| t.destroy }
     end
+  end
+
+  def build_add_remove_project_condition(action, projects)
+    if_key, else_key = action == 'add' ? [:new, :old] : [:old, :new]
+    prefix = action == 'add' ? '' : 'pm.'
+    condition = {}
+    excluded_ids = [0]
+    if projects[if_key].blank?
+      condition = { "#{prefix}team_id": self.team_id }
+      excluded_ids = projects[else_key]
+    elsif !projects[else_key].blank?
+      condition = { "#{prefix}project_id": projects[if_key] }
+    end
+    [condition, excluded_ids]
   end
 
   def update_tasks_with_zero_answer(options)
