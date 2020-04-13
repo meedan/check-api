@@ -301,6 +301,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       tt.label = 'update label'
       tt.description = 'update desc'
       tt.json_options = [{ label: 'Test' }].to_json
+      tt.keep_resolved_tasks = true
       tt.save!
       pm2_tt = pm2_tt.reload
       assert_equal 'Foo', pm2_tt.label
@@ -343,6 +344,59 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should update or delete teamwide tasks based on keep_resolved_tasks attr" do
+    t =  create_team
+    p = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: [], required: false, label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+    pm2_tt.save!
+    # resolve task
+    pm2_tt.status = 'resolved'; pm2_tt.save!
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      # update title/description/options
+      # keep resolved tasks
+      tt.label = 'update label'
+      tt.description = 'update desc'
+      tt.keep_resolved_tasks = true
+      tt.save!
+      pm_tt = pm_tt.reload
+      assert_equal 'update label', pm_tt.label
+      assert_equal 'update desc', pm_tt.description
+      pm2_tt = pm2_tt.reload
+      assert_equal 'Foo', pm2_tt.label
+      assert_equal 'Foo', pm2_tt.description
+      # apply changes to resolved tasks
+      tt.label = 'update label2'
+      tt.description = 'update desc2'
+      tt.keep_resolved_tasks = false
+      tt.save!
+      pm_tt = pm_tt.reload
+      assert_equal 'update label2', pm_tt.label
+      assert_equal 'update desc2', pm_tt.description
+      pm2_tt = pm2_tt.reload
+      assert_equal 'update label2', pm_tt.label
+      assert_equal 'update desc2', pm_tt.description
+      # delete - keep resolved tasks
+      tt.keep_resolved_tasks = true
+      tt.destroy
+      assert_raises ActiveRecord::RecordNotFound do
+        pm_tt.reload
+      end
+      assert_nothing_raised ActiveRecord::RecordNotFound do
+        pm2_tt.reload
+      end
+    end
+    Team.unstub(:current)
+  end
+
   test "should destroy teamwide tasks" do
     t =  create_team
     p = create_project team: t
@@ -379,6 +433,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       s.save!
     end
     Sidekiq::Testing.inline! do
+      tt.keep_resolved_tasks = false
       tt.destroy
       assert_raises ActiveRecord::RecordNotFound do
         pm_tt.reload

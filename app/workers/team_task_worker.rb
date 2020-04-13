@@ -1,7 +1,7 @@
 class TeamTaskWorker
   include Sidekiq::Worker
 
-  def perform(action, id, author, options = YAML::dump({}), projects = YAML::dump({}))
+  def perform(action, id, author, keep_resolved_tasks = true, options = YAML::dump({}), projects = YAML::dump({}))
     options = YAML::load(options)
     projects = YAML::load(projects)
     author = YAML::load(author)
@@ -11,7 +11,7 @@ class TeamTaskWorker
       unless team_task.nil?
         Team.current = team_task.team
         fun = "#{action}_teamwide_tasks_bg"
-        team_task.send(fun, options, projects) if team_task.respond_to?(fun)
+        team_task.send(fun, options, projects, keep_resolved_tasks) if team_task.respond_to?(fun)
       end
     elsif action == 'add_or_move'
       project = Project.find_by_id(id)
@@ -21,7 +21,7 @@ class TeamTaskWorker
         project_media.add_destination_team_tasks_bg(project)
       end
     elsif action == 'destroy'
-      TeamTask.destroy_teamwide_tasks_bg(id)
+      TeamTask.destroy_teamwide_tasks_bg(id, keep_resolved_tasks)
     end
     Team.current = User.current = nil
   end
