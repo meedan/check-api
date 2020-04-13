@@ -1,7 +1,7 @@
 class TeamTaskWorker
   include Sidekiq::Worker
 
-  def perform(action, id, author, keep_resolved_tasks = true, options = YAML::dump({}), projects = YAML::dump({}))
+  def perform(action, id, author, options = YAML::dump({}), projects = YAML::dump({}), keep_resolved_tasks = false)
     options = YAML::load(options)
     projects = YAML::load(projects)
     author = YAML::load(author)

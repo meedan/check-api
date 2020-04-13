@@ -122,11 +122,13 @@ class TeamTask < ActiveRecord::Base
         new: self.project_ids,
       }
     end
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), self.keep_resolved_tasks, YAML::dump(options), YAML::dump(projects)) unless options.blank? && projects.blank?
+    self.keep_resolved_tasks = self.keep_resolved_tasks.nil? ? true : self.keep_resolved_tasks
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects), self.keep_resolved_tasks) unless options.blank? && projects.blank?
   end
 
   def delete_teamwide_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), self.keep_resolved_tasks)
+    self.keep_resolved_tasks = self.keep_resolved_tasks.nil? ? false : self.keep_resolved_tasks
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_resolved_tasks)
   end
 
   def handle_remove_projects(projects)
