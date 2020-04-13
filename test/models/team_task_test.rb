@@ -94,12 +94,12 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm3 = create_project_media project: nil, team_id: t.id
     pm4 = create_project_media project: nil, team_id: t.id
     # set pm2 & pm4 in final state
-    s = pm2.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-    s = pm4.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
+    t_status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    [pm2, pm4].each do |obj|
+      s = obj.last_status_obj
+      s.status = t_status
+      s.save!
+    end
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, project_ids: [p.id],required: true, description: 'Foo', options: [{ label: 'Foo' }]
@@ -130,28 +130,33 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should add teamwide task to items related to team" do
+  test "should add or remove teamwide task to items related to team" do
     t =  create_team
     p = create_project team: t
     p2 = create_project team: t
     pm = create_project_media project: p
+    pm_2 = create_project_media project: p
     pm2 = create_project_media project: p2
+    pm2_2 = create_project_media project: p2
     pm3 = create_project_media project: nil, team_id: t.id
     pm4 = create_project_media project: nil, team_id: t.id
-    # set pm4 in final state
-    s = pm4.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
+    # set pm_2, pm2_2 and pm4 in terminal state
+    t_status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    [pm_2, pm2_2, pm4].each do |obj|
+      s = obj.last_status_obj
+      s.status = t_status
+      s.save!
+    end
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = nil
-      assert_difference 'Annotation.where(annotation_type: "task").count', 4 do
+      assert_difference 'Annotation.where(annotation_type: "task").count', 6 do
         tt = create_team_task team_id: t.id, project_ids: [],required: true, description: 'Foo', options: [{ label: 'Foo' }]
       end
       pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_equal 'resolved', pm4_tt.status
       # update project list to specfic list
-      assert_difference 'Annotation.where(annotation_type: "task").count', -3 do
+      assert_difference 'Annotation.where(annotation_type: "task").count', -2 do
         tt.json_project_ids = [p.id].to_json
         tt.save!
       end
@@ -160,7 +165,7 @@ class TeamTaskTest < ActiveSupport::TestCase
         tt.save!
       end
       assert_equal 1, pm2.annotations('task').select{|t| t.team_task_id == tt.id}.count
-      assert_difference 'Annotation.where(annotation_type: "task").count', 3 do
+      assert_difference 'Annotation.where(annotation_type: "task").count', 2 do
         tt.json_project_ids = [].to_json
         tt.save!
       end
@@ -244,7 +249,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm2_tt.reload
       end
-      assert_raises ActiveRecord::RecordNotFound do
+      assert_nothing_raised ActiveRecord::RecordNotFound do
         pm3_tt.reload
       end
     end
@@ -258,8 +263,9 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     pm1 = create_project_media project: p
     # set pm1 in final state
+    t_status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
     s = pm1.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    s.status = t_status
     s.save!
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id, project_ids: [p2.id], required: false, label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
@@ -267,12 +273,11 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p2
     pm4 = create_project_media project: p2
     # set pm3 & pm4 in final state
-    s = pm3.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-    s = pm4.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
+    [pm3, pm4].each do |obj|
+      s = obj.last_status_obj
+      s.status = t_status
+      s.save!
+    end
     pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -321,18 +326,16 @@ class TeamTaskTest < ActiveSupport::TestCase
       pm1_tt = pm1.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
       assert_not_nil pm1_tt
-      assert_equal 'resolved', pm1_tt.status
+      # assert_equal 'resolved', pm1_tt.status
       assert_raises ActiveRecord::RecordNotFound do
         pm2_tt.reload
       end
-      assert_raises ActiveRecord::RecordNotFound do
+      assert_nothing_raised ActiveRecord::RecordNotFound do
         pm3_tt.reload
-      end
-      assert_raises ActiveRecord::RecordNotFound do
         pm4_tt.reload
       end
       # test back to all lists
-      assert_difference 'Annotation.where(annotation_type: "task").count', 3 do
+      assert_difference 'Annotation.where(annotation_type: "task").count', 1 do
         tt.json_project_ids = [].to_json
         tt.save!
       end
@@ -369,12 +372,12 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
     pm4_tt.save!
     # set pm2 and pm4 in terminal status
-    s = pm2.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-    s = pm4.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
+    t_status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+    [pm2, pm4].each do |obj|
+      s = obj.last_status_obj
+      s.status = t_status
+      s.save!
+    end
     Sidekiq::Testing.inline! do
       tt.destroy
       assert_raises ActiveRecord::RecordNotFound do
