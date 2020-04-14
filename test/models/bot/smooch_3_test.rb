@@ -575,6 +575,52 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
   end
 
+  test "should update cached field when request is created or deleted" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', true] })
+    pm = create_project_media
+    assert_equal 0, pm.reload.requests_count
+    d = create_dynamic_annotation annotation_type: 'smooch', annotated: pm
+    assert_equal 1, pm.reload.requests_count
+    d.destroy
+    assert_equal 0, pm.reload.requests_count
+  end
+
+  test "should go through menus" do
+    setup_smooch_bot(true)
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    assert_no_difference 'ProjectMedia.count' do
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot('Hello', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('What?', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('Hum', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot('ONE', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('ONE', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'query', sm.state.value
+      send_message_to_smooch_bot('0', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('tWo', uid)
+      assert_equal 'query', sm.state.value
+    end
+    assert_difference 'ProjectMedia.count' do
+      send_message_to_smooch_bot(random_string, uid)
+    end
+    assert_equal 'waiting_for_message', sm.state.value
+  end
+
   protected
 
   def run_concurrent_requests

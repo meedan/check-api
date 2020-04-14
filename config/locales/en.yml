@@ -564,6 +564,8 @@ en:
     your request further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of message.
   smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size}.
+  smooch_bot_greetings: Hi! Welcome to the fact-checking bot! We fact-check claims, videos and images related to topics such as politics, health, finance, technology.
+  smooch_bot_option_not_available: This option is not available. Please choose an option in the menu below.
   smooch_bot_meme: Here's a meme we created based on the item you have requested that
     we verify. Learn more at %{url}.
   smooch_bot_result: |-

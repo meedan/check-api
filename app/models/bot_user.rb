@@ -231,6 +231,8 @@ class BotUser < User
       }
       if type == 'array'
         properties[s[:name]][:items] = s[:items]
+      elsif type == 'object'
+        properties[s[:name]][:properties] = s[:properties]
       else
         properties[s[:name]][:default] = default
       end
@@ -331,6 +333,7 @@ class BotUser < User
         default = s['default']
         setting = { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
         setting['items'] = s['items'] unless s['items'].blank?
+        setting['properties'] = s['properties'] unless s['properties'].blank?
         settings << setting
       end
       self.set_settings(settings)

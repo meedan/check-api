@@ -3,7 +3,7 @@ class TeamBotInstallation < TeamUser
   before_validation :set_role, on: :create
 
   validate :can_be_installed_if_approved, on: :create
-  validate :settings_follow_schema
+  validate :settings_follow_schema, on: :update
 
   check_settings
 

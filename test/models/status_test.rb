@@ -383,4 +383,11 @@ class StatusTest < ActiveSupport::TestCase
     deadline -= deadline % 300
     assert_equal deadline, s.get_field_value('deadline').to_i
   end
+
+  test "should get non-terminal status" do
+    create_verification_status_stuff
+    pm = create_project_media
+    s = pm.get_annotations('verification_status').last.load.get_field('verification_status_status')
+    assert_kind_of Array, s.workflow_options_from_key(:non_terminal)
+  end
 end
