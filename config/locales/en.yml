@@ -748,6 +748,7 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
+  no_analysis: No analysis about that yet
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP

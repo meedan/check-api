@@ -378,7 +378,7 @@ class Bot::Smooch < BotUser
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
-          report = ['*' + pm&.title.to_s + '*', pm&.description.to_s, self.embed_url(pm)].join("\n\n")
+          report = begin pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue ::I18n.t(:no_analysis) end
           self.send_message_to_user(uid, report)
           sm.reset
         end
@@ -874,12 +874,14 @@ class Bot::Smooch < BotUser
     }
     status_label = self.get_status_label(pm, lang, status)
     params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
-    i18n_key = :smooch_bot_result
+    message = []
     unless previous_final_status.blank?
-      i18n_key = :smooch_bot_result_changed
       params[:previous_status] = self.get_status_label(pm, lang, previous_final_status)
+      message << ::Bot::Smooch.i18n_t(:smooch_bot_result_changed, params)
     end
-    response = ::Bot::Smooch.send_message_to_user(uid, ::Bot::Smooch.i18n_t(i18n_key, params), extra)
+    analysis = begin pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue ::Bot::Smooch.i18n_t(:smooch_bot_result, params) end
+    message << analysis
+    response = ::Bot::Smooch.send_message_to_user(uid, message.join("\n\n"), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:response:' + id, pm.id) unless id.blank?
