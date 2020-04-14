@@ -396,6 +396,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal 3, pm.annotations('task').count
       pm2 = create_project_media project: p
       assert_equal 2, pm2.annotations('task').count
+      pm2.previous_project_id = pm2.project_id
       pm2.project_id = p2.id
       pm2.save!
       assert_equal 3, pm2.annotations('task').count

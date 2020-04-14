@@ -160,6 +160,7 @@ class GraphqlCrudOperations
   def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
     obj = self.object_from_id(graphql_id)
     obj.current_id = inputs[:current_id] if obj.is_a?(Relationship)
+    obj.keep_resolved_tasks = inputs[:keep_resolved_tasks] if obj.is_a?(TeamTask)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ActiveRecord::Base.connection_pool.with_connection { obj.destroy }
 
@@ -317,6 +318,8 @@ class GraphqlCrudOperations
       end
 
       input_field(:current_id, types.Int) if type == 'relationship'
+
+      input_field(:keep_resolved_tasks, types.Boolean) if type == 'team_task'
 
       return_field :deletedId, types.ID
       return_field :affectedIds, types[types.ID]

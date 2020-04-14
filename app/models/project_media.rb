@@ -20,7 +20,6 @@ class ProjectMedia < ActiveRecord::Base
   after_create :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create, :create_project_media_project
   after_commit :create_relationship, :copy_to_project, :add_to_project, :remove_from_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
-  after_commit :update_project_media_project, on: [:update]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project
   after_destroy :destroy_related_medias
 
@@ -312,10 +311,15 @@ class ProjectMedia < ActiveRecord::Base
   def add_destination_team_tasks_bg(project)
     tasks = project.auto_tasks(true)
     tasks.each do |task|
-      task.skip_update_media_status = true
-      self.create_auto_tasks([task])
-      if task.required? && self.is_finished?
-        task.handle_added_tasks_to_terminal_status_item({id: self.id})
+      # check if task exists
+      tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
+      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', task.id).count
+      if tt_exists == 0
+        task.skip_update_media_status = true
+        self.create_auto_tasks([task])
+        if task.required? && self.is_finished?
+          task.handle_added_tasks_to_terminal_status_item({id: self.id})
+        end
       end
     end unless tasks.nil?
   end
