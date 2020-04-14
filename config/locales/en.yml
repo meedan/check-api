@@ -760,6 +760,8 @@ en:
   custom_message_status_report-enganoso_afp-checamos: Enganoso
   custom_message_status_warning_afp-checamos: Serviço gratuito
   custom_message_status_sugestao_afp-checamos: Sugestão
+  custom_message_status_necessario-mais-dados_afp-checamos: Necessário mais dados
+  custom_message_status_checamos_afp-checamos: Checamos
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: 'Olá,
     agradecemos o contato e a sugestão.  Nossa equipe tem trabalhado diariamente para
     verificar boatos relacionados ao novo coronavírus. Você pode conferir tudo que
@@ -785,6 +787,10 @@ en:
     para este número. Caso a sugestão esteja dentro de nosso escopo, ela será analisada
     por nossa equipe.  Para ver outras checagens feitas por nós, clique no link abaixo:
     https://checamos.afp.com/'
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: "Olá,
+    agradecemos o contato e a sugestão. \n\nPara realizarmos nossa verificação, precisamos
+    de mais alguns detalhes. Você pode nos encaminhar o vídeo, a foto ou o link do
+    conteúdo que deseja que seja checado?"
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
@@ -967,6 +973,9 @@ en:
     your use of Check Message if you do not agree.'
   custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: We
     started looking at your request now.
+  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: 'Unfortunately,
+    we cannot fact check this claim. Here are some guidelines on how to submit content
+    we can work with: Meedan.com'
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1050,8 +1059,8 @@ en:
     again for reaching out to India Today Fact Check.  Our team is currenlty working
     on your request and we will get back to you. Meanwhile, you can read our latest
     fact check stories here. https://www.indiatoday.in/fact-check
-  custom_message_rule_action_send_message_306fc43c2aa9cec64d3ad9881edb6f77_india-today: Sorry,
-    we're are not able to verify your request currrenly. It is not possible to fact-check
+  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: Sorry,
+    we're are not able to verify your request currenly. It is not possible to fact-check
     everything. Moreover, opinion, satire or vague claims are out of scope.
   custom_message_status_undetermined_africa-check: Unstarted
   custom_message_status_in_progress_africa-check: In progress
@@ -1124,6 +1133,9 @@ en:
     Si continuás usando este servicio reconocés que aceptás estos Términos y estás
     de acuerdo en vincularte a los mismos. Si no estás de acuerdo (o no podés cumplir)
     con los Términos, debés dejar de utilizar el servicio.
+  custom_message_smooch_bot_ask_for_tos_team456: tada
+  custom_message_smooch_bot_greetings_test: HELLOOOO
+  custom_message_smooch_bot_option_not_available_test: WHAT?
   custom_message_smooch_bot_result_test-govtech-pap: Wiadomośc zweryfikowana!
   custom_message_smooch_bot_result_changed_test-govtech-pap: MEga! Zmiana statusu
   custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: Potwierdź status
