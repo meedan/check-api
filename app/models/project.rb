@@ -191,10 +191,14 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def auto_tasks
+  def auto_tasks(only_selected = false)
     tasks = []
     self.team.team_tasks.order('id ASC').each do |task|
-      tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
+      if only_selected
+        tasks << task if task.project_ids.include?(self.id)
+      else
+        tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
+      end
     end
     tasks
   end

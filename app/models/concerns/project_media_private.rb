@@ -56,11 +56,9 @@ module ProjectMediaPrivate
     m.save!
     a.skip_check_ability = true
     a.account_sources.each { |as| as.skip_check_ability = true }
-    if a.medias.count == 0
-      # Remove from ES and destroy
-      a.destroy_es_items('accounts', 'destroy_doc_nested', self)
-      a.destroy
-    end
+    # Remove old account from ES
+    a.destroy_es_items('accounts', 'destroy_doc_nested', self)
+    a.destroy if a.medias.count == 0
     # Add a project source if new source was created
     self.create_project_source if source.nil?
     # update es
@@ -105,6 +103,8 @@ module ProjectMediaPrivate
     if self.previous_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
       ProjectMediaProject.where(project_media_id: self.id).delete_all
       ProjectMediaProject.create! project_media_id: self.id, project_id: self.project_id
+      # update team task
+      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self }))
     end
   end
 end

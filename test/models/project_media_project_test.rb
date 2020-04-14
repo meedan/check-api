@@ -61,6 +61,7 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     p2 = create_project
     pm = create_project_media project: p1
     pm = ProjectMedia.find(pm.id)
+    pm.previous_project_id = pm.project_id
     pm.project = p2
     pm.save!
     assert_equal [p2], pm.reload.project_media_projects.map(&:project)

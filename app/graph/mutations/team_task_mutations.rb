@@ -6,7 +6,8 @@ module TeamTaskMutations
     description: 'str',
     json_options: 'str',
     json_project_ids: 'str',
-    json_schema: 'str'
+    json_schema: 'str',
+    keep_resolved_tasks: 'bool'
   }
 
   create_fields = fields.merge({

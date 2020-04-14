@@ -378,6 +378,43 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should add team tasks when adding or moving items" do
+    create_verification_status_stuff
+    create_task_status_stuff(false)
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: [], required: false
+    tt2 = create_team_task team_id: t.id, project_ids: [], required: false
+    tt3 = create_team_task team_id: t.id, project_ids: [p2.id], required: true
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p
+      assert_equal 2, pm.annotations('task').count
+      pm.add_to_project_id = p2.id
+      pm.save!
+      assert_equal 3, pm.annotations('task').count
+      pm2 = create_project_media project: p
+      assert_equal 2, pm2.annotations('task').count
+      pm2.previous_project_id = pm2.project_id
+      pm2.project_id = p2.id
+      pm2.save!
+      assert_equal 3, pm2.annotations('task').count
+      # test add required task to terminal status item
+      pm3 = create_project_media project: p
+      s = pm3.last_status_obj
+      s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+      s.save!
+      assert_equal 2, pm3.annotations('task').count
+      pm3.add_to_project_id = p2.id
+      pm3.save!
+      assert_equal 3, pm3.annotations('task').count
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      assert_equal 'resolved', pm3_tt.status
+    end
+    Team.unstub(:current)
+  end
+
   test "should get project source" do
     t = create_team
     p = create_project team: t

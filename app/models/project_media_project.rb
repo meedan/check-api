@@ -7,6 +7,7 @@ class ProjectMediaProject < ActiveRecord::Base
 
   after_create :update_index_in_elasticsearch, :set_project_media_project_id
   after_destroy :update_index_in_elasticsearch, :unset_project_media_project_id
+  after_commit :add_destination_team_tasks, on: [:create]
 
   notifies_pusher on: :commit, event: 'media_updated', targets: proc { |pmp| [pmp.project, pmp.project.team] }, data: proc { |pmp| { id: pmp.id }.to_json }
 
@@ -27,6 +28,13 @@ class ProjectMediaProject < ActiveRecord::Base
 
   def set_project_media_project_id
     self.project_media.update_column(:project_id, self.project_id) unless self.project_media.is_being_copied
+  end
+
+  def add_destination_team_tasks
+    existing_items = ProjectMediaProject.where(project_media_id: self.project_media_id).where.not(project_id: self.project_id).count
+    if existing_items > 0
+      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self.project_media }))
+    end
   end
 
   def unset_project_media_project_id
