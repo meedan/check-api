@@ -546,7 +546,8 @@ class Bot::Smooch < BotUser
 
   def self.send_tos_if_needed(message)
     uid = message['authorId']
-    if Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
+    last = Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i
+    if last < User.terms_last_updated_at_by_page('tos_smooch') || last < Time.now.yesterday.to_i
       self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
       Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     end
