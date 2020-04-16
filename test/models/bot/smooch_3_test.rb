@@ -621,6 +621,32 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_equal 'waiting_for_message', sm.state.value
   end
 
+  test "should ask for TOS again if 24 hours have passed" do
+    uid = random_string
+    assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+
+    send_message_to_smooch_bot(random_string, uid)
+    assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+    t1 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+
+    send_message_to_smooch_bot(random_string, uid)
+    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+    assert_equal t1, t2
+
+    now = Time.now
+    Time.stubs(:now).returns(now + 12.hours)
+    send_message_to_smooch_bot(random_string, uid)
+    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+    assert_equal t1, t2
+
+    Time.stubs(:now).returns(now + 25.hours)
+    send_message_to_smooch_bot(random_string, uid)
+    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
+    assert_not_equal t1, t2
+
+    Time.unstub(:now)
+  end
+
   protected
 
   def run_concurrent_requests
