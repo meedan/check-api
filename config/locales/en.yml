@@ -935,21 +935,21 @@ en:
     we sent to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_check-message-demo: "Thank you! Your
     request has been received. Responses are being aggregated and sorted, and we're
-    working on fact-checking your questions.\n\n✔️*Follow this link for an updated
-    list of common questions that we have fact-checked:* meedan.com\n\n\U0001F449*Reply
-    with any text* to get back to the *Main Menu* \U0001F4CC"
+    working on fact-checking your questions.\n      \n✔️*Follow this link for an updated
+    list of common questions that we have fact-checked:* [ Link to a page of fact-checks
+    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
+    Menu* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: "❌Sorry,
-    we can't accept this type of message for verification at this time. \n\nWe can
-    accept most images, videos, links, text messages, and shared WhatsApp messages."
-  custom_message_smooch_bot_disabled_check-message-demo: |-
-    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
-
-    Contact us at *[email or other contact]* for further inquiries.
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'This software that power
-    this tipline is provided by Meedan under the following Terms of services: meedan.com'
-  custom_message_smooch_bot_greetings_check-message-demo: "Hi! Welcome to Meedan’s
+    we can't accept this type of message for verification at this time. \n      \nWe
+    can accept most images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_check-message-demo: "❌Thank you for your message.
+    Our fact-checking service is currently *inactive.*\n      \nContact us at *[email
+    or other contact]* for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'This service is provided
+    under the following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_check-message-demo: Hi! Welcome to Meedan's
     fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.\n\n"
+    as politics, health, finance, and technology.
   custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916I'm
     sorry, I didn't understand your message. Please try again!"
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
