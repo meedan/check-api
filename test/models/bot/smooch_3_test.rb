@@ -392,13 +392,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       }.to_json
       redis = Redis.new(REDIS_CONFIG)
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
-      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
       assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
         Bot::Smooch.run(payload)
       end
       pm = ProjectMedia.last
-      assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
       assert_not_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
       sm = CheckStateMachine.new(uid)
       sm.enter_human_mode
@@ -409,7 +407,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       a = Dynamic.where(annotation_type: 'smooch_user').last
       assert_not_nil a
       a.destroy!
-      assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
       assert_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
       sm = CheckStateMachine.new(uid)
@@ -626,21 +623,37 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
 
     send_message_to_smooch_bot(random_string, uid)
+    pm = ProjectMedia.last
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
     assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     t1 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
 
     send_message_to_smooch_bot(random_string, uid)
+    pm = ProjectMedia.last
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_equal t1, t2
 
     now = Time.now
     Time.stubs(:now).returns(now + 12.hours)
     send_message_to_smooch_bot(random_string, uid)
+    pm = ProjectMedia.last
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_equal t1, t2
 
     Time.stubs(:now).returns(now + 25.hours)
     send_message_to_smooch_bot(random_string, uid)
+    pm = ProjectMedia.last
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_not_equal t1, t2
 
