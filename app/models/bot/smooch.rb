@@ -378,7 +378,14 @@ class Bot::Smooch < BotUser
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
-          report = begin pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue ::I18n.t(:no_analysis) end
+          report = begin
+                     pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s
+                   rescue
+                     lang = message['language'].blank? ? 'en' : message['language']
+                     status_label = self.get_status_label(pm, lang, pm.last_verification_status)
+                     params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
+                     ::Bot::Smooch.i18n_t(:smooch_bot_result, params)
+                   end
           self.send_message_to_user(uid, report)
           sm.reset
         end
