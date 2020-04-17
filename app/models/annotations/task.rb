@@ -2,7 +2,7 @@ class Task < ActiveRecord::Base
   include AnnotationBase
   include HasJsonSchema
 
-  attr_accessor :file
+  attr_accessor :file, :skip_update_media_status
 
   has_annotations
 

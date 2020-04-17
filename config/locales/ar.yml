@@ -33,6 +33,7 @@ ar:
         description: 'النتيجة : محتوى العنصر صحيح'
       pending:
         label: مُعَلَّق
+        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في معالجته
       translated:
         label: مُتَرجَم
         description: تمت الترجمة ولم تبدأ المراجعة بعد
@@ -106,6 +107,8 @@ ar:
       comment: ملحوظة
       project_media: العنصر
       media: عنصر
+      project: القائمة
+      team: مساحة العمل
       user: مستخدم
       source: مصدر
       project_source: المصدر
@@ -179,6 +182,7 @@ ar:
       unassigned: تم إلغاء التكليف عن
       required: إجبارية ؟
       required_yes: نعم
+      project: القائمة
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
@@ -339,6 +343,7 @@ ar:
   mails_notifications:
     greeting: مرحباً %{username}
     greeting_anonymous: مرحباً
+    project_view: عرض القائمة
     unsubscribe: إلغاء الاشتراك
     unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
@@ -390,7 +395,10 @@ ar:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
       header_title: تمت اجابة مهمة
       status: الحالة
+      media_h: العنصر
     media_status:
+      label: عنصر
+      header_title: تم تحديث حالة العنصر
       section_title: تم التصنيف أنه %{status}.
       added_to: تمت الإضافة الى %{app_name}
       update_h: آخر تحديث
@@ -398,8 +406,12 @@ ar:
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
+      assign_project_title: تكليف قائمة
+      unassign_project_title: إلغاء تكليف قائمة
       assign_task_title: تكليف مهمة
       unassign_task_title: إلغاء تكليف مهمة
+      assign_media_title: تكليف عنصر
+      unassign_media_title: إلغاء تكليف عنصر
       assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
       unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
       assign_by: تكليف من
@@ -496,8 +508,12 @@ ar:
     permissions:
       sections:
         project_management:
+          name: إدارة القوائم
           permissions:
             create: إنشاء قائمة
+            edit: تحرير القائمة
+            delete: حذف القائمة
+            add_item: إضافة عناصر للقائمة
         item_page_management:
           name: إدارة العناصر
           permissions:
@@ -527,10 +543,12 @@ ar:
       المحاولة وتواصل مع فريق الدعم إن استمر الخطأ.
     user_not_present: عذراً ، لقد واجهنا خطأ ما. من فضلك أعد المحاولة وتواصل مع فريق
       الدعم إن استمر الخطأ.
+    invalid_project: قائمة غير صالحة %{project}
     invalid_user: مؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
     blank_user: مؤلف فارغ غير صالح
     blank_annotator: مُعلِّق فارغ غير صالح
+    blank_project: قائمة فارغة غير صالحة
     invalid_annotator: مُعلِّق غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
   verification_status_deadline: الموعد
@@ -636,19 +654,16 @@ ar:
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
-  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_status_bot-resource_check-message-demo: ''
+  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
+  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
+  custom_message_smooch_bot_greetings_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     شكرا لإرسال هذه الرسالة.
 
@@ -742,8 +757,31 @@ ar:
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test: ''
+  custom_message_smooch_bot_message_confirmed_test: ''
+  custom_message_smooch_bot_message_type_unsupported_test: ''
+  custom_message_smooch_bot_disabled_test: ''
+  custom_message_smooch_bot_ask_for_tos_test: ''
   custom_message_smooch_bot_greetings_test: ''
   custom_message_smooch_bot_option_not_available_test: ''
+  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: ''
+  custom_message_smooch_bot_option_not_available_test-3: ''
+  custom_message_smooch_bot_result_changed_test-2: ''
+  custom_message_smooch_bot_message_confirmed_test-2: ''
+  custom_message_smooch_bot_message_type_unsupported_test-2: ''
+  custom_message_smooch_bot_disabled_test-2: ''
+  custom_message_smooch_bot_ask_for_tos_test-2: ''
+  custom_message_smooch_bot_greetings_test-2: ''
+  custom_message_smooch_bot_option_not_available_test-2: ''
+  custom_message_status_undetermined_test-custom-status: ''
+  custom_message_status_status_b_test-custom-status: ''
+  custom_message_status_foo-bar_test-custom-status: ''
+  custom_message_status_foo-final_test-custom-status: ''
   custom_message_smooch_bot_result_test-govtech-pap: ''
   custom_message_smooch_bot_result_changed_test-govtech-pap: ''
   custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: ''

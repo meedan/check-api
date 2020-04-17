@@ -21,6 +21,7 @@ class Workflow::VerificationStatus < Workflow::Base
     private
 
     def back_status_to_active
+      return if self.skip_update_media_status
       if self.required == true && self.annotated_type == 'ProjectMedia'
         vs = self.annotated.get_annotations('verification_status').last
         if !vs.nil? && !vs.locked

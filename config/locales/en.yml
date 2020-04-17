@@ -928,55 +928,33 @@ en:
   custom_message_status_not_applicable_check-message-demo: Out of scope
   custom_message_status_report-true_check-message-demo: 'Report: Correct'
   custom_message_status_report-false_check-message-demo: 'Report: False'
-  custom_message_smooch_bot_result_check-message-demo: |
-    [Verification Report]
-
-    The item that you shared with us is marked *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_result_changed_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
-    Thank you for sending this request. Do you want us to verify its content?
-
-    To say yes, *please reply with 1*. Any other response will end our conversation.
-  custom_message_smooch_bot_message_confirmed_check-message-demo: |
-    Thank you. Your request has been added to our verification queue.
-
-    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |
-    Sorry, we don't support this type of message for verification at this time.
-    The volume of requests on this channel is very high, and we haven't been able to resolve your request yet. Thank you for your patience.
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Since you didn't
-    reply with 1, we will not process your request further. Thank you.
-  custom_message_smooch_bot_not_final_check-message-demo: |
-    [Verification Report - CORRECTION]
-
-    The message you shared with us was wrongly marked as *%{status}*.
-
-    It is still in our queue for further verification.
-  custom_message_smooch_bot_meme_check-message-demo: Here's a meme we created based
-    on the item you have requested that we verify. Learn more at %{url}.
-  custom_message_smooch_bot_window_closing_check-message-demo: The volume of requests
-    on this channel is very high, and we haven't been able to resolve your request
-    yet. Thank you for your patience.
-  custom_message_smooch_bot_disabled_check-message-demo: Thank you for sending this
-    message. We are unable to send back any verification reports because this project
-    is no longer active.
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'You can use this service
-    to request verification, fact-checks, and investigation of news and information.
-    Check Message is provided to you under these Terms of Service: %{tos}. By continuing
-    to use this service, *you agree to be bound by these terms*. You should discontinue
-    your use of Check Message if you do not agree.'
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: We
-    started looking at your request now.
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: 'Unfortunately,
-    we cannot fact check this claim. Here are some guidelines on how to submit content
-    we can work with: Meedan.com'
+  custom_message_status_bot-resource_check-message-demo: Bot resource
+  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: We
+    started to look at your request! Stay tuned!
+  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: 'Thank
+    you! We could not fact-check this item. Here is a guide to submit content that
+    we can work with. '
+  custom_message_smooch_bot_result_changed_check-message-demo: "❗️The fact-check that
+    we sent to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_check-message-demo: "Thank you! Your
+    request has been received. Responses are being aggregated and sorted, and we're
+    working on fact-checking your questions.\n      \n✔️*Follow this link for an updated
+    list of common questions that we have fact-checked:* [ Link to a page of fact-checks
+    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
+    Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: "❌Sorry,
+    we can't accept this type of message for verification at this time. \n      \nWe
+    can accept most images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_check-message-demo: "❌Thank you for your message.
+    Our fact-checking service is currently *inactive.*\n      \nContact us at *[email
+    or other contact]* for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'This service is provided
+    under the following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_check-message-demo: Hi! Welcome to Meedan's
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916I'm
+    sorry, I didn't understand your message. Please try again!"
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1135,8 +1113,66 @@ en:
     de acuerdo en vincularte a los mismos. Si no estás de acuerdo (o no podés cumplir)
     con los Términos, debés dejar de utilizar el servicio.
   custom_message_smooch_bot_ask_for_tos_team456: tada
-  custom_message_smooch_bot_greetings_test: HELLOOOO
-  custom_message_smooch_bot_option_not_available_test: WHAT?
+  custom_message_smooch_bot_result_changed_test: "❗️The fact-check that we sent to
+    you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test: Thanks! We'll rock on that.
+  custom_message_smooch_bot_message_type_unsupported_test: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_test: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_test: 'This service is provided under the
+    following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_test: Hi! Welcome to the rock 'n roll fact-checking
+    service! \m/
+  custom_message_smooch_bot_option_not_available_test: Sorry, this option is not available.
+  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-3: "Thank you! Your request has
+    been received. Responses are being aggregated and sorted, and we're working on
+    fact-checking your questions.\n      \n✔️*Follow this link for an updated list
+    of common questions that we have fact-checked:* [ Link to a page of fact-checks
+    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
+    Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-3: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_test-3: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_test-3: 'This service is provided under the
+    following Terms of Services:'
+  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
+  custom_message_smooch_bot_result_changed_test-2: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-2: "Thank you! Your request has
+    been received. Responses are being aggregated and sorted, and we're working on
+    fact-checking your questions.\n      \n✔️*Follow this link for an updated list
+    of common questions that we have fact-checked:* [ Link to a page of fact-checks
+    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
+    Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-2: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_test-2: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_test-2: 'This service is provided under the
+    following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_test-2: Hi! Welcome to Caio’s fact-checking
+    bot. We fact-check claims, videos and images related to topics such as politics,
+    health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
+  custom_message_status_undetermined_test-custom-status: Status A
+  custom_message_status_status_b_test-custom-status: Status B
+  custom_message_status_foo-bar_test-custom-status: Foo Bar
+  custom_message_status_foo-final_test-custom-status: Foo Final
   custom_message_smooch_bot_result_test-govtech-pap: Wiadomośc zweryfikowana!
   custom_message_smooch_bot_result_changed_test-govtech-pap: MEga! Zmiana statusu
   custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: Potwierdź status
