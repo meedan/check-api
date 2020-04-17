@@ -120,12 +120,15 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       default: 0
     }]
     tb = create_team_bot set_settings: schema, set_approved: true
+    tbi = create_team_bot_installation(user_id: tb.id, settings: { foo: 'bar' })
     assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot_installation(user_id: tb.id, settings: { foo: 'bar' })
+      tbi.save!
     end
     assert_nothing_raised do
-      create_team_bot_installation(user_id: tb.id, settings: { foo: 10 })
-      create_team_bot_installation(user_id: tb.id, json_settings: '{"foo":10}')
+      tbi = create_team_bot_installation(user_id: tb.id, settings: { foo: 10 })
+      tbi.save!
+      tbi = create_team_bot_installation(user_id: tb.id, json_settings: '{"foo":10}')
+      tbi.save!
     end
   end
 

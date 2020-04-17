@@ -493,7 +493,7 @@ class ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
   end
 
-  def setup_smooch_bot
+  def setup_smooch_bot(menu = false)
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
@@ -535,6 +535,59 @@ class ActiveSupport::TestCase
     }.each do |name, label|
       settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
     end
+    settings << { name: 'smooch_message_smooch_bot_greetings', label: 'First message that is sent to the user as an introduction about the service', type: 'string', default: '' }
+    {
+      'main': 'Main menu',
+      'secondary': 'Secondary menu',
+      'query': 'User query'
+    }.each do |state, label|
+      settings << {
+        'name': "smooch_state_#{state}",
+        'label': label,
+        'type': 'object',
+        'default': {},
+        'properties': {
+          'smooch_menu_message': {
+            'type': 'string',
+            'title': 'Message',
+            'default': ''
+          },
+          'smooch_menu_options': {
+            'title': 'Menu options',
+            'type': 'array',
+            'default': [],
+            'items': {
+              'title': 'Option',
+              'type': 'object',
+              'properties': {
+                'smooch_menu_option_keyword': {
+                  'title': 'If',
+                  'type': 'string',
+                  'default': ''
+                },
+                'smooch_menu_option_value': {
+                  'title': 'Then',
+                  'type': 'string',
+                  'enum': [
+                    { 'key': 'main_state', 'value': 'Main menu' },
+                    { 'key': 'secondary_state', 'value': 'Secondary menu' },
+                    { 'key': 'query_state', 'value': 'User query' },
+                    { 'key': 'resource', 'value': 'Resource' }
+                  ],
+                  'default': ''
+                },
+                'smooch_menu_project_media_id': {
+                  'title': 'Project Media ID',
+                  'type': ['string', 'integer'],
+                  'default': '',
+                },
+              }
+            }
+          }
+        }
+      }
+    end
+    settings << { name: 'smooch_message_smooch_bot_option_not_available', label: 'Option not available', type: 'string', default: '' }
     WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
     WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
@@ -551,8 +604,45 @@ class ActiveSupport::TestCase
       'smooch_template_namespace' => random_string,
       'smooch_window_duration' => 10,
       'smooch_localize_messages' => true,
-      'team_id' => @team.id,
+      'team_id' => @team.id
     }
+    if menu
+      @settings.merge!({
+        'smooch_state_main' => {
+          'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',
+          'smooch_menu_options' => [{
+            'smooch_menu_option_keyword' => '1,one',
+            'smooch_menu_option_value' => 'secondary_state',
+            'smooch_menu_project_media_id' => ''
+          }]
+        },
+        'smooch_state_secondary' => {
+          'smooch_menu_message' => 'Now press 1 to see a project media or 2 to go to the query menu',
+          'smooch_menu_options' => [
+            {
+              'smooch_menu_option_keyword' => '1,one',
+              'smooch_menu_option_value' => 'resource',
+              'smooch_menu_project_media_id' => create_project_media(project: @project).id
+            },
+            {
+              'smooch_menu_option_keyword' => '2,two',
+              'smooch_menu_option_value' => 'query_state',
+              'smooch_menu_project_media_id' => ''
+            }
+          ]
+        },
+        'smooch_state_query' => {
+          'smooch_menu_message' => 'Enter your query or send 0 to go back to the main menu',
+          'smooch_menu_options' => [
+            {
+              'smooch_menu_option_keyword' => '0,zero',
+              'smooch_menu_option_value' => 'main_state',
+              'smooch_menu_project_media_id' => ''
+            }
+          ]
+        }
+      })
+    end
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
     create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
@@ -578,6 +668,30 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, "https://api-ssl.bitly.com/v4/shorten").with({ query: hash_including({}) }).to_return(status: 200, body: "", headers: {})
     WebMock.stub_request(:get, /check_message_tos/).to_return({ body: '<h1>Check Message Terms of Service</h1><p class="meta">Last modified: August 7, 2019</p>' })
     Bot::Smooch.stubs(:save_user_information).returns(nil)
+  end
+
+  def send_message_to_smooch_bot(message = random_string, user = random_string)
+    messages = [
+      {
+        '_id': random_string,
+        authorId: user,
+        type: 'text',
+        text: message
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': user,
+        'conversationStarted': true
+      }
+    }.to_json
+    Bot::Smooch.run(payload)
   end
 
   # Document GraphQL queries in Markdown format

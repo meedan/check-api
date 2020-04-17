@@ -12,7 +12,6 @@ class Bot::Smooch < BotUser
     check_workflow from: :any, to: :any, actions: :replicate_status_to_children
     check_workflow from: :any, to: :terminal, actions: :reply_to_smooch_users
     check_workflow from: :any, to: :any, actions: :reset_meme
-    check_workflow from: :terminal, to: :non_terminal, actions: :reply_to_smooch_users_not_final
   end
 
   ::Relationship.class_eval do
@@ -114,10 +113,6 @@ class Bot::Smooch < BotUser
       ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users(self.annotation.annotated_id, self.value)
     end
 
-    def reply_to_smooch_users_not_final
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).reply_to_smooch_users_not_final(self.annotation.annotated_id, self.value_was)
-    end
-
     def reset_meme
       meme = Dynamic.where(annotation_type: 'memebuster', annotated_type: self.annotation&.annotated_type, annotated_id: self.annotation&.annotated_id).last
       unless meme.nil?
@@ -174,12 +169,19 @@ class Bot::Smooch < BotUser
   end
 
   TeamBotInstallation.class_eval do
-    after_create :save_twitter_token_and_authorization_url
-    after_save :upload_custom_strings_to_transifex
 
-    private
+    # Save Twitter token and authorization URL
+    after_create do
+      if self.bot_user.identifier == 'smooch'
+        token = SecureRandom.hex
+        self.set_smooch_authorization_token = token
+        self.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+        self.save!
+      end
+    end
 
-    def upload_custom_strings_to_transifex
+    # Upload custom strings to Transifex
+    after_save do
       if self.bot_user.identifier == 'smooch'
         strings = {}
         self.settings.each do |key, value|
@@ -187,14 +189,6 @@ class Bot::Smooch < BotUser
         end
         CheckI18n.upload_custom_strings_to_transifex_in_background(self.team, 'smooch_bot', strings) unless strings.blank?
       end
-    end
-
-    def save_twitter_token_and_authorization_url
-      return unless self.bot_user.identifier == 'smooch'
-      token = SecureRandom.hex
-      self.set_smooch_authorization_token = token
-      self.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
-      self.save!
     end
   end
 
@@ -316,7 +310,7 @@ class Bot::Smooch < BotUser
       case json['trigger']
       when 'message:appUser'
         json['messages'].each do |message|
-          self.group_messages(message, json['app']['_id'])
+          self.parse_message(message, json['app']['_id'])
         end
         true
       when 'message:delivery:failure'
@@ -333,22 +327,83 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.group_messages(message, app_id)
+  def self.parse_message(message, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     if sm.state.value == 'human_mode'
       self.refresh_smooch_slack_timeout(uid)
       return
     end
-    self.send_tos_if_needed(message)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
-    redis.rpush(key, message.to_json)
-    self.delay_for(30.seconds, { queue: 'smooch', retry: 5 }).process_messages(uid, message['_id'], app_id)
+    self.parse_message_based_on_state(message, app_id)
   end
 
-  def self.process_messages(uid, id, app_id)
+  def self.parse_message_based_on_state(message, app_id)
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
+    state = sm.state.value
+    case state
+    when 'waiting_for_message'
+      has_main_menu = (self.config.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
+      if has_main_menu
+        sm.start
+        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        self.send_message_to_user(uid, main_message)
+      else
+        sm.go_to_query
+        self.parse_message_based_on_state(message, app_id)
+      end
+    when 'main', 'secondary'
+      if !self.process_menu_option(message, state)
+        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(["smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        self.send_message_to_user(uid, no_option_message)
+      end
+    when 'query'
+      (self.process_menu_option(message, state) && Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")) || self.bundle_message(message, app_id)
+    end
+  end
+
+  def self.process_menu_option(message, state)
+    uid = message['authorId']
+    sm = CheckStateMachine.new(uid)
+    self.config.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
+      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).include?(message['text'].to_s.downcase)
+        if option['smooch_menu_option_value'] =~ /_state$/
+          new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
+          sm.send("go_to_#{new_state}")
+          self.send_message_to_user(uid, self.i18n_t(["smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
+        elsif option['smooch_menu_option_value'] == 'resource'
+          pmid = option['smooch_menu_project_media_id'].to_i
+          pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
+          lang = message['language'].blank? ? 'en' : message['language']
+          report = begin
+                     pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s
+                   rescue
+                     status_label = self.get_status_label(pm, lang, pm.last_verification_status)
+                     params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
+                     ::Bot::Smooch.i18n_t(:smooch_bot_result, params)
+                   end
+          self.send_tos_if_needed(uid, lang)
+          self.send_message_to_user(uid, report)
+          sm.reset
+        end
+        return true
+      end
+    end
+    return false
+  end
+
+  def self.bundle_message(message, app_id)
+    uid = message['authorId']
+    redis = Redis.new(REDIS_CONFIG)
+    key = "smooch:bundle:#{uid}"
+    redis.rpush(key, message.to_json)
+    self.delay_for(30.seconds, { queue: 'smooch', retry: 5 }).bundle_messages(uid, message['_id'], app_id)
+  end
+
+  def self.bundle_messages(uid, id, app_id)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     list = redis.lrange(key, 0, redis.llen(key))
@@ -373,6 +428,8 @@ class Bot::Smooch < BotUser
         bundle['text'] = text.reject{ |t| t.blank? }.join("\n")
         self.discard_or_process_message(bundle, app_id)
         redis.del(key)
+        sm = CheckStateMachine.new(uid)
+        sm.reset
       end
     end
   end
@@ -391,7 +448,9 @@ class Bot::Smooch < BotUser
   def self.i18n_t(key, options = {})
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
-    CheckI18n.i18n_t(team, key, config["smooch_message_#{key}"], options)
+    fallback = key.is_a?(Array) ? config.dig(*key) : config["smooch_message_#{key}"]
+    key = key.join('_') if key.is_a?(Array)
+    CheckI18n.i18n_t(team, key, fallback, options)
   end
 
   def self.resend_message_after_window(message)
@@ -492,39 +551,36 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_tos_if_needed(message)
-    uid = message['authorId']
-    if Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i < User.terms_last_updated_at_by_page('tos_smooch')
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
+  def self.send_tos_if_needed(uid, lang)
+    last = Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i
+    if last < User.terms_last_updated_at_by_page('tos_smooch') || last < Time.now.yesterday.to_i
+      self.send_message_to_user(uid, ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: lang, tos: CheckConfig.get('tos_smooch_url') }))
       Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     end
   end
 
   def self.process_message(message, app_id)
     message['language'] ||= self.get_language(message)
-    sm = CheckStateMachine.new(message['authorId'])
 
-    if sm.state.value == 'waiting_for_message'
-      return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+    return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
-      hash = self.message_hash(message)
-      pm_id = Rails.cache.read("smooch:message:#{hash}")
-      if pm_id.nil?
-        sm.send_message_new
-        sm.message = message.to_json
-        is_supported = self.supported_message?(message)
-        if is_supported.slice(:type, :size).all?{|_k, v| v}
-          self.save_message_later(message, app_id)
-          self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
-        else
-          self.send_error_message(message, is_supported)
-        end
+    hash = self.message_hash(message)
+    pm_id = Rails.cache.read("smooch:message:#{hash}")
+    if pm_id.nil?
+      is_supported = self.supported_message?(message)
+      if is_supported.slice(:type, :size).all?{|_k, v| v}
+        self.save_message_later_and_reply_to_user(message, app_id)
       else
-        sm.send_message_existing
-        self.save_message_later(message, app_id)
-        self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
+        self.send_error_message(message, is_supported)
       end
+    else
+      self.save_message_later_and_reply_to_user(message, app_id)
     end
+  end
+
+  def self.save_message_later_and_reply_to_user(message, app_id)
+    self.save_message_later(message, app_id)
+    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
   end
 
   def self.get_text_from_message(message)
@@ -801,20 +857,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.reply_to_smooch_users_not_final(pm_id, status)
-    pm = ProjectMedia.where(id: pm_id).last
-    unless pm.nil?
-      pm.get_annotations('smooch').find_each do |annotation|
-        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        next if self.config['smooch_disabled']
-        status_label = self.get_status_label(pm, data['language'], status)
-        response = ::Bot::Smooch.send_message_to_user(data['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_not_final, { locale: data['language'], status: status_label }))
-        self.save_smooch_response(response, pm)
-      end
-    end
-  end
-
   def self.replicate_status_to_children(pm_id, status, uid, tid)
     pm = ProjectMedia.where(id: pm_id).last
     return if pm.nil?
@@ -832,6 +874,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
+    self.send_tos_if_needed(uid, lang)
     extra = {
       metadata: {
         id: pm.id
@@ -839,12 +882,14 @@ class Bot::Smooch < BotUser
     }
     status_label = self.get_status_label(pm, lang, status)
     params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
-    i18n_key = :smooch_bot_result
+    message = []
     unless previous_final_status.blank?
-      i18n_key = :smooch_bot_result_changed
       params[:previous_status] = self.get_status_label(pm, lang, previous_final_status)
+      message << ::Bot::Smooch.i18n_t(:smooch_bot_result_changed, params)
     end
-    response = ::Bot::Smooch.send_message_to_user(uid, ::Bot::Smooch.i18n_t(i18n_key, params), extra)
+    analysis = begin pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue ::Bot::Smooch.i18n_t(:smooch_bot_result, params) end
+    message << analysis
+    response = ::Bot::Smooch.send_message_to_user(uid, message.join("\n\n"), extra)
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:response:' + id, pm.id) unless id.blank?
@@ -861,6 +906,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.embed_url(pm)
+    return nil if pm.nil?
     pm = Bot::Smooch.get_parent(pm) || pm
     pm.custom_embed_url || pm.embed_url
   end

@@ -56,4 +56,13 @@ class UserTest < ActiveSupport::TestCase
     assert !bu.core?
     Module.unstub(:const_defined?)
   end
+
+  test "should convert settings to JSON schema" do
+    b = create_bot_user
+    s = [{ name: 'foo', type: 'array', items: [] }, { name: 'bar', type: 'object', properties: {} }]
+    b.set_settings(s)
+    b.save!
+    assert_match /items/, b.settings_as_json_schema
+    assert_match /properties/, b.settings_as_json_schema
+  end
 end

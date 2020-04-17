@@ -378,6 +378,43 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should add team tasks when adding or moving items" do
+    create_verification_status_stuff
+    create_task_status_stuff(false)
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: [], required: false
+    tt2 = create_team_task team_id: t.id, project_ids: [], required: false
+    tt3 = create_team_task team_id: t.id, project_ids: [p2.id], required: true
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p
+      assert_equal 2, pm.annotations('task').count
+      pm.add_to_project_id = p2.id
+      pm.save!
+      assert_equal 3, pm.annotations('task').count
+      pm2 = create_project_media project: p
+      assert_equal 2, pm2.annotations('task').count
+      pm2.previous_project_id = pm2.project_id
+      pm2.project_id = p2.id
+      pm2.save!
+      assert_equal 3, pm2.annotations('task').count
+      # test add required task to terminal status item
+      pm3 = create_project_media project: p
+      s = pm3.last_status_obj
+      s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
+      s.save!
+      assert_equal 2, pm3.annotations('task').count
+      pm3.add_to_project_id = p2.id
+      pm3.save!
+      assert_equal 3, pm3.annotations('task').count
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      assert_equal 'resolved', pm3_tt.status
+    end
+    Team.unstub(:current)
+  end
+
   test "should get project source" do
     t = create_team
     p = create_project team: t
@@ -1363,6 +1400,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update media account when change author_url" do
+    setup_elasticsearch
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
@@ -1393,14 +1431,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
     m = create_media url: url, account: nil, account_id: nil
     a = m.account
     p = create_project team: t
-    pm = create_project_media media: m, project: p
-    sleep 1
-    pm = ProjectMedia.find(pm.id)
-    with_current_user_and_team(u, t) do
-      pm.refresh_media = true
+    Sidekiq::Testing.inline! do
+      pm = create_project_media media: m, project: p, disable_es_callbacks: false
+      sleep 2
+      pm = ProjectMedia.find(pm.id)
+      with_current_user_and_team(u, t) do
+        pm.refresh_media = true
+        sleep 2
+      end
+      new_account = m.reload.account
+      assert_not_equal a, new_account
+      assert_nil Account.where(id: a.id).last
+      result = MediaSearch.find(get_es_id(pm)).accounts
+      assert_equal 1, result.size
+      assert_equal result.first['id'], new_account.id
     end
-    assert_not_equal a, m.reload.account
-    assert_nil Account.where(id: a.id).last
   end
 
   test "should create media when normalized URL exists" do
