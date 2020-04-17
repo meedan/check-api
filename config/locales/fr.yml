@@ -778,7 +778,6 @@ fr:
   flag_likelihood_5: Très probable
   relationship_not_same_team: Les éléments associés doivent exister dans le même espace
     de travail
-  no_analysis: Aucune analyse à ce sujet pour le moment
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
