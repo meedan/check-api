@@ -334,7 +334,6 @@ class Bot::Smooch < BotUser
       self.refresh_smooch_slack_timeout(uid)
       return
     end
-    self.send_tos_if_needed(message)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
@@ -378,14 +377,15 @@ class Bot::Smooch < BotUser
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
+          lang = message['language'].blank? ? 'en' : message['language']
           report = begin
                      pm.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s
                    rescue
-                     lang = message['language'].blank? ? 'en' : message['language']
                      status_label = self.get_status_label(pm, lang, pm.last_verification_status)
                      params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
                      ::Bot::Smooch.i18n_t(:smooch_bot_result, params)
                    end
+          self.send_tos_if_needed(uid, lang)
           self.send_message_to_user(uid, report)
           sm.reset
         end
@@ -551,11 +551,10 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_tos_if_needed(message)
-    uid = message['authorId']
+  def self.send_tos_if_needed(uid, lang)
     last = Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i
     if last < User.terms_last_updated_at_by_page('tos_smooch') || last < Time.now.yesterday.to_i
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: message['language'], tos: CheckConfig.get('tos_smooch_url') }))
+      self.send_message_to_user(uid, ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: lang, tos: CheckConfig.get('tos_smooch_url') }))
       Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     end
   end
@@ -875,6 +874,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
+    self.send_tos_if_needed(uid, lang)
     extra = {
       metadata: {
         id: pm.id
