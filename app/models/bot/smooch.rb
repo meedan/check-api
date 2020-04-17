@@ -385,8 +385,8 @@ class Bot::Smooch < BotUser
                      params = { locale: lang, status: status_label, url: Bot::Smooch.embed_url(pm) }
                      ::Bot::Smooch.i18n_t(:smooch_bot_result, params)
                    end
-          self.send_tos_if_needed(uid, lang)
           self.send_message_to_user(uid, report)
+          self.send_tos_if_needed(uid, lang)
           sm.reset
         end
         return true
@@ -874,7 +874,6 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_verification_results_to_user(uid, pm, status, lang, previous_final_status = nil)
-    self.send_tos_if_needed(uid, lang)
     extra = {
       metadata: {
         id: pm.id
@@ -893,6 +892,7 @@ class Bot::Smooch < BotUser
     self.save_smooch_response(response, pm)
     id = response&.message&.id
     Rails.cache.write('smooch:response:' + id, pm.id) unless id.blank?
+    self.send_tos_if_needed(uid, lang)
     response
   end
 
