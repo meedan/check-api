@@ -1,5 +1,5 @@
 class Project < ActiveRecord::Base
-  include CheckNotifications::Pusher
+  include CheckPusher
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern

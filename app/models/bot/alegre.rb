@@ -127,6 +127,19 @@ class Bot::Alegre < BotUser
     self.get_items_with_similar_text(pm, 'title', threshold, pm.title)
   end
 
+  def self.extract_project_medias_from_context(context)
+    # We currently have two cases of context:
+    # - a straight hash with project_media_id
+    # - an array of hashes, each with project_media_id
+    pms = []
+    if context.kind_of?(Array)
+      context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
+    elsif context.kind_of?(Hash)
+      pms.push(context.with_indifferent_access.dig('project_media_id'))
+    end
+    pms
+  end
+
   def self.get_items_with_similar_text(pm, field, threshold, text)
     similar = self.request_api('get', '/text/similarity/', {
       text: text,
@@ -136,7 +149,7 @@ class Bot::Alegre < BotUser
       },
       threshold: threshold
     })
-    similar.dig('result')&.collect{ |r| r.dig('_source', 'context', 'project_media_id') }.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('_source', 'context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
   end
 
   def self.get_items_with_similar_image(pm, threshold)
@@ -147,7 +160,7 @@ class Bot::Alegre < BotUser
       },
       threshold: threshold
     })
-    similar.dig('result')&.collect{ |r| r.dig('context', 'project_media_id') }.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
   end
 
   def self.add_relationships(pm, pm_ids)

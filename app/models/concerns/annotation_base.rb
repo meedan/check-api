@@ -57,7 +57,7 @@ module AnnotationBase
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
     include CheckPermissions
-    include CheckNotifications::Pusher
+    include CheckPusher
     include CheckElasticSearch
     include CustomLock
     include AssignmentConcern

@@ -216,12 +216,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.stubs(:env).returns(:production)
     t = create_team
     p = create_project team:  t
-    CheckNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
+    CheckPusher::Worker.drain
+    assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 10, CheckNotifications::Pusher::Worker.jobs.size
-    CheckNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 10, CheckPusher::Worker.jobs.size
+    CheckPusher::Worker.drain
+    assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)
   end
 
