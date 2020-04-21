@@ -1,5 +1,5 @@
 class TagText < ActiveRecord::Base
-  include CheckNotifications::Pusher
+  include CheckPusher
   attr_accessor :marked_for_deletion
 
   before_validation :normalize_tag
