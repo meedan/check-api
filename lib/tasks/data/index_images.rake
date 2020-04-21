@@ -1,5 +1,3 @@
-require 'ruby-progressbar'
-
 namespace :check do
   namespace :data do
     desc "Index all images in the Alegre similarity index"
