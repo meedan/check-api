@@ -137,3 +137,4 @@ gem 'mimemagic', '~> 0.3.3'
 gem 'honeycomb-beeline'
 gem 'bumbler', require: false
 gem 'swagger-docs', '0.1.9'
+gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
