@@ -849,28 +849,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should render oEmbed HTML" do
     Sidekiq::Testing.inline! do
-      create_translation_status_stuff
-      create_verification_status_stuff(false)
-      create_task_status_stuff(false)
-      u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
-      c = create_claim_media quote: 'Test'
-      t = create_team name: 'Test Team', slug: 'test-team'
-      p = create_project title: 'Test Project', team: t
-      pm = create_project_media media: c, user: u, project: p
-      create_comment text: 'A comment', annotated: pm
-      create_comment text: 'A second comment', annotated: pm
-
-      ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
-      ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
-
-      endpoint = CONFIG['storage']['asset_host'] || CONFIG['storage']['endpoint']
-      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar').gsub('bucket-name', CONFIG['storage']['bucket']).gsub('http://localhost:9000', endpoint)
-      actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar')
-
+      pm = create_project_media
+      publish_report(pm, {
+        use_visual_card: false,
+        use_text_message: true,
+        use_disclaimer: false,
+        text: '*This* _is_ a ~test~!'
+      })
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
+        .gsub(/.*<body/m, '<body')
+        .gsub('https?://[^:]*:3000', CONFIG['checkdesk_base_url'])
+      actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
-
-      ProjectMedia.any_instance.unstub(:created_at)
-      ProjectMedia.any_instance.unstub(:updated_at)
     end
   end
 
@@ -1153,49 +1143,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       metadata = pm.get_annotations('metadata').last.load
       metadata.title_is_overridden?
     end
-  end
-
-  test "should return custom status HTML and color for embed" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    t = create_team
-    value = {
-      label: 'Status',
-      default: 'stop',
-      active: 'done',
-      statuses: [
-        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
-        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
-      ]
-    }
-    pm = create_project_media
-    t.send "set_media_#{pm.default_project_media_status_type.pluralize}", value
-    t.save!
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_equal 'stop', pm.last_status
-    assert_equal '<span id="oembed__status" class="l">status_stop</span>', pm.last_status_html
-    assert_equal '#a00', pm.last_status_color
-    s = pm.last_status_obj
-    s.status = 'done'
-    s.save!
-    assert_equal '<span id="oembed__status" class="l">status_done</span>', pm.last_status_html
-    assert_equal '#fc3', pm.last_status_color
-  end
-
-  test "should return core status HTML and color for embed" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_equal "<span id=\"oembed__status\" class=\"l\">status_#{pm.last_status}</span>", pm.last_status_html
-    assert_equal '#518FFF', pm.last_status_color.upcase
-    s = pm.last_status_obj
-    s.status = 'in_progress'
-    s.save!
-    assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
-    assert_equal '#FFBB5D', pm.last_status_color.upcase
   end
 
   test "should get claim description only if it has been set" do
@@ -1993,36 +1940,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p1
     create_project_media_project project_media: pm, project: p2
     assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
-  end
-
-  test "should get analysis for embed" do
-    ft = create_field_type field_type: 'boolean', label: 'Boolean'
-    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
-    create_field_instance annotation_type_object: at, name: 'memebuster_show_analysis', label: 'Memebuster Show Analysis', field_type_object: ft, optional: false
-    ft = create_field_type field_type: 'text', label: 'Text'
-    at = create_annotation_type annotation_type: 'analysis', label: 'Analysis'
-    create_field_instance annotation_type_object: at, name: 'analysis_text', label: 'Analysis Text', field_type_object: ft, optional: false
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_nil pm.reload.embed_analysis
-    a = random_string
-    create_dynamic_annotation annotation_type: 'analysis', annotated: pm, set_fields: { analysis_text: a }.to_json
-    assert_nil pm.reload.embed_analysis
-    t.embed_analysis = true
-    t.save!
-    assert_equal a, pm.reload.embed_analysis
-    d = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_show_analysis: false }.to_json
-    assert_nil pm.reload.embed_analysis
-    d = Dynamic.find(d.id)
-    d.set_fields = { memebuster_show_analysis: true }.to_json
-    d.save!
-    assert_equal a, pm.reload.embed_analysis
-    t.embed_analysis = false
-    t.save!
-    assert_equal a, pm.reload.embed_analysis
-    d.destroy!
-    assert_nil pm.reload.embed_analysis
   end
 
   test "should add to list" do

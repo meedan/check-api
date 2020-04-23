@@ -778,7 +778,7 @@ DEPENDENCIES
   apollo-tracing (= 1.5.0)
   authtrail
   awesome_print
-  aws-sdk-s3
+  aws-sdk-s3 (= 1.46.0)
   bitly
   bootstrap-sass (~> 3.4.1)
   bumbler

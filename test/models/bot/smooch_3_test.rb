@@ -624,17 +624,13 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
 
     send_message_to_smooch_bot(random_string, uid)
     pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    publish_report(pm, { use_visual_card: false })
     assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     t1 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
 
     send_message_to_smooch_bot(random_string, uid)
     pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    publish_report(pm, { use_visual_card: false })
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_equal t1, t2
 
@@ -642,18 +638,14 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Time.stubs(:now).returns(now + 12.hours)
     send_message_to_smooch_bot(random_string, uid)
     pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    publish_report(pm, { use_visual_card: false })
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_equal t1, t2
 
     Time.stubs(:now).returns(now + 25.hours)
     send_message_to_smooch_bot(random_string, uid)
     pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    publish_report(pm, { use_visual_card: false })
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_not_equal t1, t2
 

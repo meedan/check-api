@@ -594,8 +594,6 @@ fr:
     de message.
   smooch_bot_message_size_unsupported: Désolé, nous ne prenons pas en charge les fichiers
     d’une taille supérieure à %{max_size}.
-  smooch_bot_meme: 'Voici un mème que nous avons créé pour l''article que vous nous
-    avez demandé de vérifier. Pour en savoir plus : %{url}.'
   smooch_bot_result: |-
     [Rapport de vérification] L'élément que vous nous avez envoyé est marqué comme *%{status}*.
 
@@ -704,7 +702,6 @@ fr:
   embed_expand_all: Développer tout
   embed_collapse_all: Réduire tout
   embed_tasks: Tâches
-  embed_analysis: Analyse
   embed_description: Description
   other_language: Autre
   unidentified_language: Non identifié
@@ -808,7 +805,6 @@ fr:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -830,7 +826,6 @@ fr:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
@@ -884,8 +879,6 @@ fr:
     Nous ne sommes plus en mesure de répondre aux demandes de vérification, car ce projet est maintenant hors service.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Désolé, nous ne prenons
     pas encore ce type de message en charge pour la vérification.
-  custom_message_smooch_bot_meme_checkpoint: 'Voici un mème que nous avons créé pour
-    l''article que vous nous avez demandé de vérifier. Pour en savoir plus : %{url}.'
   custom_message_smooch_bot_result_checkpoint: |-
     [Rapport de vérification] Le message que vous nous avez envoyé est marqué comme *%{status}*.
 
@@ -904,7 +897,6 @@ fr:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -957,7 +949,6 @@ fr:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''

@@ -2305,4 +2305,26 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
+
+  test "should get team URL" do
+    t = create_team slug: 'test'
+    assert_match /^http.*test/, t.reload.url
+    t.contact = { web: 'http://meedan.com' }.to_json
+    t.save!
+    assert_equal 'http://meedan.com', t.reload.url
+  end
+
+  test "should define report settings" do
+    t = create_team
+    t.use_introduction = true
+    t.use_disclaimer = true
+    t.introduction = random_string
+    t.disclaimer = random_string
+    t.save!
+    t = Team.find(t.id)
+    assert t.get_use_introduction
+    assert t.get_use_disclaimer
+    assert_not_nil t.get_introduction
+    assert_not_nil t.get_disclaimer
+  end
 end

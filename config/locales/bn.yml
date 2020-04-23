@@ -40,8 +40,6 @@ bn:
         label: প্রত্যাখ্যাত
       unstarted:
         label: শুরু করা হয় নি
-  smooch_bot_meme: এখানে আমরা আপনার অনুরোধকৃত আইটেমের ভিত্তিতে তৈরি একটি মেমে যাচাই
-    করেছি। আরো জানুন%{url}
   smooch_bot_result_changed: |-
     [যাচাইকরণ প্রতিবেদন - সংশোধন] আপনি আমাদের সাথে যে বার্তাটি ভাগ করেছেন সেটি * * {পূর্ব_ স্ট্যাটাস} * থেকে  {স্ট্যাটাস} * থেকে পরিবর্তিত হয়েছে।
 
@@ -77,7 +75,6 @@ bn:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -110,9 +107,6 @@ bn:
   custom_message_smooch_bot_not_final_boom-factcheck: সংশোধন আমরা আমাদের সিদ্ধান্তের
     পুনর্বিবেচনা করছি আপনি যে বার্তাটি পাঠিয়েছিলেন আর আমরা তাকে বলেছি *%{status}*
     আমরা আপনাকে জানাবো যখন আমাদের পুনর্বিবেচনা সম্পন্ন হবে।
-  custom_message_smooch_bot_meme_boom-factcheck: আপনার পাঠানো বার্তার জন্য আমাদের
-    ফ্যাক্ট কার্ডটি দেখুন। ফ্যাক্ট কার্ডটি ফরোয়ার্ড করুন। আমাদের প্রতিবেদনটি পড়ুন
-    এবং শেয়ার করুন। %{url}
   custom_message_smooch_bot_window_closing_boom-factcheck: অপেক্ষা করার জন্য ধন্যবাদ-
     আমরা আনেক বার্তা পায় এবং আমরা শুধুমাত্র সেই বিষয়গুলি তথ্যযাচাই করি যেগুলি এই মুহূর্তে
     ট্রেন্ডিং। দয়া করে বিষয়গুলি পাঠাতে থাকুন আমাদের সাহাযার্থে। ততক্ষণ আমাদের সাইটের
@@ -179,8 +173,6 @@ bn:
     আমরা কোনো যাচাই প্রতিবেদন পাঠাতে অক্ষম, কারণ চেকপয়েন্ট এই টিপলাইনটি আর ব্যবহার করছে না।
   custom_message_smooch_bot_message_type_unsupported_checkpoint: আপনার প্রশ্ন যাচাই
     করা যাবে না কারণ এটি যাচাইয়ের জন্য একটি বৈধ প্রশ্ন নয়।
-  custom_message_smooch_bot_meme_checkpoint: এখানে আমরা আপনার অনুরোধকৃত আইটেমের ভিত্তিতে
-    তৈরি একটি মেমে যাচাই করেছি। আরো জানুন%{url}
   custom_message_smooch_bot_result_checkpoint: "] আপনি যে বার্তাটি আমাদের সাথে ভাগ
     করেছেন তা চিহ্নিত হয়েছে %{status}। এখানে এই পদক্ষেপগুলি নির্ণয় করার জন্য আমরা
     পদক্ষেপ গ্রহণ করেছি:%{url}"
@@ -198,7 +190,6 @@ bn:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -251,7 +242,6 @@ bn:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''

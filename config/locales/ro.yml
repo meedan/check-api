@@ -412,8 +412,6 @@ ro:
     Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
   smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul
     dvs în continuare. Mulțumim.
-  smooch_bot_meme: Iată un meme, pe care l-am creat în baza elementului, pentru care
-    ați solicitat verificarea. Aflați mai multe pe %{url}.
   smooch_bot_result: |-
     [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
 
@@ -528,7 +526,6 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -550,7 +547,6 @@ ro:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
@@ -604,8 +600,6 @@ ro:
     este activ.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Ne pare rău, deocamdată
     nu acceptăm acest tip de format de fișiere pentru verificare.
-  custom_message_smooch_bot_meme_checkpoint: Iată un meme, pe care l-am creat în baza
-    elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
 
@@ -624,7 +618,6 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -677,7 +670,6 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''

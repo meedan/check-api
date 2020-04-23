@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Check Report Designer Default Template</title>
+    <style>
+      @import url(https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css);
+      @import url('https://fonts.googleapis.com/css2?family=Hind:wght@700');
+
+      body, html {
+        font-family: 'Hind';
+        font-weight: 700;
+        line-height: 1.5em;
+        width: 500px;
+        height: 500px;
+      }
+
+      div {
+        box-sizing: border-box;
+      }
+
+      #frame {
+        background: white;
+        width: 500px;
+        height: 500px;
+      }
+
+      #top {
+        height: 20px;
+        width: 100%;
+        background: #CCCCCC;
+      }
+
+      #title {
+        color: #CCCCCC;
+        font-size: 22px;
+        padding: 20px 40px;
+        background: white;
+        height: 100px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      #image {
+        width: 100%;
+        height: 380px;
+        background-color: white;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-image: url('%IMAGE_URL%');
+        padding: 20px 40px;
+      }
+
+      .translucid {
+        background: rgba(255, 255, 255, 0.75);
+        padding: 20px;
+        display: inline-block;
+        width: auto;
+        margin-bottom: 10px;
+      }
+
+      #status {
+        color: #CCCCCC;
+        text-transform: uppercase;
+        font-size: 32px;
+      }
+
+      #description {
+        color: black;
+        font-size: 16px;
+      }
+
+      #url {
+        color: black;
+        font-size: 18px;
+        padding: 13px 20px 13px 65px;
+        background-color: rgba(255, 255, 255, 0.75);
+        background-position: 20px 5px;
+        background-repeat: no-repeat;
+        background-size: 40px 40px;
+        background-image: url('%AVATAR_URL%');
+      }
+    </style>
+  </head>
+  <body>
+    <div id="frame">
+      <div id="top"></div>
+      <div id="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin viverra justo ut biam.</div>
+      <div id="image">
+        <div>
+          <div id="status" class="translucid">Loremipsumutbiam</div>
+        </div>
+        <div>
+          <div id="description" class="translucid">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ullamcorper justo urna, sed tempor risus aliquet dui.</div>
+        </div>
+        <div>
+          <div class="translucid" id="url">https://loremipsumdolorsit.ametn</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

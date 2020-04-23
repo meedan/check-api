@@ -694,6 +694,40 @@ class ActiveSupport::TestCase
     Bot::Smooch.run(payload)
   end
 
+  def publish_report(pm = nil, data = {}, report = nil)
+    pm ||= create_project_media
+    r = report || create_report(pm, data)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'publish'
+    r.save!
+    r
+  end
+
+  def create_report(pm, data = {}, action = 'save')
+    create_report_design_annotation_type if DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last.nil?
+    r = create_dynamic_annotation annotation_type: 'report_design', annotated: pm
+    default_data = {
+      state: 'paused',
+      status_label: random_string,
+      description: random_string,
+      headline: random_string,
+      use_visual_card: true,
+      use_introduction: true,
+      introduction: 'Regarding {{query_message}} on {{query_date}}, it is {{status}}.',
+      theme_color: '#FF0000',
+      url: random_url,
+      use_text_message: true,
+      text: random_string,
+      use_disclaimer: true,
+      disclaimer: random_string
+    }
+    r.set_fields = default_data.merge(data).to_json
+    r.action = action
+    r.save!
+    r
+  end
+
   # Document GraphQL queries in Markdown format
   def document_graphql_query(action, type, query, response)
     if ENV['DOCUMENT']

@@ -338,16 +338,14 @@ class DynamicTest < ActiveSupport::TestCase
     end
   end
 
-  test "should save Meme Buster image in a path" do
-    image = create_field_type field_type: 'image_path'
-    at = create_annotation_type annotation_type: 'memebuster', label: 'Meme Generator Settings'
-    create_field_instance annotation_type_object: at, name: 'memebuster_image', label: 'Image', field_type_object: image, optional: false
-    d = create_dynamic_annotation annotation_type: 'memebuster', file: 'rails.png', set_fields: { memebuster_image: '' }.to_json
+  test "should save report design image in a path" do
+    create_report_design_annotation_type
+    d = create_dynamic_annotation annotation_type: 'report_design', file: 'rails.png', set_fields: { image: '' }.to_json, action: 'save'
     assert_not_nil d.file
-    assert_match /rails.png/, d.reload.get_field_value('memebuster_image')
-    d.set_fields = { memebuster_image: 'http://imgur.com/memebuster.png' }.to_json
+    assert_match /rails.png/, d.reload.get_field_value('image')
+    d.set_fields = { image: 'http://imgur.com/test.png' }.to_json
     d.save!
     d = Dynamic.find(d.id)
-    assert_equal 'http://imgur.com/memebuster.png', d.get_field_value('memebuster_image')
+    assert_equal 'http://imgur.com/test.png', d.get_field_value('image')
   end
 end

@@ -579,8 +579,6 @@ pt:
     de mensagem.
   smooch_bot_message_size_unsupported: Desculpe, não suportamos arquivos maiores que
     %{max_size}.
-  smooch_bot_meme: Aqui está um meme criado com base no item que você solicitou que
-    verificássemos. Saiba mais em %{url}.
   smooch_bot_result: |-
     [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
 
@@ -686,7 +684,6 @@ pt:
   embed_expand_all: Expandir tudo
   embed_collapse_all: Recolher tudo
   embed_tasks: Tarefas
-  embed_analysis: Análise
   embed_description: Descrição
   other_language: Outro
   unidentified_language: Não identificado
@@ -787,7 +784,6 @@ pt:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -809,7 +805,6 @@ pt:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
@@ -863,8 +858,6 @@ pt:
     Não é possível enviar relatório de verificação porque este projeto não está mais ativo.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Desculpe, ainda não
     damos suporte a este formato de arquivo para verificação.
-  custom_message_smooch_bot_meme_checkpoint: Aqui está um meme criado com base no
-    item que você solicitou que verificássemos. Saiba mais em %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [Relatório de Verificação] A mensagem que você compartilhou conosco está marcada como *%{status}*.
 
@@ -883,7 +876,6 @@ pt:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -936,7 +928,6 @@ pt:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
