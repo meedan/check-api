@@ -340,8 +340,6 @@ ru:
   annotation_type_language_label: Язык
   smooch_bot_message_unconfirmed: Поскольку вы не ответили «1», запрос будет отменён.
     Спасибо.
-  smooch_bot_meme: 'Вот картинка, которую мы создали по материалу, полученному от
-    вас для верификации. Подробнее: %{url}.'
   smooch_bot_result_changed: |-
     [Отчёт о верификации — ИЗМЕНЕНИЕ] Сообщение, которое вы нам отправили, получило новую отметку: «*%{status}*» (ранее отмечено как «*%{previous_status}*»).
 
@@ -440,7 +438,6 @@ ru:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -462,7 +459,6 @@ ru:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
@@ -516,8 +512,6 @@ ru:
     отчеты о дезинформации во время выборов в Индии."
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Извините, но мы пока
     не принимаем файлы этого формата для верификации.
-  custom_message_smooch_bot_meme_checkpoint: 'Вот картинка, которую мы создали по
-    материалу, полученному от вас для верификации. Подробнее: %{url}.'
   custom_message_smooch_bot_result_checkpoint: |-
     [Отчёт о верификации] Сообщение, которое вы нам отправили, получило отметку «*%{status}*».
 
@@ -536,7 +530,6 @@ ru:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -589,7 +582,6 @@ ru:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''

@@ -390,4 +390,10 @@ class StatusTest < ActiveSupport::TestCase
     s = pm.get_annotations('verification_status').last.load.get_field('verification_status_status')
     assert_kind_of Array, s.workflow_options_from_key(:non_terminal)
   end
+
+  test "should get status" do
+    create_verification_status_stuff
+    pm = create_project_media
+    assert_kind_of Hash, Workflow::Workflow.get_status(pm, 'verification_status', 'in_progress')
+  end
 end

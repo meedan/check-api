@@ -471,8 +471,6 @@ ar:
     سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
   smooch_bot_message_unconfirmed: نظراً لأنك لم ترد  بـ 1 ، فلن نقوم بمعالجة طلبك
     وشكراً.
-  smooch_bot_meme: إليك ميم أنشأناه بناء على العنصر الذي أرسلته للتحقق منه. لعرض المزيد
-    %{url}.
   smooch_bot_result: |-
     [تقرير التحقيق] لقد تم  تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
 
@@ -603,8 +601,6 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: إليك ميم أنشأناه بناء على العنصر
-    الذي أرسلته للتحقق منه. لعرض المزيد %{url}.
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -626,7 +622,6 @@ ar:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
@@ -679,8 +674,6 @@ ar:
     إرسال أي من تقرير التحقيق ، حيث أن هذا المشروع لم يعد نشطاً.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: عذرًا ، لا ندعم هذا
     النوع من الرسائل بعد للتحقق من صحتها.
-  custom_message_smooch_bot_meme_checkpoint: إليك ميم أنشأناه بناء على العنصر الذي
-    أرسلته للتحقق منه. لعرض المزيد %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [تقرير التحقيق] لقد تم  تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
 
@@ -699,7 +692,6 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -752,7 +744,6 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
-  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''

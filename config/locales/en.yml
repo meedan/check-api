@@ -564,8 +564,6 @@ en:
     your request further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of message.
   smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size}.
-  smooch_bot_meme: Here's a meme we created based on the item you have requested that
-    we verify. Learn more at %{url}.
   smooch_bot_result: |-
     [Verification Report] The item that you shared with us is marked *%{status}*.
 
@@ -586,10 +584,7 @@ en:
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
     any verification reports, because this project is no longer active.
-  smooch_bot_result_changed: |-
-    [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
+  smooch_bot_result_changed: '❗️The fact-check that we sent to you has been *updated* with new information'
   permissions_info:
     roles:
       owner:
@@ -671,7 +666,6 @@ en:
   embed_expand_all: Expand all
   embed_collapse_all: Collapse all
   embed_tasks: Tasks
-  embed_analysis: Analysis
   embed_description: Description
   other_language: Other
   unidentified_language: Unidentified
@@ -743,6 +737,7 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
+  cant_change_status_if_item_is_published: Sorry, you can't change the status while the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
@@ -820,8 +815,6 @@ en:
     The message you shared with us was wrongly marked as %{status}.
 
     It is still in our queue for further verification.
-  custom_message_smooch_bot_meme_afp-fact-check: Here's a meme we created based on
-    the item you have requested that we verify. Learn more at %{url}.
   custom_message_smooch_bot_window_closing_afp-fact-check: The volume of requests
     on this channel is very high, and we haven't been able to resolve your request
     yet. Thank you for your patience.
@@ -879,8 +872,6 @@ en:
   custom_message_smooch_bot_not_final_boom-factcheck: "CORRECTION\n\n\U0001F926‍♂️We're
     reviewing our conclusion on the message you sent that we marked *%{status}*.\n\nWe'll
     let you know when we've completed our review."
-  custom_message_smooch_bot_meme_boom-factcheck: "Check our fact card for the message
-    \nyou had sent us. Forward the fact card!\n\nRead and share our story here:  %{url}"
   custom_message_smooch_bot_window_closing_boom-factcheck: "Thanks for waiting - we
     receive a lot of messages and we can only fact check the stories and topics we
     see trending right now. Please keep sending us the things you're seeing to help
@@ -968,8 +959,6 @@ en:
     We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Sorry, we don't support
     this type of file format for verification yet.
-  custom_message_smooch_bot_meme_checkpoint: Here's a meme we created based on the
-    item you have requested that we verify. Learn more at %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [Verification Report] The message you shared with us is marked *%{status}*.
 
@@ -1002,11 +991,6 @@ en:
     Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as %{status}.
 
     We’re still working on your request. Wait for the final report.
-
-  custom_message_smooch_bot_meme_india-today: 'Hey, do you like this meme we made
-    on your query? Please share it with your friends and family if you liked it.
-
-'
   custom_message_smooch_bot_window_closing_india-today: "Thanks for reaching out to
     India Today Fact Check. But sorry, we’re not able to respond back currently. \n\nBut
     you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html"
@@ -1097,8 +1081,6 @@ en:
   custom_message_smooch_bot_not_final_reverso: Disculpas. El mensaje que nos enviaste
     fue incorrectamente tratado como %{status}. Corregiremos nuestro error y recibirás
     pronto el reporte correcto.
-  custom_message_smooch_bot_meme_reverso: "Acá te enviamos un Meme que creamos, basado
-    en el tema de tu consulta que ya verificamos. \nVer más en: %{url}"
   custom_message_smooch_bot_window_closing_reverso: El volumen de pedidos a nuestra
     redacción es enorme, por lo que aún no podemos resolver tu consulta. Gracias por
     escribirnos.

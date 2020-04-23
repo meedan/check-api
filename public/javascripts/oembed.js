@@ -9,63 +9,10 @@ if (locales.indexOf(locale) === -1) {
   locale = 'en';
 }
 
-// Localize all strings to the current locale
-
-var strings = document.getElementsByClassName('l');
-for (var i = 0; i < strings.length; i++) {
-  strings[i].innerHTML = translations[locale][strings[i].innerHTML] || '';
-}
-
-// Use jquery.timeago for relative timestamps
-
-jQuery.getScript(host + '/javascripts/timeago/locales/jquery.timeago.' + locale + '.js', function() {
-  jQuery(document).ready(function() {
-    $('time.timeago').timeago();
-  });
-});
-
-// Use hand cursor only on texts that are really expandable
-// and hide "Expand/collapse" if there is nothing truncated
-
-jQuery(document).ready(function() {
-  var hasCollapsableText = false;
-  jQuery('.oembed__task-answer').each(function() {
-    var element = jQuery(this);
-    if (element[0].offsetWidth < element[0].scrollWidth) {
-      element.addClass('oembed__clickable');
-      hasCollapsableText = true;
-    }
-  });
-  if (hasCollapsableText) {
-    jQuery('#oembed__tasks-info').show();
-  }
-  else {
-    jQuery('#oembed__tasks-info').hide();
-  }
-});
-
-// Expand tasks
-
-jQuery(document).ready(function() {
-  jQuery('#oembed__tasks-expand-all').click(function() {
-    jQuery('.oembed__collapsable-text').removeClass('oembed__collapsed-text');
-    jQuery('#oembed__tasks-expand-all').hide();
-    jQuery('#oembed__tasks-collapse-all').show();
-  });
-  jQuery('#oembed__tasks-collapse-all').click(function() {
-    jQuery('.oembed__collapsable-text').addClass('oembed__collapsed-text');
-    jQuery('#oembed__tasks-collapse-all').hide();
-    jQuery('#oembed__tasks-expand-all').show();
-  });
-  jQuery('.oembed__task-answer').click(function() {
-    jQuery(this).toggleClass('oembed__collapsed-text');
-  });
-});
-
 // Linkify
 
 jQuery(document).ready(function() {
-  jQuery('.oembed__linkify').linkify({ target: '_blank' });
+  jQuery('.linkify').linkify({ target: '_blank' });
 });
 
 // Define if language is RTL
@@ -113,6 +60,5 @@ jQuery(document).ready(function() {
     jQuery('body, html').addClass('rtl');
   }
   jQuery('html').attr('lang', locale);
-  jQuery('#oembed__meta-content-language').attr('content', locale);
   checkHTMLHeight();
 });

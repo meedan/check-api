@@ -266,6 +266,32 @@ module SampleData
     create_annotation_type_and_fields('Flag', {}, json_schema)
   end
 
+  def create_report_design_annotation_type
+    json_schema = {
+      type: 'object',
+      properties: {
+        state: { type: 'string', default: 'paused' },
+        use_introduction: { type: 'boolean', default: false },
+        introduction: { type: 'string', default: '' },
+        use_visual_card: { type: 'boolean', default: false },
+        image: { type: 'string', default: '' },
+        headline: { type: 'string', default: '' },
+        description: { type: 'string', default: '' },
+        status_label: { type: 'string', default: '' },
+        previous_published_status_label: { type: 'string', default: '' },
+        theme_color: { type: 'string', default: '' },
+        url: { type: 'string', default: '' },
+        use_text_message: { type: 'boolean', default: false },
+        text: { type: 'string', default: '' },
+        use_disclaimer: { type: 'boolean', default: false },
+        disclaimer: { type: 'string', default: '' },
+        last_error: { type: 'string', default: '' },
+        last_published: { type: 'string', default: '' }
+      }
+    }
+    create_annotation_type_and_fields('Report Design', {}, json_schema)
+  end
+
   def create_flag(options = {})
     create_flag_annotation_type if DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last.nil?
     flags = {
@@ -713,6 +739,7 @@ module SampleData
         a.file = [f]
       end
     end
+    a.action = options[:action]
     a.save!
     a
   end

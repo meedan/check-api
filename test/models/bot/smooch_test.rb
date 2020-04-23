@@ -281,9 +281,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
 
     pm = ProjectMedia.last
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
+    r = publish_report(pm)
 
     payload = {
       trigger: 'message:delivery:failure',
@@ -337,16 +335,11 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil Bot::Smooch.extract_url('foo https://*1.*')
   end
 
-  test "should send meme to user" do
-    field_names = ['image', 'overlay', 'published_at', 'headline', 'body', 'status', 'operation']
-    fields = {}
-    field_names.each{ |fn| fields[fn] = ['text', false] }
-    create_annotation_type_and_fields('memebuster', fields)
+  test "should send report to user" do
     text = random_string
     uid = random_string
     child1 = create_project_media project: @project
     u = create_user
-
     messages = [
       {
         '_id': random_string,
@@ -368,72 +361,38 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
+    sleep 1
     pm = ProjectMedia.last
     create_relationship source_id: pm.id, target_id: child1.id, user: u
-    s = pm.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-
-    fields = {}
-    field_names.each{ |fn| fields["memebuster_#{fn}".to_sym] = random_string }
-    a = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: fields.to_json
-    pa1 = a.get_field_value('memebuster_published_at')
-    filepath = "memebuster/#{a.id}.png"
+    r = create_report(pm)
+    pa1 = r.reload.get_field_value('last_published')
+    filepath = "report_design/#{r.id}.png"
     assert !CheckS3.exist?(filepath)
-    a = Dynamic.find(a.id)
-    a.action = 'save'
-    a.set_fields = { memebuster_operation: 'save' }.to_json
-    a.save!
+    r = Dynamic.find(r.id)
+    r.save!
     assert !CheckS3.exist?(filepath)
-    a = Dynamic.find(a.id)
-    a.action = 'publish'
-    a.set_fields = { memebuster_operation: 'publish' }.to_json
-    a.save!
-    assert_not_equal '', a.reload.get_field_value('memebuster_status')
+    publish_report(pm, {}, r)
     assert CheckS3.exist?(filepath)
-    pa2 = a.get_field_value('memebuster_published_at')
+    pa2 = r.reload.get_field_value('last_published')
     assert_not_equal pa1.to_s, pa2.to_s
-
-    uid = random_string
-    CheckS3.delete(filepath)
-    assert !CheckS3.exist?(filepath)
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text',
-        text: text
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    Bot::Smooch.run(payload)
-    pm2 = ProjectMedia.last
-    assert_equal pm, pm2
-    assert CheckS3.exist?(filepath)
-    assert_not_nil Bot::Smooch.get_meme(pm).memebuster_png_path
-
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'in_progress'
+    assert_raises RuntimeError do
+      s.save!
+    end
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
     s.save!
-
-    assert !CheckS3.exist?(filepath)
-    assert_equal 'In Progress', a.reload.get_field_value('memebuster_status')
-
-    child2 = create_project_media project: @project
-    Bot::Smooch.expects(:send_meme).once
-    create_relationship source_id: pm.id, target_id: child2.id, user: u
-    Bot::Smooch.unstub(:send_meme)
+    assert_equal 'In Progress', r.reload.get_field_value('status_label')
+    assert_not_equal 'In Progress', r.reload.get_field_value('previous_published_status_label')
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'republish_and_resend'
+    r.save!
+    pa3 = r.reload.get_field_value('last_published')
+    assert_not_equal pa2.to_s, pa3.to_s
   end
 
   test "should get language" do
