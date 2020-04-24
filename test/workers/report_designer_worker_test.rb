@@ -17,10 +17,15 @@ class ReportDesignerWorkerTest < ActiveSupport::TestCase
     Bot::Smooch.unstub(:send_report_to_users)
   end
 
+  test "should try to restart PhantomJS if it dies" do
+    e = Webshot::WebshotError.new('Capybara error: "PhantomJS client died while processing {\"id\":\"1\",\"name\":\"render\",\"args\":[\"/tmp/x.png\",{\"full\":true}]}"')
+    assert_equal 1, ReportDesignerWorker.retry_in_callback(e)
+  end
+
   test "should save error after many retries" do
     r = publish_report
     assert r.get_field_value('last_error').blank?
-    ReportDesignerWorker.retry_callback({ 'args' => [r.id], 'error_message' => 'Test' })
+    ReportDesignerWorker.retries_exhausted_callback({ 'args' => [r.id], 'error_message' => 'Test' }, StandardError.new)
     assert_match /Test/, r.reload.get_field_value('last_error')
   end
 end
