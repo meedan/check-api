@@ -2,13 +2,23 @@ class ReportDesignerWorker
   include Sidekiq::Worker
 
   sidekiq_options queue: 'smooch', retry: 3
-  sidekiq_retries_exhausted { |msg| retry_callback(msg) }
+  sidekiq_retry_in { |_count, e| retry_in_callback(e) }
+  sidekiq_retries_exhausted { |msg, e| retries_exhausted_callback(msg, e) }
 
-  def self.retry_callback(msg)
+  def self.retry_in_callback(e)
+    # Temporary fix until #8231 is implemented: Force PhantomJS to be restarted in a second attempt if it dies
+    if e.message =~ /PhantomJS client died while processing/
+      `pkill -f phantomjs`
+    end
+    1
+  end
+
+  def self.retries_exhausted_callback(msg, e)
     id = msg['args'].first
     d = Dynamic.find(id)
     d.set_fields = d.data.merge({ last_error: "[#{Time.now}] #{msg['error_message']}" }).to_json
     d.save!
+    ::Bot::Smooch.notify_error(e, { method: 'ReportDesignerWorker::retries_exhausted_callback', dynamic_annotation_id: id, error_message: msg['error_message'] }, RequestStore[:request])
   end
 
   def perform(id, action)
