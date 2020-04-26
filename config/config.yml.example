@@ -175,8 +175,6 @@ development: &default
   # DEPRECATED
   #
   optics_api_key:
-  slack_token:
-  viber_token:
   clamav_service_path:
   cc_deville_host:
   cc_deville_token:

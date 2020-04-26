@@ -60,11 +60,6 @@ module CheckElasticSearch
   #       options[:keys] << 'verification_status'
   #       data.merge!({verification_status: obj.last_status})
   #     end
-  #     unless options[:keys].include?('translation_status')
-  #       options[:keys] << 'translation_status'
-  #       ts = obj.annotations.where(annotation_type: "translation_status").last
-  #       data.merge!({translation_status: ts.load.status}) unless ts.nil?
-  #     end
   #     unless options[:keys].include?('title')
   #       options[:keys] += ['title', 'description']
   #       data.merge!({title: obj.title, description: obj.description})

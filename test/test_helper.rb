@@ -76,8 +76,7 @@ class ActiveSupport::TestCase
     MediaSearch.create_index
     Rails.stubs(:env).returns('development')
     RequestStore.store[:disable_es_callbacks] = false
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     sleep 2
   end
 
@@ -146,7 +145,6 @@ class ActiveSupport::TestCase
     ApiKey.current = Team.current = User.current = nil
     Team.unstub(:current)
     User.unstub(:current)
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
     RequestStore.store[:skip_cached_field_update] = true
@@ -480,26 +478,12 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
-  def create_translation_status_stuff(delete_existing = true)
-    if delete_existing
-      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    end
-    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
-    ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
-    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', default_value: 'pending', field_type_object: ft1, optional: false
-    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
-    create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
-  end
-
   def setup_smooch_bot(menu = false)
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
     DynamicAnnotation::Field.delete_all
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'

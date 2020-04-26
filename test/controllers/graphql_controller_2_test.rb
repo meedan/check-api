@@ -12,8 +12,7 @@ class GraphqlController2Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
   end
 
   test "should have a different id for public team" do
@@ -1076,7 +1075,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal p1, pm2.reload.project
       assert_equal p1, pm3.reload.project
       assert_equal 0, Sidekiq::Worker.jobs.size
-      
+
       authenticate_with_user(u)
       query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\", \"#{pm3.graphql_id}\", \"#{pm4.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
       post :create, query: query, team: t.slug
@@ -1113,7 +1112,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_not_nil ProjectMedia.where(id: pm2.id).last
       assert_equal 0, Sidekiq::Worker.jobs.size
-      
+
       authenticate_with_user(u)
       query = "mutation { destroyProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"] }) { affectedIds, check_search_team { number_of_results }, project { medias_count } } }"
       post :create, query: query, team: t.slug
@@ -1140,11 +1139,11 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
     p = create_project team: t
-    
+
     t.set_status_target_turnaround = 10.hours ; t.save!
     pm1 = create_project_media project: p, disable_es_callbacks: false
     sleep 5
-    
+
     t.set_status_target_turnaround = 5.hours ; t.save!
     pm2 = create_project_media project: p, disable_es_callbacks: false
     sleep 5
@@ -1158,7 +1157,7 @@ class GraphqlController2Test < ActionController::TestCase
     sleep 5
 
     authenticate_with_user(u)
-    
+
     query = 'query { search(query: "{\"sort\":\"deadline\",\"sort_type\":\"asc\"}") { medias(first: 10000) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
@@ -1191,7 +1190,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal 'undetermined', pm3.reload.last_verification_status
 
       d = pm1.last_verification_status_obj
-      
+
       query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets_by_users(first: 10) { edges { node { last_status } } } } } }'
       post :create, query: query, team: t.slug
       assert_response :success

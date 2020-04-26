@@ -352,9 +352,7 @@ h4 {
 
 
 #media_verification_statuses_editor_holder,
-#source_verification_statuses_editor_holder,
-#media_translation_statuses_editor_holder,
-#source_translation_statuses_editor_holder {
+#source_verification_statuses_editor_holder {
   .control-group:focus {
   }
 
@@ -386,7 +384,6 @@ h4 {
     color: $black-87 !important;
   }
 
-  .media_translation_statuses_editor_holder .container-fluid,
   .media_verification_statuses_editor_holder .container-fluid {
     margin-left: 0 !important;
   }

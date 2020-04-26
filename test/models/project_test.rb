@@ -468,38 +468,8 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil exported_data.find { |e| e[:report_id] == pm3.id}.dig(:language)
   end
 
-  test "should export data for Bridge" do
-    create_translation_status_stuff
-    stub_config('default_project_media_workflow', 'translation_status') do
-      at = create_annotation_type annotation_type: 'translation'
-      create_field_instance name: 'translation_text', annotation_type_object: at
-      create_field_instance name: 'translation_language', annotation_type_object: at
-      create_field_instance name: 'translation_note', annotation_type_object: at
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      c = create_comment annotated: pm, text: 'Note 1'
-      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-      task = create_task annotator: create_user, annotated: pm
-      tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
-      exported_data = p.export
-      assert_equal 1, exported_data.size
-      assert_equal p.id, exported_data.first[:project_id]
-      assert_equal pm.id, exported_data.first[:report_id]
-      assert_equal 'sports', exported_data.first[:tags]
-      assert_equal c.text, exported_data.first[:note_content_1]
-      assert_equal task.label, exported_data.first[:task_1_question]
-      assert_equal tr.get_field('translation_text').value, exported_data.first[:translation_text_1]
-      assert_equal 'pending', exported_data.first[:report_status]
-    end
-  end
-
   test "should export data to CSV" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance name: 'translation_text', annotation_type_object: at
-    create_field_instance name: 'translation_language', annotation_type_object: at
-    create_field_instance name: 'translation_note', annotation_type_object: at
+    create_verification_status_stuff
     p = create_project
     pm = create_project_media project: p, media: create_valid_media
     c = create_comment annotated: pm, text: 'Note 1'
@@ -509,9 +479,8 @@ class ProjectTest < ActiveSupport::TestCase
     task = create_task annotator: create_user, annotated: pm
     task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     task.save!
-    tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     exported_data = p.export_csv.values.first
-    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note,translation_text_1,translation_language_1,translation_note_1"
+    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note"
     assert_match(header, exported_data)
   end
 
@@ -525,7 +494,6 @@ class ProjectTest < ActiveSupport::TestCase
     task = create_task annotator: create_user, annotated: pm
     task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     task.save!
-    tr = create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_text: 'Foo', translation_language: 'en' }.to_json
     assert_nothing_raised do
       p.class.export_project(:csv, p.class.name, p.id, 'me@email.com', 0, ['comment'])
     end
@@ -560,13 +528,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert p1.token.size > 5
     assert p2.token.size > 5
     assert p1.token != p2.token
-  end
-
-  test "should set Viber token" do
-    p = create_project
-    p.viber_token = 'test'
-    p.save!
-    assert_equal 'test', p.get_viber_token
   end
 
   test "should archive project medias when project is archived" do
@@ -784,8 +745,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should propagate assignments" do
     Sidekiq::Testing.inline! do
-      create_translation_status_stuff
-      create_verification_status_stuff(false)
+      create_verification_status_stuff
       stub_config('default_project_media_workflow', 'verification_status') do
         t = create_team
         p = create_project team: t
@@ -814,8 +774,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not create duplicate assignment" do
     Sidekiq::Testing.inline! do
-      create_translation_status_stuff
-      create_verification_status_stuff(false)
+      create_verification_status_stuff
       t = create_team
       u = create_user
       p = create_project team: t

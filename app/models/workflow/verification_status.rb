@@ -1,6 +1,6 @@
 class Workflow::VerificationStatus < Workflow::Base
 
-  check_default_project_media_workflow if CONFIG['app_name'] == 'Check'
+  check_default_project_media_workflow
 
   check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed]
   check_workflow from: :any, to: :terminal, actions: [:send_terminal_notification_if_can_complete_media, :reset_deadline]

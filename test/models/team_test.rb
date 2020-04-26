@@ -334,8 +334,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should have custom verification statuses" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     t = create_team
     assert (['verified', 'false', 'not_applicable'].sort == t.reload.final_media_statuses.sort || ['error', 'ready'].sort == t.reload.final_media_statuses.sort)
     value = {
@@ -349,7 +348,6 @@ class TeamTest < ActiveSupport::TestCase
     }
     assert_nothing_raised do
       t.set_media_verification_statuses(value)
-      t.set_media_translation_statuses(value)
       t.save!
     end
     assert_equal ['1'].sort, t.reload.final_media_statuses.sort
@@ -472,8 +470,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not change custom statuses that are already used in reports" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
@@ -698,7 +695,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.archived = true
       t.save!
-      assert_equal n + 2, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -711,7 +708,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.name = random_string
       t.save!
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -1140,8 +1137,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not set active status if task is being copied" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     create_slack_bot
     team = create_team
     project = create_project team: team, title: 'Project'
@@ -1290,11 +1286,6 @@ class TeamTest < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
-    assert_raises ActiveRecord::RecordInvalid do
-      t = Team.find(t.id)
-      t.set_media_translation_statuses(value)
-      t.save!
-    end
     value = {
       label: 'Field label',
       active: '1',
@@ -1306,11 +1297,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       t = Team.find(t.id)
       t.set_media_verification_statuses(value)
-      t.save!
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      t = Team.find(t.id)
-      t.set_media_translation_statuses(value)
       t.save!
     end
     value = {
@@ -1325,11 +1311,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_nothing_raised do
       t = Team.find(t.id)
       t.set_media_verification_statuses(value)
-      t.save!
-    end
-    assert_nothing_raised do
-      t = Team.find(t.id)
-      t.set_media_translation_statuses(value)
       t.save!
     end
   end
@@ -1359,11 +1340,6 @@ class TeamTest < ActiveSupport::TestCase
         { id: 'foo-bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
       ]
     }
-    assert_nothing_raised do
-      t = Team.find(t.id)
-      t.set_media_translation_statuses(value)
-      t.save!
-    end
   end
 
   test "should get owners based on user role" do
