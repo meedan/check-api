@@ -846,6 +846,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should render oEmbed HTML" do
+    PenderClient::Request.stubs(:get_medias)
     Sidekiq::Testing.inline! do
       pm = create_project_media
       publish_report(pm, {
@@ -860,6 +861,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
     end
+    PenderClient::Request.unstub(:get_medias)
   end
 
   test "should have metadata for oEmbed" do
