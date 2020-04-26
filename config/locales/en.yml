@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out Of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -557,7 +557,8 @@ en:
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
     any verification reports, because this project is no longer active.
-  smooch_bot_result_changed: '❗️The fact-check that we sent to you has been *updated* with new information'
+  smooch_bot_result_changed: "❗️The fact-check that we sent to you has been *updated*
+    with new information"
   permissions_info:
     roles:
       owner:
@@ -710,24 +711,8 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
-  cant_change_status_if_item_is_published: Sorry, you can't change the status while the report is published
-  custom_message_status_undetermined_afp-checamos: Aguardando Verificação
-  custom_message_status_in_progress_afp-checamos: Em andamento
-  custom_message_status_inconclusive_afp-checamos: O que é a AFP
-  custom_message_status_false_afp-checamos: In progress - Falso
-  custom_message_status_verified_afp-checamos: In progress - Checamos
-  custom_message_status_true_afp-checamos: In progress - Verdadeiro
-  custom_message_status_misleading_afp-checamos: In progress - Enganoso
-  custom_message_status_satire_afp-checamos: In progress - Sátira
-  custom_message_status_out_of_scope_afp-checamos: Fora do Escopo
-  custom_message_status_report-verdadeiro_afp-checamos: Verdadeiro
-  custom_message_status_report-satira_afp-checamos: Sátira
-  custom_message_status_report-falso_afp-checamos: Falso
-  custom_message_status_report-enganoso_afp-checamos: Enganoso
-  custom_message_status_warning_afp-checamos: Serviço gratuito
-  custom_message_status_sugestao_afp-checamos: Sugestão
-  custom_message_status_necessario-mais-dados_afp-checamos: Necessário mais dados
-  custom_message_status_checamos_afp-checamos: Checamos
+  cant_change_status_if_item_is_published: Sorry, you can't change the status while
+    the report is published
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: 'Olá,
     agradecemos o contato e a sugestão.  Nossa equipe tem trabalhado diariamente para
     verificar boatos relacionados ao novo coronavírus. Você pode conferir tudo que
@@ -757,6 +742,64 @@ en:
     agradecemos o contato e a sugestão. \n\nPara realizarmos nossa verificação, precisamos
     de mais alguns detalhes. Você pode nos encaminhar o vídeo, a foto ou o link do
     conteúdo que deseja que seja checado?"
+  custom_message_status_undetermined_afp-checamos: Aguardando Verificação
+  custom_message_status_in_progress_afp-checamos: Em andamento
+  custom_message_status_inconclusive_afp-checamos: O que é a AFP
+  custom_message_status_false_afp-checamos: In progress - Falso
+  custom_message_status_verified_afp-checamos: In progress - Checamos
+  custom_message_status_true_afp-checamos: In progress - Verdadeiro
+  custom_message_status_misleading_afp-checamos: In progress - Enganoso
+  custom_message_status_satire_afp-checamos: In progress - Sátira
+  custom_message_status_out_of_scope_afp-checamos: Fora do Escopo
+  custom_message_status_report-verdadeiro_afp-checamos: Verdadeiro
+  custom_message_status_report-satira_afp-checamos: Sátira
+  custom_message_status_report-falso_afp-checamos: Falso
+  custom_message_status_report-enganoso_afp-checamos: Enganoso
+  custom_message_status_warning_afp-checamos: Serviço gratuito
+  custom_message_status_sugestao_afp-checamos: Sugestão
+  custom_message_status_necessario-mais-dados_afp-checamos: Necessário mais dados
+  custom_message_status_checamos_afp-checamos: Checamos
+  custom_message_status_resources_afp-checamos: Resources
+  custom_message_smooch_bot_result_afp-checamos: "[Seu conteúdo foi verificado] \n\n
+    A mensagem que você compartilhou conosco foi classificada como %{status}.\n\nEsses
+    são os passos que seguimos para chegar a esta conclusão: %{url}\n\n"
+  custom_message_smooch_bot_result_changed_afp-checamos: 'A checagem que nós enviamos
+    foi *atualizada* com novas informações:'
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: |
+    Agradecemos o contato. Deseja verificar este conteúdo?
+
+    Para dizer sim, *responda com o número 1*.  Qualquer outra resposta irá encerrar nossa conversa.
+  custom_message_smooch_bot_message_confirmed_afp-checamos: "Agradecemos a sua mensagem.
+    A equipe de verificação do AFP Checamos irá analisar o conteúdo.\n \nResponda
+    *0* caso queira voltar ao menu principal."
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: Desculpe, este
+    formato de arquivo ainda não é compatível com o nosso processo de verificação.
+    Nosso sistema identifica vídeos, fotos, textos e links.
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: Como você não respondeu
+    com o número 1, não processaremos mais a sua solicitação. Agradecemos o contato.
+  custom_message_smooch_bot_not_final_afp-checamos: "Olá, o conteúdo que você nos
+    enviou foi incorretamente classificado como %{previous_status}. Sentimos muito
+    pelo erro. Em breve, você receberá a conclusão correta. \n\nO conteúdo ainda está
+    na nossa fila para verificação adicional.\n"
+  custom_message_smooch_bot_meme_afp-checamos: Você pode enviar para este número informações,
+    fotos ou vídeos que gostaria que fossem checados. Se estiver dentro do nosso escopo,
+    iremos adicioná-lo à fila de verificação.
+  custom_message_smooch_bot_window_closing_afp-checamos: 'Olá, o volume de solicitações
+    está muito alto e ainda não conseguimos responder o seu pedido. Fique à vontade
+    para nos enviar outra mensagem. Contamos com a sua compreensão. '
+  custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
+    possível enviar nenhum resultado porque este projeto não está mais ativo.
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: 'Check Message é o software
+    utilizado nesta linha de verificação e é fornecido sob estes Termos de Serviço:
+    https://meedan.com/check/check_message_tos_pt.html'
+  custom_message_smooch_bot_greetings_afp-checamos: "Olá, bem-vindo ao WhatsApp do
+    *AFP Checamos*, a equipe de verificação da AFP, agência internacional de notícias.\n\n\U0001F50DPor
+    aqui você pode enviar textos, fotos ou vídeos que gostaria que fossem verificados.
+    Nosso trabalho é checar conteúdos viralizados em redes sociais como, por exemplo,
+    de Política, Saúde, Meio Ambiente, Cultura e Economia. Este serviço é totalmente
+    gratuito."
+  custom_message_smooch_bot_option_not_available_afp-checamos: Desculpe, não entendi
+    a sua mensagem. Por favor, tente novamente.
   custom_message_smooch_bot_result_afp-fact-check: |
     [Verification Report]
 
@@ -788,6 +831,8 @@ en:
     The message you shared with us was wrongly marked as %{status}.
 
     It is still in our queue for further verification.
+  custom_message_smooch_bot_meme_afp-fact-check: Here's a meme we created based on
+    the item you have requested that we verify. Learn more at %{url}.
   custom_message_smooch_bot_window_closing_afp-fact-check: The volume of requests
     on this channel is very high, and we haven't been able to resolve your request
     yet. Thank you for your patience.
@@ -845,6 +890,8 @@ en:
   custom_message_smooch_bot_not_final_boom-factcheck: "CORRECTION\n\n\U0001F926‍♂️We're
     reviewing our conclusion on the message you sent that we marked *%{status}*.\n\nWe'll
     let you know when we've completed our review."
+  custom_message_smooch_bot_meme_boom-factcheck: "Check our fact card for the message
+    \nyou had sent us. Forward the fact card!\n\nRead and share our story here:  %{url}"
   custom_message_smooch_bot_window_closing_boom-factcheck: "Thanks for waiting - we
     receive a lot of messages and we can only fact check the stories and topics we
     see trending right now. Please keep sending us the things you're seeing to help
@@ -860,6 +907,14 @@ en:
 
     By continuing to use this service, *you agree to be bound by these terms*. You should discontinue your use of the tipline if you do not agree.
 
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: 'The
+    item you have sent us is beyond our scope to check. You could send us an image,
+    some text or a video that you find misleading. Check our Website www.boomlive
+    to read our fact-checks. '
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: 'Thanks
+    for your message! We''re currently fact checking what you sent us and we''ll share
+    a detailed report soon.   Take a look at the other fact checks on our site in
+    the meantime, and share with your friends and family: boomlive.in'
   custom_message_status_verified_boom-factcheck: 'True'
   custom_message_status_false_boom-factcheck: 'False'
   custom_message_status_not_applicable_boom-factcheck: Inconclusive
@@ -873,44 +928,74 @@ en:
   custom_message_status_report-true_boom-factcheck: 'Report: True'
   custom_message_status_report-false_boom-factcheck: 'Report: False'
   custom_message_status_report-misleading_boom-factcheck: 'Report: Misleading'
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: 'The
-    item you have sent us is beyond our scope to check. You could send us an image,
-    some text or a video that you find misleading. Check our Website www.boomlive
-    to read our fact-checks. '
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: 'Thanks
-    for your message! We''re currently fact checking what you sent us and we''ll share
-    a detailed report soon.   Take a look at the other fact checks on our site in
-    the meantime, and share with your friends and family: boomlive.in'
+  custom_message_status_bot-resource_boom-factcheck: Bot resource
+  custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
+    to you has been *updated* with new information!"
+  custom_message_smooch_bot_message_confirmed_test-1: Thank you! Your request has
+    been received.
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Sorry, we can't accept this type of message for verification at this time.
+
+    We can accept most images, videos, links, text messages, and shared WhatsApp messages.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
+
+    Contact us at *[email or other contact]* for further inquiries.
+  custom_message_smooch_bot_ask_for_tos_test-1: 'This service is provided under the
+    following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_test-1: Hi! Welcome to Caio’s fact-checking
+    bot. We fact-check claims, videos and images related to topics such as politics,
+    health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_status_undetermined_check-message-demo: Unstarted
   custom_message_status_in_progress_check-message-demo: In Progress
-  custom_message_status_inconclusive_check-message-demo: Needs onboarding
   custom_message_status_false_check-message-demo: 'False'
-  custom_message_status_verified_check-message-demo: Correct
+  custom_message_status_verified_check-message-demo: 'True'
   custom_message_status_not_applicable_check-message-demo: Out of scope
   custom_message_status_report-true_check-message-demo: 'Report: Correct'
   custom_message_status_report-false_check-message-demo: 'Report: False'
   custom_message_status_bot-resource_check-message-demo: Bot resource
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: We
-    started to look at your request! Stay tuned!
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: 'Thank
-    you! We could not fact-check this item. Here is a guide to submit content that
-    we can work with. '
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: "Thank
+    you! We could not fact-check this item. Here is a short guide to submit content
+    that we can fact check:\n \nmeedan.com/guide"
+  custom_message_smooch_bot_result_check-message-demo: |
+    [Verification Report]
+
+    The item that you shared with us is marked *%{status}*.
+
+    Here are the steps we took to determine this: %{url}
   custom_message_smooch_bot_result_changed_check-message-demo: "❗️The fact-check that
     we sent to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_check-message-demo: "Thank you! Your
-    request has been received. Responses are being aggregated and sorted, and we're
-    working on fact-checking your questions.\n      \n✔️*Follow this link for an updated
-    list of common questions that we have fact-checked:* [ Link to a page of fact-checks
-    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
-    Menu* \U0001F4CC"
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
+    Thank you for sending this request. Do you want us to verify its content?
+
+    To say yes, *please reply with 1*. Any other response will end our conversation.
+  custom_message_smooch_bot_message_confirmed_check-message-demo: |
+    Thank you. Your request has been added to our verification queue.
+
+    We will try to send you a report within 24 hours, but please note that we are not able to respond to every request.
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: "❌Sorry,
     we can't accept this type of message for verification at this time. \n      \nWe
     can accept most images, videos, links, text messages, and shared WhatsApp messages."
-  custom_message_smooch_bot_disabled_check-message-demo: "❌Thank you for your message.
-    Our fact-checking service is currently *inactive.*\n      \nContact us at *[email
-    or other contact]* for further inquiries."
-  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'This service is provided
-    under the following Terms of Services: %{tos}'
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Since you didn't
+    reply with 1, we will not process your request further. Thank you.
+  custom_message_smooch_bot_not_final_check-message-demo: |
+    [Verification Report - CORRECTION]
+
+    The message you shared with us was wrongly marked as *%{status}*.
+
+    It is still in our queue for further verification.
+  custom_message_smooch_bot_meme_check-message-demo: Here's a meme we created based
+    on the item you have requested that we verify. Learn more at %{url}.
+  custom_message_smooch_bot_window_closing_check-message-demo: The volume of requests
+    on this channel is very high, and we haven't been able to resolve your request
+    yet. Thank you for your patience.
+  custom_message_smooch_bot_disabled_check-message-demo: Thank you for sending this
+    message. We are unable to send back any verification reports because this project
+    is no longer active.
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: 'Check Message is provided
+    to you under these Terms of Service: %{tos}. '
   custom_message_smooch_bot_greetings_check-message-demo: Hi! Welcome to Meedan's
     fact-checking bot. We fact-check claims, videos and images related to topics such
     as politics, health, finance, and technology.
@@ -932,6 +1017,8 @@ en:
     We are unable to send back any verification reports, because Project Checkpoint is no longer using this tipline to study misinformation during India’s general elections.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Sorry, we don't support
     this type of file format for verification yet.
+  custom_message_smooch_bot_meme_checkpoint: Here's a meme we created based on the
+    item you have requested that we verify. Learn more at %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [Verification Report] The message you shared with us is marked *%{status}*.
 
@@ -964,6 +1051,11 @@ en:
     Oops! Looks like our system jumped the gun. Please ignore the report that you got earlier. The message you shared was wrongly marked as %{status}.
 
     We’re still working on your request. Wait for the final report.
+
+  custom_message_smooch_bot_meme_india-today: 'Hey, do you like this meme we made
+    on your query? Please share it with your friends and family if you liked it.
+
+'
   custom_message_smooch_bot_window_closing_india-today: "Thanks for reaching out to
     India Today Fact Check. But sorry, we’re not able to respond back currently. \n\nBut
     you can check latest fact check stories here: https://aajtak.intoday.in/fact-check.html"
@@ -1028,6 +1120,33 @@ en:
   custom_message_status_d-archive_mmtan-2: D - Archived
   custom_message_status_f-progress_mmtan-2: F - In progress
   custom_message_status_f-archived_mmtan-2: F - Archived
+  custom_message_status_undetermined_mtan: D-in progress
+  custom_message_status_standard_mtan: D-Archive
+  custom_message_status_moderate_mtan: F-In progress
+  custom_message_status_urgent_mtan: F-Archive
+  custom_message_status_all_items_mtan: All items
+  custom_message_status_resources_mtan: Resources
+  custom_message_status_true_mtan: 'True'
+  custom_message_status_false_mtan: 'False'
+  custom_message_smooch_bot_result_changed_mtan: "❗️The fact-check that we sent to
+    you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_mtan: "Thank for flagging - My team
+    will look into this!\n\n\U0001F9A0If this is COVID-19 related - see our fact file:
+    www.realornotmm.info/2020/01/27/coronavirus_covid-19_fact-file \n      \n✔️Review
+    our existing fact-checks: www.realornotmm.info \n\n\U0001F449*Reply with any text*
+    to get back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_mtan: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    links, images, videos, and text messages. "
+  custom_message_smooch_bot_disabled_mtan: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_mtan: 'This service is provided under the
+    following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_mtan: "Hi! I’m check-bot. I work with MIDO’s
+    team of fact checkers to help you distinguish between what’s *real or not* \n"
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
     y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
   custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue
@@ -1054,6 +1173,8 @@ en:
   custom_message_smooch_bot_not_final_reverso: Disculpas. El mensaje que nos enviaste
     fue incorrectamente tratado como %{status}. Corregiremos nuestro error y recibirás
     pronto el reporte correcto.
+  custom_message_smooch_bot_meme_reverso: "Acá te enviamos un Meme que creamos, basado
+    en el tema de tu consulta que ya verificamos. \nVer más en: %{url}"
   custom_message_smooch_bot_window_closing_reverso: El volumen de pedidos a nuestra
     redacción es enorme, por lo que aún no podemos resolver tu consulta. Gracias por
     escribirnos.

@@ -3,7 +3,6 @@ ro:
   statuses:
     ids:
       verification_status: verificare
-      translation_status: traducere
       task_status: sarcină
     task:
       unresolved:
@@ -69,21 +68,6 @@ ro:
       sockpuppet:
         label: Clonă
         description: 'Concluzia: sursa este o clonă'
-    translation:
-      pending:
-        label: În așteptare
-      in_progress:
-        label: În lucru
-        description: Lucrul a început, însă traduceri încă nu s-au făcut
-      translated:
-        label: Tradus
-        description: Traducerea este gata, așteaptă revizuire
-      ready:
-        label: Pregătit
-        description: Traducerea a fost revizuită și aprobată pentru publicare
-      error:
-        label: Eroare
-        description: Traducerea a fost revizuită și a fost identificată o eroare
   errors:
     messages:
       extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise:
@@ -206,13 +190,7 @@ ro:
         done: copiat
   email_not_found: Adresa de e-mail nu a fost găsită
   slack_channel_format_wrong: Canalul Slack nu este valid
-  translation_status_not_valid: Starea nu este validă
-  translation_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
-    această stare
-  translation_request_id_exists: Solicitarea de traducere a acestui mesaj deja există
   invalid_token: Cod temporar nevalid
-  viber_screenshot_footer: 'Traducerea în %{target_language} din %{source_language}:
-    “%{source_text}”'
   time:
     formats:
       oembed: "%B %d, %Y"
@@ -426,10 +404,6 @@ ro:
   smooch_bot_not_final: "[Raport de verificare - CORECTARE] Mesajul transmis de Dvs
     a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru
     verificări ulterioare."
-  smooch_bot_result_changed: |-
-    [Raport de verificare - CORECTARE] Starea mesajului transmis de Dvs s-a modificat din *%{previous_status}* în *%{status}*.
-
-    Aceștea sunt pașii, pe care le-am efectuat pentru a determina acest lucru: %{url}
   permissions_info:
     roles:
       owner:
@@ -496,6 +470,12 @@ ro:
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
   bot_request_url_invalid: URL-ul robotului nu este valid
+  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
+  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
+  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -513,12 +493,20 @@ ro:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_checamos_afp-checamos: ''
-  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
-  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
-  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
+  custom_message_status_resources_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-checamos: ''
+  custom_message_smooch_bot_result_changed_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
+  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
+  custom_message_smooch_bot_not_final_afp-checamos: ''
+  custom_message_smooch_bot_meme_afp-checamos: ''
+  custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_greetings_afp-checamos: ''
+  custom_message_smooch_bot_option_not_available_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -526,6 +514,7 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: ''
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -547,9 +536,12 @@ ro:
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
+  custom_message_smooch_bot_meme_boom-factcheck: ''
   custom_message_smooch_bot_window_closing_boom-factcheck: ''
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -563,22 +555,32 @@ ro:
   custom_message_status_report-true_boom-factcheck: ''
   custom_message_status_report-false_boom-factcheck: ''
   custom_message_status_report-misleading_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
+  custom_message_status_bot-resource_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
-  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
   custom_message_status_bot-resource_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
@@ -600,6 +602,8 @@ ro:
     este activ.
   custom_message_smooch_bot_message_type_unsupported_checkpoint: Ne pare rău, deocamdată
     nu acceptăm acest tip de format de fișiere pentru verificare.
+  custom_message_smooch_bot_meme_checkpoint: Iată un meme, pe care l-am creat în baza
+    elementului, pentru care ați solicitat verificarea. Aflați mai multe pe %{url}.
   custom_message_smooch_bot_result_checkpoint: |-
     [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
 
@@ -618,6 +622,7 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
   custom_message_smooch_bot_window_closing_india-today: ''
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
@@ -663,6 +668,21 @@ ro:
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
   custom_message_status_f-archived_mmtan-2: ''
+  custom_message_status_undetermined_mtan: ''
+  custom_message_status_standard_mtan: ''
+  custom_message_status_moderate_mtan: ''
+  custom_message_status_urgent_mtan: ''
+  custom_message_status_all_items_mtan: ''
+  custom_message_status_resources_mtan: ''
+  custom_message_status_true_mtan: ''
+  custom_message_status_false_mtan: ''
+  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_smooch_bot_message_confirmed_mtan: ''
+  custom_message_smooch_bot_message_type_unsupported_mtan: ''
+  custom_message_smooch_bot_disabled_mtan: ''
+  custom_message_smooch_bot_ask_for_tos_mtan: ''
+  custom_message_smooch_bot_greetings_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
@@ -670,6 +690,7 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
