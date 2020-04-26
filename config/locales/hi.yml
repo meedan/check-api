@@ -41,9 +41,12 @@ hi:
         label: निरर्थक
       unstarted:
         label: अभी शुरू नहीं किया गया
-  smooch_bot_result_changed: "[सत्यापन रिपोर्ट - सुधार] आपके द्वारा हमारे साथ साझा
-    किया संदेश बदल गया है *%{previous_status}* से *%{status}* इसे निर्धारित करने के
-    लिए हमने यहां पहल की है:%{url}"
+  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
+  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
+  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -61,12 +64,20 @@ hi:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_checamos_afp-checamos: ''
-  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
-  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
-  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
+  custom_message_status_resources_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-checamos: ''
+  custom_message_smooch_bot_result_changed_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
+  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
+  custom_message_smooch_bot_not_final_afp-checamos: ''
+  custom_message_smooch_bot_meme_afp-checamos: ''
+  custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_greetings_afp-checamos: ''
+  custom_message_smooch_bot_option_not_available_afp-checamos: ''
   custom_message_smooch_bot_result_afp-fact-check: "[वेरिफिकेशन रिपोर्ट] आपने जो सामग्री
     साझा की थी उसे *%{status}* चिन्हित किया गया है. यह हमारी जांच प्रणाली रही है:
     %{url}\n"
@@ -91,6 +102,9 @@ hi:
 
 
     यह सामग्री अब भी जांच के अंतर्गत है.
+  custom_message_smooch_bot_meme_afp-fact-check: हमने आपके निवेदन पर आधारित एक मीम
+    बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक जानने
+    के लिए इस लिंक पर जाएं %{url}
   custom_message_smooch_bot_window_closing_afp-fact-check: इस नंबर पर तथ्यों की जांच
     के निवेदन ज़्यादा होने के कारण आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं. आपके
     धैर्य के लिए धन्यवाद.
@@ -144,6 +158,8 @@ hi:
   custom_message_smooch_bot_not_final_boom-factcheck: "सुधार \U0001F926‍♂️ \nहम हमारे
     पुराने निष्कर्ष की समीक्षा कर रहे हैं जिसे हमनें *%{status}* किया था| समीक्षा
     पूरी होते ही हम आपको बताएंगे|"
+  custom_message_smooch_bot_meme_boom-factcheck: 'अपने जो सन्देश हमें भेजा था, उसका
+    फ़ैक्ट कार्ड देखें| फ़ैक्ट कार्ड को आगे भी भेजें! लेख को पढ़ें और साझा करें: %{url}.'
   custom_message_smooch_bot_window_closing_boom-factcheck: 'इंतज़ार करने के लिए धन्यवाद
     - संदेशों की भारी मात्रा के चलते हम केवल प्रचलित मुद्दों को फ़ैक्ट चेक करते हैं|
     आप जो सन्देश देखते हैं, हमें भेजते रहें ताकि हमें व्हाट्सएप्प पर वायरल संदेशों
@@ -157,6 +173,14 @@ hi:
 
     यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
 
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
+    आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
+    भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
+    हमारे फ़ैक्ट चेक पढ़ें|"
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: "आपके
+    सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
+    जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
+    और परिवार के साथ साझा करें: boomlive.in "
   custom_message_status_verified_boom-factcheck: 'सही '
   custom_message_status_false_boom-factcheck: 'ग़लत '
   custom_message_status_not_applicable_boom-factcheck: 'अनिर्णायक '
@@ -170,28 +194,32 @@ hi:
   custom_message_status_report-true_boom-factcheck: 'रिपोर्ट सही '
   custom_message_status_report-false_boom-factcheck: 'रिपोर्ट ग़लत '
   custom_message_status_report-misleading_boom-factcheck: 'रिपोर्ट भ्रामक '
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
-    आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
-    भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
-    हमारे फ़ैक्ट चेक पढ़ें|"
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: "आपके
-    सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
-    जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
-    और परिवार के साथ साझा करें: boomlive.in "
+  custom_message_status_bot-resource_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
-  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
   custom_message_status_bot-resource_check-message-demo: ''
-  custom_message_rule_action_send_message_7595e9f41235954349b63287be03d938_check-message-demo: ''
-  custom_message_rule_action_send_message_9c8c563c4715964488d8b5fefd4adda1_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
@@ -211,6 +239,9 @@ hi:
     हम किसी भी सत्यापन रिपोर्ट को वापस भेजने में अब असमर्थ हैं, क्योंकि भारत में आम चुनावों के दौरान गलत जानकारी का अध्ययन करने के लिए प्रोजेक्ट चेकप्वाइंट अब इस टिपलाइन का उपयोग नहीं कर रहा है।
   custom_message_smooch_bot_message_type_unsupported_checkpoint: क्षमा करें, सत्यापन
     के लिए इस तरह के फाइल फार्मेट का हम समर्थन नहीं करते हैं।
+  custom_message_smooch_bot_meme_checkpoint: आपके द्वारा भेजी गई सामग्री के आधार पर
+    हमने एक मीम तैयार किया है जिसके तथ्यों की जांच के लिए आपने अनुरोध किया था। इसके
+    बारे में और अधिक जानें %{url}
   custom_message_smooch_bot_result_checkpoint: |-
     [सत्यापन रिपोर्ट] आपके द्वारा हमारे साथ साझा किया गया संदेश चिह्नित है।*%{status}*
     इसे निर्धारित करने के लिए हमने यहां कदम उठाए हैं: %{url}
@@ -253,6 +284,11 @@ hi:
     \n\nआपके मैसेज पर हम अभी भी काम कर रहे हैं. जो रिपोर्ट आपको मिली है उसे अभी नज़रअंदाज़
     कर दें और फाइनल रिपोर्ट का इंतज़ार करें. \nतब तक आप देखें की इंडिया टुडे फैक्ट
     चेक की टीम ने ऐसे ही किन बातों की सच्चाई पता लगाई. https://aajtak.intoday.in/fact-check.html\n"
+  custom_message_smooch_bot_meme_india-today: 'ये हैं आपके भेजे मैसेज की रिपोर्ट कुछ
+    नए अंदाज़ में. अगर ये आपको पसंद आये तो अपने दोस्तों के साथ शेयर करें. क्या आप
+    देखना चाहते हैं कि हमने किन और झूठी खबरों का पर्दाफ़ाश किया https://aajtak.intoday.in/fact-check.html
+
+'
   custom_message_smooch_bot_window_closing_india-today: |-
     Thanks for reaching out to India Today Fact Check.
 
@@ -313,6 +349,21 @@ hi:
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
   custom_message_status_f-archived_mmtan-2: ''
+  custom_message_status_undetermined_mtan: ''
+  custom_message_status_standard_mtan: ''
+  custom_message_status_moderate_mtan: ''
+  custom_message_status_urgent_mtan: ''
+  custom_message_status_all_items_mtan: ''
+  custom_message_status_resources_mtan: ''
+  custom_message_status_true_mtan: ''
+  custom_message_status_false_mtan: ''
+  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_smooch_bot_message_confirmed_mtan: ''
+  custom_message_smooch_bot_message_type_unsupported_mtan: ''
+  custom_message_smooch_bot_disabled_mtan: ''
+  custom_message_smooch_bot_ask_for_tos_mtan: ''
+  custom_message_smooch_bot_greetings_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''
@@ -320,6 +371,7 @@ hi:
   custom_message_smooch_bot_message_type_unsupported_reverso: ''
   custom_message_smooch_bot_message_unconfirmed_reverso: ''
   custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
