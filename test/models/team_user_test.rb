@@ -322,8 +322,7 @@ class TeamUserTest < ActiveSupport::TestCase
   end
 
   test "should update assignments progress cache" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     u = create_user is_admin: true

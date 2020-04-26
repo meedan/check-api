@@ -3,7 +3,6 @@ en:
   statuses:
     ids:
       verification_status: verification
-      translation_status: translation
       task_status: task
     task:
       unresolved:
@@ -42,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -80,22 +79,6 @@ en:
       sockpuppet:
         label: Sockpuppet
         description: 'Conclusion: the source is a sockpuppet'
-    translation:
-      pending:
-        label: Pending
-        description: Default, just added, no work has started
-      in_progress:
-        label: In Progress
-        description: Work has begun, but no translation made yet
-      translated:
-        label: Translated
-        description: Translation is done, waiting for review
-      ready:
-        label: Ready
-        description: Translation has been reviewed and approved for publishing
-      error:
-        label: Error
-        description: Translation has been reviewed and an error was found
   errors:
     messages:
       invalid_password: Invalid password
@@ -269,17 +252,7 @@ en:
       delete_team_scheduled: The workspace %{team} is being deleted
   email_not_found: E-mail not found
   slack_channel_format_wrong: Invalid Slack channel
-  translation_status_not_valid: Invalid status
-  translation_status_permission_error: Sorry, you are not allowed to make this status
-    change.
-  translation_request_id_exists: There is already a translation request for this message
-  auto_publisher_added_to_project: Thanks! Now all new translations under list %{project}
-    will be automatically published to this account on %{provider}. If you change
-    your mind, please contact the administrator or simply revoke the Bridge authorization
-    from %{provider}.
   invalid_token: Invalid Token
-  viber_screenshot_footer: "%{target_language} translation from %{source_language}:
-    “%{source_text}”"
   time:
     formats:
       oembed: "%B %d, %Y"

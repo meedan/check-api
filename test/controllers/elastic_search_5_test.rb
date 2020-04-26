@@ -120,7 +120,7 @@ class ElasticSearch5Test < ActionController::TestCase
       p.destroy
       assert_equal 0, ProjectMedia.where(project_id: id).count
       assert_equal 1, ProjectMedia.where(project_id: nil).count
-      assert_equal 3, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
     end
   end
@@ -230,18 +230,13 @@ class ElasticSearch5Test < ActionController::TestCase
       sleep 5
       ms = MediaSearch.find(get_es_id(pm))
       assert_equal 'undetermined', ms.verification_status
-      assert_equal 'pending', ms.translation_status
       # update status
-      s = pm.get_annotations('translation_status').last.load
-      s.status = 'translated'
-      s.save!
       s = pm.get_annotations('verification_status').last.load
       s.status = 'verified'
       s.save!
       sleep 5
       ms = MediaSearch.find(get_es_id(pm))
       assert_equal 'verified', ms.verification_status
-      assert_equal 'translated', ms.translation_status
     end
   end
 
@@ -325,19 +320,11 @@ class ElasticSearch5Test < ActionController::TestCase
     vs.status = 'verified'
     vs.save!
 
-    t4 = create_project_media project: p, disable_es_callbacks: false
-    create_relationship source_id: s.id, target_id: t4.id
-    ts = t4.last_translation_status_obj
-    ts.status = 'ready'
-    ts.save!
-    
     sleep 2
-    assert_equal [t3, t4].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
+    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
     assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
-    assert_equal [t4].sort, Relationship.targets_grouped_by_type(s, { translation_status: ['ready'] }).first['targets'].sort
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end
-  

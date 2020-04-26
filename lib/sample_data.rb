@@ -624,25 +624,9 @@ module SampleData
     Bot::Alegre.new
   end
 
-  def create_viber_bot(_options = {})
-    Bot::Viber.new
-  end
-
-  def create_twitter_bot(_options = {})
-    Bot::Twitter.new
-  end
-
-  def create_facebook_bot(_options = {})
-    Bot::Facebook.new
-  end
-
   def create_slack_bot(_options = {})
     b = create_team_bot(type: 'Bot::Slack')
     Bot::Slack.find(b.id)
-  end
-
-  def create_bridge_reader_bot(_options = {})
-    Bot::BridgeReader.new
   end
 
   def create_bounce(options = {})

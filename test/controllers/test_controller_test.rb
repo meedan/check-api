@@ -204,8 +204,7 @@ class TestControllerTest < ActionController::TestCase
   end
 
   test "should set media status if in test mode" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'

@@ -182,74 +182,32 @@ class DynamicTest < ActiveSupport::TestCase
     assert_nil a.get_field_value('test2')
   end
 
-  test "should have Slack message for translation status" do
+  test "should have Slack message for verification status" do
     u = create_user
     t = create_team
     DynamicAnnotation::AnnotationType.delete_all
     create_verification_status_stuff
-    at = create_annotation_type annotation_type: 'translation_status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false
-    d = create_dynamic_annotation annotator: u, annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
+    d = create_dynamic_annotation annotator: u, annotation_type: 'verification_status', set_fields: { verification_status_status: 'undetermined' }.to_json
     d = Dynamic.find(d.id)
-    d.set_fields = { translation_status_status: 'ready' }.to_json
+    d.set_fields = { verification_status_status: 'verified' }.to_json
     d.disable_es_callbacks = true
     d.save!
     with_current_user_and_team(u, t) do
-      assert_match /translation status/, d.slack_notification_message[:pretext]
+      assert_match /verification status/, d.slack_notification_message[:pretext]
     end
   end
 
-  test "should store previous translation status" do
+  test "should store previous verification status" do
     DynamicAnnotation::AnnotationType.delete_all
     create_verification_status_stuff
-    at = create_annotation_type annotation_type: 'translation_status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', optional: false
-    d = create_dynamic_annotation annotation_type: 'translation_status', set_fields: { translation_status_status: 'pending' }.to_json
-    assert_equal 'Pending', d.translation_status
+    d = create_dynamic_annotation annotation_type: 'verification_status', set_fields: { verification_status_status: 'undetermined' }.to_json
+    assert_equal 'Unstarted', d.verification_status
     d = Dynamic.find(d.id)
-    d.set_fields = { translation_status_status: 'translated' }.to_json
+    d.set_fields = { verification_status_status: 'verified' }.to_json
     d.disable_es_callbacks = true
     d.save!
-    assert_equal 'Pending', d.previous_translation_status
-    assert_equal 'Translated', d.translation_status
-  end
-
-  test "should not notify embed system if type is not translation" do
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance annotation_type_object: at, name: 'translation_text'
-    Dynamic.any_instance.stubs(:notify_embed_system).never
-    d = create_dynamic_annotation
-    Dynamic.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should notify embed system when translation is created" do
-    pm = create_project_media
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance annotation_type_object: at, name: 'translation_text'
-    Dynamic.any_instance.stubs(:notify_embed_system).with('created', { id: pm.id.to_s}).once
-    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    Dynamic.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should notify embed system when translation is updated" do
-    pm = create_project_media
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance annotation_type_object: at, name: 'translation_text'
-    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    d.set_fields = { translation_text: 'translated' }.to_json
-    Dynamic.any_instance.stubs(:notify_embed_system).with('updated', { id: pm.id.to_s}).once
-    d.save!
-    Dynamic.any_instance.unstub(:notify_embed_system)
-  end
-
-  test "should notify embed system when translation is destroyed" do
-    pm = create_project_media
-    at = create_annotation_type annotation_type: 'translation'
-    create_field_instance annotation_type_object: at, name: 'translation_text'
-    d = create_dynamic_annotation annotation_type: 'translation', annotated: pm
-    Dynamic.any_instance.stubs(:notify_embed_system).with('destroyed', nil).once
-    d.destroy
-    Dynamic.any_instance.unstub(:notify_embed_system)
+    assert_equal 'Unstarted', d.previous_verification_status
+    assert_equal 'Verified', d.verification_status
   end
 
   test "should ignore fields that do not exist" do

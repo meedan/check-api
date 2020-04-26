@@ -526,8 +526,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should refresh Pender data" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
@@ -819,8 +818,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get published time for oEmbed" do
-    create_translation_status_stuff
-    create_task_status_stuff(false)
+    create_task_status_stuff
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
@@ -1269,7 +1267,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get time to first and last status" do
-    create_translation_status_stuff
     create_verification_status_stuff(false)
     u = create_user
     t = create_team
@@ -1327,8 +1324,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should back status to active if required task added to resolved item" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     p = create_project
     pm = create_project_media project: p
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -1465,8 +1461,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not return to active status if required task added to resolved item but status is locked" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     p = create_project
     pm = create_project_media project: p
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -1486,13 +1481,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'verified', pm.last_verification_status
   end
 
-  test "should expose target languages" do
-    pm = create_project_media
-    assert_nothing_raised do
-      JSON.parse(pm.target_languages)
-    end
-  end
-
   test "should have status permission" do
     u = create_user
     t = create_team
@@ -1509,13 +1497,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Annotation.delete_all
     assert_nothing_raised do
       assert_nil pm.last_verification_status_obj
-      assert_nil pm.last_translation_status_obj
     end
   end
 
   test "should return whether in final state or not" do
     create_verification_status_stuff
-    create_translation_status_stuff(false)
     pm = create_project_media
     assert_equal false, pm.is_finished?
     s = pm.last_status_obj

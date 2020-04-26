@@ -4,7 +4,6 @@ class AdminAbilityTest < ActiveSupport::TestCase
 
   def setup
     super
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     @t = create_team
     Team.stubs(:current).returns(@t)
     @u = create_user

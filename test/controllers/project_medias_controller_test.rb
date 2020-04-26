@@ -8,8 +8,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     sign_out('user')
     User.current = nil
     ProjectMedia.delete_all
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
   end
 

@@ -3,7 +3,7 @@ module CheckExport
     base.extend(ClassMethods)
   end
 
-  def export(last_id = 0, annotation_types = ['comment', 'task', 'translation'])
+  def export(last_id = 0, annotation_types = ['comment', 'task'])
     self.project_medias.order(:id).find_each(start: last_id + 1).collect{ |pm| Hash[
       project_id: pm.project_id,
       report_id: pm.id,
@@ -56,12 +56,6 @@ module CheckExport
         end
         task_hash
       end.reduce({}){ |h,o| h.merge(o) }
-    ).merge(
-      @annotations.where(annotation_type: 'translation').map(&:load).to_enum.reverse_each.with_index.collect{ |t,i| Hash[
-        "translation_text_#{i+1}": t.get_field('translation_text')&.value,
-        "translation_language_#{i+1}": t.get_field('translation_language')&.value,
-        "translation_note_#{i+1}": t.get_field('translation_note')&.value,
-      ]}.reduce({}){ |h,o| h.merge(o) }
     )
   end
 
@@ -96,7 +90,7 @@ module CheckExport
     { responses_with_final_status_count: @annotations.where(annotation_type: 'smooch_response').count }
   end
 
-  def export_csv(last_id = 0, annotation_types = ['comment', 'task', 'translation'])
+  def export_csv(last_id = 0, annotation_types = ['comment', 'task'])
     hashes = self.export(last_id, annotation_types)
     headers = hashes.inject([]) {|res, h| res | h.keys}
     content = CSV.generate do |csv|
@@ -129,7 +123,7 @@ module CheckExport
     output
   end
 
-  def export_zip(type, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
+  def export_zip(type, last_id = 0, annotation_types = ['comment', 'task'])
     require 'zip'
     contents = self.send("export_#{type}", last_id, annotation_types)
     self.export_password = SecureRandom.hex
@@ -176,7 +170,7 @@ module CheckExport
   end
 
   module ClassMethods
-    def export_project(type, klass, id, email, last_id = 0, annotation_types = ['comment', 'task', 'translation'])
+    def export_project(type, klass, id, email, last_id = 0, annotation_types = ['comment', 'task'])
       obj = klass.constantize.find(id)
       obj.export_zip(type, last_id, annotation_types)
       link = CheckS3.public_url(obj.export_filepath(type))

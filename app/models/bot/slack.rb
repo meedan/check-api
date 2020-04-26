@@ -219,14 +219,8 @@ class Bot::Slack < BotUser
   Dynamic.class_eval do
     include ::Bot::Slack::SlackMessage
 
-    create_or_update_slack_message on: :create, endpoint: :post_message, if: proc { |a| a.annotation_type == 'translation' }
-
     def slack_message_parameters(id, _channel, attachments)
-      if self.annotation_type == 'translation'
-        { thread_ts: id, text: ('Translated to ' + self.get_field('translation_language').to_s + ' by ' + self.annotator.name + ': ' + self.get_field('translation_text').value) }
-      else
-        { ts: id, attachments: self.annotated.update_slack_message_attachments(attachments) }
-      end
+      { ts: id, attachments: self.annotated.update_slack_message_attachments(attachments) }
     end
   end
 
