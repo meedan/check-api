@@ -1,5 +1,8 @@
 require 'digest'
 
+class SmoochBotDeliveryFailure < StandardError
+end
+
 class Bot::Smooch < BotUser
 
   check_settings
@@ -43,7 +46,10 @@ class Bot::Smooch < BotUser
       if self.annotation_type == 'report_design'
         action = self.action
         self.copy_report_image_paths if action == 'save' || action =~ /publish/
-        ReportDesignerWorker.perform_in(1.second, self.id, action) if action =~ /publish/
+        if action =~ /publish/
+          ReportDesignerWorker.perform_in(1.second, self.id, action)
+          self.annotated.clear_caches
+        end
       end
     end
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
@@ -296,6 +302,8 @@ class Bot::Smooch < BotUser
         end
         true
       when 'message:delivery:failure'
+        e = SmoochBotDeliveryFailure.new('Could not deliver message to final user! If there is a template, we will try again.')
+        self.notify_error(e, json, RequestStore[:request])
         self.resend_message(json)
         true
       else
@@ -303,7 +311,7 @@ class Bot::Smooch < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
+      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
     end
@@ -431,8 +439,9 @@ class Bot::Smooch < BotUser
     unless pm.nil?
       report = pm.get_dynamic_annotation('report_design')
       if !report.nil? && report.get_field_value('state') == 'published' && self.config['smooch_template_namespace']
-        report_text = fallback = report.report_design_text
-        ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_message_report, #{report_text})")
+        fallback = report.report_design_text
+        status = report.get_field_value('status_label')
+        ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
       end
     end
   end
@@ -610,7 +619,8 @@ class Bot::Smooch < BotUser
       api_instance.post_message(app_id, uid, message_post_body)
     rescue SmoochApi::ApiError => e
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      self.notify_error(e, { smooch_app_id: app_id, uid: uid, body: params }, RequestStore[:request] )
+      e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
+      self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
     end
   end
 
