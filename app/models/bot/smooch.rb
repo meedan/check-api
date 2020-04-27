@@ -439,8 +439,10 @@ class Bot::Smooch < BotUser
         fallback = report.report_design_text
         status = report.get_field_value('status_label')
         ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
+        return
       end
     end
+    self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent']
   end
 
   def self.get_language(message)
