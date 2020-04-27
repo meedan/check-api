@@ -736,9 +736,9 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should check permission before set slack channel url" do
+  test "should check permission before setting Slack channel URL" do
     create_annotation_type_and_fields('Smooch User', {
-        'Slack Channel Url' => ['Text', true]
+      'Slack Channel Url' => ['Text', true]
     })
     u = create_user
     t = create_team
@@ -750,5 +750,19 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
     post :create, query: query
     assert_response 400
+  end
+
+  test "should delete tag" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    tg = create_tag annotated: pm
+    id = Base64.encode64("Tag/#{tg.id}")
+    query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
+    post :create, query: query
+    assert_response :success
   end
 end
