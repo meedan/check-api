@@ -302,8 +302,6 @@ class Bot::Smooch < BotUser
         end
         true
       when 'message:delivery:failure'
-        e = SmoochBotDeliveryFailure.new('Could not deliver message to final user! If there is a template, we will try again.')
-        self.notify_error(e, json, RequestStore[:request])
         self.resend_message(json)
         true
       else
@@ -418,9 +416,8 @@ class Bot::Smooch < BotUser
 
   def self.resend_message(message)
     code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
-    if code == 470
-      self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json)
-    end
+    self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) if code == 470
+    self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
   end
 
   def self.i18n_t(key, options = {})
