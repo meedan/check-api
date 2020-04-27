@@ -846,22 +846,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should render oEmbed HTML" do
-    PenderClient::Request.stubs(:get_medias)
     Sidekiq::Testing.inline! do
       pm = create_project_media
+      PenderClient::Request.stubs(:get_medias)
       publish_report(pm, {
         use_visual_card: false,
         use_text_message: true,
         use_disclaimer: false,
         text: '*This* _is_ a ~test~!'
       })
+      PenderClient::Request.unstub(:get_medias)
       expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
         .gsub(/.*<body/m, '<body')
         .gsub('https?://[^:]*:3000', CONFIG['checkdesk_base_url'])
       actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
     end
-    PenderClient::Request.unstub(:get_medias)
   end
 
   test "should have metadata for oEmbed" do
