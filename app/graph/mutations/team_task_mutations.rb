@@ -1,6 +1,5 @@
 module TeamTaskMutations
   fields = {
-    required: 'bool',
     label: '!str',
     task_type: 'str',
     description: 'str',

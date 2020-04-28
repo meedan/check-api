@@ -48,7 +48,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   def opted_out_types
-    %w(assignment terminal_status delete_user task_status)
+    %w(assignment delete_user task_status)
   end
 
   def set_template_var(info, email)

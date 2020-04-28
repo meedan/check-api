@@ -91,6 +91,7 @@ module ProjectMediaEmbed
   end
 
   def required_tasks
+    # TODO: Sawy remove this method
     self.all_tasks.select{ |t| t.required == true }
   end
 

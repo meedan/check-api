@@ -216,6 +216,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def is_completed?
+    # TODO: Sawy - review
     required_tasks = self.required_tasks
     unresolved = required_tasks.select{ |t| t.status != 'resolved' }
     unresolved.blank?
@@ -317,9 +318,6 @@ class ProjectMedia < ActiveRecord::Base
       if tt_exists == 0
         task.skip_update_media_status = true
         self.create_auto_tasks([task])
-        if task.required? && self.is_finished?
-          task.handle_added_tasks_to_terminal_status_item({id: self.id})
-        end
       end
     end unless tasks.nil?
   end

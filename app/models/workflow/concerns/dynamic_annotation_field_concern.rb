@@ -67,8 +67,6 @@ module Workflow
           case key
           when :any
             statuses.collect{ |s| s[:id] }
-          when :terminal
-            self.workflow_completed_options
           when :non_terminal
             self.workflow_incompleted_options
           end

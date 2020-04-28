@@ -1,7 +1,6 @@
 module TaskMutations
   fields = {
     description: 'str',
-    required: 'bool',
     assigned_to_ids: 'str',
     json_schema: 'str'
   }
@@ -17,7 +16,6 @@ module TaskMutations
   update_fields = {
     label: 'str',
     response: 'str',
-    status: 'str',
     accept_suggestion: 'int',
     reject_suggestion: 'int'
   }.merge(fields)

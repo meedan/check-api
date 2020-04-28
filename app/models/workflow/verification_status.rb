@@ -3,7 +3,6 @@ class Workflow::VerificationStatus < Workflow::Base
   check_default_project_media_workflow
 
   check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed]
-  check_workflow from: :any, to: :terminal, actions: [:send_terminal_notification_if_can_complete_media, :reset_deadline]
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
   check_workflow on: :commit, actions: :save_deadline, events: [:create, :update]
 
@@ -13,24 +12,6 @@ class Workflow::VerificationStatus < Workflow::Base
 
   def self.core_active_value
     'in_progress'
-  end
-
-  Task.class_eval do
-    after_create :back_status_to_active, unless: :is_being_copied
-
-    private
-
-    def back_status_to_active
-      return if self.skip_update_media_status
-      if self.required == true && self.annotated_type == 'ProjectMedia'
-        vs = self.annotated.get_annotations('verification_status').last
-        if !vs.nil? && !vs.locked
-          vs = vs.load
-          completed = ::Workflow::Workflow.options(self.annotated, 'verification_status')[:statuses].select{ |s| s[:completed].to_i == 1 }.collect{ |s| s[:id] }
-          self.annotated.set_active_status(vs) if completed.include?(vs.get_field('verification_status_status').value)
-        end
-      end
-    end
   end
 
   ProjectMedia.class_eval do
@@ -71,23 +52,6 @@ class Workflow::VerificationStatus < Workflow::Base
   DynamicAnnotation::Field.class_eval do
     protected
 
-    def send_terminal_notification_if_can_complete_media
-      if self.annotation.annotated_type == 'ProjectMedia'
-        if self.annotation.annotated.is_completed?
-          return if self.annotation.is_being_copied
-          options = {
-            annotated: self.annotation.annotated,
-            author: self.annotation.annotator,
-            status: self.to_s
-          }
-          MailWorker.perform_in(1.second, 'TerminalStatusMailer', YAML::dump(options))
-        else
-          errors.add(:base, I18n.t('errors.messages.must_resolve_required_tasks_first'))
-          raise ActiveRecord::RecordInvalid.new(self)
-        end
-      end
-    end
-
     def save_deadline
       status = self.annotation&.load
       field = status.get_field('verification_status_status')
@@ -99,13 +63,6 @@ class Workflow::VerificationStatus < Workflow::Base
         status.set_fields = { deadline: deadline }.to_json
         status.save!
       end
-    end
-
-    def reset_deadline
-      status = self.annotation&.load.becomes(Dynamic)
-      deadline = status.get_field('deadline')
-      deadline.delete unless deadline.blank?
-      status.save!
     end
 
     def apply_rules

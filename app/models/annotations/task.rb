@@ -65,6 +65,7 @@ class Task < ActiveRecord::Base
   end
 
   def required_for_user(user_id)
+    # TODO: Sawy remove
     self.required && self.assigned_users.where('users.id' => user_id).count > 0
   end
 
@@ -198,7 +199,6 @@ class Task < ActiveRecord::Base
     @response = response
     self.record_timestamps = false
     self.update_user_assignments_progress(response)
-    User.current&.role?(:annotator) ? Task.delay_for(1.second).resolve_task_if_needed(self.id, json) : Task.resolve_task_if_needed(self.id, json)
   end
 
   def update_user_assignments_progress(response)
@@ -265,7 +265,6 @@ class Task < ActiveRecord::Base
     fields = { "review_#{self.type}" => review }
     if accept
       fields["response_#{self.type}"] = suggestion.to_s
-      self.status = 'resolved'
     end
     response.set_fields = fields.to_json
     response.updated_at = Time.now
@@ -281,16 +280,6 @@ class Task < ActiveRecord::Base
 
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
-  end
-
-  def self.resolve_task_if_needed(id, params)
-    params = JSON.parse(params)
-    task = Task.where(id: id).last
-    return if task.nil?
-    if task.must_resolve_task(params)
-      task.status = 'resolved'
-      task.save!
-    end
   end
 
   private
