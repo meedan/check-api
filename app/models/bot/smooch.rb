@@ -175,6 +175,10 @@ class Bot::Smooch < BotUser
         self.settings.each do |key, value|
           strings[key.to_s.gsub(/^smooch_message_smooch_bot_/, '')] = value if key.to_s =~ /^smooch_message_/ && !value.blank?
         end
+        ['main', 'secondary', 'query'].each do |state|
+          value = self.settings.dig("smooch_state_#{state}", 'smooch_menu_message')
+          strings["smooch_state_#{state}_smooch_menu_message"] = value unless value.blank?
+        end
         CheckI18n.upload_custom_strings_to_transifex_in_background(self.team, 'smooch_bot', strings) unless strings.blank?
       end
     end
@@ -337,7 +341,7 @@ class Bot::Smooch < BotUser
       has_main_menu = (self.config.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
-        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_bot', 'smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
         self.send_message_to_user(uid, main_message)
       else
         sm.go_to_query
@@ -345,7 +349,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary'
       if !self.process_menu_option(message, state)
-        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(["smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(['smooch_bot', "smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
@@ -361,7 +365,7 @@ class Bot::Smooch < BotUser
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           sm.send("go_to_#{new_state}")
-          self.send_message_to_user(uid, self.i18n_t(["smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
+          self.send_message_to_user(uid, self.i18n_t(['smooch_bot', "smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -423,7 +427,7 @@ class Bot::Smooch < BotUser
   def self.i18n_t(key, options = {})
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
-    fallback = key.is_a?(Array) ? config.dig(*key) : config["smooch_message_#{key}"]
+    fallback = key.is_a?(Array) ? config.dig(*(key - ['smooch_bot'])) : config["smooch_message_#{key}"]
     key = key.join('_') if key.is_a?(Array)
     CheckI18n.i18n_t(team, key, fallback, options)
   end
