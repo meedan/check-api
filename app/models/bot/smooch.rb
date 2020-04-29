@@ -376,7 +376,7 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     self.config.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
-      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).include?(message['text'].to_s.downcase)
+      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           sm.send("go_to_#{new_state}")
