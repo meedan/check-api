@@ -346,6 +346,7 @@ class Bot::Smooch < BotUser
 
   def self.parse_message_based_on_state(message, app_id)
     uid = message['authorId']
+    message['language'] ||= self.get_language(message)
     sm = CheckStateMachine.new(uid)
     state = sm.state.value
     case state
