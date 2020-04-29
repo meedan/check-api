@@ -346,11 +346,13 @@ class Bot::Smooch < BotUser
 
   def self.parse_message_based_on_state(message, app_id)
     uid = message['authorId']
-    message['language'] ||= self.get_language(message)
+    message['language'] ||= Rails.cache.read("smooch:user_language:#{uid}")
     sm = CheckStateMachine.new(uid)
     state = sm.state.value
     case state
     when 'waiting_for_message'
+      message['language'] = self.get_language(message)
+      Rails.cache.write("smooch:user_language:#{uid}", message['language'])
       has_main_menu = (self.config.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
