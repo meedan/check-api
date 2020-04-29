@@ -4,7 +4,6 @@ class Workflow::VerificationStatus < Workflow::Base
 
   check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed]
   check_workflow on: :commit, actions: :index_on_es, events: [:create, :update]
-  check_workflow on: :commit, actions: :save_deadline, events: [:create, :update]
 
   def self.core_default_value
     'undetermined'
@@ -51,19 +50,6 @@ class Workflow::VerificationStatus < Workflow::Base
 
   DynamicAnnotation::Field.class_eval do
     protected
-
-    def save_deadline
-      status = self.annotation&.load
-      field = status.get_field('verification_status_status')
-      turnaround = Team.where(id: status.get_team.last.to_i).last&.get_status_target_turnaround.to_i
-      if turnaround > 0 && !field.workflow_completed_options.include?(field.value)
-        # Round down deadline to nearest 5 minutes (300 sec)
-        deadline = (status.created_at + turnaround.hours).to_i
-        deadline -= deadline % 300
-        status.set_fields = { deadline: deadline }.to_json
-        status.save!
-      end
-    end
 
     def apply_rules
       status = self.annotation&.load

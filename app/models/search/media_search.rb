@@ -37,7 +37,7 @@ class MediaSearch
       tag: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text' } } }
     }
   }
-
+  #TODO:Sawy remove deadline 
   attribute :dynamics, Array, mapping: {
     type: 'nested',
     properties: {

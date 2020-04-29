@@ -1,7 +1,7 @@
 class TeamTask < ActiveRecord::Base
   include ErrorNotification
 
-  attr_accessor :skip_update_media_status, :keep_resolved_tasks
+  attr_accessor :keep_completed_tasks
 
   validates_presence_of :label, :team_id
   validates :task_type, included: { values: Task.task_types }
@@ -47,19 +47,26 @@ class TeamTask < ActiveRecord::Base
     self.task_type = value
   end
 
-  def add_teamwide_tasks_bg(_options, _projects, _keep_resolved_tasks)
+  def add_teamwide_tasks_bg(_options, _projects, _keep_completed_tasks)
     # items related to added projects
     condition = self.project_ids.blank? ? { team_id: self.team_id } : { project_id: self.project_ids }
     handle_add_projects(condition)
   end
 
-  def update_teamwide_tasks_bg(options, projects, keep_resolved_tasks)
+  def update_teamwide_tasks_bg(options, projects, keep_completed_tasks)
     # get project medias for deleted projects
     handle_remove_projects(projects) unless projects.blank?
-    # update tasks with zero answer
-    update_tasks_with_zero_answer(options, keep_resolved_tasks)
-    # handle tasks with answers
-    update_tasks_with_answer if options[:required]
+    # collect updated fields with new values
+    colums = {}
+    options.each do |k, _v|
+      colums[k] = self.read_attribute(k)
+    end
+    unless colums.blank?
+      # update tasks with zero answer
+      update_tasks_with_zero_answer(colums)
+      # handle tasks with answers
+      update_tasks_with_answer(colums) unless keep_completed_tasks
+    end
     # items related to added projects
     unless projects.blank?
       condition, excluded_ids = build_add_remove_project_condition('add', projects)
@@ -67,14 +74,9 @@ class TeamTask < ActiveRecord::Base
     end
   end
 
-  def self.destroy_teamwide_tasks_bg(id, keep_resolved_tasks)
-    if keep_resolved_tasks
-      Task.where('annotations.annotation_type' => 'task')
-      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id)
-      .joins("INNER JOIN annotations s ON s.annotation_type = 'task_status' AND s.annotated_id = annotations.id")
-      .joins("INNER JOIN dynamic_annotation_fields f ON f.field_name = 'task_status_status'
-        AND f.value LIKE '%unresolved%'
-        AND f.annotation_id = s.id").find_each do |t|
+  def self.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
+    if keep_completed_tasks
+      TeamTask.get_teamwide_tasks_zero_answers(id).find_each do |t|
         self.destory_project_media_task(t)
       end
     else
@@ -106,13 +108,13 @@ class TeamTask < ActiveRecord::Base
         new: self.project_ids,
       }
     end
-    self.keep_resolved_tasks = self.keep_resolved_tasks.nil? ? true : self.keep_resolved_tasks
-    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects), self.keep_resolved_tasks) unless options.blank? && projects.blank?
+    self.keep_completed_tasks = self.keep_completed_tasks.nil? ? true : self.keep_completed_tasks
+    TeamTaskWorker.perform_in(1.second, 'update', self.id, YAML::dump(User.current), YAML::dump(options), YAML::dump(projects), self.keep_completed_tasks) unless options.blank? && projects.blank?
   end
 
   def delete_teamwide_tasks
-    self.keep_resolved_tasks = self.keep_resolved_tasks.nil? ? false : self.keep_resolved_tasks
-    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_resolved_tasks)
+    self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
+    TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
   end
 
   def handle_remove_projects(projects)
@@ -142,33 +144,14 @@ class TeamTask < ActiveRecord::Base
     [condition, excluded_ids]
   end
 
-  def update_tasks_with_zero_answer(options, keep_resolved_tasks)
-    # collect updated fields with new values
-    colums = {}
-    options.each do |k, _v|
-      colums[k] = self.read_attribute(k)
-    end
-    # TODO: change to completed tasks 
-    update_resolved_tasks(colums) unless keep_resolved_tasks || colums.blank?
+  def update_tasks_with_zero_answer(colums)
     TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
       t.update(colums)
-    end unless colums.blank?
-  end
-
-  def update_tasks_with_answer
-    excluded_ids = []
-    get_teamwide_tasks_with_answers.find_each do |t|
-      t.update({required: self.required?}) unless excluded_ids.include?(t.id)
     end
   end
 
-  def update_resolved_tasks(colums)
-    Task.where('annotations.annotation_type' => 'task')
-    .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
-    .joins("INNER JOIN annotations s ON s.annotation_type = 'task_status' AND s.annotated_id = annotations.id")
-    .joins("INNER JOIN dynamic_annotation_fields f ON f.field_name = 'task_status_status'
-      AND f.value LIKE '%resolved%'
-      AND f.annotation_id = s.id").find_each do |t|
+  def update_tasks_with_answer(colums)
+    get_teamwide_tasks_with_answers.find_each do |t|
       t.update(colums)
     end
   end
@@ -181,7 +164,6 @@ class TeamTask < ActiveRecord::Base
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
     .where("a.id" => nil).find_each do |pm|
       begin
-        self.skip_update_media_status = true if self.required?
         pm.create_auto_tasks([self])
       rescue StandardError => e
         TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )

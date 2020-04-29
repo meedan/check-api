@@ -316,7 +316,6 @@ class ProjectMedia < ActiveRecord::Base
       tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', task.id).count
       if tt_exists == 0
-        task.skip_update_media_status = true
         self.create_auto_tasks([task])
       end
     end unless tasks.nil?

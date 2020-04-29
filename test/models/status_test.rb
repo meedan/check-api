@@ -334,60 +334,6 @@ class StatusTest < ActiveSupport::TestCase
     User.current = nil
   end
 
-  test "should notify editor by e-mail for terminal status" do
-    require 'sidekiq/testing'
-    Sidekiq::Testing.fake!
-
-    create_verification_status_stuff
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
-    s = pm.get_annotations('verification_status').last
-    s = s.load
-    with_current_user_and_team(u, t) do
-      Sidekiq::Worker.clear_all
-      n = MailWorker.jobs.size
-      s.status = 'verified'; s.save!
-      assert MailWorker.jobs.size > n
-      n = MailWorker.jobs.size
-      s.status = 'verified'; s.save!
-      s.status = 'in_progress'; s.save!
-      assert_equal n, MailWorker.jobs.size
-    end
-  end
-
-  test "should set deadline when verification status is created if team has setting" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    pm = create_project_media project: p
-    s = pm.get_annotations('verification_status').last.load
-    assert_equal 0, s.get_field_value('deadline').to_i
-
-    t.set_status_target_turnaround = 3
-    t.save!
-    pm = create_project_media project: p
-    s = pm.get_annotations('verification_status').last.load
-    deadline = (s.created_at + 3.hours).to_i
-    deadline -= deadline % 300
-    assert_equal deadline, s.get_field_value('deadline').to_i
-  end
-
-  test "should get non-terminal status" do
-    create_verification_status_stuff
-    pm = create_project_media
-    s = pm.get_annotations('verification_status').last.load.get_field('verification_status_status')
-    assert_kind_of Array, s.workflow_options_from_key(:non_terminal)
-  end
-
   test "should get status" do
     create_verification_status_stuff
     pm = create_project_media

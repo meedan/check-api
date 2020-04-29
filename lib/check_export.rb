@@ -77,7 +77,8 @@ module CheckExport
 
   def export_task_count(pm)
     {
-      tasks_count: @annotations.where(annotation_type: 'task').count
+      tasks_count: @annotations.where(annotation_type: 'task').count,
+      tasks_resolved_count: pm.tasks_resolved_count
     }
   end
 

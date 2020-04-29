@@ -64,11 +64,10 @@ module Workflow
 
         def workflow_options_from_key(key)
           statuses = self.workflow_options[:statuses]
+          # TODO:Sawy: replace case with if condition
           case key
           when :any
             statuses.collect{ |s| s[:id] }
-          when :non_terminal
-            self.workflow_incompleted_options
           end
         end
 
