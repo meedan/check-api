@@ -1552,7 +1552,6 @@ class TeamTest < ActiveSupport::TestCase
     create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
     assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
-    assert_not_nil schema[:properties][:sort][:properties][:deadline]
     assert_not_nil schema[:properties]['flag_name']
     assert_not_nil schema[:properties]['flag_value']
   end
