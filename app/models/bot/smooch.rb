@@ -545,7 +545,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_message(message, app_id)
-    message['language'] ||= self.get_language(message)
+    message['language'] = self.get_language(message)
 
     return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
