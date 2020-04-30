@@ -147,6 +147,7 @@ class ActiveSupport::TestCase
     User.unstub(:current)
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
+    WebMock.stub_request(:get, /#{CONFIG['screenshot_service_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     RequestStore.store[:skip_cached_field_update] = true
   end
 
@@ -595,7 +596,7 @@ class ActiveSupport::TestCase
         'smooch_state_main' => {
           'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',
           'smooch_menu_options' => [{
-            'smooch_menu_option_keyword' => '1,one',
+            'smooch_menu_option_keyword' => '1 ,one',
             'smooch_menu_option_value' => 'secondary_state',
             'smooch_menu_project_media_id' => ''
           }]
@@ -604,12 +605,12 @@ class ActiveSupport::TestCase
           'smooch_menu_message' => 'Now press 1 to see a project media or 2 to go to the query menu',
           'smooch_menu_options' => [
             {
-              'smooch_menu_option_keyword' => '1,one',
+              'smooch_menu_option_keyword' => ' 1, one',
               'smooch_menu_option_value' => 'resource',
               'smooch_menu_project_media_id' => create_project_media(project: @project).id
             },
             {
-              'smooch_menu_option_keyword' => '2,two',
+              'smooch_menu_option_keyword' => '2, two ',
               'smooch_menu_option_value' => 'query_state',
               'smooch_menu_project_media_id' => ''
             }

@@ -4,10 +4,6 @@ require 'bitly'
 module ProjectMediaEmbed
   extend ActiveSupport::Concern
 
-  included do
-    after_update :clear_caches
-  end
-
   def oembed_url(format = '')
     format = ".#{format}" unless format.blank?
     url = CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
@@ -181,7 +177,7 @@ module ProjectMediaEmbed
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last
 
-      return if pm.nil? || pm.get_annotations('embed_code').empty?
+      return if pm.nil?
 
       url = pm.full_url.to_s
       PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])

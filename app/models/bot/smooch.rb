@@ -1,5 +1,8 @@
 require 'digest'
 
+class SmoochBotDeliveryFailure < StandardError
+end
+
 class Bot::Smooch < BotUser
 
   check_settings
@@ -43,7 +46,10 @@ class Bot::Smooch < BotUser
       if self.annotation_type == 'report_design'
         action = self.action
         self.copy_report_image_paths if action == 'save' || action =~ /publish/
-        ReportDesignerWorker.perform_in(1.second, self.id, action) if action =~ /publish/
+        if action =~ /publish/
+          ReportDesignerWorker.perform_in(1.second, self.id, action)
+          self.annotated.clear_caches
+        end
       end
     end
     after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
@@ -168,6 +174,10 @@ class Bot::Smooch < BotUser
         strings = {}
         self.settings.each do |key, value|
           strings[key.to_s.gsub(/^smooch_message_smooch_bot_/, '')] = value if key.to_s =~ /^smooch_message_/ && !value.blank?
+        end
+        ['main', 'secondary', 'query'].each do |state|
+          value = self.settings.dig("smooch_state_#{state}", 'smooch_menu_message')
+          strings["smooch_state_#{state}_smooch_menu_message"] = value unless value.blank?
         end
         CheckI18n.upload_custom_strings_to_transifex_in_background(self.team, 'smooch_bot', strings) unless strings.blank?
       end
@@ -303,7 +313,7 @@ class Bot::Smooch < BotUser
       end
     rescue StandardError => e
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request] )
+      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
       false
     end
@@ -324,14 +334,17 @@ class Bot::Smooch < BotUser
 
   def self.parse_message_based_on_state(message, app_id)
     uid = message['authorId']
+    message['language'] ||= Rails.cache.read("smooch:user_language:#{uid}")
     sm = CheckStateMachine.new(uid)
     state = sm.state.value
     case state
     when 'waiting_for_message'
+      message['language'] = self.get_language(message)
+      Rails.cache.write("smooch:user_language:#{uid}", message['language'])
       has_main_menu = (self.config.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
-        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_bot', 'smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
         self.send_message_to_user(uid, main_message)
       else
         sm.go_to_query
@@ -339,7 +352,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary'
       if !self.process_menu_option(message, state)
-        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(["smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(['smooch_bot', "smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
@@ -351,11 +364,11 @@ class Bot::Smooch < BotUser
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     self.config.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
-      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).include?(message['text'].to_s.downcase)
+      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           sm.send("go_to_#{new_state}")
-          self.send_message_to_user(uid, self.i18n_t(["smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
+          self.send_message_to_user(uid, self.i18n_t(['smooch_bot', "smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -410,15 +423,14 @@ class Bot::Smooch < BotUser
 
   def self.resend_message(message)
     code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
-    if code == 470
-      self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json)
-    end
+    self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) if code == 470
+    self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
   end
 
   def self.i18n_t(key, options = {})
     config = self.config || {}
     team = Team.where(id: config['team_id'].to_i).last
-    fallback = key.is_a?(Array) ? config.dig(*key) : config["smooch_message_#{key}"]
+    fallback = key.is_a?(Array) ? config.dig(*(key - ['smooch_bot'])) : config["smooch_message_#{key}"]
     key = key.join('_') if key.is_a?(Array)
     CheckI18n.i18n_t(team, key, fallback, options)
   end
@@ -431,10 +443,13 @@ class Bot::Smooch < BotUser
     unless pm.nil?
       report = pm.get_dynamic_annotation('report_design')
       if !report.nil? && report.get_field_value('state') == 'published' && self.config['smooch_template_namespace']
-        report_text = fallback = report.report_design_text
-        ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_message_report, #{report_text})")
+        fallback = report.report_design_text
+        status = report.get_field_value('status_label')
+        ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
+        return
       end
     end
+    self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent']
   end
 
   def self.get_language(message)
@@ -530,7 +545,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.process_message(message, app_id)
-    message['language'] ||= self.get_language(message)
+    message['language'] = self.get_language(message)
 
     return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
@@ -610,7 +625,8 @@ class Bot::Smooch < BotUser
       api_instance.post_message(app_id, uid, message_post_body)
     rescue SmoochApi::ApiError => e
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      self.notify_error(e, { smooch_app_id: app_id, uid: uid, body: params }, RequestStore[:request] )
+      e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
+      self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
     end
   end
 

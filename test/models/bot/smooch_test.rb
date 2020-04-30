@@ -366,13 +366,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     r = create_report(pm)
     pa1 = r.reload.get_field_value('last_published')
-    filepath = "report_design/#{r.id}.png"
-    assert !CheckS3.exist?(filepath)
+    assert !r.reload.get_field_value('visual_card_url')
     r = Dynamic.find(r.id)
     r.save!
-    assert !CheckS3.exist?(filepath)
+    assert !r.reload.get_field_value('visual_card_url')
     publish_report(pm, {}, r)
-    assert CheckS3.exist?(filepath)
+    assert r.reload.get_field_value('visual_card_url')
     pa2 = r.reload.get_field_value('last_published')
     assert_not_equal pa1.to_s, pa2.to_s
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
