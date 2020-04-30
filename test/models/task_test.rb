@@ -336,29 +336,40 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy: use this test to verify opend/completed tasks 
-  # test "should resolve task if response is submitted by all assigned users" do
-  #   at = create_annotation_type annotation_type: 'task_response'
-  #   create_field_instance annotation_type_object: at, name: 'response_test'
-  #   t = create_team
-  #   p = create_project team: t
-  #   pm = create_project_media project: p
-  #   tk = create_task annotated: pm
-  #   u1 = create_user
-  #   u2 = create_user
-  #   create_team_user team: t, user: u1, role: 'annotator'
-  #   create_team_user team: t, user: u2, role: 'annotator'
-  #   tk.assign_user(u1.id)
-  #   tk.assign_user(u2.id)
-  #   User.current = u1
-  #   tk = Task.find(tk.id)
-  #   tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
-  #   tk.save!
-  #   User.current = u2
-  #   tk = Task.find(tk.id)
-  #   tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
-  #   tk.save!
-  # end
+  test "should get completed and opended tasks" do
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk2 = create_task annotated: pm
+    assert_equal 2, pm.open_tasks.count
+    assert_equal 0, pm.completed_tasks_count
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: t, user: u1, role: 'annotator'
+    create_team_user team: t, user: u2, role: 'annotator'
+    tk.assign_user(u1.id)
+    tk.assign_user(u2.id)
+    User.current = u1
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
+    assert_equal 1, pm.open_tasks.count
+    assert_equal 1, pm.completed_tasks_count
+    User.current = u2
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
+    assert_equal 1, pm.open_tasks.count
+    assert_equal 1, pm.completed_tasks_count
+    tk2 = Task.find(tk2.id)
+    tk2.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk2.save!
+    assert_equal 0, pm.open_tasks.count
+    assert_equal 2, pm.completed_tasks_count
+  end
 
   test "should get first response" do
     at = create_annotation_type annotation_type: 'task_response'

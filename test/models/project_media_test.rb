@@ -761,24 +761,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_match CONFIG['checkdesk_client'], pm.source_url
   end
 
-  # TODO: Sawy fix test 
-  # test "should get resolved tasks for oEmbed" do
-  #   Sidekiq::Testing.inline! do
-  #     create_task_status_stuff
-  #     at = create_annotation_type annotation_type: 'response'
-  #     create_field_instance annotation_type_object: at, name: 'response'
-  #     pm = create_project_media
-  #     assert_equal [], pm.completed_tasks
-  #     assert_equal 0, pm.completed_tasks_count
-  #     t1 = create_task annotated: pm
-  #     t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-  #     t1.save!
-  #     t2 = create_task annotated: pm
-  #     assert_equal [t1], pm.completed_tasks
-  #     assert_equal [t2], pm.open_tasks
-  #     assert_equal 1, pm.completed_tasks_count
-  #   end
-  # end
+  test "should get completed tasks for oEmbed" do
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response'
+    pm = create_project_media
+    assert_equal [], pm.completed_tasks
+    assert_equal 0, pm.completed_tasks_count
+    t1 = create_task annotated: pm
+    t1.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
+    t1.save!
+    t2 = create_task annotated: pm
+    assert_equal [t1], pm.completed_tasks
+    assert_equal [t2], pm.open_tasks
+    assert_equal 1, pm.completed_tasks_count
+  end
 
   test "should get comments for oEmbed" do
     pm = create_project_media
@@ -1420,16 +1416,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_nothing_raised do
       assert_nil pm.last_verification_status_obj
     end
-  end
-
-  test "should return whether in final state or not" do
-    create_verification_status_stuff
-    pm = create_project_media
-    assert_equal false, pm.is_finished?
-    s = pm.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-    assert_equal true, pm.is_finished?
   end
 
   test "should have relationships and parent and children reports" do

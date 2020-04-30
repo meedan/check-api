@@ -87,23 +87,15 @@ module ProjectMediaEmbed
   end
 
   def completed_tasks_count
-    # TODO: Sawy re-define completed tasks count
     self.completed_tasks.count
   end
 
-  def required_tasks
-    # TODO: Sawy remove this method
-    self.all_tasks.select{ |t| t.required == true }
-  end
-
   def open_tasks
-    # TODO: Sawy re-define opened tasks
-    self.all_tasks.select{ |t| t.status != 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count == 0 }
   end
 
   def completed_tasks
-    # TODO: Sawy re-define completed tasks
-    self.all_tasks.select{ |t| t.status == 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count > 0 }
   end
 
   def comments

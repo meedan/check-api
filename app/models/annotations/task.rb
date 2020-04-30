@@ -7,7 +7,7 @@ class Task < ActiveRecord::Base
   has_annotations
 
   before_validation :set_slug, on: :create
-  after_commit :send_slack_notification, on: [:create, :update]
+  after_save :send_slack_notification
 
   field :label
   validates_presence_of :label
