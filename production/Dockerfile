@@ -16,7 +16,6 @@ ENV DEPLOYUSER=checkdeploy \
     QT_QPA_PLATFORM=offscreen
     # MALLOC_ARENA MAX is needed because of https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
-    # QT_QPA_PLATFORM is for phantomjs to not require Xwindows
 
 #
 # USER CONFIG
@@ -31,8 +30,8 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 # dependencies
 #RUN add-apt-repository ppa:mc3man/trusty-media -y
-RUN apt-get update -qq && apt-get install -y lsof nodejs phantomjs git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
-     ffmpegthumbnailer fontconfig libfontconfig fonts-beng fonts-deva fonts-samyak-gujr fonts-mlym fonts-taml fonts-smc fonts-taml fonts-telu
+RUN apt-get update -qq && apt-get install -y lsof nodejs git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick \
+     ffmpegthumbnailer fontconfig libfontconfig
 
 
 # CMD and helper scripts

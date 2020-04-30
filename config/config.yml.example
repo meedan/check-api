@@ -69,6 +69,13 @@ development: &default
     bucket_region: 'us-east-1'
     path_style:
 
+  # Screenshot service URL
+  #
+  # REQUIRED
+  # Use value below for local development
+  #
+  screenshot_service_url: 'http://screenshot:8687'
+
   # Exception reporting using Airbrake or API equivalent https://airbrake.io/
   #
   # OPTIONAL
@@ -171,7 +178,7 @@ development: &default
   #
   honeycomb_key: # '<HONEYCOMB KEY>'
   honeycomb_dataset: # '<HONEYCOMB DATASET>'
-
+  
   # DEPRECATED
   #
   optics_api_key:
