@@ -62,7 +62,6 @@ class Assignment < ActiveRecord::Base
     to_create = []
     to_delete = []
     objs = assignment.assigned.propagate_assignment_to(assignment.user)
-    task_ids = objs.select{ |t| t.is_a?(Task) }.map(&:id)
     objs.each do |obj|
       klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last

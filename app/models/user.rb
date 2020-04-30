@@ -324,7 +324,6 @@ class User < ActiveRecord::Base
 
   def merge_with(user)
     return if self.id == user.id
-    tu_old = self.team_users.map(&:id)
     merged_tu = merge_shared_teams(user)
     # remove shared accounts on both sources
     s = self.source

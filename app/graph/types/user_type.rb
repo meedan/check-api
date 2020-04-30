@@ -115,6 +115,7 @@ UserType = GraphqlCrudOperations.define_default_type do
       pms = pms.joins(:project).where('projects.team_id' => team_id) if team_id > 0
       # TODO: remove finished items
       # pms.reject { |pm| pm.is_finished? }
+      pms
     }
   end
 end
