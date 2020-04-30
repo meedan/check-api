@@ -215,19 +215,6 @@ class ProjectMedia < ActiveRecord::Base
     perms
   end
 
-  def is_completed?
-    # TODO: Sawy - review
-    required_tasks = self.required_tasks
-    unresolved = required_tasks.select{ |t| t.status != 'resolved' }
-    unresolved.blank?
-  end
-
-  def is_finished?
-    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
-    current_status = statuses.select { |st| st['id'] == self.last_status }
-    current_status[0]['completed'].to_i == 1
-  end
-
   def relationships_object
     unless self.related_to_id.nil?
       type = Relationship.default_type.to_json

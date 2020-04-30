@@ -175,16 +175,6 @@ class Task < ActiveRecord::Base
     response.nil? ? Dynamic.new : response.load
   end
 
-  def must_resolve_task(params)
-    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
-    if set_fields.keys.select{ |k| k =~ /^response/ }.any?
-      uids = self.assigned_users.map(&:id).sort
-      uids.empty? || uids == self.responses.map(&:annotator_id).uniq.sort
-    else
-      false
-    end
-  end
-
   def response=(json)
     params = JSON.parse(json)
     response = self.new_or_existing_response

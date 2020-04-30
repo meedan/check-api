@@ -360,11 +360,6 @@ class TaskTest < ActiveSupport::TestCase
   #   tk.save!
   # end
 
-  test "should not resolve task if response is not submitted" do
-    t = create_task
-    assert !t.must_resolve_task({ 'set_fields' => {} })
-  end
-
   test "should get first response" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
