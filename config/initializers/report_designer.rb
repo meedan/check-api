@@ -57,20 +57,25 @@ Dynamic.class_eval do
       url.content = self.get_field_value('url')
       avatar = self.adjust_report_design_image_url(team.avatar)
       image = self.adjust_report_design_image_url(self.get_field_value('image'))
-      temp_name = 'temp-' + SecureRandom.hex(16) + '-' + self.id.to_s
+      temp_name = 'temp-' + SecureRandom.hex(16) + '-' + self.id.to_s + '.html'
       temp = File.join(Rails.root, 'public', 'report_design', temp_name)
-      output = File.open("#{temp}.html", 'w+')
+      output = File.open(temp, 'w+')
       output.puts doc.to_s.gsub(/#CCCCCC/, self.get_field_value('theme_color')).gsub('%IMAGE_URL%', image).gsub('%AVATAR_URL%', avatar)
       output.close
 
+      # Upload the HTML to S3
+      path = "report_design/#{temp_name}"
+      CheckS3.write(path, 'text/html', File.read(temp))
+
       # Convert the HTML to PNG
-      temp_url = "#{CONFIG['checkdesk_base_url']}/report_design/#{temp_name}.html"
+      temp_url = CheckS3.public_url(path)
       screenshot = JSON.parse(Net::HTTP.get_response(URI("#{CONFIG['screenshot_service_url']}/?url=#{temp_url}&selector=%23frame")).body)['url']
       raise "Unexpected response from screenshot service: #{screenshot}" unless screenshot =~ /^http/
       self.set_fields = self.data.merge({ visual_card_url: screenshot }).to_json
       self.save!
 
-      FileUtils.rm_f "#{temp}.html"
+      FileUtils.rm_f temp
+      CheckS3.delete(path)
     end
   end
 
