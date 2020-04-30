@@ -303,22 +303,6 @@ class User < ActiveRecord::Base
     DeleteUserMailer.send_notification(user, user.teams)
   end
 
-  def self.set_assignments_progress(user_id, project_media_id)
-    required_tasks_count = 0
-    answered_tasks_count = 0
-    Task.where(annotated_type: 'ProjectMedia', annotated_id: project_media_id).each do |task|
-      task = task.reload
-      if task.required_for_user(user_id)
-        required_tasks_count += 1
-        answered_tasks_count += 1 if task.responses.select{ |r| r.annotator_id.to_i == user_id }.any?
-      end
-    end
-    Rails.cache.write("cache-assignments-progress-#{user_id}-project-media-#{project_media_id}", {
-      answered: answered_tasks_count,
-      total: required_tasks_count,
-    })
-  end
-
   def self.delete_user_profile(s)
     current_user = User.current
     User.current = nil
@@ -366,11 +350,6 @@ class User < ActiveRecord::Base
     user.destroy
     self.merge_source(s, s2)
     self.update_columns(columns)
-    # update assignments cache
-    merged_tu.concat(self.team_users.where.not(id: tu_old))
-    merged_tu.each do |tu|
-      tu.set_assignments_progress
-    end
   end
 
   def merge_source(s, s2)
