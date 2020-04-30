@@ -147,6 +147,7 @@ class ActiveSupport::TestCase
     User.unstub(:current)
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
+    WebMock.stub_request(:get, /#{CONFIG['screenshot_service_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     RequestStore.store[:skip_cached_field_update] = true
   end
 
