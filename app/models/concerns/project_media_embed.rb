@@ -4,10 +4,6 @@ require 'bitly'
 module ProjectMediaEmbed
   extend ActiveSupport::Concern
 
-  included do
-    after_update :clear_caches
-  end
-
   def oembed_url(format = '')
     format = ".#{format}" unless format.blank?
     url = CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
@@ -30,24 +26,6 @@ module ProjectMediaEmbed
         url
       end
     end
-  end
-
-  def embed_analysis
-    item_show_analysis_defined = (begin self.get_annotations('memebuster').last.load.get_field('memebuster_show_analysis') rescue nil end)
-    item_show_analysis = (begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_show_analysis') rescue false end)
-    if (item_show_analysis_defined && item_show_analysis) || (!item_show_analysis_defined && self.team.get_embed_analysis)
-      begin self.get_annotations('analysis').last.load.get_field_value('analysis_text').to_s rescue nil end
-    end
-  end
-
-  def embed_disclaimer
-    item_disclaimer = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_disclaimer').to_s rescue nil end
-    item_disclaimer || self.team.get_disclaimer
-  end
-
-  def custom_embed_url
-    url = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_custom_url').to_s rescue nil end
-    url.to_s =~ /^http/ ? url : nil
   end
 
   def author_name
@@ -75,41 +53,6 @@ module ProjectMediaEmbed
     self.media.is_a?(Link) ? self.media.url : self.full_url
   end
 
-  def required_tasks
-    self.all_tasks.select{ |t| t.required == true }
-  end
-
-  def completed_tasks
-    self.all_tasks.select{ |t| t.status == 'resolved' }
-  end
-
-  def completed_tasks_to_show
-    item_tasks = begin self.get_annotations('memebuster').last.load.get_field_value('memebuster_tasks') rescue nil end
-    team_tasks = []
-    team_tasks = self.team.get_embed_tasks.to_s.split(',').map(&:to_i) if item_tasks.nil?
-    self.all_tasks.select{ |t| t.status == 'resolved' && (item_tasks.to_a.include?(t.id) || team_tasks.include?(t.team_task_id.to_i)) }.reverse
-  end
-
-  def open_tasks
-    self.all_tasks.select{ |t| t.status != 'resolved' }
-  end
-
-  def all_tasks
-    self.annotations.where(annotation_type: 'task').map(&:load)
-  end
-
-  def completed_tasks_count
-    self.completed_tasks.count
-  end
-
-  def comments
-    self.annotations.where(annotation_type: 'comment').map(&:load)
-  end
-
-  def comments_count
-    self.comments.count
-  end
-
   def provider
     self.media.is_a?(Link) ? self.media.provider : CONFIG['app_name']
   end
@@ -133,6 +76,34 @@ module ProjectMediaEmbed
       data[:author_username] = self.author_username
     end
     data
+  end
+
+  def all_tasks
+    self.annotations.where(annotation_type: 'task').map(&:load)
+  end
+
+  def completed_tasks_count
+    self.completed_tasks.count
+  end
+
+  def required_tasks
+    self.all_tasks.select{ |t| t.required == true }
+  end
+
+  def open_tasks
+    self.all_tasks.select{ |t| t.status != 'resolved' }
+  end
+
+  def completed_tasks
+    self.all_tasks.select{ |t| t.status == 'resolved' }
+  end
+
+  def comments
+    self.annotations.where(annotation_type: 'comment').map(&:load)
+  end
+
+  def comments_count
+    self.annotations.where(annotation_type: 'comment').count
   end
 
   def oembed_metadata
@@ -191,15 +162,6 @@ module ProjectMediaEmbed
     av.render(template: 'project_medias/oembed.html.erb', layout: nil)
   end
 
-  def clear_caches
-    return if self.skip_clear_cache
-    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id)
-  end
-
-  def last_status_html
-    "<span id=\"oembed__status\" class=\"l\">status_#{self.last_status}</span>".html_safe
-  end
-
   def last_status_color
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)
     statuses = statuses.with_indifferent_access['statuses']
@@ -210,11 +172,16 @@ module ProjectMediaEmbed
     color
   end
 
+  def clear_caches
+    return if self.skip_clear_cache || RequestStore.store[:skip_clear_cache]
+    ProjectMedia.delay_for(1.second, retry: 0).clear_caches(self.id)
+  end
+
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last
 
-      return if pm.nil? || pm.get_annotations('embed_code').empty?
+      return if pm.nil?
 
       url = pm.full_url.to_s
       PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])

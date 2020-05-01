@@ -4,7 +4,6 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   def setup
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     @team = create_team
     Team.stubs(:current).returns(@team)
     @user = create_user login: 'test', password: '12345678', password_confirmation: '12345678', email: 'test@test.com', confirm: false

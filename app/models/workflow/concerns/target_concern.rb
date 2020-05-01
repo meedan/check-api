@@ -3,7 +3,7 @@ module Workflow
     module TargetConcern
       ::Workflow::Workflow.workflows.each do |workflow|
 
-        workflow_id = workflow.id # translation_status, verification_status, task_status, etc.
+        workflow_id = workflow.id # verification_status, task_status, etc.
 
         target_id = workflow.target.name.underscore # project_media, task, etc.
 

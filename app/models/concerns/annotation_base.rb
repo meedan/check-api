@@ -57,7 +57,7 @@ module AnnotationBase
     include ActiveModel::Validations::Callbacks
     include PaperTrail::Model
     include CheckPermissions
-    include CheckNotifications::Pusher
+    include CheckPusher
     include CheckElasticSearch
     include CustomLock
     include AssignmentConcern
@@ -121,7 +121,7 @@ module AnnotationBase
     end
 
     def propagate_assignment_to(user)
-      if self.annotation_type == 'verification_status' || self.annotation_type == 'translation_status'
+      if self.annotation_type == 'verification_status'
         self.annotated.get_annotations('task').map(&:load).select{ |task| task.status == 'unresolved' || task.responses.select{ |r| r.annotator_id.to_i == user.id }.last.nil? }
       else
         []
@@ -133,7 +133,7 @@ module AnnotationBase
       if self.annotation_type == 'task'
         status_id = self.annotated&.last_status_obj&.id
         users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
-      elsif self.annotation_type == 'verification_status' || self.annotation_type == 'translation_status'
+      elsif self.annotation_type == 'verification_status'
         project_id = self.annotated&.project_id
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end

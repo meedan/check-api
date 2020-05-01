@@ -58,8 +58,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should create version when status is updated" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     st = nil
     u = create_user
     t = create_team
@@ -145,8 +144,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when status is updated" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     if Bot::Slack.default.nil?
       b = Bot::Slack.new
       b.name = 'Slack Bot'
@@ -276,8 +274,7 @@ class StatusTest < ActiveSupport::TestCase
   end
 
   test "should define Slack message" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
 
     u = create_user
     t = create_team
@@ -389,5 +386,11 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media
     s = pm.get_annotations('verification_status').last.load.get_field('verification_status_status')
     assert_kind_of Array, s.workflow_options_from_key(:non_terminal)
+  end
+
+  test "should get status" do
+    create_verification_status_stuff
+    pm = create_project_media
+    assert_kind_of Hash, Workflow::Workflow.get_status(pm, 'verification_status', 'in_progress')
   end
 end

@@ -1,6 +1,6 @@
 class ProjectMediaProject < ActiveRecord::Base
   include CheckElasticSearch
-  include CheckNotifications::Pusher
+  include CheckPusher
 
   belongs_to :project
   belongs_to :project_media

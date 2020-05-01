@@ -70,10 +70,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             "sha256": "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
             "phash": 17399941807326929,
             "url": "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context": {
+            "context": [{
               "team_id": pm1.team.id.to_s,
               "project_media_id": pm1.id.to_s
-            },
+            }],
             "score": 0
           }
         ]

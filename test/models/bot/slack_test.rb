@@ -122,7 +122,6 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should update message on Slack thread when status is changed" do
-    create_translation_status_stuff(false)
     create_verification_status_stuff(false)
     WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
     RequestStore.store[:disable_es_callbacks] = true
@@ -146,7 +145,6 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should update message on Slack thread when title is changed" do
-    create_translation_status_stuff(false)
     create_verification_status_stuff(false)
     WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
     RequestStore.store[:disable_es_callbacks] = true
@@ -170,30 +168,6 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should truncate text" do
     assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
-  end
-
-  test "should send message to Slack thread if there is a new translation" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
-    stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
-    pm = create_project_media
-
-    if DynamicAnnotation::AnnotationType.where(annotation_type: 'translation').last.nil?
-      at = create_annotation_type annotation_type: 'translation', label: 'Translation'
-      create_field_instance annotation_type_object: at, name: 'translation_text'
-      create_field_instance annotation_type_object: at, name: 'translation_note'
-      create_field_instance annotation_type_object: at, name: 'translation_language'
-    end
-
-    2.times do
-      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
-    end
-    stub_config('slack_token', '123456') do
-      Sidekiq::Testing.inline! do
-        create_dynamic_annotation annotation_type: 'translation', annotated: pm, set_fields: { translation_language: 'en', translation_text: 'Test' }.to_json
-      end
-    end
-    assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
-    WebMock.allow_net_connect!
   end
 
   test "should get project and team for task comment" do
@@ -230,7 +204,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should have default behavior" do
     class TestSlackMessage < Annotation
-      include Bot::Slack::SlackMessage 
+      include Bot::Slack::SlackMessage
     end
     x = TestSlackMessage.new(annotated: create_project_media)
     assert_kind_of Hash, x.slack_message_parameters(random_string, random_string, [{ foo: 'bar', fields: [{}, {}, {}, {}] }].to_json)

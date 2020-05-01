@@ -138,16 +138,20 @@ class Team < ActiveRecord::Base
     self.send(:set_media_verification_statuses, value)
   end
 
-  def embed_tasks=(team_task_ids)
-    self.send(:set_embed_tasks, team_task_ids)
-  end
-
   def disclaimer=(text)
     self.send(:set_disclaimer, text)
   end
 
-  def embed_analysis=(bool)
-    self.send(:set_embed_analysis, (bool.to_i == 1))
+  def introduction=(text)
+    self.send(:set_introduction, text)
+  end
+
+  def use_disclaimer=(bool)
+    self.send(:set_use_disclaimer, (bool.to_i == 1))
+  end
+
+  def use_introduction=(bool)
+    self.send(:set_use_introduction, (bool.to_i == 1))
   end
 
   def team_user
@@ -319,8 +323,8 @@ class Team < ActiveRecord::Base
     { type: 'object', properties: properties }
   end
 
-  def get_memebuster_template
-    self.settings[:memebuster_template] || self.settings['memebuster_template'] || File.read(File.join(Rails.root, 'public', 'memebuster-default-template.svg'))
+  def get_report_design_image_template
+    self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
   end
 
   protected

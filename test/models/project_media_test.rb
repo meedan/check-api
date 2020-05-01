@@ -216,12 +216,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.stubs(:env).returns(:production)
     t = create_team
     p = create_project team:  t
-    CheckNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
+    CheckPusher::Worker.drain
+    assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 10, CheckNotifications::Pusher::Worker.jobs.size
-    CheckNotifications::Pusher::Worker.drain
-    assert_equal 0, CheckNotifications::Pusher::Worker.jobs.size
+    assert_equal 10, CheckPusher::Worker.jobs.size
+    CheckPusher::Worker.drain
+    assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)
   end
 
@@ -526,8 +526,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should refresh Pender data" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
@@ -819,8 +818,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get published time for oEmbed" do
-    create_translation_status_stuff
-    create_task_status_stuff(false)
+    create_task_status_stuff
     url = 'http://twitter.com/test/123456'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
@@ -849,28 +847,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should render oEmbed HTML" do
     Sidekiq::Testing.inline! do
-      create_translation_status_stuff
-      create_verification_status_stuff(false)
-      create_task_status_stuff(false)
-      u = create_user login: 'test', name: 'Test', profile_image: 'http://profile.picture'
-      c = create_claim_media quote: 'Test'
-      t = create_team name: 'Test Team', slug: 'test-team'
-      p = create_project title: 'Test Project', team: t
-      pm = create_project_media media: c, user: u, project: p
-      create_comment text: 'A comment', annotated: pm
-      create_comment text: 'A second comment', annotated: pm
-
-      ProjectMedia.any_instance.stubs(:created_at).returns(Time.parse('2016-06-05'))
-      ProjectMedia.any_instance.stubs(:updated_at).returns(Time.parse('2016-06-05'))
-
-      endpoint = CONFIG['storage']['asset_host'] || CONFIG['storage']['endpoint']
-      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html")).gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub('http://localhost:3333', CONFIG['checkdesk_client']).gsub('http://localhost:3000', CONFIG['checkdesk_base_url']).gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar').gsub('bucket-name', CONFIG['storage']['bucket']).gsub('http://localhost:9000', endpoint)
-      actual = ProjectMedia.find(pm.id).html.gsub(/project\/[0-9]+\/media\/[0-9]+/, 'url').gsub(/.*<body/m, '<body').gsub(/uploads\/team\/[0-9]+/, 'path-to-team-avatar')
-
+      pm = create_project_media
+      PenderClient::Request.stubs(:get_medias)
+      publish_report(pm, {
+        use_visual_card: false,
+        use_text_message: true,
+        use_disclaimer: false,
+        text: '*This* _is_ a ~test~!'
+      })
+      PenderClient::Request.unstub(:get_medias)
+      expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
+        .gsub(/.*<body/m, '<body')
+        .gsub('https?://[^:]*:3000', CONFIG['checkdesk_base_url'])
+      actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
-
-      ProjectMedia.any_instance.unstub(:created_at)
-      ProjectMedia.any_instance.unstub(:updated_at)
     end
   end
 
@@ -1155,49 +1145,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return custom status HTML and color for embed" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    t = create_team
-    value = {
-      label: 'Status',
-      default: 'stop',
-      active: 'done',
-      statuses: [
-        { id: 'stop', label: 'Stopped', completed: '', description: 'Not started yet', style: { backgroundColor: '#a00' } },
-        { id: 'done', label: 'Done!', completed: '', description: 'Nothing left to be done here', style: { backgroundColor: '#fc3' } }
-      ]
-    }
-    pm = create_project_media
-    t.send "set_media_#{pm.default_project_media_status_type.pluralize}", value
-    t.save!
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_equal 'stop', pm.last_status
-    assert_equal '<span id="oembed__status" class="l">status_stop</span>', pm.last_status_html
-    assert_equal '#a00', pm.last_status_color
-    s = pm.last_status_obj
-    s.status = 'done'
-    s.save!
-    assert_equal '<span id="oembed__status" class="l">status_done</span>', pm.last_status_html
-    assert_equal '#fc3', pm.last_status_color
-  end
-
-  test "should return core status HTML and color for embed" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_equal "<span id=\"oembed__status\" class=\"l\">status_#{pm.last_status}</span>", pm.last_status_html
-    assert_equal '#518FFF', pm.last_status_color.upcase
-    s = pm.last_status_obj
-    s.status = 'in_progress'
-    s.save!
-    assert_equal '<span id="oembed__status" class="l">status_in_progress</span>', pm.last_status_html
-    assert_equal '#FFBB5D', pm.last_status_color.upcase
-  end
-
   test "should get claim description only if it has been set" do
     RequestStore.store[:skip_cached_field_update] = false
     c = create_claim_media quote: 'Test'
@@ -1322,7 +1269,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get time to first and last status" do
-    create_translation_status_stuff
     create_verification_status_stuff(false)
     u = create_user
     t = create_team
@@ -1380,8 +1326,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should back status to active if required task added to resolved item" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     p = create_project
     pm = create_project_media project: p
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -1518,8 +1463,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not return to active status if required task added to resolved item but status is locked" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     p = create_project
     pm = create_project_media project: p
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -1539,13 +1483,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'verified', pm.last_verification_status
   end
 
-  test "should expose target languages" do
-    pm = create_project_media
-    assert_nothing_raised do
-      JSON.parse(pm.target_languages)
-    end
-  end
-
   test "should have status permission" do
     u = create_user
     t = create_team
@@ -1562,13 +1499,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Annotation.delete_all
     assert_nothing_raised do
       assert_nil pm.last_verification_status_obj
-      assert_nil pm.last_translation_status_obj
     end
   end
 
   test "should return whether in final state or not" do
     create_verification_status_stuff
-    create_translation_status_stuff(false)
     pm = create_project_media
     assert_equal false, pm.is_finished?
     s = pm.last_status_obj
@@ -1995,36 +1930,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
   end
 
-  test "should get analysis for embed" do
-    ft = create_field_type field_type: 'boolean', label: 'Boolean'
-    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
-    create_field_instance annotation_type_object: at, name: 'memebuster_show_analysis', label: 'Memebuster Show Analysis', field_type_object: ft, optional: false
-    ft = create_field_type field_type: 'text', label: 'Text'
-    at = create_annotation_type annotation_type: 'analysis', label: 'Analysis'
-    create_field_instance annotation_type_object: at, name: 'analysis_text', label: 'Analysis Text', field_type_object: ft, optional: false
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_nil pm.reload.embed_analysis
-    a = random_string
-    create_dynamic_annotation annotation_type: 'analysis', annotated: pm, set_fields: { analysis_text: a }.to_json
-    assert_nil pm.reload.embed_analysis
-    t.embed_analysis = true
-    t.save!
-    assert_equal a, pm.reload.embed_analysis
-    d = create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_show_analysis: false }.to_json
-    assert_nil pm.reload.embed_analysis
-    d = Dynamic.find(d.id)
-    d.set_fields = { memebuster_show_analysis: true }.to_json
-    d.save!
-    assert_equal a, pm.reload.embed_analysis
-    t.embed_analysis = false
-    t.save!
-    assert_equal a, pm.reload.embed_analysis
-    d.destroy!
-    assert_nil pm.reload.embed_analysis
-  end
-
   test "should add to list" do
     t = create_team
     p1 = create_project team: t
@@ -2180,5 +2085,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
       s.status = 'done'
       s.save!
     end
+  end
+
+  test "should clear caches when report is updated" do
+    ProjectMedia.any_instance.unstub(:clear_caches)
+    Sidekiq::Testing.inline! do
+      CcDeville.stubs(:clear_cache_for_url).times(3)
+      pm = create_project_media
+      pm.skip_clear_cache = false
+      RequestStore.store[:skip_clear_cache] = false
+      PenderClient::Request.stubs(:get_medias)
+      publish_report(pm)
+    end
+    CcDeville.unstub(:clear_cache_for_url)
+    PenderClient::Request.unstub(:get_medias)
+    ProjectMedia.any_instance.stubs(:clear_caches)
   end
 end

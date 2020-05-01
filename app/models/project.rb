@@ -1,5 +1,5 @@
 class Project < ActiveRecord::Base
-  include CheckNotifications::Pusher
+  include CheckPusher
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
@@ -99,10 +99,6 @@ class Project < ActiveRecord::Base
 
   def slack_channel=(channel)
     self.send(:set_slack_channel, channel)
-  end
-
-  def viber_token=(token)
-    self.send(:set_viber_token, token)
   end
 
   def admin_label

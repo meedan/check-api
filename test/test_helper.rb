@@ -76,8 +76,7 @@ class ActiveSupport::TestCase
     MediaSearch.create_index
     Rails.stubs(:env).returns('development')
     RequestStore.store[:disable_es_callbacks] = false
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     sleep 2
   end
 
@@ -146,9 +145,9 @@ class ActiveSupport::TestCase
     ApiKey.current = Team.current = User.current = nil
     Team.unstub(:current)
     User.unstub(:current)
-    WebMock.stub_request(:post, /#{Regexp.escape(CONFIG['bridge_reader_url_private'])}.*/) unless CONFIG['bridge_reader_url_private'].blank?
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
+    WebMock.stub_request(:get, /#{CONFIG['narcissus_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     RequestStore.store[:skip_cached_field_update] = true
   end
 
@@ -480,26 +479,12 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
-  def create_translation_status_stuff(delete_existing = true)
-    if delete_existing
-      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
-      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
-    end
-    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
-    ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
-    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', default_value: 'pending', field_type_object: ft1, optional: false
-    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
-    create_field_instance annotation_type_object: at, name: 'translation_status_approver', label: 'Translation Status Approver', field_type_object: ft2, optional: true
-  end
-
   def setup_smooch_bot(menu = false)
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
     DynamicAnnotation::Field.delete_all
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -692,6 +677,40 @@ class ActiveSupport::TestCase
       }
     }.to_json
     Bot::Smooch.run(payload)
+  end
+
+  def publish_report(pm = nil, data = {}, report = nil)
+    pm ||= create_project_media
+    r = report || create_report(pm, data)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'published' }.to_json
+    r.action = 'publish'
+    r.save!
+    r
+  end
+
+  def create_report(pm, data = {}, action = 'save')
+    create_report_design_annotation_type if DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last.nil?
+    r = create_dynamic_annotation annotation_type: 'report_design', annotated: pm
+    default_data = {
+      state: 'paused',
+      status_label: random_string,
+      description: random_string,
+      headline: random_string,
+      use_visual_card: true,
+      use_introduction: true,
+      introduction: 'Regarding {{query_message}} on {{query_date}}, it is {{status}}.',
+      theme_color: '#FF0000',
+      url: random_url,
+      use_text_message: true,
+      text: random_string,
+      use_disclaimer: true,
+      disclaimer: random_string
+    }
+    r.set_fields = default_data.merge(data).to_json
+    r.action = action
+    r.save!
+    r
   end
 
   # Document GraphQL queries in Markdown format

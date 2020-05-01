@@ -3,7 +3,7 @@ class Source < ActiveRecord::Base
 
   include HasImage
   include CheckElasticSearch
-  include CheckNotifications::Pusher
+  include CheckPusher
   include ValidationsHelper
   include CustomLock
 

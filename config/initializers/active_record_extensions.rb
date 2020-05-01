@@ -3,7 +3,7 @@ module ActiveRecordExtensions
 
   included do
     include CheckPermissions
-    include CheckNotifications::Pusher
+    include CheckPusher
     include CheckSettings
     include CheckCachedFields
 

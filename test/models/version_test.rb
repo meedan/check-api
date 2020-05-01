@@ -59,8 +59,7 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should get projects" do
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     v = create_version
     t = create_team
     p1 = create_project team: t

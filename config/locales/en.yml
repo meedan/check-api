@@ -3,7 +3,6 @@ en:
   statuses:
     ids:
       verification_status: verification
-      translation_status: translation
       task_status: task
     task:
       unresolved:
@@ -80,22 +79,6 @@ en:
       sockpuppet:
         label: Sockpuppet
         description: 'Conclusion: the source is a sockpuppet'
-    translation:
-      pending:
-        label: Pending
-        description: Default, just added, no work has started
-      in_progress:
-        label: In Progress
-        description: Work has begun, but no translation made yet
-      translated:
-        label: Translated
-        description: Translation is done, waiting for review
-      ready:
-        label: Ready
-        description: Translation has been reviewed and approved for publishing
-      error:
-        label: Error
-        description: Translation has been reviewed and an error was found
   errors:
     messages:
       invalid_password: Invalid password
@@ -269,17 +252,7 @@ en:
       delete_team_scheduled: The workspace %{team} is being deleted
   email_not_found: E-mail not found
   slack_channel_format_wrong: Invalid Slack channel
-  translation_status_not_valid: Invalid status
-  translation_status_permission_error: Sorry, you are not allowed to make this status
-    change.
-  translation_request_id_exists: There is already a translation request for this message
-  auto_publisher_added_to_project: Thanks! Now all new translations under list %{project}
-    will be automatically published to this account on %{provider}. If you change
-    your mind, please contact the administrator or simply revoke the Bridge authorization
-    from %{provider}.
   invalid_token: Invalid Token
-  viber_screenshot_footer: "%{target_language} translation from %{source_language}:
-    “%{source_text}”"
   time:
     formats:
       oembed: "%B %d, %Y"
@@ -564,8 +537,6 @@ en:
     your request further. Thank you.
   smooch_bot_message_type_unsupported: Sorry, we don't support this type of message.
   smooch_bot_message_size_unsupported: Sorry, we don't support files larger than %{max_size}.
-  smooch_bot_meme: Here's a meme we created based on the item you have requested that
-    we verify. Learn more at %{url}.
   smooch_bot_result: |-
     [Verification Report] The item that you shared with us is marked *%{status}*.
 
@@ -586,10 +557,8 @@ en:
     It is still in our queue for further verification.
   smooch_bot_disabled: Thank you for sending this message. We are unable to send back
     any verification reports, because this project is no longer active.
-  smooch_bot_result_changed: |-
-    [Verification Report - CORRECTION] The message you shared with us has changed from *%{previous_status}* to *%{status}*.
-
-    Here are the steps we took to determine this: %{url}
+  smooch_bot_result_changed: "❗️The fact-check that we sent to you has been *updated*
+    with new information"
   permissions_info:
     roles:
       owner:
@@ -671,7 +640,6 @@ en:
   embed_expand_all: Expand all
   embed_collapse_all: Collapse all
   embed_tasks: Tasks
-  embed_analysis: Analysis
   embed_description: Description
   other_language: Other
   unidentified_language: Unidentified
@@ -743,6 +711,8 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
+  cant_change_status_if_item_is_published: Sorry, you can't change the status while
+    the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
@@ -760,6 +730,47 @@ en:
   custom_message_status_sugestao_afp-checamos: Sugestão
   custom_message_status_necessario-mais-dados_afp-checamos: Necessário mais dados
   custom_message_status_checamos_afp-checamos: Checamos
+  custom_message_status_resources_afp-checamos: Resources
+  custom_message_smooch_bot_result_afp-checamos: "[Seu conteúdo foi verificado] \n\n
+    A mensagem que você compartilhou conosco foi classificada como %{status}.\n\nEsses
+    são os passos que seguimos para chegar a esta conclusão: %{url}\n\n"
+  custom_message_smooch_bot_result_changed_afp-checamos: 'A checagem que nós enviamos
+    foi *atualizada* com novas informações:'
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: |
+    Agradecemos o contato. Deseja verificar este conteúdo?
+
+    Para dizer sim, *responda com o número 1*.  Qualquer outra resposta irá encerrar nossa conversa.
+  custom_message_smooch_bot_message_confirmed_afp-checamos: "Agradecemos a sua mensagem.
+    A equipe de verificação do AFP Checamos irá analisar o conteúdo.\n \nResponda
+    *0* caso queira voltar ao menu principal."
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: Desculpe, este
+    formato de arquivo ainda não é compatível com o nosso processo de verificação.
+    Nosso sistema identifica vídeos, fotos, textos e links.
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: Como você não respondeu
+    com o número 1, não processaremos mais a sua solicitação. Agradecemos o contato.
+  custom_message_smooch_bot_not_final_afp-checamos: "Olá, o conteúdo que você nos
+    enviou foi incorretamente classificado como %{previous_status}. Sentimos muito
+    pelo erro. Em breve, você receberá a conclusão correta. \n\nO conteúdo ainda está
+    na nossa fila para verificação adicional.\n"
+  custom_message_smooch_bot_meme_afp-checamos: Você pode enviar para este número informações,
+    fotos ou vídeos que gostaria que fossem checados. Se estiver dentro do nosso escopo,
+    iremos adicioná-lo à fila de verificação.
+  custom_message_smooch_bot_window_closing_afp-checamos: 'Olá, o volume de solicitações
+    está muito alto e ainda não conseguimos responder o seu pedido. Fique à vontade
+    para nos enviar outra mensagem. Contamos com a sua compreensão. '
+  custom_message_smooch_bot_disabled_afp-checamos: Agradecemos o contato. Não foi
+    possível enviar nenhum resultado porque este projeto não está mais ativo.
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: 'Check Message é o software
+    utilizado nesta linha de verificação e é fornecido sob estes Termos de Serviço:
+    https://meedan.com/check/check_message_tos_pt.html'
+  custom_message_smooch_bot_greetings_afp-checamos: "Olá, bem-vindo ao WhatsApp do
+    *AFP Checamos*, a equipe de verificação da AFP, agência internacional de notícias.\n\n\U0001F50DPor
+    aqui você pode enviar textos, fotos ou vídeos que gostaria que fossem verificados.
+    Nosso trabalho é checar conteúdos viralizados em redes sociais como, por exemplo,
+    de Política, Saúde, Meio Ambiente, Cultura e Economia. Este serviço é totalmente
+    gratuito."
+  custom_message_smooch_bot_option_not_available_afp-checamos: Desculpe, não entendi
+    a sua mensagem. Por favor, tente novamente.
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: 'Olá,
     agradecemos o contato e a sugestão.  Nossa equipe tem trabalhado diariamente para
     verificar boatos relacionados ao novo coronavírus. Você pode conferir tudo que
@@ -771,10 +782,6 @@ en:
     de checagem. Esperamos poder ajudá-lo em outra oportunidade.   O AFP Checamos
     verifica informações, fotos e vídeos amplamente compartilhados em redes sociais,
     sobre temas como Política, Cultura, Meio Ambiente, Saúde e Economia.
-  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: "\U0001F50D
-    Olá, agradecemos o contato e a sugestão.   Nossa equipe irá analisar o conteúdo
-    e, caso seja feita uma checagem, você receberá a conclusão via WhatsApp.  O artigo
-    também será publicado em nosso site: https://checamos.afp.com/\""
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: 'A
     France-Presse (AFP) é uma agência internacional de notícias fundada na França
     há mais de 180 anos.   Em 2017, foi criado o serviço de verificação de informações,
@@ -904,7 +911,7 @@ en:
     fact checks on our site in the meantime, and share with your friends and family:
     boomlive.in"
   custom_message_smooch_bot_disabled_boom-factcheck: |-
-    We're away from our WhatsApp right now - please send us a message again later.
+    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
 
     Contact us at *https://www.boomlive.in/get-in-touch/* for further inquiries.
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'The software that powers
@@ -965,9 +972,8 @@ en:
     question or 0 to go back to main menu.
   custom_message_status_undetermined_check-message-demo: Unstarted
   custom_message_status_in_progress_check-message-demo: In Progress
-  custom_message_status_inconclusive_check-message-demo: Needs onboarding
   custom_message_status_false_check-message-demo: 'False'
-  custom_message_status_verified_check-message-demo: Correct
+  custom_message_status_verified_check-message-demo: 'True'
   custom_message_status_not_applicable_check-message-demo: Out of scope
   custom_message_status_report-true_check-message-demo: 'Report: Correct'
   custom_message_status_report-false_check-message-demo: 'Report: False'
@@ -975,11 +981,10 @@ en:
   custom_message_smooch_bot_result_changed_check-message-demo: "❗️The fact-check that
     we sent to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_check-message-demo: "Thank you! Your
-    request has been received. Responses are being aggregated and sorted, and we're
-    working on fact-checking your questions.\n      \n✔️*Follow this link for an updated
-    list of common questions that we have fact-checked:* [ Link to a page of fact-checks
-    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
-    Menu* \U0001F4CC"
+    request has been received. Responses are being sorted, and we're working on fact-checking
+    your questions.\n      \n✔️*Follow this link for an updated list of common questions
+    that we have fact-checked: meedan.com\n\n\U0001F449*Reply with any text* to get
+    back to the *Main Menu* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: "❌Sorry,
     we can't accept this type of message for verification at this time. \n      \nWe
     can accept most images, videos, links, text messages, and shared WhatsApp messages."
@@ -988,9 +993,9 @@ en:
     or other contact]* for further inquiries."
   custom_message_smooch_bot_ask_for_tos_check-message-demo: 'This service is provided
     under the following Terms of Services: %{tos}'
-  custom_message_smooch_bot_greetings_check-message-demo: Hi! Welcome to Meedan's
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
+  custom_message_smooch_bot_greetings_check-message-demo: Hi! Welcome to Meedan. We
+    fact-check claims, videos and images related to topics such as politics, health,
+    finance, and technology.
   custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916I'm
     sorry, I didn't understand your message. Please try again!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: "\U0001F4CC*Main
@@ -1187,6 +1192,33 @@ en:
   custom_message_status_d-archive_mmtan-2: D - Archived
   custom_message_status_f-progress_mmtan-2: F - In progress
   custom_message_status_f-archived_mmtan-2: F - Archived
+  custom_message_status_undetermined_mtan: D-in progress
+  custom_message_status_standard_mtan: D-Archive
+  custom_message_status_moderate_mtan: F-In progress
+  custom_message_status_urgent_mtan: F-Archive
+  custom_message_status_all_items_mtan: All items
+  custom_message_status_resources_mtan: Resources
+  custom_message_status_true_mtan: 'True'
+  custom_message_status_false_mtan: 'False'
+  custom_message_smooch_bot_result_changed_mtan: "❗️The fact-check that we sent to
+    you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_mtan: "Thank for flagging - My team
+    will look into this!\n\n\U0001F9A0If this is COVID-19 related - see our fact file:
+    www.realornotmm.info/2020/01/27/coronavirus_covid-19_fact-file \n      \n✔️Review
+    our existing fact-checks: www.realornotmm.info \n\n\U0001F449*Reply with any text*
+    to get back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_mtan: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    links, images, videos, and text messages. "
+  custom_message_smooch_bot_disabled_mtan: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_mtan: 'This service is provided under the
+    following Terms of Services: %{tos}'
+  custom_message_smooch_bot_greetings_mtan: "Hi! I’m check-bot. I work with MIDO’s
+    team of fact checkers to help you distinguish between what’s *real or not* \n"
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
     y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
   custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue

@@ -498,6 +498,8 @@ class GraphqlCrudOperations
 
       field :image_data, JsonStringType
 
+      field :data, JsonStringType
+
       instance_eval(&block) if block_given?
     end
   end
