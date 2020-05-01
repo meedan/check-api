@@ -73,7 +73,7 @@ Dynamic.class_eval do
       uri = URI("#{CONFIG['narcissus_url']}/?url=#{temp_url}&selector=%23frame")
       request = Net::HTTP::Get.new(uri)
       request['x-api-key'] = CONFIG['narcissus_token']
-      response = Net::HTTP.start(uri.hostname, uri.port) { |http| http.request(request) }
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
       screenshot = JSON.parse(response.body)['url']
       raise "Unexpected response from screenshot service: #{screenshot}" unless screenshot =~ /^http/
       self.set_fields = self.data.merge({ visual_card_url: screenshot }).to_json
