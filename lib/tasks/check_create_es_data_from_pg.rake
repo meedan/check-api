@@ -44,8 +44,6 @@ namespace :check do
           if obj.class.name == 'ProjectMedia'
             # status
             doc.verification_status = obj.last_status
-            ts = obj.annotations.where(annotation_type: "translation_status").last
-            doc.translation_status = ts.load.status unless ts.nil?
             # tags
             tags = obj.get_annotations('tag').map(&:load)
             doc.tags = tags.collect{|t| {id: t.id, tag: t.tag_text}}

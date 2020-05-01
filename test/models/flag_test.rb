@@ -54,15 +54,11 @@ class FlagTest < ActiveSupport::TestCase
     assert_nothing_raised do
       create_flag set_fields: valid_flags_data.to_json
     end
-    missing_key = valid_flags_data ; missing_key[:flags].delete('spam')
-    extra_key = valid_flags_data ; extra_key[:flags]['foo'] = 3
     value_less_than_min = valid_flags_data ; value_less_than_min[:flags]['spam'] = -1
     value_greater_than_max = valid_flags_data ; value_greater_than_max[:flags]['spam'] = 6
     [
       { noflags: 'test' },
       { flags: ['foo', 'bar'] },
-      missing_key,
-      extra_key,
       value_less_than_min,
       value_greater_than_max
     ].each do |data|

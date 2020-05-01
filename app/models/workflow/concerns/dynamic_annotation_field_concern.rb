@@ -16,12 +16,6 @@ module Workflow
           self.value if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
         end
 
-        def status=(value)
-          if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
-            self.value = value
-          end
-        end
-
         def index_on_es
           self.update_elasticsearch_doc([self.annotation_type], { self.annotation_type => self.value }, self.annotation.annotated)
         end
@@ -77,8 +71,6 @@ module Workflow
             self.workflow_completed_options
           when :non_terminal
             self.workflow_incompleted_options
-          else
-            [key].flatten.map(&:to_s)
           end
         end
 

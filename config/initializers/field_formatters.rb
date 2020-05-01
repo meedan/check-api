@@ -15,13 +15,6 @@ DynamicAnnotation::Field.class_eval do
     response_value(self.value)
   end
 
-  def field_formatter_mt_mt_translations
-    response = JSON.parse(self.value)
-    return [] if response.blank?
-    response.each{|v| v['lang_name'] = CheckCldr.language_code_to_name(v['lang'])}
-    response
-  end
-
   def field_formatter_type_geojson
     geojson = JSON.parse(self.value)
     value = geojson['properties']['name']

@@ -33,9 +33,9 @@ public/project_export
 public/events.json
 config/credentials.json
 *.rdb
-public/memebuster/*
-!public/memebuster/default-template.svg
-public/memebuster
+public/report_design/*
+!public/report_design/default-template.svg
+public/report_design
 public/team_dump
 .idea
 .vscode/launch.json

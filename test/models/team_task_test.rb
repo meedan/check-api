@@ -4,8 +4,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   def setup
     super
     TeamTask.delete_all
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     create_task_status_stuff(false)
   end
 

@@ -3,124 +3,45 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Language" id="oembed__meta-content-language" content="">
     <title><%= @project_media.title %></title>
     <link href="<%= CONFIG['checkdesk_base_url'] %>/css/oembed.css?t=201904021148" rel="stylesheet" type="text/css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-    <script src="<%= CONFIG['checkdesk_base_url'] %>/javascripts/timeago/jquery.timeago.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js"></script>
-
-    <script>
-      var host = '<%= CONFIG['checkdesk_base_url'] %>';
-      var locales = <%= I18n.available_locales.to_json.html_safe %>;
-      var translations = {
-        <% I18n.available_locales.map(&:to_s).each do |locale| %>
-        <%= locale %>: {
-          expand_all: "<%= I18n.t(:embed_expand_all, locale: locale) %>",
-          collapse_all: "<%= I18n.t(:embed_collapse_all, locale: locale) %>",
-          tasks: "<%= I18n.t(:embed_tasks, locale: locale) %>",
-          description: "<%= I18n.t(:embed_description, locale: locale) %>",
-          analysis: "<%= I18n.t(:embed_analysis, locale: locale) %>",
-          <% Workflow::Workflow.options(@project_media, 'verification_status').with_indifferent_access[:statuses].each do |status| %>
-          "status_<%= status[:id] %>": "<%= @project_media.status_i18n(status[:id], { locale: locale }) %>",
-          <% end %>
-        },
-        <% end %>
-      };
-    </script>
   </head>
   <body>
-    <div id="oembed__container" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>" style="background-color: <%= @project_media.last_status_color %>;"></div>
-    <div id="oembed__content-container">
-      <div id="oembed__top" class="oembed__card">
-        <p id="oembed__last-status" class="oembed__status-<%= @project_media.last_status.to_s.gsub('_', '-') %>"><%= @project_media.last_status_html %></p> 
-        <% if @project_media.title != @project_media.text %>
-          <p id="oembed__title" dir="auto"><%= @project_media.title %></p>
-        <% end %>
-        <div id="oembed__content">
+    <article id="container">
+      <div id="content">
         <%
-          meme_annotation = @project_media.get_dynamic_annotation('memebuster')
-          meme = (meme_annotation && CheckS3.exist?(meme_annotation.memebuster_filepath)) ? meme_annotation.memebuster_url : nil
-          picture = @project_media.media.picture
+          annotation = @project_media.get_dynamic_annotation('report_design')
+          image = (annotation && annotation.get_field_value('use_visual_card')) ? annotation.report_design_image_url : nil
+          text = (annotation && annotation.get_field_value('use_text_message')) ? annotation.report_design_text : nil
         %>
-        <% if meme %>
-          <img src="<%= meme %>" class="oembed__meme" alt="" />
-        <% elsif @project_media.metadata&.send(:[], 'provider') == 'youtube' && !@project_media.metadata['html'].blank? %>
-          <%= @project_media.metadata['html'].html_safe %>
-        <% else %>
-          <div id="oembed__content-content">
-            <% unless picture.blank? %>
-              <div id="oembed__content-col-1">
-                <img src="<%= picture %>" alt="" />
-              </div>
-            <% end %>
-            <% unless @project_media.text.blank? %>
-              <div id="oembed__content-col-2" class="oembed__linkify" dir="auto">
-                <p><%= @project_media.text %></p>
-              </div>
-            <% end %>
+        <% if image %>
+          <div id="image">
+            <img src="<%= image %>" alt="" />
           </div>
         <% end %>
-        </div>
-        <% unless @project_media.media.url.blank? %>
-          <div id="oembed__link"><a href="<%= @project_media.media.url %>" target="_blank"><%= @project_media.media.url %></a></div>
+        <% if text %>
+          <div id="text" class="linkify">
+            <p><%= simple_format(text).gsub(/\*([^*]*)\*/, '<b>\1</b>').gsub(/_([^_]*)_/, '<i>\1</i>').gsub(/```([^`]*)```/, '<code>\1</code>').gsub(/~([^~]*)~/, '<strike>\1</strike>').html_safe %></p>
+          </div>
         <% end %>
       </div>
-
-      <% if !@project_media.description.blank? && @project_media.description != @project_media.text %>
-        <h2 class="oembed__subtitle"><span class="l">description</span></h2>
-        <div id="oembed__description" class="oembed__card oembed__linkify" dir="auto">
-          <%= @project_media.description %>
-        </div>
-      <% end %>
-
-      <% if @project_media.embed_analysis %>
-        <h2 class="oembed__subtitle"><span class="l">analysis</span></h2>
-        <div id="oembed__description" class="oembed__card oembed__linkify" dir="auto">
-          <%= @project_media.embed_analysis %>
-        </div>
-      <% end %>
-
-      <% 
-        tasks = @project_media.completed_tasks_to_show.to_a
-        if tasks.size > 0
-      %>
-        <h2 class="oembed__subtitle" id="oembed__subtitle-tasks">
-          <span class="l">tasks</span>
-          <div id="oembed__tasks-info">
-            <span class="l" id="oembed__tasks-expand-all">expand_all</span>
-            <span class="l" id="oembed__tasks-collapse-all" style="display: none;">collapse_all</span>
-          </div>
-        </h2>
-
-        <% tasks.each do |task| %>
-          <div class="oembed__task oembed__card">
-            <p class="oembed__task-question" dir="auto"><%= task.label %></p>
-            <p class="oembed__task-answer oembed__collapsed-text oembed__collapsable-text oembed__linkify" dir="auto"><%= task.first_response %></p>
-          </div>
-        <% end %>
-      <% end %>
-
-      <div id="oembed__footer">
-        <% team = @project_media.team %>
-        <p><img src="<%= team.avatar %>" alt="" /> <span id="oembed__team-name" dir="auto"><%= team.name %></span></p>
-        <p class="oembed__linkify" id="oembed__team-disclaimer" dir="auto"><%= @project_media.embed_disclaimer %></p>
-      </div>
-    </div> <!-- / #oembed__content-container -->
+    </article>
 
     <script src="<%= CONFIG['checkdesk_base_url'] %>/javascripts/oembed.js?t=201904021148"></script>
 
     <% unless CONFIG['google_analytics_code'].blank? %>
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', '<%= CONFIG["google_analytics_code"] %>', 'auto');
-      ga('set', 'anonymizeIp', true); // make it GDPR-compliant
-      ga('send', 'pageview');
-    </script>
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('create', '<%= CONFIG["google_analytics_code"] %>', 'auto');
+        ga('set', 'anonymizeIp', true); // make it GDPR-compliant
+        ga('send', 'pageview');
+      </script>
     <% end %>
   </body>
 </html>

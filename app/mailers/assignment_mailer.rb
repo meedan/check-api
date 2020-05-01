@@ -37,8 +37,8 @@ class AssignmentMailer < ApplicationMailer
       role = I18n.t("role_" + author.role(team).to_s)
       profile_image = author.profile_image
     end
-    # map verification_status and translation_status to one event called "item"
-    event_key = event.to_s.gsub("verification_status", "media").gsub("translation_status", "media")
+    # map verification_status to one event called "item"
+    event_key = event.to_s.gsub("verification_status", "media")
     model = event_key.partition('_').last
     info = {
       event_key: event_key,

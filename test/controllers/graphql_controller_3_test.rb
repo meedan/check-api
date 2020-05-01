@@ -11,10 +11,9 @@ class GraphqlController3Test < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
   end
-  
+
   test "should avoid n+1 queries problem" do
     n = 2 # Number of media items to be created
     m = 2 # Number of annotations per media
@@ -26,7 +25,7 @@ class GraphqlController3Test < ActionController::TestCase
     with_current_user_and_team(u, t) do
       n.times do
         pm = create_project_media project: p, disable_es_callbacks: false
-        m.times { create_comment annotated: pm, annotator: u, disable_es_callbacks: false } 
+        m.times { create_comment annotated: pm, annotator: u, disable_es_callbacks: false }
       end
     end
     sleep 4
@@ -86,8 +85,8 @@ class GraphqlController3Test < ActionController::TestCase
     pm1b = create_project_media project: p1b, disable_es_callbacks: false ; sleep 1
     pm1b.disable_es_callbacks = false ; pm1b.updated_at = Time.now ; pm1b.save! ; sleep 1
     pm1a.disable_es_callbacks = false ; pm1a.updated_at = Time.now ; pm1a.save! ; sleep 1
-    pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: true ; sleep 1 
-    pm1d = create_project_media project: p1a, disable_es_callbacks: false, inactive: true ; sleep 1 
+    pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: true ; sleep 1
+    pm1d = create_project_media project: p1a, disable_es_callbacks: false, inactive: true ; sleep 1
     t2 = create_team
     p2 = create_project team: t2
     pm2 = []
@@ -142,9 +141,9 @@ class GraphqlController3Test < ActionController::TestCase
 
     # Relationships
     pm1e = create_project_media project: p1a, disable_es_callbacks: false ; sleep 1
-    pm1f = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 1' ; sleep 1 
-    pm1g = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 2' ; sleep 1 
-    pm1h = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 3' ; sleep 1 
+    pm1f = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 1' ; sleep 1
+    pm1g = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 2' ; sleep 1
+    pm1h = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 3' ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1f.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
@@ -470,7 +469,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_queries 17, '=' do
       post :create, query: query, team: 'team'
     end
-    
+
     assert_response :success
     result = JSON.parse(@response.body)['data']['search']
     assert_equal 1, result['number_of_results']
@@ -494,7 +493,7 @@ class GraphqlController3Test < ActionController::TestCase
     p1 = create_project team: t
     p2 = create_project team: t
     p3 = create_project team: t
-    
+
     pm1 = create_project_media project: p1, disable_es_callbacks: false
     create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
 
@@ -538,7 +537,7 @@ class GraphqlController3Test < ActionController::TestCase
     p1 = create_project team: t
     p2 = create_project team: t
     p3 = create_project team: t
-    
+
     pm1 = create_project_media project: p1, media: create_claim_media(quote: 'test 1'), disable_es_callbacks: false
     create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
 
@@ -617,7 +616,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
-    
+
     post :create, query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
     assert_response :success
     assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
@@ -737,9 +736,9 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should check permission before set slack channel url" do
+  test "should check permission before setting Slack channel URL" do
     create_annotation_type_and_fields('Smooch User', {
-        'Slack Channel Url' => ['Text', true]
+      'Slack Channel Url' => ['Text', true]
     })
     u = create_user
     t = create_team
@@ -751,5 +750,19 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
     post :create, query: query
     assert_response 400
+  end
+
+  test "should delete tag" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    tg = create_tag annotated: pm
+    id = Base64.encode64("Tag/#{tg.id}")
+    query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
+    post :create, query: query
+    assert_response :success
   end
 end

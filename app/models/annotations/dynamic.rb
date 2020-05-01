@@ -120,8 +120,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def add_update_elasticsearch_dynamic(op)
-    skip_types = ['translation_status']
-    return if self.disable_es_callbacks || skip_types.include?(self.annotation_type)
+    return if self.disable_es_callbacks
     op = 'create_or_update' if annotation_type == 'smooch'
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})
@@ -162,7 +161,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_data
-    self.data = JSON.parse(self.set_fields).with_indifferent_access if !self.set_fields.blank? && !self.json_schema.blank?
+    self.data = self.data.merge(JSON.parse(self.set_fields)) if !self.set_fields.blank? && !self.json_schema.blank?
   end
 
   def mandatory_fields_are_set
@@ -208,7 +207,7 @@ class Dynamic < ActiveRecord::Base
 
   def fields_against_json_schema
     begin
-      JSON::Validator.validate!(self.json_schema, self.read_attribute(:data), strict: true) unless self.json_schema.blank?
+      JSON::Validator.validate!(self.json_schema, self.read_attribute(:data)) unless self.json_schema.blank?
     rescue JSON::Schema::ValidationError => e
       errors.add(:base, e.message)
     end

@@ -3,7 +3,6 @@ es:
   statuses:
     ids:
       verification_status: verificación
-      translation_status: traducción
       task_status: tarea
     task:
       unresolved:
@@ -73,22 +72,6 @@ es:
       sockpuppet:
         label: Farsante
         description: 'Conclusión: la fuente es un farsante  '
-    translation:
-      pending:
-        label: Pendiente
-        description: 'Predeterminado, no se ha iniciado ningún trabajo. '
-      in_progress:
-        label: En progreso
-        description: El trabajo ha comenzado, pero aún no se realizó ninguna traducción
-      translated:
-        label: Traducido
-        description: La traducción está lista, esperando la revisión
-      ready:
-        label: Listo
-        description: La traducción fue revisada y aprobada para su publicación
-      error:
-        label: Incorrecto
-        description: La traducción fue revisada y se encontraron errores
   errors:
     messages:
       invalid_password: Contraseña incorrecta
@@ -264,17 +247,7 @@ es:
       delete_team_scheduled: El área de trabajo %{team} está siendo eliminado
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: Canal de Slack inválido
-  translation_status_not_valid: Estado inválido
-  translation_status_permission_error: Lo sentimos, no tienes autorización para hacer
-    este cambio de estado.
-  translation_request_id_exists: 'Ya existe una solicitud de traducción para este
-    mensaje '
-  auto_publisher_added_to_project: "¡Gracias! ahora todas las traducciones nuevas
-    en la lista %{project} se publicarán automáticamente en esta cuenta de %{provider}.
-    Si cambias de opinión, ponte en contacto con el administrador o simplemente revoca
-    la autorización de Bridge de %{provider}."
   invalid_token: Token inválido
-  viber_screenshot_footer: "%{target_language} traducción de %{source_language}: “%{source_text}”"
   time:
     formats:
       oembed: "%B %d, %Y"
@@ -579,8 +552,6 @@ es:
     no los procesamos.
   smooch_bot_message_size_unsupported: Lo sentimos, no procesamos archivos más grandes
     que %{max_size}.
-  smooch_bot_meme: Hicimos este meme gracias a la pregunta que nos enviaste para que
-    verificáramos, ¡compártelo! Mira más en %{url}.
   smooch_bot_result: |-
     [Informe de Verificación] El mensaje que compartiste con nosotros ha sido marcado como  *%{status}*.
 
@@ -601,10 +572,8 @@ es:
     Todavía está en nuestra cola de verificación para añadirle información adicional.
   smooch_bot_disabled: Gracias por enviar este mensaje. No podemos devolver ningún
     informe de verificación, porque este proyecto ya no está activo.
-  smooch_bot_result_changed: |-
-    [Informe de Verificación - CORRECCIÓN] El mensaje que compartiste con nosotros cambió de *%{previous_status}* a*%{status}*.
-
-    Este es el proceso que seguimos para llegar a esta conclusión: %{url}
+  smooch_bot_result_changed: "❗️La verificación de datos que le enviamos se ha *actualizado*
+    con nueva información"
   permissions_info:
     roles:
       owner:
@@ -690,7 +659,6 @@ es:
   embed_expand_all: Expandir todo
   embed_collapse_all: Contraer todo
   embed_tasks: Tareas
-  embed_analysis: Análisis
   embed_description: 'Descripción '
   other_language: Otro
   unidentified_language: No identificado
@@ -765,6 +733,8 @@ es:
   flag_likelihood_5: Muy probable
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
+  cant_change_status_if_item_is_published: Lo sentimos, no puede cambiar el estado
+    mientras se publica el informe
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -782,9 +752,22 @@ es:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_checamos_afp-checamos: ''
+  custom_message_status_resources_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-checamos: ''
+  custom_message_smooch_bot_result_changed_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
+  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
+  custom_message_smooch_bot_not_final_afp-checamos: ''
+  custom_message_smooch_bot_meme_afp-checamos: ''
+  custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_greetings_afp-checamos: ''
+  custom_message_smooch_bot_option_not_available_afp-checamos: ''
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_cabae12641fdce568a3faf563e247c89_afp-checamos: ''
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
   custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
@@ -812,15 +795,6 @@ es:
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
-  custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_result_changed_boom-factcheck: ''
-  custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
-  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
-  custom_message_smooch_bot_not_final_boom-factcheck: ''
-  custom_message_smooch_bot_meme_boom-factcheck: ''
-  custom_message_smooch_bot_window_closing_boom-factcheck: ''
-  custom_message_smooch_bot_disabled_boom-factcheck: ''
-  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -862,7 +836,6 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
-  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
@@ -974,6 +947,21 @@ es:
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
   custom_message_status_f-archived_mmtan-2: ''
+  custom_message_status_undetermined_mtan: ''
+  custom_message_status_standard_mtan: ''
+  custom_message_status_moderate_mtan: ''
+  custom_message_status_urgent_mtan: ''
+  custom_message_status_all_items_mtan: ''
+  custom_message_status_resources_mtan: ''
+  custom_message_status_true_mtan: ''
+  custom_message_status_false_mtan: ''
+  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_smooch_bot_message_confirmed_mtan: ''
+  custom_message_smooch_bot_message_type_unsupported_mtan: ''
+  custom_message_smooch_bot_disabled_mtan: ''
+  custom_message_smooch_bot_ask_for_tos_mtan: ''
+  custom_message_smooch_bot_greetings_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: ''
   custom_message_smooch_bot_result_reverso: ''
   custom_message_smooch_bot_result_changed_reverso: ''
   custom_message_smooch_bot_ask_for_confirmation_reverso: ''

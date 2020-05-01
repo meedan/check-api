@@ -11,8 +11,7 @@ class GraphqlControllerTest < ActionController::TestCase
     Team.unstub(:current)
     User.current = nil
     Team.current = nil
-    create_translation_status_stuff
-    create_verification_status_stuff(false)
+    create_verification_status_stuff
     @team = create_team
   end
 
@@ -168,7 +167,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_token
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, annotations_count(annotation_type: \"translation\"), log_count } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, log_count } }"
     post :create, query: query
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
@@ -664,7 +663,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_comment annotated: pm, annotator: u
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"translation,comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id }, tag { id }, teams(first: 2) { edges { node { slug } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id }, tag { id }, teams(first: 2) { edges { node { slug } } } } } } } }"
     post :create, query: query, team: 'team'
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
@@ -1030,36 +1029,26 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Francês', languages['fr']
   end
 
-  test "should get translation statuses" do
-    create_translation_status_stuff
-    t = create_team
-    authenticate_with_user
-    post :create, query: 'query { team { translation_statuses } }', team: t.slug
-    assert_response :success
-    statuses = JSON.parse(@response.body)['data']['team']['translation_statuses']
-    assert_equal 'Pending', statuses['statuses'][0]['label']
-  end
-
   test "should get field value and dynamic annotation(s)" do
     [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
     create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     ft1 = create_field_type(field_type: 'select', label: 'Select')
     ft2 = create_field_type(field_type: 'text', label: 'Text')
-    at = create_annotation_type annotation_type: 'translation_status', label: 'Translation Status'
-    create_field_instance annotation_type_object: at, name: 'translation_status_status', label: 'Translation Status', field_type_object: ft1, optional: false
-    create_field_instance annotation_type_object: at, name: 'translation_status_note', label: 'Translation Status Note', field_type_object: ft2, optional: true
+    at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
+    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', field_type_object: ft1, optional: false
+    create_field_instance annotation_type_object: at, name: 'verification_status_note', label: 'Verification Status Note', field_type_object: ft2, optional: true
 
     authenticate_with_user
     p = create_project team: @team
     pm = create_project_media project: p
-    a = create_dynamic_annotation annotation_type: 'translation_status', annotated: pm, set_fields: { translation_status_status: 'translated' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"translation_status\") { dbid }, field_value(annotation_type_field_name: \"translation_status:translation_status_status\"), annotations(annotation_type: \"translation_status\") { edges { node { dbid } } } } }"
+    a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { dbid } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal a.id, data['annotation']['dbid'].to_i
     assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
-    assert_equal 'translated', data['field_value']
+    assert_equal 'verified', data['field_value']
   end
 
   test "should create media with custom field" do
@@ -1102,12 +1091,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", disclaimer: "Test", embed_tasks: "1,2" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", disclaimer: "Test" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
     assert_equal 'Test', t.reload.get_disclaimer
-    assert_equal '1,2', t.reload.get_embed_tasks
   end
 
   test "should read account sources from source" do

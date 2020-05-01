@@ -111,35 +111,14 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     s.save!
 
     child = create_project_media project: @project
-    create_relationship source_id: parent.id, target_id: child.id
-    s = child.annotations.where(annotation_type: 'verification_status').last.load
-    assert_equal 'undetermined', s.status
-
-    child = create_project_media project: @project
-    r = create_relationship source_id: parent.id, target_id: child.id, user: create_user
+    create_dynamic_annotation annotation_type: 'smooch', annotated: child, set_fields: { smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }.to_json }.to_json
+    r = create_relationship source_id: parent.id, target_id: child.id
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'verified', s.status
+
     r.destroy
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'undetermined', s.status
-  end
-
-  test "should get previous final status" do
-    u = create_user is_admin: true
-    with_current_user_and_team(u, @team) do
-      pm = create_project_media project: @project
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      s.status = 'verified'
-      s.save!
-      s = Annotation.find(s.id).load
-      s.status = 'false'
-      s.save!
-      pm = ProjectMedia.find(pm.id)
-      assert_equal 'verified', Bot::Smooch.get_previous_final_status(pm)
-      s.get_fields.first.destroy
-      pm = ProjectMedia.find(pm.id)
-      assert_nil Bot::Smooch.get_previous_final_status(pm)
-    end
   end
 
   test "should send message to user when status changes" do
@@ -530,45 +509,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       s['smooch_localize_messages'] = false
       create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
     end
-  end
-
-  test "should use custom embed URL from task answer" do
-    create_task_status_stuff
-    at = create_annotation_type annotation_type: 'memebuster', label: 'Memebuster'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'memebuster_custom_url', label: 'Memebuster Custom URL', field_type_object: ft1
-    pm = create_project_media
-    create_dynamic_annotation annotation_type: 'memebuster', annotated: pm, set_fields: { memebuster_custom_url: 'https://custom.url' }.to_json
-    assert_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
-    assert_no_match /bit\.ly/, Bot::Smooch.embed_url(pm)
-  end
-
-  test "should not use custom embed URL from task answer if there is no team task" do
-    create_task_status_stuff
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    tt = create_team_task team_id: @team.id
-    RequestStore.store[:smooch_bot_settings] = { smooch_task: nil }.with_indifferent_access
-    pm = create_project_media
-    t = create_task annotated: pm, team_task_id: tt.id
-    t.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'https://custom.url' }.to_json }.to_json
-    t.save!
-    assert_not_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
-    assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
-  end
-
-  test "should not use custom embed URL from task answer if task is not resolved" do
-    create_task_status_stuff
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    tt = create_team_task team_id: @team.id
-    RequestStore.store[:smooch_bot_settings] = { smooch_task: tt.id }.with_indifferent_access
-    pm = create_project_media
-    t = create_task annotated: pm, team_task_id: tt.id
-    assert_not_equal 'https://custom.url', Bot::Smooch.embed_url(pm)
-    assert_match /bit\.ly/, Bot::Smooch.embed_url(pm)
   end
 
   test "should never return an empty string" do

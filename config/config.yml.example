@@ -69,6 +69,14 @@ development: &default
     bucket_region: 'us-east-1'
     path_style:
 
+  # Screenshot service URL
+  #
+  # REQUIRED
+  # Use values below for local development
+  #
+  narcissus_url: 'http://narcissus:8687'
+  narcissus_token: 'dev'
+
   # Exception reporting using Airbrake or API equivalent https://airbrake.io/
   #
   # OPTIONAL
@@ -171,12 +179,10 @@ development: &default
   #
   honeycomb_key: # '<HONEYCOMB KEY>'
   honeycomb_dataset: # '<HONEYCOMB DATASET>'
-
+  
   # DEPRECATED
   #
   optics_api_key:
-  slack_token:
-  viber_token:
   clamav_service_path:
   cc_deville_host:
   cc_deville_token:
