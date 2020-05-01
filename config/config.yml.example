@@ -72,9 +72,10 @@ development: &default
   # Screenshot service URL
   #
   # REQUIRED
-  # Use value below for local development
+  # Use values below for local development
   #
-  screenshot_service_url: 'http://screenshot:8687'
+  narcissus_url: 'http://narcissus:8687'
+  narcissus_token: 'dev'
 
   # Exception reporting using Airbrake or API equivalent https://airbrake.io/
   #

@@ -69,7 +69,12 @@ Dynamic.class_eval do
 
       # Convert the HTML to PNG
       temp_url = CheckS3.public_url(path)
-      screenshot = JSON.parse(Net::HTTP.get_response(URI("#{CONFIG['screenshot_service_url']}/?url=#{temp_url}&selector=%23frame")).body)['url']
+
+      uri = URI("#{CONFIG['narcissus_url']}/?url=#{temp_url}&selector=%23frame")
+      request = Net::HTTP::Get.new(uri)
+      request['x-api-key'] = CONFIG['narcissus_token']
+      response = Net::HTTP.start(uri.hostname, uri.port) { |http| http.request(request) }
+      screenshot = JSON.parse(response.body)['url']
       raise "Unexpected response from screenshot service: #{screenshot}" unless screenshot =~ /^http/
       self.set_fields = self.data.merge({ visual_card_url: screenshot }).to_json
       self.save!
