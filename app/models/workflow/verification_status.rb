@@ -14,17 +14,6 @@ class Workflow::VerificationStatus < Workflow::Base
   end
 
   ProjectMedia.class_eval do
-    def set_active_status(s)
-      active = ::Workflow::Workflow.options(self, 'verification_status')[:active]
-      f = s.get_field('verification_status_status')
-      unless active.nil?
-        f.previous_status = f.value
-        f.value = active
-        f.skip_check_ability = true
-        f.save!
-      end
-    end
-
     alias_method :custom_permissions_original, :custom_permissions
 
     def custom_permissions(ability = nil)

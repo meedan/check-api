@@ -59,9 +59,13 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal ['foo', 'bar'], t.options
   end
 
-  test "should set initial status" do
+  test "should set initial and update status" do
     t = create_task status: nil
     assert_equal 'unresolved', t.reload.status
+    # update status
+    t.status='resolved'
+    t.save!
+    assert_equal 'resolved', t.reload.status
   end
 
   test "should get task responses" do
@@ -398,9 +402,48 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 'bar', tk.first_response
   end
 
+  test "should respect task state transition roles" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.status = 'resolved'
+    tk.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'annotator'
+    assert_equal 'resolved', tk.reload.status
+    with_current_user_and_team(u ,t) do
+      a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: tk.id).last.load
+      f = a.get_field('task_status_status')
+      f.value = 'unresolved'
+      assert_raises ActiveRecord::RecordInvalid do
+        f.save!
+      end
+    end
+  end
+
   test "should get status label" do
     t = create_task
     assert_equal 'Unresolved', t.last_task_status_label
+  end
+
+  test "should get response version" do
+    at = create_annotation_type annotation_type: 'task_response'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    tk.assign_user(u.id)
+    with_current_user_and_team(u ,t) do
+      tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
+      tk.save!
+      assert_not_nil tk.first_response_version
+      assert_kind_of Version, tk.first_response_version
+    end
   end
 
   test "should define a JSON schema" do
