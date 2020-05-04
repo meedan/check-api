@@ -24,7 +24,7 @@ class CheckStateMachine
     state :human_mode
 
     event :start do
-      transitions :from => :waiting_for_message, :to => :main
+      transitions :from => [:waiting_for_message, :main], :to => :main
     end
 
     event :reset do
