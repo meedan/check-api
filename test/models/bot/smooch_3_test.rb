@@ -652,6 +652,15 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
+  test "should transition from query state to query state" do
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    assert_nothing_raised do
+      sm.go_to_query
+      sm.go_to_query
+    end
+  end
+
   protected
 
   def run_concurrent_requests
