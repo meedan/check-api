@@ -2303,4 +2303,14 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil t.get_introduction
     assert_not_nil t.get_disclaimer
   end
+
+  test "should get dynamic fields schema for items without list" do
+    create_flag_annotation_type
+    t = create_team
+    pm = create_project_media disable_es_callbacks: false, team: t
+    create_flag annotated: pm, disable_es_callbacks: false
+    schema = t.dynamic_search_fields_json_schema
+    assert_not_nil schema[:properties]['flag_name']
+    assert_not_nil schema[:properties]['flag_value']
+  end
 end
