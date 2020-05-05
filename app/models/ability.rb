@@ -173,7 +173,7 @@ class Ability
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
-    can :destroy, Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
+    can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
