@@ -182,8 +182,6 @@ en:
     fields:
       assigned: Assigned to
       unassigned: Unassigned from
-      required: Required?
-      required_yes: 'Yes'
       project: List
       source: Source
       status: Status

@@ -68,6 +68,16 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 'resolved', t.reload.status
   end
 
+  test "should add response to task" do
+    t = create_task
+    assert_equal 0, t.responses.count
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    t.save!
+    assert_equal 1, t.reload.responses.count
+  end
+
   test "should get task responses" do
     t = create_task
     assert_equal [], t.responses

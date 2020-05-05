@@ -24,7 +24,6 @@ class Task < ActiveRecord::Base
   validate :task_options_is_array
 
   field :slug
-  field :required, :boolean
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
@@ -68,8 +67,6 @@ class Task < ActiveRecord::Base
     super.merge({
       title: Bot::Slack.to_slack(self.label),
       description: Bot::Slack.to_slack(self.description, false),
-      required: self.required ? I18n.t("slack.fields.required_yes") : nil,
-      status: Bot::Slack.to_slack(self.status),
       attribution: nil
     })
   end
@@ -96,11 +93,6 @@ class Task < ActiveRecord::Base
       text: params[:description],
       fields: [
         {
-          title: I18n.t("slack.fields.status"),
-          value: params[:status],
-          short: true
-        },
-        {
           title: I18n.t("slack.fields.assigned"),
           value: params[:assigned],
           short: true
@@ -108,11 +100,6 @@ class Task < ActiveRecord::Base
         {
           title: I18n.t("slack.fields.unassigned"),
           value: params[:unassigned],
-          short: true
-        },
-        {
-          title: I18n.t("slack.fields.required"),
-          value: params[:required],
           short: true
         },
         {

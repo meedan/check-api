@@ -57,15 +57,15 @@ class TeamTask < ActiveRecord::Base
     # get project medias for deleted projects
     handle_remove_projects(projects) unless projects.blank?
     # collect updated fields with new values
-    colums = {}
+    columns = {}
     options.each do |k, _v|
-      colums[k] = self.read_attribute(k)
+      columns[k] = self.read_attribute(k)
     end
-    unless colums.blank?
+    unless columns.blank?
       # update tasks with zero answer
-      update_tasks_with_zero_answer(colums)
+      update_tasks_with_zero_answer(columns)
       # handle tasks with answers
-      update_tasks_with_answer(colums) unless keep_completed_tasks
+      update_tasks_with_answer(columns) unless keep_completed_tasks
     end
     # items related to added projects
     unless projects.blank?
@@ -144,15 +144,15 @@ class TeamTask < ActiveRecord::Base
     [condition, excluded_ids]
   end
 
-  def update_tasks_with_zero_answer(colums)
+  def update_tasks_with_zero_answer(columns)
     TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
-      t.update(colums)
+      t.update(columns)
     end
   end
 
-  def update_tasks_with_answer(colums)
+  def update_tasks_with_answer(columns)
     get_teamwide_tasks_with_answers.find_each do |t|
-      t.update(colums)
+      t.update(columns)
     end
   end
 
