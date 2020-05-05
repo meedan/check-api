@@ -182,8 +182,6 @@ en:
     fields:
       assigned: Assigned to
       unassigned: Unassigned from
-      required: Required?
-      required_yes: 'Yes'
       project: List
       source: Source
       status: Status
@@ -632,9 +630,6 @@ en:
     blank_project: Invalid blank list
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
-  verification_status_deadline: Deadline
-  verification_status_deadline_asc: Due soonest
-  verification_status_deadline_desc: Due latest
   cant_mutate_inactive_object: Sorry, there is an operation pending for this item,
     so you can't change it right now. Please try again later.
   embed_expand_all: Expand all

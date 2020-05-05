@@ -9,7 +9,6 @@ class Assignment < ActiveRecord::Base
   before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments
   after_destroy :send_email_notification_on_destroy, :decrease_assignments_count, :propagate_unassignments
-  after_commit :update_user_assignments_progress
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
@@ -63,7 +62,6 @@ class Assignment < ActiveRecord::Base
     to_create = []
     to_delete = []
     objs = assignment.assigned.propagate_assignment_to(assignment.user)
-    task_ids = objs.select{ |t| t.is_a?(Task) }.map(&:id)
     objs.each do |obj|
       klass = obj.parent_class_name
       existing = Assignment.where(user_id: assignment.user_id, assigned_type: klass, assigned_id: obj.id).last
@@ -79,9 +77,7 @@ class Assignment < ActiveRecord::Base
       end
     end
     Assignment.import(to_create, on_duplicate_key_ignore: true)
-    DynamicAnnotation::Field.joins(:annotation).where(field_name: 'task_status_status').where('annotations.annotated_id' => task_ids).update_all(value: 'unresolved')
     Assignment.delete(to_delete)
-    assignment.send(:update_user_assignments_progress)
   end
 
   def self.bulk_assign(obj, user_ids)
@@ -137,15 +133,6 @@ class Assignment < ActiveRecord::Base
 
   def propagate_unassignments
     self.propagate_assignments_or_unassignments(:unassign)
-  end
-
-  def update_user_assignments_progress
-    user_id = self.user_id
-    team_id = self.get_team.first
-    TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
-    assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
-    User.delay_for(1.second).set_assignments_progress(user_id, assigned.annotated_id.to_i) if assigned.is_a?(Annotation)
-    ProjectMedia.where(project_id: self.assigned_id).each{ |pm| User.delay_for(1.second).set_assignments_progress(user_id, pm.id) } if assigned.is_a?(Project)
   end
 
   def set_assigner

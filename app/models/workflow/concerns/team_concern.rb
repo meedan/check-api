@@ -8,10 +8,7 @@ module Workflow
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil|
             statuses = self.send("get_#{type}_#{id.pluralize}") || ::Workflow::Workflow.core_options(type.camelize.constantize.new, id)
-            if !obj.nil? && type.to_s == 'media'
-              completed = statuses[:statuses].select{ |s| s[:completed].to_i == 1 }.collect{ |s| s[:id] }
-              statuses[:statuses].each{ |s| s[:can_change] = completed.include?(s[:id]) ? (obj.respond_to?(:is_completed?) && obj.is_completed?) : true }
-            end
+            statuses[:statuses].each{ |s| s[:can_change] = true } if !obj.nil? && type.to_s == 'media'
             statuses
           end
 

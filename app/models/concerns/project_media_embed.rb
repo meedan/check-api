@@ -86,16 +86,12 @@ module ProjectMediaEmbed
     self.completed_tasks.count
   end
 
-  def required_tasks
-    self.all_tasks.select{ |t| t.required == true }
-  end
-
   def open_tasks
-    self.all_tasks.select{ |t| t.status != 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count == 0 }
   end
 
   def completed_tasks
-    self.all_tasks.select{ |t| t.status == 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count > 0 }
   end
 
   def comments

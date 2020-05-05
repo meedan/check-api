@@ -22,7 +22,7 @@ class AssignmentMailer < ApplicationMailer
       media_link = project_media.media.url
       updated_at = project_media.updated_at
       total_tasks = project_media.get_annotations('task').count
-      resolved_tasks =  project_media.tasks_resolved_count
+      completed_tasks =  project_media.completed_tasks_count
     elsif assigned.is_a?(Project)
       project = assigned
       title = project.title
@@ -58,7 +58,7 @@ class AssignmentMailer < ApplicationMailer
       media_link: media_link,
       updated_at: updated_at,
       total_tasks: total_tasks,
-      resolved_tasks: resolved_tasks,
+      completed_tasks: completed_tasks,
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{model}"), app: CONFIG['app_name']
       }),
