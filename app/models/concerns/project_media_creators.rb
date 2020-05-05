@@ -19,7 +19,6 @@ module ProjectMediaCreators
       t = Task.new
       t.label = task.label
       t.type = task.task_type
-      t.required = task.required
       t.description = task.description
       t.team_task_id = task.id
       t.json_schema = task.json_schema
