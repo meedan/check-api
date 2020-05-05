@@ -215,18 +215,6 @@ class ProjectMedia < ActiveRecord::Base
     perms
   end
 
-  def is_completed?
-    required_tasks = self.required_tasks
-    unresolved = required_tasks.select{ |t| t.status != 'resolved' }
-    unresolved.blank?
-  end
-
-  def is_finished?
-    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
-    current_status = statuses.select { |st| st['id'] == self.last_status }
-    current_status[0]['completed'].to_i == 1
-  end
-
   def relationships_object
     unless self.related_to_id.nil?
       type = Relationship.default_type.to_json
@@ -263,13 +251,6 @@ class ProjectMedia < ActiveRecord::Base
     coder['attributes'] = @attributes
     coder['new_record'] = new_record?
     coder['active_record_yaml_version'] = 0
-  end
-
-  def assignments_progress(uid = 0)
-    user = uid.to_i > 0 ? User.where(id: uid).last : User.current
-    data = { answered: 0, total: 0 }
-    data = Rails.cache.read("cache-assignments-progress-#{user.id}-project-media-#{self.id}") unless user.nil?
-    data
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)
@@ -315,11 +296,7 @@ class ProjectMedia < ActiveRecord::Base
       tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', task.id).count
       if tt_exists == 0
-        task.skip_update_media_status = true
         self.create_auto_tasks([task])
-        if task.required? && self.is_finished?
-          task.handle_added_tasks_to_terminal_status_item({id: self.id})
-        end
       end
     end unless tasks.nil?
   end

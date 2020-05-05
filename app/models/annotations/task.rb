@@ -2,14 +2,12 @@ class Task < ActiveRecord::Base
   include AnnotationBase
   include HasJsonSchema
 
-  attr_accessor :file, :skip_update_media_status
+  attr_accessor :file
 
   has_annotations
 
   before_validation :set_slug, on: :create
-  after_create :send_slack_notification
-  after_update :send_slack_notification, :update_users_assignments_progress
-  after_commit :send_slack_notification, on: [:create, :update]
+  after_save :send_slack_notification
 
   field :label
   validates_presence_of :label
@@ -26,7 +24,6 @@ class Task < ActiveRecord::Base
   validate :task_options_is_array
 
   field :slug
-  field :required, :boolean
   field :log_count, Integer
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
@@ -64,18 +61,12 @@ class Task < ActiveRecord::Base
     self.label
   end
 
-  def required_for_user(user_id)
-    self.required && self.assigned_users.where('users.id' => user_id).count > 0
-  end
-
   SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
 
   def slack_params
     super.merge({
       title: Bot::Slack.to_slack(self.label),
       description: Bot::Slack.to_slack(self.description, false),
-      required: self.required ? I18n.t("slack.fields.required_yes") : nil,
-      status: Bot::Slack.to_slack(self.status),
       attribution: nil
     })
   end
@@ -102,11 +93,6 @@ class Task < ActiveRecord::Base
       text: params[:description],
       fields: [
         {
-          title: I18n.t("slack.fields.status"),
-          value: params[:status],
-          short: true
-        },
-        {
           title: I18n.t("slack.fields.assigned"),
           value: params[:assigned],
           short: true
@@ -114,11 +100,6 @@ class Task < ActiveRecord::Base
         {
           title: I18n.t("slack.fields.unassigned"),
           value: params[:unassigned],
-          short: true
-        },
-        {
-          title: I18n.t("slack.fields.required"),
-          value: params[:required],
           short: true
         },
         {
@@ -174,16 +155,6 @@ class Task < ActiveRecord::Base
     response.nil? ? Dynamic.new : response.load
   end
 
-  def must_resolve_task(params)
-    set_fields = begin JSON.parse(params['set_fields']) rescue params['set_fields'] end
-    if set_fields.keys.select{ |k| k =~ /^response/ }.any?
-      uids = self.assigned_users.map(&:id).sort
-      uids.empty? || uids == self.responses.map(&:annotator_id).uniq.sort
-    else
-      false
-    end
-  end
-
   def response=(json)
     params = JSON.parse(json)
     response = self.new_or_existing_response
@@ -197,15 +168,6 @@ class Task < ActiveRecord::Base
     response.save!
     @response = response
     self.record_timestamps = false
-    self.update_user_assignments_progress(response)
-    User.current&.role?(:annotator) ? Task.delay_for(1.second).resolve_task_if_needed(self.id, json) : Task.resolve_task_if_needed(self.id, json)
-  end
-
-  def update_user_assignments_progress(response)
-    user_id = response.annotator_id.to_i
-    team_id = self.annotated&.project&.team_id
-    TeamUser.delay_for(1.second).set_assignments_progress(user_id, team_id)
-    User.delay_for(1.second).set_assignments_progress(user_id, self.annotated_id.to_i)
   end
 
   def first_response_obj
@@ -265,7 +227,6 @@ class Task < ActiveRecord::Base
     fields = { "review_#{self.type}" => review }
     if accept
       fields["response_#{self.type}"] = suggestion.to_s
-      self.status = 'resolved'
     end
     response.set_fields = fields.to_json
     response.updated_at = Time.now
@@ -283,16 +244,6 @@ class Task < ActiveRecord::Base
     label.to_s.parameterize.tr('-', '_')
   end
 
-  def self.resolve_task_if_needed(id, params)
-    params = JSON.parse(params)
-    task = Task.where(id: id).last
-    return if task.nil?
-    if task.must_resolve_task(params)
-      task.status = 'resolved'
-      task.save!
-    end
-  end
-
   private
 
   def task_options_is_array
@@ -303,17 +254,6 @@ class Task < ActiveRecord::Base
     self.slug = Task.slug(self.label)
   end
 
-  def update_users_assignments_progress
-    if self.data_was['required'] != self.data['required']
-      team_id = self.annotated&.project&.team_id
-      unless team_id.nil?
-        self.assigned_users.each do |user|
-          User.delay_for(1.second).set_assignments_progress(user.id, self.annotated_id.to_i)
-          TeamUser.delay_for(1.second).set_assignments_progress(user.id, team_id)
-        end
-      end
-    end
-  end
 end
 
 Comment.class_eval do

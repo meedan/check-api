@@ -146,7 +146,7 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { assignments_progress, tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']

@@ -297,15 +297,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
 
-  field :assignments_progress do
-    type JsonStringType
-    argument :user_id, types.Int
-
-    resolve ->(project_media, args, _ctx) {
-      project_media.assignments_progress(args['user_id'])
-    }
-  end
-
   field :project_ids, JsonStringType
 
   connection :secondary_items, -> { ProjectMediaType.connection_type } do

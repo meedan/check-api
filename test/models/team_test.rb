@@ -1136,28 +1136,6 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
-  test "should not set active status if task is being copied" do
-    create_verification_status_stuff
-    create_slack_bot
-    team = create_team
-    project = create_project team: team, title: 'Project'
-    pm = create_project_media project: project
-    task = create_task annotated: pm
-    create_annotation_type annotation_type: 'response'
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json; task.save!
-    s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!
-
-    ProjectMedia.any_instance.stubs(:set_active_status).never
-    assert !Bot::Slack.default.nil?
-    Bot::Slack.any_instance.stubs(:notify_slack).never
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    assert copy.valid?
-    ProjectMedia.any_instance.unstub(:set_active_status)
-    Bot::Slack.any_instance.unstub(:notify_slack)
-  end
-
   test "should duplicate team with duplicated source" do
     team = create_team
     user = create_user
@@ -1532,14 +1510,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get dynamic fields schema" do
-    create_verification_status_stuff
     create_flag_annotation_type
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
     t = create_team slug: 'team'
-    t.set_status_target_turnaround = 3
-    t.save!
     p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -1552,7 +1524,6 @@ class TeamTest < ActiveSupport::TestCase
     create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
     assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
-    assert_not_nil schema[:properties][:sort][:properties][:deadline]
     assert_not_nil schema[:properties]['flag_name']
     assert_not_nil schema[:properties]['flag_value']
   end

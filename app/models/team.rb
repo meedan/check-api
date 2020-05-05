@@ -314,11 +314,12 @@ class Team < ActiveRecord::Base
         schema = Dynamic.send(method, self)
         [schema].flatten.each { |subschema| properties[subschema[:id] || type] = subschema }
       end
-      method = "field_sort_json_schema_type_#{type}"
-      if Dynamic.respond_to?(method)
-        sort = Dynamic.send(method, self)
-        properties[:sort][:properties][sort[:id]] = { type: 'array', title: sort[:label], items: { type: 'string', enum: [sort[:asc_label], sort[:desc_label]] } } if sort
-      end
+      # Uncomment to allow sorting by a dynamic field (was used by deadline field)
+      # method = "field_sort_json_schema_type_#{type}"
+      # if Dynamic.respond_to?(method)
+      #   sort = Dynamic.send(method, self)
+      #   properties[:sort][:properties][sort[:id]] = { type: 'array', title: sort[:label], items: { type: 'string', enum: [sort[:asc_label], sort[:desc_label]] } } if sort
+      # end
     end
     { type: 'object', properties: properties }
   end

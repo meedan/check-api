@@ -59,19 +59,23 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal ['foo', 'bar'], t.options
   end
 
-  test "should set initial status" do
+  test "should set initial and update status" do
     t = create_task status: nil
     assert_equal 'unresolved', t.reload.status
+    # update status
+    t.status='resolved'
+    t.save!
+    assert_equal 'resolved', t.reload.status
   end
 
   test "should add response to task" do
     t = create_task
-    assert_equal 'unresolved', t.reload.status
-    at = create_annotation_type annotation_type: 'response'
+    assert_equal 0, t.responses.count
+    at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
-    t.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
+    t.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
     t.save!
-    assert_equal 'resolved', t.reload.status
+    assert_equal 1, t.reload.responses.count
   end
 
   test "should get task responses" do
@@ -193,28 +197,6 @@ class TaskTest < ActiveSupport::TestCase
       d.disable_es_callbacks = true
       d.save!
       assert d.sent_to_slack
-    end
-  end
-
-  test "should notify by email when task is resolved" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm = create_project_media project: p
-    tk = create_task annotator: u, annotated: pm
-    u2 = create_user
-    create_team_user team: t, user: u2
-    with_current_user_and_team(u2, t) do
-      tk.disable_es_callbacks = true
-      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      tk.save!
-      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-        tk.status='resolved'
-      end
     end
   end
 
@@ -368,25 +350,16 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "should resolve task if response is submitted and task is not assigned to anyone" do
-    at = create_annotation_type annotation_type: 'response'
-    create_field_instance annotation_type_object: at, name: 'response_test'
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media annotated: pm
-    tk = create_task annotated: pm
-    tk.response = { annotation_type: 'response', set_fields: { response_test: 'test' }.to_json }.to_json
-    tk.save!
-    assert_equal 'resolved', tk.reload.status
-  end
-
-  test "should resolve task if response is submitted by all assigned users" do
+  test "should get completed and opended tasks" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
+    tk2 = create_task annotated: pm
+    assert_equal 2, pm.open_tasks.count
+    assert_equal 0, pm.completed_tasks_count
     u1 = create_user
     u2 = create_user
     create_team_user team: t, user: u1, role: 'annotator'
@@ -397,17 +370,19 @@ class TaskTest < ActiveSupport::TestCase
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
     tk.save!
-    assert_equal 'unresolved', tk.reload.status
+    assert_equal 1, pm.open_tasks.count
+    assert_equal 1, pm.completed_tasks_count
     User.current = u2
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
     tk.save!
-    assert_equal 'resolved', tk.reload.status
-  end
-
-  test "should not resolve task if response is not submitted" do
-    t = create_task
-    assert !t.must_resolve_task({ 'set_fields' => {} })
+    assert_equal 1, pm.open_tasks.count
+    assert_equal 1, pm.completed_tasks_count
+    tk2 = Task.find(tk2.id)
+    tk2.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk2.save!
+    assert_equal 0, pm.open_tasks.count
+    assert_equal 2, pm.completed_tasks_count
   end
 
   test "should get first response" do
@@ -437,20 +412,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 'bar', tk.first_response
   end
 
-  test "should reopen task" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    tk.status = 'resolved'
-    tk.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'annotator'
-    assert_equal 'resolved', tk.reload.status
-    tk.assign_user(u.id)
-    assert_equal 'unresolved', tk.reload.status
-  end
-
   test "should respect task state transition roles" do
     t = create_team
     p = create_project team: t
@@ -461,12 +422,10 @@ class TaskTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'annotator'
     assert_equal 'resolved', tk.reload.status
-    tk.assign_user(u.id)
-    assert_equal 'unresolved', tk.reload.status
     with_current_user_and_team(u ,t) do
       a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: tk.id).last.load
       f = a.get_field('task_status_status')
-      f.value = 'resolved'
+      f.value = 'unresolved'
       assert_raises ActiveRecord::RecordInvalid do
         f.save!
       end
@@ -478,22 +437,7 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 'Unresolved', t.last_task_status_label
   end
 
-  test "should return if task is required for a user" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p
-    t1 = create_task annotated: pm
-    t2 = create_task required: true, annotated: pm
-    t3 = create_task required: true, annotated: pm
-    t3.assign_user(u.id)
-    assert !t1.reload.required_for_user(u.id)
-    assert !t2.reload.required_for_user(u.id)
-    assert t3.reload.required_for_user(u.id)
-  end
-
-  test "should update user assignments when task requirement changes" do
+  test "should get response version" do
     at = create_annotation_type annotation_type: 'task_response'
     ft2 = create_field_type field_type: 'text'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
@@ -502,21 +446,11 @@ class TaskTest < ActiveSupport::TestCase
     create_team_user team: t, user: u
     p = create_project team: t
     pm = create_project_media project: p
-    tk = create_task annotated: pm, required: true
+    tk = create_task annotated: pm
     tk.assign_user(u.id)
-    tk = create_task annotated: pm, required: true
-    tk.assign_user(u.id)
-    assert_equal 0, pm.assignments_progress[:answered]
-    assert_equal 0, pm.assignments_progress[:total]
     with_current_user_and_team(u ,t) do
       tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
       tk.save!
-      assert_equal 1, pm.assignments_progress[:answered]
-      assert_equal 2, pm.assignments_progress[:total]
-      tk.required = false
-      tk.save!
-      assert_equal 0, pm.assignments_progress[:answered]
-      assert_equal 1, pm.assignments_progress[:total]
       assert_not_nil tk.first_response_version
       assert_kind_of Version, tk.first_response_version
     end

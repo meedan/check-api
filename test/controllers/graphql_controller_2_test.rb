@@ -42,7 +42,7 @@ class GraphqlController2Test < ActionController::TestCase
     t, p, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationship { id }, tasks { edges { node { status, first_response { attribution { edges { node { name } } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { relationship { id }, tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
     post :create, query: query, team: t.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -1128,45 +1128,6 @@ class GraphqlController2Test < ActionController::TestCase
       assert_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
     end
-  end
-
-  test "should sort by dynamic field" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    t.set_status_target_turnaround = 10.hours ; t.save!
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 5.hours ; t.save!
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 15.hours ; t.save!
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 2.hours ; t.save!
-    pm4 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    authenticate_with_user(u)
-
-    query = 'query { search(query: "{\"sort\":\"deadline\",\"sort_type\":\"asc\"}") { medias(first: 10000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm4.id, pm2.id, pm1.id, pm3.id], ids
-
-    query = 'query { search(query: "{\"sort\":\"deadline\",\"sort_type\":\"desc\"}") { medias(first: 10000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm3.id, pm1.id, pm2.id, pm4.id], ids
   end
 
   test "should set statuses of related items" do
