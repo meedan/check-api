@@ -303,8 +303,8 @@ class Team < ActiveRecord::Base
   def dynamic_search_fields_json_schema
     annotation_types = Annotation
                        .group('annotations.annotation_type')
-                       .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND pm.id = annotations.annotated_id INNER JOIN projects p ON pm.project_id = p.id")
-                       .where('p.team_id' => self.id).count.keys
+                       .joins("INNER JOIN project_medias pm ON annotations.annotated_type = 'ProjectMedia' AND pm.id = annotations.annotated_id")
+                       .where('pm.team_id' => self.id).count.keys
     properties = {
       sort: { type: 'object', properties: {} }
     }
