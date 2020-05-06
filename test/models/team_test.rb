@@ -2284,4 +2284,78 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil schema[:properties]['flag_name']
     assert_not_nil schema[:properties]['flag_value']
   end
+
+  test "should match rule when report is published" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t 
+    pm2 = create_project_media project: p2
+    pm3 = create_project_media team: t
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "report_is_published",
+          "rule_value": ""
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    publish_report(pm1)
+    publish_report(pm2)
+    assert_equal 2, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+    create_report(pm3, { state: 'published' }, 'publish')
+    assert_equal 3, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+  end
+
+  test "should match rule when report is paused" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t 
+    pm2 = create_project_media project: p2
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "report_is_paused",
+          "rule_value": ""
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    r1 = create_report(pm1, { state: 'published' }, 'publish')
+    r2 = create_report(pm2, { state: 'published' }, 'publish')
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    r1.set_fields = { state: 'paused' }.to_json ; r1.action = 'pause' ; r1.save!
+    r2.set_fields = { state: 'paused' }.to_json ; r2.action = 'pause' ; r2.save!
+    assert_equal 2, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+  end
 end
