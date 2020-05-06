@@ -75,6 +75,14 @@ Rails.application.routes.draw do
     end
   end
 
+  # Short URLs (powered by https://github.com/jpmcgrath/shortener)
+  if CONFIG['short_url_host']
+    constraints host: URI.parse(CONFIG['short_url_host']).host do
+      get '/:id' => 'shortener/shortened_urls#show'
+    end
+  end
+
+  # Test controller - just works in test mode, used to create data for integration tests (for example, Check Web calls these methods)
   match '/test/confirm_user' => 'test#confirm_user', via: :get
   match '/test/make_team_public' => 'test#make_team_public', via: :get
   match '/test/user' => 'test#new_user', via: :get

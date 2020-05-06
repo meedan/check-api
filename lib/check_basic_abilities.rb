@@ -101,6 +101,8 @@ module CheckBasicAbilities
     can [:create, :update], LoginActivity
 
     cannot :find_by_json_fields, DynamicAnnotation::Field
+
+    can [:read, :create], Shortener::ShortenedUrl
   end
 
   def annotation_perms_for_all_users
