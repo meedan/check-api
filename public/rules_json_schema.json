@@ -66,6 +66,14 @@
                     {
                       "key": "item_images_are_similar",
                       "value": "%{team_rule_item_images_are_similar}"
+                    },
+                    {
+                      "key": "report_is_published",
+                      "value": "%{team_rule_report_is_published}"
+                    },
+                    {
+                      "key": "report_is_paused",
+                      "value": "%{team_rule_report_is_paused}"
                     }
                   ]
                 },

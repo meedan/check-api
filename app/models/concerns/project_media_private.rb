@@ -102,8 +102,8 @@ module ProjectMediaPrivate
   def update_project_media_project
     if self.previous_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
       ProjectMediaProject.where(project_media_id: self.id).delete_all
-      ProjectMediaProject.create! project_media_id: self.id, project_id: self.project_id
-      # update team task
+      ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id)
+      # Update team task
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self }))
     end
   end

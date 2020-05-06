@@ -691,6 +691,8 @@ en:
   team_rule_type_flag_threshold: With a likelihood of at least
   team_rule_select_flag: Select flag
   team_rule_flagged_as: Item is flagged as
+  team_rule_report_is_published: Report is published
+  team_rule_report_is_paused: Report is paused
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
