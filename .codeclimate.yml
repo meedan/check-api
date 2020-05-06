@@ -68,3 +68,4 @@ exclude_patterns:
 - "**.js"
 - "public/viber/bigtext.js"
 - "config/environments/*"
+- "db/schema.rb"
