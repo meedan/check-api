@@ -122,14 +122,6 @@ bn:
   custom_message_status_report-false_boom-factcheck: রিপোর্ট মিথ্যা
   custom_message_status_report-misleading_boom-factcheck: রিপোর্ট বিভ্রান্তিকর
   custom_message_status_bot-resource_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: আপনার
-    পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
-    পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
-    দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: আপনার
-    বার্তার জন্য ধন্যবাদ। আমরা এখন আপনার বিষয়টি তথ্য যাচাই করছি যা আপনি আমাদের পাঠিয়েছিলেন।
-    আমরা শীঘ্রই একটি বিস্তারিত প্রতিবেদন পাঠাবো। ততক্ষণ আমাদের সাইটের অন্যান্য তথ্য
-    যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
   custom_message_smooch_bot_result_boom-factcheck: 'আপডেট আমাদের ফ্যাক্ট চেক টিম এই
     বার্তাটি পেয়েছে *%(status)* ফ্যাক্ট চেকটি পড়ুন এবং আপনার বন্ধু ও পরিবারের সঙ্গে
     শেয়ার করুন লিঙ্ক: %{url}'
@@ -176,6 +168,14 @@ bn:
     বিষয়টি নিয়ে অতিরিক্ত প্রশ্নমালার পরে। \n\nআপনার শেষ মেসেজটি পাওয়ার ৩০ সেকেন্ড
     পরে অনুরোধটি তথ্য-যাচাইকারীদের পাঠানো হবে। \n\n*রিপ্লাই 0(বা\U0001F4CC)* *প্রধান
     মেনু*তে ফিরে আসার জন্য"
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: আপনার
+    পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
+    পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
+    দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: আপনার
+    বার্তার জন্য ধন্যবাদ। আমরা এখন আপনার বিষয়টি তথ্য যাচাই করছি যা আপনি আমাদের পাঠিয়েছিলেন।
+    আমরা শীঘ্রই একটি বিস্তারিত প্রতিবেদন পাঠাবো। ততক্ষণ আমাদের সাইটের অন্যান্য তথ্য
+    যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
   custom_message_smooch_bot_message_type_unsupported_test-1: ''
@@ -280,6 +280,8 @@ bn:
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -290,8 +292,6 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
@@ -329,14 +329,9 @@ bn:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
+  custom_message_smooch_bot_disabled_smooch: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test: ''
-  custom_message_smooch_bot_message_confirmed_test: ''
-  custom_message_smooch_bot_message_type_unsupported_test: ''
-  custom_message_smooch_bot_disabled_test: ''
-  custom_message_smooch_bot_ask_for_tos_test: ''
-  custom_message_smooch_bot_greetings_test: ''
-  custom_message_smooch_bot_option_not_available_test: ''
   custom_message_smooch_bot_result_changed_test-3: ''
   custom_message_smooch_bot_message_confirmed_test-3: ''
   custom_message_smooch_bot_message_type_unsupported_test-3: ''
@@ -344,6 +339,13 @@ bn:
   custom_message_smooch_bot_ask_for_tos_test-3: ''
   custom_message_smooch_bot_greetings_test-3: ''
   custom_message_smooch_bot_option_not_available_test-3: ''
+  custom_message_smooch_bot_result_changed_test: ''
+  custom_message_smooch_bot_message_confirmed_test: ''
+  custom_message_smooch_bot_message_type_unsupported_test: ''
+  custom_message_smooch_bot_disabled_test: ''
+  custom_message_smooch_bot_ask_for_tos_test: ''
+  custom_message_smooch_bot_greetings_test: ''
+  custom_message_smooch_bot_option_not_available_test: ''
   custom_message_smooch_bot_result_changed_test-16: ''
   custom_message_smooch_bot_message_confirmed_test-16: ''
   custom_message_smooch_bot_message_type_unsupported_test-16: ''
