@@ -177,8 +177,6 @@ pt:
     fields:
       assigned: Atribuída a
       unassigned: Atribuição removida de
-      required: Requerido?
-      required_yes: Sim
       project: Lista
       source: Fonte
       status: Status
@@ -647,9 +645,6 @@ pt:
     blank_project: Lista não pode ficar em branco
     invalid_annotator: Anotador inválido %{user}
     invalid_assignee: Atribuição inválida %{user}
-  verification_status_deadline: Prazo
-  verification_status_deadline_asc: Prazo mais curto
-  verification_status_deadline_desc: Prazo mais longo
   cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item,
     então você não pode alterá-lo agora. Por favor, tente novamente mais tarde.
   embed_expand_all: Expandir tudo
@@ -710,6 +705,8 @@ pt:
   team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
   team_rule_select_flag: Selecione indicador
   team_rule_flagged_as: O item está sinalizado como
+  team_rule_report_is_published: Relato está publicado
+  team_rule_report_is_paused: Relato está em pausa
   flag_adult: Adulto
   flag_spoof: Falsificação
   flag_medical: Médico
@@ -758,6 +755,9 @@ pt:
   custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_greetings_afp-checamos: ''
   custom_message_smooch_bot_option_not_available_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
@@ -806,8 +806,6 @@ pt:
   custom_message_status_report-false_boom-factcheck: ''
   custom_message_status_report-misleading_boom-factcheck: ''
   custom_message_status_bot-resource_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
@@ -821,6 +819,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_test-1: Opa, atualização!
   custom_message_smooch_bot_message_confirmed_test-1: Valeu! Recebido!
   custom_message_smooch_bot_message_type_unsupported_test-1: Não aceitamos isso ainda.
@@ -990,6 +990,8 @@ pt:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
+  custom_message_smooch_bot_disabled_smooch: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
   custom_message_smooch_bot_result_changed_test-3: ''
   custom_message_smooch_bot_message_confirmed_test-3: ''

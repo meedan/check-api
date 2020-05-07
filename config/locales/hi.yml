@@ -72,6 +72,9 @@ hi:
   custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_greetings_afp-checamos: ''
   custom_message_smooch_bot_option_not_available_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
@@ -168,14 +171,6 @@ hi:
   custom_message_status_report-false_boom-factcheck: 'रिपोर्ट ग़लत '
   custom_message_status_report-misleading_boom-factcheck: 'रिपोर्ट भ्रामक '
   custom_message_status_bot-resource_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
-    आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
-    भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
-    हमारे फ़ैक्ट चेक पढ़ें|"
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: "आपके
-    सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
-    जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
-    और परिवार के साथ साझा करें: boomlive.in "
   custom_message_smooch_bot_result_boom-factcheck: |-
     अपडेट
 
@@ -232,6 +227,14 @@ hi:
     | हम आपको जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब
     देने में सक्षम नहीं भी हो सकते हैं |\n\n*0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य
     मेन्यु* पर वापस जाना चाहते हैं |"
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
+    आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
+    भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
+    हमारे फ़ैक्ट चेक पढ़ें|"
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: "आपके
+    सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
+    जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
+    और परिवार के साथ साझा करें: boomlive.in "
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
   custom_message_smooch_bot_message_type_unsupported_test-1: ''
@@ -431,6 +434,8 @@ hi:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
+  custom_message_smooch_bot_disabled_smooch: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
   custom_message_smooch_bot_result_changed_test-3: ''
   custom_message_smooch_bot_message_confirmed_test-3: ''
