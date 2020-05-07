@@ -163,8 +163,6 @@ ar:
     fields:
       assigned: مُكَلَّف إلى
       unassigned: تم إلغاء التكليف عن
-      required: إجبارية ؟
-      required_yes: نعم
       project: القائمة
       source: المصدر
       status: الحالة
@@ -521,9 +519,6 @@ ar:
     blank_project: قائمة فارغة غير صالحة
     invalid_annotator: مُعلِّق غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
-  verification_status_deadline: الموعد
-  verification_status_deadline_asc: مستحق قريباً
-  verification_status_deadline_desc: مستحق لاحقاً
   cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك
     تغييره الآن. الرجاء إعادة المحاولة في وقت لاحق.
   embed_expand_all: توسيع الكل
@@ -574,6 +569,9 @@ ar:
   custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
   custom_message_smooch_bot_greetings_afp-checamos: ''
   custom_message_smooch_bot_option_not_available_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
@@ -623,8 +621,6 @@ ar:
   custom_message_status_report-false_boom-factcheck: ''
   custom_message_status_report-misleading_boom-factcheck: ''
   custom_message_status_bot-resource_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
@@ -638,6 +634,8 @@ ar:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
   custom_message_smooch_bot_message_type_unsupported_test-1: ''
@@ -794,6 +792,8 @@ ar:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
+  custom_message_smooch_bot_disabled_smooch: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
   custom_message_smooch_bot_result_changed_test-3: ''
   custom_message_smooch_bot_message_confirmed_test-3: ''
