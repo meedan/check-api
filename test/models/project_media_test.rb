@@ -2012,4 +2012,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_match /^http/, pm.embed_url
     end
   end
+
+  test "should move item to another list" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media team: t, project: nil
+    assert_nil pm.project_id
+    pm = ProjectMedia.find(pm.id)
+    assert_difference 'ProjectMediaProject.count' do
+      pm.project_id = p.id
+      pm.save!
+    end
+  end
 end
