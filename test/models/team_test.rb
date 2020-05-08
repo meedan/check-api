@@ -1686,6 +1686,8 @@ class TeamTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
     p0 = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
@@ -1712,10 +1714,22 @@ class TeamTest < ActiveSupport::TestCase
     end
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media media: create_claim_media, project: p0
-    pm2 = create_project_media media: create_uploaded_video, project: p0
-    pm3 = create_project_media media: create_uploaded_image, project: p0
-    pm4 = create_project_media media: create_link, project: p0
+    s = create_source
+    c = create_claim_media account: create_valid_account
+    c.account.sources << s
+    ps1 = create_project_source project: p0, source: s
+    ps2 = create_project_source project: p1, source: s
+    pm1 = pm2 = pm3 = pm4 = nil
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.stubs(:notify).raises(StandardError)
+    with_current_user_and_team(u, t) do
+      pm1 = create_project_media media: c, project: p0
+      pm2 = create_project_media media: create_uploaded_video, project: p0
+      pm3 = create_project_media media: create_uploaded_image, project: p0
+      pm4 = create_project_media media: create_link, project: p0
+    end
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
     assert_equal p1.id, pm1.reload.project_id
     assert_equal p2.id, pm2.reload.project_id
     assert_equal p3.id, pm3.reload.project_id
