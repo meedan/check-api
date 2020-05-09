@@ -21,7 +21,9 @@ class TeamTaskWorker
         project_media.add_destination_team_tasks_bg(project)
       end
     elsif action == 'destroy'
+      RequestStore.store[:skip_check_ability] = true
       TeamTask.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
+      RequestStore.store[:skip_check_ability] = true
     end
     Team.current = User.current = nil
   end

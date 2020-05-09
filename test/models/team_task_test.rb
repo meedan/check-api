@@ -107,6 +107,35 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should bypass trashed items" do
+    t =  create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u2
+    p = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p, archived: true
+    tt =create_team_task team_id: t.id, project_ids: [p2.id]
+    pm2 = create_project_media project: p2
+    # Assign task to user and archive the item
+    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm2_tt.assigned_to_ids = u2.id
+    pm2_tt.save!
+    pm2.archived = true
+    pm2.save!
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        assert_no_difference 'Annotation.where(annotation_type: "task").count' do
+          create_team_task team_id: t.id, project_ids: [p.id]
+        end
+        assert_nothing_raised RuntimeError do
+          tt.destroy
+        end
+      end
+    end
+  end
+
   test "should add or remove teamwide task to items related to team" do
     t =  create_team
     p = create_project team: t
