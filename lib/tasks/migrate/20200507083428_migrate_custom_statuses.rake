@@ -26,11 +26,10 @@ namespace :check do
         team_slug: 'afp-fact-check',
         mapping: { 'report-false' => 'false', 'report-misleading' => 'misleading', 'report-correct' => 'verified' }
       }
-      # BOOM team TODO: missing status
+      # BOOM team
       statuses << {
         team_slug: 'boom-factcheck',
-        mapping: {
-          'in_the_news' => '', 'report-true' => 'verified', 'report-false' => 'false','report-misleading' => 'misleading'}
+        mapping: { 'report-true' => 'verified', 'report-false' => 'false','report-misleading' => 'misleading'}
       }
       # Kweli from Africa Check team
       statuses << {
@@ -44,16 +43,20 @@ namespace :check do
         team = Team.where(slug: status[:team_slug]).last
         next if team.nil?
         status[:mapping].each do |k, v|
-        	print "."
+          print "."
           DynamicAnnotation::Field.where(field_name: 'verification_status_status', value: k)
           .joins("INNER JOIN annotations s ON dynamic_annotation_fields.annotation_id = s.id")
           .joins("INNER JOIN project_medias pm ON s.annotated_id = pm.id AND s.annotated_type = 'ProjectMedia'")
           .where('pm.team_id = ?', team.id)
           .find_in_batches(:batch_size => 2500) do |data|
-          	print "."
+            print "."
+            ids = data.map(&:id)
             # update pg
-            DynamicAnnotation::Field.where(id: data.map(&:id)).update_all(value: v)
-            # TODO: update logs
+            DynamicAnnotation::Field.where(id: ids).update_all(value: v)
+            # remove log entry related to removed status
+            s_version = YAML.dump(k).gsub!("\n", "\\n")
+            Version.from_partition(team.id).where(item_type: 'DynamicAnnotation::Field', item_id: ids)
+            .where_object_changes(value: s_version).delete_all
           end
           # update ES
           body = {
