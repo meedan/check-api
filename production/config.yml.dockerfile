@@ -153,12 +153,6 @@ development: &default
   smooch_twitter_tier: # '<SMOOCH TWITTER SUBSCRIPTION TIER>'
   smooch_twitter_env_name: # '<SMOOCH TWITTER APP ENVIRONMENT LABEL>'
 
-  # Bitly link shortening service https://bitly.com/
-  #
-  # OPTIONAL for public report view link shortening
-  #
-  bitly_key: # '<BITLY OAUTH KEY>'
-
   # Google Analytics https://analytics.google.com
   #
   # OPTIONAL

@@ -55,6 +55,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
 
   test "should render as JSON" do
     pm = create_project_media
+    pm = ProjectMedia.find(pm.id)
     get :oembed, id: pm.id, format: :json
     assert_match /iframe/, @response.body
     assert_no_match /doctype/, @response.body

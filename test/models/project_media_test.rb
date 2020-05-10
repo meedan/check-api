@@ -667,7 +667,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
     stub_config('pender_url', 'https://pender.fake') do
-      assert_match /bit\.ly/, pm.embed_url
+      assert_match /#{CONFIG['short_url_host']}/, pm.embed_url
     end
   end
 
@@ -1575,13 +1575,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Project Media Description', pm.metadata['description']
   end
 
-  test "should fallback to original URL if Bit.ly raises exception" do
-    pm = create_project_media
-    Bitly::API::Client.any_instance.stubs(:shorten).raises(StandardError)
-    assert_match /medias.html/, pm.embed_url(true)
-    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
-  end
-
   test "should clone project media to another project" do
     m = create_media
     pm = create_project_media
@@ -2008,5 +2001,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CcDeville.unstub(:clear_cache_for_url)
     PenderClient::Request.unstub(:get_medias)
     ProjectMedia.any_instance.stubs(:clear_caches)
+  end
+
+  test "should generate short URL when getting embed URL for the first time" do
+    pm = create_project_media
+    assert_difference 'Shortener::ShortenedUrl.count' do
+      assert_match /^http/, pm.embed_url
+    end
+    assert_no_difference 'Shortener::ShortenedUrl.count' do
+      assert_match /^http/, pm.embed_url
+    end
+  end
+
+  test "should move item to another list" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media team: t, project: nil
+    assert_nil pm.project_id
+    pm = ProjectMedia.find(pm.id)
+    assert_difference 'ProjectMediaProject.count' do
+      pm.project_id = p.id
+      pm.save!
+    end
   end
 end

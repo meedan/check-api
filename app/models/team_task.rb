@@ -157,6 +157,8 @@ class TeamTask < ActiveRecord::Base
   end
 
   def handle_add_projects(condition, excluded_ids = [0])
+    # bypass trashed items
+    condition.merge!({ archived: false })
     ProjectMedia.where(condition)
     .where("project_id NOT IN (?) OR project_id IS NULL", excluded_ids)
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'

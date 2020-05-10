@@ -17,9 +17,9 @@ module ProjectMediaPrivate
       ps = get_project_source(self.project_id_was)
       unless ps.nil?
         target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
+        ps.skip_check_ability = true
         if target_ps.nil?
           ps.project_id = self.project_id
-          ps.skip_check_ability = true
           ps.disable_es_callbacks = Rails.env.to_s == 'test'
           ps.save!
         else
@@ -100,7 +100,7 @@ module ProjectMediaPrivate
   end
 
   def update_project_media_project
-    if self.previous_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
+    if self.previous_changes.keys.include?('project_id') || self.changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
       ProjectMediaProject.where(project_media_id: self.id).delete_all
       ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id)
       # Update team task
