@@ -90,18 +90,6 @@ hi:
   custom_message_status_report-correct_afp-fact-check: रिपोर्ट सही
   custom_message_status_report-false_afp-fact-check: रिपोर्ट ग़लत
   custom_message_status_need-orientation_afp-fact-check: एएफपी फैक्ट चेक क्या है?
-  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: |-
-    एएफपी फैक्ट-चेक के बारे में पूछताछ के लिए धन्यवाद। हमारे पत्रकारों की टीम डिजिटल वेरिफिकेशन टूल्स और पारंपरिक रिपोर्टिंग का बेहतर उपयोग कर इंटरनेट पर फैलाई जा रहीं भ्रामक और झूठी ख़बरों (फेक न्यूज़) की जांच करती है। जैसे कई बार सोशल मीडिया में एडिटेड फोटो, वीडियो और झूठे दावों को तथ्य के बतौर शेयर किया जाता है। स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं।
-
-    एएफपी फैक्ट-चेक अंतरराष्ट्रीय समाचार एजेंसी आजांस फ़्रांस-प्रेस हिस्सा है. दुनिया भर के 151 देशों में एएफपी के कुल 201 ब्यूरो हैं. भारत में भ्रामक और झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं।https://factcheck.afp.com/afp-india
-
-    कृपया सोशल मीडिया पर शेयर की जा रही भ्रामक या झूठी खबरें हमें भेजें और फ़ेक न्यूज़ से लड़ने में हमारी मदद करें।
-  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: एएफपी
-    फैक्ट-चेक टीम से संपर्क करने के लिए धन्यवाद। हमारी टीम अभी इस दावे की जाँच कर
-    रही है और जल्द ही आपको रिपोर्ट भेजने की कोशिश करेगी।
-  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: |-
-    एएफपी फैक्ट-चेक टीम से संपर्क करने के लिए आपका धन्यवाद।
-    दुर्भाग्यवश हमारी टीम आपके द्वारा भेजी गई सामग्री की सत्यता की जांच करने में असमर्थ है. स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं, लेकिन आप किसी भ्रामक अथवा झूठी ख़बर (फेक न्यूज़), संदेहास्पद मैसेज, फोटो, वीडियो और दावों की सत्यता जानने उसे एएफपी फैक्ट-चेक टीम को इसी हेल्पलाइन नंबर पर भेज सकते हैं. झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं। https://factcheck.afp.com/afp-india
   custom_message_smooch_bot_result_afp-fact-check: "[वेरिफिकेशन रिपोर्ट] आपने जो सामग्री
     साझा की थी उसे *%{status}* चिन्हित किया गया है. यह हमारी जांच प्रणाली रही है:
     %{url}\n"
@@ -157,6 +145,18 @@ hi:
     हम आपको जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब
     देने में सक्षम नहीं हैं। \n\n*0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य मेन्यु* पर
     वापस जाना चाहते हैं "
+  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: |-
+    एएफपी फैक्ट-चेक के बारे में पूछताछ के लिए धन्यवाद। हमारे पत्रकारों की टीम डिजिटल वेरिफिकेशन टूल्स और पारंपरिक रिपोर्टिंग का बेहतर उपयोग कर इंटरनेट पर फैलाई जा रहीं भ्रामक और झूठी ख़बरों (फेक न्यूज़) की जांच करती है। जैसे कई बार सोशल मीडिया में एडिटेड फोटो, वीडियो और झूठे दावों को तथ्य के बतौर शेयर किया जाता है। स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं।
+
+    एएफपी फैक्ट-चेक अंतरराष्ट्रीय समाचार एजेंसी आजांस फ़्रांस-प्रेस हिस्सा है. दुनिया भर के 151 देशों में एएफपी के कुल 201 ब्यूरो हैं. भारत में भ्रामक और झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं।https://factcheck.afp.com/afp-india
+
+    कृपया सोशल मीडिया पर शेयर की जा रही भ्रामक या झूठी खबरें हमें भेजें और फ़ेक न्यूज़ से लड़ने में हमारी मदद करें।
+  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: एएफपी
+    फैक्ट-चेक टीम से संपर्क करने के लिए धन्यवाद। हमारी टीम अभी इस दावे की जाँच कर
+    रही है और जल्द ही आपको रिपोर्ट भेजने की कोशिश करेगी।
+  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: |-
+    एएफपी फैक्ट-चेक टीम से संपर्क करने के लिए आपका धन्यवाद।
+    दुर्भाग्यवश हमारी टीम आपके द्वारा भेजी गई सामग्री की सत्यता की जांच करने में असमर्थ है. स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं, लेकिन आप किसी भ्रामक अथवा झूठी ख़बर (फेक न्यूज़), संदेहास्पद मैसेज, फोटो, वीडियो और दावों की सत्यता जानने उसे एएफपी फैक्ट-चेक टीम को इसी हेल्पलाइन नंबर पर भेज सकते हैं. झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं। https://factcheck.afp.com/afp-india
   custom_message_status_verified_boom-factcheck: 'सही '
   custom_message_status_false_boom-factcheck: 'ग़लत '
   custom_message_status_not_applicable_boom-factcheck: 'अनिर्णायक '
@@ -179,6 +179,7 @@ hi:
     हमारे फ़ैक्ट चेक लेख को पढ़ें और अपने दोस्तों एवं परिवार के साथ साझा करें|
 
     लिंक: %{url}
+  custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: "धन्यवाद! आपका सन्देश
     हमें मिल गया है | हम आपके भेजे सवाल को फ़ैक्ट-चेक कर रहे हैं | \n\n✔️*इस लिंक पर
     क्लिक करके हमारे वेबसाइट में अक्सर पूछे जाने वाले कुछ सवालों के फ़ैक्ट-चेक आप पढ़
@@ -273,7 +274,8 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
+  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -385,6 +387,8 @@ hi:
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -395,8 +399,6 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mmtan: ''
