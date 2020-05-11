@@ -48,30 +48,9 @@ module Workflow
           end
         end
 
-        def workflow_options_completed_or_not(completed)
-          statuses = self.workflow_options
-          statuses = statuses ? statuses[:statuses] : []
-          statuses.select{ |s| completed ? (s[:completed].to_i == 1) : (s[:completed].to_i != 1) }.collect{ |s| s[:id] }
-        end
-
-        def workflow_completed_options
-          self.workflow_options_completed_or_not(true)
-        end
-
-        def workflow_incompleted_options
-          self.workflow_options_completed_or_not(false)
-        end
-
         def workflow_options_from_key(key)
           statuses = self.workflow_options[:statuses]
-          case key
-          when :any
-            statuses.collect{ |s| s[:id] }
-          when :terminal
-            self.workflow_completed_options
-          when :non_terminal
-            self.workflow_incompleted_options
-          end
+          statuses.collect{ |s| s[:id] } if key == :any
         end
 
         protected

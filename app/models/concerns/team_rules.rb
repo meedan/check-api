@@ -4,7 +4,8 @@ module TeamRules
   extend ActiveSupport::Concern
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
-           'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar']
+           'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
+           'report_is_paused']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -95,6 +96,18 @@ module TeamRules
     def flagged_as(_pm, flag, json_value, _rule_id)
       value = JSON.parse(json_value)
       flag.is_a?(Dynamic) && flag.annotation_type == 'flag' && flag.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
+    end
+
+    def report_is_published(_pm, report, _value, _rule_id)
+      report_state_is(report, 'published')
+    end
+
+    def report_is_paused(_pm, report, _value, _rule_id)
+      report_state_is(report, 'paused')
+    end
+
+    def report_state_is(report, state)
+      report.is_a?(Dynamic) && report.annotation_type == 'report_design' && report.get_field_value('state') == state
     end
   end
 

@@ -765,4 +765,18 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query
     assert_response :success
   end
+
+  test "should create relationship" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    assert_difference 'Relationship.count' do
+      query = 'mutation { createRelationship(input: { clientMutationId: "1", source_id: ' + pm1.id.to_s + ', target_id: ' + pm2.id.to_s + ', relationship_type: "{\"source\":\"full_video\",\"target\":\"clip\"}" }) { relationship { dbid } } }'
+      post :create, query: query
+    end
+    assert_response :success
+  end
 end

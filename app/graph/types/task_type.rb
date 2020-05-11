@@ -44,8 +44,6 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
     }
   end
 
-  field :required, types.Boolean
-
   field :team_task_id, types.Int
 
   field :log_count do
@@ -59,15 +57,6 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
 
   field :suggestions_count, types.Int
   field :pending_suggestions_count, types.Int
-
-  field :status do
-    type types.String
-
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj&.status&.to_s
-    }
-  end
 
   connection :log, -> { VersionType.connection_type } do
     resolve ->(task, _args, _ctx) {

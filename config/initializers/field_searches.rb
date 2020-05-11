@@ -32,10 +32,6 @@ Dynamic.class_eval do
     { type: 'array', title: I18n.t(:annotation_type_language_label), items: { type: 'string', enum: keys, enumNames: labels } }
   end
 
-  def self.field_sort_json_schema_type_verification_status(team = nil)
-    { id: :deadline, label: I18n.t(:verification_status_deadline), asc_label: I18n.t(:verification_status_deadline_asc), desc_label: I18n.t(:verification_status_deadline_desc) } unless team.get_status_target_turnaround.blank?
-  end
-
   def self.field_search_json_schema_type_flag(_team = nil)
     keys = []
     labels = []
@@ -51,12 +47,6 @@ Dynamic.class_eval do
   end
 
   # How a field should be INDEXED BY ELASTICSEARCH
-
-  def get_elasticsearch_options_dynamic_annotation_verification_status
-    deadline = self.get_field_value(:deadline).to_i
-    data = { deadline: deadline, indexable: deadline }
-    { keys: [:deadline, :indexable], data: data }
-  end
 
   def get_elasticsearch_options_dynamic_annotation_language
     code = self.get_field_value(:language)

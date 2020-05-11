@@ -1136,28 +1136,6 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
-  test "should not set active status if task is being copied" do
-    create_verification_status_stuff
-    create_slack_bot
-    team = create_team
-    project = create_project team: team, title: 'Project'
-    pm = create_project_media project: project
-    task = create_task annotated: pm
-    create_annotation_type annotation_type: 'response'
-    task.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json; task.save!
-    s = pm.get_annotations('verification_status').last.load; s.status = 'verified'; s.save!
-
-    ProjectMedia.any_instance.stubs(:set_active_status).never
-    assert !Bot::Slack.default.nil?
-    Bot::Slack.any_instance.stubs(:notify_slack).never
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    assert copy.valid?
-    ProjectMedia.any_instance.unstub(:set_active_status)
-    Bot::Slack.any_instance.unstub(:notify_slack)
-  end
-
   test "should duplicate team with duplicated source" do
     team = create_team
     user = create_user
@@ -1532,14 +1510,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should get dynamic fields schema" do
-    create_verification_status_stuff
     create_flag_annotation_type
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
     t = create_team slug: 'team'
-    t.set_status_target_turnaround = 3
-    t.save!
     p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -1552,7 +1524,6 @@ class TeamTest < ActiveSupport::TestCase
     create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
     assert_equal ['en', 'pt', 'und'], schema[:properties]['language'][:items][:enum].sort
-    assert_not_nil schema[:properties][:sort][:properties][:deadline]
     assert_not_nil schema[:properties]['flag_name']
     assert_not_nil schema[:properties]['flag_value']
   end
@@ -1715,6 +1686,8 @@ class TeamTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'contributor'
     p0 = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
@@ -1741,10 +1714,22 @@ class TeamTest < ActiveSupport::TestCase
     end
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media media: create_claim_media, project: p0
-    pm2 = create_project_media media: create_uploaded_video, project: p0
-    pm3 = create_project_media media: create_uploaded_image, project: p0
-    pm4 = create_project_media media: create_link, project: p0
+    s = create_source
+    c = create_claim_media account: create_valid_account
+    c.account.sources << s
+    ps1 = create_project_source project: p0, source: s
+    ps2 = create_project_source project: p1, source: s
+    pm1 = pm2 = pm3 = pm4 = nil
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.stubs(:notify).raises(StandardError)
+    with_current_user_and_team(u, t) do
+      pm1 = create_project_media media: c, project: p0
+      pm2 = create_project_media media: create_uploaded_video, project: p0
+      pm3 = create_project_media media: create_uploaded_image, project: p0
+      pm4 = create_project_media media: create_link, project: p0
+    end
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
     assert_equal p1.id, pm1.reload.project_id
     assert_equal p2.id, pm2.reload.project_id
     assert_equal p3.id, pm3.reload.project_id
@@ -2302,5 +2287,89 @@ class TeamTest < ActiveSupport::TestCase
     assert t.get_use_disclaimer
     assert_not_nil t.get_introduction
     assert_not_nil t.get_disclaimer
+  end
+
+  test "should get dynamic fields schema for items without list" do
+    create_flag_annotation_type
+    t = create_team
+    pm = create_project_media disable_es_callbacks: false, team: t
+    create_flag annotated: pm, disable_es_callbacks: false
+    schema = t.dynamic_search_fields_json_schema
+    assert_not_nil schema[:properties]['flag_name']
+    assert_not_nil schema[:properties]['flag_value']
+  end
+
+  test "should match rule when report is published" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t 
+    pm2 = create_project_media project: p2
+    pm3 = create_project_media team: t
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "report_is_published",
+          "rule_value": ""
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    publish_report(pm1)
+    publish_report(pm2)
+    assert_equal 2, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+    create_report(pm3, { state: 'published' }, 'publish')
+    assert_equal 3, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+  end
+
+  test "should match rule when report is paused" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t 
+    pm2 = create_project_media project: p2
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": [
+        {
+          "rule_definition": "report_is_paused",
+          "rule_value": ""
+        }
+      ],
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    r1 = create_report(pm1, { state: 'published' }, 'publish')
+    r2 = create_report(pm2, { state: 'published' }, 'publish')
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    r1.set_fields = { state: 'paused' }.to_json ; r1.action = 'pause' ; r1.save!
+    r2.set_fields = { state: 'paused' }.to_json ; r2.action = 'pause' ; r2.save!
+    assert_equal 2, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
   end
 end

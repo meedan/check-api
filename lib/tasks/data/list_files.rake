@@ -3,7 +3,7 @@ namespace :check do
     desc "List uploaded files for a given team id or slug"
     task :list_files, [:team] => :environment do |task, args|
       # Get team id from passed option
-      abort "Usage: #{task.to_s}[team id or slug]" unless args.team
+      raise "Usage: #{task.to_s}[team id or slug]" unless args.team
       team = if args.team.to_i > 0
         Team.find_by_id args.team
       else

@@ -326,6 +326,7 @@ class Bot::Smooch < BotUser
       self.refresh_smooch_slack_timeout(uid)
       return
     end
+    self.refresh_smooch_menu_timeout(uid)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
@@ -920,5 +921,18 @@ class Bot::Smooch < BotUser
       text = 'Automated bot-message reactivated after 15 min of inactivity. <http://help.checkmedia.org/en/articles/3336466-talk-to-users-on-your-check-message-tip-line|Learn more here>.'
       Bot::Slack.send_message_to_slack_conversation(text, data['token'], data['channel'])
     end
+  end
+
+  def self.refresh_smooch_menu_timeout(uid)
+    time = Time.now.to_i
+    Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
+    self.delay_for(15.minutes).timeout_smooch_menu(uid, time)
+  end
+
+  def self.timeout_smooch_menu(uid, time)
+    stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
+    return if stored_time > time
+    sm = CheckStateMachine.new(uid)
+    sm.reset unless ['human_mode', 'query'].include?(sm.state.value)
   end
 end

@@ -37,7 +37,6 @@ class MediaSearch
       tag: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text' } } }
     }
   }
-
   attribute :dynamics, Array, mapping: {
     type: 'nested',
     properties: {
@@ -46,7 +45,6 @@ class MediaSearch
       location: { type: 'geo_point' },
       indexable: { type: 'text', analyzer: 'check'},
       language: { type: 'text', analyzer: 'keyword' },
-      deadline: { type: 'integer' },
       smooch: { type: 'integer' },
       flag_adult: { type: 'integer' },
       flag_spoof: { type: 'integer' },

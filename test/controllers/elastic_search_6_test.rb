@@ -6,39 +6,6 @@ class ElasticSearch6Test < ActionController::TestCase
     setup_elasticsearch
   end
 
-  # https://errbit.test.meedan.com/apps/581a76278583c6341d000b72/problems/5c920b8bf023ba001b5fffbb
-  test "should filter by custom sort and other parameters" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    query = { sort: 'deadline', sort_type: 'asc' }
-
-    result = CheckSearch.new(query.to_json)
-    assert_equal 0, result.medias.count
-
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    t.set_status_target_turnaround = 10.hours ; t.save!
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 5.hours ; t.save!
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 15.hours ; t.save!
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    result = CheckSearch.new(query.to_json)
-    assert_equal 3, result.medias.count
-    assert_equal [pm2.id, pm1.id, pm3.id], result.medias.map(&:id)
-  end
-
   test "should index and sort by most requested" do
     p = create_project
 

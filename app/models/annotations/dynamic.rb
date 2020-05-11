@@ -12,7 +12,7 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp, :set_data
   after_create :create_fields
   after_update :update_fields
-  after_commit :apply_rules_and_actions, on: [:create]
+  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design'].include?(d.annotation_type) }
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
@@ -214,7 +214,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def apply_rules_and_actions
-    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'flag'
+    if self.annotated_type == 'ProjectMedia'
       team = self.annotated.team
       team.apply_rules_and_actions(self.annotated, self) unless team.nil?
     end
