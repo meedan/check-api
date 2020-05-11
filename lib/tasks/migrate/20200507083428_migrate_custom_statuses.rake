@@ -18,8 +18,8 @@ namespace :check do
       statuses << {
         team_slug: 'afp-checamos',
         mapping: {
-          'report-satira' => 'false', 'checamos' => 'verified', 'report-verdadeiro' => 'true',
-          'report-enganoso' => 'misleading', 'report-satira' => 'satire'}
+          'checamos' => 'verified', 'report-verdadeiro' => 'true', 'report-enganoso' => 'misleading',
+          'report-satira' => 'satire'}
       }
       # AFP Fact Check team
       statuses << {
@@ -44,7 +44,8 @@ namespace :check do
         next if team.nil?
         status[:mapping].each do |k, v|
           print "."
-          DynamicAnnotation::Field.where(field_name: 'verification_status_status', value: k)
+          s_values = [k, k + '\n...'].map!(&:to_yaml).map!{|m| m.gsub("\\n", "\n")}
+          DynamicAnnotation::Field.where("field_name = ? AND value IN (?)", 'verification_status_status', s_values)
           .joins("INNER JOIN annotations s ON dynamic_annotation_fields.annotation_id = s.id")
           .joins("INNER JOIN project_medias pm ON s.annotated_id = pm.id AND s.annotated_type = 'ProjectMedia'")
           .where('pm.team_id = ?', team.id)
@@ -54,9 +55,11 @@ namespace :check do
             # update pg
             DynamicAnnotation::Field.where(id: ids).update_all(value: v)
             # remove log entry related to removed status
-            s_version = YAML.dump(k).gsub!("\n", "\\n")
-            Version.from_partition(team.id).where(item_type: 'DynamicAnnotation::Field', item_id: ids)
-            .where_object_changes(value: s_version).delete_all
+            s_versions = s_values.map{|m| m.gsub("\n", "\\n")}
+            s_versions.each do |s_version|
+              Version.from_partition(team.id).where(item_type: 'DynamicAnnotation::Field', item_id: ids)
+              .where_object_changes(value: s_version).delete_all
+            end
           end
           # update ES
           body = {
