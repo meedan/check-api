@@ -238,50 +238,5 @@ class ElasticSearch3Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
   end
 
-  test "should index and sort by deadline" do
-    create_verification_status_stuff
-    at = DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').last
-    ft = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
-    create_field_instance annotation_type_object: at, name: 'deadline', label: 'Deadline', field_type_object: ft, optional: true
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    t.set_status_target_turnaround = 10.hours ; t.save!
-    pm1 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 5.hours ; t.save!
-    pm2 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    t.set_status_target_turnaround = 15.hours ; t.save!
-    pm3 = create_project_media project: p, disable_es_callbacks: false
-    sleep 5
-
-    search = {
-      sort: [
-        {
-          'dynamics.deadline': {
-            order: 'asc',
-            nested: {
-              path: 'dynamics',
-            }
-          }
-        }
-      ],
-      query: {
-        match_all: {}
-      }
-    }
-
-    pms = []
-    MediaSearch.search(search).results.each do |r|
-      pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
-    end
-    assert_equal [pm2.id, pm1.id, pm3.id], pms
-  end
-
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end

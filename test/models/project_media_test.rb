@@ -379,38 +379,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should add team tasks when adding or moving items" do
-    create_verification_status_stuff
-    create_task_status_stuff(false)
     t =  create_team
     p = create_project team: t
     p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: [], required: false
-    tt2 = create_team_task team_id: t.id, project_ids: [], required: false
-    tt3 = create_team_task team_id: t.id, project_ids: [p2.id], required: true
+    tt = create_team_task team_id: t.id, project_ids: []
+    tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p
-      assert_equal 2, pm.annotations('task').count
+      assert_equal 1, pm.annotations('task').count
       pm.add_to_project_id = p2.id
       pm.save!
-      assert_equal 3, pm.annotations('task').count
+      assert_equal 2, pm.annotations('task').count
       pm2 = create_project_media project: p
-      assert_equal 2, pm2.annotations('task').count
+      assert_equal 1, pm2.annotations('task').count
       pm2.previous_project_id = pm2.project_id
       pm2.project_id = p2.id
       pm2.save!
-      assert_equal 3, pm2.annotations('task').count
-      # test add required task to terminal status item
-      pm3 = create_project_media project: p
-      s = pm3.last_status_obj
-      s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-      s.save!
-      assert_equal 2, pm3.annotations('task').count
-      pm3.add_to_project_id = p2.id
-      pm3.save!
-      assert_equal 3, pm3.annotations('task').count
-      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt3.id}.last
-      assert_equal 'resolved', pm3_tt.status
+      assert_equal 2, pm2.annotations('task').count
     end
     Team.unstub(:current)
   end
@@ -681,7 +667,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
     stub_config('pender_url', 'https://pender.fake') do
-      assert_match /bit\.ly/, pm.embed_url
+      assert_match /#{CONFIG['short_url_host']}/, pm.embed_url
     end
   end
 
@@ -775,22 +761,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_match CONFIG['checkdesk_client'], pm.source_url
   end
 
-  test "should get resolved tasks for oEmbed" do
-    Sidekiq::Testing.inline! do
-      create_task_status_stuff
-      at = create_annotation_type annotation_type: 'response'
-      create_field_instance annotation_type_object: at, name: 'response'
-      pm = create_project_media
-      assert_equal [], pm.completed_tasks
-      assert_equal 0, pm.completed_tasks_count
-      t1 = create_task annotated: pm
-      t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-      t1.save!
-      t2 = create_task annotated: pm
-      assert_equal [t1], pm.completed_tasks
-      assert_equal [t2], pm.open_tasks
-      assert_equal 1, pm.completed_tasks_count
-    end
+  test "should get completed tasks for oEmbed" do
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response'
+    pm = create_project_media
+    assert_equal [], pm.completed_tasks
+    assert_equal 0, pm.completed_tasks_count
+    t1 = create_task annotated: pm
+    t1.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
+    t1.save!
+    t2 = create_task annotated: pm
+    assert_equal [t1], pm.completed_tasks
+    assert_equal [t2], pm.open_tasks
+    assert_equal 1, pm.completed_tasks_count
   end
 
   test "should get comments for oEmbed" do
@@ -1300,50 +1283,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should reject a status of verified if all required tasks are not resolved" do
-    Sidekiq::Testing.inline! do
-      create_verification_status_stuff
-      create_task_status_stuff(false)
-      at = create_annotation_type annotation_type: 'response'
-      create_field_instance annotation_type_object: at, name: 'response'
-      pm = create_project_media
-      t1 = create_task annotated: pm
-      t2 = create_task annotated: pm, required: true
-      t1.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-      t1.save!
-      s = pm.annotations.where(annotation_type: 'verification_status').last.load
-      assert_raise ActiveRecord::RecordInvalid do
-        s.status = 'verified'; s.save!
-      end
-      assert_raise ActiveRecord::RecordInvalid do
-        s.status = 'false'; s.save!
-      end
-      t2.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json
-      t2.save!
-      s.status = 'verified'; s.save!
-      assert_equal s.reload.status, 'verified'
-    end
-  end
-
-  test "should back status to active if required task added to resolved item" do
-    create_verification_status_stuff
-    p = create_project
-    pm = create_project_media project: p
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'; s.save!
-
-    pm = ProjectMedia.find(pm.id)
-    assert_equal 'verified', pm.last_verification_status
-
-    pm = ProjectMedia.find(pm.id)
-    create_task annotated: pm
-    assert_equal 'verified', pm.last_verification_status
-
-    pm = ProjectMedia.find(pm.id)
-    create_task annotated: pm, required: true
-    assert_equal 'in_progress', pm.last_verification_status
-  end
-
   test "should update media account when change author_url" do
     setup_elasticsearch
     u = create_user is_admin: true
@@ -1429,13 +1368,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_kind_of CheckSearch, pm.check_search_project_was
   end
 
-  test "should not complete media if there are pending tasks" do
+  test "should complete media if there are pending tasks" do
     create_verification_status_stuff
     pm = create_project_media
     s = pm.last_verification_status_obj
     create_task annotated: pm, required: true
     assert_equal 'undetermined', s.reload.get_field('verification_status_status').status
-    assert_raises ActiveRecord::RecordInvalid do
+    assert_nothing_raised do
       s.status = 'verified'
       s.save!
     end
@@ -1462,27 +1401,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not return to active status if required task added to resolved item but status is locked" do
-    create_verification_status_stuff
-    p = create_project
-    pm = create_project_media project: p
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.locked = true
-    s.save!
-
-    pm = ProjectMedia.find(pm.id)
-    assert_equal 'verified', pm.last_verification_status
-
-    pm = ProjectMedia.find(pm.id)
-    create_task annotated: pm
-    assert_equal 'verified', pm.last_verification_status
-
-    pm = ProjectMedia.find(pm.id)
-    create_task annotated: pm, required: true
-    assert_equal 'verified', pm.last_verification_status
-  end
-
   test "should have status permission" do
     u = create_user
     t = create_team
@@ -1500,16 +1418,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_nothing_raised do
       assert_nil pm.last_verification_status_obj
     end
-  end
-
-  test "should return whether in final state or not" do
-    create_verification_status_stuff
-    pm = create_project_media
-    assert_equal false, pm.is_finished?
-    s = pm.last_status_obj
-    s.status = CONFIG['app_name'] == 'Check' ? 'verified' : 'ready'
-    s.save!
-    assert_equal true, pm.is_finished?
   end
 
   test "should have relationships and parent and children reports" do
@@ -1665,13 +1573,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Media Description', l.metadata['description']
     assert_equal 'Project Media Title', pm.metadata['title']
     assert_equal 'Project Media Description', pm.metadata['description']
-  end
-
-  test "should fallback to original URL if Bit.ly raises exception" do
-    pm = create_project_media
-    Bitly::API::Client.any_instance.stubs(:shorten).raises(StandardError)
-    assert_match /medias.html/, pm.embed_url(true)
-    Bitly::API::Client.any_instance.stubs(:shorten).returns(OpenStruct.new({ link: "http://bit.ly/#{random_string}" }))
   end
 
   test "should clone project media to another project" do
@@ -2100,5 +2001,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CcDeville.unstub(:clear_cache_for_url)
     PenderClient::Request.unstub(:get_medias)
     ProjectMedia.any_instance.stubs(:clear_caches)
+  end
+
+  test "should generate short URL when getting embed URL for the first time" do
+    pm = create_project_media
+    assert_difference 'Shortener::ShortenedUrl.count' do
+      assert_match /^http/, pm.embed_url
+    end
+    assert_no_difference 'Shortener::ShortenedUrl.count' do
+      assert_match /^http/, pm.embed_url
+    end
+  end
+
+  test "should move item to another list" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media team: t, project: nil
+    assert_nil pm.project_id
+    pm = ProjectMedia.find(pm.id)
+    assert_difference 'ProjectMediaProject.count' do
+      pm.project_id = p.id
+      pm.save!
+    end
   end
 end

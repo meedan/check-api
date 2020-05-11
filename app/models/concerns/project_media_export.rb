@@ -11,10 +11,6 @@ module ProjectMediaExport
     self.get_annotations('tag').to_enum.reverse_each.collect{ |t| t.load.tag_text }.reverse.join(', ')
   end
 
-  def tasks_resolved_count
-    self.get_annotations('task').map(&:load).select{ |t| t.status === 'resolved' }.count
-  end
-
   def contributing_users_count
     self.annotations.where(annotator_type: 'User').group_by(&:annotator_id).size
   end

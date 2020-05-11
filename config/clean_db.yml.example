@@ -1,0 +1,12 @@
+email_exceptions:
+  - some.email@gmail.com
+  - some_email@yahoo.com
+slack_settings:
+  slack_webhook: 'webhook url'
+  slack_channel: '#channel-name'
+bot_urls:
+  'bot_identifier_1': 'bot 1 url'
+  'bot_identifier_2': 'bot 2 url'
+bot_settings:
+  bot_installation_id_1: 'bot installation 1 settings as JSON string'
+  bot_installation_id_2: 'bot installation 2 settings as JSON string'

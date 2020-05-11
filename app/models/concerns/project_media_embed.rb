@@ -1,5 +1,4 @@
 require 'active_support/concern'
-require 'bitly'
 
 module ProjectMediaEmbed
   extend ActiveSupport::Concern
@@ -14,18 +13,9 @@ module ProjectMediaEmbed
 
   def embed_url(shorten = true)
     url = CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
-    return url unless shorten && CONFIG['bitly_key']
-    Rails.cache.fetch("shorten-url-#{self.full_url}") do
-      # Shorten using Bit.ly and return the shortened URL
-      begin
-        client = Bitly::API::Client.new(token: CONFIG['bitly_key'])
-        bitly = client.shorten(long_url: url)
-        bitly.link
-      rescue StandardError => e
-        Rails.logger.error "[ProjectMedia] Exception when generating Bitly link for #{url}: #{e.message}"
-        url
-      end
-    end
+    return url unless shorten && CONFIG['short_url_host']
+    key = Shortener::ShortenedUrl.generate!(url).unique_key
+    CONFIG['short_url_host'] + '/' + key
   end
 
   def author_name
@@ -86,16 +76,12 @@ module ProjectMediaEmbed
     self.completed_tasks.count
   end
 
-  def required_tasks
-    self.all_tasks.select{ |t| t.required == true }
-  end
-
   def open_tasks
-    self.all_tasks.select{ |t| t.status != 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count == 0 }
   end
 
   def completed_tasks
-    self.all_tasks.select{ |t| t.status == 'resolved' }
+    self.all_tasks.select{ |t| t.responses.count > 0 }
   end
 
   def comments

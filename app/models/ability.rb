@@ -173,7 +173,7 @@ class Ability
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
-    can :destroy, Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
+    can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.get_team.include?(@context_team.id) && !obj.annotated_is_archived?
@@ -203,9 +203,6 @@ class Ability
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false
-    end
-    can [:create, :destroy], ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id
     end
     can :update, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
@@ -254,6 +251,9 @@ class Ability
     end
     can :update, [Dynamic, Annotation] do |obj|
       obj.get_team.include?(@context_team.id) and !obj.annotated_is_archived? and !obj.locked? and obj.annotator_id == @user.id
+    end
+    can [:create, :destroy], ProjectMediaProject do |obj|
+      obj.project && obj.project.team_id == @context_team.id
     end
   end
 

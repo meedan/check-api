@@ -130,7 +130,7 @@ module CheckPermissions
   end
 
   def check_destroy_ability
-    unless self.skip_check_ability or User.current.nil?
+    unless self.skip_check_ability or RequestStore.store[:skip_check_ability] or User.current.nil?
       raise "No permission to delete #{self.class.name}" unless self.ability.can?(:destroy, self)
     end
   end

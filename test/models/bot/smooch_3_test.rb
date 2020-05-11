@@ -587,30 +587,32 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     setup_smooch_bot(true)
     uid = random_string
     sm = CheckStateMachine.new(uid)
-    assert_no_difference 'ProjectMedia.count' do
-      assert_equal 'waiting_for_message', sm.state.value
-      send_message_to_smooch_bot('Hello', uid)
-      assert_equal 'main', sm.state.value
-      send_message_to_smooch_bot('What?', uid)
-      assert_equal 'main', sm.state.value
-      send_message_to_smooch_bot('1', uid)
-      assert_equal 'secondary', sm.state.value
-      send_message_to_smooch_bot('Hum', uid)
-      assert_equal 'secondary', sm.state.value
-      send_message_to_smooch_bot('1', uid)
-      assert_equal 'waiting_for_message', sm.state.value
-      send_message_to_smooch_bot(' ONE', uid)
-      assert_equal 'main', sm.state.value
-      send_message_to_smooch_bot('ONE ', uid)
-      assert_equal 'secondary', sm.state.value
-      send_message_to_smooch_bot('2', uid)
-      assert_equal 'query', sm.state.value
-      send_message_to_smooch_bot('0', uid)
-      assert_equal 'main', sm.state.value
-      send_message_to_smooch_bot('1', uid)
-      assert_equal 'secondary', sm.state.value
-      send_message_to_smooch_bot('tWo', uid)
-      assert_equal 'query', sm.state.value
+    Sidekiq::Testing.fake! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot('Hello', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('What?', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('Hum', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot(' ONE', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('ONE ', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('2', uid)
+        assert_equal 'query', sm.state.value
+        send_message_to_smooch_bot('0', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('tWo', uid)
+        assert_equal 'query', sm.state.value
+      end
     end
     assert_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot(random_string, uid)
@@ -649,6 +651,36 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
     assert_not_equal t1, t2
 
+    Time.unstub(:now)
+  end
+
+  test "should transition from query state to query state" do
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    assert_nothing_raised do
+      sm.go_to_query
+      sm.go_to_query
+    end
+  end
+
+  test "should timeout menu status" do
+    setup_smooch_bot(true)
+    Sidekiq::Testing.fake! do
+      now = Time.now
+      uid = random_string
+      sm = CheckStateMachine.new(uid)
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot(random_string, uid)
+      Time.stubs(:now).returns(now + 30.minutes)
+      Sidekiq::Worker.drain_all
+      assert_equal 'waiting_for_message', sm.state.value
+    end
     Time.unstub(:now)
   end
 

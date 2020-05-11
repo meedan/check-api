@@ -122,7 +122,7 @@ module AnnotationBase
 
     def propagate_assignment_to(user)
       if self.annotation_type == 'verification_status'
-        self.annotated.get_annotations('task').map(&:load).select{ |task| task.status == 'unresolved' || task.responses.select{ |r| r.annotator_id.to_i == user.id }.last.nil? }
+        self.annotated.get_annotations('task').map(&:load).select{ |task| task.responses.count == 0 || task.responses.select{ |r| r.annotator_id.to_i == user.id }.last.nil? }
       else
         []
       end
