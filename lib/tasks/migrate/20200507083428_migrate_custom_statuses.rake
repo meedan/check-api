@@ -44,8 +44,8 @@ namespace :check do
         next if team.nil?
         status[:mapping].each do |k, v|
           print "."
-          s_values = [k, k + '\n...'].map!(&:to_yaml).map!{|m| m.gsub("\\n", "\n")}
-          DynamicAnnotation::Field.where("field_name = ? AND value IN (?)", 'verification_status_status', s_values)
+          s_values = [k, k + '\n...'].map(&:to_yaml).map{|m| m.gsub("\\n", "\n")}
+          DynamicAnnotation::Field.select("dynamic_annotation_fields.id AS id, pm.id AS pm_id").where("field_name = ? AND value IN (?)", 'verification_status_status', s_values)
           .joins("INNER JOIN annotations s ON dynamic_annotation_fields.annotation_id = s.id")
           .joins("INNER JOIN project_medias pm ON s.annotated_id = pm.id AND s.annotated_type = 'ProjectMedia'")
           .where('pm.team_id = ?', team.id)
@@ -60,6 +60,8 @@ namespace :check do
               Version.from_partition(team.id).where(item_type: 'DynamicAnnotation::Field', item_id: ids)
               .where_object_changes(value: s_version).delete_all
             end
+            # update status cache
+            data.map(&:pm_id).each{|pm| Rails.cache.write("check_cached_field:ProjectMedia:#{pm}:status", v)}
           end
           # update ES
           body = {
