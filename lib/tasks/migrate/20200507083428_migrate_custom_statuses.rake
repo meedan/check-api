@@ -19,7 +19,7 @@ namespace :check do
         team_slug: 'afp-checamos',
         mapping: {
           'checamos' => 'verified', 'report-verdadeiro' => 'true', 'report-enganoso' => 'misleading',
-          'report-satira' => 'satire'}
+          'report-satira' => 'satire', 'report-falso' => 'false'}
       }
       # AFP Fact Check team
       statuses << {
