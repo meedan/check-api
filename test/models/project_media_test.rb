@@ -310,7 +310,35 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal 'rails.png', pm.metadata['title']
+    assert_equal 'rails', pm.metadata['title']
+  end
+
+  test "should set automatic title for images and videos" do
+    m = create_uploaded_image file: 'rails.png'
+    v = create_uploaded_video file: 'rails.mp4'
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    p = create_project team: team
+    create_team_user team: team, user: bot, role: 'owner'
+    create_team_user team: team, user: u, role: 'owner'
+    # test with smooch user
+    with_current_user_and_team(bot, team) do
+      pm = create_project_media project: p, media: m
+      count = Media.where(type: 'UploadedImage').count
+      assert_equal pm.title, "image-#{team.slug}-#{count}"
+      pm2 = create_project_media project: p, media: v
+      count = Media.where(type: 'UploadedVideo').count
+      assert_equal pm2.title, "video-#{team.slug}-#{count}"
+      pm.destroy; pm2.destroy
+    end
+    # test with non smooch user
+    with_current_user_and_team(u, team) do
+      pm = create_project_media project: p, media: m
+      assert_equal pm.title, "rails"
+      pm2 = create_project_media project: p, media: v
+      assert_equal pm2.title, "rails"
+    end
   end
 
   test "should protect attributes from mass assignment" do
