@@ -52,8 +52,6 @@ module Api
           render json: parse_json_exception(e), status: 400
         rescue CheckPermissions::AccessDenied => e
           render json: format_error_message(e), status: 403
-        rescue ActiveRecord::RecordNotFound => e
-          render json: format_error_message(e), status: 404
         rescue ActiveRecord::StaleObjectError => e
           render json: format_error_message(e), status: 409
         end
