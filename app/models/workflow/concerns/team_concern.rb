@@ -70,7 +70,7 @@ module Workflow
 
         def validate_statuses(statuses, id)
           statuses[:statuses].each do |status|
-            errors.add(:statuses, I18n.t("invalid_statuses_format_for_custom_#{id}")) if status.keys.map(&:to_sym).sort != [:completed, :description, :id, :label, :style]
+            errors.add(:statuses, I18n.t("invalid_statuses_format_for_custom_#{id}")) unless ([:description, :id, :label, :style] - status.keys.map(&:to_sym).sort).empty?
             errors.add(:statuses, I18n.t("invalid_label_for_custom_#{id}")) if status[:label].blank?
             self.validate_status_id(status[:id], id)
           end
@@ -113,12 +113,13 @@ module Workflow
           ::Workflow::Workflow.workflow_ids.each do |id|
             media_statuses = self.send("get_media_#{id.pluralize}")
             next if media_statuses.blank?
-            list = ::Workflow::Workflow.validate_custom_statuses(self.id, media_statuses, id)
+            validation = ::Workflow::Workflow.validate_custom_statuses(self.id, media_statuses, id)
+            list = validation[:list]
             unless list.blank?
               urls = list.collect{ |l| l[:url] }.sort
               statuses = list.collect{ |l| l[:status] }.uniq
-              others_amount = urls.size > 5 ? "(+ #{urls.size - 5})" : ''
-              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls.first(5).join(", "), others_amount: others_amount ))
+              others_amount = validation[:count] > 3 ? "(+ #{validation[:count] - 3})" : ''
+              errors.add(:base, I18n.t(:cant_change_custom_statuses, statuses: statuses, urls: urls.join(", "), others_amount: others_amount ))
             end
           end
         end

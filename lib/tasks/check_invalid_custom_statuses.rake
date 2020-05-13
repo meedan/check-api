@@ -7,7 +7,7 @@ namespace :check do
     Team.find_each do |t|
       media_statuses = t.get_media_verification_statuses
       unless media_statuses.blank?
-        list = Workflow::Workflow.validate_custom_statuses(t.id, media_statuses)
+        list = Workflow::Workflow.validate_custom_statuses(t.id, media_statuses)[:list]
         unless list.blank?
           urls = list.collect{|l| l[:url]}
           statuses = list.collect{|l| l[:status]}.uniq

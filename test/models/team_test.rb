@@ -882,26 +882,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t.graphql_id, t.team_graphql_id
   end
 
-  test "should not set custom statuses if limited" do
-    t = create_team
-    t.set_limits_custom_statuses(false)
-    t.save!
-    t = Team.find(t.id)
-    value = {
-      label: 'Field label',
-      default: '1',
-      active: '2',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-  end
-
   test "should return the json schema url" do
     t = create_team
     fields = {
