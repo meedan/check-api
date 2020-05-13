@@ -325,10 +325,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # test with smooch user
     with_current_user_and_team(bot, team) do
       pm = create_project_media project: p, media: m
-      count = Media.where(type: 'UploadedImage').count
+      count = Media.where(type: 'UploadedImage').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", team&.id).count
       assert_equal pm.title, "image-#{team.slug}-#{count}"
       pm2 = create_project_media project: p, media: v
-      count = Media.where(type: 'UploadedVideo').count
+      count = Media.where(type: 'UploadedVideo').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", team&.id).count
       assert_equal pm2.title, "video-#{team.slug}-#{count}"
       pm.destroy; pm2.destroy
     end
