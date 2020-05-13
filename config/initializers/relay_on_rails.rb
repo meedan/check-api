@@ -33,6 +33,10 @@ RelayOnRailsSchema = GraphQL::Schema.define do
   object_from_id -> (id, ctx) do
     CheckGraphql.object_from_id(id, ctx)
   end
+
+  rescue_from ActiveRecord::RecordNotFound do |err, _obj, _args, _ctx, _field|
+    raise GraphQL::ExecutionError.new(err.message, options: { code: ::LapisConstants::ErrorCodes::ID_NOT_FOUND })
+  end
 end
 
 class CheckGraphql

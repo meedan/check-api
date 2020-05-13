@@ -311,7 +311,7 @@ class GraphqlController3Test < ActionController::TestCase
     invalid_uid = u.id + rand(10..100)
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
     post :create, query: query, team: t.slug
-    assert_response 404
+    assert_response :success
     # Enable/Disable 2FA
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
     post :create, query: query, team: t.slug
@@ -324,7 +324,7 @@ class GraphqlController3Test < ActionController::TestCase
     # Disable with invalid uid
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
     post :create, query: query, team: t.slug
-    assert_response 404
+    assert_response :success
   end
 
   test "should handle nested error" do
@@ -732,7 +732,7 @@ class GraphqlController3Test < ActionController::TestCase
         # call mutation with non existing id
         query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "99999", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
         post :create, query: query
-        assert_response 404
+        assert_response :success
     end
   end
 
