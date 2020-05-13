@@ -63,7 +63,8 @@ module ProjectMediaCreators
 
   def set_title_for_files
     if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage'].include?(self.media.type)
-      type_count = Media.where(type: self.media.type).count
+      type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", self.team&.id).count
       type = self.media.type == 'UploadedVideo' ? 'video' : 'image'
       title = "#{type}-#{self.team&.slug}-#{type_count}"
     else
