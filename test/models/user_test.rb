@@ -1383,4 +1383,14 @@ class UserTest < ActiveSupport::TestCase
     a2.delete
     assert_equal [pm1], Annotation.project_media_assigned_to_user(u).to_a
   end
+
+  test "should not return 2FA information about one user to another" do
+    u1 = create_user
+    u2 = create_user
+    User.current = u2
+    assert_nothing_raised do
+      assert_equal({}, u1.two_factor)
+    end
+    User.current = nil
+  end
 end
