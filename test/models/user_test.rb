@@ -1370,4 +1370,17 @@ class UserTest < ActiveSupport::TestCase
     User.unstub(:current)
   end
 
+  test "should not list orphan assignments" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, project: nil
+    pm2 = create_project_media team: t, project: nil
+    a = create_task annotated: pm1
+    a2 = create_task annotated: pm2
+    Assignment.create!(user: u, assigned_type: 'Annotation', assigned_id: a.id)
+    Assignment.create!(user: u, assigned_type: 'Annotation', assigned_id: a2.id)
+    a2.delete
+    assert_equal [pm1], Annotation.project_media_assigned_to_user(u).to_a
+  end
 end
