@@ -10,6 +10,7 @@ module UserTwoFactorAuth
 
     def two_factor
       data = {}
+      return data if User.current && User.current.id != self.id
       # enable otp for email based only
       data[:can_enable_otp] = self.encrypted_password? && !self.email.blank?
       data[:otp_required] = self.otp_required_for_login?

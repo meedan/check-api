@@ -112,7 +112,7 @@ UserType = GraphqlCrudOperations.define_default_type do
     resolve ->(user, args, _ctx) {
       pms = Annotation.project_media_assigned_to_user(user).order('id DESC')
       team_id = args['team_id'].to_i
-      pms = pms.joins(:project).where('projects.team_id' => team_id) if team_id > 0
+      pms = pms.where(team_id: team_id) if team_id > 0
       # TODO: remove finished items
       # pms.reject { |pm| pm.is_finished? }
       pms
