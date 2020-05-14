@@ -2054,4 +2054,21 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
   end
+
+  test "should restore item from trash if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner', is_admin: false
+    pm = create_project_media team: t
+    pm.archived = 1
+    pm.save!
+    pm = ProjectMedia.find(pm.id)
+    assert pm.archived
+    with_current_user_and_team(u, t) do
+      pm.archived = 0
+      pm.save!
+    end
+    pm = ProjectMedia.find(pm.id)
+    assert !pm.archived
+  end
 end
