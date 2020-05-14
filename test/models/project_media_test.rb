@@ -2054,4 +2054,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
   end
+
+  test "should validate duplicate based on team" do
+    t = create_team
+    p = create_project team: t
+    t2 = create_team
+    p2 = create_project team: t2
+    # Create media in different team with no list
+    m = create_valid_media
+    create_project_media project: nil, team: t, media: m
+    assert_nothing_raised RuntimeError do
+      create_project_media project: nil, team: t2, url: m.url
+    end
+    # Try to add same item to list
+    assert_raises RuntimeError do
+      create_project_media project: p, url: m.url
+    end
+    # Create item in a list then try to add it via all items(with no list)
+    m2 = create_valid_media
+    create_project_media project: p, media: m2
+    assert_raises RuntimeError do
+      create_project_media project: nil, team: t, url: m2.url
+    end
+    # Add same item to list in different team
+    assert_nothing_raised RuntimeError do
+      create_project_media project: p2, url: m2.url
+    end
+    # create item in a list then try to add it to all items in different team
+    m3 = create_valid_media
+    create_project_media project: p, media: m3
+    assert_nothing_raised RuntimeError do
+      create_project_media team: t2, project: nil, url: m3.url
+    end
+  end
 end
