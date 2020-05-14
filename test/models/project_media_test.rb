@@ -1023,6 +1023,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    p2 = create_project team: t2
+    p3 = create_project team: t2
+    create_team_user team: t2, user: u, role: 'owner'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     media2_url = 'http://www.facebook.com/meedan/posts/456789'
@@ -1053,9 +1057,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
     # test move media to project with same source
-    p2 = create_project team: t
-    p3 = create_project team: t
-    with_current_user_and_team(u, t) do
+    with_current_user_and_team(u, t2) do
       pm = create_project_media project: p2, url: media_url
       pm2 = create_project_media project: p3, url: media2_url
       assert_nothing_raised do
