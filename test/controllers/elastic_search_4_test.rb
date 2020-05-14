@@ -114,16 +114,18 @@ class ElasticSearch4Test < ActionController::TestCase
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    url2 = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
+    m2 = create_media(account: create_valid_account, url: url2)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     p2 = create_project team: t
-    p3 = create_project team: t
-    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-    pm3 = create_project_media project: p3, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m2, disable_es_callbacks: false
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: 'search_title'}.to_json)
-    assert_equal [pm3.id, pm2.id, pm.id], result.medias.map(&:id)
+    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
   end
 
   test "should search for multi-word tag" do
