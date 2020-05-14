@@ -67,12 +67,12 @@ module AssignmentConcern
       assignments = Assignment.where(user_id: uid).includes(:assigned).to_a
       assignments.each do |a|
         if a.assigned_type == 'Annotation'
-          pmids << a.assigned.annotated_id
+          pmids << a.assigned&.annotated_id
         elsif a.assigned_type == 'Project'
           pids << a.assigned_id
         end
       end
-      pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq, pids)
+      pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
       pms = pms.select(select) unless select.nil?
       pms
     end
