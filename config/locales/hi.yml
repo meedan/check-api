@@ -41,6 +41,11 @@ hi:
         label: निरर्थक
       unstarted:
         label: अभी शुरू नहीं किया गया
+  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
+  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -50,14 +55,9 @@ hi:
   custom_message_status_misleading_afp-checamos: ''
   custom_message_status_satire_afp-checamos: ''
   custom_message_status_out_of_scope_afp-checamos: ''
-  custom_message_status_report-verdadeiro_afp-checamos: ''
-  custom_message_status_report-satira_afp-checamos: ''
-  custom_message_status_report-falso_afp-checamos: ''
-  custom_message_status_report-enganoso_afp-checamos: ''
   custom_message_status_warning_afp-checamos: ''
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
-  custom_message_status_checamos_afp-checamos: ''
   custom_message_status_resources_afp-checamos: ''
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
@@ -75,11 +75,6 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
-  custom_message_rule_action_send_message_824ad0f076df2958ef26dd6135cbc2b0_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_dfbd7167cce611eccab3fbb1495162ff_afp-checamos: ''
-  custom_message_rule_action_send_message_4c28c45faf5da5e64f25689f090b380c_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-fact-check: 'शुरू नहीं किया है '
   custom_message_status_in_progress_afp-fact-check: 'काम जारी है '
   custom_message_status_inconclusive_afp-fact-check: 'दायरे से बाहर '
@@ -145,32 +140,16 @@ hi:
     हम आपको जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब
     देने में सक्षम नहीं हैं। \n\n*0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य मेन्यु* पर
     वापस जाना चाहते हैं "
+  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: |-
     एएफपी फैक्ट-चेक के बारे में पूछताछ के लिए धन्यवाद। हमारे पत्रकारों की टीम डिजिटल वेरिफिकेशन टूल्स और पारंपरिक रिपोर्टिंग का बेहतर उपयोग कर इंटरनेट पर फैलाई जा रहीं भ्रामक और झूठी ख़बरों (फेक न्यूज़) की जांच करती है। जैसे कई बार सोशल मीडिया में एडिटेड फोटो, वीडियो और झूठे दावों को तथ्य के बतौर शेयर किया जाता है। स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं।
 
     एएफपी फैक्ट-चेक अंतरराष्ट्रीय समाचार एजेंसी आजांस फ़्रांस-प्रेस हिस्सा है. दुनिया भर के 151 देशों में एएफपी के कुल 201 ब्यूरो हैं. भारत में भ्रामक और झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं।https://factcheck.afp.com/afp-india
 
     कृपया सोशल मीडिया पर शेयर की जा रही भ्रामक या झूठी खबरें हमें भेजें और फ़ेक न्यूज़ से लड़ने में हमारी मदद करें।
-  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: एएफपी
-    फैक्ट-चेक टीम से संपर्क करने के लिए धन्यवाद। हमारी टीम अभी इस दावे की जाँच कर
-    रही है और जल्द ही आपको रिपोर्ट भेजने की कोशिश करेगी।
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: |-
     एएफपी फैक्ट-चेक टीम से संपर्क करने के लिए आपका धन्यवाद।
     दुर्भाग्यवश हमारी टीम आपके द्वारा भेजी गई सामग्री की सत्यता की जांच करने में असमर्थ है. स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं, लेकिन आप किसी भ्रामक अथवा झूठी ख़बर (फेक न्यूज़), संदेहास्पद मैसेज, फोटो, वीडियो और दावों की सत्यता जानने उसे एएफपी फैक्ट-चेक टीम को इसी हेल्पलाइन नंबर पर भेज सकते हैं. झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं। https://factcheck.afp.com/afp-india
-  custom_message_status_verified_boom-factcheck: 'सही '
-  custom_message_status_false_boom-factcheck: 'ग़लत '
-  custom_message_status_not_applicable_boom-factcheck: 'अनिर्णायक '
-  custom_message_status_misleading_boom-factcheck: 'भ्रामक '
-  custom_message_status_partly-true_boom-factcheck: 'कुछ हद तक सही '
-  custom_message_status_undetermined_boom-factcheck: 'शुरू नहीं किया है '
-  custom_message_status_in_progress_boom-factcheck: 'काम जारी है '
-  custom_message_status_out_of_scope_boom-factcheck: 'दायरे से बाहर '
-  custom_message_status_in_the_news_boom-factcheck: 'रिपोर्ट ख़बरों में '
-  custom_message_status_junk_boom-factcheck: 'स्वीकार नहीं '
-  custom_message_status_report-true_boom-factcheck: 'रिपोर्ट सही '
-  custom_message_status_report-false_boom-factcheck: 'रिपोर्ट ग़लत '
-  custom_message_status_report-misleading_boom-factcheck: 'रिपोर्ट भ्रामक '
-  custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: |-
     अपडेट
 
@@ -228,14 +207,23 @@ hi:
     | हम आपको जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब
     देने में सक्षम नहीं भी हो सकते हैं |\n\n*0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य
     मेन्यु* पर वापस जाना चाहते हैं |"
+  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: "जो
     आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
     भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
     हमारे फ़ैक्ट चेक पढ़ें|"
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: "आपके
-    सन्देश के लिए धन्यवाद! हम इसे फ़ैक्ट चेक कर रहे हैं, जल्द ही आपको इसकी वृस्तृत
-    जानकारी साझा की जाएगी| \n\nतब तक हमारे अन्य फ़ैक्ट चेक लेखों को पढ़ें और अपने दोस्तों
-    और परिवार के साथ साझा करें: boomlive.in "
+  custom_message_status_verified_boom-factcheck: 'सही '
+  custom_message_status_false_boom-factcheck: 'ग़लत '
+  custom_message_status_not_applicable_boom-factcheck: 'अनिर्णायक '
+  custom_message_status_misleading_boom-factcheck: 'भ्रामक '
+  custom_message_status_partly-true_boom-factcheck: 'कुछ हद तक सही '
+  custom_message_status_undetermined_boom-factcheck: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_boom-factcheck: 'काम जारी है '
+  custom_message_status_out_of_scope_boom-factcheck: 'दायरे से बाहर '
+  custom_message_status_in_the_news_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: 'स्वीकार नहीं '
+  custom_message_status_bot-resource_boom-factcheck: ''
+  custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
   custom_message_smooch_bot_message_type_unsupported_test-1: ''
@@ -264,6 +252,7 @@ hi:
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
   custom_message_status_bot-resource_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
@@ -274,8 +263,6 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -304,6 +291,16 @@ hi:
     द्वारा हमारे साथ साझा किया गया संदेश गलत तरीके से चिह्नित किया गया था। *%{status}*
     आगे के सत्यापन के लिए यह अभी भी हमारी पंक्ति में है।"
   custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_status_verified_checkpoint: ''
+  custom_message_status_false_checkpoint: ''
+  custom_message_status_in_progress_checkpoint: ''
+  custom_message_status_inconclusive_checkpoint: ''
+  custom_message_status_misleading_checkpoint: ''
+  custom_message_status_disputed_checkpoint: ''
+  custom_message_status_unstarted_checkpoint: ''
+  custom_message_status_error_checkpoint: ''
+  custom_message_status_out_of_scope_checkpoint: ''
+  custom_message_status_junk_checkpoint: ''
   custom_message_smooch_bot_result_india-today: |-
     बधाई हो, जो मैसेज आपने हमें भेजा था उसके बारे में रिपोर्ट तैयार है. उसका निष्कर्ष है *%{status}*.
 
@@ -368,10 +365,7 @@ hi:
   custom_message_status_report-inconclusive_india-today: 'रिपोर्ट: जांच नहीं की जा
     सकती '
   custom_message_status_report_half_true_india-today: 'रिपोर्ट: आधा सच '
-  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: "आपने
-    फैक्ट चेक के लिए जो मैसेज हमें भेजा था, हमारी टीम उसका पता लगाने में जुटी है.
-    \nजवाब तैयार होने पर हम आपसे संपर्क करेंगे. आजतक फैक्ट चेक तक अपनी बात पहुंचाने
-    के लिए आपके फिर से शुक्रिया."
+  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
   custom_message_status_undetermined_africa-check: ''
   custom_message_status_in_progress_africa-check: ''
@@ -387,8 +381,6 @@ hi:
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -399,8 +391,13 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
+  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
+  custom_message_status_undetermined_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: ''
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
@@ -436,8 +433,29 @@ hi:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_smooch_bot_result_changed_sawy: ''
+  custom_message_smooch_bot_message_confirmed_sawy: ''
+  custom_message_smooch_bot_message_type_unsupported_sawy: ''
+  custom_message_smooch_bot_disabled_sawy: ''
+  custom_message_smooch_bot_ask_for_tos_sawy: ''
+  custom_message_smooch_bot_greetings_sawy: ''
+  custom_message_smooch_bot_option_not_available_sawy: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_smooch_bot_result_changed_team-1: ''
+  custom_message_smooch_bot_message_confirmed_team-1: ''
+  custom_message_smooch_bot_message_type_unsupported_team-1: ''
+  custom_message_smooch_bot_disabled_team-1: ''
+  custom_message_smooch_bot_ask_for_tos_team-1: ''
+  custom_message_smooch_bot_greetings_team-1: ''
+  custom_message_smooch_bot_option_not_available_team-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
+  custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
   custom_message_smooch_bot_result_changed_test-3: ''
   custom_message_smooch_bot_message_confirmed_test-3: ''
