@@ -345,10 +345,12 @@ class GraphqlController3Test < ActionController::TestCase
     l = create_valid_media
     u = create_user
     t = create_team
+    t2 = create_team
     create_team_user team: t, user: u
+    create_team_user team: t2, user: u
     authenticate_with_user(u)
     p1 = create_project team: t
-    p2 = create_project team: t
+    p2 = create_project team: t2
     pm1 = create_project_media project: p1, media: l
     pm2 = create_project_media project: p2, media: l
     pm3 = create_project_media media: l

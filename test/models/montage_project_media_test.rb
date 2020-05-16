@@ -124,11 +124,10 @@ class MontageProjectMediaTest < ActiveSupport::TestCase
     m = create_media url: mock_youtube_video(id)
     pm = create_project_media media: m, project: p
     pm2 = create_project_media media: m, project: p2
-    pm3 = create_project_media media: m, project: p3
     assert_equal pm, ProjectMedia.get_by_youtube_id(id, t.id)
     assert_equal pm2, ProjectMedia.get_by_youtube_id(id, t2.id)
     assert_nil ProjectMedia.get_by_youtube_id(id, create_team.id)
-    assert_equal [pm2, pm3].sort, ProjectMedia.get_all_by_youtube_id(id, t2.id).sort
+    assert_equal [pm2].sort, ProjectMedia.get_all_by_youtube_id(id, t2.id).sort
     id = random_string
     assert_nil ProjectMedia.get_by_youtube_id(id, t.id)
     assert_nil ProjectMedia.get_by_youtube_id(id, t2.id)

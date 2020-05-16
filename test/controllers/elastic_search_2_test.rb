@@ -91,8 +91,9 @@ class ElasticSearch2Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
     t = create_team
+    t2 = create_team
     p = create_project team: t
-    p2 = create_project team: t
+    p2 = create_project team: t2
     m = create_media url: url
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
