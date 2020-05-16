@@ -534,7 +534,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source user: create_user
     query = "query GetById { source(id: \"#{s.id}\") { name } }"
     post :create, query: query
-    assert_response 403
+    assert_response 200
   end
 
   test "should get team by context" do
