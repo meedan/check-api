@@ -179,9 +179,8 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    pm2 = create_project_media project: p2, media: m
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p2
     m2 = create_valid_media
     pm3 = create_project_media project: p, media: m2
 
@@ -211,25 +210,25 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     pm1 = create_project_media project: p, media: m
-    pm2 = create_project_media project: p2, media: m
+    pm2 = create_project_media project: p2
     # Update media title and description with context p
     info = {title: 'Title A', description: 'Desc A'}.to_json
     pm1.metadata = info
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
     pm2.metadata = info
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata } }"
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata, media { metadata} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    metadata = JSON.parse(@response.body)['data']['project_media']['metadata']
-    assert_equal 'Title A', metadata['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata, media { metadata } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal 'Title B', data['metadata']['title']
+    metadata = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 'Title A', metadata['metadata']['title']
     # original metadata
-    assert_equal 'test media', data['media']['metadata']['title']
+    assert_equal 'test media', metadata['media']['metadata']['title']
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']['metadata']
+    assert_equal 'Title B', data['title']
   end
 
   test "should read project media overridden" do
