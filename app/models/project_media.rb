@@ -14,7 +14,7 @@ class ProjectMedia < ActiveRecord::Base
   validates_presence_of :media
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
-  validates :media_id, uniqueness: { scope: :team_id }
+  validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create

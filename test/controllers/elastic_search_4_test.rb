@@ -13,9 +13,10 @@ class ElasticSearch4Test < ActionController::TestCase
       p2 = create_project team: t
       info = {title: 'report_title'}.to_json
       m = create_valid_media
+      m2 = create_valid_media
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm.metadata = info
-      pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+      pm2 = create_project_media project: p2, media: m2, disable_es_callbacks: false
       pm2.metadata = info
       create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
       create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
