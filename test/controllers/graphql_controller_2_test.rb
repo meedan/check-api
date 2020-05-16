@@ -143,7 +143,7 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user
     create_team slug: 'team', name: 'Team', private: true
     post :create, query: 'query Team { team(slug: "team") { name, public_team { id } } }'
-    assert_response 403
+    assert_response 200
     assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
   end
 
@@ -794,7 +794,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     query = "query GetById { task(id: \"#{tk2.id}\") { id } }"
     post :create, query: query, team: t.slug
-    assert_response 403
+    assert_response 200
   end
 
   test "should show any task to non-annotator" do
