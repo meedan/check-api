@@ -419,7 +419,11 @@ class AnnotationTest < ActiveSupport::TestCase
         create_team_user user: u, team: t
         p.assign_user(u.id)
       end
-      assert_difference 'Assignment.count', 3 do
+      # update status for one user to be `banned`
+      tu = TeamUser.where(team_id: t.id).last
+      tu.status = 'banned'
+      tu.save!
+      assert_difference 'Assignment.count', 2 do
         Sidekiq::Testing.inline! do
           create_project_media project: p
         end
