@@ -466,6 +466,10 @@ class TaskTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
     with_current_user_and_team(u, t) do
       assert_difference 'Annotation.where(annotation_type: "task").count', -1 do
         tk.destroy
