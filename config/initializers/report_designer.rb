@@ -30,7 +30,7 @@ Dynamic.class_eval do
 
   def report_image_generate_png
     if self.annotation_type == 'report_design'
-      team = self.annotated&.project&.team
+      team = self.annotated&.team
       return if team.nil?
 
       # Get the template and generate the HTML
