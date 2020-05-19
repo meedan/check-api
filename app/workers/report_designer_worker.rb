@@ -28,5 +28,6 @@ class ReportDesignerWorker
       previous_published_status_label: d.get_field_value('status_label').to_s
     }).to_json
     d.save!
+    pm.clear_caches
   end
 end
