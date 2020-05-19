@@ -811,7 +811,7 @@ class Bot::Smooch < BotUser
 
   def self.send_report_to_users(pm, action)
     parent = Relationship.where(target_id: pm.id).last&.source || pm
-    report = parent.get_annotations('report_design').last.load
+    report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     previous_status = report.get_field_value('previous_published_status_label')
     status = report.get_field_value('status_label')

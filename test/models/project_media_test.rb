@@ -2023,7 +2023,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should clear caches when report is updated" do
     ProjectMedia.any_instance.unstub(:clear_caches)
     Sidekiq::Testing.inline! do
-      CcDeville.stubs(:clear_cache_for_url).times(3)
+      CcDeville.stubs(:clear_cache_for_url).times(6)
       pm = create_project_media
       pm.skip_clear_cache = false
       RequestStore.store[:skip_clear_cache] = false
