@@ -310,7 +310,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal 'rails.png', pm.metadata['title']
+    assert_equal 'rails', pm.metadata['title']
+  end
+
+  test "should set automatic title for images and videos" do
+    m = create_uploaded_image file: 'rails.png'
+    v = create_uploaded_video file: 'rails.mp4'
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
+    u = create_user
+    team = create_team slug: 'workspace-slug'
+    p = create_project team: team
+    create_team_user team: team, user: bot, role: 'owner'
+    create_team_user team: team, user: u, role: 'owner'
+    # test with smooch user
+    with_current_user_and_team(bot, team) do
+      pm = create_project_media project: p, media: m
+      count = Media.where(type: 'UploadedImage').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", team&.id).count
+      assert_equal pm.title, "image-#{team.slug}-#{count}"
+      pm2 = create_project_media project: p, media: v
+      count = Media.where(type: 'UploadedVideo').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", team&.id).count
+      assert_equal pm2.title, "video-#{team.slug}-#{count}"
+      pm.destroy; pm2.destroy
+    end
+    # test with non smooch user
+    with_current_user_and_team(u, team) do
+      pm = create_project_media project: p, media: m
+      assert_equal pm.title, "rails"
+      pm2 = create_project_media project: p, media: v
+      assert_equal pm2.title, "rails"
+    end
   end
 
   test "should protect attributes from mass assignment" do
@@ -993,6 +1023,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    p2 = create_project team: t2
+    p3 = create_project team: t2
+    create_team_user team: t2, user: u, role: 'owner'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     media2_url = 'http://www.facebook.com/meedan/posts/456789'
@@ -1023,9 +1057,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
     # test move media to project with same source
-    p2 = create_project team: t
-    p3 = create_project team: t
-    with_current_user_and_team(u, t) do
+    with_current_user_and_team(u, t2) do
       pm = create_project_media project: p2, url: media_url
       pm2 = create_project_media project: p3, url: media2_url
       assert_nothing_raised do
@@ -1991,7 +2023,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should clear caches when report is updated" do
     ProjectMedia.any_instance.unstub(:clear_caches)
     Sidekiq::Testing.inline! do
-      CcDeville.stubs(:clear_cache_for_url).times(3)
+      CcDeville.stubs(:clear_cache_for_url).times(6)
       pm = create_project_media
       pm.skip_clear_cache = false
       RequestStore.store[:skip_clear_cache] = false
@@ -2023,5 +2055,55 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.project_id = p.id
       pm.save!
     end
+  end
+
+  test "should validate duplicate based on team" do
+    t = create_team
+    p = create_project team: t
+    t2 = create_team
+    p2 = create_project team: t2
+    # Create media in different team with no list
+    m = create_valid_media
+    create_project_media project: nil, team: t, media: m
+    assert_nothing_raised RuntimeError do
+      create_project_media project: nil, team: t2, url: m.url
+    end
+    # Try to add same item to list
+    assert_raises RuntimeError do
+      create_project_media project: p, url: m.url
+    end
+    # Create item in a list then try to add it via all items(with no list)
+    m2 = create_valid_media
+    create_project_media project: p, media: m2
+    assert_raises RuntimeError do
+      create_project_media project: nil, team: t, url: m2.url
+    end
+    # Add same item to list in different team
+    assert_nothing_raised RuntimeError do
+      create_project_media project: p2, url: m2.url
+    end
+    # create item in a list then try to add it to all items in different team
+    m3 = create_valid_media
+    create_project_media project: p, media: m3
+    assert_nothing_raised RuntimeError do
+      create_project_media team: t2, project: nil, url: m3.url
+    end
+  end
+
+  test "should restore item from trash if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner', is_admin: false
+    pm = create_project_media team: t
+    pm.archived = 1
+    pm.save!
+    pm = ProjectMedia.find(pm.id)
+    assert pm.archived
+    with_current_user_and_team(u, t) do
+      pm.archived = 0
+      pm.save!
+    end
+    pm = ProjectMedia.find(pm.id)
+    assert !pm.archived
   end
 end

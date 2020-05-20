@@ -2,7 +2,7 @@ Dynamic.class_eval do
   def report_design_introduction(data)
     if self.annotation_type == 'report_design'
       lang = data['language'] || 'en'
-      introduction = self.get_field_value('introduction')
+      introduction = self.get_field_value('introduction').to_s
       introduction = introduction.gsub('{{status}}', self.get_field_value('status_label')) if self.get_field_value('status_label')
       introduction = introduction.gsub('{{query_date}}', ::I18n.l(Time.at(data['received']), locale: lang, format: :short)) if data['received']
       introduction = introduction.gsub('{{query_message}}', data['text']) if data['text']
@@ -30,7 +30,7 @@ Dynamic.class_eval do
 
   def report_image_generate_png
     if self.annotation_type == 'report_design'
-      team = self.annotated&.project&.team
+      team = self.annotated&.team
       return if team.nil?
 
       # Get the template and generate the HTML

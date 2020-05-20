@@ -52,7 +52,7 @@ module Workflow
 
           define_method "create_first_#{workflow_id}" do
             type = DynamicAnnotation::AnnotationType.where(annotation_type: workflow_id).last
-            unless type.nil?
+            unless type.nil? || workflow_id == 'task_status'
               fields = {}
               type.schema.each do |fi|
                 fields[fi.name.to_sym] = fi.name == "#{workflow_id}_status" ? ::Workflow::Workflow.options(self, workflow_id)[:default] : fi.default_value

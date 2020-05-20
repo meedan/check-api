@@ -48,12 +48,10 @@ module Api
         begin
           result = yield(context)
           render json: result
+
+        # Mutations are not batched, so we can return errors in the root
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
           render json: parse_json_exception(e), status: 400
-        rescue CheckPermissions::AccessDenied => e
-          render json: format_error_message(e), status: 403
-        rescue ActiveRecord::RecordNotFound => e
-          render json: format_error_message(e), status: 404
         rescue ActiveRecord::StaleObjectError => e
           render json: format_error_message(e), status: 409
         end

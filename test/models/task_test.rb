@@ -59,11 +59,12 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal ['foo', 'bar'], t.options
   end
 
-  test "should set initial and update status" do
-    t = create_task status: nil
+  test "should create and update status" do
+    t = create_task status: 'unresolved'
+    d = create_dynamic_annotation annotation_type: 'task_status', annotated: t, set_fields: { task_status_status: 'unresolved' }.to_json
     assert_equal 'unresolved', t.reload.status
     # update status
-    t.status='resolved'
+    t.status = 'resolved'
     t.save!
     assert_equal 'resolved', t.reload.status
   end
@@ -103,8 +104,8 @@ class TaskTest < ActiveSupport::TestCase
     t.save!
     r = t.responses.first
     assert_not_nil Annotation.where(id: r.id).last
-    assert_equal 11, DynamicAnnotation::Field.count
-    assert_equal 12, Dynamic.count
+    assert_equal 10, DynamicAnnotation::Field.count
+    assert_equal 11, Dynamic.count
     t.disable_es_callbacks = true
     t.destroy
     assert_nil Annotation.where(id: r.id).last
@@ -417,6 +418,7 @@ class TaskTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
+    create_dynamic_annotation annotation_type: 'task_status', annotated: tk, set_fields: { task_status_status: 'unresolved' }.to_json
     tk.status = 'resolved'
     tk.save!
     u = create_user
@@ -434,6 +436,7 @@ class TaskTest < ActiveSupport::TestCase
 
   test "should get status label" do
     t = create_task
+    create_dynamic_annotation annotation_type: 'task_status', annotated: t, set_fields: { task_status_status: 'unresolved' }.to_json
     assert_equal 'Unresolved', t.last_task_status_label
   end
 
@@ -453,6 +456,24 @@ class TaskTest < ActiveSupport::TestCase
       tk.save!
       assert_not_nil tk.first_response_version
       assert_kind_of Version, tk.first_response_version
+    end
+  end
+
+  test "should allow editor to delete task" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'editor'
+    p = create_project team: t
+    pm = create_project_media project: p
+    tk = create_task annotated: pm
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'test' }.to_json }.to_json
+    tk.save!
+    with_current_user_and_team(u, t) do
+      assert_difference 'Annotation.where(annotation_type: "task").count', -1 do
+        tk.destroy
+      end
     end
   end
 

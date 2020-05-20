@@ -58,7 +58,20 @@ module ProjectMediaCreators
 
   def set_quote_metadata
     self.metadata = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
-    self.metadata = ({ title: File.basename(self.media.file.path) }.to_json) unless self.media.file.blank?
+    set_title_for_files unless self.media.file.blank?
+  end
+
+  def set_title_for_files
+    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage'].include?(self.media.type)
+      type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", self.team&.id).count
+      type = self.media.type == 'UploadedVideo' ? 'video' : 'image'
+      title = "#{type}-#{self.team&.slug}-#{type_count}"
+    else
+      file_path = self.media.file.path
+      title = File.basename(file_path, File.extname(file_path))
+    end
+    self.metadata = ({ title: title }.to_json)
   end
 
   protected

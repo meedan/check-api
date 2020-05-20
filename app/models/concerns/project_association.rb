@@ -123,7 +123,7 @@ module ProjectAssociation
         obj = ProjectSource.where(project_id: self.project_id, source_id: self.source_id).last
       else
         obj_name = 'media'
-        obj = ProjectMedia.where(project_id: self.project_id, media_id: self.media_id).last
+        obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
       end
       unless obj.nil?
         error = {
