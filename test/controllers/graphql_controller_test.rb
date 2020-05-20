@@ -32,7 +32,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should access GraphQL if authenticated" do
     authenticate_with_user
-    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions, terms_last_updated_at } }', variables: '{"foo":"bar"}'
     assert_response :success
     data = JSON.parse(@response.body)['data']['about']
     assert_kind_of String, data['name']
@@ -73,7 +73,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should return 404 if object does not exist" do
     authenticate_with_user
     post :create, query: 'query GetById { project_media(ids: "99999,99999") { id } }'
-    assert_response 404
+    assert_response :success
   end
 
   test "should set context team" do
@@ -179,9 +179,8 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team
-    m = create_valid_media
-    pm = create_project_media project: p, media: m
-    pm2 = create_project_media project: p2, media: m
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p2
     m2 = create_valid_media
     pm3 = create_project_media project: p, media: m2
 
@@ -211,25 +210,25 @@ class GraphqlControllerTest < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     pm1 = create_project_media project: p, media: m
-    pm2 = create_project_media project: p2, media: m
+    pm2 = create_project_media project: p2
     # Update media title and description with context p
     info = {title: 'Title A', description: 'Desc A'}.to_json
     pm1.metadata = info
     # Update media title and description with context p2
     info = {title: 'Title B', description: 'Desc B'}.to_json
     pm2.metadata = info
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata } }"
+    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata, media { metadata} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    metadata = JSON.parse(@response.body)['data']['project_media']['metadata']
-    assert_equal 'Title A', metadata['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata, media { metadata } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal 'Title B', data['metadata']['title']
+    metadata = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 'Title A', metadata['metadata']['title']
     # original metadata
-    assert_equal 'test media', data['media']['metadata']['title']
+    assert_equal 'test media', metadata['media']['metadata']['title']
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']['metadata']
+    assert_equal 'Title B', data['title']
   end
 
   test "should read project media overridden" do
@@ -534,7 +533,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source user: create_user
     query = "query GetById { source(id: \"#{s.id}\") { name } }"
     post :create, query: query
-    assert_response 403
+    assert_response 200
   end
 
   test "should get team by context" do
@@ -567,7 +566,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, query: 'query Team { team { name } }', team: 'test'
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get teams marked as deleted" do
@@ -580,7 +579,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     t.inactive = true; t.save
     post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get projects from teams marked as deleted" do
@@ -598,7 +597,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t.inactive = true; t.save
     query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
     post :create, query: query
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get project medias from teams marked as deleted" do
@@ -617,7 +616,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t.inactive = true; t.save
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, query: query
-    assert_response 404
+    assert_response :success
   end
 
   test "should update current team based on context team" do
@@ -733,7 +732,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
-    assert_response 404
+    assert_response :success
   end
 
   test "should return null if public team is not found" do
@@ -910,7 +909,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: @team, role: 'owner'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, query: query, team: @team.slug
-    assert_response 404
+    assert_response :success
   end
 
   test "should resend confirmation" do
@@ -923,7 +922,7 @@ class GraphqlControllerTest < ActionController::TestCase
     id = rand(6 ** 6)
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{id} }) { success } }"
     post :create, query: query, team: @team.slug
-    assert_response 404
+    assert_response :success
   end
 
   test "should handle user invitations" do
@@ -937,7 +936,7 @@ class GraphqlControllerTest < ActionController::TestCase
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
     post :create, query: query, team: @team.slug
-    assert_response 404
+    assert_response :success
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -951,7 +950,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: "1", id: 111 }) { success } }'
     post :create, query: query, team: @team.slug
-    assert_response 404
+    assert_response :success
     query = "mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -969,7 +968,7 @@ class GraphqlControllerTest < ActionController::TestCase
     User.stubs(:current).returns(nil)
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
     post :create, query: query, team: @team.slug
-    assert_response 404
+    assert_response :success
     User.unstub(:current)
   end
 

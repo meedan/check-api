@@ -306,4 +306,20 @@ class DynamicTest < ActiveSupport::TestCase
     d = Dynamic.find(d.id)
     assert_equal 'http://imgur.com/test.png', d.get_field_value('image')
   end
+
+  test "should not crash if introduction is null" do
+    create_report_design_annotation_type
+    d = create_dynamic_annotation annotation_type: 'report_design', set_fields: {}.to_json
+    assert_equal '', d.report_design_introduction({ 'text' => random_string })
+  end
+
+  test "should not send report for secondary item if primary does not have a report" do
+    create_report_design_annotation_type
+    pm = create_project_media
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'report_design', set_fields: {}.to_json
+    d.destroy!
+    assert_nothing_raised do
+      Bot::Smooch.send_report_to_users(pm, 'publish')
+    end
+  end
 end
