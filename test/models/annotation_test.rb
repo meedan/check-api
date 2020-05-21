@@ -411,7 +411,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should assign users when status is created" do
     create_verification_status_stuff(false)
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       t = create_team
       p = create_project team: t
       3.times do
@@ -433,7 +433,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should assign users when task is created" do
     create_verification_status_stuff(false)
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       t = create_team
       p = create_project team: t
       pm = create_project_media project: p

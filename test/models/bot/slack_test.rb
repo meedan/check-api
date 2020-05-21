@@ -63,7 +63,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     2.times do
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
     end
-    stub_config('slack_token', '123456') do
+    stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
         create_comment annotated: pm
       end
@@ -79,7 +79,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     2.times do
       create_dynamic_annotation annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
     end
-    stub_config('slack_token', '123456') do
+    stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
         create_comment annotated: pm
       end
@@ -96,7 +96,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
     end
     DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.delete
-    stub_config('slack_token', nil) do
+    stub_configs({ 'slack_token' => nil }) do
       Sidekiq::Testing.inline! do
         create_comment annotated: pm
       end
@@ -112,7 +112,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     3.times do
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: '[]', slack_message_channel: 'C0123Y' }.to_json
     end
-    stub_config('slack_token', '123456') do
+    stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
         create_comment annotated: pm
       end
@@ -131,7 +131,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       a = [{ fields: [{}, {}, {}, {}, {}, {}] }].to_json
       d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     end
-    stub_config('slack_token', '123456') do
+    stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
         s = pm.annotations.where(annotation_type: pm.default_project_media_status_type).last.load
         s.status = 'in_progress'
@@ -154,7 +154,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       a = [{ fields: [{}, {}, {}, {}, {}, {}] }].to_json
       d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     end
-    stub_config('slack_token', '123456') do
+    stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
         info = { title: 'Foo', description: 'Bar' }.to_json
         pm.metadata = info

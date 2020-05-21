@@ -32,14 +32,14 @@ class CommentTest < ActiveSupport::TestCase
     create_team_user team: t, user: cu, role: 'contributor'
     ju = create_user
     create_team_user team: t, user: ju, role: 'journalist'
-    
+
     # create a comment with contributor user
     with_current_user_and_team(cu, t) do
       assert_difference 'Comment.length' do
         create_comment annotated: pm, annotator: cu
       end
     end
-    
+
     # create a comment with journalist user
     with_current_user_and_team(ju, t) do
       assert_difference 'Comment.length' do
@@ -379,7 +379,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should not upload unsafe image (mocked)" do
-    stub_config('clamav_service_path', 'localhost:8080') do
+    stub_configs({ 'clamav_service_path' => 'localhost:8080' }) do
       ClamAV::Client.stubs(:new).returns(MockedClamavClient.new('virus'))
       assert_no_difference 'Comment.length' do
         assert_raises ActiveRecord::RecordInvalid do
@@ -391,7 +391,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should upload safe image (mocked)" do
-    stub_config('clamav_service_path', 'localhost:8080') do
+    stub_configs({ 'clamav_service_path' => 'localhost:8080' }) do
       ClamAV::Client.stubs(:new).returns(MockedClamavClient.new('success'))
       assert_difference 'Comment.length' do
         create_comment file: 'rails.png'
@@ -441,7 +441,7 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should get team for a source comment" do
     t = create_team
-    s = create_source team: t 
+    s = create_source team: t
     c = create_comment annotated: s
     assert_equal [t.id], c.get_team
   end

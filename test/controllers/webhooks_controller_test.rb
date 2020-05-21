@@ -33,21 +33,21 @@ class WebhooksControllerTest < ActionController::TestCase
   end
 
   test "should return error if bot does not exist" do
-    stub_config('checkdesk_base_url_private', 'http://test.host') do
+    stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
       get :index, name: :test
       assert_response 404
     end
   end
 
   test "should return error if request is not valid" do
-    stub_config('checkdesk_base_url_private', 'http://test.host') do
+    stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
       get :index, name: :smooch
       assert_response 400
     end
   end
 
   test "should make successful request to bot" do
-    stub_config('checkdesk_base_url_private', 'http://test.host') do
+    stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
       @request.headers['X-API-Key'] = 'test'
       get :index, name: :smooch
       assert_response :success

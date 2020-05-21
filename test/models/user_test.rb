@@ -168,7 +168,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should send welcome email when user is created" do
-    stub_config 'send_welcome_email_on_registration', true do
+    stub_configs({ 'send_welcome_email_on_registration' => true }) do
       assert_difference 'ActionMailer::Base.deliveries.size', 1 do
         create_user skip_confirmation: true
       end
@@ -178,7 +178,7 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
-    stub_config 'send_welcome_email_on_registration', false do
+    stub_configs({ 'send_welcome_email_on_registration' => false }) do
       assert_no_difference 'ActionMailer::Base.deliveries.size' do
         create_user skip_confirmation: true
         create_omniauth_user provider: 'twitter'
@@ -727,7 +727,7 @@ class UserTest < ActiveSupport::TestCase
     assert_match /rails.png/, u.source.avatar
     assert_match /rails.png/, u.source.image
 
-    stub_config 'checkdesk_base_url', 'http://check.url' do
+    stub_configs({ 'checkdesk_base_url' => 'http://check.url' }) do
       info = {"image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}
       create_omniauth_user provider: 'slack', current_user: u, info: info
       assert_match /rails.png/, u.source.file.url
@@ -793,7 +793,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should not crash but notify if could not get the last time that the terms were updated" do
-    stub_config('tos_url', 'invalid-tos-url') do
+    stub_configs({ 'tos_url' => 'invalid-tos-url' }) do
       assert_nothing_raised do
         assert_equal 0, User.terms_last_updated_at
       end
@@ -1026,7 +1026,7 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
-    stub_config 'send_welcome_email_on_registration', true do
+    stub_configs({ 'send_welcome_email_on_registration' => true }) do
       with_current_user_and_team(u, t) do
         assert_difference 'ActionMailer::Base.deliveries.size', 1 do
           members = [{role: 'contributor', email: 'test1@local.com'}]
