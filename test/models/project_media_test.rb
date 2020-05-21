@@ -2102,4 +2102,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = ProjectMedia.find(pm.id)
     assert !pm.archived
   end
+
+  test "should set media type for links" do
+    l = create_link
+    pm = create_project_media url: l.url
+    pm.send :set_media_type
+    assert_equal 'Link', pm.media_type
+  end
 end

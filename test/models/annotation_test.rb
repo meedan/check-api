@@ -516,4 +516,11 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal({ 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240'))
     assert_equal({ 't' => [10.0, 20.0], 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240&t=10,20'))
   end
+
+  test "should get parsed fragment" do
+    a = Annotation.new(fragment: 't=10,20')
+    assert_equal({ 't' => [10.0, 20.0] }, a.parsed_fragment)
+    a = Annotation.new(fragment: nil)
+    assert_equal({}, a.parsed_fragment)
+  end
 end

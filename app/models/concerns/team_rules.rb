@@ -10,24 +10,20 @@ module TeamRules
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
-  RULES_JSON_SCHEMA_VALIDATOR = JSON.parse(File.read(File.join(Rails.root, 'public', 'rules_json_schema_validator.json')))
 
   module Rules
-    def has_less_than_x_words(pm, obj, value, _rule_id)
-      return false unless obj.nil?
+    def has_less_than_x_words(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
       smooch_message.to_s.split(/\s+/).size < value.to_i
     end
 
-    def contains_keyword(pm, obj, value, _rule_id)
-      return false unless obj.nil?
+    def contains_keyword(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
       return false if smooch_message.blank?
       text_contains_keyword(smooch_message, value)
     end
 
-    def title_contains_keyword(pm, obj, value, _rule_id)
-      return false unless obj.nil?
+    def title_contains_keyword(pm, value, _rule_id)
       text_contains_keyword(pm.title, value)
     end
 
@@ -45,13 +41,11 @@ module TeamRules
       smooch_message['text']
     end
 
-    def title_matches_regexp(pm, obj, value, _rule_id)
-      return false unless obj.nil?
+    def title_matches_regexp(pm, value, _rule_id)
       matches_regexp(pm.title, value)
     end
 
-    def request_matches_regexp(pm, obj, value, _rule_id)
-      return false unless obj.nil?
+    def request_matches_regexp(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
       matches_regexp(smooch_message, value)
     end
@@ -61,53 +55,48 @@ module TeamRules
       !text.match(/#{Regexp.new(value)}/).nil?
     end
 
-    def type_is(pm, obj, value, _rule_id)
-      obj.nil? && pm.report_type == value
+    def type_is(pm, value, _rule_id)
+      pm.report_type == value
     end
 
-    def tagged_as(_pm, tag, value, _rule_id)
-      tag.is_a?(Tag) && tag.tag_text == value
+    def tagged_as(pm, value, _rule_id)
+      pm.get_annotations('tag').map(&:load).select{ |tag| tag.tag_text == value }.size > 0
     end
 
-    def status_is(_pm, status, value, _rule_id)
-      status.is_a?(DynamicAnnotation::Field) && status.field_name == 'verification_status_status' && status.value == value
+    def status_is(pm, value, _rule_id)
+      pm.last_status == value
     end
 
-    def item_titles_are_similar(pm, obj, value, rule_id)
-      !pm.title.blank? && pm.report_type != 'uploadedimage' && items_are_similar('title', pm, obj, value, rule_id)
+    def item_titles_are_similar(pm, value, rule_id)
+      !pm.title.blank? && pm.report_type != 'uploadedimage' && items_are_similar('title', pm, value, rule_id)
     end
 
-    def item_images_are_similar(pm, obj, value, rule_id)
-      pm.report_type == 'uploadedimage' && items_are_similar('image', pm, obj, value, rule_id)
+    def item_images_are_similar(pm, value, rule_id)
+      pm.report_type == 'uploadedimage' && items_are_similar('image', pm, value, rule_id)
     end
 
-    def items_are_similar(type, pm, obj, value, rule_id)
-      if obj.nil?
-        value = value.to_s.gsub(/[^0-9]/, '').to_f / 100.0
-        pm.alegre_similarity_thresholds ||= {}
-        pm.alegre_similarity_thresholds[rule_id] ||= {}
-        pm.alegre_similarity_thresholds[rule_id][type] = value.to_f if pm.alegre_similarity_thresholds[rule_id][type].to_f < value.to_f
-        true
-      else
-        false
-      end
+    def items_are_similar(type, pm, value, rule_id)
+      value = value.to_s.gsub(/[^0-9]/, '').to_f / 100.0
+      pm.alegre_similarity_thresholds ||= {}
+      pm.alegre_similarity_thresholds[rule_id] ||= {}
+      pm.alegre_similarity_thresholds[rule_id][type] = value.to_f if pm.alegre_similarity_thresholds[rule_id][type].to_f < value.to_f
+      true
     end
 
-    def flagged_as(_pm, flag, json_value, _rule_id)
-      value = JSON.parse(json_value)
-      flag.is_a?(Dynamic) && flag.annotation_type == 'flag' && flag.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
+    def flagged_as(pm, value, _rule_id)
+      pm.get_annotations('flag').map(&:load).select{ |flag| flag.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i }.size > 0
     end
 
-    def report_is_published(_pm, report, _value, _rule_id)
-      report_state_is(report, 'published')
+    def report_is_published(pm, _value, _rule_id)
+      report_state_is(pm, 'published')
     end
 
-    def report_is_paused(_pm, report, _value, _rule_id)
-      report_state_is(report, 'paused')
+    def report_is_paused(pm, _value, _rule_id)
+      report_state_is(pm, 'paused')
     end
 
-    def report_state_is(report, state)
-      report.is_a?(Dynamic) && report.annotation_type == 'report_design' && report.get_field_value('state') == state
+    def report_state_is(pm, state)
+      pm.get_annotations('report_design').map(&:load).select{ |report| report.get_field_value('state') == state }.size > 0
     end
   end
 
@@ -180,7 +169,7 @@ module TeamRules
     include ::TeamRules::Actions
     include ErrorNotification
 
-    validate :rules_follow_schema, :rules_regular_expressions_are_valid
+    validate :rules_names, :rules_regular_expressions_are_valid
     after_save :update_rules_index, :upload_custom_rules_strings_to_transifex
 
     def self.rule_id(rule)
@@ -189,60 +178,67 @@ module TeamRules
   end
 
   def rules_json_schema
-    json_schema = RULES_JSON_SCHEMA.gsub(/%{([^}]+)}/) { I18n.t(Regexp.last_match[1]) }
-    schema = JSON.parse(json_schema)
-    projects = self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } }
-    types = ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } }
-    tags = self.tag_texts.collect{ |t| { key: t.text, value: t.text } }
-    pm = ProjectMedia.new(project: Project.new(team_id: self.id), team: self, team_id: self.id)
-    statuses = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
-    statuses = statuses.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
-    flags = DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a.collect{ |f| { key: f, value: I18n.t("flag_#{f}") } }
-    likelihoods = (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } }
-
-    {
-      'actions' => {
-        'action_value_move_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects },
-        'action_value_copy_to_project' => { title: I18n.t(:team_rule_destination), type: 'string', enum: projects }
-      },
-      'rules' => {
-        'rule_value_flagged_as' => { title: I18n.t(:team_rule_select_flag), type: 'string', enum: flags },
-        'rule_value_flag_threshold' => { title: I18n.t(:team_rule_type_flag_threshold), type: 'string', enum: likelihoods },
-        'rule_value_similar_titles' => { title: I18n.t(:team_rule_type_title_threshold), type: 'integer' },
-        'rule_value_similar_images' => { title: I18n.t(:team_rule_type_image_threshold), type: 'integer' },
-        'rule_value_max_number_of_words' => { title: I18n.t(:team_rule_type_number), type: 'string' },
-        'rule_value_type_is' => { title: I18n.t(:team_rule_select_type), type: 'string', enum: types },
-        'rule_value_tagged_as' => { title: I18n.t(:team_rule_select_tag), type: 'string', enum: tags },
-        'rule_value_status_is' => { title: I18n.t(:team_rule_select_status), type: 'string', enum: statuses },
-        'rule_value_matches_regexp' => { title: I18n.t(:team_rule_type_regexp), type: 'string' }
-      }
-    }.each do |section, fields|
-      fields.each do |property, value|
-        schema['properties']['rules']['items']['properties'][section]['items']['properties'][property] = value
-      end
-    end
-
-    schema.to_json
+    pm = ProjectMedia.new(team_id: self.id)
+    statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
+    namespace = OpenStruct.new({
+      projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
+      types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },
+      tags: self.tag_texts.collect{ |t| { key: t.text, value: t.text } },
+      statuses: statuses_objs.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } },
+      flags: DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a
+             .reject{ |f| f == 'spam' } # We are currently hiding the SPAM flag, as per #8220
+             .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
+      likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } }
+    })
+    ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end
 
-  def apply_rules(pm, obj = nil)
+  def matches_group(group, pm, rule_id)
+    matches = 0
+    group[:conditions].each do |condition|
+      matches += 1 if ::TeamRules::RULES.include?(condition[:rule_definition]) && self.send(condition[:rule_definition], pm, condition[:rule_value], rule_id)
+    end
+    self.matches(group[:operator], matches, group[:conditions].size)
+  end
+
+  def matches(operator, matches, total)
+    ((operator == 'and' && matches == total) || (operator == 'or' && matches > 0))
+  end
+
+  def apply_rules(pm, only_rule_ids = nil)
     all_rules_and_actions = self.get_rules || []
     all_rules_and_actions.map(&:with_indifferent_access).each do |rules_and_actions|
       rule_id = Team.rule_id(rules_and_actions)
+      next if !only_rule_ids.nil? && !only_rule_ids.include?(rule_id)
       matches = 0
-      rules_and_actions[:rules].each do |rule|
-        matches += 1 if ::TeamRules::RULES.include?(rule[:rule_definition]) && self.send(rule[:rule_definition], pm, obj, rule[:rule_value], rule_id)
+      rules = rules_and_actions[:rules]
+      groups = rules[:groups]
+      groups.each do |group|
+        matches += 1 if matches_group(group, pm, rule_id)
       end
-      matches_rule = matches == rules_and_actions[:rules].size
+      matches_rule = self.matches(rules[:operator], matches, groups.size)
       yield(rules_and_actions) if matches_rule
     end
   end
 
-  def apply_rules_and_actions(pm, obj = nil)
+  def get_rules_that_match_condition
+    return [] if self.get_rules.blank?
+    rule_ids = []
+    self.get_rules.each do |rule|
+      rule.with_indifferent_access[:rules][:groups].each do |group|
+        group[:conditions].each do |condition|
+          rule_ids << Team.rule_id(rule) if yield(condition[:rule_definition], condition[:rule_value])
+        end
+      end
+    end
+    rule_ids.uniq
+  end
+
+  def apply_rules_and_actions(pm, only_rule_ids = nil)
     return if pm.skip_rules
     begin
       matched_rules_ids = []
-      self.apply_rules(pm, obj) do |rules_and_actions|
+      self.apply_rules(pm, only_rule_ids) do |rules_and_actions|
         rule_id = Team.rule_id(rules_and_actions)
         rules_and_actions[:actions].each do |action|
           if ::TeamRules::ACTIONS.include?(action[:action_definition])
@@ -280,10 +276,6 @@ module TeamRules
 
   private
 
-  def rules_follow_schema
-    errors.add(:base, I18n.t(:team_rule_json_schema_validation)) if !self.get_rules.blank? && !JSON::Validator.validate(RULES_JSON_SCHEMA_VALIDATOR, self.get_rules)
-  end
-
   def update_rules_index
     if self.rules_changed?
       Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
@@ -291,15 +283,27 @@ module TeamRules
     end
   end
 
+  def rules_names
+    names = []
+    unless self.get_rules.blank?
+      self.get_rules.each do |rule|
+        names << rule.with_indifferent_access['name']
+      end
+    end
+    errors.add(:base, I18n.t(:team_rule_names_invalid)) if !names.select{ |n| n.blank? }.empty? || names.uniq.size != names.size
+  end
+
   def rules_regular_expressions_are_valid
     unless self.get_rules.blank?
       self.get_rules.each do |rule|
-        rule['rules'].to_a.each do |condition|
-          if condition['rule_definition'] =~ /regexp/
-            begin
-              Regexp.new(condition['rule_value'])
-            rescue RegexpError => e
-              errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+        rule.with_indifferent_access['rules']['groups'].to_a.each do |group|
+          group['conditions'].each do |condition|
+            if condition['rule_definition'] =~ /regexp/
+              begin
+                Regexp.new(condition['rule_value'])
+              rescue RegexpError => e
+                errors.add(:base, I18n.t(:team_rule_regexp_invalid, { error: e.message }))
+              end
             end
           end
         end
