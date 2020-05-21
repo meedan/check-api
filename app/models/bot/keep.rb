@@ -66,7 +66,6 @@ class Bot::Keep < BotUser
           data = JSON.parse(m.get_field_value('metadata_value'))
           data['archives'] ||= {}
           data['archives'][payload['type']] = response
-          response.each { |key, value| data[key] = value }
           m.set_fields = { metadata_value: data.to_json }.to_json
           m.save!
 
