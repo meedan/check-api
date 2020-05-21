@@ -21,16 +21,24 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     s2['rules'] = [
       {
         "name": "Rule 1",
-        "rules": [
-          {
-            "rule_definition": "contains_keyword",
-            "rule_value": "hi,hello, sorry, Please"
-          },
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "5"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "contains_keyword",
+                  "rule_value": "hi,hello, sorry, Please"
+                },
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "5"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -40,12 +48,20 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       },
       {
         "name": "Rule 2",
-        "rules": [
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "2"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "2"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -55,12 +71,20 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       },
       {
         "name": "Rule 3",
-        "rules": [
-          {
-            "rule_definition": "request_matches_regexp",
-            "rule_value": "^[0-9]+$"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "request_matches_regexp",
+                  "rule_value": "^[0-9]+$"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "send_to_trash",
@@ -70,12 +94,20 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       },
       {
         "name": "Rule 4",
-        "rules": [
-          {
-            "rule_definition": "request_matches_regexp",
-            "rule_value": "bad word"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "request_matches_regexp",
+                  "rule_value": "bad word"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "send_to_trash",

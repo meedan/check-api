@@ -142,7 +142,11 @@ module AnnotationBase
     end
 
     def parsed_fragment
-      begin URI.media_fragment(self.fragment) rescue {} end
+      begin
+        URI.media_fragment(self.fragment)
+      rescue
+        {}
+      end
     end
 
     def custom_permissions(ability = nil)

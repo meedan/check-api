@@ -16,12 +16,20 @@ class ElasticSearch7Test < ActionController::TestCase
       {
         "name": "Test Rule 1",
         "project_ids": p1.id.to_s,
-        "rules": [
-          {
-            "rule_definition": "contains_keyword",
-            "rule_value": "hi,hello,sorry,please"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "contains_keyword",
+                  "rule_value": "hi,hello,sorry,please"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -32,12 +40,20 @@ class ElasticSearch7Test < ActionController::TestCase
       {
         "name": "Test Rule 2",
         "project_ids": p1.id.to_s,
-        "rules": [
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "4"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "4"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -84,16 +100,24 @@ class ElasticSearch7Test < ActionController::TestCase
       {
         "name": "Test Rule 1",
         "project_ids": p2.id.to_s,
-        "rules": [
-          {
-            "rule_definition": "contains_keyword",
-            "rule_value": "foo,bar,test"
-          },
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "2"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "contains_keyword",
+                  "rule_value": "foo,bar,test"
+                },
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "2"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -104,16 +128,24 @@ class ElasticSearch7Test < ActionController::TestCase
       {
         "name": "Test Rule 2",
         "project_ids": p2.id.to_s,
-        "rules": [
-          {
-            "rule_definition": "contains_keyword",
-            "rule_value": "hello,hi"
-          },
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "6"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "contains_keyword",
+                  "rule_value": "hello,hi"
+                },
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "6"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -124,16 +156,24 @@ class ElasticSearch7Test < ActionController::TestCase
       {
         "name": "Test Rule 3",
         "project_ids": p2.id.to_s,
-        "rules": [
-          {
-            "rule_definition": "contains_keyword",
-            "rule_value": "please,thanks"
-          },
-          {
-            "rule_definition": "has_less_than_x_words",
-            "rule_value": "4"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "contains_keyword",
+                  "rule_value": "please,thanks"
+                },
+                {
+                  "rule_definition": "has_less_than_x_words",
+                  "rule_value": "4"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -169,7 +209,20 @@ class ElasticSearch7Test < ActionController::TestCase
 
   test "should notify if index is not updated" do
     t = create_team
-    t.rules = [{ name: 'test' }].to_json
+    t.rules = [
+      {
+        name: 'test',
+        rules: {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    ].to_json
     t.save!
     CheckElasticSearchModel.stubs(:get_index_alias).raises(StandardError)
     Team.expects(:notify_error).once

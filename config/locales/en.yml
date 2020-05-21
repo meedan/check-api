@@ -648,6 +648,7 @@ en:
   team_rule_name: A unique name that identifies what this rule does
   team_rule_project_ids: Apply to list
   team_rule_destination: Select destination list
+  team_rule_names_invalid: Rules names can't be blank and must be unique
   team_rules: Rules
   team_rule_conditions: If
   team_rule_condition: If
@@ -692,6 +693,11 @@ en:
   team_rule_flagged_as: Item is flagged as
   team_rule_report_is_published: Report is published
   team_rule_report_is_paused: Report is paused
+  team_rule_condition_groups: Condition groups
+  team_rule_condition_group: Condition group
+  team_rule_operator: Operator
+  team_rule_json_schema_validation: Rules format is not valid
+  team_rule_created_at: Created
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
