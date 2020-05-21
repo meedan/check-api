@@ -693,10 +693,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('pender_url', 'https://pender.fake') do
+    stub_configs({ 'pender_url' => 'https://pender.fake' }) do
       assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
-    stub_config('pender_url', 'https://pender.fake') do
+    stub_configs({ 'pender_url' => 'https://pender.fake' }) do
       assert_match /#{CONFIG['short_url_host']}/, pm.embed_url
     end
   end
@@ -717,14 +717,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team private: false
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+    stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
 
     t = create_team private: true
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+    stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
   end
@@ -825,9 +825,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Twitter', pm.provider
     c = create_claim_media
     pm = create_project_media media: c
-    stub_config('app_name', 'Check') do
-      assert_equal 'Check', pm.provider
-    end
+    assert_equal 'Check', pm.provider
   end
 
   test "should get published time for oEmbed" do
@@ -1422,15 +1420,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should not move media to active status if status is locked" do
     create_verification_status_stuff
-    stub_config('app_name', 'Check') do
-      pm = create_project_media
-      assert_equal 'undetermined', pm.last_verification_status
-      s = pm.last_verification_status_obj
-      s.locked = true
-      s.save!
-      create_task annotated: pm, disable_update_status: false
-      assert_equal 'undetermined', pm.reload.last_verification_status
-    end
+    pm = create_project_media
+    assert_equal 'undetermined', pm.last_verification_status
+    s = pm.last_verification_status_obj
+    s.locked = true
+    s.save!
+    create_task annotated: pm, disable_update_status: false
+    assert_equal 'undetermined', pm.reload.last_verification_status
   end
 
   test "should have status permission" do
