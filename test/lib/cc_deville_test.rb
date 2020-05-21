@@ -58,7 +58,7 @@ class CcDevilleTest < ActiveSupport::TestCase
   end
 
   test "should handle connection errors to Cloudflare" do
-    WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(Exception)
+    WebMock.stub_request(:post, /api\.cloudflare\.com/).to_raise(StandardError)
     stub_configs({ 'cloudflare_auth_email' => 'foo', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
       mocked_method = MiniTest::Mock.new
       mocked_method.expect :call, :return_value, [String]
