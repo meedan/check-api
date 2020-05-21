@@ -232,7 +232,7 @@ class Dynamic < ActiveRecord::Base
 
   def rule_ids_for_flag
     self.annotated.team.get_rules_that_match_condition do |condition, value|
-      condition == 'flagged_as' && self.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i 
+      condition == 'flagged_as' && self.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
     end
   end
 end
