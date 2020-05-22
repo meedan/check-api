@@ -79,7 +79,7 @@ _Response_
       }
     }
   }
-}            
+}
 ```
 
 ## Create project
@@ -157,7 +157,7 @@ The `slug` is what is used to identify the task when creating a media with a res
 
 ## Add new auto-task
 
-The query below adds a new auto-task and gets the updated list of auto-tasks as response. The `type` inside `add_auto_task` can be `geolocation`, `datetime`, `free_text`, `single_choice` or `multiple_choice`. For the choice types, an additional field `options` should exist inside `add_auto_task`, which is a JSON string with format `"[{\"label\":\"Option A\"},{\"label\":\"Option B\"}]"`.
+The query below adds a new auto-task and gets the updated list of auto-tasks as response. The `type` inside `add_auto_task` can be `geolocation`, `datetime`, `free_text`, `single_choice`, `multiple_choice` or `image_upload`. For the choice types, an additional field `options` should exist inside `add_auto_task`, which is a JSON string with format `"[{\"label\":\"Option A\"},{\"label\":\"Option B\"}]"`.
 
 _Query_
 ```
