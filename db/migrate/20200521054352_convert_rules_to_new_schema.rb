@@ -5,6 +5,7 @@ class ConvertRulesToNewSchema < ActiveRecord::Migration
       unless rules.blank?
         puts "Updating rules for team #{team.name}..."
         new_rules = []
+        names = rules.collect{ |r| r['name'] }
         rules.each do |rule|
           conditions = []
           rule['rules'].each do |condition|
@@ -13,8 +14,12 @@ class ConvertRulesToNewSchema < ActiveRecord::Migration
             end
             conditions << condition.clone
           end
+          name = rule['name']
+          if name.blank? || names.select{ |n| n == name }.size > 1
+            name = "Rule #{rand(100000)}"
+          end
           new_rule = {
-            name: rule['name'],
+            name: name,
             project_ids: rule['project_ids'],
             actions: rule['actions'].clone,
             created_at: Time.now.to_i,
