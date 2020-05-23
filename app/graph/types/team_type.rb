@@ -99,15 +99,9 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :teamwide_tags, -> { TagTextType.connection_type } do
+  connection :tag_texts, -> { TagTextType.connection_type } do
     resolve ->(team, _args, _ctx) {
-      team.teamwide_tags
-    }
-  end
-
-  connection :custom_tags, -> { TagTextType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.custom_tags
+      team.tag_texts
     }
   end
 
