@@ -411,7 +411,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should assign users when status is created" do
     create_verification_status_stuff(false)
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       t = create_team
       p = create_project team: t
       3.times do
@@ -433,7 +433,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should assign users when task is created" do
     create_verification_status_stuff(false)
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       t = create_team
       p = create_project team: t
       pm = create_project_media project: p
@@ -515,5 +515,12 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal({ 'xywh' => { 'x' => 1, 'y' => 2, 'width' => 3, 'height' => 4, 'unit' => 'percent' } }, URI.media_fragment('xywh=percent:1,2,3,4'))
     assert_equal({ 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240'))
     assert_equal({ 't' => [10.0, 20.0], 'xywh' => { 'x' => 160, 'y' => 120, 'width' => 320, 'height' => 240, 'unit' => 'pixel' } }, URI.media_fragment('xywh=160,120,320,240&t=10,20'))
+  end
+
+  test "should get parsed fragment" do
+    a = Annotation.new(fragment: 't=10,20')
+    assert_equal({ 't' => [10.0, 20.0] }, a.parsed_fragment)
+    a = Annotation.new(fragment: nil)
+    assert_equal({}, a.parsed_fragment)
   end
 end

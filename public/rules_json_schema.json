@@ -1,131 +1,259 @@
+<%=
+  # vi: ft=eruby.json
+%>
 {
   "type": "object",
   "properties": {
     "rules": {
       "type": "array",
-      "title": "%{team_rules}",
+      "title": "<%= I18n.t(:team_rules) %>",
       "items": {
-        "title": "%{team_rules}",
+        "title": "<%= I18n.t(:team_rules) %>",
         "type": "object",
         "properties": {
           "name": {
-            "title": "%{team_rule_name}",
+            "title": "<%= I18n.t(:team_rule_name) %>",
             "type": "string"
           },
+          "created_at": {
+            "title": "<%= I18n.t(:team_rule_created_at) %>",
+            "type": "integer"
+          },
           "rules": {
-            "title": "%{team_rule_conditions}",
-            "type": "array",
-            "items": {
-              "title": "%{team_rule_condition}",
-              "type": "object",
-              "properties": {
-                "rule_definition": {
-                  "title": "%{team_rule_condition_definition}",
-                  "type": "string",
-                  "enum": [
-                    {
-                      "key": "contains_keyword",
-                      "value": "%{team_rule_contains_keyword}"
+            "title": "<%= I18n.t(:team_rule_condition_groups) %>",
+            "type": "object",
+            "properties": {
+              "operator": {
+                "title": "<%= I18n.t(:team_rule_operator) %>",
+                "type": "string",
+                "enum": ["and", "or"]
+              },
+              "groups": {
+                "title": "<%= I18n.t(:team_rule_condition_groups) %>",
+                "type": "array",
+                "items": {
+                  "title": "<%= I18n.t(:team_rule_condition_group) %>",
+                  "type": "object",
+                  "properties": {
+                    "operator": {
+                      "title": "<%= I18n.t(:team_rule_operator) %>",
+                      "type": "string",
+                      "enum": ["and", "or"]
                     },
-                    {
-                      "key": "has_less_than_x_words",
-                      "value": "%{team_rule_has_less_than_x_words}"
-                    },
-                    {
-                      "key": "tagged_as",
-                      "value": "%{team_rule_tagged_as}"
-                    },
-                    {
-                      "key": "flagged_as",
-                      "value": "%{team_rule_flagged_as}"
-                    },
-                    {
-                      "key": "status_is",
-                      "value": "%{team_rule_status_is}"
-                    },
-                    {
-                      "key": "type_is",
-                      "value": "%{team_rule_type_is}"
-                    },
-                    {
-                      "key": "title_matches_regexp",
-                      "value": "%{team_rule_title_matches_regexp}"
-                    },
-                    {
-                      "key": "request_matches_regexp",
-                      "value": "%{team_rule_request_matches_regexp}"
-                    },
-                    {
-                      "key": "title_contains_keyword",
-                      "value": "%{team_rule_title_contains_keyword}"
-                    },
-                    {
-                      "key": "item_titles_are_similar",
-                      "value": "%{team_rule_item_titles_are_similar}"
-                    },
-                    {
-                      "key": "item_images_are_similar",
-                      "value": "%{team_rule_item_images_are_similar}"
-                    },
-                    {
-                      "key": "report_is_published",
-                      "value": "%{team_rule_report_is_published}"
-                    },
-                    {
-                      "key": "report_is_paused",
-                      "value": "%{team_rule_report_is_paused}"
+                    "conditions": {
+                      "type": "array",
+                      "items": {
+                        "title": "<%= I18n.t(:team_rule_condition) %>",
+                        "type": "object",
+                        "properties": {
+                          "rule_definition": {
+                            "title": "<%= I18n.t(:team_rule_condition_definition) %>",
+                            "type": "string",
+                            "enum": [
+                              {
+                                "key": "contains_keyword",
+                                "value": "<%= I18n.t(:team_rule_contains_keyword) %>"
+                              },
+                              {
+                                "key": "has_less_than_x_words",
+                                "value": "<%= I18n.t(:team_rule_has_less_than_x_words) %>"
+                              },
+                              {
+                                "key": "tagged_as",
+                                "value": "<%= I18n.t(:team_rule_tagged_as) %>"
+                              },
+                              {
+                                "key": "flagged_as",
+                                "value": "<%= I18n.t(:team_rule_flagged_as) %>"
+                              },
+                              {
+                                "key": "status_is",
+                                "value": "<%= I18n.t(:team_rule_status_is) %>"
+                              },
+                              {
+                                "key": "type_is",
+                                "value": "<%= I18n.t(:team_rule_type_is) %>"
+                              },
+                              {
+                                "key": "title_matches_regexp",
+                                "value": "<%= I18n.t(:team_rule_title_matches_regexp) %>"
+                              },
+                              {
+                                "key": "request_matches_regexp",
+                                "value": "<%= I18n.t(:team_rule_request_matches_regexp) %>"
+                              },
+                              {
+                                "key": "title_contains_keyword",
+                                "value": "<%= I18n.t(:team_rule_title_contains_keyword) %>"
+                              },
+                              {
+                                "key": "item_titles_are_similar",
+                                "value": "<%= I18n.t(:team_rule_item_titles_are_similar) %>"
+                              },
+                              {
+                                "key": "item_images_are_similar",
+                                "value": "<%= I18n.t(:team_rule_item_images_are_similar) %>"
+                              },
+                              {
+                                "key": "report_is_published",
+                                "value": "<%= I18n.t(:team_rule_report_is_published) %>"
+                              },
+                              {
+                                "key": "report_is_paused",
+                                "value": "<%= I18n.t(:team_rule_report_is_paused) %>"
+                              }
+                            ]
+                          }
+                        },
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "enum": ["contains_keyword", "title_contains_keyword"] } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_value) %>", "type": "string" } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "flagged_as" } }
+                            },
+                            "then": {
+                              "properties": {
+                                "rule_value": {
+                                  "type": "object",
+                                  "properties": {
+                                    "flag": {
+                                      "title": "<%= I18n.t(:team_rule_select_flag) %>", "type": "string", "enum": <%= flags.to_json %>
+                                    },
+                                    "threshold": {
+                                      "title": "<%= I18n.t(:team_rule_type_flag_threshold) %>", "type": "string", "enum": <%= likelihoods.to_json %>
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "item_titles_are_similar" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_title_threshold) %>", "type": "integer", "minimum": 0, "maximum": 100 } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "item_images_are_similar" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_image_threshold) %>", "type": "integer", "minimum": 0, "maximum": 100 } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "has_less_than_x_words" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_number) %>", "type": "integer", "minimum": 1 } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "type_is" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_type) %>", "type": "string", "enum": <%= types.to_json %> } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "tagged_as" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_tag) %>", "type": "string", "enum": <%= tags.to_json %> } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "status_is" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_status) %>", "type": "string", "enum": <%= statuses.to_json %> } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "enum": ["title_matches_regexp", "request_matches_regexp"] } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_regexp) %>", "type": "string" } }
+                            }
+                          }
+                        ]
+                      }
                     }
-                  ]
-                },
-                "rule_value": {
-                  "title": "%{team_rule_value}",
-                  "type": "string"
+                  }
                 }
               }
             }
           },
           "actions": {
-            "title": "%{team_rule_actions}",
+            "title": "<%= I18n.t(:team_rule_actions) %>",
             "type": "array",
             "items": {
-              "title": "%{team_rule_action}",
+              "title": "<%= I18n.t(:team_rule_action) %>",
               "type": "object",
               "properties": {
                 "action_definition": {
-                  "title": "%{team_rule_action_definition}",
+                  "title": "<%= I18n.t(:team_rule_action_definition) %>",
                   "type": "string",
                   "enum": [
                     {
                       "key": "move_to_project",
-                      "value": "%{team_rule_move_to_project}"
+                      "value": "<%= I18n.t(:team_rule_move_to_project) %>"
                     },
                     {
                       "key": "copy_to_project",
-                      "value": "%{team_rule_copy_to_project}"
+                      "value": "<%= I18n.t(:team_rule_copy_to_project) %>"
                     },
                     {
                       "key": "relate_similar_items",
-                      "value": "%{team_rule_relate_similar_items}"
+                      "value": "<%= I18n.t(:team_rule_relate_similar_items) %>"
                     },
                     {
                       "key": "send_message_to_user",
-                      "value": "%{team_rule_send_message_to_user}"
+                      "value": "<%= I18n.t(:team_rule_send_message_to_user) %>"
                     },
                     {
                       "key": "send_to_trash",
-                      "value": "%{team_rule_send_to_trash}"
+                      "value": "<%= I18n.t(:team_rule_send_to_trash) %>"
                     },
                     {
                       "key": "ban_submitter",
-                      "value": "%{team_rule_ban_submitter}"
+                      "value": "<%= I18n.t(:team_rule_ban_submitter) %>"
                     }
                   ]
-                },
-                "action_value": {
-                  "title": "%{team_rule_action_value}",
-                  "type": "string"
                 }
-              }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": { "action_definition": { "enum": ["move_to_project", "copy_to_project"] } }
+                  },
+                  "then": {
+                    "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_destination) %>", "type": "integer", "enum": <%= projects.to_json %> } }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": { "action_definition": { "const": "send_message_to_user" } }
+                  },
+                  "then": {
+                    "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_action_value) %>", "type": "string" } }
+                  }
+                }
+              ]
             }
           }
         }

@@ -1,9 +1,6 @@
 require_relative '../test_helper'
 
 class CheckS3Test < ActiveSupport::TestCase
-  def setup
-  end
-
   test "should return resource" do
     assert_kind_of Aws::S3::Resource, CheckS3.resource
   end
@@ -31,7 +28,7 @@ class CheckS3Test < ActiveSupport::TestCase
 
   test "should get public URL" do
     assert_kind_of String, CheckS3.public_url('foo/bar')
-    stub_config('storage', nil) do
+    stub_configs({ 'storage' => nil }) do
       assert_nil CheckS3.public_url('foo/bar')
     end
   end
