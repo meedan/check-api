@@ -17,7 +17,7 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :set_project_source, :notify_team_bots_create
+  after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
   after_commit :create_relationship, :copy_to_project, :add_to_project, :remove_from_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
   after_update :move_media_sources, :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project
@@ -60,7 +60,6 @@ class ProjectMedia < ActiveRecord::Base
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),
       related_to: self.related_to ? Bot::Slack.to_slack_url(self.related_to.full_url, self.related_to.title) : nil,
-      source: self.project_source&.source ? Bot::Slack.to_slack_url(self.project_source.full_url, self.project_source.source.name) : nil,
       description: Bot::Slack.to_slack(self.description, false),
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
@@ -191,18 +190,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def get_dynamic_annotation(type)
     Dynamic.where(annotation_type: type, annotated_type: 'ProjectMedia', annotated_id: self.id).last
-  end
-
-  def project_source
-    cache_key = "project_source_id_cache_for_project_media_#{self.id}"
-    if Rails.cache.exist?(cache_key)
-      ps = Rails.cache.read(cache_key)
-    else
-      ps = get_project_source(self.project_id)
-      Rails.cache.write(cache_key, ps) unless ps.nil?
-    end
-    ps = ProjectSource.find_by_id ps.id unless ps.nil?
-    ps
   end
 
   def custom_permissions(ability = nil)

@@ -1,7 +1,7 @@
 class AddMissingUniqueIndexes < ActiveRecord::Migration
   def change
   	# fix existing duplicates 
-    fix_duplicate(ProjectSource, [:project_id, :source_id])
+    # fix_duplicate(ProjectSource, [:project_id, :source_id])
     fix_duplicate(AccountSource, [:account_id, :source_id])
     fix_duplicate(ClaimSource, [:media_id, :source_id])
     fix_duplicate(ProjectMedia, [:project_id, :media_id])

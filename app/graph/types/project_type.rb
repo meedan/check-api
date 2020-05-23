@@ -30,12 +30,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :project_sources, -> { ProjectSourceType.connection_type } do
-    resolve ->(project, _args, _ctx) {
-      project.project_sources.to_a
-    }
-  end
-
   connection :assigned_users, -> { UserType.connection_type } do
     resolve ->(project, _args, _ctx) {
       project.assigned_users

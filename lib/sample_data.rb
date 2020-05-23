@@ -161,8 +161,7 @@ module SampleData
     options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_project_media team: t
     end
     c = Comment.new
     options.each do |key, value|
@@ -187,8 +186,7 @@ module SampleData
     options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_project_media team: t
     end
     t = Tag.new
     options.each do |key, value|
@@ -230,8 +228,7 @@ module SampleData
     options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_project_media team: t
     end
     s = Dynamic.new
     s.annotation_type = 'verification_status'
@@ -493,13 +490,7 @@ module SampleData
         source.file = f
       end
     end
-
     source.save!
-
-    if options[:team]
-      create_project_source(project: create_project(team: options[:team], user: nil), source: source)
-    end
-
     source.reload
   end
 
@@ -525,27 +516,14 @@ module SampleData
     cs.reload
   end
 
-  def create_project_source(options = {})
-    u = options[:user] || create_user
-    options = { disable_es_callbacks: true, user: u }.merge(options)
-    ps = ProjectSource.new
-    options[:project] = create_project(team: options[:team]) unless options.has_key?(:project)
-    options[:source] = create_source unless options.has_key?(:source)
-    options.each do |key, value|
-      ps.send("#{key}=", value) if ps.respond_to?("#{key}=")
-    end
-    ps.save!
-    ps.reload
-  end
-
   def create_project_media(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
-    options[:project] = create_project unless options.has_key?(:project)
     options[:media] = create_valid_media unless options.has_key?(:media)
+    options[:team] = create_team unless options.has_key?(:team)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
@@ -784,9 +762,8 @@ module SampleData
 
   def create_relationship(options = {})
     t = create_team
-    p = create_project team: t
-    source_id = options[:source_id] || create_project_media(project: p).id
-    target_id = options[:target_id] || create_project_media(project: p).id
+    source_id = options[:source_id] || create_project_media(team: t).id
+    target_id = options[:target_id] || create_project_media(team: t).id
     options = {
       source_id: source_id,
       target_id: target_id,

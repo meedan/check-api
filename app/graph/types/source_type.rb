@@ -27,12 +27,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :project_sources, -> { ProjectSourceType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.project_sources
-    }
-  end
-
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.projects
