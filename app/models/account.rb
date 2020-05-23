@@ -21,7 +21,6 @@ class Account < ActiveRecord::Base
   validates :url, uniqueness: true
 
   after_create :set_metadata_annotation, :create_source, :set_provider
-  after_commit :update_elasticsearch_account, on: :update
 
   serialize :omniauth_info
 
@@ -160,14 +159,6 @@ class Account < ActiveRecord::Base
     errors.add(:base, 'Sorry, this is not a profile') if !self.pender_data.nil? && self.pender_data['provider'] != 'page' && self.pender_data['type'] != 'profile'
   end
 
-  def update_elasticsearch_account
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    parents = self.get_parents
-    parents.each do |parent|
-      self.add_update_nested_obj({ op: 'update', nested_key: 'accounts', keys: %w(title description username), obj: parent })
-    end unless parents.blank?
-  end
-
   def set_metadata_annotation
     self.created_on_registration ? set_omniauth_info_as_annotation : set_pender_result_as_annotation
   end
@@ -178,11 +169,5 @@ class Account < ActiveRecord::Base
       provider = data['provider'] unless self.data.nil?
       self.update_columns(provider: provider) unless provider.blank?
     end
-  end
-
-  protected
-
-  def get_parents
-    ProjectSource.where(source_id: self.sources)
   end
 end

@@ -217,7 +217,7 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create ProjectSource", "create Project"].sort
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }

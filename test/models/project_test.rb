@@ -290,7 +290,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
-    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media", "create Claim", "create Link"].sort
+    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create Source", "create Media", "create Claim", "create Link"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
@@ -631,8 +631,6 @@ class ProjectTest < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm2.id, project_id: nil).last
       assert_not_nil ProjectMedia.where(id: pm3.id, project_id: nil).last
       assert_not_nil Comment.where(id: c.id).last
-      assert_not_nil ProjectSource.where(id: ps1.id).last
-      assert_nil ProjectSource.where(id: ps2.id).last
     end
   end
 

@@ -28,7 +28,7 @@ module Workflow
     end
 
     def self.options(annotated, annotation_type)
-      type = (annotated.class_name == 'ProjectMedia') ? 'media' : (annotated.class_name == 'ProjectSource' ? 'source' : annotated.class_name)
+      type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       statuses = ::Workflow::Workflow.core_options(annotated, annotation_type)
       getter = "get_#{type.downcase}_#{annotation_type.pluralize}"
       team = annotated&.team || annotated&.project&.team

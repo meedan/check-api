@@ -1018,55 +1018,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
   end
 
-  test "should create project source" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    t2 = create_team
-    p2 = create_project team: t2
-    p3 = create_project team: t2
-    create_team_user team: t2, user: u, role: 'owner'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    media_url = 'http://www.facebook.com/meedan/posts/123456'
-    media2_url = 'http://www.facebook.com/meedan/posts/456789'
-    author_url = 'http://facebook.com/123456'
-
-    data = { url: media_url, author_url: author_url, type: 'item' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
-
-    data = { url: media2_url, author_url: author_url, type: 'item' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: media2_url } }).to_return(body: response)
-
-    data = { url: author_url, provider: 'facebook', picture: 'http://fb/p.png', author_name: 'UNIVERSITÄT', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
-
-    with_current_user_and_team(u, t) do
-      assert_difference 'ProjectSource.count' do
-        create_project_media project: p, url: media_url
-      end
-      # should not duplicate ProjectSource for same account
-      assert_no_difference 'ProjectSource.count' do
-        create_project_media project: p, url: media2_url
-      end
-      assert_no_difference 'ProjectSource.count' do
-        create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'UNIVERSITÄT'}.to_json
-      end
-    end
-    # test move media to project with same source
-    with_current_user_and_team(u, t2) do
-      pm = create_project_media project: p2, url: media_url
-      pm2 = create_project_media project: p3, url: media2_url
-      assert_nothing_raised do
-        pm.project = p3
-        pm.save!
-      end
-    end
-  end
-
   test "should set quote attributions" do
     t = create_team
     p = create_project team: t

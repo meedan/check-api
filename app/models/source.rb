@@ -130,14 +130,6 @@ class Source < ActiveRecord::Base
     new_record? ? (self.avatar = image) : self.update_columns(avatar: image)
   end
 
-  def get_annotations(type = nil)
-    conditions = {}
-    conditions[:annotation_type] = type unless type.nil?
-    conditions[:annotated_type] = 'ProjectSource'
-    conditions[:annotated_id] = get_project_sources.map(&:id)
-    self.annotations(type) + Annotation.where(conditions)
-  end
-
   def file_mandatory?
     false
   end
@@ -147,14 +139,6 @@ class Source < ActiveRecord::Base
     self.project_sources.each do |parent|
       self.update_elasticsearch_doc(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
     end
-  end
-
-  def get_versions_log(_event_types = nil, _field_names = nil, _annotation_types = nil, _whodunnit = nil, _include_related = false)
-    Version.from_partition(self.team_id).where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
-  end
-
-  def get_versions_log_count
-    get_project_sources.sum(:cached_annotations_count)
   end
 
   def update_from_pender_data(data)
@@ -215,12 +199,6 @@ class Source < ActiveRecord::Base
 
   def set_team
     self.team = Team.current unless Team.current.nil?
-  end
-
-  def get_project_sources
-    conditions = {}
-    conditions[:project_id] = Team.current.projects unless Team.current.nil?
-    self.project_sources.where(conditions)
   end
 
   def is_unique_per_team
