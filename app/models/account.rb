@@ -33,9 +33,10 @@ class Account < ActiveRecord::Base
     source.nil? ? nil : source.id
   end
 
-  def get_team
-    self.sources.map(&:get_team).flatten.uniq
-  end
+  # def get_team
+  # TODO: Sawy review
+  #   self.sources.map(&:get_team).flatten.uniq
+  # end
 
   def data
     m = self.annotations('metadata').last&.load

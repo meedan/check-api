@@ -108,7 +108,7 @@ class MetadataTest < ActiveSupport::TestCase
   end
 
   test "should protect attributes from mass assignment" do
-    raw_params = { annotation_type: 'metadata', annotated: create_project_source }
+    raw_params = { annotation_type: 'metadata', annotated: create_project_media }
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do

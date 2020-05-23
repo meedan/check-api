@@ -178,8 +178,6 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_annotation(self.event_type, self.item)
     when 'update_projectmedia', 'copy_projectmedia'
       [self.item.class.name, self.item_id.to_i]
-    when 'update_source'
-      self.get_associated_from_source
     when 'create_relationship', 'destroy_relationship'
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
@@ -210,12 +208,6 @@ class Version < Partitioned::ByForeignKey
     end
     annotation = self.item.annotation if self.item
     self.get_associated_from_core_annotation(annotation)
-  end
-
-  def get_associated_from_source
-    s = self.item
-    ps = s.project_sources.last unless s.nil?
-    ps.nil? ? [nil, nil] : [ps.class.name, ps.id]
   end
 
   def get_associated_from_relationship

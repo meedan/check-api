@@ -8,9 +8,7 @@ class Source < ActiveRecord::Base
   include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
-  has_many :project_sources
   has_many :account_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
   belongs_to :team
@@ -25,8 +23,7 @@ class Source < ActiveRecord::Base
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
   after_create :create_metadata, :notify_team_bots_create
-  after_update :notify_team_bots_update, :send_slack_notification
-  after_commit :update_elasticsearch_source, on: :update
+  after_update :notify_team_bots_update
   after_save :cache_source_overridden
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
@@ -39,53 +36,6 @@ class Source < ActiveRecord::Base
 
   def avatar_callback(value, _mapping_ids = nil)
     image_callback(value)
-  end
-
-  def slack_params
-    user = User.current or self.user
-    project_source = self.project_sources[0]
-    {
-      user: Bot::Slack.to_slack(user.name),
-      user_image: user.profile_image,
-      role: I18n.t("role_" + user.role(self.team).to_s),
-      team: Bot::Slack.to_slack(self.team.name),
-      type: I18n.t("activerecord.models.source"),
-      title: Bot::Slack.to_slack(self.name),
-      project: Bot::Slack.to_slack(project_source.project.title),
-      description: Bot::Slack.to_slack(self.description, false),
-      url: project_source.full_url,
-      button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.source"), app: CONFIG['app_name']
-      })
-    }
-  end
-
-  def slack_notification_message(update = true)
-    return nil if self.project_sources.blank?
-    params = self.slack_params
-    event = update ? "update" : "create"
-    {
-      pretext: I18n.t("slack.messages.project_source_#{event}", params),
-      author_icon: params[:user_image],
-      author_name: params[:user],
-      text: params[:description],
-      title_link: params[:url],
-      title: params[:title],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ],
-      fields: [
-        {
-          title: I18n.t(:'slack.fields.project'),
-          value: params[:project],
-          short: true
-        }
-      ]
-    }
   end
 
   def medias
@@ -109,12 +59,13 @@ class Source < ActiveRecord::Base
     self.accounts.count
   end
 
-  def get_team
-    teams = []
-    projects = self.projects.map(&:id)
-    teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
-    return teams
-  end
+  # TODO: Sawy:review
+  # def get_team
+  #   teams = []
+  #   projects = self.projects.map(&:id)
+  #   teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
+  #   return teams
+  # end
 
   def image
     custom = self.public_path
@@ -132,13 +83,6 @@ class Source < ActiveRecord::Base
 
   def file_mandatory?
     false
-  end
-
-  def update_elasticsearch_source
-    return if self.disable_es_callbacks
-    self.project_sources.each do |parent|
-      self.update_elasticsearch_doc(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
-    end
   end
 
   def update_from_pender_data(data)

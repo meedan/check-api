@@ -146,14 +146,12 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_not_empty data['published']
     assert_not_empty data['last_status_obj']['dbid']
-    assert_not_nil data['project_source']['dbid']
-    assert_not_nil data['project_source']['project_id']
     assert data.has_key?('language')
     assert data.has_key?('language_code')
     assert_equal 2, data['annotations']['edges'].size
@@ -270,52 +268,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
   end
 
-  test "should create project source" do
-    s = create_source
-    p = create_project team: @team
-    assert_graphql_create('project_source', { source_id: s.id, project_id: p.id })
-    assert_graphql_create('project_source', { name: 'New source', project_id: p.id })
-  end
-
-  test "should read project sources" do
-    assert_graphql_read('project_source', 'source_id')
-    authenticate_with_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    u = create_user
-    ps = create_project_source project: p, user: u
-    ps2 = create_project_source project: p2, source: ps.source, user: u
-    create_comment annotated: ps
-    create_tag annotated: ps
-    create_comment annotated: ps2
-    create_tag annotated: ps2
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { overridden, log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_source']
-    assert_not_empty data['user']['id']
-    assert_not_empty data['team']['id']
-    assert_equal 4, data['source']['annotations']['edges'].size
-    assert_equal 4, data['source']['annotations_count']
-    assert_not_empty data['published']
-    assert_equal 4, data['source']['log']['edges'].size
-    assert_equal 4, data['source']['log_count']
-  end
-
-  test "should read project sources with team_id as argument" do
-    authenticate_with_token
-    p = create_project team: @team
-    ps = create_project_source project: p
-    query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
-    post :create, query: query
-    assert_response :success
-    assert_equal ps.id, JSON.parse(@response.body)['data']['project_source']['dbid']
-  end
-
-  test "should destroy project source" do
-    assert_graphql_destroy('project_source')
-  end
-
   test "should create project" do
     assert_graphql_create('project', { title: 'test', description: 'test' })
   end
@@ -411,22 +363,18 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url'})
   end
 
-  test "should read object from project source" do
-    assert_graphql_read_object('project_source', { 'project' => 'title', 'source' => 'name' })
-  end
-
   test "should read object from team user" do
     assert_graphql_read_object('team_user', { 'team' => 'name', 'user' => 'name' })
   end
 
   test "should read collection from source" do
     User.delete_all
-    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url', 'project_sources' => 'project_id',
+    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url',
       'medias' => 'media_id', 'collaborators' => 'name' }, 'DESC')
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id', 'project_sources' => 'source_id' })
+    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
   end
 
   test "should read object from media" do
@@ -1120,7 +1068,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1137,7 +1085,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 

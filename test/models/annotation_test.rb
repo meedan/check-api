@@ -14,10 +14,10 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should get annotations with limit and offset" do
-    s = create_project_source
+    s = create_project_media
     c1 = create_comment annotated: s, text: '1'
     c2 = create_comment annotated: s, text: '2'
-    c3 = create_comment annotated: create_project_source, text: '3'
+    c3 = create_comment annotated: create_project_media, text: '3'
     c4 = create_comment annotated: s, text: '4'
     assert_equal ['4', '2', '1'], s.annotation_relation.to_a.collect{ |a| a.data[:text] }
     assert_equal ['2'], s.annotation_relation.offset(1).limit(1).collect{ |a| a.data[:text] }
@@ -35,17 +35,11 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should get annotations by type" do
     c = create_comment annotated: nil
     t = create_tag
-    s = create_project_source
+    s = create_project_media
     s.add_annotation c
     s.add_annotation t
     assert_equal [c], s.annotations('comment')
     assert_equal [t], s.annotations('tag')
-  end
-
-  test "should annotate project source" do
-    s = create_project_source
-    c = create_comment annotated: s
-    assert_equal s, c.source
   end
 
   test "should be an annotation" do
@@ -68,7 +62,7 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should have number of annotations" do
-    s = create_project_source
+    s = create_project_media
     3.times{ create_comment(annotated: s) }
     assert_equal 3, s.annotations_count
   end

@@ -522,8 +522,8 @@ module SampleData
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
+    options[:project] = create_project unless options.has_key?(:project)
     options[:media] = create_valid_media unless options.has_key?(:media)
-    options[:team] = create_team unless options.has_key?(:team)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end

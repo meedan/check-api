@@ -736,16 +736,13 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not delete user if medias or sources associated to his profile" do
+  test "should not delete user if medias associated to his profile" do
     u = create_user
     u2 = create_user
     pm = create_project_media user: u
-    ps = create_project_source user: u
     assert_not u.destroy
     pm.user = u2; pm.save!
     assert_not u.destroy
-    ps.user = u2; ps.save!
-    assert u.destroy
   end
 
   test "should get profile image if user has no source" do
@@ -1063,7 +1060,6 @@ class UserTest < ActiveSupport::TestCase
     s = user.source
     create_account source: s
     pm = create_project_media user: user
-    ps = create_project_source user: user
     with_current_user_and_team(user, t) do
       User.delete_check_user(user)
     end
@@ -1072,7 +1068,6 @@ class UserTest < ActiveSupport::TestCase
     assert_nil user.source, user.email
     assert_not user.is_active?
     assert_equal pm.reload.user_id, user.id
-    assert_equal ps.reload.user_id, user.id
     assert_equal 'banned', tu.reload.status
     user = create_user
     with_current_user_and_team(user, t) do
@@ -1166,7 +1161,6 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
     tu = create_team_user user: u2
     pm = create_project_media user: u2
-    ps = create_project_source user: u2
     s2_id = u2.source.id
     u2_id = u2.id
     u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
@@ -1175,7 +1169,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, accounts.count
     assert_equal ['facebook', 'twitter'].sort, accounts.map(&:provider).sort
     assert_equal u.id, pm.reload.user_id
-    assert_equal u.id, ps.reload.user_id
     assert_equal u.id, tu.reload.user_id
     assert_raises ActiveRecord::RecordNotFound do
       User.find(u2_id)
