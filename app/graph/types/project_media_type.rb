@@ -1,6 +1,7 @@
+# TODO Rename to 'TeamMediaType'
 ProjectMediaType = GraphqlCrudOperations.define_default_type do
   name 'ProjectMedia'
-  description 'ProjectMedia type'
+  description 'Association between a Team and a Media.'
 
   interfaces [NodeIdentification.interface]
 
@@ -9,13 +10,13 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :url, types.String
   field :quote, types.String
   field :oembed_metadata, types.String
-  field :dbid, types.Int
+  field :dbid, types.Int, 'Database id of this record'
   field :archived, types.Boolean
   field :author_role, types.String
   field :report_type, types.String
   field :title, types.String
   field :description, types.String
-  field :picture, types.String
+  field :picture, types.String, 'Picture representing this item'
   field :virality, types.Int
   field :requests_count, types.Int
   field :demand, types.Int
@@ -31,6 +32,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :permissions, types.String do
+    description 'CRUD permissions for current user'
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
         pm.cached_permissions || pm.permissions
@@ -60,6 +62,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :pusher_channel do
     type types.String
+    description 'Channel for push notifications'
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
@@ -183,6 +186,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Merge this and 'last_status_obj' into 'status'
   field :last_status do
     type types.String
 
@@ -200,6 +204,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO What's this for?
   field :overridden do
     type JsonStringType
 
@@ -210,6 +215,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_media, &GraphqlCrudOperations.field_published
 
+  # TODO Merge this and 'language_code'
   field :language do
     type types.String
 
@@ -232,14 +238,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(project_media, args, _ctx) {
       project_media.get_dynamic_annotation(args['annotation_type'])
-    }
-  end
-
-  field :relationship do
-    type RelationshipType
-
-    resolve ->(project_media, _args, _ctx) {
-      Relationship.where(target_id: project_media.id).first || Relationship.where(source_id: project_media.id).first
     }
   end
 
@@ -269,6 +267,15 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Merge this and 'relationships' and 'secondary_items'
+  field :relationship do
+    type RelationshipType
+
+    resolve ->(project_media, _args, _ctx) {
+      Relationship.where(target_id: project_media.id).first || Relationship.where(source_id: project_media.id).first
+    }
+  end
+
   field :relationships do
     type -> { RelationshipsType }
 
@@ -282,6 +289,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
         sources_count: project_media.sources_count
       })
     end
+  end
+
+  connection :secondary_items, -> { ProjectMediaType.connection_type } do
+    argument :source_type, types.String
+    argument :target_type, types.String
+
+    resolve -> (project_media, args, _ctx) {
+      related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.id)
+      related_items = related_items.where('relationships.relationship_type = ?', { source: args['source_type'], target: args['target_type'] }.to_yaml) if args['source_type'] && args['target_type']
+      related_items
+    }
   end
 
   connection :targets_by_users, -> { ProjectMediaType.connection_type }
@@ -298,17 +316,4 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :project_ids, JsonStringType
-
-  connection :secondary_items, -> { ProjectMediaType.connection_type } do
-    argument :source_type, types.String
-    argument :target_type, types.String
-
-    resolve -> (project_media, args, _ctx) {
-      related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.id)
-      related_items = related_items.where('relationships.relationship_type = ?', { source: args['source_type'], target: args['target_type'] }.to_yaml) if args['source_type'] && args['target_type']
-      related_items
-    }
-  end
-
-  # End of fields
 end

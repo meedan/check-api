@@ -1,16 +1,16 @@
 SourceType = GraphqlCrudOperations.define_default_type do
   name 'Source'
-  description 'Source type'
+  description 'A real-world entity that publishes media and makes claims.'
 
   interfaces [NodeIdentification.interface]
 
-  field :image, types.String
+  field :image, types.String, 'Picture' # TODO Rename to 'picture'
   field :description, !types.String
   field :name, !types.String
-  field :dbid, types.Int
+  field :dbid, types.Int, 'Database id of this record'
   field :user_id, types.Int
-  field :permissions, types.String
-  field :pusher_channel, types.String
+  field :permissions, types.String, 'CRUD permissions for current user'
+  field :pusher_channel, types.String, 'Channel for push notifications'
   field :lock_version, types.Int
   field :medias_count, types.Int
   field :accounts_count, types.Int
@@ -27,12 +27,14 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Remove this
   connection :project_sources, -> { ProjectSourceType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.project_sources
     }
   end
 
+  # TODO Remove this
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.projects
@@ -57,6 +59,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO What's this for?
   field :overridden do
     type JsonStringType
 

@@ -1,6 +1,6 @@
 QueryType = GraphQL::ObjectType.define do
-  name "Query"
-  description "The query root of this schema"
+  name 'Query'
+  description 'The query root of the schema.'
 
   field :node, field: NodeIdentification.field
 
@@ -10,40 +10,43 @@ QueryType = GraphQL::ObjectType.define do
 
   field :about do
     type AboutType
-    description 'Information about the application'
+    description 'Information about the application.'
+
     resolve -> (_obj, _args, _ctx) do
       OpenStruct.new({
+        type: 'About',
+        id: 1,
         name: Rails.application.class.parent_name,
         version: VERSION,
-        id: 1,
-        type: 'About',
-        upload_max_size: UploadedImage.max_size_readable,
-        upload_extensions: ImageUploader.upload_extensions.join(', '),
-        video_max_size: UploadedVideo.max_size_readable,
-        video_extensions: VideoUploader.upload_extensions.join(', '),
-        upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
-        upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json,
-        terms_last_updated_at: User.terms_last_updated_at
+        terms_last_updated_at: User.terms_last_updated_at,
+        image_max_size: UploadedImage.max_size_readable,
+        image_extensions: ImageUploader.upload_extensions.join(', '),
+        image_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
+        image_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
+        video_max_size: UploadedVideo.max_size_readable,
+        video_extensions: VideoUploader.upload_extensions.join(', ')
       })
     end
   end
 
   field :me do
     type UserType
-    description 'Information about the current user'
+    description 'Information about the current User.'
+
     resolve -> (_obj, _args, _ctx) do
       User.current
     end
   end
 
-  # Get team by id or slug
-
+  # TODO Can we have this field ONLY return the current team?
   field :team do
     type TeamType
-    description 'Information about the context team or the team from given id'
+    description 'Information about the current Team.'
+
     argument :id, types.ID
     argument :slug, types.String
+
     resolve -> (_obj, args, ctx) do
       tid = args['id'].to_i
       if !args['slug'].blank?
@@ -57,11 +60,11 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  # Get public team
-
+  # TODO Can we have this field ONLY return the current team?
   field :public_team do
     type PublicTeamType
-    description 'Public information about a team'
+    description 'Public information about the current Team.'
+
     argument :slug, types.String
 
     resolve -> (_obj, args, _ctx) do
@@ -71,9 +74,11 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  # TODO "find_X" means this is not a field
   field :find_public_team do
     type PublicTeamType
-    description 'Find whether a team exists'
+    description 'Retrieve a Team given its slug.'
+
     argument :slug, !types.String
 
     resolve -> (_obj, args, _ctx) do
@@ -87,7 +92,10 @@ QueryType = GraphQL::ObjectType.define do
 
   connection :project_medias do
     type ProjectMediaType.connection_type
+    description 'TODO'
+
     argument :url, !types.String
+
     resolve -> (_obj, args, _ctx) {
       return [] if User.current.nil?
       m = Link.where(url: args['url']).last
@@ -98,9 +106,10 @@ QueryType = GraphQL::ObjectType.define do
     }
   end
 
+  # TODO Is this still needed?
   field :project do
     type ProjectType
-    description 'Information about a project, given its id and its team id'
+    description 'Information about a Project, given its id and its Team id.'
 
     argument :id, types.String
     argument :ids, types.String
@@ -115,9 +124,10 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  # TODO Include actual search keys in description
   field :search do
     type CheckSearchType
-    description 'Search medias, The argument should be given like this: "{\"keyword\":\"search keyword\"}"'
+    description 'A search query. The query argument should be JSON-formatted: {"keyword":"search keyword"}}'
 
     argument :query, !types.String
 
@@ -128,6 +138,7 @@ QueryType = GraphQL::ObjectType.define do
 
   field :dynamic_annotation_field do
     type DynamicAnnotationFieldType
+    description 'TODO'
 
     argument :query, !types.String
     argument :only_cache, types.Boolean
@@ -152,12 +163,13 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   # Getters by ID
-
   [:source, :user, :task, :tag_text, :bot_user].each do |type|
     field type do
       type "#{type.to_s.camelize}Type".constantize
-      description "Information about the #{type} with given id"
+      description 'Information about a #{type} given its id.'
+
       argument :id, !types.ID
+
       resolve -> (_obj, args, ctx) do
         GraphqlCrudOperations.load_if_can(type.to_s.camelize.constantize, args['id'], ctx)
       end

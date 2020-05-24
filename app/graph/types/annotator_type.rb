@@ -1,13 +1,15 @@
 AnnotatorType = GraphQL::ObjectType.define do
   name 'Annotator'
-  description 'Information about an annotator'
+  description 'The author of an Annotation.'
   interfaces [NodeIdentification.interface]
   global_id_field :id
 
-  field :name, types.String
-  field :profile_image, types.String
+  field :name, types.String, 'Annotator name'
+  field :profile_image, types.String, 'Annotator picture' # TODO Rename to 'picture'
 
   field :user, UserType do
+    description 'Annotator'
+
     resolve -> (annotator, _args, _ctx) {
       User.where(id: annotator.id).last if annotator.is_a?(User)
     }

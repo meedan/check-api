@@ -1,13 +1,13 @@
+# TODO Remove
 ProjectSourceType = GraphqlCrudOperations.define_default_type do
   name 'ProjectSource'
-  description 'ProjectSource type'
 
   interfaces [NodeIdentification.interface]
 
   field :source_id, types.Int
   field :project_id, types.Int
-  field :permissions, types.String
-  field :dbid, types.Int
+  field :permissions, types.String, 'CRUD permissions for current user'
+  field :dbid, types.Int, 'Database id of this record'
 
   field :project do
     type -> { ProjectType }
@@ -42,6 +42,4 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
   end
 
   instance_exec :project_source, &GraphqlCrudOperations.field_published
-
-# End of fields
 end

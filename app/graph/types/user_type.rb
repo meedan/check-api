@@ -1,24 +1,24 @@
 UserType = GraphqlCrudOperations.define_default_type do
   name 'User'
-  description 'User type'
+  description 'A user of the application.'
 
   interfaces [NodeIdentification.interface]
 
-  field :dbid, types.Int
+  field :dbid, types.Int, 'Database id of this record'
   field :email, types.String
   field :unconfirmed_email, types.String
-  field :providers, JsonStringType
+  field :providers, JsonStringType # TODO what's this?
   field :uuid, types.String
-  field :profile_image, types.String
+  field :profile_image, types.String, 'Picture' # TODO Rename to 'picture'
   field :login, types.String
   field :name, types.String
   field :current_team_id, types.Int
-  field :permissions, types.String
-  field :jsonsettings, types.String
+  field :permissions, types.String, 'CRUD permissions for current user'
+  field :jsonsettings, types.String # What's the difference with 'settings'?
   field :number_of_teams, types.Int
-  field :get_send_email_notifications, types.Boolean
-  field :get_send_successful_login_notifications, types.Boolean
-  field :get_send_failed_login_notifications, types.Boolean
+  field :get_send_email_notifications, types.Boolean # TODO Rename to 'send_email_notifications'
+  field :get_send_successful_login_notifications, types.Boolean # TODO Rename to 'send_successful_login_notifications'
+  field :get_send_failed_login_notifications, types.Boolean # TODO Rename to 'send_failed_login_notifications'
   field :bot_events, types.String
   field :is_bot, types.Boolean
   field :is_active, types.Boolean
@@ -113,7 +113,7 @@ UserType = GraphqlCrudOperations.define_default_type do
       pms = Annotation.project_media_assigned_to_user(user).order('id DESC')
       team_id = args['team_id'].to_i
       pms = pms.where(team_id: team_id) if team_id > 0
-      # TODO: remove finished items
+      # TODO Remove finished items
       # pms.reject { |pm| pm.is_finished? }
       pms
     }

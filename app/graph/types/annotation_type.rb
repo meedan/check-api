@@ -1,6 +1,10 @@
 AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { content: 'str' }) do
+  description 'The base type for user- and bot-generated content describing media, claims, sources, and other Check types including annotations themselves (recursively).'
+
+  # TODO Return the actual type based on `annotated_type`
   field :project_media do
     type ProjectMediaType
+    description 'Item described by this annotation'
 
     resolve ->(annotation, _args, _ctx) {
       annotation.annotated_type == 'ProjectMedia' ? annotation.annotated : nil
@@ -8,15 +12,16 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
   end
 
   connection :attribution, -> { UserType.connection_type } do
+    description 'List of users who have contributed to this annotation'
+
     resolve ->(annotation, _args, _ctx) {
       ids = annotation.attribution.split(',').map(&:to_i)
       User.where(id: ids)
     }
   end
 
-  field :lock_version, types.Int
+  field :locked, types.Boolean, 'TODO'
+  field :lock_version, types.Int, 'TODO'
 
-  field :locked, types.Boolean
-
-  connection :annotations, -> { AnnotationType.connection_type }
+  connection :annotations, -> { AnnotationType.connection_type }, 'Child annotations'
 end

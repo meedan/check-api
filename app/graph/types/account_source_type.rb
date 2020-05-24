@@ -1,27 +1,27 @@
 AccountSourceType = GraphqlCrudOperations.define_default_type do
   name 'AccountSource'
-  description 'AccountSource type'
+  description 'Links an Account to a Source.'
 
   interfaces [NodeIdentification.interface]
 
-  field :account_id, types.Int
-  field :source_id, types.Int
-
-  field :source do
-    type -> { SourceType }
-
-    resolve -> (account_source, _args, _ctx) {
-      account_source.source
-    }
-  end
+  field :account_id, types.Int, 'Account id'
+  field :source_id, types.Int, 'Source id'
 
   field :account do
     type -> { AccountType }
+    description 'Account'
 
     resolve -> (account_source, _args, _ctx) {
       account_source.account
     }
   end
 
-# End of fields
+  field :source do
+    type -> { SourceType }
+    description 'Source'
+
+    resolve -> (account_source, _args, _ctx) {
+      account_source.source
+    }
+  end
 end

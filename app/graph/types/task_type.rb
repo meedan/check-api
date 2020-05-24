@@ -1,4 +1,7 @@
 TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', description: 'str', json_schema: 'str' }) do
+  description 'Annotation representing a request for work on an item.'
+
+  # TODO Merge this and 'first_response_value' into 'answer'
   field :first_response do
     type AnnotationType
 
@@ -17,6 +20,7 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
     }
   end
 
+  # TODO Merge 'options' and 'jsonoptions'
   field :jsonoptions do
     type types.String
 

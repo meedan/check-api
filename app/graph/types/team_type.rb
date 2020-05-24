@@ -1,35 +1,35 @@
 TeamType = GraphqlCrudOperations.define_default_type do
   name 'Team'
-  description 'Team type'
+  description 'The workspace where annotation activity occurs.'
 
   interfaces [NodeIdentification.interface]
 
   field :archived, types.Boolean
   field :private, types.Boolean
-  field :avatar, types.String
+  field :avatar, types.String, 'Picture' # TODO Rename to 'picture'
   field :name, !types.String
   field :slug, !types.String
   field :description, types.String
-  field :dbid, types.Int
+  field :dbid, types.Int, 'Database id of this record'
   field :members_count, types.Int
   field :projects_count, types.Int
-  field :permissions, types.String
-  field :get_slack_notifications_enabled, types.String
-  field :get_slack_webhook, types.String
-  field :get_slack_channel, types.String
-  field :get_suggested_tags, types.String
-  field :get_embed_whitelist, types.String
-  field :get_report_design_image_template, types.String
-  field :get_status_target_turnaround, types.String
-  field :get_disclaimer, types.String
-  field :get_introduction, types.String
-  field :get_use_disclaimer, types.Boolean
-  field :get_use_introduction, types.Boolean
-  field :get_max_number_of_members, types.String
-  field :pusher_channel, types.String
-  field :search_id, types.String
+  field :permissions, types.String, 'CRUD permissions for current user'
+  field :get_slack_notifications_enabled, types.String # TODO Rename to 'slack_notifications_enabled'
+  field :get_slack_webhook, types.String # TODO Rename to 'slack_webhook'
+  field :get_slack_channel, types.String # TODO Rename to 'slack_channel'
+  field :get_suggested_tags, types.String  # TODO Remove
+  field :get_embed_whitelist, types.String  # TODO Rename to 'embed_whitelist'
+  field :get_report_design_image_template, types.String # TODO Rename to 'report_design_image_template'
+  field :get_status_target_turnaround, types.String # TODO Remove
+  field :get_disclaimer, types.String # TODO Rename to 'report_disclaimer'
+  field :get_introduction, types.String # TODO Rename to 'report_introduction'
+  field :get_use_disclaimer, types.Boolean # TODO Rename to 'report_use_disclaimer'
+  field :get_use_introduction, types.Boolean # TODO Rename to 'report_use_introduction'
+  field :get_max_number_of_members, types.String # TODO Remove
+  field :pusher_channel, types.String, 'Channel for push notifications'
+  field :search_id, types.String # TODO What's that for?
   field :search, CheckSearchType
-  field :check_search_trash, CheckSearchType
+  field :check_search_trash, CheckSearchType # TODO Rename to 'search_trash'
   field :trash_size, JsonStringType
   field :public_team_id, types.String
   field :used_tags, types.String.to_list_type
@@ -37,11 +37,11 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :invited_mails, JsonStringType
   field :dynamic_search_fields_json_schema, JsonStringType
   field :get_rules, JsonStringType
-  field :rules_json_schema, types.String
+  field :rules_json_schema, types.String # TODO Why not a JsonStringType?
   field :rules_search_fields_json_schema, JsonStringType
   field :medias_count, types.Int
   field :trash_count, types.Int
-  field :get_languages, types.String
+  field :get_languages, types.String # TODO Rename to 'languages'
 
   field :public_team do
     type PublicTeamType

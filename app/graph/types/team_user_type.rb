@@ -1,6 +1,6 @@
 TeamUserType = GraphqlCrudOperations.define_default_type do
   name 'TeamUser'
-  description 'TeamUser type'
+  description 'Association between a User and a Team.'
 
   interfaces [NodeIdentification.interface]
 
@@ -8,7 +8,7 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
   field :team_id, types.Int
   field :status, types.String
   field :role, types.String
-  field :permissions, types.String
+  field :permissions, types.String, 'CRUD permissions for current user'
 
   field :team do
     type TeamType
