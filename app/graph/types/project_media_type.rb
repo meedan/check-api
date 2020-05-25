@@ -81,7 +81,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type = "#{value.to_s.capitalize}Type".constantize
     field value do
       type -> { type }
-      Description "#{type} this item is associated with"
+      description "#{type} this item is associated with"
 
       resolve -> (project_media, _args, _ctx) {
         RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
