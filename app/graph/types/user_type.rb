@@ -30,7 +30,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :accepted_terms, types.Boolean # TODO Remove because 'last_accepted_terms_at' is enough
   field :last_accepted_terms_at, types.String, 'Last date at which the user accepted the terms of use' # TODO Change to Int type
   field :team_ids, types[types.Int], 'Teams where this user is a member (ids only)'
-  field :user_teams, types.String, # TODO What's this in relation to above and to 'team_users'
+  field :user_teams, types.String # TODO What's this in relation to above and to 'team_users'?
 
   field :source_id do
     type types.Int
