@@ -27,7 +27,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :is_active, types.Boolean, 'Is this user active?'
   field :two_factor, JsonStringType, 'TODO'
   field :settings, JsonStringType, 'Settings' # TODO Show setting schema in description
-  field :accepted_terms, types.Boolean # TODO Remove because 'last_accepted_terms_at' is enough
+  field :accepted_terms, types.Boolean, 'Has use accepted latest terms?' # TODO Rename to 'has_accepted_latest_terms'
   field :last_accepted_terms_at, types.String, 'Last date at which the user accepted the terms of use' # TODO Change to Int type
   field :team_ids, types[types.Int], 'Teams where this user is a member (ids only)'
   field :user_teams, types.String # TODO What's this in relation to above and to 'team_users'?
@@ -46,7 +46,7 @@ UserType = GraphqlCrudOperations.define_default_type do
     description 'User source profile'
 
     resolve -> (user, _args, _ctx) do
-      Source.find(user.source_id)
+      user.source
     end
   end
 

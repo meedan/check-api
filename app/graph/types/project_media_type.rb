@@ -93,7 +93,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :team do
     type -> { TeamType }
-    Description 'Team this item is associated with'
+    description 'Team this item is associated with'
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Team).load(project_media.team_id)
