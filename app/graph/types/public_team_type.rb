@@ -4,13 +4,13 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :name, !types.String
-  field :slug, !types.String
-  field :description, types.String
+  field :name, !types.String, 'Name'
+  field :slug, !types.String, 'Slug (URL path)'
+  field :description, types.String, 'Description'
   field :dbid, types.Int, 'Database id of this record'
   field :avatar, types.String, 'Picture' # TODO Rename to 'picture'
-  field :private, types.Boolean
-  field :team_graphql_id, types.String
+  field :private, types.Boolean, 'Is team private?' # TODO Rename to is_private
+  field :team_graphql_id, types.String # TODO Rename to 'team_id'
 
   field :pusher_channel do
     type types.String
@@ -22,6 +22,8 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
   end
 
   field :trash_count, types.Int do
+    description 'Count of items in trash'
+
     resolve ->(team, _args, _ctx) {
       (team.private && (!User.current || (!User.current.is_admin && TeamUser.where(team_id: team.id, user_id: User.current.id).last.nil?))) ? 0 : team.trash_count
     }

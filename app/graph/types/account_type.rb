@@ -9,7 +9,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
   field :url, !types.String, 'Profile URL'
   field :provider, types.String, 'Profile host'
   field :uid, types.String, 'TODO'
-  field :user_id, types.Int, 'Creator id'
+  field :user_id, types.Int, 'Creator (id only)'
   field :permissions, types.String, 'CRUD permissions for current user'
   field :image, types.String, 'Picture' # TODO Rename to 'picture'
   field :user do
@@ -31,7 +31,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
 
   field :metadata do
     type JsonStringType
-    description 'Metadata about this account'
+    description 'Account metadata'
 
     resolve ->(account, _args, _ctx) {
       account.metadata

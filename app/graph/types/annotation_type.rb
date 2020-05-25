@@ -2,6 +2,7 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
   description 'The base type for user- and bot-generated content describing media, claims, sources, and other Check types including annotations themselves (recursively).'
 
   # TODO Return the actual type based on `annotated_type`
+  # Consider union types https://graphql.org/learn/schema/#union-types
   field :project_media do
     type ProjectMediaType
     description 'Item described by this annotation'

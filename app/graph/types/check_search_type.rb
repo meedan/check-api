@@ -5,7 +5,7 @@ CheckSearchType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :number_of_results, types.Int, 'Results count' # TODO Rename to 'count_results'
+  field :number_of_results, types.Int, 'Results count' # TODO Rename to 'results_count'
   field :pusher_channel, types.String, 'Channel for push notifications'
   field :item_navigation_offset, types.Int, 'Offset into result set' # TODO Rename to 'offset'
   field :team, TeamType, 'Team where search occurred'

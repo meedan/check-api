@@ -4,8 +4,8 @@ AccountSourceType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :account_id, types.Int, 'Account id'
-  field :source_id, types.Int, 'Source id'
+  field :account_id, types.Int, 'Account (id only)'
+  field :source_id, types.Int, 'Source (id only)'
 
   field :account do
     type -> { AccountType }

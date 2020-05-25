@@ -5,18 +5,19 @@ VersionType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :dbid, types.Int, 'Database id of this record'
-  field :item_type, types.String
-  field :item_id, types.String
-  field :event, types.String
-  field :event_type, types.String
+  field :item_type, types.String, 'Database type of item' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
+  field :item_id, types.String, 'Database id of item'
+  field :event, types.String, 'TODO'
+  field :event_type, types.String, 'TODO'
   field :object_after, types.String # Do we need both this and 'object_changes'?
-  field :meta, types.String
-  field :object_changes_json, types.String # TODO Convert to JsonStringType and rename to 'object_changes'
-  field :associated_graphql_id, types.String
-  field :smooch_user_slack_channel_url, types.String
+  field :meta, types.String, 'TODO'
+  field :object_changes_json, types.String, 'TODO' # TODO Convert to JsonStringType and rename to 'item_diff'
+  field :associated_graphql_id, types.String, 'TODO'
+  field :smooch_user_slack_channel_url, types.String, 'TODO'
 
   field :user do
     type -> { UserType }
+    description 'Author of log entry'
 
     resolve ->(version, _args, _ctx) {
       version.user
@@ -25,6 +26,7 @@ VersionType = GraphqlCrudOperations.define_default_type do
 
   field :annotation do
     type -> { AnnotationType }
+    description 'TODO'
 
     resolve ->(version, _args, _ctx) {
       version.annotation
@@ -32,27 +34,35 @@ VersionType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :projects, -> { ProjectType.connection_type } do
+    description 'TODO'
+
     resolve ->(version, _args, _ctx) {
       version.projects
     }
   end
 
   connection :teams, -> { TeamType.connection_type } do
+    description 'TODO'
+
     resolve ->(version, _args, _ctx) {
       version.teams
     }
   end
 
+  # TODO Don't we already have annotation above?
   field :task do
     type -> { TaskType }
+    description 'TODO'
 
     resolve ->(version, _args, _ctx) {
       version.task
     }
   end
 
+  # TODO Don't we already have annotation above?
   field :tag do
     type -> { TagType }
+    description 'TODO'
 
     resolve ->(version, _args, _ctx) {
       Tag.find(version.annotation.id) unless version.annotation.nil?

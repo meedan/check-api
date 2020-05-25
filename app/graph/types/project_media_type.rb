@@ -5,27 +5,29 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :media_id, types.Int
-  field :user_id, types.Int
-  field :url, types.String
-  field :quote, types.String
-  field :oembed_metadata, types.String
+  field :media_id, types.Int, 'Media this item is associated with (id only)'
+  field :user_id, types.Int, 'Item creator (id only)'
+  field :url, types.String, 'Media URL' # TODO Remove and access via Media.url
+  field :quote, types.String, 'Text claim' # TODO Remove and access via Media.quote
+  field :oembed_metadata, types.String # TODO Merge with 'metadata'?
   field :dbid, types.Int, 'Database id of this record'
-  field :archived, types.Boolean
-  field :author_role, types.String
-  field :report_type, types.String
-  field :title, types.String
-  field :description, types.String
-  field :picture, types.String, 'Picture representing this item'
-  field :virality, types.Int
-  field :requests_count, types.Int
-  field :demand, types.Int
-  field :linked_items_count, types.Int
-  field :last_seen, types.String
-  field :status, types.String
-  field :share_count, types.Int
+  field :archived, types.Boolean, 'Is this item in trash?' # TODO Rename to 'is_archived'
+  field :author_role, types.String # TODO Merge with 'user'?
+  field :report_type, types.String # TODO Merge with 'type'?
+  field :title, types.String, 'Title'
+  field :description, types.String, 'Description'
+  field :picture, types.String, 'Picture'
+  field :virality, types.Int, 'Virality, social reach as measured by item host'
+  field :requests_count, types.Int, 'Count of requests made for this item'
+  field :demand, types.Int # TODO What's the diff with requests_count?
+  field :linked_items_count, types.Int, 'Count of related items' # TODO Rename to 'related_items_count'
+  field :last_seen, types.String, 'when was this item last requested' # TODO Convert to date and rename to 'last_requested'
+  field :status, types.String, 'Workflow status'
+  field :share_count, types.Int # TODO What's the diff with virality?
 
-  field :type, types.String  do
+  field :type, types.String  do # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
+    description 'Type' # TODO List all possible types
+
     resolve -> (project_media, _args, _ctx) {
       project_media.media.type
     }
@@ -33,6 +35,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :permissions, types.String do
     description 'CRUD permissions for current user'
+
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
         pm.cached_permissions || pm.permissions
@@ -41,6 +44,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :tasks_count, JsonStringType do
+    description 'Counts of tasks: all, open, completed'
+
     resolve -> (project_media, _args, _ctx) {
       {
         all: project_media.all_tasks.size,
@@ -52,6 +57,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :domain do
     type types.String
+    description 'TODO'
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
@@ -71,29 +77,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # field :account do
-  #   type -> { AccountType }
-  #
-  #   resolve -> (project_media, _args, _ctx) {
-  #     RecordLoader.for(Media).load(project_media.media_id).then do |media|
-  #       RecordLoader.for(Account).load(media.account_id)
-  #     end
-  #   }
-  # end
-  #
-  # field :team do
-  #   type -> { TeamType }
-  #
-  #   resolve ->(project_media, _args, _ctx) {
-  #     RecordLoader.for(Project).load(project_media.project_id).then do |project|
-  #       RecordLoader.for(Team).load(project.team_id)
-  #     end
-  #   }
-  # end
   { media: :account }.each do |key, value|
     type = "#{value.to_s.capitalize}Type".constantize
     field value do
       type -> { type }
+      Description "#{type} this item is associated with"
 
       resolve -> (project_media, _args, _ctx) {
         RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
@@ -105,12 +93,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :team do
     type -> { TeamType }
+    Description 'Team this item is associated with'
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Team).load(project_media.team_id)
     }
   end
 
+  # TODO Remove
   field :project_id do
     type types.Int
 
@@ -119,6 +109,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Remove
   field :project do
     type -> { ProjectType }
 
@@ -128,6 +119,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :projects, -> { ProjectType.connection_type } do
+    description 'Projects associated with this item'
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.projects
@@ -137,6 +129,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :media do
     type -> { MediaType }
+    description 'Media this item is associated with'
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id)
@@ -145,6 +138,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :user do
     type -> { UserType }
+    description 'Item creator'
 
     resolve -> (project_media, _args, ctx) {
       RecordLoader.for(User).load(project_media.user_id).then do |user|
@@ -154,6 +148,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Remove
   field :project_source do
     type -> { ProjectSourceType }
 
@@ -162,17 +157,23 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO What's this and how to add description?
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
+  # TODO What's this and how to add description?
   instance_exec :project_media, &GraphqlCrudOperations.field_log_count
 
   connection :tags, -> { TagType.connection_type } do
+    description 'Item tags'
+
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('tag').map(&:load)
     }
   end
 
   connection :tasks, -> { TaskType.connection_type } do
+    description 'Item tasks'
+
     resolve ->(project_media, _args, _ctx) {
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
     }
@@ -180,6 +181,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :metadata do
     type JsonStringType
+    description 'Item metadata'
 
     resolve ->(project_media, _args, _ctx) {
       project_media.metadata
@@ -267,7 +269,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Merge this and 'relationships' and 'secondary_items'
+  # TODO Merge this and 'relationships' and 'secondary_items' and 'targets_by_users'
   field :relationship do
     type RelationshipType
 
@@ -304,16 +306,20 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :targets_by_users, -> { ProjectMediaType.connection_type }
 
+  # TODO Rename to 'annotations' and remove 'tasks' and 'tags'?
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do
+      description "Item annotations of type #{type}"
+
       resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
     end
 
+    # TODO What's the diff with above?
     field "dynamic_annotation_#{type}".to_sym do
       type -> { DynamicType }
       resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
     end
   end
 
-  field :project_ids, JsonStringType
+  field :project_ids, JsonStringType, 'Projects associated with this item (ids only)'
 end

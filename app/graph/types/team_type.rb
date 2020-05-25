@@ -4,8 +4,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :archived, types.Boolean
-  field :private, types.Boolean
+  field :archived, types.Boolean # TODO Rename to 'is_archived'
+  field :private, types.Boolean # TODO Rename to 'is_private'
   field :avatar, types.String, 'Picture' # TODO Rename to 'picture'
   field :name, !types.String
   field :slug, !types.String
@@ -21,10 +21,10 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_embed_whitelist, types.String  # TODO Rename to 'embed_whitelist'
   field :get_report_design_image_template, types.String # TODO Rename to 'report_design_image_template'
   field :get_status_target_turnaround, types.String # TODO Remove
-  field :get_disclaimer, types.String # TODO Rename to 'report_disclaimer'
-  field :get_introduction, types.String # TODO Rename to 'report_introduction'
-  field :get_use_disclaimer, types.Boolean # TODO Rename to 'report_use_disclaimer'
-  field :get_use_introduction, types.Boolean # TODO Rename to 'report_use_introduction'
+  field :get_disclaimer, types.String # TODO Rename to 'report_disclaimer' or 'report_settings.disclaimer'
+  field :get_introduction, types.String # TODO Rename to 'report_introduction' or 'report_settings.introduction'
+  field :get_use_disclaimer, types.Boolean # TODO Rename to 'report_use_disclaimer' or 'report_settings.use_disclaimer'
+  field :get_use_introduction, types.Boolean # TODO Rename to 'report_use_introduction' or 'report_settings.use_introduction'
   field :get_max_number_of_members, types.String # TODO Remove
   field :pusher_channel, types.String, 'Channel for push notifications'
   field :search_id, types.String # TODO What's that for?

@@ -7,5 +7,5 @@ TagTextType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int, 'Database id of this record'
   field :text, types.String
   field :tags_count, types.Int
-  field :teamwide, types.Boolean
+  field :teamwide, types.Boolean # TODO Remove
 end

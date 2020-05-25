@@ -5,21 +5,21 @@ MediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :url, types.String, 'Media URL'
-  field :quote, types.String, 'Text claim'
-  field :account_id, types.Int, 'Account id of publisher'
-  field :project_id, types.Int, 'DEPRECATED' # TODO Remove
+  field :quote, types.String, 'Text claim' # TODO Rename to 'claim'
+  field :account_id, types.Int, 'Publisher account (id only)'
+  field :project_id, types.Int # TODO Remove
   field :dbid, types.Int, 'Database id of this record'
   field :domain, types.String, 'TODO'
   field :pusher_channel, types.String, 'Channel for push notifications'
   field :embed_path, types.String, 'TODO'
   field :thumbnail_path, types.String, 'Thumbnail representing this item' # TODO Rename to 'thumbnail'
   field :picture, types.String, 'Picture representing this item'
-  field :type, types.String, 'TODO'
+  field :type, types.String, 'TODO' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
   field :file_path, types.String, 'TODO'
 
   field :account do
     type -> { AccountType }
-    description 'Publisher of this item'
+    description 'Publisher account'
 
     resolve -> (media, _args, _ctx) {
       media.account
@@ -28,7 +28,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 
   field :metadata do
     type JsonStringType
-    description 'Metadata about this item'
+    description 'Item metadata'
 
     resolve ->(media, _args, _ctx) {
       media.metadata
