@@ -237,7 +237,7 @@ class TagTest < ActiveSupport::TestCase
 
   test "should exist only one tag text for duplicated tags of the same team" do
     t = create_team
-    p = create_project team: t 
+    p = create_project team: t
     assert_difference 'TagText.count' do
       5.times { create_tag(tag: 'test', annotated: create_project_media(project: p)) }
     end
@@ -277,22 +277,6 @@ class TagTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not delete tag text if last tag is deleted but tag text is teamwide" do
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    tt = create_tag_text team_id: t.id, teamwide: true
-    t1 = create_tag tag: tt.id, annotated: pm1
-    t2 = create_tag tag: tt.id, annotated: pm2
-    assert_no_difference 'TagText.count' do
-      t1.destroy
-    end
-    assert_no_difference 'TagText.count' do
-      t2.destroy
-    end
-  end
-
   test "should get team" do
     t = create_tag
     assert_kind_of Team, t.team
@@ -303,8 +287,8 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
-    tt1 = create_tag_text team_id: t.id, teamwide: true
-    tt2 = create_tag_text team_id: t.id, teamwide: true
+    tt1 = create_tag_text team_id: t.id
+    tt2 = create_tag_text team_id: t.id
     t1 = create_tag tag: tt1.id, annotated: pm1
     t2 = create_tag tag: tt1.id, annotated: pm2
     tt2.delete
