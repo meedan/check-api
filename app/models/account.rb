@@ -99,7 +99,10 @@ class Account < ActiveRecord::Base
         return a
       else
         a2 = Account.where(url: a.url).last
-        return a.save! if a2.nil?
+        if a2.nil?
+          a.save!
+          return a
+        end
         a = a2
       end
     end
