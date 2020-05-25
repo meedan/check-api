@@ -142,11 +142,19 @@ module AnnotationBase
     end
 
     def parsed_fragment
-      begin
-        URI.media_fragment(self.fragment)
-      rescue
-        {}
+      list = begin
+               JSON.parse(URI.decode(self.fragment))
+             rescue
+               [self.fragment]
+             end
+      list.map! do |fragment|
+        begin
+          URI.media_fragment(fragment)
+        rescue
+          {}
+        end
       end
+      list.size == 1 ? list.first : list
     end
 
     def custom_permissions(ability = nil)
