@@ -189,16 +189,16 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
-  test "should update suggested tags if in test mode" do
+  test "should update tag texts if in test mode" do
     t = create_team
-    get :update_suggested_tags, team_id: t.id, tags: 'TAG'
+    get :update_tag_texts, team_id: t.id, tags: 'TAG'
     assert_response :success
   end
 
-  test "should not update suggested tags if not in test mode" do
+  test "should not update tag texts if not in test mode" do
     t = create_team
     Rails.stubs(:env).returns('development')
-    get :update_suggested_tags, team_id: t.id, tags: 'TAG'
+    get :update_tag_texts, team_id: t.id, tags: 'TAG'
     assert_response 400
     Rails.unstub(:env)
   end
