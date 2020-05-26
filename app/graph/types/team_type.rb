@@ -17,7 +17,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_slack_notifications_enabled, types.String
   field :get_slack_webhook, types.String
   field :get_slack_channel, types.String
-  field :get_suggested_tags, types.String
   field :get_embed_whitelist, types.String
   field :get_report_design_image_template, types.String
   field :get_status_target_turnaround, types.String
@@ -32,7 +31,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :check_search_trash, CheckSearchType
   field :trash_size, JsonStringType
   field :public_team_id, types.String
-  field :used_tags, types.String.to_list_type
   field :permissions_info, JsonStringType
   field :invited_mails, JsonStringType
   field :dynamic_search_fields_json_schema, JsonStringType
