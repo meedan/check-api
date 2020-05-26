@@ -5,12 +5,10 @@ AccountType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :data, types.String, 'TODO'
-  field :dbid, types.Int, 'Database id of this record'
   field :url, !types.String, 'Profile URL'
   field :provider, types.String, 'Profile host'
   field :uid, types.String, 'TODO'
   field :user_id, types.Int, 'Creator (id only)'
-  field :permissions, types.String, 'CRUD permissions for current user'
   field :image, types.String, 'Picture' # TODO Rename to 'picture'
   field :user do
     type UserType
@@ -37,4 +35,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
       account.metadata
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String, 'CRUD permissions of this record for current user'
 end

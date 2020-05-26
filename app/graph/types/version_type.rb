@@ -4,7 +4,6 @@ VersionType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :dbid, types.Int, 'Database id of this record'
   field :item_type, types.String, 'Database type of item' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
   field :item_id, types.String, 'Database id of item'
   field :event, types.String, 'TODO'
@@ -68,4 +67,6 @@ VersionType = GraphqlCrudOperations.define_default_type do
       Tag.find(version.annotation.id) unless version.annotation.nil?
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
 end

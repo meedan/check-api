@@ -4,12 +4,11 @@ RelationshipType = GraphQL::ObjectType.define do
   interfaces [NodeIdentification.interface]
   global_id_field :id
 
-  field :dbid, types.Int, 'Database id of this record'
+  field :relationship_type, types.String, 'Relationship type'
   field :target_id, types.Int, 'Relationship target (id only)'
-  field :source_id, types.Int, 'Relationship source (id only)'
-  field :permissions, types.String, 'CRUD permissions for current user'
-  field :relationship_type, types.String
-
   field :target, ProjectMediaType, 'Relationship target'
+  field :source_id, types.Int, 'Relationship source (id only)'
   field :source, ProjectMediaType, 'Relationship source'
+  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String, 'CRUD permissions of this record for current user'
 end

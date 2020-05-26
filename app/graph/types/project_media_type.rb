@@ -10,7 +10,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :url, types.String, 'Media URL' # TODO Remove and access via Media.url
   field :quote, types.String, 'Text claim' # TODO Remove and access via Media.quote
   field :oembed_metadata, types.String # TODO Merge with 'metadata'?
-  field :dbid, types.Int, 'Database id of this record'
   field :archived, types.Boolean, 'Is this item in trash?' # TODO Rename to 'is_archived'
   field :author_role, types.String # TODO Merge with 'user'?
   field :report_type, types.String # TODO Merge with 'type'?
@@ -62,17 +61,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.respond_to?(:domain) ? media.domain : ''
-      end
-    }
-  end
-
-  field :pusher_channel do
-    type types.String
-    description 'Channel for push notifications'
-
-    resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        media.pusher_channel
       end
     }
   end
@@ -322,4 +310,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   field :project_ids, JsonStringType, 'Projects associated with this item (ids only)'
+
+  field :dbid, types.Int, 'Database id of this record'
+
+  field :pusher_channel do
+    type types.String
+    description 'Channel for push notifications'
+
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        media.pusher_channel
+      end
+    }
+  end
 end

@@ -12,7 +12,6 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :get_role, types.String, 'Role of the bot when added to a team'
   field :identifier, types.String, 'Machine name' # TODO Merge with BotUser.login?
   field :login, types.String, 'Login name'
-  field :dbid, types.Int, 'Database id of this record'
   field :installed, types.Boolean, 'Is the bot approved for Check-wide use?' # TODO Rename to is_approved
   field :installations_count, types.Int, 'Count of team installations'
   field :settings_as_json_schema, types.String # TODO Convert to JsonStringType?
@@ -27,4 +26,6 @@ BotUserType = GraphqlCrudOperations.define_default_type do
       RecordLoader.for(Team).load(bot.team_author_id.to_i)
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
 end

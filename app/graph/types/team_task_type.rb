@@ -4,7 +4,6 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :dbid, types.Int, 'Database id of this record'
   field :label, types.String
   field :description, types.String
   field :options, JsonStringType
@@ -21,4 +20,6 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
       task.task_type
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
 end

@@ -4,8 +4,8 @@ TagTextType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :dbid, types.Int, 'Database id of this record'
   field :text, types.String
   field :tags_count, types.Int
   field :teamwide, types.Boolean # TODO Remove
+  field :dbid, types.Int, 'Database id of this record'
 end

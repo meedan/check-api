@@ -8,9 +8,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :quote, types.String, 'Text claim' # TODO Rename to 'claim'
   field :account_id, types.Int, 'Publisher account (id only)'
   field :project_id, types.Int # TODO Remove
-  field :dbid, types.Int, 'Database id of this record'
   field :domain, types.String, 'TODO'
-  field :pusher_channel, types.String, 'Channel for push notifications'
   field :embed_path, types.String, 'TODO'
   field :thumbnail_path, types.String, 'Thumbnail representing this item' # TODO Rename to 'thumbnail'
   field :picture, types.String, 'Picture representing this item'
@@ -34,4 +32,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
       media.metadata
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
+  field :pusher_channel, types.String, 'Channel for push notifications'
 end

@@ -10,10 +10,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :name, !types.String
   field :slug, !types.String
   field :description, types.String
-  field :dbid, types.Int, 'Database id of this record'
   field :members_count, types.Int
   field :projects_count, types.Int
-  field :permissions, types.String, 'CRUD permissions for current user'
   field :get_slack_notifications_enabled, types.String # TODO Rename to 'slack_notifications_enabled'
   field :get_slack_webhook, types.String # TODO Rename to 'slack_webhook'
   field :get_slack_channel, types.String # TODO Rename to 'slack_channel'
@@ -26,7 +24,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_use_disclaimer, types.Boolean # TODO Rename to 'report_use_disclaimer' or 'report_settings.use_disclaimer'
   field :get_use_introduction, types.Boolean # TODO Rename to 'report_use_introduction' or 'report_settings.use_introduction'
   field :get_max_number_of_members, types.String # TODO Remove
-  field :pusher_channel, types.String, 'Channel for push notifications'
   field :search_id, types.String # TODO What's that for?
   field :search, CheckSearchType
   field :check_search_trash, CheckSearchType # TODO Rename to 'search_trash'
@@ -36,7 +33,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :permissions_info, JsonStringType
   field :invited_mails, JsonStringType
   field :dynamic_search_fields_json_schema, JsonStringType
-  field :get_rules, JsonStringType
+  field :get_rules, JsonStringType # TODO Rename to 'rules'
   field :rules_json_schema, types.String # TODO Why not a JsonStringType?
   field :rules_search_fields_json_schema, JsonStringType
   field :medias_count, types.Int
@@ -116,4 +113,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
       team.team_tasks.order('id ASC')
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String, 'CRUD permissions of this record for current user'
+  field :pusher_channel, types.String, 'Channel for push notifications'
 end

@@ -4,10 +4,10 @@ ProjectSourceType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :dbid, types.Int
   field :source_id, types.Int
   field :project_id, types.Int
-  field :permissions, types.String, 'CRUD permissions for current user'
-  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String
 
   field :project do
     type -> { ProjectType }

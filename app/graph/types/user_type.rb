@@ -4,7 +4,6 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :dbid, types.Int, 'Database id of this record'
   field :email, types.String, 'Email'
   field :unconfirmed_email, types.String, 'Email before confirmation'
   field :providers, JsonStringType, 'TODO'
@@ -13,7 +12,6 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :login, types.String, 'Login'
   field :name, types.String, 'Name'
   field :current_team_id, types.Int, 'Current team (id only)'
-  field :permissions, types.String, 'CRUD permissions for current user'
   field :jsonsettings, types.String # TODO What's the difference with 'settings'?
   field :number_of_teams, types.Int # TODO Remove because client can just count 'team_ids'?
 
@@ -148,4 +146,7 @@ UserType = GraphqlCrudOperations.define_default_type do
       pms
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String, 'CRUD permissions of this record for current user'
 end

@@ -7,8 +7,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :avatar, types.String, 'Picture' # TODO Rename to 'picture'
   field :description, types.String, 'Description'
   field :title, !types.String, 'Name' # TODO Rename to 'name'
-  field :dbid, types.Int, 'Database id of this record'
-  field :permissions, types.String, 'CRUD permissions for current user'
   field :get_slack_channel, types.String, 'Slack channel to notify about this project activity' # TODO Rename to 'slack_channel'
   field :pusher_channel, types.String, 'Channel for push notifications'
   field :medias_count, types.Int, 'Items count'
@@ -55,4 +53,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
       project.sources
     }
   end
+
+  field :dbid, types.Int, 'Database id of this record'
+  field :permissions, types.String, 'CRUD permissions of this record for current user'
 end
