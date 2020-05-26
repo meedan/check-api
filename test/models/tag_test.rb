@@ -261,22 +261,6 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 'test', t.tag_text
   end
 
-  test "should delete tag text if last tag is deleted" do
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    tt = create_tag_text team_id: t.id
-    t1 = create_tag tag: tt.id, annotated: pm1
-    t2 = create_tag tag: tt.id, annotated: pm2
-    assert_no_difference 'TagText.count' do
-      t1.destroy
-    end
-    assert_difference 'TagText.count', -1 do
-      t2.destroy
-    end
-  end
-
   test "should get team" do
     t = create_tag
     assert_kind_of Team, t.team
