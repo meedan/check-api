@@ -512,9 +512,13 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should get parsed fragment" do
-    a = Annotation.new(fragment: 't=10,20')
-    assert_equal({ 't' => [10.0, 20.0] }, a.parsed_fragment)
     a = Annotation.new(fragment: nil)
     assert_equal({}, a.parsed_fragment)
+    a = Annotation.new(fragment: 't=10,20')
+    assert_equal({ 't' => [10.0, 20.0] }, a.parsed_fragment)
+    a = Annotation.new(fragment: '["t=10,20","t=30,40"]')
+    assert_equal([{ 't' => [10.0, 20.0] }, { 't' => [30.0, 40.0] }], a.parsed_fragment)
+    a = Annotation.new(fragment: '%5B%22t%3D10%2C20%22%2C%20%22t%3D30%2C40%22%5D')
+    assert_equal([{ 't' => [10.0, 20.0] }, { 't' => [30.0, 40.0] }], a.parsed_fragment)
   end
 end

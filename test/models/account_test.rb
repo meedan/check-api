@@ -375,5 +375,16 @@ class AccountTest < ActiveSupport::TestCase
       Account.find(a.id).destroy
     end
   end
-  
+
+  test "should always return an account when creating an account for a source" do
+    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    url = random_url
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }
+    }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
+    Account.any_instance.stubs(:save).returns(false)
+    a = Account.create_for_source(url)
+    assert_kind_of Account, a
+    Account.any_instance.unstub(:save)
+  end
 end
