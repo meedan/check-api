@@ -161,7 +161,8 @@ module SampleData
     options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      options[:annotated] = create_project_media team: t
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
     end
     c = Comment.new
     options.each do |key, value|
@@ -186,7 +187,8 @@ module SampleData
     options = { tag: random_string(50), annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      options[:annotated] = create_project_media team: t
+      p = create_project team: t
+      options[:annotated] = create_project_media project: p
     end
     t = Tag.new
     options.each do |key, value|
@@ -225,10 +227,13 @@ module SampleData
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
-    options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options = { status: 'in_progress', annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      options[:annotated] = create_project_media team: t
+      p = create_project team: t
+      pm = create_project_media project: p
+      remove_default_status(pm)
+      options[:annotated] = pm
     end
     s = Dynamic.new
     s.annotation_type = 'verification_status'
@@ -239,6 +244,12 @@ module SampleData
     s.annotated.reload if s.annotated
     s.save!
     s
+  end
+
+  def remove_default_status(obj)
+    return unless obj.class.name == 'ProjectMedia'
+    s = obj.last_status_obj
+    s.destroy
   end
 
   def create_flag_annotation_type

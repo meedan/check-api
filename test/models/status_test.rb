@@ -31,8 +31,10 @@ class StatusTest < ActiveSupport::TestCase
   test "should have annotations" do
     create_verification_status_stuff
     s1 = create_project_media
+    remove_default_status(s1)
     assert_equal [], s1.annotations
     s2 = create_project_media
+    remove_default_status(s2)
     assert_equal [], s2.annotations
 
     t1a = create_status
@@ -259,9 +261,9 @@ class StatusTest < ActiveSupport::TestCase
   test "should normalize status" do
     s = nil
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
-      s = create_status status: 'Not Credible', annotated: create_project_media
+      s = create_status status: 'In Progress'
     end
-    assert_equal 'not_credible', s.reload.status
+    assert_equal 'in_progress', s.reload.status
   end
 
   test "should protect attributes from mass assignment" do

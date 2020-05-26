@@ -106,19 +106,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal url, u.source.image
   end
 
-  test "should get medias" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
-    assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal [pm2], cs.source.medias
-  end
-
   test "should get collaborators" do
     u1 = create_user
     u2 = create_user
@@ -152,25 +139,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal '', s.description
     s.accounts << create_valid_account(data: { description: 'test' })
     assert_equal 'test', s.description
-  end
-
-  #TODO: Sawy review 
-  test "should get tags" do
-    t = create_team
-    t2 = create_team
-    p = create_project team: t
-    p2 = create_project team: t2
-    s = create_source
-    ps = create_project_media project: p, source: s
-    ps2 = create_project_media project: p2, source: s
-    tag = create_tag annotated: ps
-    tag2 = create_tag annotated: ps2
-    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
-    Team.stubs(:current).returns(t)
-    assert_equal [tag], s.get_annotations('tag')
-    Team.stubs(:current).returns(t2)
-    assert_equal [tag2], s.get_annotations('tag')
-    Team.unstub(:current)
   end
 
   test "should get db id" do
@@ -515,19 +483,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
       create_source
     end
-  end
-
-  test "should get medias count" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
-    assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal 1, cs.source.medias_count
   end
 
   test "should get accounts count" do

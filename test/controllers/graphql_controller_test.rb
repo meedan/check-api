@@ -369,12 +369,11 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read collection from source" do
     User.delete_all
-    assert_graphql_read_collection('source', { 'projects' => 'title', 'accounts' => 'url',
-      'medias' => 'media_id', 'collaborators' => 'name' }, 'DESC')
+    assert_graphql_read_collection('source', { 'accounts' => 'url', 'collaborators' => 'name' }, 'DESC')
   end
 
   test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'sources' => 'name', 'project_medias' => 'media_id' })
+    assert_graphql_read_collection('project', { 'project_medias' => 'media_id' })
   end
 
   test "should read object from media" do

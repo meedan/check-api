@@ -109,11 +109,9 @@ class ElasticSearch3Test < ActionController::TestCase
     assert_equal 1, result.medias.count
     # filter by links
     result = CheckSearch.new({ show: ['links'] }.to_json)
-    assert_equal 0, result.sources.count
     assert_equal 1, result.medias.count
     # filter by images
     result = CheckSearch.new({ show: ['images'] }.to_json)
-    assert_equal 0, result.sources.count
     assert_equal 1, result.medias.count
     result = CheckSearch.new({ show: ['claims', 'links', 'images'] }.to_json)
     assert_equal 3, result.medias.count

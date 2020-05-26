@@ -103,28 +103,6 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
-  test "should create source if in test mode" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    p = create_project team: t
-    RequestStore.store[:disable_es_callbacks] = true
-    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
-    RequestStore.store[:disable_es_callbacks] = false
-    assert_response :success
-  end
-
-  test "should not create source if not in test mode" do
-    Rails.stubs(:env).returns('development')
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
-    assert_response 400
-    Rails.unstub(:env)
-  end
-
   test "should create claim if in test mode" do
     u = create_user
     t = create_team

@@ -77,11 +77,10 @@ module CheckBasicAbilities
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
     can :read, [Account, ProjectMedia, Source], user_id: [@user.id, nil]
-    can :read, [Source, Media, Link, Claim], projects: { team: { private: false }}
-    can :read, [Source, Media, Link, Claim], projects: { team_id: @user.cached_teams }
+    can :read, [Media, Link, Claim], projects: { team: { private: false }}
+    can :read, [Media, Link, Claim], projects: { team_id: @user.cached_teams }
 
     can :read, Account, source: { user_id: [@user.id, nil] }
-    can :read, Account, source: { projects: { team_id: @user.cached_teams }}
     can :read, Relationship, { source: { team_id: @user.cached_teams }, target: { team_id: @user.cached_teams } }
     can :read, ProjectMedia do |obj|
       obj.team ||= obj.project.team
