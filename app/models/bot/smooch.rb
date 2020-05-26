@@ -725,7 +725,7 @@ class Bot::Smooch < BotUser
     # Only add team tags.
     TagText
       .joins('LEFT JOIN projects ON projects.team_id = tag_texts.team_id')
-      .where('projects.id=? AND text IN (?)', pm.project_id, true, hashtags)
+      .where('projects.id=? AND text IN (?)', pm.project_id, hashtags)
       .each do |tag|
         unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
           Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
