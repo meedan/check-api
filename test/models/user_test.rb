@@ -742,7 +742,7 @@ class UserTest < ActiveSupport::TestCase
     pm = create_project_media user: u
     assert_not u.destroy
     pm.user = u2; pm.save!
-    assert_not u.destroy
+    assert u.destroy
   end
 
   test "should get profile image if user has no source" do

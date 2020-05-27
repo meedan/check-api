@@ -24,7 +24,7 @@ module ProjectMediaPrivate
     begin Account.create_for_source(author_url, source) rescue nil end
   end
 
-  def set_media_account(account, source)
+  def set_media_account(account, _source)
     m = self.media
     a = self.media.account
     m.account = account

@@ -12,6 +12,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
   field :permissions, types.String
   field :pusher_channel, types.String
   field :lock_version, types.Int
+  field :medias_count, types.Int
   field :accounts_count, types.Int
 
   connection :accounts, -> { AccountType.connection_type } do
@@ -26,15 +27,15 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :collaborators, -> { UserType.connection_type } do
+  connection :medias, -> { ProjectMediaType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.collaborators
+      source.medias
     }
   end
 
-  connection :tags, -> { TagType.connection_type } do
+  connection :collaborators, -> { UserType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.get_annotations('tag').map(&:load)
+      source.collaborators
     }
   end
 

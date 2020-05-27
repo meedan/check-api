@@ -106,7 +106,7 @@ class CheckSearch
     MEDIA_TYPES & @options['show']
   end
 
-  def get_pg_results(associated_type = 'ProjectMedia')
+  def get_pg_results
     sort = { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
     relation = get_pg_results_for_media
     @options['id'] ? relation.where(id: @options['id']) : relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
