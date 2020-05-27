@@ -781,4 +781,53 @@ class GraphqlController3Test < ActionController::TestCase
     end
     assert_response :success
   end
+
+  test "should get statuses from team" do
+    u = create_user is_admin: true
+    t = create_team
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { verification_statuses } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
+  end
+
+  test "should get statuses from public team" do
+    u = create_user is_admin: true
+    t = create_team
+    authenticate_with_user(u)
+    query = "query { public_team(slug: \"#{t.slug}\") { verification_statuses } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['public_team']['verification_statuses']
+  end
+
+  test "should get statuses from media" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { verification_statuses } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['project_media']['verification_statuses']
+  end
+
+  test "should bulk create tags" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    authenticate_with_user(u)
+    query = 'mutation { createTags(inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]) { enqueued } }'
+    assert_difference 'Tag.length', 2 do
+      post :create, query: query, team: t.slug
+    end
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['createTags']['enqueued']
+    assert_equal ['foo'], pm1.reload.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['bar'], pm2.reload.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 end
