@@ -17,16 +17,6 @@ module CheckElasticSearch
     ms.save!
   end
 
-  def add_es_accounts
-    ms_accounts = []
-    accounts = []
-    accounts = self.source.accounts unless self.source.nil?
-    accounts.each do |a|
-      ms_accounts << a.store_elasticsearch_data(%w(title description username), {})
-    end
-    ms_accounts
-  end
-
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = {keys: keys, data: data}
