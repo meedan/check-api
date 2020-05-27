@@ -51,6 +51,14 @@ TeamType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :verification_statuses do
+    type JsonStringType
+
+    resolve -> (team, _args, _ctx) do
+      team.send('verification_statuses', 'media')
+    end
+  end
+
   connection :team_users, -> { TeamUserType.connection_type } do
     resolve -> (team, _args, _ctx) {
       team.team_users.where({ status: 'member' }).order('id ASC')

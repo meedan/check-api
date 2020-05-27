@@ -70,6 +70,28 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents)
   end
 
+  def self.bulk_create(type, inputs)
+    self.delay_for(1.second, retry: false).bulk_create_in_background(type, inputs.map(&:to_h).to_json, User.current&.id, Team.current&.id)
+    { enqueued: true }
+  end
+
+  def self.bulk_create_in_background(type, json_inputs, user_id, team_id)
+    User.current = User.find(user_id)
+    Team.current = Team.find(team_id)
+    klass = type.camelize.constantize
+    inputs = JSON.parse(json_inputs)
+    inputs.each do |input|
+      obj = klass.new
+      obj.is_being_created = true if obj.respond_to?(:is_being_created)
+      input.each do |key, value|
+        obj.send("#{key}=", value)
+      end
+      obj.save!
+    end
+    User.current = nil
+    Team.current = nil
+  end
+
   def self.target_pusher_channels(obj, operation)
     obj.bulk_channels(operation.to_sym)
   end
@@ -269,14 +291,15 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }
-
+      type_mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }.freeze
       name "#{action.camelize}#{type.camelize}"
 
-      input_field :id, types.ID
-      input_field :ids, types[types.ID]
+      if action == 'update'
+        input_field :id, types.ID
+        input_field :ids, types[types.ID]
+      end
       input_field :no_freeze, types.Boolean
-      fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
+      fields.each { |field_name, field_type| input_field field_name, type_mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
@@ -341,9 +364,36 @@ class GraphqlCrudOperations
     fields
   end
 
-  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
+  def self.define_bulk_create(type, fields)
+    input_type = "Create#{type.camelize.pluralize}Input"
+    definition = GraphQL::InputObjectType.define do
+      type_mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }.freeze
+      name(input_type)
+      fields.each { |field_name, field_type| argument field_name, type_mapping[field_type] }
+    end
+    Object.const_set input_type, definition
+    mutation = "Create#{type.camelize.pluralize}Mutation"
+    Object.class_eval <<-TES
+      class #{mutation} < GraphQL::Schema::Mutation
+        argument :inputs, [#{input_type}], required: true
+      
+        field :enqueued, Boolean, null: false
+      
+        def resolve(inputs:)
+          GraphqlCrudOperations.bulk_create('#{type}', inputs)
+        end
+      end
+    TES
+    mutation.constantize
+  end
+
+  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = false)
     update_fields = create_fields if update_fields.empty?
-    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
+    generated = [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
+    # FIXME: Do the same for update and destroy by refactoring them (#7858)
+    # Should we create the bulk mutations for all types by default? For now, only if the parameter is true (to avoid a big schema)
+    generated << GraphqlCrudOperations.define_bulk_create(type, create_fields) if generate_bulk_mutation
+    generated
   end
 
   def self.define_default_type(&block)

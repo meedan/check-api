@@ -687,7 +687,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t, role: 'owner'
-    query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses } }"
     post :create, query: query, team: 'team'
     assert_response :success
   end
@@ -715,17 +715,6 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: 'team'
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
-  end
-
-  test "should get source statuses" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    s = create_source team: t
-    query = "query GetById { source(id: \"#{s.id}\") { verification_statuses } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
   end
 
   test "should return 404 if public team does not exist" do

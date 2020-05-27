@@ -13,5 +13,5 @@ module TagMutations
     annotated_type: 'str'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('tag', create_fields, update_fields, ['source', 'project_media', 'project_source', 'team'])
+  Create, Update, Destroy, BulkCreate = GraphqlCrudOperations.define_crud_operations('tag', create_fields, update_fields, ['source', 'project_media', 'project_source', 'team'], true)
 end
