@@ -291,7 +291,16 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      type_mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }.freeze
+      mapping = {
+        'str' => types.String,
+        '!str' => !types.String,
+        'int' => types.Int,
+        '!int' => !types.Int,
+        'id' => types.ID,
+        '!id' => !types.ID,
+        'bool' => types.Boolean,
+        'json' => JsonStringType
+      }.freeze
       name "#{action.camelize}#{type.camelize}"
 
       if action == 'update'
@@ -299,7 +308,7 @@ class GraphqlCrudOperations
         input_field :ids, types[types.ID]
       end
       input_field :no_freeze, types.Boolean
-      fields.each { |field_name, field_type| input_field field_name, type_mapping[field_type] }
+      fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
@@ -376,9 +385,9 @@ class GraphqlCrudOperations
     Object.class_eval <<-TES
       class #{mutation} < GraphQL::Schema::Mutation
         argument :inputs, [#{input_type}], required: true
-      
+
         field :enqueued, Boolean, null: false
-      
+
         def resolve(inputs:)
           GraphqlCrudOperations.bulk_create('#{type}', inputs)
         end
