@@ -145,16 +145,6 @@ ar:
   invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
   invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف
     والأرقام و'-' و '_' فقط
-  invalid_default_status_for_custom_translation_status: المُعَرِّف لحالة التحقق الإفتراضية
-    غير صالح
-  invalid_active_status_for_custom_translation_status: المُعَرِّف لحالة التحقق النشطة
-    غير صالح
-  invalid_label_for_custom_translation_status: عنوان حالة التحقق مطلوب
-  invalid_id_for_custom_translation_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف
-    والأرقام و'-' و '_' فقط
-  invalid_statuses_format_for_custom_translation_status: 'حالات الترجمة الخاصة يجب
-    أن تحتوي على صيغات صحيحة لكل من : مُعَرِّف ، عنوان ، وصف ، أسلوب وإشارة الحالة
-    النهائية.'
   mail_account_confirmation: تأكيد حساب %{app_name}
   slack:
     fields:
@@ -420,10 +410,6 @@ ar:
   archive_archive_org: Archive.org
   workflow_status_not_valid: حالة غير صالحة
   workflow_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
-  blank_default_status_for_custom_translation_status: من فضلك أضف قيمة إفتراضية لحالات
-    الترجمة الخاصة
-  blank_active_status_for_custom_translation_status: من فضلك أضف قيمة نشطة لحالات
-    الترجمة الخاصة
   blank_default_status_for_custom_verification_status: من فضلك أضف قيمة إفتراضية لحالات
     التحقق الخاصة
   blank_active_status_for_custom_verification_status: من فضلك أضف قيمة نشطة لحالات
@@ -762,7 +748,7 @@ ar:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''

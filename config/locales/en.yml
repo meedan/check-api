@@ -166,16 +166,6 @@ en:
     must contain only lowercase letters, numbers, hyphens and underscores
   invalid_statuses_format_for_custom_verification_status: 'Custom verification statuses
     should have valid entries for: label, identifier, description and style'
-  invalid_default_status_for_custom_translation_status: The default status identifier
-    is invalid
-  invalid_active_status_for_custom_translation_status: The active status identifier
-    is invalid
-  invalid_label_for_custom_translation_status: The status label is mandatory
-  invalid_id_for_custom_translation_status: The status identifier is mandatory and
-    must contain only lowercase letters, hyphens and underscores
-  invalid_statuses_format_for_custom_translation_status: 'Custom translation statuses
-    should have valid entries for: label, identifier, description, style and final
-    state flag'
   mail_account_confirmation: "%{app_name} account confirmation"
   slack:
     fields:
@@ -501,10 +491,6 @@ en:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Invalid status
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
-  blank_default_status_for_custom_translation_status: Please provide a 'default' value
-    for the custom translation statuses
-  blank_active_status_for_custom_translation_status: Please provide an 'active' value
-    for the custom translation statuses
   blank_default_status_for_custom_verification_status: Please provide a 'default'
     value for the custom verification statuses
   blank_active_status_for_custom_verification_status: Please provide an 'active' value
@@ -1278,12 +1264,9 @@ en:
   custom_message_status_out-of-scope_africa-check: Out of Scope
   custom_message_status_more-about-africa-check_africa-check: More about Africa Check
   custom_message_status_report_more_information_africa-check: More Information
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: |-
-    ❌ We are sorry, we can't assist with your query at this time.
-
-    Please view our submission guidelines here:
-
-    africacheck.org/how-to-fact-check/submit-a-claim-to-check/
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: "We
+    can’t fact-check the message you sent us. Please read our submission guidelines
+    here: \nhttps://africacheck.org/how-to-fact-check/submit-a-claim-to-check/"
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: Africa
     Check is a non-profit organisation working to promote accuracy in public debate
     and the media in Africa. We try to raise the quality of information available

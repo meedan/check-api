@@ -129,16 +129,6 @@ ro:
   invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
   invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu
     și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
-  invalid_default_status_for_custom_translation_status: Identificatorul de stare implicit
-    nu este valid
-  invalid_active_status_for_custom_translation_status: Identificatorul de stare activ
-    nu este valid
-  invalid_label_for_custom_translation_status: Eticheta privind starea este obligatorie
-  invalid_id_for_custom_translation_status: Identificatorul de stare este obligatoriu
-    și trebuie să conțină doar litere mici, cratime și caractere de subliniere
-  invalid_statuses_format_for_custom_translation_status: 'Stările personalizate ale
-    traducerii trebuie să fie intrări valide pentru: etichetă, identificator, descriere,
-    stil și semn al stării finale'
   mail_account_confirmation: Confirmarea contului %{app_name}
   slack:
     fields:
@@ -361,10 +351,6 @@ ro:
   workflow_status_not_valid: Starea nu este validă
   workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
     această stare
-  blank_default_status_for_custom_translation_status: Vă rugăm să introduceți o valoare
-    'implicită' pentru stările personalizate ale traducerii
-  blank_active_status_for_custom_translation_status: Vă rugăm să introduceți o valoare
-    'activă' pentru stările personalizate ale traducerii
   blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
     'implicită' pentru stările personalizate ale verificării
   blank_active_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
@@ -689,7 +675,7 @@ ro:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
