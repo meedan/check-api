@@ -161,16 +161,9 @@ fr:
   invalid_label_for_custom_verification_status: L'étiquette du statut est requise
   invalid_id_for_custom_verification_status: L'identifiant de statut est requis et
     il accepte uniquement les lettres, les chiffres, les tirets et les underscores
-  invalid_default_status_for_custom_translation_status: Identifiant du statut de défaut
-    non valide
-  invalid_active_status_for_custom_translation_status: Identifiant du statut actif
-    non valide
-  invalid_label_for_custom_translation_status: L'étiquette du statut est requise
-  invalid_id_for_custom_translation_status: L'identifiant de statut est requis et
-    il accepte uniquement les lettres, les chiffres, les tirets et les underscores
-  invalid_statuses_format_for_custom_translation_status: 'Les statuts de traduction
+  invalid_statuses_format_for_custom_verification_status: 'Les statuts de vérification
     personnalisés doivent contenir des valeurs valides pour : étiquette, identifiant,
-    description, style et indicateur d''état final.'
+    description et style'
   mail_account_confirmation: Confirmation de votre compte %{app_name}
   slack:
     fields:
@@ -524,10 +517,6 @@ fr:
   workflow_status_not_valid: Statut non valide
   workflow_status_permission_error: Désolé, vous n'êtes pas autorisé à modifier ce
     statut.
-  blank_default_status_for_custom_translation_status: Veuillez fournir une valeur
-    de défaut pour les statuts de traduction personnalisés
-  blank_active_status_for_custom_translation_status: Veuillez fournir une valeur active
-    pour les statuts de traduction personnalisés
   blank_default_status_for_custom_verification_status: Veuillez fournir une valeur
     de défaut pour les statuts de vérification personnalisés
   blank_active_status_for_custom_verification_status: Veuillez fournir une valeur
@@ -974,7 +963,7 @@ fr:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''

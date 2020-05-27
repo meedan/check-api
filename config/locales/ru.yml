@@ -128,16 +128,6 @@ ru:
   invalid_label_for_custom_verification_status: Название статуса обязательно
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
     может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_default_status_for_custom_translation_status: Неверный идентификатор статуса
-    по умолчанию
-  invalid_active_status_for_custom_translation_status: Неверный идентификатор активного
-    статуса
-  invalid_label_for_custom_translation_status: Название статуса обязательно
-  invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может
-    содержать строчные латинские буквы, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_translation_status: Дополнительные статусы должны
-    иметь название, идентификатор, описание, стиль и опциональную пометку о завершении
-    работы
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
@@ -295,10 +285,6 @@ ru:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Неверный статус
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
-  blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение
-    "default" для дополнительных статусов
-  blank_active_status_for_custom_translation_status: Пожалуйста, задайте значение
-    "active" для дополнительных статусов
   blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение
     "default" для дополнительных статусов
   blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение
@@ -603,7 +589,7 @@ ru:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
