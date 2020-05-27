@@ -683,7 +683,7 @@ en:
   team_rule_condition_group: Condition group
   team_rule_operator: Operator
   team_rule_json_schema_validation: Rules format is not valid
-  team_rule_created_at: Created
+  team_rule_updated_at: Updated
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical

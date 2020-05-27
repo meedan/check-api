@@ -1,4 +1,19 @@
 class GraphqlCrudOperations
+  def self.type_mapping
+    proc do |_classname|
+      {
+        'str' => types.String,
+        '!str' => !types.String,
+        'int' => types.Int,
+        '!int' => !types.Int,
+        'id' => types.ID,
+        '!id' => !types.ID,
+        'bool' => types.Boolean,
+        'json' => JsonStringType
+      }.freeze
+    end
+  end
+
   def self.safe_save(obj, attrs, parents = [], inputs = {})
     attrs.each do |key, value|
       method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
@@ -291,7 +306,7 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      type_mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }.freeze
+      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
       name "#{action.camelize}#{type.camelize}"
 
       if action == 'update'
@@ -299,7 +314,7 @@ class GraphqlCrudOperations
         input_field :ids, types[types.ID]
       end
       input_field :no_freeze, types.Boolean
-      fields.each { |field_name, field_type| input_field field_name, type_mapping[field_type] }
+      fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       klass = "#{type.camelize}Type".constantize
       return_field type.to_sym, klass
@@ -367,18 +382,18 @@ class GraphqlCrudOperations
   def self.define_bulk_create(type, fields)
     input_type = "Create#{type.camelize.pluralize}Input"
     definition = GraphQL::InputObjectType.define do
-      type_mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }.freeze
+      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
       name(input_type)
-      fields.each { |field_name, field_type| argument field_name, type_mapping[field_type] }
+      fields.each { |field_name, field_type| argument field_name, mapping[field_type] }
     end
     Object.const_set input_type, definition
     mutation = "Create#{type.camelize.pluralize}Mutation"
     Object.class_eval <<-TES
       class #{mutation} < GraphQL::Schema::Mutation
         argument :inputs, [#{input_type}], required: true
-      
+
         field :enqueued, Boolean, null: false
-      
+
         def resolve(inputs:)
           GraphqlCrudOperations.bulk_create('#{type}', inputs)
         end
