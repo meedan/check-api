@@ -6,6 +6,7 @@ module CheckElasticSearch
     p = self.project
     ms = MediaSearch.new
     ms.id = doc_id
+    ms.team_id = self.team_id if self.is_a?(ProjectMedia)
     unless p.nil?
       ms.team_id = p.team_id
       ms.project_id = [p.id]

@@ -179,14 +179,14 @@ development: &default
   #
   honeycomb_key: # '<HONEYCOMB KEY>'
   honeycomb_dataset: # '<HONEYCOMB DATASET>'
-  
-  # DEPRECATED
+
+  # CloudFlare caching https://support.cloudflare.com/hc/en-us/categories/200275248-Caching
   #
-  optics_api_key:
-  clamav_service_path:
-  cc_deville_host:
-  cc_deville_token:
-  cc_deville_httpauth:
+  # OPTIONAL
+  #
+  cloudflare_auth_email: # '<CLOUDFLARE AUTH EMAIL>'
+  cloudflare_auth_key: # '<CLOUDFLARE AUTH KEY>'
+  cloudflare_zone: # '<CLOUDFLARE ZONE>'
 
 test:
   <<: *default

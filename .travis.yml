@@ -58,7 +58,7 @@ rvm:
 jobs:
   include:
     - stage: test
-      script: "export PATTERN='models mailers integration workers' && cd test && rm -rf $PATTERN && echo 'Running tests:' && ls && cd - && bundle exec rake parallel:test[5] && cd test && ./format-coverage.sh && cd -"
+      script: "export PATTERN='models mailers integration workers lib' && cd test && rm -rf $PATTERN && echo 'Running tests:' && ls && cd - && bundle exec rake parallel:test[5] && cd test && ./format-coverage.sh && cd -"
     - stage: test
       script: "export PATTERN='controllers' && cd test && rm -rf $PATTERN && echo 'Running tests:' && ls && cd - && bundle exec rake parallel:test[5] && cd test && ./format-coverage.sh && cd -"
 notifications:

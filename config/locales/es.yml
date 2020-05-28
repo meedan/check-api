@@ -87,7 +87,7 @@ es:
       invalid_attribution: Atribución inválida
       must_resolve_required_tasks_first: Las tareas requeridas deben resolverse primero
       image_too_large: Lo sentimos, no procesamos imágenes más grandes que %{max_size}.
-      video_too_large: Lo sentimos, no procesamos videos más grandes que %{max_size}.
+      video_too_large: Lo sentimos, no procesamos vídeos más grandes que %{max_size}.
       pender_conflict: Este enlace ya está siendo analizado. Por favor, intente de
         nuevo en unos segundos.
       pender_url_invalid: Este enlace es inválido
@@ -157,16 +157,9 @@ es:
   invalid_label_for_custom_verification_status: La etiqueta de estado es obligatorio
   invalid_id_for_custom_verification_status: El identificador de estado e obligatorio
     e acepta solo letras, números, guiones y underscores
-  invalid_default_status_for_custom_translation_status: El identificador de estado
-    predeterminado es inválido
-  invalid_active_status_for_custom_translation_status: El identificador de estado
-    activo es inválido
-  invalid_label_for_custom_translation_status: La etiqueta de estado es obligatoria
-  invalid_id_for_custom_translation_status: El identificador de estado es obligatorio
-    y acepta solo letras, números, guiones y guiones bajos
-  invalid_statuses_format_for_custom_translation_status: 'Los estados de traducción
-    personalizados deben tener entradas válidas para: etiqueta, identificador, descripción,
-    estilo y marca de estado final.'
+  invalid_statuses_format_for_custom_verification_status: 'Los estados de verificación
+    personalizados deben tener entradas válidas para: etiqueta, identificador, descripción
+    y estilo'
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
   slack:
     fields:
@@ -511,10 +504,6 @@ es:
   workflow_status_not_valid: Estado inválido
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar
     este estado.
-  blank_default_status_for_custom_translation_status: Por favor proporcione un valor
-    predeterminado para los estados de traducción personalizados
-  blank_active_status_for_custom_translation_status: Por favor proporcione un valor
-    activo para los estados de traducción personalizados
   blank_default_status_for_custom_verification_status: Por favor proporcione un valor
     predeterminado para los estados de verificación personalizados
   blank_active_status_for_custom_verification_status: Por favor proporcione un valor
@@ -666,6 +655,8 @@ es:
   team_rule_name: Un nombre único que identifica lo que hace esta regla
   team_rule_project_ids: Aplicar a la lista
   team_rule_destination: Seleccionar lista de destino
+  team_rule_names_invalid: Los nombres de las reglas no pueden estar en blanco y deben
+    ser únicos
   team_rules: Reglas
   team_rule_conditions: Si
   team_rule_condition: Si
@@ -711,6 +702,11 @@ es:
   team_rule_flagged_as: Ítem marcado como
   team_rule_report_is_published: Informe está publicado
   team_rule_report_is_paused: Informe está en pausa
+  team_rule_condition_groups: Grupos de condiciones
+  team_rule_condition_group: Grupo de condiciones
+  team_rule_operator: Operador
+  team_rule_json_schema_validation: El formato de las reglas no es válido
+  team_rule_created_at: Creada
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -822,16 +818,6 @@ es:
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
   custom_message_smooch_bot_message_type_unsupported_caio: ''
@@ -842,6 +828,16 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
@@ -850,8 +846,6 @@ es:
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
   custom_message_status_bot-resource_check-message-demo: ''
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
@@ -868,6 +862,7 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Gracias por enviar este mensaje.
 
@@ -939,35 +934,6 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
-  custom_message_smooch_bot_message_confirmed_india-today: ''
-  custom_message_smooch_bot_message_type_unsupported_india-today: ''
-  custom_message_smooch_bot_message_unconfirmed_india-today: ''
-  custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
-  custom_message_smooch_bot_window_closing_india-today: ''
-  custom_message_smooch_bot_disabled_india-today: ''
-  custom_message_smooch_bot_ask_for_tos_india-today: ''
-  custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
-  custom_message_status_undetermined_africa-check: ''
-  custom_message_status_in_progress_africa-check: ''
-  custom_message_status_false_africa-check: ''
-  custom_message_status_verified_africa-check: ''
-  custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
-  custom_message_status_inconclusive_africa-check: ''
-  custom_message_status_report_correct_africa-check: ''
-  custom_message_status_report_mostly-correct_africa-check: ''
-  custom_message_status_report_misleading_africa-check: ''
-  custom_message_status_report_false_africa-check: ''
-  custom_message_status_more-information_africa-check: ''
-  custom_message_status_out-of-scope_africa-check: ''
-  custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -978,6 +944,17 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_status_report_more_information_africa-check: ''
   custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''

@@ -1,9 +1,7 @@
 module DynamicMutations
   fields = {
-    annotated_id: 'str',
-    annotated_type: 'str',
     set_attribution: 'str'
-  }
+  }.merge(GraphqlCrudOperations.define_annotation_mutation_fields)
 
   create_fields = fields.merge({
     set_fields: '!str',

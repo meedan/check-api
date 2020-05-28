@@ -1560,7 +1560,11 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should return rules as JSON schema" do
-    assert_not_nil create_team.rules_json_schema
+    t = create_team
+    create_flag_annotation_type
+    create_project team: t
+    create_tag_text team: t
+    assert_not_nil t.rules_json_schema
   end
 
   test "should match keyword with rule" do
@@ -1568,7 +1572,7 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
       pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
-      assert t.contains_keyword(pm, nil, 'hospital', nil)
+      assert t.contains_keyword(pm, 'hospital', nil)
     end
   end
 
@@ -1583,12 +1587,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "status_is",
-          "rule_value": "in_progress"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -1619,12 +1631,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "tagged_as",
-          "rule_value": "foo"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "tagged_as",
+                "rule_value": "foo"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -1635,12 +1655,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "tagged_as",
-          "rule_value": "bar"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "tagged_as",
+                "rule_value": "bar"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -1678,12 +1706,20 @@ class TeamTest < ActiveSupport::TestCase
       rules << {
         "name": random_string,
         "project_ids": "",
-        "rules": [
-          {
-            "rule_definition": "type_is",
-            "rule_value": type
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "type_is",
+                  "rule_value": type
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "move_to_project",
@@ -1741,12 +1777,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "title_matches_regexp",
-          "rule_value": "^start_with_title"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_matches_regexp",
+                "rule_value": "^start_with_title"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -1772,12 +1816,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "title_contains_keyword",
-          "rule_value": "test"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "test"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -1806,16 +1858,24 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "has_less_than_x_words",
-          "rule_value": "3"
-        },
-        {
-          "rule_definition": "type_is",
-          "rule_value": "claim"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "has_less_than_x_words",
+                "rule_value": "3"
+              },
+              {
+                "rule_definition": "type_is",
+                "rule_value": "claim"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -1843,12 +1903,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "has_less_than_x_words",
-          "rule_value": "3"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "has_less_than_x_words",
+                "rule_value": "3"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -1878,12 +1946,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "title_matches_regexp",
-          "rule_value": "^start_with_title"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_matches_regexp",
+                "rule_value": "^start_with_title"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -1894,12 +1970,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "request_matches_regexp",
-          "rule_value": "^start_with_request"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "request_matches_regexp",
+                "rule_value": "^start_with_request"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -1926,12 +2010,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "has_less_than_x_words",
-          "rule_value": "3"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "has_less_than_x_words",
+                "rule_value": "3"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "send_to_trash",
@@ -1941,12 +2033,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "has_less_than_x_words",
-          "rule_value": "4"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "has_less_than_x_words",
+                "rule_value": "4"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "send_to_trash",
@@ -1997,12 +2097,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "status_is",
-          "rule_value": "in_progress"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "send_message_to_user",
@@ -2048,12 +2156,20 @@ class TeamTest < ActiveSupport::TestCase
     rules = [{
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "title_matches_regexp",
-          "rule_value": "/(\\u00a9|\\u00ae|[\\u2000-\\u3300]|\\ud83c[\\ud000-\\udfff]|\\ud83d[\\ud000-\\udfff]|\\ud83e[\\ud000-\\udfff])/gmi"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_matches_regexp",
+                "rule_value": "/(\\u00a9|\\u00ae|[\\u2000-\\u3300]|\\ud83c[\\ud000-\\udfff]|\\ud83d[\\ud000-\\udfff]|\\ud83e[\\ud000-\\udfff])/gmi"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -2068,12 +2184,20 @@ class TeamTest < ActiveSupport::TestCase
     rules = [{
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "title_matches_regexp",
-          "rule_value": "[\\u{1F300}-\\u{1F5FF}|\\u{1F1E6}-\\u{1F1FF}|\\u{2700}-\\u{27BF}|\\u{1F900}-\\u{1F9FF}|\\u{1F600}-\\u{1F64F}|\\u{1F680}-\\u{1F6FF}|\\u{2600}-\\u{26FF}]"
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_matches_regexp",
+                "rule_value": "[\\u{1F300}-\\u{1F5FF}|\\u{1F1E6}-\\u{1F1FF}|\\u{2700}-\\u{27BF}|\\u{1F900}-\\u{1F9FF}|\\u{1F600}-\\u{1F64F}|\\u{1F680}-\\u{1F6FF}|\\u{2600}-\\u{26FF}]"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -2122,12 +2246,20 @@ class TeamTest < ActiveSupport::TestCase
       rules << {
         "name": random_string,
         "project_ids": "",
-        "rules": [
-          {
-            "rule_definition": "item_titles_are_similar",
-            "rule_value": "70"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "item_titles_are_similar",
+                  "rule_value": "70"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "relate_similar_items",
@@ -2158,12 +2290,20 @@ class TeamTest < ActiveSupport::TestCase
       rules << {
         "name": random_string,
         "project_ids": "",
-        "rules": [
-          {
-            "rule_definition": "item_images_are_similar",
-            "rule_value": "70"
-          }
-        ],
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "item_images_are_similar",
+                  "rule_value": "70"
+                }
+              ]
+            }
+          ]
+        },
         "actions": [
           {
             "action_definition": "relate_similar_items",
@@ -2203,12 +2343,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_match /.*stop.*done.*/, t.reload.rules_json_schema
   end
 
-  test "should not check for similar items if object is null" do
-    t = create_team
-    pm = create_project_media team: t
-    assert !t.items_are_similar('image', pm, pm, 50, random_string)
-  end
-
   test "should match rule by flags" do
     create_flag_annotation_type
     t = create_team
@@ -2218,12 +2352,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "flagged_as",
-          "rule_value": { flag: 'spam', threshold: 3 }.to_json
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "flagged_as",
+                "rule_value": { flag: 'spam', threshold: 3 }
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "copy_to_project",
@@ -2292,12 +2434,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "report_is_published",
-          "rule_value": ""
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "report_is_published",
+                "rule_value": ""
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -2328,12 +2478,20 @@ class TeamTest < ActiveSupport::TestCase
     rules << {
       "name": random_string,
       "project_ids": "",
-      "rules": [
-        {
-          "rule_definition": "report_is_paused",
-          "rule_value": ""
-        }
-      ],
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "report_is_paused",
+                "rule_value": ""
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
           "action_definition": "move_to_project",
@@ -2351,5 +2509,361 @@ class TeamTest < ActiveSupport::TestCase
     r2.set_fields = { state: 'paused' }.to_json ; r2.action = 'pause' ; r2.save!
     assert_equal 2, p1.reload.project_media_projects.count
     assert_equal 0, p2.reload.project_media_projects.count
+  end
+
+  test "should match rules with operators" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'or',
+            conditions: [
+              {
+                rule_definition: 'contains_keyword',
+                rule_value: 'test'
+              },
+              {
+                rule_definition: 'contains_keyword',
+                rule_value: 'foo'
+              }              
+            ]
+          },
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'has_less_than_x_words',
+                rule_value: 4
+              },
+              {
+                rule_definition: 'contains_keyword',
+                rule_value: 'bar'
+              }
+            ]
+          },     
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
+    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
+    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
+    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
+    assert_equal p2, pm1.reload.project
+    assert_equal p2, pm2.reload.project
+    assert_equal p1, pm3.reload.project
+    assert_equal p1, pm4.reload.project
+    rules[0][:rules][:operator] = 'or'
+    rules[0][:rules][:groups][0][:operator] = 'and'
+    rules[0][:rules][:groups][1][:operator] = 'or'
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
+    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
+    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
+    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
+    assert_equal p2, pm1.reload.project
+    assert_equal p2, pm2.reload.project
+    assert_equal p2, pm3.reload.project
+    assert_equal p2, pm4.reload.project
+  end
+
+  test "should match rules with operators 2" do
+    create_verification_status_stuff
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+              {
+                rule_definition: 'status_is',
+                rule_value: 'in_progress'
+              }              
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, quote: 'foo test'
+    pm2 = create_project_media project: p1, quote: 'foo bar'
+    pm3 = create_project_media project: p1, quote: 'bar test'
+
+    s = pm1.last_status_obj
+    s.status = 'In Progress'
+    s.save!
+    
+    s = pm2.last_status_obj
+    s.status = 'In Progress'
+    s.save!
+
+    s = pm3.last_status_obj
+    s.status = 'Verified'
+    s.save!
+    
+    assert_equal p2, pm1.reload.project
+    assert_equal p1, pm2.reload.project
+    assert_equal p1, pm3.reload.project
+  end
+
+  test "should match rules with operators 3" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+              {
+                rule_definition: 'tagged_as',
+                rule_value: 'foo'
+              }              
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, quote: 'foo test'
+    pm2 = create_project_media project: p1, quote: 'foo bar'
+    pm3 = create_project_media project: p1, quote: 'bar test'
+
+    create_tag tag: 'foo', annotated: pm1
+    create_tag tag: 'foo', annotated: pm2
+    create_tag tag: 'bar', annotated: pm3
+    
+    assert_equal p2, pm1.reload.project
+    assert_equal p1, pm2.reload.project
+    assert_equal p1, pm3.reload.project
+  end
+
+  test "should match rules with operators 4" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+              {
+                rule_definition: 'report_is_published',
+                rule_value: ''
+              }              
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, quote: 'foo test'
+    pm2 = create_project_media project: p1, quote: 'foo bar'
+    pm3 = create_project_media project: p1, quote: 'bar test'
+
+    publish_report(pm1)
+    publish_report(pm2)
+    
+    assert_equal p2, pm1.reload.project
+    assert_equal p1, pm2.reload.project
+    assert_equal p1, pm3.reload.project
+  end
+
+  test "should match rules with operators 5" do
+    create_flag_annotation_type
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+              {
+                rule_definition: 'flagged_as',
+                rule_value: { flag: 'spam', threshold: 3 }
+              }              
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, quote: 'foo test'
+    pm2 = create_project_media project: p1, quote: 'foo bar'
+    pm3 = create_project_media project: p1, quote: 'bar test'
+
+    data = valid_flags_data(false)
+    data[:flags]['spam'] = 4
+    create_flag set_fields: data.to_json, annotated: pm1
+    create_flag set_fields: data.to_json, annotated: pm2
+    data[:flags]['spam'] = 2
+    create_flag set_fields: data.to_json, annotated: pm3
+    
+    assert_equal p2, pm1.reload.project
+    assert_equal p1, pm2.reload.project
+    assert_equal p1, pm3.reload.project
+  end
+
+  test "should not match rules" do
+    create_verification_status_stuff
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p2.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media project: p1, quote: 'foo test'
+    assert_equal p2, pm1.reload.project
+    pm1.project_id = p1.id
+    pm1.save!
+    assert_equal p1, pm1.reload.project
+    s = pm1.last_status_obj
+    s.status = 'In Progress'
+    s.save!
+    assert_equal p1, pm1.reload.project
+  end
+
+  test "should not have rules with blank names or duplicated names" do
+    t = create_team
+    rule1 = {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: 1
+        }
+      ]
+    }
+    rule2 = rule1.clone
+    t.rules = [rule1, rule2].to_json
+    assert_raises ActiveRecord::RecordInvalid do
+      t.save!
+    end
+    rule1[:name] = ''
+    rule2[:name] = 'Rule 2'
+    t.rules = [rule1, rule2].to_json
+    assert_raises ActiveRecord::RecordInvalid do
+      t.save!
+    end
+    rule1[:name] = 'Rule 1'
+    rule2[:name] = 'Rule 2'
+    t.rules = [rule1, rule2].to_json
+    assert_nothing_raised do
+      t.save!
+    end
   end
 end

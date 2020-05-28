@@ -43,7 +43,13 @@ class Workflow::VerificationStatus < Workflow::Base
     def apply_rules
       status = self.annotation&.load
       team = Team.where(id: status.get_team.last.to_i).last
-      team.apply_rules_and_actions(status.annotated, self) if !team.nil? && status.annotated_type == 'ProjectMedia'
+      if !team.nil? && status.annotated_type == 'ProjectMedia'
+        # Evaluate only the rules that contain a condition that matches this status
+        rule_ids = team.get_rules_that_match_condition do |condition, value|
+          condition == 'status_is' && self.field_name == 'verification_status_status' && self.value == value
+        end
+        team.apply_rules_and_actions(status.annotated, rule_ids)
+      end
     end
 
     def check_if_item_is_published

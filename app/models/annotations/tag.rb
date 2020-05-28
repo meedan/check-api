@@ -78,6 +78,12 @@ class Tag < ActiveRecord::Base
 
   def apply_rules_and_actions
     team = self.team
-    team.apply_rules_and_actions(self.annotated, self) if !team.nil? && self.annotated_type == 'ProjectMedia'
+    if !team.nil? && self.annotated_type == 'ProjectMedia'
+      # Evaluate only the rules that contain a condition that matches this tag
+      rule_ids = team.get_rules_that_match_condition do |condition, value|
+        condition == 'tagged_as' && self.tag_text == value
+      end
+      team.apply_rules_and_actions(self.annotated, rule_ids)
+    end
   end
 end

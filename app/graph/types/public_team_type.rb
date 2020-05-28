@@ -25,4 +25,10 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
       (team.private && (!User.current || (!User.current.is_admin && TeamUser.where(team_id: team.id, user_id: User.current.id).last.nil?))) ? 0 : team.trash_count
     }
   end
+
+  field :verification_statuses, JsonStringType do
+    resolve -> (team, _args, _ctx) do
+      team.verification_statuses('media')
+    end
+  end
 end

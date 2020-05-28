@@ -128,16 +128,6 @@ ru:
   invalid_label_for_custom_verification_status: Название статуса обязательно
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
     может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_default_status_for_custom_translation_status: Неверный идентификатор статуса
-    по умолчанию
-  invalid_active_status_for_custom_translation_status: Неверный идентификатор активного
-    статуса
-  invalid_label_for_custom_translation_status: Название статуса обязательно
-  invalid_id_for_custom_translation_status: Идентификатор статуса обязателен; он может
-    содержать строчные латинские буквы, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_translation_status: Дополнительные статусы должны
-    иметь название, идентификатор, описание, стиль и опциональную пометку о завершении
-    работы
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
@@ -295,10 +285,6 @@ ru:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Неверный статус
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
-  blank_default_status_for_custom_translation_status: Пожалуйста, задайте значение
-    "default" для дополнительных статусов
-  blank_active_status_for_custom_translation_status: Пожалуйста, задайте значение
-    "active" для дополнительных статусов
   blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение
     "default" для дополнительных статусов
   blank_active_status_for_custom_verification_status: Пожалуйста, задайте значение
@@ -469,16 +455,6 @@ ru:
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
   custom_message_smooch_bot_message_type_unsupported_caio: ''
@@ -489,6 +465,16 @@ ru:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
@@ -497,8 +483,6 @@ ru:
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
   custom_message_status_bot-resource_check-message-demo: ''
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
@@ -515,6 +499,7 @@ ru:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Спасибо за ваше сообщение!
 
@@ -585,35 +570,6 @@ ru:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
-  custom_message_smooch_bot_message_confirmed_india-today: ''
-  custom_message_smooch_bot_message_type_unsupported_india-today: ''
-  custom_message_smooch_bot_message_unconfirmed_india-today: ''
-  custom_message_smooch_bot_not_final_india-today: ''
-  custom_message_smooch_bot_meme_india-today: ''
-  custom_message_smooch_bot_window_closing_india-today: ''
-  custom_message_smooch_bot_disabled_india-today: ''
-  custom_message_smooch_bot_ask_for_tos_india-today: ''
-  custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
-  custom_message_status_undetermined_africa-check: ''
-  custom_message_status_in_progress_africa-check: ''
-  custom_message_status_false_africa-check: ''
-  custom_message_status_verified_africa-check: ''
-  custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
-  custom_message_status_inconclusive_africa-check: ''
-  custom_message_status_report_correct_africa-check: ''
-  custom_message_status_report_mostly-correct_africa-check: ''
-  custom_message_status_report_misleading_africa-check: ''
-  custom_message_status_report_false_africa-check: ''
-  custom_message_status_more-information_africa-check: ''
-  custom_message_status_out-of-scope_africa-check: ''
-  custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -624,6 +580,17 @@ ru:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_status_report_more_information_africa-check: ''
   custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_status_start_mantis-8135: ''
