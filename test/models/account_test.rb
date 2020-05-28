@@ -145,6 +145,15 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
+  test "should raise error when try to create account with invalid url" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = 'http://invalid-url.ee'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url }}).to_return(body: '{"type":"error","data":{"message":"The URL is not valid", "code":4}}')
+    assert_raise ActiveRecord::RecordInvalid do
+      create_account url: 'http://invalid-url.ee'
+    end
+  end
+
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
       assert_raises ActiveRecord::RecordInvalid do

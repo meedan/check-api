@@ -112,6 +112,7 @@ class SourceTest < ActiveSupport::TestCase
     m = create_valid_media(account: create_valid_account(source: s))
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
+    assert_equal 1, s.medias_count
   end
 
   test "should get collaborators" do
@@ -457,14 +458,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
       create_source
     end
-  end
-
-  test "should get medias count" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
-    assert_equal [pm], s.medias
   end
 
   test "should get accounts count" do
