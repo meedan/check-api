@@ -153,15 +153,9 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     t2 = create_team
     s = create_source team: t
-    s2 = create_source team: t2
     tag = create_tag annotated: s
-    tag2 = create_tag annotated: s2
+    tag2 = create_tag annotated: s
     assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
-    Team.stubs(:current).returns(t)
-    assert_equal [tag], s.get_annotations('tag')
-    Team.stubs(:current).returns(t2)
-    assert_equal [tag2], s.get_annotations('tag')
-    Team.unstub(:current)
   end
 
   test "should get db id" do

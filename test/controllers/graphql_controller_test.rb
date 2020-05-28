@@ -307,13 +307,13 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source team: @team, user: u
     create_comment annotated: s
     create_tag annotated: s
-    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } } }"
+    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\")} }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['source']
     assert_equal 3, data['overridden'].size
-    assert_equal 2, data['annotations']['edges'].size
     assert_equal 2, data['annotations_count']
+    assert_equal 2, data['annotations']['edges'].size
   end
 
   test "should update source" do
