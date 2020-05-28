@@ -830,4 +830,33 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal ['foo'], pm1.reload.get_annotations('tag').map(&:load).map(&:tag_text)
     assert_equal ['bar'], pm2.reload.get_annotations('tag').map(&:load).map(&:tag_text)
   end
+
+  test "should create comment with fragment" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
+    assert_difference 'Comment.length', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['createComment']['comment']['parsed_fragment'])
+    assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
+  end
+
+  test "should search by flag without likelihood" do
+    create_flag_annotation_type
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    pm1 = create_project_media team: t, project: nil, disable_es_callbacks: false
+    pm2 = create_project_media team: t, project: nil, disable_es_callbacks: false
+    data = valid_flags_data(false)
+    create_flag annotated: pm1, disable_es_callbacks: false, set_fields: data.to_json
+    sleep 5
+    query = 'query { search(query: "{\"dynamic\":{\"flag_name\":[\"adult\"]}}") { medias(first: 10000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+  end
 end
