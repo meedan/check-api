@@ -124,7 +124,6 @@ class CheckSearch
       es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
       sort_value = MediaSearch.find(es_id).send(sort_key)
       sort_operator = sort_type == :asc ? :lt : :gt
-      puts "Sort Key: #{sort_key} Sort Operator: #{sort_operator} Sort Value: #{sort_value}"
       conditions << { range: { sort_key => { sort_operator => sort_value } } }
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }

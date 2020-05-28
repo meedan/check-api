@@ -521,6 +521,14 @@ class GraphqlCrudOperations
     [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
   end
 
+  def self.define_annotation_mutation_fields
+    {
+      fragment: 'str',
+      annotated_id: 'str',
+      annotated_type: 'str'
+    }
+  end
+
   def self.define_annotation_type(type, fields = {}, &block)
     GraphQL::ObjectType.define do
       name type.capitalize
@@ -564,6 +572,8 @@ class GraphqlCrudOperations
       field :image_data, JsonStringType
 
       field :data, JsonStringType
+
+      field :parsed_fragment, JsonStringType
 
       instance_eval(&block) if block_given?
     end
