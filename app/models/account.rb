@@ -33,11 +33,6 @@ class Account < ActiveRecord::Base
     source.nil? ? nil : source.id
   end
 
-  # def get_team
-  # TODO: Sawy review
-  #   self.sources.map(&:get_team).flatten.uniq
-  # end
-
   def data
     m = self.annotations('metadata').last&.load
     data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end

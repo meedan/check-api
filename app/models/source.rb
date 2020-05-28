@@ -41,7 +41,6 @@ class Source < ActiveRecord::Base
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
-    m_ids.concat ClaimSource.where(source_id: self.id).map(&:media_id)
     conditions = { media_id: m_ids }
     conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
     ProjectMedia.joins(:project).where(conditions)
@@ -59,14 +58,6 @@ class Source < ActiveRecord::Base
     self.accounts.count
   end
 
-  # TODO: Sawy:review
-  # def get_team
-  #   teams = []
-  #   projects = self.projects.map(&:id)
-  #   teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
-  #   return teams
-  # end
-
   def image
     custom = self.public_path
     custom || self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
@@ -79,6 +70,10 @@ class Source < ActiveRecord::Base
 
   def set_avatar(image)
     new_record? ? (self.avatar = image) : self.update_columns(avatar: image)
+  end
+
+  def get_annotations(type = nil)
+    self.annotations(type)
   end
 
   def file_mandatory?

@@ -20,7 +20,6 @@ class RemoveUnusedIndexes < ActiveRecord::Migration
     remove_index :teams, name: "index_teams_on_archived"
     remove_index :projects, name: "index_projects_on_archived"
     remove_index :projects, name: "index_projects_on_user_id"
-    remove_index :claim_sources, name: "index_claim_sources_on_source_id"
     remove_index :contacts, name: "index_contacts_on_team_id"
     remove_index :dynamic_annotation_field_instances, name: "index_dynamic_annotation_field_instances_on_annotation_type"
     remove_index :dynamic_annotation_field_instances, name: "index_dynamic_annotation_field_instances_on_field_type"

@@ -302,6 +302,18 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should read source" do
     User.delete_all
     assert_graphql_read('source', 'image')
+    authenticate_with_user
+    u = create_user
+    s = create_source team: @team, user: u
+    create_comment annotated: s
+    create_tag annotated: s
+    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['source']
+    assert_equal 3, data['overridden'].size
+    assert_equal 2, data['annotations']['edges'].size
+    assert_equal 2, data['annotations_count']
   end
 
   test "should update source" do

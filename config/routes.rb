@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   match '/test/session' => 'test#new_session', via: :get
   match '/test/claim' => 'test#new_claim', via: :get
   match '/test/link' => 'test#new_link', via: :get
+  match '/test/source' => 'test#new_source', via: :get
   match '/test/update_suggested_tags' => 'test#update_suggested_tags', via: :get
   match '/test/media_status' => 'test#media_status', via: :get
   match '/test/new_media_tag' => 'test#new_media_tag', via: :get

@@ -173,16 +173,6 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy reivew 
-  # test "should get team" do
-  #   t = create_team
-  #   s = create_source
-  #   p = create_project team: t
-  #   create_project_source source: s, project: p
-  #   a = create_valid_account source: s
-  #   assert_equal [t.id], a.get_team
-  # end
-
   test "should get permissions" do
     u = create_user
     t = create_team

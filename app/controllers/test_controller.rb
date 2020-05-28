@@ -82,6 +82,19 @@ class TestController < ApplicationController
     new_media 'link'
   end
 
+  def new_source
+    Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    User.current = user
+    source = Source.new
+    source.name = params[:name]
+    source.slogan = params[:slogan]
+    source.save!
+    User.current = nil
+    Team.current = nil
+    render_success 'source', source
+  end
+
   def media_status
     pm = ProjectMedia.find(params[:pm_id])
     s = pm.last_status_obj

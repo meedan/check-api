@@ -2,6 +2,10 @@ class ProjectSource < ActiveRecord::Base
 
 end
 
+class ClaimSource < ActiveRecord::Base
+
+end
+
 namespace :check do
   namespace :migrate do
     task remove_project_source: :environment do
@@ -38,6 +42,12 @@ namespace :check do
       end
       # Remove Cache - project_source_id_cache_for_project_media_*
       Rails.cache.delete_matched('project_source_id_cache_for_project_media_*')
+      # Remove ClaimSource
+      ClaimSource.find_in_batches(:batch_size => 2500) do |data|
+        print "."
+        ids = data.map(&:id)
+        ClaimSource.where(id: ids).delete_all
+      end
     end
   end
 end

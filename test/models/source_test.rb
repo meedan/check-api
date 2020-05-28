@@ -112,11 +112,6 @@ class SourceTest < ActiveSupport::TestCase
     m = create_valid_media(account: create_valid_account(source: s))
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal [pm2], cs.source.medias
   end
 
   test "should get collaborators" do
@@ -152,6 +147,21 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal '', s.description
     s.accounts << create_valid_account(data: { description: 'test' })
     assert_equal 'test', s.description
+  end
+
+  test "should get annotations" do
+    t = create_team
+    t2 = create_team
+    s = create_source team: t
+    s2 = create_source team: t2
+    tag = create_tag annotated: s
+    tag2 = create_tag annotated: s2
+    assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
+    Team.stubs(:current).returns(t)
+    assert_equal [tag], s.get_annotations('tag')
+    Team.stubs(:current).returns(t2)
+    assert_equal [tag2], s.get_annotations('tag')
+    Team.unstub(:current)
   end
 
   test "should get db id" do
@@ -204,16 +214,6 @@ class SourceTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
   end
 
-  # TODO: Sawy reivew
-  # test "should get team" do
-  #   t = create_team
-  #   p = create_project team: t
-  #   ps = create_project_source project: p
-  #   s = create_source
-  #   s.project_sources << ps
-  #   assert_equal [t.id], s.get_team
-  # end
-
   test "should protect attributes from mass assignment" do
     raw_params = { name: "My source", user: create_user }
     params = ActionController::Parameters.new(raw_params)
@@ -254,39 +254,6 @@ class SourceTest < ActiveSupport::TestCase
       end
     end
   end
-
-  # TODO: Sawy
-  # test "should get log" do
-  #   u = create_user
-  #   t = create_team
-  #   s = create_source team: t
-  #   p = create_project team: t
-  #   p2 = create_project team: t
-  #   create_team_user user: u, team: t, role: 'owner'
-
-  #   with_current_user_and_team(u, t) do
-  #     ps = create_project_source project: p, source: s, user: u
-  #     ps2 = create_project_source project: p2, source: s, user: u
-  #     c = create_comment annotated: ps
-  #     tg = create_tag annotated: ps
-  #     f = create_flag annotated: ps
-  #     s.name = 'update name'; s.skip_check_ability = true; s.save!
-  #     c2 = create_comment annotated: ps2
-  #     f2 = create_flag annotated: ps2
-  #     assert_equal ["create_comment", "create_tag", "create_dynamic", "update_source", "create_comment", "create_dynamic"].sort, s.get_versions_log.map(&:event_type).sort
-  #     assert_equal 6, s.get_versions_log_count
-  #     c.destroy!
-  #     assert_equal 6, s.get_versions_log_count
-  #     tg.destroy!
-  #     assert_equal 6, s.get_versions_log_count
-  #     f.destroy!
-  #     assert_equal 6, s.get_versions_log_count
-  #     c2.destroy!
-  #     assert_equal 6, s.get_versions_log_count
-  #     f2.destroy!
-  #     assert_equal 6, s.get_versions_log_count
-  #   end
-  # end
 
   test "should notify Pusher when source is updated" do
     s = create_source
@@ -504,11 +471,6 @@ class SourceTest < ActiveSupport::TestCase
     m = create_valid_media(account: create_valid_account(source: s))
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal 1, cs.source.medias_count
   end
 
   test "should get accounts count" do
