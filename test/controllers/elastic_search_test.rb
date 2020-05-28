@@ -288,69 +288,65 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search with tags or status" do
-    stub_config('app_name', 'Check') do
-      t = create_team
-      p = create_project team: t
-      m = create_valid_media
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      m2 = create_valid_media
-      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      create_status status: 'verified', annotated: pm, disable_es_callbacks: false
-      create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
-      create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
-      create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
-      create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
-      sleep 5
-      Team.current = t
-      # search by status
-      result = CheckSearch.new({verification_status: ['false']}.to_json)
-      assert_empty result.medias
-      result = CheckSearch.new({verification_status: ['verified']}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      create_status status: 'false', annotated: pm, disable_es_callbacks: false
-      sleep 1
-      result = CheckSearch.new({verification_status: ['verified']}.to_json)
-      assert_empty result.medias
-      # search by tags
-      result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
-      assert_empty result.medias
-      result = CheckSearch.new({tags: ['sports']}.to_json)
-      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-      result = CheckSearch.new({tags: ['news']}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # search tags as keywords
-      result = CheckSearch.new({keyword: 'news'}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: ' news '}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # search by multiple tags as keyword
-      result = CheckSearch.new({keyword: 'newtag news'}.to_json)
-      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    end
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    m2 = create_valid_media
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    create_status status: 'verified', annotated: pm, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
+    create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
+    create_tag tag: 'newtag', annotated: pm2, disable_es_callbacks: false
+    create_tag tag: 'news', annotated: pm, disable_es_callbacks: false
+    sleep 5
+    Team.current = t
+    # search by status
+    result = CheckSearch.new({verification_status: ['false']}.to_json)
+    assert_empty result.medias
+    result = CheckSearch.new({verification_status: ['verified']}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    create_status status: 'false', annotated: pm, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({verification_status: ['verified']}.to_json)
+    assert_empty result.medias
+    # search by tags
+    result = CheckSearch.new({tags: ['non_exist_tag']}.to_json)
+    assert_empty result.medias
+    result = CheckSearch.new({tags: ['sports']}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    result = CheckSearch.new({tags: ['news']}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search tags as keywords
+    result = CheckSearch.new({keyword: 'news'}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({keyword: ' news '}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search by multiple tags as keyword
+    result = CheckSearch.new({keyword: 'newtag news'}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
   end
 
   test "should search tags case-insensitive" do
-    stub_config('app_name', 'Check') do
-      t = create_team
-      p = create_project team: t
-      m = create_valid_media
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
-      sleep 5
-      Team.current = t
-      # search by tags
-      result = CheckSearch.new({tags: ['two Words']}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({tags: ['two words']}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({tags: ['TWO WORDS']}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # search tags as keywords
-      result = CheckSearch.new({keyword: 'two Words'}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'TWO WORDS'}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-    end
+    t = create_team
+    p = create_project team: t
+    m = create_valid_media
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
+    sleep 5
+    Team.current = t
+    # search by tags
+    result = CheckSearch.new({tags: ['two Words']}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({tags: ['two words']}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({tags: ['TWO WORDS']}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search tags as keywords
+    result = CheckSearch.new({keyword: 'two Words'}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    result = CheckSearch.new({keyword: 'TWO WORDS'}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should have unique id per params" do
@@ -384,6 +380,6 @@ class ElasticSearchTest < ActionController::TestCase
     cs = CheckSearch.new('{}')
     assert_nil cs.pusher_channel
   end
-  
+
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end

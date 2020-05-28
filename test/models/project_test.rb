@@ -364,7 +364,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data for Check" do
     create_verification_status_stuff
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       c = create_comment annotated: pm, text: 'Note 1'
@@ -382,7 +382,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data for Check starting from specific id" do
     create_verification_status_stuff
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       pm2 = create_project_media project: p, media: create_valid_media
@@ -404,7 +404,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should include number of smooch requests on export if send it as parameter" do
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       c = create_comment annotated: pm, text: 'Note 1'
@@ -422,7 +422,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should not include number of smooch requests on export by default" do
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       pm2 = create_project_media project: p, media: create_valid_media
@@ -438,7 +438,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should include number of smooch responses on export if send it as parameter" do
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', false]})
-    stub_config('default_project_media_workflow', 'verification_status') do
+    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       p = create_project
       pm = create_project_media project: p, media: create_valid_media
       n = 2
@@ -746,7 +746,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should propagate assignments" do
     Sidekiq::Testing.inline! do
       create_verification_status_stuff
-      stub_config('default_project_media_workflow', 'verification_status') do
+      stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
         t = create_team
         p = create_project team: t
         u = create_user

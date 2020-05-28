@@ -52,13 +52,17 @@ class ActiveSupport::TestCase
   include SampleData
   include Minitest::Hooks
 
-  def stub_config(key, value, must_unstub = true)
+  def stub_configs(configs, must_unstub = true)
+    CONFIG.stubs(:[]).returns(nil)
+    CONFIG.stubs(:has_key?).returns(false)
     CONFIG.each do |k, v|
-      CONFIG.stubs(:[]).with(k).returns(v) if k != key
+      CONFIG.stubs(:[]).with(k).returns(v)
       CONFIG.stubs(:has_key?).with(k).returns(true)
     end
-    CONFIG.stubs(:[]).with(key).returns(value)
-    CONFIG.stubs(:has_key?).with(key).returns(true)
+    configs.each do |k, v|
+      CONFIG.stubs(:[]).with(k).returns(v)
+      CONFIG.stubs(:has_key?).with(k).returns(true)
+    end
     yield if block_given?
     CONFIG.unstub(:[]) if must_unstub
     CONFIG.unstub(:has_key?) if must_unstub
@@ -78,17 +82,6 @@ class ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
     create_verification_status_stuff
     sleep 2
-  end
-
-  def stub_configs(configs, must_unstub = true)
-    CONFIG.each do |k, v|
-      CONFIG.stubs(:[]).with(k).returns(v) unless configs.keys.include?(k)
-    end
-    configs.each do |k, v|
-      CONFIG.stubs(:[]).with(k).returns(v)
-    end
-    yield if block_given?
-    CONFIG.unstub(:[]) if must_unstub
   end
 
   def with_current_user_and_team(user = nil, team = nil)

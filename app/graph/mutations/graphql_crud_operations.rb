@@ -1,4 +1,19 @@
 class GraphqlCrudOperations
+  def self.type_mapping
+    proc do |_classname|
+      {
+        'str' => types.String,
+        '!str' => !types.String,
+        'int' => types.Int,
+        '!int' => !types.Int,
+        'id' => types.ID,
+        '!id' => !types.ID,
+        'bool' => types.Boolean,
+        'json' => JsonStringType
+      }.freeze
+    end
+  end
+
   def self.safe_save(obj, attrs, parents = [], inputs = {})
     attrs.each do |key, value|
       method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
@@ -68,6 +83,28 @@ class GraphqlCrudOperations
     attrs['annotation_type'] = type.gsub(/^dynamic_annotation_/, '') if type =~ /^dynamic_annotation_/
 
     self.safe_save(obj, attrs, parents)
+  end
+
+  def self.bulk_create(type, inputs)
+    self.delay_for(1.second, retry: false).bulk_create_in_background(type, inputs.map(&:to_h).to_json, User.current&.id, Team.current&.id)
+    { enqueued: true }
+  end
+
+  def self.bulk_create_in_background(type, json_inputs, user_id, team_id)
+    User.current = User.find(user_id)
+    Team.current = Team.find(team_id)
+    klass = type.camelize.constantize
+    inputs = JSON.parse(json_inputs)
+    inputs.each do |input|
+      obj = klass.new
+      obj.is_being_created = true if obj.respond_to?(:is_being_created)
+      input.each do |key, value|
+        obj.send("#{key}=", value)
+      end
+      obj.save!
+    end
+    User.current = nil
+    Team.current = nil
   end
 
   def self.target_pusher_channels(obj, operation)
@@ -269,12 +306,13 @@ class GraphqlCrudOperations
 
   def self.define_create_or_update(action, type, fields, parents = [])
     GraphQL::Relay::Mutation.define do
-      mapping = { 'str' => types.String, '!str' => !types.String, 'int' => types.Int, '!int' => !types.Int, 'id' => types.ID, '!id' => !types.ID, 'bool' => types.Boolean, 'json' => JsonStringType }
-
+      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
       name "#{action.camelize}#{type.camelize}"
 
-      input_field :id, types.ID
-      input_field :ids, types[types.ID]
+      if action == 'update'
+        input_field :id, types.ID
+        input_field :ids, types[types.ID]
+      end
       input_field :no_freeze, types.Boolean
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
@@ -341,9 +379,36 @@ class GraphqlCrudOperations
     fields
   end
 
-  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
+  def self.define_bulk_create(type, fields)
+    input_type = "Create#{type.camelize.pluralize}Input"
+    definition = GraphQL::InputObjectType.define do
+      mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
+      name(input_type)
+      fields.each { |field_name, field_type| argument field_name, mapping[field_type] }
+    end
+    Object.const_set input_type, definition
+    mutation = "Create#{type.camelize.pluralize}Mutation"
+    Object.class_eval <<-TES
+      class #{mutation} < GraphQL::Schema::Mutation
+        argument :inputs, [#{input_type}], required: true
+
+        field :enqueued, Boolean, null: false
+
+        def resolve(inputs:)
+          GraphqlCrudOperations.bulk_create('#{type}', inputs)
+        end
+      end
+    TES
+    mutation.constantize
+  end
+
+  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = false)
     update_fields = create_fields if update_fields.empty?
-    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
+    generated = [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
+    # FIXME: Do the same for update and destroy by refactoring them (#7858)
+    # Should we create the bulk mutations for all types by default? For now, only if the parameter is true (to avoid a big schema)
+    generated << GraphqlCrudOperations.define_bulk_create(type, create_fields) if generate_bulk_mutation
+    generated
   end
 
   def self.define_default_type(&block)
@@ -456,6 +521,14 @@ class GraphqlCrudOperations
     [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
   end
 
+  def self.define_annotation_mutation_fields
+    {
+      fragment: 'str',
+      annotated_id: 'str',
+      annotated_type: 'str'
+    }
+  end
+
   def self.define_annotation_type(type, fields = {}, &block)
     GraphQL::ObjectType.define do
       name type.capitalize
@@ -499,6 +572,8 @@ class GraphqlCrudOperations
       field :image_data, JsonStringType
 
       field :data, JsonStringType
+
+      field :parsed_fragment, JsonStringType
 
       instance_eval(&block) if block_given?
     end

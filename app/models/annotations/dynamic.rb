@@ -216,7 +216,23 @@ class Dynamic < ActiveRecord::Base
   def apply_rules_and_actions
     if self.annotated_type == 'ProjectMedia'
       team = self.annotated.team
-      team.apply_rules_and_actions(self.annotated, self) unless team.nil?
+      # Evaluate only the rules that contain a condition that matches this report or flag
+      rule_ids = []
+      rule_ids = self.send(:rule_ids_for_report) if self.annotation_type == 'report_design'
+      rule_ids = self.send(:rule_ids_for_flag) if self.annotation_type == 'flag'
+      team.apply_rules_and_actions(self.annotated, rule_ids)
+    end
+  end
+
+  def rule_ids_for_report
+    self.annotated.team.get_rules_that_match_condition do |condition, _value|
+      (condition == 'report_is_published' && self.get_field_value('state') == 'published') || (condition == 'report_is_paused' && self.get_field_value('state') == 'paused')
+    end
+  end
+
+  def rule_ids_for_flag
+    self.annotated.team.get_rules_that_match_condition do |condition, value|
+      condition == 'flagged_as' && self.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
     end
   end
 end
