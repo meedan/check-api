@@ -871,4 +871,17 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
   end
+
+  test "should get comments from media" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, fragment: 't=10,20'
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
+  end
 end
