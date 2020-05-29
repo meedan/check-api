@@ -5,3 +5,7 @@ require File.expand_path('../config/application', __FILE__)
 
 Rails.application.load_tasks
 Rake.application.options.trace = true
+
+require 'rake'
+require 'gem-licenses'
+Gem::GemLicenses.install_tasks

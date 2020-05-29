@@ -28,7 +28,6 @@ group :development do
   gem 'htmlentities', require: false
 end
 
-# Pender Client
 gem 'webmock'
 gem 'mocha'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
