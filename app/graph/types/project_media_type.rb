@@ -183,6 +183,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :comments, -> { CommentType.connection_type } do
+    resolve ->(project_media, _args, _ctx) {
+      project_media.get_annotations('comment').map(&:load)
+    }
+  end
+
   field :metadata do
     type JsonStringType
 
