@@ -859,4 +859,16 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
   end
+
+  test "should create tag and get tag text as parent" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
+    assert_difference 'Tag.length', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
+  end
 end
