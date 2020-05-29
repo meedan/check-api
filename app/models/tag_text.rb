@@ -23,6 +23,10 @@ class TagText < ActiveRecord::Base
     TagText.tags(self.id, self.team_id)
   end
 
+  def annotation_relation
+    tags
+  end
+
   def calculate_tags_count
     self.tags.count
   end
@@ -30,8 +34,8 @@ class TagText < ActiveRecord::Base
   # Performance here could be much better, and we are also considering only ProjectMedia tags
   def self.tags(id, team_id)
     Tag.where("data = ?", { tag: id }.with_indifferent_access.to_yaml)
-       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN projects p ON p.id = pm.project_id")
-       .where('p.team_id' => team_id)
+       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
+       .where('pm.team_id' => team_id)
   end
 
   def self.destroy_tags(id, team_id)
