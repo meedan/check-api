@@ -32,7 +32,7 @@ RelationshipsType = GraphQL::ObjectType.define do
 
     resolve ->(obj, args, _ctx) {
       project_media = ProjectMedia.find(obj.project_media_id)
-      filters = args['filters'].blank? ? nil : (begin JSON.parse(args['filters']) rescue nil end)
+      filters = args['filters'].blank? ? nil : JSON.parse(args['filters'], quirks_mode: true)
       Relationship.targets_grouped_by_type(project_media, filters).collect{ |x| OpenStruct.new(x) }
     }
   end
