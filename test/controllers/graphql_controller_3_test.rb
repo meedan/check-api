@@ -884,4 +884,17 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
   end
+
+  test "should get related items if filters are null" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
 end
