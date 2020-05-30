@@ -3,7 +3,7 @@
 # You can remove the files by running: cd doc/ && make clean
 # Dependencies: GNU Make, Inkscape and PDF LateX, besides the API dependencies
 
-INKSCAPE = inkscape -b 'rgb(255, 255, 255)'
+INKSCAPE = inkscape -b 'rgb(255,255,255)'
 RAKE = bundle exec rake
 BEXEC = bundle exec
 
@@ -13,25 +13,25 @@ controllers_brief.png: controllers_brief.svg
 	$(INKSCAPE) --export-png='controllers_brief.png' controllers_brief.svg
 
 controllers_brief.svg:
-	$(BEXEC) railroady -C -b -c ../config/environment | dot -Tsvg > controllers_brief.svg
+	$(BEXEC) railroady -C -b -c ../config/environment -s ../app/controllers/*.rb,../app/controllers/api/v1/*.rb | sed 's/bgcolor="none"/bgcolor="transparent"/g' | dot -Tsvg > controllers_brief.svg
 
 controllers_complete.png: controllers_complete.svg
 	$(INKSCAPE) --export-png='controllers_complete.png' controllers_complete.svg
 
 controllers_complete.svg:
-	$(BEXEC) railroady -C -c ../config/environment | dot -Tsvg > controllers_complete.svg
+	$(BEXEC) railroady -C -c ../config/environment -s ../app/controllers/*.rb,../app/controllers/api/v1/*.rb | sed 's/bgcolor="none"/bgcolor="transparent"/g' | dot -Tsvg > controllers_complete.svg
 
 models_brief.png: models_brief.svg
 	$(INKSCAPE) --export-png='models_brief.png' models_brief.svg
 
 models_brief.svg:
-	$(BEXEC) railroady -M -s app/models/annotations/*,app/models/*.rb -b -c ../config/environment | dot -Tsvg > models_brief.svg
+	$(BEXEC) railroady -M -s ../app/models/annotations/*,../app/models/*.rb -b -c ../config/environment | sed 's/bgcolor="none"/bgcolor="transparent"/g' | dot -Tsvg > models_brief.svg
 
 models_complete.png: models_complete.svg
 	$(INKSCAPE) --export-png='models_complete.png' models_complete.svg
 
 models_complete.svg:
-	$(BEXEC) railroady -M -s app/models/annotations/*,app/models/*.rb -c ../config/environment | dot -Tsvg > models_complete.svg
+	$(BEXEC) railroady -M -s ../app/models/annotations/*,../app/models/*.rb -c ../config/environment | sed 's/bgcolor="none"/bgcolor="transparent"/g' | dot -Tsvg > models_complete.svg
 
 api.txt:
 	echo "API Endpoints - `LANG=en_US date --utc`" > api.txt
