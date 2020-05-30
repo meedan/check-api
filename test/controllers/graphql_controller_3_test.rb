@@ -859,4 +859,42 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
   end
+
+  test "should create tag and get tag text as parent" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
+    assert_difference 'Tag.length', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
+  end
+
+  test "should get comments from media" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, fragment: 't=10,20'
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
+  end
+
+  test "should get related items if filters are null" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
 end

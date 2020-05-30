@@ -374,6 +374,7 @@ class GraphqlCrudOperations
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
       parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent)
       parentclass = 'Version' if ['first_response_version', 'comment_version'].include?(parent)
+      parentclass = 'TagText' if parent == 'tag_text_object'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end
     fields
