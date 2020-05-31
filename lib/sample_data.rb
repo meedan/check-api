@@ -162,7 +162,7 @@ module SampleData
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_project_media project: p
     end
     c = Comment.new
     options.each do |key, value|
@@ -188,7 +188,7 @@ module SampleData
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      options[:annotated] = create_project_media project: p
     end
     t = Tag.new
     options.each do |key, value|
@@ -227,11 +227,13 @@ module SampleData
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
-    options = { status: 'credible', annotator: create_user, disable_es_callbacks: true }.merge(options)
+    options = { status: 'in_progress', annotator: create_user, disable_es_callbacks: true }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
       p = create_project team: t
-      options[:annotated] = create_project_source project: p
+      pm = create_project_media project: p
+      remove_default_status(pm)
+      options[:annotated] = pm
     end
     s = Dynamic.new
     s.annotation_type = 'verification_status'
@@ -242,6 +244,12 @@ module SampleData
     s.annotated.reload if s.annotated
     s.save!
     s
+  end
+
+  def remove_default_status(obj)
+    return unless obj.class.name == 'ProjectMedia'
+    s = obj.last_status_obj
+    s.destroy
   end
 
   def create_flag_annotation_type
@@ -493,13 +501,7 @@ module SampleData
         source.file = f
       end
     end
-
     source.save!
-
-    if options[:team]
-      create_project_source(project: create_project(team: options[:team], user: nil), source: source)
-    end
-
     source.reload
   end
 
@@ -512,30 +514,6 @@ module SampleData
     end
     as.save!
     as.reload
-  end
-
-  def create_claim_source(options = {})
-    cs = ClaimSource.new
-    options[:source_id] = create_source.id if !options.has_key?(:source_id) && !options.has_key?(:source)
-    options[:media_id] = create_claim_media.id if !options.has_key?(:media_id) && !options.has_key?(:media)
-    options.each do |key, value|
-      cs.send("#{key}=", value) if cs.respond_to?("#{key}=")
-    end
-    cs.save!
-    cs.reload
-  end
-
-  def create_project_source(options = {})
-    u = options[:user] || create_user
-    options = { disable_es_callbacks: true, user: u }.merge(options)
-    ps = ProjectSource.new
-    options[:project] = create_project(team: options[:team]) unless options.has_key?(:project)
-    options[:source] = create_source unless options.has_key?(:source)
-    options.each do |key, value|
-      ps.send("#{key}=", value) if ps.respond_to?("#{key}=")
-    end
-    ps.save!
-    ps.reload
   end
 
   def create_project_media(options = {})
@@ -784,9 +762,8 @@ module SampleData
 
   def create_relationship(options = {})
     t = create_team
-    p = create_project team: t
-    source_id = options[:source_id] || create_project_media(project: p).id
-    target_id = options[:target_id] || create_project_media(project: p).id
+    source_id = options[:source_id] || create_project_media(team: t).id
+    target_id = options[:target_id] || create_project_media(team: t).id
     options = {
       source_id: source_id,
       target_id: target_id,

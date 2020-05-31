@@ -46,22 +46,10 @@ class AccountSourceTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
     Team.stubs(:current).returns(t)
     s = create_source
-    ps = create_project_source project: p, source: s
-    a = create_account url: url, source: s
-    assert_raise RuntimeError do
-      create_account_source source: s, url: url
-    end
-    assert_raise RuntimeError do
-      create_project_source project: p, name: 'Test', url: url
-    end
-    t2 = create_team
-    p2 = create_project team: t2
-    Team.stubs(:current).returns(t2)
     assert_difference 'AccountSource.count' do
-      create_project_source project: p2, name: s.name, url: url
+      a = create_account url: url, source: s
     end
     Team.unstub(:current)
     # test duplicate accounts for user profile
@@ -73,45 +61,6 @@ class AccountSourceTest < ActiveSupport::TestCase
     end
     assert_raise ActiveRecord::RecordInvalid do
       create_account_source source: s, url: url
-    end
-  end
-
-  test "should not destroy accounts on elasticsearch when destroy account source" do
-    Sidekiq::Testing.inline! do
-      t = create_team
-      p = create_project team: t
-      s = create_source
-      a = create_account source: s, team: t, disable_es_callbacks: false
-      ps = create_project_source project: p, source: s, disable_es_callbacks: false
-      sleep 1
-
-      result = MediaSearch.find(get_es_id(ps))
-      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
-
-      as = a.account_sources.first
-      as.destroy
-      sleep 1
-      result = MediaSearch.find(get_es_id(ps))
-      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
-    end
-  end
-
-  test "should also destroy accounts on elasticsearch if account was destroyed" do
-    Sidekiq::Testing.inline! do
-      t = create_team
-      p = create_project team: t
-      s = create_source
-      a = create_account source: s, team: t, disable_es_callbacks: false
-      ps = create_project_source project: p, source: s, disable_es_callbacks: false
-      sleep 1
-
-      result = MediaSearch.find(get_es_id(ps))
-      assert_equal [a.id], result['accounts'].collect{|i| i["id"]}.sort
-
-      a.destroy
-      sleep 1
-      result = MediaSearch.find(get_es_id(ps))
-      assert_equal [], result['accounts'].collect{|i| i["id"]}.sort
     end
   end
 

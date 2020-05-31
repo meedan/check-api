@@ -86,14 +86,13 @@ class TestController < ApplicationController
     Team.current = Team.find(params[:team_id])
     user = User.where(email: params[:email]).last
     User.current = user
-    ps = ProjectSource.new
-    ps.project_id = params[:project_id]
-    ps.name = params[:name]
-    ps.url = params[:url]
-    ps.save!
+    source = Source.new
+    source.name = params[:name]
+    source.slogan = params[:slogan]
+    source.save!
     User.current = nil
     Team.current = nil
-    render_success 'project_source', ps
+    render_success 'source', source
   end
 
   def media_status

@@ -7,8 +7,6 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  has_many :project_sources, dependent: :destroy
-  has_many :sources , through: :project_sources
   has_many :project_medias, dependent: :nullify
   has_many :medias , through: :project_medias
   has_many :project_media_projects, dependent: :destroy

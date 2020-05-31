@@ -17,7 +17,7 @@ namespace :check do
     # Add ES doc
     require 'sidekiq/testing'
     Sidekiq::Testing.inline! do
-      [ProjectMedia, ProjectSource].each do |type|
+      [ProjectMedia].each do |type|
         type.find_each do |obj|
           obj.add_elasticsearch_data
           print '.'
@@ -27,7 +27,7 @@ namespace :check do
     sleep 20
     # append nested objects
     failed_items = []
-    [ProjectMedia, ProjectSource].each do |type|
+    [ProjectMedia].each do |type|
       type.find_each do |obj|
         id = Base64.encode64("#{obj.class.name}/#{obj.id}")
         doc = MediaSearch.search(query: { match: { _id: id } }).last

@@ -79,7 +79,6 @@ RailsAdmin.config do |config|
     'Media',
     'Project',
     'ProjectMedia',
-    'ProjectSource',
     'Source',
     'Team',
     'TeamUser',
@@ -487,10 +486,6 @@ RailsAdmin.config do |config|
         searchable [:title, :id]
       end
     end
-  end
-
-  config.model 'ProjectSource' do
-    label 'ProjectSource'
   end
 
   config.model 'TeamBotInstallation' do

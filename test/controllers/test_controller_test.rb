@@ -107,9 +107,8 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     RequestStore.store[:disable_es_callbacks] = true
-    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    get :new_source, email: u.email, team_id: t.id, name: 'Test', slogan: random_string
     RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
@@ -119,8 +118,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_source, email: u.email, team_id: t.id, project_id: p.id, name: 'Test'
+    get :new_source, email: u.email, team_id: t.id, name: 'Test', slogan: random_string
     assert_response 400
     Rails.unstub(:env)
   end

@@ -52,19 +52,16 @@ class GraphqlController3Test < ActionController::TestCase
     n.times do
       pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
       s = create_source
-      create_project_source project: p, source: s, disable_es_callbacks: false
       create_account_source source: s, disable_es_callbacks: false
       m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
-      pm.project_source
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false
     pm.archived = true
     pm.save!
-    pm.project_source
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do

@@ -57,35 +57,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal 1, MediaSearch.length
   end
 
-  test "should update elasticsearch after source update" do
-    s = create_source name: 'source_a', slogan: 'desc_a'
-    ps = create_project_source project: create_project, source: s, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(get_es_id(ps))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
-    s.name = 'new_source'; s.slogan = 'new_desc'; s.disable_es_callbacks = false; s.save!
-    s.reload
-    sleep 1
-    ms = MediaSearch.find(get_es_id(ps))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
-    # test multiple project sources
-    ps2 = create_project_source project: create_project, source: s, disable_es_callbacks: false
-    sleep 1
-    ms = MediaSearch.find(get_es_id(ps2))
-    assert_equal ms.title, s.name
-    assert_equal ms.description, s.description
-    # update source should update all related project_sources
-    s.name = 'source_b'; s.slogan = 'desc_b'; s.save!
-    s.reload
-    sleep 1
-    ms1 = MediaSearch.find(get_es_id(ps))
-    ms2 = MediaSearch.find(get_es_id(ps2))
-    assert_equal ms1.title, ms2.title, s.name
-    assert_equal ms1.description, ms2.description, s.description
-  end
-
   test "should destroy related items" do
     t = create_team
     p = create_project team: t
@@ -125,69 +96,16 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should destroy elasticseach project source" do
-    t = create_team
-    p = create_project team: t
-    s = create_source
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    sleep 1
-    # test index ps
-    assert_not_nil MediaSearch.find(get_es_id(ps))
-    ps.destroy
-    sleep 1
-    assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-      result = MediaSearch.find(get_es_id(ps))
-    end
-  end
-
-  test "should index related accounts" do
-    url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
-    ps = create_project_source name: 'New source', url: url, disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(get_es_id(ps))
-    assert_equal ps.source.accounts.map(&:id).sort, result['accounts'].collect{|i| i["id"]}.sort
-  end
-
-  test "should update elasticsearch after move source to other projects" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    p2 = create_project team: t
-    s = create_source
-    User.stubs(:current).returns(u)
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
-    sleep 1
-    id = get_es_id(ps)
-    ms = MediaSearch.find(id)
-    assert_equal 1, ms.project_id.size
-    assert_equal ms.project_id.last.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
-    ps.project = p2; ps.save!
-    sleep 1
-    ms = MediaSearch.find(id)
-    assert_equal 1, ms.project_id.size
-    assert_equal ms.project_id.last.to_i, p2.id
-    assert_equal ms.team_id.to_i, t.id
-  end
-
   test "should create update destroy elasticsearch comment" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
     s = create_source
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    ps = create_project_source project: p, source: s, disable_es_callbacks: false
     c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     sleep 1
     result = MediaSearch.find(get_es_id(pm))
     assert_equal [c.id], result['comments'].collect{|i| i["id"]}
-    c2 = create_comment annotated: ps, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = MediaSearch.find(get_es_id(ps))
-    assert_equal [c2.id], result['comments'].collect{|i| i["id"]}
     # update es comment
     c.text = 'test-mod'; c.save!
     sleep 1
@@ -195,11 +113,8 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal ['test-mod'], result['comments'].collect{|i| i["text"]}
     # destroy es comment
     c.destroy
-    c2.destroy
     sleep 1
     result = MediaSearch.find(get_es_id(pm))
-    assert_empty result['comments']
-    result = MediaSearch.find(get_es_id(ps))
     assert_empty result['comments']
   end
 

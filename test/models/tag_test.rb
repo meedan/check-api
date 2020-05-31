@@ -39,9 +39,9 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = create_project_source
+    s1 = create_project_media
     assert_equal [], s1.annotations
-    s2 = create_project_source
+    s2 = create_project_media
     assert_equal [], s2.annotations
 
     t1a = create_tag
@@ -105,8 +105,8 @@ class TagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_project_source
-    s2 = create_project_source
+    s1 = create_project_media
+    s2 = create_project_media
     t1 = create_tag annotator: u1, annotated: s1
     t2 = create_tag annotator: u1, annotated: s1
     t3 = create_tag annotator: u1, annotated: s1
@@ -145,8 +145,8 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should not have same tag applied to same object" do
-    s1 = create_project_source
-    s2 = create_project_source
+    s1 = create_project_media
+    s2 = create_project_media
     p = create_project
     assert_difference 'Tag.length', 8 do
       assert_nothing_raised do
@@ -171,7 +171,7 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should not tell that one tag contained in another is a duplicate" do
-    s = create_project_source
+    s = create_project_media
     assert_difference 'Tag.length', 2 do
       assert_nothing_raised do
         create_tag tag: 'foo bar', annotated: s
@@ -192,15 +192,6 @@ class TagTest < ActiveSupport::TestCase
     assert_raise ActiveModel::ForbiddenAttributesError do
       Tag.create(params)
     end
-  end
-
-  test "should return project source" do
-    pm = create_project_media
-    ps = create_project_source
-    t1 = create_tag annotated: pm
-    t2 = create_tag annotated: ps
-    assert_nil t1.project_source
-    assert_equal ps, t2.project_source
   end
 
   test "should not get tag text reference if tag is already a number" do

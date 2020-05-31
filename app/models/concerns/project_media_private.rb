@@ -3,31 +3,7 @@ require 'active_support/concern'
 module ProjectMediaPrivate
   extend ActiveSupport::Concern
 
-  def get_project_source(pid)
-    sources = []
-    sources = self.media.account.sources.map(&:id) unless self.media.account.nil?
-    sources.concat ClaimSource.where(media_id: self.media_id).map(&:source_id)
-    ProjectSource.where(project_id: pid, source_id: sources).first
-  end
-
   private
-
-  def move_media_sources
-    if self.project_id_changed?
-      ps = get_project_source(self.project_id_was)
-      unless ps.nil?
-        target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
-        ps.skip_check_ability = true
-        if target_ps.nil?
-          ps.project_id = self.project_id
-          ps.disable_es_callbacks = Rails.env.to_s == 'test'
-          ps.save!
-        else
-          ps.destroy
-        end
-      end
-    end
-  end
 
   def project_is_not_archived
     parent_is_not_archived(self.project, I18n.t(:error_project_archived))
@@ -48,7 +24,7 @@ module ProjectMediaPrivate
     begin Account.create_for_source(author_url, source) rescue nil end
   end
 
-  def set_media_account(account, source)
+  def set_media_account(account, _source)
     m = self.media
     a = self.media.account
     m.account = account
@@ -59,8 +35,6 @@ module ProjectMediaPrivate
     # Remove old account from ES
     a.destroy_es_items('accounts', 'destroy_doc_nested', self)
     a.destroy if a.medias.count == 0
-    # Add a project source if new source was created
-    self.create_project_source if source.nil?
     # update es
     self.add_update_nested_obj({ op: 'create', nested_key: 'accounts', keys: %w(id title description username), data: self.set_es_account_data.first , obj: self})
   end

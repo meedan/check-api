@@ -27,18 +27,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :project_sources, -> { ProjectSourceType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.project_sources
-    }
-  end
-
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.projects
-    }
-  end
-
   connection :medias, -> { ProjectMediaType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.medias
@@ -48,12 +36,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
   connection :collaborators, -> { UserType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.collaborators
-    }
-  end
-
-  connection :tags, -> { TagType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.get_annotations('tag').map(&:load)
     }
   end
 
@@ -68,8 +50,4 @@ SourceType = GraphqlCrudOperations.define_default_type do
   instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count
-
-  instance_exec :source, &GraphqlCrudOperations.field_log
-
-  instance_exec :source, &GraphqlCrudOperations.field_log_count
 end
