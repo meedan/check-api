@@ -132,7 +132,8 @@ QueryType = GraphQL::ObjectType.define do
 
     argument :query, !types.String
 
-    resolve -> (_obj, args, _ctx) do
+    resolve -> (_obj, args, ctx) do
+      Team.find_if_can(Team.current&.id.to_i, ctx[:ability])
       CheckSearch.new(args['query'])
     end
   end
