@@ -43,7 +43,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
       return
     end
 
-    if User.current.nil?
+    if User.current&.id.nil?
       load_permissions_for_anonymous_user(objs)
       return
     end

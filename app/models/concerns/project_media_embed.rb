@@ -166,18 +166,15 @@ module ProjectMediaEmbed
   module ClassMethods
     def clear_caches(pmid)
       pm = ProjectMedia.where(id: pmid).last
-
       return if pm.nil?
 
       url = pm.full_url.to_s
       PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
       CcDeville.clear_cache_for_url(url)
-      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
 
-      # Twitter embed
-      url = pm.full_url.to_s
-      params = '&autoplay=1&auto_play=true'
-      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url + params)
+      # Clear Pender cache, both URL-encoded and unencoded because each can end up being used.
+      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
+      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + ERB::Util.url_encode(url))
     end
   end
 end
