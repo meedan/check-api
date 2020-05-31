@@ -81,7 +81,20 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  instance_exec ProjectMedia, :project_media, ProjectMediaType , &GraphqlCrudOperations.project_association
+  field :project_media do
+    type ProjectMediaType
+    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"'
+    argument :ids, !types.String
+    resolve -> (_obj, args, ctx) do
+      objid, pid, tid = args['ids'].split(',').map(&:to_i)
+      tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+      project = Project.where(id: pid, team_id: tid).last
+      pid = project.nil? ? 0 : project.id
+      Project.current = project
+      objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
+      GraphqlCrudOperations.load_if_can(ProjectMedia, objid, ctx)
+    end
+  end
 
   connection :project_medias do
     type ProjectMediaType.connection_type
