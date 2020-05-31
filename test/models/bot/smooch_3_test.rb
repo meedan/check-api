@@ -716,6 +716,49 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
+  test "should resend report after window" do
+    msgid = random_string
+    pm = create_project_media
+    publish_report(pm)
+    response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+    Bot::Smooch.save_smooch_response(response, pm, random_string, 'report', 'en')
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+    pm.destroy!
+    assert !Bot::Smooch.resend_message_after_window(message)
+  end
+
+  test "should resend Slack message after window" do
+    msgid = random_string
+    result = OpenStruct.new({ messages: [OpenStruct.new({ source: OpenStruct.new(type: 'slack'), id: msgid, text: random_string })]})
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+    result = OpenStruct.new({ messages: [] })
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+    assert !Bot::Smooch.resend_message_after_window(message)
+  end
+
   protected
 
   def run_concurrent_requests
