@@ -48,7 +48,6 @@ class Bot::Smooch < BotUser
         self.copy_report_image_paths if action == 'save' || action =~ /publish/
         if action =~ /publish/
           ReportDesignerWorker.perform_in(1.second, self.id, action)
-          self.annotated.clear_caches
         end
       end
     end
