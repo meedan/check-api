@@ -30,7 +30,6 @@ class AdminAbility
     can [:install], BotUser do |obj|
       obj.get_approved
     end
-    can :destroy, ProjectSource, project: { team_id: @teams }
     can :destroy, ProjectMedia do |obj|
       (obj.team ||= obj.project.team) if obj.project
       @teams.include?(obj.team.id) if obj.team

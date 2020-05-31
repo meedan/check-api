@@ -14,12 +14,11 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :project_media_projects, :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
+          team = t.deep_clone include: [ :sources, { projects: [ { project_medias: [ :project_media_projects, :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
             @cloned_versions << copy if original.is_a?(Version)
             self.set_mapping(original, copy) unless original.is_a?(Version)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
-            self.update_project_source(copy) if original.is_a?(ProjectSource)
             self.flag_relationships(original, copy)
             self.flag_project_medias(original, copy)
           end
@@ -81,7 +80,7 @@ module TeamDuplication
     end
 
     def self.copy_annotations
-      [:ProjectMedia, :ProjectSource, :Source, :Task].each do |type|
+      [:ProjectMedia, :Source, :Task].each do |type|
         next if @mapping[type].blank?
         @mapping[type].each_pair do |original, copy|
           type.to_s.constantize.find(original).annotations.find_each do |a|
@@ -177,12 +176,6 @@ module TeamDuplication
         v.object_changes = changes.to_json
         v.save(validate: false)
       end
-    end
-
-    def self.update_project_source(project_source)
-      return if @mapping[:Source].blank?
-      source_mapping = @mapping[:Source][project_source.source_id]
-      project_source.source = source_mapping if source_mapping
     end
 
     def self.update_cloned_versions(versions)
