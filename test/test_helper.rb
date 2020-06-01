@@ -124,7 +124,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
@@ -140,6 +140,7 @@ class ActiveSupport::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
     WebMock.stub_request(:get, /#{CONFIG['narcissus_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
   end
 

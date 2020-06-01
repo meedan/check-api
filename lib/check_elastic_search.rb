@@ -15,18 +15,7 @@ module CheckElasticSearch
     ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)
     self.add_extra_elasticsearch_data(ms)
-    ms.accounts = self.add_es_accounts if self.class.name == 'ProjectSource'
     ms.save!
-  end
-
-  def add_es_accounts
-    ms_accounts = []
-    accounts = []
-    accounts = self.source.accounts unless self.source.nil?
-    accounts.each do |a|
-      ms_accounts << a.store_elasticsearch_data(%w(title description username), {})
-    end
-    ms_accounts
   end
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
@@ -111,7 +100,7 @@ module CheckElasticSearch
 
   def get_es_doc_id(obj = nil)
     obj = get_es_doc_obj if obj.nil?
-    ['ProjectMedia', 'ProjectSource'].include?(obj.class.name) ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
+    obj.class.name == 'ProjectMedia' ? Base64.encode64("#{obj.class.name}/#{obj.id}") : nil
   end
 
   def doc_exists?(id)

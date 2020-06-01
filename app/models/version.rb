@@ -24,7 +24,7 @@ class Version < Partitioned::ByForeignKey
       item.annotation&.get_team&.last
     when 'Relationship'
       item.source&.project&.team_id
-    when 'ProjectMedia', 'ProjectSource'
+    when 'ProjectMedia'
       item.project&.team_id
     when 'Account', 'Source', 'Project', 'Assignment'
       item.team_id
@@ -176,10 +176,8 @@ class Version < Partitioned::ByForeignKey
     case self.event_type
     when 'create_comment', 'create_tag', 'create_task', 'update_task', 'create_dynamic', 'update_dynamic', 'destroy_comment', 'destroy_tag', 'destroy_task', 'create_dynamicannotationfield', 'update_dynamicannotationfield'
       self.get_associated_from_annotation(self.event_type, self.item)
-    when 'update_projectmedia', 'update_projectsource', 'copy_projectmedia'
+    when 'update_projectmedia', 'copy_projectmedia'
       [self.item.class.name, self.item_id.to_i]
-    when 'update_source'
-      self.get_associated_from_source
     when 'create_relationship', 'destroy_relationship'
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
@@ -197,7 +195,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_core_annotation(annotation)
     associated = [nil, nil]
-    if annotation && ['ProjectMedia', 'ProjectSource', 'Task'].include?(annotation.annotated_type)
+    if annotation && ['ProjectMedia', 'Task'].include?(annotation.annotated_type)
       associated = annotation.annotation_type =~ /response/ && annotation.annotated_type == 'Task' ? ['ProjectMedia', annotation.annotated.annotated_id.to_i] : [annotation.annotated_type, annotation.annotated_id.to_i]
     end
     associated
@@ -210,12 +208,6 @@ class Version < Partitioned::ByForeignKey
     end
     annotation = self.item.annotation if self.item
     self.get_associated_from_core_annotation(annotation)
-  end
-
-  def get_associated_from_source
-    s = self.item
-    ps = s.project_sources.last unless s.nil?
-    ps.nil? ? [nil, nil] : [ps.class.name, ps.id]
   end
 
   def get_associated_from_relationship

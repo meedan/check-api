@@ -939,14 +939,14 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, Contact.where(team_id: team.id).count
   end
 
-  test "should duplicate a team and copy sources and project medias" do
+  test "should duplicate a team and copy project medias" do
     team = create_team name: 'Team A', logo: 'rails.png'
     u = create_user
     project = create_project team: team, user: u
     source = create_source user: u
     source.team = team; source.save
     account = create_account user: u, team: team, source: source
-    create_project_source user: u, team: team, project: project, source: source
+    
 
     media = create_media account: account, user: u
     pm1 = create_project_media user: u, team: team, project: project, media: media
@@ -955,15 +955,11 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     assert_equal 1, Source.where(team_id: copy.id).count
     assert_equal 1, project.project_medias.count
-    assert_equal 2, project.project_sources.count
 
     copy_p = copy.projects.find_by_title(project.title)
 
     # sources
     assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
-
-    # project sources
-    assert_not_equal project.project_sources.map(&:source).sort, copy_p.project_sources.map(&:source).sort
 
     # project medias
     assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
@@ -973,7 +969,6 @@ class TeamTest < ActiveSupport::TestCase
     end
     assert_equal 1, Source.where(team_id: team.id).count
     assert_equal 1, project.project_medias.count
-    assert_equal 2, project.project_sources.count
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -1712,8 +1707,6 @@ class TeamTest < ActiveSupport::TestCase
     s = create_source
     c = create_claim_media account: create_valid_account
     c.account.sources << s
-    ps1 = create_project_source project: p0, source: s
-    ps2 = create_project_source project: p1, source: s
     pm1 = pm2 = pm3 = pm4 = nil
     Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).raises(StandardError)

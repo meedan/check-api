@@ -16,7 +16,6 @@ class User < ActiveRecord::Base
   has_many :accounts, inverse_of: :user
   has_many :assignments, dependent: :destroy
   has_many :medias
-  has_many :project_sources
   has_many :project_medias
   has_many :sources
   has_many :login_activities

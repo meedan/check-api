@@ -9,7 +9,7 @@ Swagger::Docs::Config.register_apis({
     controller_base_path: '/',
     api_file_path: 'public',
     base_path: '/',
-    clean_directory: true,
+    clean_directory: false,
     api_extension_type: nil,
     attributes: {
       info: {

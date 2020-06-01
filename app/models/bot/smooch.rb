@@ -48,7 +48,6 @@ class Bot::Smooch < BotUser
         self.copy_report_image_paths if action == 'save' || action =~ /publish/
         if action =~ /publish/
           ReportDesignerWorker.perform_in(1.second, self.id, action)
-          self.annotated.clear_caches
         end
       end
     end
@@ -436,21 +435,71 @@ class Bot::Smooch < BotUser
     CheckI18n.i18n_t(team, key, fallback, options)
   end
 
+  # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
+  def self.format_template_message(template, placeholders, fallback, language)
+    namespace = self.config['smooch_template_namespace']
+    return '' if namespace.blank?
+    data = { namespace: namespace, template: template, fallback: fallback, language: (language || 'en') }
+    output = ['&((']
+    data.each do |key, value|
+      output << "#{key}=[[#{value}]]"
+    end
+    placeholders.each do |placeholder|
+      output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
+    end
+    output << '))&'
+    output.join('')
+  end
+
   def self.resend_message_after_window(message)
     message = JSON.parse(message)
     self.get_installation('smooch_app_id', message['app']['_id'])
-    pm_id = Rails.cache.read('smooch:response:' + message['message']['_id']).to_i
-    pm = ProjectMedia.where(id: pm_id).last
+    original = Rails.cache.read('smooch:original:' + message['message']['_id'])
+
+    # This is a report that was created or updated
+    unless original.blank?
+      original = JSON.parse(original)
+      return self.resend_report_after_window(message, original)
+    end
+
+    # A message sent from Slack
+    return self.resend_slack_message_after_window(message)
+  end
+
+  def self.resend_report_after_window(message, original)
+    pm = ProjectMedia.where(id: original['project_media_id']).last
     unless pm.nil?
       report = pm.get_dynamic_annotation('report_design')
-      if !report.nil? && report.get_field_value('state') == 'published' && self.config['smooch_template_namespace']
-        fallback = report.report_design_text
-        status = report.get_field_value('status_label')
-        ::Bot::Smooch.send_message_to_user(message['appUser']['_id'], "&[#{fallback}](#{self.config['smooch_template_namespace']}, check_verification_results, #{status}, #{pm.embed_url})")
-        return
+      if !report.nil? && report.get_field_value('state') == 'published'
+        template = original['fallback_template']
+        language = original['language']
+        query = original['query']
+        text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
+        text = I18n.t(:smooch_bot_no_text_message, { locale: language }) if text.blank?
+        image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
+        placeholders = [query, text, image]
+        fallback = [text, image].map(&:to_s).join("\n")
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+        return true
       end
     end
-    self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent']
+    false
+  end
+
+  def self.resend_slack_message_after_window(message)
+    api_client = self.smooch_api_client
+    api_instance = SmoochApi::ConversationApi.new(api_client)
+    result = api_instance.get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
+    return if result.nil?
+    result.messages.each do |m|
+      if m.source&.type == 'slack' && m.id == message['message']['_id']
+        language = self.get_language({ 'text' => m.text })
+        query = Rails.cache.read("smooch:last_query_from_user:#{message['appUser']['_id']}") || I18n.t(:smooch_bot_no_query, { locale: language })
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information', [query, m.text], m.text, language))
+        return true
+      end
+    end
+    false
   end
 
   def self.get_language(message)
@@ -689,6 +738,8 @@ class Bot::Smooch < BotUser
     a.annotated = pm
     a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
     a.save!
+    query = [message['text'], message['mediaUrl']].join(' ')
+    Rails.cache.write("smooch:last_query_from_user:#{message['authorId']}", query)
     User.current = current_user
   end
 
@@ -835,14 +886,14 @@ class Bot::Smooch < BotUser
         message = self.i18n_t(:smooch_bot_result_changed, params)
         self.send_message_to_user(uid, message)
         sleep 1
-        self.send_report_to_user(uid, data, pm, lang)
+        self.send_report_to_user(uid, data, pm, lang, 'report_update')
       end
     else
-      self.send_report_to_user(uid, data, pm, lang)
+      self.send_report_to_user(uid, data, pm, lang, 'report')
     end
   end
 
-  def self.send_report_to_user(uid, data, pm, lang = 'en')
+  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
     parent = Relationship.where(target_id: pm.id).last&.source || pm
     report = parent.get_dynamic_annotation('report_design')
     if report&.get_field_value('state') == 'published'
@@ -861,14 +912,14 @@ class Bot::Smooch < BotUser
         last_smooch_response = self.send_message_to_user(uid, report.report_design_text)
       end
       self.send_tos_if_needed(uid, lang)
-      self.save_smooch_response(last_smooch_response, parent)
+      self.save_smooch_response(last_smooch_response, parent, data['text'], fallback_template, lang)
     end
   end
 
-  def self.save_smooch_response(response, pm)
-    return if response.nil?
+  def self.save_smooch_response(response, pm, text, fallback_template = nil, lang = 'en')
+    return if response.nil? || fallback_template.nil?
     id = response&.message&.id
-    Rails.cache.write('smooch:response:' + id, pm.id) unless id.blank?
+    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query: text }.to_json) unless id.blank?
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)
@@ -878,7 +929,7 @@ class Bot::Smooch < BotUser
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      self.send_report_to_user(data['authorId'], data, parent, data['language'])
+      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'report')
     end
   end
 

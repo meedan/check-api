@@ -33,7 +33,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (15) do
+    assert_queries (16) do
       post :create, query: query, team: 'team'
     end
 
@@ -52,19 +52,16 @@ class GraphqlController3Test < ActionController::TestCase
     n.times do
       pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
       s = create_source
-      create_project_source project: p, source: s, disable_es_callbacks: false
       create_account_source source: s, disable_es_callbacks: false
       m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
-      pm.project_source
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false
     pm.archived = true
     pm.save!
-    pm.project_source
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -468,7 +465,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 17, '=' do
+    assert_queries 18, '=' do
       post :create, query: query, team: 'team'
     end
 
@@ -883,5 +880,70 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
+  end
+
+  test "should get related items if filters are null" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
+
+  test "should not search without permission" do
+    t1 = create_team private: true
+    t2 = create_team private: true
+    t3 = create_team private: false
+    u = create_user
+    create_team_user team: t2, user: u
+    pm1 = create_project_media team: t1, project: nil
+    pm2 = create_project_media team: t2, project: nil
+    pm3a = create_project_media team: t3, project: nil
+    pm3b = create_project_media team: t3, project: nil
+    query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
+
+    # Anonymous user searching across all teams
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a public team
+    post :create, query: query, team: t3.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a team
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching across all teams
+    authenticate_with_user(u)
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Permissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, query: query, team: t2.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
   end
 end

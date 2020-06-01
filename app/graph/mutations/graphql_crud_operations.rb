@@ -499,25 +499,6 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.project_association
-    proc do |class_name, field_name, type|
-      field field_name do
-        type type
-        description 'Information about a project association, The argument should be given like this: "project_association_id,project_id,team_id"'
-        argument :ids, !types.String
-        resolve -> (_obj, args, ctx) do
-          objid, pid, tid = args['ids'].split(',').map(&:to_i)
-          tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-          project = Project.where(id: pid, team_id: tid).last
-          pid = project.nil? ? 0 : project.id
-          Project.current = project
-          objid = class_name.belonged_to_project(objid, pid, tid) || 0
-          GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
-        end
-      end
-    end
-  end
-
   def self.define_annotation_fields
     [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
   end
