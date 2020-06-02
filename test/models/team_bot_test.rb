@@ -396,17 +396,6 @@ class TeamBotTest < ActiveSupport::TestCase
     assert_match /^http/, tb.json_schema_url('events')
   end
 
-  test "should show error if can't create related bot user" do
-    t = create_team
-    t.set_max_number_of_members = 1
-    t.save!
-    tb = create_team_bot set_approved: true
-    create_team_bot_installation team_id: t.id, user_id: tb.id
-    assert_raises ActiveRecord::RecordInvalid do
-      create_team_bot_installation team_id: t.id, user_id: tb.id
-    end
-  end
-
   test "should not be approved by default" do
     tb = create_team_bot
     assert !tb.get_approved

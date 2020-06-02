@@ -37,10 +37,6 @@ module TeamPrivate
     self.team_bots_created.map(&:destroy!)
   end
 
-  def set_default_max_number_of_members
-    self.set_max_number_of_members 5
-  end
-
   def create_team_partition
     if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
       ActiveRecord::Base.connection_pool.with_connection do

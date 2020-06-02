@@ -252,7 +252,6 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_equal({ max_number_of_members: 5 }, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
@@ -946,7 +945,7 @@ class TeamTest < ActiveSupport::TestCase
     source = create_source user: u
     source.team = team; source.save
     account = create_account user: u, team: team, source: source
-    
+
 
     media = create_media account: account, user: u
     pm1 = create_project_media user: u, team: team, project: project, media: media
@@ -1506,15 +1505,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should return search object" do
     t = create_team
     assert_kind_of CheckSearch, t.search
-  end
-
-  test "should set max number of members" do
-    t = create_team
-    assert_equal 5, t.get_max_number_of_members
-    t.max_number_of_members = 23
-    t.save!
-    assert_equal 23, t.reload.get_max_number_of_members
-    assert_equal 23, t.reload.max_number_of_members
   end
 
   test "should not crash when emptying trash that has task comments" do
@@ -2418,7 +2408,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
-    pm1 = create_project_media team: t 
+    pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     pm3 = create_project_media team: t
     assert_equal 0, p1.reload.project_media_projects.count
@@ -2463,7 +2453,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
-    pm1 = create_project_media team: t 
+    pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     assert_equal 0, p1.reload.project_media_projects.count
     assert_equal 1, p2.reload.project_media_projects.count
@@ -2524,7 +2514,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'contains_keyword',
                 rule_value: 'foo'
-              }              
+              }
             ]
           },
           {
@@ -2539,7 +2529,7 @@ class TeamTest < ActiveSupport::TestCase
                 rule_value: 'bar'
               }
             ]
-          },     
+          },
         ]
       },
       actions: [
@@ -2595,7 +2585,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'status_is',
                 rule_value: 'in_progress'
-              }              
+              }
             ]
           }
         ]
@@ -2616,7 +2606,7 @@ class TeamTest < ActiveSupport::TestCase
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    
+
     s = pm2.last_status_obj
     s.status = 'In Progress'
     s.save!
@@ -2624,7 +2614,7 @@ class TeamTest < ActiveSupport::TestCase
     s = pm3.last_status_obj
     s.status = 'Verified'
     s.save!
-    
+
     assert_equal p2, pm1.reload.project
     assert_equal p1, pm2.reload.project
     assert_equal p1, pm3.reload.project
@@ -2650,7 +2640,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'tagged_as',
                 rule_value: 'foo'
-              }              
+              }
             ]
           }
         ]
@@ -2671,7 +2661,7 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'foo', annotated: pm1
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
-    
+
     assert_equal p2, pm1.reload.project
     assert_equal p1, pm2.reload.project
     assert_equal p1, pm3.reload.project
@@ -2697,7 +2687,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'report_is_published',
                 rule_value: ''
-              }              
+              }
             ]
           }
         ]
@@ -2717,7 +2707,7 @@ class TeamTest < ActiveSupport::TestCase
 
     publish_report(pm1)
     publish_report(pm2)
-    
+
     assert_equal p2, pm1.reload.project
     assert_equal p1, pm2.reload.project
     assert_equal p1, pm3.reload.project
@@ -2744,7 +2734,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'flagged_as',
                 rule_value: { flag: 'spam', threshold: 3 }
-              }              
+              }
             ]
           }
         ]
@@ -2768,7 +2758,7 @@ class TeamTest < ActiveSupport::TestCase
     create_flag set_fields: data.to_json, annotated: pm2
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm3
-    
+
     assert_equal p2, pm1.reload.project
     assert_equal p1, pm2.reload.project
     assert_equal p1, pm3.reload.project
