@@ -25,7 +25,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_introduction, types.String
   field :get_use_disclaimer, types.Boolean
   field :get_use_introduction, types.Boolean
-  field :get_max_number_of_members, types.String
   field :pusher_channel, types.String
   field :search_id, types.String
   field :search, CheckSearchType

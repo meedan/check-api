@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -286,8 +286,6 @@ en:
   permission_error: Sorry, you are not allowed to perform this operation
   error_annotated_archived: Sorry, you can't add a note to a trashed item
   only_super_admin_can_do_this: Sorry, only system administrators can make this change
-  max_number_of_team_users_reached: Sorry, the maximum number of users for this workspace
-    has been reached
   cant_change_custom_statuses: |-
     Sorry, you can't modify the status definitions because some statuses would go missing. These status identifiers: %{statuses} are in use by the following items:
     %{urls} %{others_amount}
