@@ -252,7 +252,6 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_equal({ max_number_of_members: 5 }, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
@@ -946,7 +945,7 @@ class TeamTest < ActiveSupport::TestCase
     source = create_source user: u
     source.team = team; source.save
     account = create_account user: u, team: team, source: source
-    
+
 
     media = create_media account: account, user: u
     pm1 = create_project_media user: u, team: team, project: project, media: media
@@ -1485,15 +1484,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should return search object" do
     t = create_team
     assert_kind_of CheckSearch, t.search
-  end
-
-  test "should set max number of members" do
-    t = create_team
-    assert_equal 5, t.get_max_number_of_members
-    t.max_number_of_members = 23
-    t.save!
-    assert_equal 23, t.reload.get_max_number_of_members
-    assert_equal 23, t.reload.max_number_of_members
   end
 
   test "should not crash when emptying trash that has task comments" do
