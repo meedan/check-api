@@ -5,7 +5,6 @@ Dynamic.class_eval do
       introduction = self.get_field_value('introduction').to_s
       introduction = introduction.gsub('{{status}}', self.get_field_value('status_label')) if self.get_field_value('status_label')
       introduction = introduction.gsub('{{query_date}}', ::I18n.l(Time.at(data['received']), locale: lang, format: :short)) if data['received']
-      introduction = introduction.gsub('{{query_message}}', data['text']) if data['text']
       introduction
     end
   end
