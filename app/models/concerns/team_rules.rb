@@ -160,7 +160,7 @@ module TeamRules
           key = 'rule_action_send_message_' + Digest::MD5.hexdigest(value)
           message = CheckI18n.i18n_t(team, key, value, { locale: data['language'] })
           response = Bot::Smooch.send_message_to_user(data['authorId'], message)
-          self.save_smooch_response(response, parent, data['received'], 'fact_check_status', data['language'], { message: message })
+          Bot::Smooch.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
         end
       end
     end
