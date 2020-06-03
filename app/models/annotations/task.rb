@@ -49,9 +49,10 @@ class Task < ActiveRecord::Base
     self.last_task_status
   end
 
-  def project
-    self&.annotated&.project
-  end
+  # TODO: Sawy check needs for project method
+  # def project
+  #   self&.annotated&.project
+  # end
 
   def team
     self&.annotated&.team

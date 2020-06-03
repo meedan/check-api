@@ -24,9 +24,7 @@ class Version < Partitioned::ByForeignKey
       item.annotation&.get_team&.last
     when 'Relationship'
       item.source&.project&.team_id
-    when 'ProjectMedia'
-      item.project&.team_id
-    when 'Account', 'Source', 'Project', 'Assignment'
+    when 'ProjectMedia', 'Account', 'Source', 'Project', 'Assignment'
       item.team_id
     when 'Team'
       item.id

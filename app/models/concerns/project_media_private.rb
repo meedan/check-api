@@ -6,7 +6,9 @@ module ProjectMediaPrivate
   private
 
   def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived))
+    # TODO: Sawy should validate for add_to, copy_to & move_to project
+    # parent_is_not_archived(self.project, I18n.t(:error_project_archived))
+    parent_is_not_archived(self.team, I18n.t(:error_project_archived))
   end
 
   def update_media_account
@@ -65,20 +67,13 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    self.team_id = self.project.team_id if self.team_id.blank? && !self.project_id.blank?
+    # self.team_id = self.project.team_id if self.team_id.blank? && !self.project_id.blank?
+    # TODO:Sawy get team from current project
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
   end
 
   def create_project_media_project
-    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.project_id.blank?
-  end
-
-  def update_project_media_project
-    if self.previous_changes.keys.include?('project_id') || self.changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
-      ProjectMediaProject.where(project_media_id: self.id).delete_all
-      ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id)
-      # Update team task
-      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self }))
-    end
+    # TODO: Sawy user add_to_project_id instead of project_id
+    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.add_to_project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.add_to_project_id.blank?
   end
 end

@@ -158,6 +158,18 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
+  def auto_tasks(add_to_project_id, only_selected = false)
+    tasks = []
+    self.team_tasks.order('id ASC').each do |task|
+      if only_selected
+        tasks << task if task.project_ids.include?(add_to_project_id)
+      else
+        tasks << task if task.project_ids.include?(add_to_project_id) || task.project_ids.blank?
+      end
+    end
+    tasks
+  end
+
   def add_auto_task=(task)
     TeamTask.create! task.merge({ team_id: self.id })
   end

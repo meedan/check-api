@@ -185,17 +185,18 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def auto_tasks(only_selected = false)
-    tasks = []
-    self.team.team_tasks.order('id ASC').each do |task|
-      if only_selected
-        tasks << task if task.project_ids.include?(self.id)
-      else
-        tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
-      end
-    end
-    tasks
-  end
+  # TODO: Sawy - move to team
+  # def auto_tasks(only_selected = false)
+  #   tasks = []
+  #   self.team.team_tasks.order('id ASC').each do |task|
+  #     if only_selected
+  #       tasks << task if task.project_ids.include?(self.id)
+  #     else
+  #       tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
+  #     end
+  #   end
+  #   tasks
+  # end
 
   def self.archive_or_restore_project_medias_if_needed(archived, project_id)
     ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })

@@ -111,16 +111,17 @@ class Bot::Slack < BotUser
     p = model.project if model.respond_to?(:project)
     model = model.assigned if model.is_a?(Assignment)
     p = model if model.class.to_s == 'Project'
-    p = self.get_project_for_annotation(model) if model.is_annotation?
+    # p = self.get_project_for_annotation(model) if model.is_annotation?
     p
   end
 
-  def get_project_for_annotation(model)
-    p = nil
-    p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
-    p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
-    p
-  end
+  # TODO: Sawy no need to this method
+  # def get_project_for_annotation(model)
+  #   p = nil
+  #   p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
+  #   p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
+  #   p
+  # end
 
   def get_team(model, project)
     t = model.team if model.respond_to?(:team)

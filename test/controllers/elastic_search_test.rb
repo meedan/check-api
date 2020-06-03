@@ -156,7 +156,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     authenticate_with_user(u)
     id = Base64.encode64("ProjectMedia/#{pm.id}")
-    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", move_to_project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']

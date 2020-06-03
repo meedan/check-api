@@ -116,27 +116,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :project_id do
-    type types.Int
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current ? Project.current.reload.id : project_media.reload.project_id
-    }
-  end
-
-  field :project do
-    type -> { ProjectType }
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current || RecordLoader.for(Project).load(project_media.project_id)
-    }
-  end
-
   connection :projects, -> { ProjectType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        media.projects
-      end
+      RecordLoader.for(Project).load(project_media.project_ids)
     }
   end
 

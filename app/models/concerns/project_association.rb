@@ -15,7 +15,9 @@ module ProjectAssociation
   end
 
   def check_search_project(project = nil)
-    project ||= self.project
+    if project.nil? && !self.project_ids.blank?
+      project = Project.where(id: self.project_ids).first
+    end
     return nil if project.nil?
     project.check_search_project
   end
@@ -31,12 +33,14 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_id == pid || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      # TODO: Sawy - review versions query
+      if obj && (obj.project_ids.include?(pid) || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        key = self.to_s == 'ProjectMedia' ? :media_id : :source_id
-        obj = self.where(project_id: pid).where("#{key} = ?", objid).last
-        return obj.id if obj
+        # key = :media_id
+        obj = ProjectMediaProject.where(project_id: pid, project_media: objid).last
+        # obj = self.where(project_id: pid).where("#{key} = ?", objid).last
+        return obj.project_media.id if obj
       end
     end
   end
@@ -84,7 +88,7 @@ module ProjectAssociation
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(project_id team_id archived sources_count)
       data = {
-        'project_id' => self.project_id,
+        'project_id' => self.project_ids,
         'team_id' => self.team_id,
         'archived' => self.archived.to_i,
         'sources_count' => self.sources_count
@@ -98,7 +102,8 @@ module ProjectAssociation
     end
 
     def is_being_copied
-      self.project && self.project.is_being_copied
+      self.team && self.team.is_being_copied
+      # self.project && self.project.is_being_copied
     end
 
     private
@@ -116,10 +121,10 @@ module ProjectAssociation
       obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
       unless obj.nil?
         error = {
-          message: I18n.t("#{obj_name}_exists", project_id: obj.project_id, id: obj.id),
+          message: I18n.t("#{obj_name}_exists", project_id: obj.project_ids.first, id: obj.id),
           code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
           data: {
-            project_id: obj.project_id,
+            project_id: obj.project_ids.first,
             type: obj_name,
             id: obj.id,
             url: obj.full_url

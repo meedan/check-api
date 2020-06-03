@@ -12,7 +12,7 @@ module ProjectMediaCreators
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.project.nil? ? Project.new(team: team).auto_tasks : self.project.auto_tasks
+      tasks = self.team.auto_tasks(self.add_to_project_id)
     end
     created = []
     tasks.each do |task|
@@ -180,11 +180,21 @@ module ProjectMediaCreators
   end
 
   def copy_to_project
-    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
+    # TODO: Sawy (same as add_to_project)
+    # ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
+    ProjectMediaProject.create!(project_id: self.copy_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.copy_to_project_id && ProjectMediaProject.where(project_id: self.copy_to_project_id, project_media_id: self.id).last.nil?
   end
 
   def add_to_project
     ProjectMediaProject.create!(project_id: self.add_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
+  end
+
+  def move_to_project
+    if self.move_to_project_id
+      ProjectMediaProject.where(project_media_id: self.id).delete_all
+      ProjectMediaProject.create!(project_media_id: self.id, project_id: self.move_to_project_id)
+      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.move_to_project_id, YAML::dump(User.current), YAML::dump({ model: self }))
+    end
   end
 
   def remove_from_project

@@ -134,7 +134,8 @@ module AnnotationBase
         status_id = self.annotated&.last_status_obj&.id
         users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
       elsif self.annotation_type == 'verification_status'
-        project_id = self.annotated&.project_id
+        # TODO: Sawy review assign to users logic
+        project_id = self.annotated&.project_ids.first
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end
       users = TeamUser.where(team_id: self.team_id, user_id: users, status: 'member').map(&:user_id) unless users.blank?

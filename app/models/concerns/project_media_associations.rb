@@ -6,7 +6,7 @@ module ProjectMediaAssociations
   included do
     include AnnotationBase::Association
 
-    belongs_to :project
+    # belongs_to :project
     belongs_to :media
     belongs_to :user
     belongs_to :team

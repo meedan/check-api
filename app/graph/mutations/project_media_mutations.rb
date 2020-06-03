@@ -1,7 +1,7 @@
 module ProjectMediaMutations
   fields = {
     media_id: 'int',
-    project_id: 'int',
+    add_to_project_id: 'int',
     related_to_id: 'int'
   }
 
@@ -18,7 +18,7 @@ module ProjectMediaMutations
     project_id: 'int',
     previous_project_id: 'int',
     copy_to_project_id: 'int',
-    add_to_project_id: 'int',
+    move_to_project_id: 'int',
     remove_from_project_id: 'int',
     refresh_media: 'int',
     archived: 'int',
