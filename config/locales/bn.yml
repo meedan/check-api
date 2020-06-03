@@ -167,10 +167,6 @@ bn:
     পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
     পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
     দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: আপনার
-    বার্তার জন্য ধন্যবাদ। আমরা এখন আপনার বিষয়টি তথ্য যাচাই করছি যা আপনি আমাদের পাঠিয়েছিলেন।
-    আমরা শীঘ্রই একটি বিস্তারিত প্রতিবেদন পাঠাবো। ততক্ষণ আমাদের সাইটের অন্যান্য তথ্য
-    যাচাইগুলি দেখুন আর বন্ধু ও পরিবারের সঙ্গে শেয়ার করুন। bangla.boomlive.in
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
@@ -280,6 +276,16 @@ bn:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_message_confirmed_africa-check: ''
+  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
+  custom_message_smooch_bot_disabled_africa-check: ''
+  custom_message_smooch_bot_ask_for_tos_africa-check: ''
+  custom_message_smooch_bot_greetings_africa-check: ''
+  custom_message_smooch_bot_option_not_available_africa-check: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_status_undetermined_africa-check: ''
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
@@ -291,18 +297,10 @@ bn:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_4fa10e42329da64cf2f0e78664b2ab7c_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
-  custom_message_smooch_bot_message_confirmed_africa-check: ''
-  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
-  custom_message_smooch_bot_disabled_africa-check: ''
-  custom_message_smooch_bot_ask_for_tos_africa-check: ''
-  custom_message_smooch_bot_greetings_africa-check: ''
-  custom_message_smooch_bot_option_not_available_africa-check: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_4f5c45157de8e2c8813b72f6a735ab66_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
