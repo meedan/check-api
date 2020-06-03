@@ -554,6 +554,8 @@ pt:
     de verificação porque este projeto não está mais ativo.
   smooch_bot_result_changed: "❗️A verificação que lhe enviamos foi *atualizada* com
     novas informações"
+  smooch_bot_no_visual_card: "(sem imagem)"
+  smooch_bot_no_text_message: "(sem texto)"
   permissions_info:
     roles:
       owner:
@@ -803,7 +805,6 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
@@ -815,25 +816,16 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_result_changed_test-1: Opa, atualização!
-  custom_message_smooch_bot_message_confirmed_test-1: Valeu! Recebido!
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
   custom_message_smooch_bot_message_type_unsupported_test-1: Não aceitamos isso ainda.
   custom_message_smooch_bot_disabled_test-1: Serviço inativo.
   custom_message_smooch_bot_ask_for_tos_test-1: 'Termos de Uso: %{tos}'
-  custom_message_smooch_bot_greetings_test-1: Bem-vindo ao Bot do Caio!
+  custom_message_smooch_bot_greetings_test-1: ''
   custom_message_smooch_bot_option_not_available_test-1: Não entendi!
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: |-
-    Menu
-
-    1) Veja um recurso
-    2) Envie um pedido
-    3) Vá para o menu secundário
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: |-
-    Menu Secundário
-
-    1) Voltar para o menu principal
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: Envie sua
-    pergunta ou 0 para voltar pro menu principal.
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: Não Iniciado
   custom_message_status_in_progress_check-message-demo: Ainda Em Andamento
   custom_message_status_false_check-message-demo: Não É Verdade
@@ -925,6 +917,16 @@ pt:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_message_confirmed_africa-check: ''
+  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
+  custom_message_smooch_bot_disabled_africa-check: ''
+  custom_message_smooch_bot_ask_for_tos_africa-check: ''
+  custom_message_smooch_bot_greetings_africa-check: ''
+  custom_message_smooch_bot_option_not_available_africa-check: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_status_undetermined_africa-check: ''
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
@@ -936,18 +938,10 @@ pt:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_4fa10e42329da64cf2f0e78664b2ab7c_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
-  custom_message_smooch_bot_message_confirmed_africa-check: ''
-  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
-  custom_message_smooch_bot_disabled_africa-check: ''
-  custom_message_smooch_bot_ask_for_tos_africa-check: ''
-  custom_message_smooch_bot_greetings_africa-check: ''
-  custom_message_smooch_bot_option_not_available_africa-check: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_4f5c45157de8e2c8813b72f6a735ab66_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
