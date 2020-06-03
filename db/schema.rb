@@ -284,12 +284,11 @@ ActiveRecord::Schema.define(version: 20200602160945) do
   end
 
   create_table "tag_texts", force: :cascade do |t|
-    t.string   "text",                       null: false
-    t.integer  "team_id",                    null: false
+    t.string   "text",                   null: false
+    t.integer  "team_id",                null: false
     t.integer  "tags_count", default: 0
-    t.boolean  "teamwide",   default: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   add_index "tag_texts", ["text", "team_id"], name: "index_tag_texts_on_text_and_team_id", unique: true, using: :btree
