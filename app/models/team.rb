@@ -266,24 +266,8 @@ class Team < ActiveRecord::Base
     perms
   end
 
-  def teamwide_tags
-    self.tag_texts.where(teamwide: true)
-  end
-
-  def custom_tags
-    self.tag_texts.where(teamwide: false)
-  end
-
   def permissions_info
     YAML.load(ERB.new(File.read("#{Rails.root}/config/permission_info.yml")).result)
-  end
-
-  def used_tags
-    self.custom_tags.map(&:text)
-  end
-
-  def get_suggested_tags
-    self.teamwide_tags.map(&:text).sort.join(',')
   end
 
   def invited_mails(team=nil)

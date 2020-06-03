@@ -1314,19 +1314,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u.id], t.owners('owner').map(&:id)
   end
 
-  test "should get used tags" do
-    team = create_team
-    project = create_project team: team
-    u = create_user
-    pm1 = create_project_media user: u, team: team, project: project
-    create_tag annotated: pm1, tag: 'tag1'
-    create_tag annotated: pm1, tag: 'tag2'
-    pm2 = create_project_media user: u, team: team, project: project
-    create_tag annotated: pm2, tag: 'tag2'
-    create_tag annotated: pm2, tag: 'tag3'
-    assert_equal ['tag1', 'tag2', 'tag3'].sort, team.used_tags.sort
-  end
-
   test "should destroy a duplicated team with project media" do
     team = create_team name: 'Team A', logo: 'rails.png'
     u = create_user
@@ -1411,14 +1398,6 @@ class TeamTest < ActiveSupport::TestCase
     User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
     assert_equal ['test2@local.com'], t.invited_mails
     Team.unstub(:current)
-  end
-
-  test "should get suggested tags" do
-    t = create_team
-    create_tag_text text: 'foo', team_id: t.id, teamwide: true
-    create_tag_text text: 'bar', team_id: t.id, teamwide: true
-    create_tag_text text: 'test', team_id: t.id
-    assert_equal 'bar,foo', t.reload.get_suggested_tags
   end
 
   test "should destroy team tasks when team is destroyed" do
