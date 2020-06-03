@@ -435,11 +435,17 @@ class Bot::Smooch < BotUser
     CheckI18n.i18n_t(team, key, fallback, options)
   end
 
+  def self.template_locale_options
+    languages = Team.current&.get_languages
+    languages.blank? ? ['en'] : languages
+  end
+
   # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
   def self.format_template_message(template, placeholders, fallback, language)
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
-    data = { namespace: namespace, template: template, fallback: fallback, language: (language || 'en') }
+    locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : 'en'
+    data = { namespace: namespace, template: template, fallback: fallback, language: locale }
     output = ['&((']
     data.each do |key, value|
       output << "#{key}=[[#{value}]]"
@@ -459,11 +465,22 @@ class Bot::Smooch < BotUser
     # This is a report that was created or updated
     unless original.blank?
       original = JSON.parse(original)
-      return self.resend_report_after_window(message, original)
+      return self.resend_report_after_window(message, original) if original['fallback_template'] =~ /report/
+      return self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
     end
 
     # A message sent from Slack
     return self.resend_slack_message_after_window(message)
+  end
+
+  def self.resend_rules_message_after_window(message, original)
+    template = original['fallback_template']
+    language = original['language']
+    query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
+    placeholders = [query_date, original['message']]
+    fallback = original['message']
+    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+    true
   end
 
   def self.resend_report_after_window(message, original)
@@ -473,11 +490,11 @@ class Bot::Smooch < BotUser
       if !report.nil? && report.get_field_value('state') == 'published'
         template = original['fallback_template']
         language = original['language']
-        query = original['query']
+        query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
         text = I18n.t(:smooch_bot_no_text_message, { locale: language }) if text.blank?
         image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
-        placeholders = [query, text, image]
+        placeholders = [query_date, text, image]
         fallback = [text, image].map(&:to_s).join("\n")
         self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
         return true
@@ -494,8 +511,9 @@ class Bot::Smooch < BotUser
     result.messages.each do |m|
       if m.source&.type == 'slack' && m.id == message['message']['_id']
         language = self.get_language({ 'text' => m.text })
-        query = Rails.cache.read("smooch:last_query_from_user:#{message['appUser']['_id']}") || I18n.t(:smooch_bot_no_query, { locale: language })
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information', [query, m.text], m.text, language))
+        date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
+        query_date = I18n.l(Time.at(date), locale: language, format: :short)
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information', [query_date, m.text], m.text, language))
         return true
       end
     end
@@ -738,8 +756,6 @@ class Bot::Smooch < BotUser
     a.annotated = pm
     a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
     a.save!
-    query = [message['text'], message['mediaUrl']].join(' ')
-    Rails.cache.write("smooch:last_query_from_user:#{message['authorId']}", query)
     User.current = current_user
   end
 
@@ -900,8 +916,7 @@ class Bot::Smooch < BotUser
       last_smooch_response = nil
       if report.get_field_value('use_introduction')
         introduction = report.report_design_introduction(data)
-        params = (data['mediaUrl'] && report.get_field_value('introduction').to_s =~ /{{query_message}}/) ? { type: data['type'], mediaUrl: data['mediaUrl'] } : {}
-        last_smooch_response = self.send_message_to_user(uid, introduction, params)
+        last_smooch_response = self.send_message_to_user(uid, introduction)
         sleep 1
       end
       if report.get_field_value('use_visual_card')
@@ -912,14 +927,14 @@ class Bot::Smooch < BotUser
         last_smooch_response = self.send_message_to_user(uid, report.report_design_text)
       end
       self.send_tos_if_needed(uid, lang)
-      self.save_smooch_response(last_smooch_response, parent, data['text'], fallback_template, lang)
+      self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end
   end
 
-  def self.save_smooch_response(response, pm, text, fallback_template = nil, lang = 'en')
+  def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
     return if response.nil? || fallback_template.nil?
     id = response&.message&.id
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query: text }.to_json) unless id.blank?
+    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)

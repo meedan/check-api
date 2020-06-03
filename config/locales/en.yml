@@ -544,7 +544,6 @@ en:
     with new information"
   smooch_bot_no_visual_card: '(no visual card provided)'
   smooch_bot_no_text_message: '(no text provided)'
-  smooch_bot_no_query: '(no query provided)'
   permissions_info:
     roles:
       owner:
