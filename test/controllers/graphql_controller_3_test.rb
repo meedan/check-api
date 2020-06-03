@@ -33,7 +33,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (15) do
+    assert_queries (16) do
       post :create, query: query, team: 'team'
     end
 
@@ -52,19 +52,16 @@ class GraphqlController3Test < ActionController::TestCase
     n.times do
       pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
       s = create_source
-      create_project_source project: p, source: s, disable_es_callbacks: false
       create_account_source source: s, disable_es_callbacks: false
       m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
-      pm.project_source
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false
     pm.archived = true
     pm.save!
-    pm.project_source
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -468,7 +465,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 17, '=' do
+    assert_queries 18, '=' do
       post :create, query: query, team: 'team'
     end
 
@@ -780,5 +777,173 @@ class GraphqlController3Test < ActionController::TestCase
       post :create, query: query
     end
     assert_response :success
+  end
+
+  test "should get statuses from team" do
+    u = create_user is_admin: true
+    t = create_team
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { verification_statuses } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
+  end
+
+  test "should get statuses from public team" do
+    u = create_user is_admin: true
+    t = create_team
+    authenticate_with_user(u)
+    query = "query { public_team(slug: \"#{t.slug}\") { verification_statuses } }"
+    post :create, query: query
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['public_team']['verification_statuses']
+  end
+
+  test "should get statuses from media" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { verification_statuses } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['project_media']['verification_statuses']
+  end
+
+  test "should bulk create tags" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    authenticate_with_user(u)
+    query = 'mutation { createTags(inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]) { enqueued } }'
+    assert_difference 'Tag.length', 2 do
+      post :create, query: query, team: t.slug
+    end
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['createTags']['enqueued']
+    assert_equal ['foo'], pm1.reload.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['bar'], pm2.reload.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
+
+  test "should create comment with fragment" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
+    assert_difference 'Comment.length', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['createComment']['comment']['parsed_fragment'])
+    assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
+  end
+
+  test "should search by flag without likelihood" do
+    create_flag_annotation_type
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    pm1 = create_project_media team: t, project: nil, disable_es_callbacks: false
+    pm2 = create_project_media team: t, project: nil, disable_es_callbacks: false
+    data = valid_flags_data(false)
+    create_flag annotated: pm1, disable_es_callbacks: false, set_fields: data.to_json
+    sleep 5
+    query = 'query { search(query: "{\"dynamic\":{\"flag_name\":[\"adult\"]}}") { medias(first: 10000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+  end
+
+  test "should create tag and get tag text as parent" do
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
+    assert_difference 'Tag.length', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
+  end
+
+  test "should get comments from media" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_comment annotated: pm, fragment: 't=10,20'
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
+  end
+
+  test "should get related items if filters are null" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    create_relationship source_id: pm1.id, target_id: pm2.id
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
+
+  test "should not search without permission" do
+    t1 = create_team private: true
+    t2 = create_team private: true
+    t3 = create_team private: false
+    u = create_user
+    create_team_user team: t2, user: u
+    pm1 = create_project_media team: t1, project: nil
+    pm2 = create_project_media team: t2, project: nil
+    pm3a = create_project_media team: t3, project: nil
+    pm3b = create_project_media team: t3, project: nil
+    query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
+
+    # Anonymous user searching across all teams
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a public team
+    post :create, query: query, team: t3.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
+
+    # Anonymous user searching for a team
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching across all teams
+    authenticate_with_user(u)
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Unpermissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, query: query, team: t1.slug
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['search']
+    assert_not_nil JSON.parse(@response.body)['errors']
+
+    # Permissioned user searching for a team
+    authenticate_with_user(u)
+    post :create, query: query, team: t2.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['search']
+    assert_nil JSON.parse(@response.body)['errors']
   end
 end

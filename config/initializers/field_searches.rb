@@ -157,7 +157,7 @@ Dynamic.class_eval do
 
   def self.field_search_query_type_flag_name(values, options)
     flag_names = values
-    flag_values = options['flag_value'].map(&:to_i)
+    flag_values = options['flag_value'] ? options['flag_value'].map(&:to_i) : (0..5).to_a
     queries = []
     flag_names.each do |flag_name|
       flag_values.each do |flag_value|

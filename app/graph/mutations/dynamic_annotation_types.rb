@@ -4,8 +4,8 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
     DynamicAnnotation#{klass} = Dynamic unless defined?(DynamicAnnotation#{klass})
 
     module DynamicAnnotation#{klass}Mutations
-      fields = { action: 'str', action_data: 'str' }
-      ['annotated_id', 'annotated_type', 'set_attribution'].each do |name|
+      fields = {}
+      ['annotated_id', 'annotated_type', 'set_attribution', 'fragment', 'action', 'action_data'].each do |name|
         fields[name] = 'str'
       end
 
@@ -18,7 +18,7 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
         locked: 'bool'
       })
 
-      parents = ['project_media', 'project_source', 'source', 'project']
+      parents = ['project_media', 'source', 'project']
       Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('dynamic_annotation_#{type}', create_fields, update_fields, parents) unless defined? Create
     end
 

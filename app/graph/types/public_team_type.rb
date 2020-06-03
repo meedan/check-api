@@ -19,6 +19,12 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :verification_statuses, JsonStringType do
+    resolve -> (team, _args, _ctx) do
+      team.verification_statuses('media')
+    end
+  end
+
   field :dbid, types.Int, 'Database id of this record'
 
   field :pusher_channel do

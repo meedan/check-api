@@ -32,6 +32,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :verification_statuses do
+    type JsonStringType
+
+    resolve -> (project_media, _args, _ctx) {
+      project_media.team.send('verification_statuses', 'media', project_media)
+    }
+  end
+
   field :permissions, types.String do
     description 'CRUD permissions for current user'
 
@@ -136,15 +144,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Remove
-  field :project_source do
-    type -> { ProjectSourceType }
-
-    resolve ->(project_media, _args, _ctx) {
-      project_media.project_source
-    }
-  end
-
   # TODO What's this and how to add description?
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
@@ -164,6 +163,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve ->(project_media, _args, _ctx) {
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
+    }
+  end
+
+  connection :comments, -> { CommentType.connection_type } do
+    resolve ->(project_media, _args, _ctx) {
+      project_media.get_annotations('comment').map(&:load)
     }
   end
 

@@ -17,7 +17,6 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
-  before_validation :set_default_max_number_of_members, on: :create
 
   after_find do |team|
     if User.current
@@ -114,14 +113,6 @@ class Team < ActiveRecord::Base
 
   def slack_notifications_enabled=(enabled)
     self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def max_number_of_members=(value)
-    self.send(:set_max_number_of_members, value.to_i)
-  end
-
-  def max_number_of_members
-    self.get_max_number_of_members
   end
 
   def slack_webhook=(webhook)
@@ -275,24 +266,8 @@ class Team < ActiveRecord::Base
     perms
   end
 
-  def teamwide_tags
-    self.tag_texts.where(teamwide: true)
-  end
-
-  def custom_tags
-    self.tag_texts.where(teamwide: false)
-  end
-
   def permissions_info
     YAML.load(ERB.new(File.read("#{Rails.root}/config/permission_info.yml")).result)
-  end
-
-  def used_tags
-    self.custom_tags.map(&:text)
-  end
-
-  def get_suggested_tags
-    self.teamwide_tags.map(&:text).sort.join(',')
   end
 
   def invited_mails(team=nil)

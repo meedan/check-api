@@ -73,26 +73,8 @@ class CheckSearch
     medias
   end
 
-  def sources
-    return [] unless @options['show'].include?('sources') && index_exists?
-    return @sources if @sources
-    if should_hit_elasticsearch?('ProjectSource')
-      query = medias_build_search_query('ProjectSource')
-      @ids = medias_get_search_result(query).map(&:annotated_id).uniq
-      results = ProjectSource.where({ id: @ids })
-      @sources = sort_pg_results(results, 'project_sources')
-    else
-      @sources = get_pg_results('ProjectSource')
-    end
-    @sources
-  end
-
-  def project_sources
-    sources
-  end
-
   def number_of_results
-    number_of_items(medias, 'ProjectMedia') + number_of_items(sources, 'ProjectSource')
+    number_of_items(medias, 'ProjectMedia')
   end
 
   def number_of_items(collection, associated_type)
@@ -124,13 +106,9 @@ class CheckSearch
     MEDIA_TYPES & @options['show']
   end
 
-  def get_pg_results(associated_type = 'ProjectMedia')
+  def get_pg_results
     sort = { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
-    relation = if associated_type == 'ProjectMedia'
-                 get_pg_results_for_media
-               elsif associated_type == 'ProjectSource'
-                 get_pg_results_for_source
-               end
+    relation = get_pg_results_for_media
     @options['id'] ? relation.where(id: @options['id']) : relation.order(sort).limit(@options['eslimit'].to_i).offset(@options['esoffset'].to_i)
   end
 
@@ -146,7 +124,6 @@ class CheckSearch
       es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
       sort_value = MediaSearch.find(es_id).send(sort_key)
       sort_operator = sort_type == :asc ? :lt : :gt
-      puts "Sort Key: #{sort_key} Sort Operator: #{sort_operator} Sort Value: #{sort_value}"
       conditions << { range: { sort_key => { sort_operator => sort_value } } }
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
@@ -171,13 +148,6 @@ class CheckSearch
     relation = ProjectMedia.where(filters).distinct('project_medias.id').includes(:media)
     relation = relation.joins(:project_media_projects) unless @options['projects'].blank?
     relation
-  end
-
-  def get_pg_results_for_source
-    filters = {}
-    filters['projects.team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
-    ProjectSource.where(filters).joins(:project)
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
@@ -314,7 +284,6 @@ class CheckSearch
 
     unless @options['show'].blank?
       types_mapping = {
-        'sources' => ['Source'],
         'claims' => ['Claim'],
         'links' => 'Link',
         'images' => 'UploadedImage',

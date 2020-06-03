@@ -1,15 +1,6 @@
 module CommentMutations
-  create_fields = {
-    text: '!str',
-    annotated_id: 'str',
-    annotated_type: 'str'
-  }
+  create_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ text: '!str' })
+  update_fields = GraphqlCrudOperations.define_annotation_mutation_fields.merge({ text: 'str' })
 
-  update_fields = {
-    text: 'str',
-    annotated_id: 'str',
-    annotated_type: 'str'
-  }
-
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields, ['project_media', 'project_source', 'source', 'project', 'task', 'comment_version'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('comment', create_fields, update_fields, ['project_media', 'source', 'project', 'task', 'comment_version'])
 end

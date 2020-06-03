@@ -121,26 +121,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 2, p.medias_count
   end
 
-  test "should have project sources" do
-    ps1 = create_project_source
-    ps2 = create_project_source
-    p = create_project
-    p.project_sources << ps1
-    p.project_sources << ps2
-    assert_equal [ps1, ps2].sort, p.project_sources.sort
-  end
-
-  test "should have sources" do
-    s1 = create_source
-    s2 = create_source
-    ps1 = create_project_source(source: s1)
-    ps2 = create_project_source(source: s2)
-    p = create_project
-    p.project_sources << ps1
-    p.project_sources << ps2
-    assert_equal [s1, s2].sort, p.sources.sort
-  end
-
   test "should have annotations" do
     pm = create_project_media
     c1 = create_comment annotated: nil
@@ -290,7 +270,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
     p = create_project team: t
-    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create ProjectSource", "create Source", "create Media", "create Claim", "create Link"].sort
+    perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create Source", "create Media", "create Claim", "create Link"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
@@ -619,8 +599,6 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      ps1 = create_project_source
-      ps2 = create_project_source project: p
       c = create_comment annotated: pm3
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
@@ -631,8 +609,6 @@ class ProjectTest < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm2.id, project_id: nil).last
       assert_not_nil ProjectMedia.where(id: pm3.id, project_id: nil).last
       assert_not_nil Comment.where(id: c.id).last
-      assert_not_nil ProjectSource.where(id: ps1.id).last
-      assert_nil ProjectSource.where(id: ps2.id).last
     end
   end
 

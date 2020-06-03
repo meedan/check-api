@@ -7,10 +7,6 @@ MutationType = GraphQL::ObjectType.define do
   field :updateComment, field: CommentMutations::Update.field
   field :destroyComment, field: CommentMutations::Destroy.field
 
-  field :createProjectSource, field: ProjectSourceMutations::Create.field
-  field :updateProjectSource, field: ProjectSourceMutations::Update.field
-  field :destroyProjectSource, field: ProjectSourceMutations::Destroy.field
-
   field :createSource, field: SourceMutations::Create.field
   field :updateSource, field: SourceMutations::Update.field
   field :destroySource, field: SourceMutations::Destroy.field
@@ -46,6 +42,7 @@ MutationType = GraphQL::ObjectType.define do
   field :createTag, field: TagMutations::Create.field
   field :updateTag, field: TagMutations::Update.field
   field :destroyTag, field: TagMutations::Destroy.field
+  field :createTags, field: TagMutations::BulkCreate.field
 
   field :createAnnotation, field: AnnotationMutations::Create.field
   # field :updateAnnotation, field: AnnotationMutations::Update.field

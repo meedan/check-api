@@ -15,8 +15,8 @@
             "title": "<%= I18n.t(:team_rule_name) %>",
             "type": "string"
           },
-          "created_at": {
-            "title": "<%= I18n.t(:team_rule_created_at) %>",
+          "updated_at": {
+            "title": "<%= I18n.t(:team_rule_updated_at) %>",
             "type": "integer"
           },
           "rules": {

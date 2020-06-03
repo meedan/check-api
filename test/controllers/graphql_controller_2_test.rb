@@ -4,7 +4,6 @@ require 'error_codes'
 class GraphqlController2Test < ActionController::TestCase
   def setup
     @controller = Api::V1::GraphqlController.new
-    @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     super
@@ -31,7 +30,7 @@ class GraphqlController2Test < ActionController::TestCase
     end
     sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
     assert_response :success
@@ -72,17 +71,20 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should parse JSON exception" do
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
       WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
-      WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias?url=https://www.youtube.com/user/MeedanTube').to_return(body: '{"type":"media","data":{"url":"' + @url + '/","type":"profile"}}')
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'owner'
-      s = create_source user: u, team: t
+      p = create_project team: t
       authenticate_with_user(u)
 
-      query = 'mutation { createAccountSource(input: { clientMutationId: "1", source_id: ' + s.id.to_s + ', url: "' + @url + '"}) { source { id } } }'
+      query = 'mutation { createProjectMedia(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', url: "' + url + '"}) { project_media { id } } }'
       post :create, query: query, team: t.slug
       assert_response :success
 
@@ -95,7 +97,7 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
       assert_kind_of Integer, error_info['data']['project_id']
       assert_kind_of Integer, error_info['data']['id']
-      assert_equal 'source', error_info['data']['type']
+      assert_equal 'media', error_info['data']['type']
     end
   end
 
@@ -500,23 +502,21 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
   end
 
-  test "should get team custom tags and teamwide tags" do
+  test "should get team tag_texts" do
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    create_tag_text text: 'foo', team_id: t.id, teamwide: true
-    create_tag_text text: 'bar', team_id: t.id, teamwide: false
+    create_tag_text text: 'foo', team_id: t.id
 
-    query = "query GetById { team(id: \"#{t.id}\") { custom_tags { edges { node { text } } }, teamwide_tags { edges { node { text } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { tag_texts { edges { node { text } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
-    assert_equal 'foo', data['teamwide_tags']['edges'][0]['node']['text']
-    assert_equal 'bar', data['custom_tags']['edges'][0]['node']['text']
+    assert_equal 'foo', data['tag_texts']['edges'][0]['node']['text']
   end
 
   test "should get team tasks" do

@@ -963,31 +963,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for project source" do
-    u = create_user
-    t = create_team
-    s = create_source user: u
-    tu = create_team_user user: u , team: t, role: 'contributor'
-    p1 = create_project team: t
-    p2 = create_project
-    p3 = create_project team: t
-    ps1 = create_project_source project: p1
-    ps2 = create_project_source project: p2
-    ps3 = create_project_source project: p3, source: s
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:create, ps1)
-      assert ability.cannot?(:update, ps1)
-      assert ability.cannot?(:destroy, ps1)
-      assert ability.cannot?(:create, ps2)
-      assert ability.cannot?(:update, ps2)
-      assert ability.cannot?(:destroy, ps2)
-      assert ability.can?(:create, ps3)
-      assert ability.can?(:update, ps3)
-      assert ability.cannot?(:destroy, ps3)
-    end
-  end
-
   test "journalist permissions for account source" do
     u = create_user
     u2 = create_user
@@ -1071,7 +1046,7 @@ class AbilityTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, t) do
       assert_equal ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort, JSON.parse(t.permissions).keys.sort
-      assert_equal ["read Project", "update Project", "destroy Project", "create ProjectSource", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
+      assert_equal ["read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
   end

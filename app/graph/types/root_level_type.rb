@@ -15,11 +15,6 @@ RootLevelType = GraphQL::ObjectType.define do
       ProjectMedia.all
     }
   end
-  connection :project_sources, ProjectSourceType.connection_type do
-    resolve ->(_object, _args, _ctx){
-      ProjectSource.all
-    }
-  end
   connection :sources, SourceType.connection_type do
     resolve ->(_object, _args, _ctx){
       Source.order('created_at DESC').all

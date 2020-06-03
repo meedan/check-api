@@ -111,11 +111,6 @@ class TagTextTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not be teamwide by default" do
-    tt = create_tag_text
-    assert !tt.teamwide
-  end
-
   test "should merge tags if tag is updated to existing text" do
     t = create_team
     p = create_project team: t

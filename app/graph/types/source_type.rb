@@ -28,20 +28,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Remove this
-  connection :project_sources, -> { ProjectSourceType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.project_sources
-    }
-  end
-
-  # TODO Remove this
-  connection :projects, -> { ProjectType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.projects
-    }
-  end
-
   field :medias_count, types.Int, 'Count of items published by this source'
 
   connection :medias, -> { ProjectMediaType.connection_type } do
@@ -60,13 +46,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Review if we still need or replace by 'annotations'
-  connection :tags, -> { TagType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.get_annotations('tag').map(&:load)
-    }
-  end
-
   # TODO Review if we still need
   field :overridden do
     type JsonStringType
@@ -78,8 +57,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations # TODO How to add description?
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count  # TODO How to add description?
-  instance_exec :source, &GraphqlCrudOperations.field_log  # TODO How to add description?
-  instance_exec :source, &GraphqlCrudOperations.field_log_count  # TODO How to add description?
 
   field :dbid, types.Int, 'Database id of this record'
   field :permissions, types.String, 'CRUD permissions of this record for current user'

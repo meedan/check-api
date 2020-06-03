@@ -82,18 +82,13 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(project_id team_id)
+      keys = %w(project_id team_id archived sources_count)
       data = {
         'project_id' => self.project_id,
-        'team_id' => self.team_id
+        'team_id' => self.team_id,
+        'archived' => self.archived.to_i,
+        'sources_count' => self.sources_count
       }
-      if self.class_name == 'ProjectMedia'
-        keys.concat(%w(archived sources_count))
-        data = data.merge({
-          'archived' => self.archived.to_i,
-          'sources_count' => self.sources_count
-        })
-      end
       options = { keys: keys, data: data, parent: self }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
     end
@@ -109,8 +104,7 @@ module ProjectAssociation
     private
 
     def set_media_or_source
-      self.set_media if self.class_name == 'ProjectMedia'
-      self.set_source if self.class_name == 'ProjectSource'
+      self.set_media
     end
 
     def set_user
@@ -118,13 +112,8 @@ module ProjectAssociation
     end
 
     def is_unique
-      if self.class_name == 'ProjectSource'
-        obj_name = 'source'
-        obj = ProjectSource.where(project_id: self.project_id, source_id: self.source_id).last
-      else
-        obj_name = 'media'
-        obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
-      end
+      obj_name = 'media'
+      obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
       unless obj.nil?
         error = {
           message: I18n.t("#{obj_name}_exists", project_id: obj.project_id, id: obj.id),
@@ -151,13 +140,6 @@ module ProjectAssociation
         else
           self.media_id = m.id unless m.nil?
         end
-      end
-    end
-
-    def set_source
-      unless self.name.blank?
-        s = Source.create_source(self.name)
-        self.source_id = s.id unless s.nil?
       end
     end
 

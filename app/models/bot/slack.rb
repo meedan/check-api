@@ -117,7 +117,7 @@ class Bot::Slack < BotUser
 
   def get_project_for_annotation(model)
     p = nil
-    p = model&.annotated&.project if ['ProjectMedia', 'ProjectSource'].include?(model.annotated_type)
+    p = model&.annotated&.project if model.annotated_type == 'ProjectMedia'
     p = model&.annotated&.annotated&.project if model.annotated_type == 'Task'
     p
   end
