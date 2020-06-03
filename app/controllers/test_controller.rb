@@ -51,7 +51,7 @@ class TestController < ApplicationController
     render_success 'team', t.reload
   end
 
-  def update_suggested_tags
+  def update_tag_texts
     t = Team.find(params[:team_id])
     params[:tags].to_s.split(',').each{ |text| TagText.create(text: text, team_id: params[:team_id]) }
     t.save

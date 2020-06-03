@@ -15,7 +15,6 @@ class Tag < ActiveRecord::Base
   after_commit :destroy_elasticsearch_tag, on: :destroy
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_tags_count
-  after_destroy :destroy_tag_text_if_empty_and_not_teamwide
 
   def content
     { tag: self.tag_text, tag_text_id: self.tag }.to_json
@@ -64,11 +63,6 @@ class Tag < ActiveRecord::Base
 
   def destroy_elasticsearch_tag
     destroy_es_items('tags')
-  end
-
-  def destroy_tag_text_if_empty_and_not_teamwide
-    tag_text = self.tag_text_object
-    tag_text.destroy! if !tag_text.nil? && !tag_text.teamwide && tag_text.calculate_tags_count == 0
   end
 
   def update_tags_count

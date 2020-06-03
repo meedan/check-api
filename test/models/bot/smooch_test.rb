@@ -185,8 +185,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
       }
     ]
 
-    create_tag_text text: 'teamtag', team_id: @team.id, teamwide: true
-    create_tag_text text: 'montag', team_id: @team.id, teamwide: true
+    create_tag_text text: 'teamtag', team_id: @team.id
+    create_tag_text text: 'montag', team_id: @team.id
 
     assert_difference 'ProjectMedia.count', 6 do
       assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
