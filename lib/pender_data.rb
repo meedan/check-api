@@ -7,7 +7,7 @@ module PenderData
       params = { url: self.url }
       params[:refresh] = '1' if force
       result = { type: 'error', data: { code: -1 } }.with_indifferent_access
-      pender_key = self.pender_key || CONFIG['pender_key']
+      pender_key = get_pender_key
       begin
         result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, pender_key)
       rescue StandardError => e
@@ -87,5 +87,9 @@ module PenderData
   def refresh_pender_data
     self.validate_pender_result(true)
     self.set_pender_result_as_annotation
+  end
+
+  def get_pender_key
+    self.pender_key || CONFIG['pender_key']
   end
 end
