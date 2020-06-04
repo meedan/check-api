@@ -61,10 +61,10 @@ class GraphqlCrudOperations
   end
 
   def self.get_affected_ids(obj)
-    {
-      affectedIds: obj.affected_ids if obj.respond_to?(:affected_ids),
-      affectedId: obj.graphql_id if obj.is_a?(ProjectMedia)
-    }
+    ret = {}
+    ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
+    ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
+    ret
   end
 
   def self.create(type, inputs, ctx, parents = [])
