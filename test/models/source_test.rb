@@ -553,4 +553,28 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     assert_equal s.accounts.count, s.accounts_count
   end
+
+  test "should refresh source using account team pender_key" do
+    t = create_team
+    a = create_account
+    s = create_source team: t
+    s.accounts << a
+
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+
+    s.refresh_accounts = true
+    s.save!
+
+    assert_equal 'Author with default token', Account.find(a.id).metadata['author_name']
+
+    t.set_pender_key = 'specific_token'; t.save!
+    s = Source.find(s.id)
+    s.refresh_accounts = true
+    s.save!
+    assert_equal 'Author with specific token', Account.find(a.id).metadata['author_name']
+    PenderClient::Request.unstub(:get_medias)
+  end
+
 end

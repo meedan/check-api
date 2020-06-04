@@ -45,7 +45,9 @@ module ProjectMediaPrivate
   end
 
   def account_from_author_url(author_url, source)
-    begin Account.create_for_source(author_url, source) rescue nil end
+    team = self.get_team
+    pender_key = team.get_pender_key if team
+    begin Account.create_for_source(author_url, source, false, false, pender_key) rescue nil end
   end
 
   def set_media_account(account, source)
