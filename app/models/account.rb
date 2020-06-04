@@ -78,6 +78,7 @@ class Account < ActiveRecord::Base
   end
 
   def refresh_account=(_refresh)
+    self.pender_key = self.team.get_pender_key if self.team
     self.refresh_metadata
     self.sources.each do |s|
       s.updated_at = Time.now
@@ -87,10 +88,10 @@ class Account < ActiveRecord::Base
     self.updated_at = Time.now
   end
 
-  def self.create_for_source(url, source = nil, disable_account_source_creation = false, disable_es_callbacks = false)
+  def self.create_for_source(url, source = nil, disable_account_source_creation = false, disable_es_callbacks = false, pender_key = nil)
     a = Account.where(url: url).last
     if a.nil?
-      a = Account.new
+      a = Account.new pender_key: pender_key
       a.disable_account_source_creation = disable_account_source_creation
       a.disable_es_callbacks = disable_es_callbacks
       a.source = source
