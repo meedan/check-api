@@ -904,6 +904,12 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t, t.public_team
   end
 
+  test "should return correct public team avatar" do
+    t = create_team name: 'Team A', logo: 'rails.png'
+    pt = PublicTeam.find t.id
+    assert_equal t.avatar, pt.avatar
+  end
+
   test "should duplicate a team and copy team users and contacts" do
     team = create_team name: 'Team A', logo: 'rails.png'
 
