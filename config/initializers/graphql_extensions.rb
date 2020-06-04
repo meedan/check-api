@@ -20,6 +20,12 @@ module GraphQL
         super
         @sliced_nodes = @sliced_nodes.permissioned
       end
+
+      def edge_nodes
+        @edge_nodes ||= paged_nodes
+        @edge_nodes = @edge_nodes.map(&:load) if @field.name == 'annotations'
+        @edge_nodes
+      end
     end
 
     BaseConnection.register_connection_implementation(ActiveRecord::Relation, PermissionedConnection)
