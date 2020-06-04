@@ -460,9 +460,13 @@ class Bot::Smooch < BotUser
   def self.resend_message_after_window(message)
     message = JSON.parse(message)
     self.get_installation('smooch_app_id', message['app']['_id'])
+
+    # Exit after there is no template namespace
+    return false if self.config['smooch_template_namespace'].blank?
+
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
 
-    # This is a report that was created or updated
+    # This is a report that was created or updated, or a message send by a rule action
     unless original.blank?
       original = JSON.parse(original)
       return self.resend_report_after_window(message, original) if original['fallback_template'] =~ /report/
