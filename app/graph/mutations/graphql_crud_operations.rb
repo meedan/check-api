@@ -57,16 +57,14 @@ class GraphqlCrudOperations
       ret["#{method}Edge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
     end
 
-    ret = ret.merge(GraphqlCrudOperations.get_affected_ids(obj))
-
-    ret
+    ret.merge(GraphqlCrudOperations.get_affected_ids(obj))
   end
 
   def self.get_affected_ids(obj)
-    ret = {}
-    ret[:affectedIds] = obj.affected_ids if obj.respond_to?(:affected_ids)
-    ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
-    ret
+    {
+      affectedIds: obj.affected_ids if obj.respond_to?(:affected_ids),
+      affectedId: obj.graphql_id if obj.is_a?(ProjectMedia)
+    }
   end
 
   def self.create(type, inputs, ctx, parents = [])
