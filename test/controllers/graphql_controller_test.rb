@@ -146,7 +146,7 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { user { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -307,7 +307,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source team: @team, user: u
     create_comment annotated: s
     create_tag annotated: s
-    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\")} }"
+    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Annotation { dbid } } } }, annotations_count(annotation_type: \"comment,tag\")} }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['source']
@@ -989,7 +989,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { dbid } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
