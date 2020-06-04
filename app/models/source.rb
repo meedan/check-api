@@ -42,8 +42,8 @@ class Source < ActiveRecord::Base
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
     conditions = { media_id: m_ids }
-    conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
-    ProjectMedia.joins(:project).where(conditions)
+    conditions[:team_id] = Team.current.id unless Team.current.nil?
+    ProjectMedia.where(conditions)
   end
 
   def collaborators

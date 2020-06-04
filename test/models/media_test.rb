@@ -33,11 +33,13 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
-    m = create_media team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
     pu = create_user
     pt = create_team private: true
+    p2 = create_project team: pt
     create_team_user user: pu, team: pt, role: 'owner'
-    pm = create_media team: pt
+    pm = create_media project_id: p2
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }

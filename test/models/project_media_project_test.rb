@@ -6,7 +6,7 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   end
 
   test "should create project media project" do
-    assert_difference 'ProjectMediaProject.count', 2 do
+    assert_difference 'ProjectMediaProject.count', 1 do
       create_project_media_project
     end
   end
@@ -38,8 +38,9 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
 
   test "should create project media project when project media is created" do
     pm = nil
+    p = create_project
     assert_difference 'ProjectMediaProject.count' do
-      pm = create_project_media
+      pm = create_project_media project: p
     end
     create_project_media_project project_media: pm
     assert_difference 'ProjectMediaProject.count', -2 do
@@ -57,12 +58,12 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   end
 
   test "should change project media project when project media is moved" do
-    p1 = create_project
-    p2 = create_project
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
     pm = create_project_media project: p1
     pm = ProjectMedia.find(pm.id)
-    pm.previous_project_id = pm.project_id
-    pm.project = p2
+    pm.move_to_project_id = p2.id
     pm.save!
     assert_equal [p2], pm.reload.project_media_projects.map(&:project)
   end
@@ -70,9 +71,9 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   test "should not destroy project media when project is destroyed" do
     p = create_project
     pm = create_project_media project: p
-    assert_equal p.id, pm.reload.project_id
+    assert_equal [p.id], pm.reload.project_ids
     p.destroy!
-    assert_nil pm.reload.project_id
+    assert_empty pm.reload.project_ids
   end
 
   test "should index a list of project ids in ElasticSearch" do

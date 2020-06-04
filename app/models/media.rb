@@ -7,7 +7,7 @@ class Media < ActiveRecord::Base
   belongs_to :account
   belongs_to :user
   has_many :project_medias, dependent: :destroy
-  has_many :projects, through: :project_medias
+  # has_many :projects, through: :project_medias
   has_annotations
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
@@ -20,6 +20,10 @@ class Media < ActiveRecord::Base
 
   def class_name
     'Media'
+  end
+
+  def projects
+    ProjectMediaProject.where(project_media_id: self.project_medias.map(&:id)).map(&:project)
   end
 
   def get_team

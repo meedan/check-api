@@ -110,7 +110,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     create_project_media project: p, media: m1
     create_project_media project: p, media: m2
-    assert_equal [m1, m2].sort, p.reload.medias.sort
+    assert_equal [m1, m2].sort, p.reload.project_medias.map(&:media).sort
   end
 
   test "should get project medias count" do
@@ -606,8 +606,8 @@ class ProjectTest < ActiveSupport::TestCase
       end
       RequestStore.store[:disable_es_callbacks] = false
       assert_not_nil ProjectMedia.where(id: pm1.id).last
-      assert_not_nil ProjectMedia.where(id: pm2.id, project_id: nil).last
-      assert_not_nil ProjectMedia.where(id: pm3.id, project_id: nil).last
+      assert_not_nil ProjectMedia.where(id: pm2.id, team_id: t.id).last
+      assert_not_nil ProjectMedia.where(id: pm3.id, team_id: t.id).last
       assert_not_nil Comment.where(id: c.id).last
     end
   end
@@ -689,14 +689,15 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil u.reload.current_project_id
   end
 
-  test "should return team tasks" do
-    t = create_team
-    p = create_project team: t
-    create_team_task team_id: t.id, project_ids: [p.id + 1]
-    assert p.reload.auto_tasks.empty?
-    tt = create_team_task team_id: t.id, project_ids: [p.id]
-    assert_equal [tt], p.reload.auto_tasks
-  end
+  # TODO: Sawy - moved to team
+  # test "should return team tasks" do
+  #   t = create_team
+  #   p = create_project team: t
+  #   create_team_task team_id: t.id, project_ids: [p.id + 1]
+  #   assert p.reload.team.auto_tasks.empty?
+  #   tt = create_team_task team_id: t.id, project_ids: [p.id]
+  #   assert_equal [tt], p.reload.team.auto_tasks
+  # end
 
   test "should get team" do
     t = create_team
@@ -776,18 +777,6 @@ class ProjectTest < ActiveSupport::TestCase
     create_project_media project: p
     create_project_media project: p, archived: 1
     assert_equal 2, p.reload.medias_count
-  end
-
-  test "should nullify project medias project_id when project is deleted" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    assert_not_nil pm1.reload.project_id
-    with_current_user_and_team(u, t) do
-      p.destroy_later
-    end
-    assert_nil pm1.reload.project_id
   end
 
   test "should have search team" do

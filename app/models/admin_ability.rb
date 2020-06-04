@@ -31,7 +31,6 @@ class AdminAbility
       obj.get_approved
     end
     can :destroy, ProjectMedia do |obj|
-      (obj.team ||= obj.project.team) if obj.project
       @teams.include?(obj.team.id) if obj.team
     end
     can :destroy, ProjectMediaProject do |obj|

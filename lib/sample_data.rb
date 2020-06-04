@@ -447,9 +447,9 @@ module SampleData
     end
 
     m.save!
-    unless options[:team].blank?
-      t = Team.where(id: options[:team].id).last
-      create_project_media media: m, team: t unless t.nil?
+    unless options[:project_id].blank?
+      p = Project.where(id: options[:project_id]).last
+      create_project_media media: m, project: p unless p.nil?
     end
     m.reload
   end
@@ -519,7 +519,7 @@ module SampleData
     options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
     # options[:project] = create_project unless options.has_key?(:project)
-    if options.has_key?(:project)
+    if options.has_key?(:project) && !options[:project].nil?
       options[:team] = options[:project].team
       options[:add_to_project_id] = options[:project].id unless options.has_key?(:add_to_project_id)
     end

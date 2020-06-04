@@ -7,9 +7,10 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  has_many :project_medias, dependent: :nullify
-  has_many :medias , through: :project_medias
+  # has_many :project_medias, dependent: :nullify
+  # has_many :medias , through: :project_medias
   has_many :project_media_projects, dependent: :destroy
+  has_many :project_medias, through: :project_media_projects
 
   mount_uploader :lead_image, ImageUploader
 
@@ -34,9 +35,10 @@ class Project < ActiveRecord::Base
 
   include CheckExport
 
-  def before_destroy_later
-    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
-  end
+  # TODO: Sawy - remove
+  # def before_destroy_later
+  #   ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
+  # end
 
   def check_search_team
     self.team.check_search_team
@@ -198,8 +200,8 @@ class Project < ActiveRecord::Base
   #   tasks
   # end
 
-  def self.archive_or_restore_project_medias_if_needed(archived, project_id)
-    ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  def self.archive_or_restore_project_medias_if_needed(archived, team_id)
+    ProjectMedia.where({ team_id: team_id }).update_all({ archived: archived })
   end
 
   def self.current
@@ -216,7 +218,8 @@ class Project < ActiveRecord::Base
 
   def propagate_assignment_to(user = nil)
     targets = []
-    ProjectMedia.where(project_id: self.id).find_each do |pm|
+    ProjectMedia.joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
+    .where("pmp.project_id = ?", self.id).find_each do |pm|
       status = pm.last_status_obj
       unless status.nil?
         targets << status
@@ -252,7 +255,7 @@ class Project < ActiveRecord::Base
   end
 
   def archive_or_restore_project_medias_if_needed
-    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.id) if self.archived_changed?
+    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.team_id) if self.archived_changed?
   end
 
   def team_is_not_archived

@@ -23,7 +23,7 @@ class Version < Partitioned::ByForeignKey
     when 'DynamicAnnotation::Field'
       item.annotation&.get_team&.last
     when 'Relationship'
-      item.source&.project&.team_id
+      item.source&.team_id
     when 'ProjectMedia', 'Account', 'Source', 'Project', 'Assignment'
       item.team_id
     when 'Team'

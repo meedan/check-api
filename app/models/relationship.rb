@@ -84,7 +84,7 @@ class Relationship < ActiveRecord::Base
     targets = {}
     ids = nil
     unless filters.blank?
-      filters['projects'] ||= [project_media.project_id.to_s]
+      filters['projects'] ||= project_media.project_ids
       search = CheckSearch.new(filters.merge({ include_related_items: true }).to_json)
       query = search.medias_build_search_query
       ids = search.medias_get_search_result(query).map(&:annotated_id).map(&:to_i)

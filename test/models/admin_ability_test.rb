@@ -258,7 +258,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, s)
       assert ability.can?(:update, s)
       assert ability.can?(:destroy, s)
-      p.update_column(:team_id, nil)
+      pm.update_column(:team_id, nil)
       assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
@@ -281,7 +281,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:read, em)
       assert ability.can?(:update, em)
       assert ability.can?(:destroy, em)
-      p.update_column(:team_id, nil)
+      pm.update_column(:team_id, nil)
       assert ability.cannot?(:destroy, em)
 
       assert ability.cannot?(:read, em_link)
@@ -304,7 +304,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:update, tg)
       assert ability.can?(:destroy, tg)
-      p.update_column(:team_id, nil)
+      pm.update_column(:team_id, nil)
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:destroy, tg)
     end
@@ -467,7 +467,7 @@ class AdminAbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, tk)
-      p.update_column(:team_id, nil)
+      pm.update_column(:team_id, nil)
       assert ability.cannot?(:create, tk)
     end
   end

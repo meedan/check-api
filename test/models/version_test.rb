@@ -71,7 +71,7 @@ class VersionTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p1, media: m, user: u
       pm = ProjectMedia.find(pm.id)
-      pm.project_id = p2.id
+      pm.move_to_project_id = p2.id
       pm.save!
       assert_equal [p1, p2], pm.versions.last.projects
     end

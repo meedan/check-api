@@ -128,7 +128,10 @@ class Ability
         teams << v_obj.team_id if teams.blank? and v_obj.respond_to?(:team)
         teams << v_obj.project.team_id if teams.blank? and v_obj.respond_to?(:project)
       end
-      teams << v_obj_parent.project.team_id if v_obj_parent and v_obj_parent.respond_to?(:project)
+      if v_obj_parent
+        teams << v_obj_parent.team_id if v_obj_parent.respond_to?(:team)
+        teams << v_obj_parent.project.team_id if v_obj_parent.respond_to?(:project)
+      end
       teams.include?(@context_team.id)
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
@@ -170,7 +173,9 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
     can :create, Project, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
-    can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
+    can :update, [Media, Link, Claim] do |obj|
+      obj.get_team.include?(@context_team.id)
+    end
     can [:update, :administer_content], ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && !obj.archived_was
     end

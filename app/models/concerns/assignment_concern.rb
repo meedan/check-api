@@ -72,7 +72,10 @@ module AssignmentConcern
           pids << a.assigned_id
         end
       end
-      pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
+      # TODO: Sawy - optimize query
+      # pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
+      pmp = ProjectMediaProject.where('project_media_projects.project_media_id IN (?) OR project_media_projects.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
+      pms = ProjectMedia.where(id: pmp.map(&:project_media_id))
       pms = pms.select(select) unless select.nil?
       pms
     end

@@ -276,11 +276,11 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_ids
-    ProjectMediaProject.where(project_media_id: self.id).map(&:project_id)
+    self.projects.map(&:id)
   end
 
   def media_project
-    Project.where(id: project_ids).first
+    self.projects.first
   end
 
   def add_destination_team_tasks_bg(project)
