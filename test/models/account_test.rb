@@ -386,4 +386,45 @@ class AccountTest < ActiveSupport::TestCase
     assert_kind_of Account, a
     Account.any_instance.unstub(:save)
   end
+
+  test "should send specific token to parse url on pender" do
+    params1 = { url: random_url }
+    params2 = { url: random_url }
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params1, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "profile", "author_name" => "Default token"}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "profile", "author_name" => "Specific token"}})
+
+    a = Account.new url: params1[:url]
+    a.valid?
+    a.save!
+    assert_equal 'Default token', Account.find(a.id).metadata['author_name']
+
+    a = Account.new url: params2[:url], pender_key: 'specific_token'
+    a.valid?
+    a.save!
+    assert_equal 'Specific token', Account.find(a.id).metadata['author_name']
+    PenderClient::Request.unstub(:get_medias)
+  end
+
+  test "should refresh account using team pender_key" do
+    t = create_team
+    a = create_account team: t
+
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+
+    a.refresh_account = true
+    a.save!
+
+    assert_equal 'Author with default token', Account.find(a.id).metadata['author_name']
+
+    t.set_pender_key = 'specific_token'; t.save!
+    a = Account.find(a.id)
+    a.refresh_account = true
+    a.save!
+
+    assert_equal 'Author with specific token', Account.find(a.id).metadata['author_name']
+    PenderClient::Request.unstub(:get_medias)
+  end
+
 end

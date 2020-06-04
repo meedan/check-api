@@ -1981,4 +1981,62 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.send :set_media_type
     assert_equal 'Link', pm.media_type
   end
+
+  test "should create link and account using team pender key" do
+    t = create_team
+    p = create_project(team: t)
+    Team.stubs(:current).returns(t)
+
+    url1 = random_url
+    author_url1 = random_url
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+
+    url2 = random_url
+    author_url2 = random_url
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
+
+    pm = ProjectMedia.create project: p, url: url1
+    assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
+    assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
+
+    t.set_pender_key = 'specific_token'; t.save!
+
+    pm = ProjectMedia.create! project: Project.find(p.id), url: url2
+    assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
+    assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
+
+    Team.unstub(:current)
+    PenderClient::Request.unstub(:get_medias)
+  end
+
+  test "should refresh using team pender key" do
+    t = create_team
+    l = create_link
+    Team.stubs(:current).returns(t)
+    pm = create_project_media media: l, project: create_project(team: t)
+
+    author_url1 = random_url
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: l.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: l.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+
+    assert pm.media.metadata['title'].blank?
+
+    pm.refresh_media = true
+    pm.save!
+    assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
+
+    t.set_pender_key = 'specific_token'; t.save!
+    pm = ProjectMedia.find(pm.id)
+    pm.refresh_media = true; pm.save!
+    assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
+
+    Team.unstub(:current)
+    PenderClient::Request.unstub(:get_medias)
+  end
+
 end

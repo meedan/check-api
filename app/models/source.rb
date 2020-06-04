@@ -97,6 +97,7 @@ class Source < ActiveRecord::Base
   def refresh_accounts=(refresh)
     return if refresh.blank?
     self.accounts.each do |a|
+      a.pender_key = self.team.get_pender_key if self.team
       a.refresh_metadata
       a.skip_check_ability = true
       a.save!
