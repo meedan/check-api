@@ -359,8 +359,8 @@ class GraphqlController2Test < ActionController::TestCase
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal d.id.to_s, data['dynamic_annotation_metadata']['dbid']
-    assert_equal d.id.to_s, data['dynamic_annotations_metadata']['edges'][0]['node']['dbid']
+    assert_equal d.id, data['dynamic_annotation_metadata']['dbid']
+    assert_equal d.id, data['dynamic_annotations_metadata']['edges'][0]['node']['dbid']
   end
 
   test "should return nil on team_userEdge if user is admin and not a team member" do
@@ -499,7 +499,7 @@ class GraphqlController2Test < ActionController::TestCase
     data = JSON.parse(@response.body)['data']['task']
     assert_equal 1, data['log_count']
     assert_kind_of Array, data['options']
-    assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
+    assert_equal c.id, data['log']['edges'][0]['node']['annotation']['dbid']
   end
 
   test "should get team tag_texts" do

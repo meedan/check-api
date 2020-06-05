@@ -151,7 +151,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_not_empty data['published']
-    assert_not_empty data['last_status_obj']['dbid']
+    assert_not_nil data['last_status_obj']['dbid']
     assert data.has_key?('language')
     assert data.has_key?('language_code')
     assert_equal 2, data['annotations']['edges'].size
@@ -169,7 +169,7 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
-    assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
+    assert_not_nil JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
   end
 

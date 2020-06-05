@@ -256,7 +256,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
     post :create, query: query
     assert_response :success
-    assert_equal d.id.to_s, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
+    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
   end
 
   test "should not get dynamic annotation field if does not have permission" do
@@ -979,7 +979,7 @@ class GraphqlController3Test < ActionController::TestCase
             }
           }
         }
-      }   
+      }
     }
     post :create, query: query, team: t.slug
     assert_response :success

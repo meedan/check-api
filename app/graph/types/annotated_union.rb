@@ -1,6 +1,6 @@
 AnnotatedUnion = GraphQL::UnionType.define do
   name 'AnnotatedUnion'
-  description 'A union of all types that can be annotated'
+  description 'A union of all types that can be annotated.'
   possible_types [
     TeamType,
     ProjectType,
