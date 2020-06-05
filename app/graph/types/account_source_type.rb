@@ -1,6 +1,6 @@
 AccountSourceType = GraphqlCrudOperations.define_default_type do
   name 'AccountSource'
-  description 'Links an Account to a Source.'
+  description 'Links an account to a source.'
 
   interfaces [NodeIdentification.interface]
 

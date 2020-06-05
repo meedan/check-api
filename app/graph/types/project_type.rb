@@ -1,6 +1,6 @@
 ProjectType = GraphqlCrudOperations.define_default_type do
   name 'Project'
-  description 'A list of Media in a Team.'
+  description 'A collection of media items in a team.'
 
   interfaces [NodeIdentification.interface]
 

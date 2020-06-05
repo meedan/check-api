@@ -1,6 +1,6 @@
 BotUserType = GraphqlCrudOperations.define_default_type do
   name 'BotUser'
-  description 'A type of User that represents a bot.'
+  description 'A user type that represents a bot.'
 
   interfaces [NodeIdentification.interface]
 

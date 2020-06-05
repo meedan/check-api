@@ -1,6 +1,6 @@
 TeamTaskType = GraphqlCrudOperations.define_default_type do
   name 'TeamTask'
-  description 'A Task template that is applied to items of a Team.'
+  description 'A task template that is applied to items of a team.'
 
   interfaces [NodeIdentification.interface]
 

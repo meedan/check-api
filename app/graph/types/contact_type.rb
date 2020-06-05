@@ -1,7 +1,7 @@
 # TODO Merge in Team
 ContactType = GraphqlCrudOperations.define_default_type do
   name 'Contact'
-  description 'Contact entries for a Team.'
+  description 'Contact entries for a team.'
 
   interfaces [NodeIdentification.interface]
 

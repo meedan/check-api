@@ -1,7 +1,7 @@
 # TODO Can we just use UserType instead of this?
 AnnotatorType = GraphQL::ObjectType.define do
   name 'Annotator'
-  description 'The author of an Annotation.'
+  description 'The author of an annotation.'
   interfaces [NodeIdentification.interface]
   global_id_field :id
 

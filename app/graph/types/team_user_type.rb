@@ -1,6 +1,6 @@
 TeamUserType = GraphqlCrudOperations.define_default_type do
   name 'TeamUser'
-  description 'Association between a User and a Team.'
+  description 'Association between a user and a team.'
 
   interfaces [NodeIdentification.interface]
 

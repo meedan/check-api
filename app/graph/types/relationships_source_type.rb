@@ -1,6 +1,6 @@
 RelationshipsSourceType = GraphQL::ObjectType.define do
   name 'RelationshipsSource'
-  description 'The source item of a Relationship.'
+  description 'The source item of a relationship.'
   interfaces [NodeIdentification.interface]
   global_id_field :id
   field :source, ProjectMediaType

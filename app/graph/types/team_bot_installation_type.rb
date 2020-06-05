@@ -1,6 +1,6 @@
 TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
   name 'TeamBotInstallation'
-  description 'Association between a BotUser and a Team.'
+  description 'Association between a bot user and a team.'
 
   interfaces [NodeIdentification.interface]
 

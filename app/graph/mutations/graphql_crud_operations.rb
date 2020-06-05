@@ -497,10 +497,6 @@ class GraphqlCrudOperations
     end
   end
 
-  def self.define_annotation_fields
-    [:annotation_type, :annotated_id, :annotated_type, :content, :dbid]
-  end
-
   def self.define_annotation_mutation_fields
     {
       fragment: 'str',
@@ -517,18 +513,15 @@ class GraphqlCrudOperations
 
       field :id, !types.ID do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
 
-      GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
+      field :annotation_type, types.String, 'Annotation type'
 
-      field :permissions, types.String do
-        resolve -> (annotation, _args, ctx) {
-          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
-        }
-      end
+      field :annotated_id, types.Int, 'Database id of the annotated item'
 
-      field :created_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
+      field :annotated_type, types.String, 'Type of the annotated item'
 
-      field :updated_at, types.String do resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } end
+      field :content, types.String, 'Content of the annotation'
 
+      # TODO Map field types and add documentation
       fields.each { |name, _field_type| field name, types.String }
 
       connection :medias, -> { ProjectMediaType.connection_type } do
@@ -536,24 +529,28 @@ class GraphqlCrudOperations
           annotation.entity_objects
         }
       end
-      instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
-      instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
-      connection :assignments, -> { UserType.connection_type } do
+      # TODO Can't this be a UserType instead?
+      field :annotator, AnnotatorType, 'Author of this annotation'
+
+      field :version, VersionType, 'Latest entry in the version-control log for this annotation'
+
+      field :annotated, AnnotatedUnion, 'Item described by this annotation'
+
+      connection :assignments, -> { UserType.connection_type }, 'Users assigned to this annotation' do
         resolve ->(annotation, _args, _ctx) {
           annotation.assigned_users
         }
       end
 
-      connection :annotations, -> { AnnotationUnion.connection_type } do
+      connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this annotation' do
         argument :annotation_type, !types.String
         resolve ->(annotation, args, _ctx) {
           Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
         }
       end
 
-      field :locked, types.Boolean
-
+      # TODO Remove
       field :project, ProjectType
 
       field :image_data, JsonStringType
@@ -563,18 +560,18 @@ class GraphqlCrudOperations
       field :parsed_fragment, JsonStringType
 
       instance_eval(&block) if block_given?
-    end
-  end
 
-  def self.annotation_fields
-    proc do |name, field_type = types.String, method = nil|
-      field name do
-        type field_type
-
-        resolve -> (annotation, _args, _ctx) {
-          annotation.send(method.blank? ? name : method)
+      field :dbid, types.Int, 'Database id of this record'
+      field :created_at, types.String, 'Datetime of annotation creation' do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
+      field :updated_at, types.String, 'Datetime of annotation last update' do resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } end
+      field :locked, types.Boolean, 'TODO'
+      field :lock_version, types.Int, 'TODO'
+      field :permissions, types.String, 'CRUD permissions of this record for current user' do
+        resolve -> (annotation, _args, ctx) {
+          annotation.permissions(ctx[:ability], annotation.annotation_type_class)
         }
       end
+
     end
   end
 

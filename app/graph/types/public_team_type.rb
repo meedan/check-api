@@ -1,6 +1,6 @@
 PublicTeamType = GraphqlCrudOperations.define_default_type do
   name 'PublicTeam'
-  description 'The public attributes of a Team.'
+  description 'The public attributes of a team.'
 
   interfaces [NodeIdentification.interface]
 

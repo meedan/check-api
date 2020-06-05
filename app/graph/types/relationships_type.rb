@@ -1,6 +1,6 @@
 RelationshipsType = GraphQL::ObjectType.define do
   name 'Relationships'
-  description 'The list of Relationships of an item.'
+  description 'The list of relationships of an item.'
   interfaces [NodeIdentification.interface]
   global_id_field :id
 

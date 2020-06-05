@@ -1,7 +1,7 @@
 # TODO Rename to 'TeamMediaType'
 ProjectMediaType = GraphqlCrudOperations.define_default_type do
   name 'ProjectMedia'
-  description 'Association between a Team and a Media.'
+  description 'Association between a team and a media.'
 
   interfaces [NodeIdentification.interface]
 
