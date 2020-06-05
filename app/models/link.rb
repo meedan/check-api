@@ -46,8 +46,8 @@ class Link < Media
     self.get_saved_pender_data['provider']
   end
 
-  def self.normalized(url)
-    l = Link.new url: url
+  def self.normalized(url, pender_key = nil)
+    l = Link.new url: url, pender_key: pender_key
     l.valid?
     l.url
   end
@@ -56,7 +56,7 @@ class Link < Media
 
   def set_account
     if !self.pender_data.nil? && !self.pender_data['author_url'].blank?
-      self.account = Account.create_for_source(self.pender_data['author_url'])
+      self.account = Account.create_for_source(self.pender_data['author_url'], nil, false, false, self.pender_data[:pender_key])
       self.save!
     end
   end

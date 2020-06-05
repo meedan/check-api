@@ -591,4 +591,22 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal({}, l.get_saved_pender_data)
     assert_equal({}, l.metadata)
   end
+
+  test "should send specific token to parse url on pender" do
+    params1 = { url: random_url }
+    params2 = { url: random_url }
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params1, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "item", "title" => "Default token"}})
+    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "item", "title" => "Specific token"}})
+
+    l = Link.new url: params1[:url]
+    l.valid?
+    l.save!
+    assert_equal 'Default token', Link.find(l.id).metadata['title']
+
+    l = Link.new url: params2[:url], pender_key: 'specific_token'
+    l.valid?
+    l.save!
+    assert_equal 'Specific token', Link.find(l.id).metadata['title']
+    PenderClient::Request.unstub(:get_medias)
+  end
 end

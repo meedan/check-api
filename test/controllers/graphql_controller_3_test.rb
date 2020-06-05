@@ -946,4 +946,48 @@ class GraphqlController3Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
   end
+
+  test "should get nested comment" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c1 = create_comment annotated: pm, text: 'Parent'
+    c2 = create_comment annotated: c1, text: 'Child'
+    authenticate_with_user(u)
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          comments: annotations(first: 10000, annotation_type: "comment") {
+            edges {
+              node {
+                ... on Comment {
+                  id
+                  text
+                  comments: annotations(first: 10000, annotation_type: "comment") {
+                    edges {
+                      node {
+                        ... on Comment {
+                          id
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }   
+    }
+    post :create, query: query, team: t.slug
+    assert_response :success
+    comments = JSON.parse(@response.body)['data']['project_media']['comments']['edges']
+    assert_equal 1, comments.size
+    assert_equal 'Parent', comments[0]['node']['text']
+    child_comments = comments[0]['node']['comments']['edges']
+    assert_equal 1, child_comments.size
+    assert_equal 'Child', child_comments[0]['node']['text']
+  end
 end

@@ -23,6 +23,4 @@ AnnotationType = GraphqlCrudOperations.define_annotation_type('annotation', { co
 
   field :locked, types.Boolean, 'TODO'
   field :lock_version, types.Int, 'TODO'
-
-  connection :annotations, -> { AnnotationType.connection_type }, 'Child annotations'
 end
