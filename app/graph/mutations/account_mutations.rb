@@ -1,5 +1,6 @@
 module AccountMutations
 
+  # TODO Refresh action should be a separate mutation
   update_fields = {
     refresh_account: 'int'
   }

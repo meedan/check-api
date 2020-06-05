@@ -9,18 +9,17 @@ module ProjectMediaMutations
     url: 'str',
     quote: 'str',
     quote_attributions: 'str',
-    set_annotation: 'str',
-    set_tasks_responses: 'json',
+    set_annotation: 'str', # TODO Action should be a separate mutation
+    set_tasks_responses: 'json', # TODO Action should be a separate mutation
     media_type: 'str'
   })
 
   update_fields = fields.merge({
-    project_id: 'int',
-    previous_project_id: 'int',
-    copy_to_project_id: 'int',
-    add_to_project_id: 'int',
-    remove_from_project_id: 'int',
-    refresh_media: 'int',
+    previous_project_id: 'int', # TODO Action should be a separate mutation
+    copy_to_project_id: 'int', # TODO Action should be a separate mutation
+    add_to_project_id: 'int', # TODO Action should be a separate mutation
+    remove_from_project_id: 'int', # TODO Action should be a separate mutation
+    refresh_media: 'int', # TODO Action should be a separate mutation
     archived: 'int',
     metadata: 'str'
   })

@@ -537,16 +537,23 @@ class GraphqlCrudOperations
 
       field :annotated, AnnotatedUnion, 'Item described by this annotation'
 
+      connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this annotation' do
+        argument :annotation_type, !types.String
+        resolve ->(annotation, args, _ctx) {
+          Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
+        }
+      end
+
       connection :assignments, -> { UserType.connection_type }, 'Users assigned to this annotation' do
         resolve ->(annotation, _args, _ctx) {
           annotation.assigned_users
         }
       end
 
-      connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this annotation' do
-        argument :annotation_type, !types.String
-        resolve ->(annotation, args, _ctx) {
-          Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
+      connection :attribution, -> { UserType.connection_type }, 'Users who have contributed to this annotation' do
+        resolve ->(annotation, _args, _ctx) {
+          ids = annotation.attribution.split(',').map(&:to_i)
+          User.where(id: ids)
         }
       end
 
