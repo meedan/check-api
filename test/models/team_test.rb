@@ -628,7 +628,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     assert_equal 0, Contact.where(team_id: id).count
-    assert_equal 0, ProjectMedia.where(project_id: p.id).count
+    assert_equal 0, ProjectMediaProject.where(project_id: p.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -1028,7 +1028,7 @@ class TeamTest < ActiveSupport::TestCase
       p1 = create_project team: t
       pm = create_project_media user: u, team: t, project: p1
       p2 = create_project team: t
-      pm.project_id = p2.id; pm.save!
+      pm.move_to_project_id = p2.id; pm.save!
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
       assert copy.is_a?(Team)
@@ -1613,8 +1613,8 @@ class TeamTest < ActiveSupport::TestCase
     result = MediaSearch.find(get_es_id(pm1))
     assert_equal [p1.id], result.project_id
     pm2 = create_project_media project: p0, disable_es_callbacks: false
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p0.id, pm2.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p0.id], pm2.reload.project_ids
   end
 
   test "should match rule based on tag" do
@@ -1679,9 +1679,9 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'bar', annotated: pm2
     pm3 = create_project_media project: p0
     create_tag tag: 'test', annotated: pm2
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p0.id, pm3.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p2.id], pm2.reload.project_ids
+    assert_equal [p0.id], pm3.reload.project_ids
   end
 
   test "should match rule based on item type" do
@@ -1739,10 +1739,10 @@ class TeamTest < ActiveSupport::TestCase
     end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p3.id, pm3.reload.project_id
-    assert_equal p4.id, pm4.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p2.id], pm2.reload.project_ids
+    assert_equal [p3.id], pm3.reload.project_ids
+    assert_equal [p4.id], pm4.reload.project_ids
   end
 
   test "should return number of items in trash and outside trash" do
@@ -1987,11 +1987,11 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p0, quote: 'start_with_title match title'
-    assert_equal p1.id, pm1.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
     pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal p2.id, pm2.reload.project_id
+    assert_equal [p2.id], pm2.reload.project_ids
     pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
-    assert_equal p0.id, pm3.reload.project_id
+    assert_equal [p0.id], pm3.reload.project_ids
   end
 
   test "should skip permission when applying action" do
@@ -2555,10 +2555,10 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
     pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
-    assert_equal p2, pm1.reload.project
-    assert_equal p2, pm2.reload.project
-    assert_equal p1, pm3.reload.project
-    assert_equal p1, pm4.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p2], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
+    assert_equal [p1], pm4.reload.projects
     rules[0][:rules][:operator] = 'or'
     rules[0][:rules][:groups][0][:operator] = 'and'
     rules[0][:rules][:groups][1][:operator] = 'or'
@@ -2568,10 +2568,10 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
     pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
-    assert_equal p2, pm1.reload.project
-    assert_equal p2, pm2.reload.project
-    assert_equal p2, pm3.reload.project
-    assert_equal p2, pm4.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p2], pm2.reload.projects
+    assert_equal [p2], pm3.reload.projects
+    assert_equal [p2], pm4.reload.projects
   end
 
   test "should match rules with operators 2" do
@@ -2625,9 +2625,9 @@ class TeamTest < ActiveSupport::TestCase
     s.status = 'Verified'
     s.save!
     
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 3" do
@@ -2672,9 +2672,9 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
     
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 4" do
@@ -2718,9 +2718,9 @@ class TeamTest < ActiveSupport::TestCase
     publish_report(pm1)
     publish_report(pm2)
     
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 5" do
@@ -2769,9 +2769,9 @@ class TeamTest < ActiveSupport::TestCase
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm3
     
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should not match rules" do
@@ -2806,14 +2806,14 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p1, quote: 'foo test'
-    assert_equal p2, pm1.reload.project
+    assert_equal [p2], pm1.reload.projects
     pm1.project_id = p1.id
     pm1.save!
-    assert_equal p1, pm1.reload.project
+    assert_equal [p1], pm1.reload.projects
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    assert_equal p1, pm1.reload.project
+    assert_equal [p1], pm1.reload.projects
   end
 
   test "should not have rules with blank names or duplicated names" do

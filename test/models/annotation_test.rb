@@ -320,7 +320,7 @@ class AnnotationTest < ActiveSupport::TestCase
     c1.assign_user(u.id)
     c2.assign_user(u.id)
     Assignment.create! assigned: p2, user: u
-    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id, project_id').sort
+    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id').sort
   end
 
   test "should save metadata in annotation" do

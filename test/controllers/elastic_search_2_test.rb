@@ -27,7 +27,7 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMedia.where(project_id: p.id).map(&:id)
+      pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
       sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.map(&:annotated_id).sort
@@ -57,7 +57,8 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal 1, ms.project_id.size
     assert_equal ms.project_id.last.to_i, p.id
     assert_equal ms.team_id.to_i, t.id
-    pm.project = p2; pm.save!
+    pm = ProjectMedia.find pm.id
+    pm.move_to_project_id = p2.id; pm.save!
     # confirm annotations log
     sleep 1
     ms = MediaSearch.find(id)

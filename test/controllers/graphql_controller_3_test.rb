@@ -603,7 +603,7 @@ class GraphqlController3Test < ActionController::TestCase
       post :create, query: query, team: t
     end
     assert_response :success
-    assert_nil pm.reload.project_id
+    assert_empty pm.reload.project_ids
   end
 
   test "should return cached value for dynamic annotation" do

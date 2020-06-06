@@ -113,11 +113,12 @@ module TeamRules
     end
 
     def move_to_project(pm, value, _rule_id)
+      # TODO: Sawy reivew previous_project_id needed
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        pm.previous_project_id = pm.project_id
-        pm.project_id = project.id
+        # pm.previous_project_id = pm.project_ids.first
+        pm.move_to_project_id = project.id
         pm.skip_check_ability = true
         pm.save!
       end

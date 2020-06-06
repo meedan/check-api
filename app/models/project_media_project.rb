@@ -23,13 +23,8 @@ class ProjectMediaProject < ActiveRecord::Base
 
   def update_index_in_elasticsearch
     return if self.disable_es_callbacks
-    self.update_elasticsearch_doc(['project_id'], { 'project_id' => self.project_media.project_media_projects.map(&:project_id) }, self.project_media)
+    self.update_elasticsearch_doc(['project_id'], { 'project_id' => self.project_media.projects.map(&:id) }, self.project_media)
   end
-
-  # TODO: Sawy - review
-  # def set_project_media_project_id
-  #   self.project_media.update_column(:project_id, self.project_id) unless self.project_media.is_being_copied
-  # end
 
   def add_destination_team_tasks
     existing_items = ProjectMediaProject.where(project_media_id: self.project_media_id).where.not(project_id: self.project_id).count
@@ -37,10 +32,4 @@ class ProjectMediaProject < ActiveRecord::Base
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self.project_media }))
     end
   end
-
-  # TODO: Sawy - review
-  # def unset_project_media_project_id
-  #   id = ProjectMediaProject.where(project_media_id: self.project_media_id).last&.project_id
-  #   self.project_media.update_column(:project_id, id) if self.project_media.project_id != id && !self.project_media.is_being_copied && ProjectMediaProject.where(project_media_id: self.project_media_id, project_id: id).last.nil?
-  # end
 end

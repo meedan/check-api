@@ -86,8 +86,10 @@ class TeamTaskTest < ActiveSupport::TestCase
   test "should add teamwide task to existing items" do
     t =  create_team
     p = create_project team: t
+    # p2 = create_project team: t
     pm = create_project_media project: p
-    pm3 = create_project_media project: nil, team_id: t.id
+    # pm2 = create_project_media project: p2
+    pm3 = create_project_media team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, project_ids: [p.id], description: 'Foo', options: [{ label: 'Foo' }]
@@ -142,7 +144,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media project: p
     pm2 = create_project_media project: p2
-    pm3 = create_project_media project: nil, team_id: t.id
+    pm3 = create_project_media team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = nil
@@ -393,7 +395,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     tt = create_team_task team_id: t.id, project_ids: [p2.id]
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { project_id: p.id })
+    tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
   end
 end

@@ -479,14 +479,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 13, pm.get_versions_log_count
       c.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
       tg.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
       f.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 13, pm.get_versions_log_count
     end
   end
 
@@ -606,7 +606,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have reference to search project object" do
-    pm = create_project_media
+    p = create_project
+    pm = create_project_media project: p
     assert_kind_of CheckSearch, pm.check_search_project
   end
 
