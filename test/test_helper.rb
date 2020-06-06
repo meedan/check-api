@@ -369,7 +369,12 @@ class ActiveSupport::TestCase
 
     node = '{ '
     fields.each do |name, key|
-      node += "#{name} { #{key} }, "
+      if key.is_a? Hash
+        u, k = key.first
+        node += "#{name} { ... on #{u} { #{k} } }, "
+      else
+        node += "#{name} { #{key} }, "
+      end
     end
     node.gsub!(/, $/, ' }')
 
@@ -390,7 +395,12 @@ class ActiveSupport::TestCase
       equal = false
       edges.each do |edge|
         objs.each do |obj|
-          equal = (obj.send(name).send(key) == edge['node'][name][key]) unless equal
+          if key.is_a? Hash
+            u, k = key.first
+            equal = (obj.send(name).send(k) == edge['node'][name][k]) unless equal
+          else
+            equal = (obj.send(name).send(key) == edge['node'][name][key]) unless equal
+          end
         end
       end
       assert equal

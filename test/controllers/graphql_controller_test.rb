@@ -401,7 +401,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from annotation" do
-    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'annotated' => 'dbid' })
+    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'annotated' => { 'ProjectMedia' => 'dbid' }})
   end
 
   test "should read object from user" do
