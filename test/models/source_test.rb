@@ -94,12 +94,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, s.reload.annotations.where(annotation_type: 'comment').map(&:id).sort
   end
 
-  test "should get user from callback" do
-    u = create_user email: 'test@test.com'
-    s = create_source
-    assert_equal u.id, s.user_id_callback('test@test.com')
-  end
-
   test "should get image" do
     url = 'http://checkdesk.org/users/1/photo.png'
     u = create_user profile_image: url
@@ -130,15 +124,6 @@ class SourceTest < ActiveSupport::TestCase
     c7 = create_comment annotator: u3, annotated: s2
     assert_equal [u1, u2].sort, s1.collaborators.sort
     assert_equal [u3].sort, s2.collaborators.sort
-  end
-
-  test "should get avatar from callback" do
-    s = create_source
-    assert_nil s.avatar_callback('')
-    file = 'http://checkdesk.org/users/1/photo.png'
-    assert_nil s.avatar_callback(file)
-    file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_nil s.avatar_callback(file)
   end
 
   test "should have description" do

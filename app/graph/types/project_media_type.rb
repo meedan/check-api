@@ -144,11 +144,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO What's this and how to add description?
   instance_exec :project_media, &GraphqlCrudOperations.field_log
-
-  # TODO What's this and how to add description?
-  instance_exec :project_media, &GraphqlCrudOperations.field_log_count
 
   connection :tags, -> { TagType.connection_type } do
     description 'Item tags'
@@ -227,6 +223,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Merge with annotations below
   field :annotation do
     type -> { AnnotationType }
     argument :annotation_type, !types.String
@@ -237,8 +234,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
-
-  instance_exec :project_media, &GraphqlCrudOperations.field_annotations_count
 
   field :field_value do
     type types.String

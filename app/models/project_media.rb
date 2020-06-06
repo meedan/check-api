@@ -39,14 +39,6 @@ class ProjectMedia < ActiveRecord::Base
     self.team == team
   end
 
-  def user_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def project_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
-
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }

@@ -24,15 +24,6 @@ class Account < ActiveRecord::Base
 
   serialize :omniauth_info
 
-  def user_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def source_id_callback(value, _mapping_ids = nil)
-    source = Source.where(name: value).last
-    source.nil? ? nil : source.id
-  end
-
   def data
     m = self.annotations('metadata').last&.load
     data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end

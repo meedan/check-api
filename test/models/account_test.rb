@@ -82,13 +82,6 @@ class AccountTest < ActiveSupport::TestCase
 
   end
 
-  test "should get user id from callback" do
-    u = create_user email: 'test@test.com'
-    @account.user = u
-    @account.save!
-    assert_equal u.id, @account.send(:user_id_callback, 'test@test.com')
-  end
-
   test "should not update url when account is updated" do
     url = @account.url
     @account.url = 'http://meedan.com'
@@ -100,18 +93,6 @@ class AccountTest < ActiveSupport::TestCase
     a = Account.new
     a.url = @url
     assert_not a.save
-  end
-
-  test "should get user from callback" do
-    u = create_user email: 'test@test.com'
-    a = create_valid_account
-    assert_equal u.id, a.user_id_callback('test@test.com')
-  end
-
-  test "should get source from callback" do
-    s = create_source name: 'test'
-    a = create_valid_account
-    assert_equal s.id, a.source_id_callback('test')
   end
 
   test "should get provider" do

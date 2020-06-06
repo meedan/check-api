@@ -55,8 +55,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  instance_exec :source, &GraphqlCrudOperations.field_annotations # TODO How to add description?
-  instance_exec :source, &GraphqlCrudOperations.field_annotations_count  # TODO How to add description?
+  instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   field :dbid, types.Int, 'Database id of this record'
   field :permissions, types.String, 'CRUD permissions of this record for current user'

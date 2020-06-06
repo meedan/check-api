@@ -586,22 +586,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal "{}", v
   end
 
-  test "should get user id for migration" do
-    pm = ProjectMedia.new
-    assert_nil pm.send(:user_id_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u.id, pm.send(:user_id_callback, 'test@test.com')
-  end
-
-  test "should get project id for migration" do
-    p = create_project
-    mapping = Hash.new
-    pm = ProjectMedia.new
-    assert_nil pm.send(:project_id_callback, 1, mapping)
-    mapping[1] = p.id
-    assert_equal p.id, pm.send(:project_id_callback, 1, mapping)
-  end
-
   test "should set annotation" do
     ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     lt = create_field_type(field_type: 'language', label: 'Language')

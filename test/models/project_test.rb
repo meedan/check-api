@@ -131,27 +131,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
   end
 
-  test "should get user id through callback" do
-    p = create_project
-    assert_nil p.send(:user_id_callback, 'test@test.com')
-    u = create_user email: 'test@test.com'
-    assert_equal u.id, p.send(:user_id_callback, 'test@test.com')
-  end
-
-  test "should get team from callback" do
-    p = create_project
-    assert_equal 2, p.team_id_callback(1, [1, 2, 3])
-  end
-
-  test "should get lead image from callback" do
-    p = create_project
-    assert_nil p.lead_image_callback('')
-    file = 'http://checkdesk.org/users/1/photo.png'
-    assert_nil p.lead_image_callback(file)
-    file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_nil p.lead_image_callback(file)
-  end
-
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Project.count' do
       assert_raises MiniMagick::Invalid do

@@ -33,10 +33,6 @@ class Team < ActiveRecord::Base
 
   check_settings
 
-  def logo_callback(value, _mapping_ids = nil)
-    image_callback(value)
-  end
-
   def avatar
     custom = begin self.logo.file.public_url rescue nil end
     default = CONFIG['checkdesk_base_url'] + self.logo.url

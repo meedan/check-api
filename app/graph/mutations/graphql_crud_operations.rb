@@ -448,18 +448,13 @@ class GraphqlCrudOperations
 
   def self.field_annotations
     proc do |_classname|
-      connection :annotations, -> { AnnotationUnion.connection_type } do
+      connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this item' do
         argument :annotation_type, !types.String
 
         resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
       end
-    end
-  end
 
-  def self.field_annotations_count
-    proc do |_classname|
-      field :annotations_count do
-        type types.Int
+      field :annotations_count, types.Int, 'Count of annotations describing this item' do
         argument :annotation_type, !types.String
 
         resolve ->(obj, args, _ctx) {
@@ -471,7 +466,7 @@ class GraphqlCrudOperations
 
   def self.field_log
     proc do |_classname|
-      connection :log, -> { VersionType.connection_type } do
+      connection :log, -> { VersionType.connection_type }, 'Version-control log entries for this item' do
         argument :event_types, types[types.String]
         argument :field_names, types[types.String]
         argument :annotation_types, types[types.String]
@@ -482,13 +477,8 @@ class GraphqlCrudOperations
           obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'], args['include_related'])
         }
       end
-    end
-  end
 
-  def self.field_log_count
-    proc do |_classname|
-      field :log_count do
-        type types.Int
+      field :log_count, types.Int, 'Count of version-control log entries for this item' do
 
         resolve ->(obj, _args, _ctx) {
           obj.get_versions_log_count
@@ -511,7 +501,7 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id, !types.ID do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
+      field :id, !types.ID, 'GraphQL id of this record' do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
 
       field :annotation_type, types.String, 'Annotation type'
 
@@ -524,14 +514,13 @@ class GraphqlCrudOperations
       # TODO Map field types and add documentation
       fields.each { |name, _field_type| field name, types.String }
 
-      connection :medias, -> { ProjectMediaType.connection_type } do
+      connection :medias, -> { ProjectMediaType.connection_type }, 'Media items associated with' do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
         }
       end
 
-      # TODO Can't this be a UserType instead?
-      field :annotator, AnnotatorType, 'Author of this annotation'
+      field :annotator, AnnotatorUnion, 'Author of this annotation'
 
       field :version, VersionType, 'Latest entry in the version-control log for this annotation'
 

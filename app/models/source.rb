@@ -30,16 +30,8 @@ class Source < ActiveRecord::Base
 
   custom_optimistic_locking include_attributes: [:name, :image, :description]
 
-  def user_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def avatar_callback(value, _mapping_ids = nil)
-    image_callback(value)
-  end
-
   def medias
-    #TODO: fix me - list valid project media ids
+    # FIXME list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
     conditions = { media_id: m_ids }
     conditions['projects.team_id'] = Team.current.id unless Team.current.nil?

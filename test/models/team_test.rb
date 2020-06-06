@@ -137,15 +137,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u1, u2].sort, t.users.sort
   end
 
-  test "should get logo from callback" do
-    t = create_team
-    assert_nil t.logo_callback('')
-    file = 'http://checkdesk.org/users/1/photo.png'
-    assert_nil t.logo_callback(file)
-    file = 'http://ca.ios.ba/files/others/rails.png'
-    assert_nil t.logo_callback(file)
-  end
-
   test "should add user to team on team creation" do
     u = create_user
     assert_difference 'TeamUser.count' do

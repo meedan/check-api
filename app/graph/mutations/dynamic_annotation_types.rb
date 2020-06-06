@@ -1,3 +1,4 @@
+# TODO Do we really need to expose each dynamic annotation type as a GraphQL type?
 DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
   klass = type.camelize
   Object.class_eval <<-TES
@@ -23,7 +24,6 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
     end
 
     DynamicAnnotation#{klass}Type = GraphqlCrudOperations.define_annotation_type('dynamic_annotation_#{type}', {}) do
-      field :lock_version, types.Int
     end unless defined? DynamicAnnotation#{klass}Type
   TES
 end

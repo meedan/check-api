@@ -27,14 +27,6 @@ class TeamUser < ActiveRecord::Base
   end
   validates :role, included: { values: self.role_types }
 
-  def user_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def team_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
-
   def as_json(_options = {})
     {
       id: self.team.id,

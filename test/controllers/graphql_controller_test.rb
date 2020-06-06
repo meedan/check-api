@@ -146,7 +146,7 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { user { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -155,7 +155,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert data.has_key?('language')
     assert data.has_key?('language_code')
     assert_equal 2, data['annotations']['edges'].size
-    users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
+    users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['name'] }
     assert users.include?('The Annotator')
     users = data['annotations']['edges'].collect{ |e| e['node']['assignments']['edges'][0]['node']['name'] }
     assert users.include?('The Annotator')
@@ -401,7 +401,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from annotation" do
-    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'annotated' => { 'ProjectMedia' => 'dbid' }})
+    assert_graphql_read_object('annotation', { 'annotator' => { 'User' => 'name' }, 'annotated' => { 'ProjectMedia' => 'dbid' }})
   end
 
   test "should read object from user" do

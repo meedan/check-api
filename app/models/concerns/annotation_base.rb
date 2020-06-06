@@ -308,15 +308,6 @@ module AnnotationBase
     a.file.nil? ? {} : (a.load&.file&.is_a?(Array) ? a.load.file.collect{ |f| f.file.public_url } : { embed: a.load&.embed_path, thumbnail: a.load&.thumbnail_path, original: a.load&.image_path })
   end
 
-  def annotator_id_callback(value, _mapping_ids = nil)
-    user_callback(value)
-  end
-
-  def annotated_id_callback(value, mapping_ids = nil, type = ProjectMedia)
-    annotated = type.where(id: mapping_ids[value]).last
-    annotated.nil? ? nil : annotated.id
-  end
-
   def to_s
     self.annotated.title
   end

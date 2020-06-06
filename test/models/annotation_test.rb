@@ -170,22 +170,6 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal Dynamic, a.annotation_type_class
   end
 
-  test "should get annotator id for migration" do
-    c = Comment.new
-    assert_nil c.send(:annotator_id_callback, 'test@test.com')
-    u = create_user(email: 'test@test.com')
-    assert_equal u.id, c.send(:annotator_id_callback, 'test@test.com')
-  end
-
-  test "should get annotated id for migration" do
-    pm = create_project_media
-    mapping = Hash.new
-    c = Comment.new
-    assert_nil c.send(:annotated_id_callback, 1, mapping)
-    mapping[1] = pm.id
-    assert_equal pm.id, c.send(:annotated_id_callback, 1, mapping)
-  end
-
   test "should create version when annotation is destroyed" do
     u = create_user
     t = create_team
