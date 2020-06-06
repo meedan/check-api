@@ -176,6 +176,9 @@ class ProjectMedia < ActiveRecord::Base
       a = self.annotations.where(annotation_type: 'archiver').last
       a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a, type)
     end
+    team = self.get_team
+    pender_key = team.get_pender_key if team
+    self.media.pender_key = pender_key
     self.media.refresh_pender_data
     self.updated_at = Time.now
     # update account if we have a new author_url

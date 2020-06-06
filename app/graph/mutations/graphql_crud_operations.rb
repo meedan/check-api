@@ -450,7 +450,7 @@ class GraphqlCrudOperations
 
   def self.field_annotations
     proc do |_classname|
-      connection :annotations, -> { AnnotationType.connection_type } do
+      connection :annotations, -> { AnnotationUnion.connection_type } do
         argument :annotation_type, !types.String
 
         resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
@@ -544,6 +544,13 @@ class GraphqlCrudOperations
       connection :assignments, -> { UserType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.assigned_users
+        }
+      end
+
+      connection :annotations, -> { AnnotationUnion.connection_type } do
+        argument :annotation_type, !types.String
+        resolve ->(annotation, args, _ctx) {
+          Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
         }
       end
 

@@ -1,14 +1,15 @@
 module PenderData
 
-  attr_accessor :pender_error, :pender_error_code
+  attr_accessor :pender_error, :pender_error_code, :pender_key
 
   def validate_pender_result(force = false, retry_on_error = false)
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
       result = { type: 'error', data: { code: -1 } }.with_indifferent_access
+      pender_key = get_pender_key
       begin
-        result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, CONFIG['pender_key'])
+        result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, pender_key)
       rescue StandardError => e
         Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
         Airbrake.notify(e, params: params) if Airbrake.configured?
@@ -18,7 +19,7 @@ module PenderData
         self.pender_error_code = result['data']['code']
         self.retry_pender_or_fail(force, retry_on_error, result)
       else
-        self.pender_data = result['data']
+        self.pender_data = result['data'].merge(pender_key: pender_key)
         # set url with normalized pender URL
         self.url = begin result['data']['url'] rescue self.url end
       end
@@ -44,7 +45,7 @@ module PenderData
 
   def set_pender_result_as_annotation
     unless self.pender_data.nil?
-      data = self.pender_data
+      data = self.pender_data.except(:pender_key)
       m = self.metadata_annotation
       current_data = begin JSON.parse(m.get_field_value('metadata_value')) rescue {} end
       current_data['refreshes_count'] ||= 0
@@ -86,5 +87,9 @@ module PenderData
   def refresh_pender_data
     self.validate_pender_result(true)
     self.set_pender_result_as_annotation
+  end
+
+  def get_pender_key
+    self.pender_key || CONFIG['pender_key']
   end
 end

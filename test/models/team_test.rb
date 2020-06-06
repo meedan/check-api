@@ -252,7 +252,6 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should have settings" do
     t = create_team
-    assert_equal({ max_number_of_members: 5 }, t.settings)
     assert_nil t.setting(:foo)
     t.set_foo = 'bar'
     t.save!
@@ -905,6 +904,12 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t, t.public_team
   end
 
+  test "should return correct public team avatar" do
+    t = create_team name: 'Team A', logo: 'rails.png'
+    pt = PublicTeam.find t.id
+    assert_equal t.avatar, pt.avatar
+  end
+
   test "should duplicate a team and copy team users and contacts" do
     team = create_team name: 'Team A', logo: 'rails.png'
 
@@ -946,7 +951,7 @@ class TeamTest < ActiveSupport::TestCase
     source = create_source user: u
     source.team = team; source.save
     account = create_account user: u, team: team, source: source
-    
+
 
     media = create_media account: account, user: u
     pm1 = create_project_media user: u, team: team, project: project, media: media
@@ -1315,19 +1320,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u.id], t.owners('owner').map(&:id)
   end
 
-  test "should get used tags" do
-    team = create_team
-    project = create_project team: team
-    u = create_user
-    pm1 = create_project_media user: u, team: team, project: project
-    create_tag annotated: pm1, tag: 'tag1'
-    create_tag annotated: pm1, tag: 'tag2'
-    pm2 = create_project_media user: u, team: team, project: project
-    create_tag annotated: pm2, tag: 'tag2'
-    create_tag annotated: pm2, tag: 'tag3'
-    assert_equal ['tag1', 'tag2', 'tag3'].sort, team.used_tags.sort
-  end
-
   test "should destroy a duplicated team with project media" do
     team = create_team name: 'Team A', logo: 'rails.png'
     u = create_user
@@ -1414,14 +1406,6 @@ class TeamTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should get suggested tags" do
-    t = create_team
-    create_tag_text text: 'foo', team_id: t.id, teamwide: true
-    create_tag_text text: 'bar', team_id: t.id, teamwide: true
-    create_tag_text text: 'test', team_id: t.id
-    assert_equal 'bar,foo', t.reload.get_suggested_tags
-  end
-
   test "should destroy team tasks when team is destroyed" do
     t = create_team
     2.times { create_team_task(team_id: t.id) }
@@ -1506,15 +1490,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should return search object" do
     t = create_team
     assert_kind_of CheckSearch, t.search
-  end
-
-  test "should set max number of members" do
-    t = create_team
-    assert_equal 5, t.get_max_number_of_members
-    t.max_number_of_members = 23
-    t.save!
-    assert_equal 23, t.reload.get_max_number_of_members
-    assert_equal 23, t.reload.max_number_of_members
   end
 
   test "should not crash when emptying trash that has task comments" do
@@ -2418,7 +2393,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
-    pm1 = create_project_media team: t 
+    pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     pm3 = create_project_media team: t
     assert_equal 0, p1.reload.project_media_projects.count
@@ -2463,7 +2438,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
-    pm1 = create_project_media team: t 
+    pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     assert_equal 0, p1.reload.project_media_projects.count
     assert_equal 1, p2.reload.project_media_projects.count
@@ -2524,7 +2499,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'contains_keyword',
                 rule_value: 'foo'
-              }              
+              }
             ]
           },
           {
@@ -2539,7 +2514,7 @@ class TeamTest < ActiveSupport::TestCase
                 rule_value: 'bar'
               }
             ]
-          },     
+          },
         ]
       },
       actions: [
@@ -2595,7 +2570,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'status_is',
                 rule_value: 'in_progress'
-              }              
+              }
             ]
           }
         ]
@@ -2616,7 +2591,7 @@ class TeamTest < ActiveSupport::TestCase
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    
+
     s = pm2.last_status_obj
     s.status = 'In Progress'
     s.save!
@@ -2624,7 +2599,6 @@ class TeamTest < ActiveSupport::TestCase
     s = pm3.last_status_obj
     s.status = 'Verified'
     s.save!
-    
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2650,7 +2624,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'tagged_as',
                 rule_value: 'foo'
-              }              
+              }
             ]
           }
         ]
@@ -2697,7 +2671,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'report_is_published',
                 rule_value: ''
-              }              
+              }
             ]
           }
         ]
@@ -2744,7 +2718,7 @@ class TeamTest < ActiveSupport::TestCase
               {
                 rule_definition: 'flagged_as',
                 rule_value: { flag: 'spam', threshold: 3 }
-              }              
+              }
             ]
           }
         ]

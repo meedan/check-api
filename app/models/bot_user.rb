@@ -204,6 +204,7 @@ class BotUser < User
     self.get_settings.each do |setting|
       s = setting.with_indifferent_access
       schema[s[:name]] = { 'ui:widget' => 'textarea' } if s[:name] =~ /^smooch_message_/
+      schema[s[:name]] = { 'ui:widget' => 'checkboxes' } if s[:name] == 'smooch_template_locales'
       schema[s[:name]] = { 'ui:options' => { 'disabled' => true } } if s[:type] == 'readonly'
     end
     schema.to_json
@@ -236,7 +237,7 @@ class BotUser < User
       else
         properties[s[:name]][:default] = default
       end
-      properties[s[:name]][:enum] = Team.current&.team_tasks.to_a.collect{ |t| { key: t.id, value: t.label } } if !validate && s[:name] == 'smooch_task'
+      properties[s[:name]].merge!({ uniqueItems: true, items: { type: 'string', enum: Bot::Smooch.template_locale_options } }) if !validate && s[:name] == 'smooch_template_locales'
     end
     properties.deep_reject_key!(:enum) if validate
     { type: 'object', properties: properties }.to_json

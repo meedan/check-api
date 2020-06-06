@@ -290,8 +290,6 @@ pt:
     na lixeira
   only_super_admin_can_do_this: Desculpe, apenas os administradores do sistema podem
     efetuar esta alteração
-  max_number_of_team_users_reached: Desculpe, o número máximo de usuários para essa
-    área de trabalho foi alcançado
   cant_change_custom_statuses: |-
     Desculpe, não é possível modificar as definições de status porque alguns status desapareceriam. Esses identificadores de status: %{statuses} estão em uso nos seguintes itens:
     %{urls} %{others_amount}
@@ -556,6 +554,8 @@ pt:
     de verificação porque este projeto não está mais ativo.
   smooch_bot_result_changed: "❗️A verificação que lhe enviamos foi *atualizada* com
     novas informações"
+  smooch_bot_no_visual_card: "(sem imagem)"
+  smooch_bot_no_text_message: "(sem texto)"
   permissions_info:
     roles:
       owner:
@@ -760,9 +760,6 @@ pt:
   custom_message_status_report-correct_afp-fact-check: ''
   custom_message_status_report-false_afp-fact-check: ''
   custom_message_status_need-orientation_afp-fact-check: ''
-  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
-  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
-  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
@@ -779,6 +776,9 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
+  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
+  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: ''
+  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -790,8 +790,6 @@ pt:
   custom_message_status_in_the_news_boom-factcheck: ''
   custom_message_status_junk_boom-factcheck: ''
   custom_message_status_bot-resource_boom-factcheck: ''
-  custom_message_rule_action_send_message_3c8b2087cc80997d286f9eed21ebb845_boom-factcheck: ''
-  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
@@ -806,26 +804,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: Opa, atualização!
-  custom_message_smooch_bot_message_confirmed_test-1: Valeu! Recebido!
-  custom_message_smooch_bot_message_type_unsupported_test-1: Não aceitamos isso ainda.
-  custom_message_smooch_bot_disabled_test-1: Serviço inativo.
-  custom_message_smooch_bot_ask_for_tos_test-1: 'Termos de Uso: %{tos}'
-  custom_message_smooch_bot_greetings_test-1: Bem-vindo ao Bot do Caio!
-  custom_message_smooch_bot_option_not_available_test-1: Não entendi!
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: |-
-    Menu
-
-    1) Veja um recurso
-    2) Envie um pedido
-    3) Vá para o menu secundário
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: |-
-    Menu Secundário
-
-    1) Voltar para o menu principal
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: Envie sua
-    pergunta ou 0 para voltar pro menu principal.
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
   custom_message_smooch_bot_message_type_unsupported_caio: ''
@@ -836,6 +816,16 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: Não aceitamos isso ainda.
+  custom_message_smooch_bot_disabled_test-1: Serviço inativo.
+  custom_message_smooch_bot_ask_for_tos_test-1: 'Termos de Uso: %{tos}'
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: Não entendi!
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: Não Iniciado
   custom_message_status_in_progress_check-message-demo: Ainda Em Andamento
   custom_message_status_false_check-message-demo: Não É Verdade
@@ -844,16 +834,10 @@ pt:
   custom_message_status_report-true_check-message-demo: Relato Verdadeiro
   custom_message_status_report-false_check-message-demo: Relato Não Verdadeiro
   custom_message_status_bot-resource_check-message-demo: Recurso do bot
-  custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: "❗️ A checagem que
     te enviamos foi *atualizada* com nova informação:"
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
@@ -862,8 +846,7 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: ''
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: ''
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
@@ -917,8 +900,6 @@ pt:
   custom_message_status_report_misleading_india-today: ''
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
-  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
   custom_message_smooch_bot_result_india-today: ''
   custom_message_smooch_bot_result_changed_india-today: ''
   custom_message_smooch_bot_message_confirmed_india-today: ''
@@ -934,6 +915,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
+  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
+  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
   custom_message_smooch_bot_result_changed_africa-check: ''
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
@@ -955,8 +938,9 @@ pt:
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
+  custom_message_rule_action_send_message_4fa10e42329da64cf2f0e78664b2ab7c_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
+  custom_message_rule_action_send_message_36a379e400b393f2e607e5fdb50419ca_africa-check: ''
   custom_message_rule_action_send_message_4f5c45157de8e2c8813b72f6a735ab66_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
@@ -1031,15 +1015,6 @@ pt:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test-3: ''
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: ''
-  custom_message_smooch_bot_option_not_available_test-3: ''
-  custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
-  custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
   custom_message_smooch_bot_result_changed_test: ''
   custom_message_smooch_bot_message_confirmed_test: ''
   custom_message_smooch_bot_message_type_unsupported_test: ''
@@ -1050,6 +1025,15 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
+  custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
+  custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
+  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: ''
+  custom_message_smooch_bot_option_not_available_test-3: ''
   custom_message_smooch_bot_result_changed_test-16: ''
   custom_message_smooch_bot_message_confirmed_test-16: ''
   custom_message_smooch_bot_message_type_unsupported_test-16: ''

@@ -502,23 +502,21 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal c.id.to_s, data['log']['edges'][0]['node']['annotation']['dbid']
   end
 
-  test "should get team custom tags and teamwide tags" do
+  test "should get team tag_texts" do
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    create_tag_text text: 'foo', team_id: t.id, teamwide: true
-    create_tag_text text: 'bar', team_id: t.id, teamwide: false
+    create_tag_text text: 'foo', team_id: t.id
 
-    query = "query GetById { team(id: \"#{t.id}\") { custom_tags { edges { node { text } } }, teamwide_tags { edges { node { text } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { tag_texts { edges { node { text } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
-    assert_equal 'foo', data['teamwide_tags']['edges'][0]['node']['text']
-    assert_equal 'bar', data['custom_tags']['edges'][0]['node']['text']
+    assert_equal 'foo', data['tag_texts']['edges'][0]['node']['text']
   end
 
   test "should get team tasks" do
