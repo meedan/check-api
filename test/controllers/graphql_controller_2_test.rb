@@ -354,7 +354,7 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user(u)
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
 
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata: annotation(annotation_type: \"metadata\") { dbid }, dynamic_annotations_metadata: annotations(annotation_type: \"metadata\") { edges { node { ... on Dynamic { dbid } } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
@@ -948,7 +948,7 @@ class GraphqlController2Test < ActionController::TestCase
     d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
 
     authenticate_with_user(u1)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata(first: 1000) { edges { node { dbid } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata: annotations(annotation_type: \"metadata\", first: 1000) { edges { node { ...on Dynamic { dbid } } } } } }"
     post :create, query: query, team: t.slug
     list = JSON.parse(@response.body)['data']['project_media']['dynamic_annotations_metadata']['edges']
     assert_equal 1, list.size
@@ -969,7 +969,7 @@ class GraphqlController2Test < ActionController::TestCase
     d2 = create_dynamic_annotation annotation_type: 'metadata', annotated: pm, annotator: u2
 
     authenticate_with_user(u2)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata(first: 1000) { edges { node { dbid } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotations_metadata: annotations(annotation_type: \"metadata\", first: 1000) { edges { node { ...on Dynamic { dbid } } } } } }"
     post :create, query: query, team: t.slug
     list = JSON.parse(@response.body)['data']['project_media']['dynamic_annotations_metadata']['edges']
     assert_equal 2, list.size

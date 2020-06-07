@@ -6,8 +6,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   interfaces [NodeIdentification.interface]
 
   field :media_id, types.Int, 'Media this item is associated with (database id)'
-  field :url, types.String, 'Media URL' # TODO Remove and access via Media.url
-  field :quote, types.String, 'Text claim' # TODO Remove and access via Media.quote
+  field :url, types.String, 'Media URL' # TODO Delegate to Media
+  field :quote, types.String, 'Text claim' # TODO Delegate to Media
   field :oembed_metadata, types.String # TODO Merge with 'metadata'?
   field :archived, types.Boolean, 'Is this item in trash?' # TODO Rename to 'is_archived'
   field :author_role, types.String # TODO Merge with 'user'?
@@ -22,20 +22,22 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :last_seen, types.String, 'when was this item last requested' # TODO Convert to date and rename to 'last_requested'
   field :status, types.String, 'Workflow status'
   field :share_count, types.Int # TODO What's the diff with virality?
+  field :team_id, types.Int, 'Team this item is associated with (database id)'
 
-  field :type, types.String, 'Item type'  do # TODO Enum and list types in doc
+  field :type, types.String, 'Item type'  do # TODO Delegate to Media
     resolve -> (project_media, _args, _ctx) {
       project_media.media.type
     }
   end
 
+  # TODO Why do we need this here?
   field :verification_statuses, JsonStringType, 'List of verification statuses for this team' do
     resolve -> (project_media, _args, _ctx) {
       project_media.team.send('verification_statuses', 'media', project_media)
     }
   end
 
-  field :permissions, types.String, 'CRUD permissions for current user' do
+  field :permissions, types.String, 'CRUD permissions of this record for current user' do
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
         pm.cached_permissions || pm.permissions
@@ -231,18 +233,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :targets_by_users, -> { ProjectMediaType.connection_type }
-
-  # TODO Rename to 'annotations' and remove 'tasks' and 'tags'?
-  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-    connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type }, "Item annotations of type #{type}" do
-      resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
-    end
-
-    # TODO What's the diff with above?
-    field "dynamic_annotation_#{type}".to_sym, -> { DynamicType } do
-      resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
-    end
-  end
 
   # TODO Change type of [types.Int]
   field :project_ids, JsonStringType, 'Projects associated with this item (database ids)'
