@@ -78,7 +78,6 @@ class GraphqlCrudOperations
       memo[key] = inputs[key]
       memo
     end
-    attrs['annotation_type'] = type.gsub(/^dynamic_annotation_/, '') if type =~ /^dynamic_annotation_/
 
     self.safe_save(obj, attrs, parents)
   end
@@ -309,7 +308,7 @@ class GraphqlCrudOperations
 
       if action == 'update'
         input_field :id, types.ID
-        input_field :ids, types[types.ID]
+        input_field :ids, types[types.ID] # TODO Remove this when we add multiple input to update mutations
       end
       input_field :no_freeze, types.Boolean
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
@@ -323,11 +322,6 @@ class GraphqlCrudOperations
       if type.to_s == 'team'
         return_field(:team_userEdge, TeamUserType.edge_type)
         return_field(:user, UserType)
-      end
-
-      if type =~ /^dynamic_annotation_/
-        return_field :dynamic, DynamicType
-        return_field :dynamicEdge, DynamicType.edge_type
       end
 
       version_edge_name = { 'task' => 'first_response', 'comment' => 'comment' }[type.to_s]

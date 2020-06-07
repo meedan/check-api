@@ -8,7 +8,7 @@ module DynamicMutations
 
   update_fields = fields.merge({
     set_fields: 'str',
-    annotation_type: 'str',
+    annotation_type: 'str', # TODO Can a mutation change the annotation_type?
     lock_version: 'int',
     assigned_to_ids: 'str',
     locked: 'bool'

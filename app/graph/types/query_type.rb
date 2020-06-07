@@ -123,7 +123,8 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :dynamic_annotation_field, DynamicAnnotationFieldType, 'TODO' do
+  # TODO Remove this
+  field :dynamic_annotation_field, DynamicAnnotationFieldType, 'Query an annotation field' do
     argument :query, !types.String
     argument :only_cache, types.Boolean
 

@@ -336,12 +336,13 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
 
-    query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
+    query = 'mutation create { createDynamic(input: { annotation_type: "metadata", annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
 
     assert_difference 'Dynamic.count' do
       post :create, query: query, team: t
     end
-    assert_equal 'metadata', JSON.parse(@response.body)['data']['createDynamicAnnotationMetadata']['dynamic']['annotation_type']
+
+    assert_equal 'metadata', JSON.parse(@response.body)['data']['createDynamic']['dynamic']['annotation_type']
     assert_response :success
   end
 

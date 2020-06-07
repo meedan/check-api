@@ -1,5 +1,3 @@
-require File.join(Rails.root, 'app', 'graph', 'mutations', 'dynamic_annotation_types')
-
 MutationType = GraphQL::ObjectType.define do
   name 'MutationType'
   description 'List of all mutations.'
@@ -90,13 +88,6 @@ MutationType = GraphQL::ObjectType.define do
   field :createRelationship, field: RelationshipMutations::Create.field
   field :updateRelationship, field: RelationshipMutations::Update.field
   field :destroyRelationship, field: RelationshipMutations::Destroy.field
-
-  DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-    klass = type.camelize
-    field "createDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Create".constantize.field
-    field "updateDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Update".constantize.field
-    field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
-  end
 
   # TODO Review feature
   field :importSpreadsheet, field: ImportSpreadsheetMutation.field

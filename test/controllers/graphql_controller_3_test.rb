@@ -703,7 +703,7 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal 0, Sidekiq::Worker.jobs.size
         authenticate_with_token
         url = random_url
-        query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
+        query = 'mutation { updateDynamic(input: { annotation_type: "smooch_user", clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
         post :create, query: query
         assert_response :success
         assert_equal 1, Sidekiq::Worker.jobs.size
