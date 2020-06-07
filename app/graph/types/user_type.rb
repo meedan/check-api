@@ -11,7 +11,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :profile_image, types.String, 'Picture' # TODO Rename to 'picture'
   field :login, types.String, 'Login'
   field :name, types.String, 'Name'
-  field :current_team_id, types.Int, 'Current team (id only)'
+  field :current_team_id, types.Int, 'Current team database id'
   field :jsonsettings, types.String # TODO What's the difference with 'settings'?
   field :number_of_teams, types.Int # TODO Remove because client can just count 'team_ids'?
 
@@ -30,98 +30,70 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :team_ids, types[types.Int], 'Teams where this user is a member (ids only)'
   field :user_teams, types.String # TODO What's this in relation to above and to 'team_users'?
 
-  field :source_id do
-    type types.Int
-    description 'User source profile (id only)'
-
+  field :source_id, types.Int, 'User source profile database id' do
     resolve -> (user, _args, _ctx) do
       user.source_id
     end
   end
 
-  field :source do
-    type SourceType
-    description 'User source profile'
-
+  field :source, SourceType, 'User source profile' do
     resolve -> (user, _args, _ctx) do
       user.source
     end
   end
 
-  field :token do
-    type types.String
-    description 'TODO'
-
+  field :token, types.String, 'Security token (current user only)' do
     resolve -> (user, _args, _ctx) do
       user.token if user == User.current
     end
   end
 
-  field :is_admin do
-    type types.Boolean
-    description 'Is user an application admin?'
-
+  field :is_admin, types.Boolean, 'Is user an application admin? (current user only)' do
     resolve -> (user, _args, _ctx) do
       user.is_admin if user == User.current
     end
   end
 
-  field :current_project do
-    type ProjectType
-    description 'Current project'
-
+  field :current_project, ProjectType, 'Current project' do
     resolve -> (user, _args, _ctx) do
       user.current_project
     end
   end
 
   # TODO Rename to 'is_confirmed'
-  field :confirmed do
-    type types.Boolean
-    description 'Has user confirmed their email?'
-
+  field :confirmed, types.Boolean, 'Has user confirmed their email?' do
     resolve -> (user, _args, _ctx) do
       user.is_confirmed?
     end
   end
 
-  field :current_team do
-    type TeamType
-    description 'Current team'
-
+  field :current_team, TeamType, 'Current team' do
     resolve -> (user, _args, _ctx) do
       user.current_team
     end
   end
 
-  field :bot do
-    type BotUserType
-    description 'BotUser information about this user'
-
+  field :bot, BotUserType, 'BotUser information about this user' do
     resolve -> (user, _args, _ctx) do
       user if user.is_bot
     end
   end
 
-  # TODO Remove this and keep 'team_users'
-  connection :teams, -> { TeamType.connection_type } do
+  connection :teams, -> { TeamType.connection_type }, 'Teams where this user is a member' do
     resolve ->(user, _args, _ctx) {
       user.teams
     }
   end
 
-  connection :team_users, -> { TeamUserType.connection_type } do
-    description 'Teams where this user is a member'
-
+  connection :team_users, -> { TeamUserType.connection_type }, 'Team memberships of this user' do
     resolve ->(user, _args, _ctx) {
       user.team_users
     }
   end
 
   # TODO Review usage
-  connection :annotations, -> { AnnotationType.connection_type } do
+  connection :annotations, -> { AnnotationType.connection_type }, 'Annotations made by this user' do
     argument :type, types.String # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
-    description 'Annotations made by this user'
 
     resolve ->(user, args, _ctx) {
       type = args['type']
@@ -129,9 +101,8 @@ UserType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :assignments, -> { ProjectMediaType.connection_type } do
+  connection :assignments, -> { ProjectMediaType.connection_type }, 'Assignments for this user' do
     argument :team_id, types.Int
-    description 'Assignments for this user'
 
     resolve ->(user, args, _ctx) {
       # TODO Better implementation:

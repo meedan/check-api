@@ -3,6 +3,7 @@ require File.join(Rails.root, 'app', 'graph', 'mutations', 'dynamic_annotation_t
 MutationType = GraphQL::ObjectType.define do
   name 'MutationType'
   description 'List of all mutations.'
+
   field :createComment, field: CommentMutations::Create.field
   field :updateComment, field: CommentMutations::Update.field
   field :destroyComment, field: CommentMutations::Destroy.field

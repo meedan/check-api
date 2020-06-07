@@ -9,32 +9,26 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :title, !types.String, 'Name' # TODO Rename to 'name'
   field :get_slack_channel, types.String, 'Slack channel to notify about this project activity' # TODO Rename to 'slack_channel'
   field :pusher_channel, types.String, 'Channel for push notifications'
-  field :medias_count, types.Int, 'Items count'
+  field :medias_count, types.Int, 'Count of items in this collection'
   field :search_id, types.String, 'TODO'
-  field :url, types.String, 'Permalink'
+  field :url, types.String, 'Collection permalink'
   field :search, CheckSearchType, 'Search interface'
   field :auto_tasks, JsonStringType # TODO Why is this here?
-  field :team, TeamType, 'Team'
+  field :team, TeamType, 'Team this collection belongs to'
 
-  field :assignments_count, types.Int do
-    description 'Count of user assignments'
-
+  field :assignments_count, types.Int, 'Count of user assignments' do
     resolve ->(project, _args, _ctx) {
       project.reload.assignments_count
     }
   end
 
-  connection :project_medias, -> { ProjectMediaType.connection_type } do
-    description 'Medias'
-
+  connection :project_medias, -> { ProjectMediaType.connection_type }, 'Items in this collection' do
     resolve ->(project, _args, _ctx) {
       project.project_medias.order('id DESC')
     }
   end
 
-  connection :assigned_users, -> { UserType.connection_type } do
-    description 'User assignments'
-
+  connection :assigned_users, -> { UserType.connection_type }, 'User assignments' do
     resolve ->(project, _args, _ctx) {
       project.assigned_users
     }

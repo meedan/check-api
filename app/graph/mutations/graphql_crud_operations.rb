@@ -414,19 +414,19 @@ class GraphqlCrudOperations
     GraphQL::ObjectType.define do
       global_id_field :id
 
-      field :permissions, types.String do
+      field :permissions, types.String, 'CRUD permissions of this record for current user' do
         resolve -> (obj, _args, ctx) {
           obj.permissions(ctx[:ability])
         }
       end
 
-      field :created_at, types.String do
+      field :created_at, types.String, 'Datetime of record creation' do
         resolve -> (obj, _args, _ctx) {
           obj.created_at.to_i.to_s if obj.respond_to?(:created_at)
         }
       end
 
-      field :updated_at, types.String do
+      field :updated_at, types.String, 'Datetime of record last update' do
         resolve -> (obj, _args, _ctx) {
           obj.updated_at.to_i.to_s if obj.respond_to?(:updated_at)
         }
@@ -501,11 +501,11 @@ class GraphqlCrudOperations
 
       interfaces [NodeIdentification.interface]
 
-      field :id, !types.ID, 'GraphQL id of this record' do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
+      field :id, !types.ID do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
 
       field :annotation_type, types.String, 'Annotation type'
 
-      field :annotated_id, types.Int, 'Database id of the annotated item'
+      field :annotated_id, types.Int, 'Annotated item database id'
 
       field :annotated_type, types.String, 'Type of the annotated item'
 
@@ -514,7 +514,7 @@ class GraphqlCrudOperations
       # TODO Map field types and add documentation
       fields.each { |name, _field_type| field name, types.String }
 
-      connection :medias, -> { ProjectMediaType.connection_type }, 'Media items associated with' do
+      connection :medias, -> { ProjectMediaType.connection_type }, 'Items referenced by this annotation' do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects
         }
@@ -524,7 +524,7 @@ class GraphqlCrudOperations
 
       field :version, VersionType, 'Latest entry in the version-control log for this annotation'
 
-      field :annotated, AnnotatedUnion, 'Item described by this annotation'
+      field :annotated, AnnotatedUnion, 'Annotated item'
 
       connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this annotation' do
         argument :annotation_type, !types.String
@@ -557,11 +557,12 @@ class GraphqlCrudOperations
 
       instance_eval(&block) if block_given?
 
+      field :locked, types.Boolean, 'Is annotation locked from further modifications?'
+
       field :dbid, types.Int, 'Database id of this record'
       field :created_at, types.String, 'Datetime of annotation creation' do resolve -> (annotation, _args, _ctx) { annotation.created_at.to_i.to_s } end
       field :updated_at, types.String, 'Datetime of annotation last update' do resolve -> (annotation, _args, _ctx) { annotation.updated_at.to_i.to_s } end
-      field :locked, types.Boolean, 'TODO'
-      field :lock_version, types.Int, 'TODO'
+      field :lock_version, types.Int, 'Record version to guard against simultaneous modifications'
       field :permissions, types.String, 'CRUD permissions of this record for current user' do
         resolve -> (annotation, _args, ctx) {
           annotation.permissions(ctx[:ability], annotation.annotation_type_class)

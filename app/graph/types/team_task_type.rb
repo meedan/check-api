@@ -4,18 +4,15 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :label, types.String
-  field :description, types.String
-  field :options, JsonStringType
-  field :project_ids, JsonStringType # TODO Why not an array of Int?
-  field :required, types.Boolean # TODO Remove
-  field :team_id, types.Int
-  field :team, TeamType
-  field :json_schema, types.String # TODO Convert to JsonStringType?
+  field :label, types.String, 'Label'
+  field :description, types.String, 'Description'
+  field :project_ids, JsonStringType, 'Projects associated with this team task (database ids)' # TODO Convert to [types.Int]
+  field :team_id, types.Int, 'Team associated with this team task (database id)'
+  field :team, TeamType, 'Team associated with this team task'
+  field :options, JsonStringType, 'Task options'
+  field :json_schema, types.String, 'JSON Schema for task options' # TODO Convert to JsonStringType and rename to 'options_schema'
 
-  field :type do # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
-    type types.String
-
+  field :type, types.String, 'Task type' do # TODO Convert to enum and document types in doc
     resolve -> (task, _args, _ctx) {
       task.task_type
     }

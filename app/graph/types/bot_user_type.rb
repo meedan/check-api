@@ -18,10 +18,7 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :settings_ui_schema, types.String # TODO Convert to JsonStringType?
   field :installation, TeamBotInstallationType # TODO What's this for?
 
-  field :team_author do
-    type -> { TeamType }
-    description 'Team that published this bot'
-
+  field :team_author, -> { TeamType }, 'Team that published this bot' do
     resolve -> (bot, _args, _ctx) {
       RecordLoader.for(Team).load(bot.team_author_id.to_i)
     }

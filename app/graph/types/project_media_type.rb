@@ -5,8 +5,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :media_id, types.Int, 'Media this item is associated with (id only)'
-  field :user_id, types.Int, 'Item creator (id only)'
+  field :media_id, types.Int, 'Media this item is associated with (database id)'
   field :url, types.String, 'Media URL' # TODO Remove and access via Media.url
   field :quote, types.String, 'Text claim' # TODO Remove and access via Media.quote
   field :oembed_metadata, types.String # TODO Merge with 'metadata'?
@@ -24,25 +23,19 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :status, types.String, 'Workflow status'
   field :share_count, types.Int # TODO What's the diff with virality?
 
-  field :type, types.String  do # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
-    description 'Type' # TODO List all possible types
-
+  field :type, types.String, 'Item type'  do # TODO Enum and list types in doc
     resolve -> (project_media, _args, _ctx) {
       project_media.media.type
     }
   end
 
-  field :verification_statuses do
-    type JsonStringType
-
+  field :verification_statuses, JsonStringType, 'List of verification statuses for this team' do
     resolve -> (project_media, _args, _ctx) {
       project_media.team.send('verification_statuses', 'media', project_media)
     }
   end
 
-  field :permissions, types.String do
-    description 'CRUD permissions for current user'
-
+  field :permissions, types.String, 'CRUD permissions for current user' do
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
         pm.cached_permissions || pm.permissions
@@ -50,9 +43,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :tasks_count, JsonStringType do
-    description 'Counts of tasks: all, open, completed'
-
+  field :tasks_count, JsonStringType, 'Counts of tasks: all, open, completed' do
     resolve -> (project_media, _args, _ctx) {
       {
         all: project_media.all_tasks.size,
@@ -62,10 +53,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :domain do
-    type types.String
-    description 'TODO'
-
+  # TODO Delegate to Media
+  field :domain, types.String, 'TODO' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.respond_to?(:domain) ? media.domain : ''
@@ -75,10 +64,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   { media: :account }.each do |key, value|
     type = "#{value.to_s.capitalize}Type".constantize
-    field value do
-      type -> { type }
-      description "#{type} this item is associated with"
-
+    field value, -> { type }, "#{type} this item is associated with" do
       resolve -> (project_media, _args, _ctx) {
         RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
           RecordLoader.for(value.to_s.capitalize.constantize).load(obj.send("#{value}_id"))
@@ -87,10 +73,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     end
   end
 
-  field :team do
-    type -> { TeamType }
-    description 'Team this item is associated with'
-
+  field :team, -> { TeamType }, 'Team this item is associated with' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Team).load(project_media.team_id)
     }
@@ -114,8 +97,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :projects, -> { ProjectType.connection_type } do
-    description 'Projects associated with this item'
+  connection :projects, -> { ProjectType.connection_type }, 'Projects associated with this item' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.projects
@@ -123,55 +105,33 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :media do
-    type -> { MediaType }
-    description 'Media this item is associated with'
-
+  field :media, -> { MediaType }, 'Media this item is associated with' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id)
     }
   end
 
-  field :user do
-    type -> { UserType }
-    description 'Item creator'
-
-    resolve -> (project_media, _args, ctx) {
-      RecordLoader.for(User).load(project_media.user_id).then do |user|
-        ability = ctx[:ability] || Ability.new
-        user if ability.can?(:read, user)
-      end
-    }
-  end
-
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
-  connection :tags, -> { TagType.connection_type } do
-    description 'Item tags'
-
+  connection :tags, -> { TagType.connection_type }, 'Item tags' do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('tag').map(&:load)
     }
   end
 
-  connection :tasks, -> { TaskType.connection_type } do
-    description 'Item tasks'
-
+  connection :tasks, -> { TaskType.connection_type }, 'Item tasks' do
     resolve ->(project_media, _args, _ctx) {
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
     }
   end
 
-  connection :comments, -> { CommentType.connection_type } do
+  connection :comments, -> { CommentType.connection_type }, 'Item comments' do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('comment').map(&:load)
     }
   end
 
-  field :metadata do
-    type JsonStringType
-    description 'Item metadata'
-
+  field :metadata, JsonStringType, 'Item metadata' do
     resolve ->(project_media, _args, _ctx) {
       project_media.metadata
     }
@@ -235,8 +195,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
-  field :field_value do
-    type types.String
+  field :field_value, types.String do
     argument :annotation_type_field_name, !types.String
 
     resolve ->(project_media, args, _ctx) {
@@ -296,27 +255,33 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   # TODO Rename to 'annotations' and remove 'tasks' and 'tags'?
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
-    connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do
-      description "Item annotations of type #{type}"
-
+    connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type }, "Item annotations of type #{type}" do
       resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
     end
 
     # TODO What's the diff with above?
-    field "dynamic_annotation_#{type}".to_sym do
-      type -> { DynamicType }
+    field "dynamic_annotation_#{type}".to_sym, -> { DynamicType } do
       resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
     end
   end
 
-  field :project_ids, JsonStringType, 'Projects associated with this item (ids only)'
+  # TODO Change type of [types.Int]
+  field :project_ids, JsonStringType, 'Projects associated with this item (database ids)'
 
   field :dbid, types.Int, 'Database id of this record'
 
-  field :pusher_channel do
-    type types.String
-    description 'Channel for push notifications'
+  field :user_id, types.Int, 'Database id of record creator'
 
+  field :user, -> { UserType }, 'Record creator' do
+    resolve -> (project_media, _args, ctx) {
+      RecordLoader.for(User).load(project_media.user_id).then do |user|
+        ability = ctx[:ability] || Ability.new
+        user if ability.can?(:read, user)
+      end
+    }
+  end
+
+  field :pusher_channel, types.String, 'Channel for push notifications' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.pusher_channel

@@ -1,41 +1,32 @@
 AccountType = GraphqlCrudOperations.define_default_type do
   name 'Account'
-  description 'A social profile belonging to a Source.'
+  description 'A web site or social account associated with a source.'
 
   interfaces [NodeIdentification.interface]
 
   field :data, types.String, 'TODO'
-  field :url, !types.String, 'Profile URL'
-  field :provider, types.String, 'Profile host'
-  field :uid, types.String, 'TODO'
-  field :user_id, types.Int, 'Creator (id only)'
+  field :url, !types.String, 'Account URL'
+  field :provider, types.String, 'Account host'
+  field :uid, types.String, 'Account id on host'
   field :image, types.String, 'Picture' # TODO Rename to 'picture'
-  field :user do
-    type UserType
-    description 'Creator'
-
-    resolve -> (account, _args, _ctx) {
-      account.user
-    }
-  end
-
-  connection :medias, -> { MediaType.connection_type } do
-    description 'Items published by this account'
-
+  connection :medias, -> { MediaType.connection_type }, 'Items published by this account' do
     resolve ->(account, _args, _ctx) {
       account.medias
     }
   end
 
-  field :metadata do
-    type JsonStringType
-    description 'Account metadata'
-
+  field :metadata, JsonStringType, 'Account metadata' do
     resolve ->(account, _args, _ctx) {
       account.metadata
     }
   end
 
   field :dbid, types.Int, 'Database id of this record'
+  field :user_id, types.Int, 'Database id of record creator'
   field :permissions, types.String, 'CRUD permissions of this record for current user'
+  field :user, UserType, 'Record creator' do
+    resolve -> (account, _args, _ctx) {
+      account.user
+    }
+  end
 end

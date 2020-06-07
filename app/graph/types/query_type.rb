@@ -8,10 +8,7 @@ QueryType = GraphQL::ObjectType.define do
     resolve -> (_obj, _args, _ctx) { RootLevel::STATIC }
   end
 
-  field :about do
-    type AboutType
-    description 'Information about the application.'
-
+  field :about, AboutType, 'Information about the application' do
     resolve -> (_obj, _args, _ctx) do
       OpenStruct.new({
         type: 'About',
@@ -30,20 +27,14 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :me do
-    type UserType
-    description 'Information about the current User.'
-
+  field :me, UserType, 'Information about the current user' do
     resolve -> (_obj, _args, _ctx) do
       User.current
     end
   end
 
   # TODO Can we have this field ONLY return the current team?
-  field :team do
-    type TeamType
-    description 'Information about the current Team.'
-
+  field :team, TeamType, 'Information about the current team' do
     argument :id, types.ID
     argument :slug, types.String
 
@@ -61,10 +52,7 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   # TODO Can we have this field ONLY return the current team?
-  field :public_team do
-    type PublicTeamType
-    description 'Public information about the current Team.'
-
+  field :public_team, PublicTeamType, 'Public information about the current team' do
     argument :slug, types.String
 
     resolve -> (_obj, args, _ctx) do
@@ -75,10 +63,7 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   # TODO "find_X" means this is not a field
-  field :find_public_team do
-    type PublicTeamType
-    description 'Retrieve a Team given its slug.'
-
+  field :find_public_team, PublicTeamType, 'Public information about a team' do
     argument :slug, !types.String
 
     resolve -> (_obj, args, _ctx) do
@@ -86,10 +71,9 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :project_media do
-    type ProjectMediaType
-    description 'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"'
+  field :project_media, ProjectMediaType, 'Information about a media, given its team ids. The argument has the following format: "project_media_id,project_id,team_id"' do
     argument :ids, !types.String
+
     resolve -> (_obj, args, ctx) do
       objid, pid, tid = args['ids'].split(',').map(&:to_i)
       tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
@@ -101,10 +85,7 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  connection :project_medias do
-    type ProjectMediaType.connection_type
-    description 'TODO'
-
+  connection :project_medias, ProjectMediaType.connection_type, 'Information about a media, given its URL' do
     argument :url, !types.String
 
     resolve -> (_obj, args, _ctx) {
@@ -117,11 +98,7 @@ QueryType = GraphQL::ObjectType.define do
     }
   end
 
-  # TODO Is this still needed?
-  field :project do
-    type ProjectType
-    description 'Information about a Project, given its id and its Team id.'
-
+  field :project, ProjectType, 'Information about a project, given its team ids' do
     argument :id, types.String
     argument :ids, types.String
 
@@ -136,10 +113,7 @@ QueryType = GraphQL::ObjectType.define do
   end
 
   # TODO Include actual search keys in description
-  field :search do
-    type CheckSearchType
-    description 'A search query. The query argument should be JSON-formatted: {"keyword":"search keyword"}}'
-
+  field :search, CheckSearchType, 'A search query. The argument has the following format: {"keyword":"search keyword"}}' do
     argument :query, !types.String
 
     resolve -> (_obj, args, ctx) do
@@ -148,10 +122,7 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
-  field :dynamic_annotation_field do
-    type DynamicAnnotationFieldType
-    description 'TODO'
-
+  field :dynamic_annotation_field, DynamicAnnotationFieldType, 'TODO' do
     argument :query, !types.String
     argument :only_cache, types.Boolean
 
@@ -176,10 +147,7 @@ QueryType = GraphQL::ObjectType.define do
 
   # Getters by ID
   [:source, :user, :task, :tag_text, :bot_user].each do |type|
-    field type do
-      type "#{type.to_s.camelize}Type".constantize
-      description 'Information about a #{type} given its id.'
-
+    field type, "#{type.to_s.camelize}Type".constantize, 'Information about a #{type} given its id' do
       argument :id, !types.ID
 
       resolve -> (_obj, args, ctx) do

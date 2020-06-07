@@ -14,35 +14,25 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :associated_graphql_id, types.String, 'TODO'
   field :smooch_user_slack_channel_url, types.String, 'TODO'
 
-  field :user do
-    type -> { UserType }
-    description 'Author of log entry'
-
+  field :user, -> { UserType }, 'Log entry creator' do
     resolve ->(version, _args, _ctx) {
       version.user
     }
   end
 
-  field :annotation do
-    type -> { AnnotationType }
-    description 'TODO'
-
+  field :annotation, -> { AnnotationType }, 'Annotation associated with this log entry' do
     resolve ->(version, _args, _ctx) {
       version.annotation
     }
   end
 
-  connection :projects, -> { ProjectType.connection_type } do
-    description 'TODO'
-
+  connection :projects, -> { ProjectType.connection_type }, 'Projects associated with this log entry' do
     resolve ->(version, _args, _ctx) {
       version.projects
     }
   end
 
-  connection :teams, -> { TeamType.connection_type } do
-    description 'TODO'
-
+  connection :teams, -> { TeamType.connection_type }, 'Teams associated with this log entry' do
     resolve ->(version, _args, _ctx) {
       version.teams
     }
