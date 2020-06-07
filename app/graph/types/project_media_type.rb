@@ -62,15 +62,13 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  { media: :account }.each do |key, value|
-    type = "#{value.to_s.capitalize}Type".constantize
-    field value, -> { type }, "#{type} this item is associated with" do
-      resolve -> (project_media, _args, _ctx) {
-        RecordLoader.for(key.to_s.capitalize.constantize).load(project_media.send("#{key}_id")).then do |obj|
-          RecordLoader.for(value.to_s.capitalize.constantize).load(obj.send("#{value}_id"))
-        end
-      }
-    end
+  # TODO: Remove and let client retrieve from media
+  field :account, -> { AccountType }, "Account this item is associated with" do
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Media).load(project_media.media_id).then do |media|
+        RecordLoader.for(Account).load(media.account_id)
+      end
+    }
   end
 
   field :team, -> { TeamType }, 'Team this item is associated with' do
@@ -97,6 +95,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO: Don't understand this
   connection :projects, -> { ProjectType.connection_type }, 'Projects associated with this item' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
@@ -113,24 +112,28 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
+  # TODO Replace with annotations + argument
   connection :tags, -> { TagType.connection_type }, 'Item tags' do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('tag').map(&:load)
     }
   end
 
+  # TODO Replace with annotations + argument
   connection :tasks, -> { TaskType.connection_type }, 'Item tasks' do
     resolve ->(project_media, _args, _ctx) {
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
     }
   end
 
+  # TODO Replace with annotations + argument
   connection :comments, -> { CommentType.connection_type }, 'Item comments' do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_annotations('comment').map(&:load)
     }
   end
 
+  # TODO Replace with annotations + argument
   field :metadata, JsonStringType, 'Item metadata' do
     resolve ->(project_media, _args, _ctx) {
       project_media.metadata
@@ -163,8 +166,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       project_media.overridden
     }
   end
-
-  instance_exec :project_media, &GraphqlCrudOperations.field_published
 
   # TODO Merge this and 'language_code'
   field :language do

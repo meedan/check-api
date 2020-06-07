@@ -71,6 +71,7 @@ QueryType = GraphQL::ObjectType.define do
     end
   end
 
+  # TODO Can we add multiple arguments instead of a single argument with 3 values?
   field :project_media, ProjectMediaType, 'Information about a media, given its team ids. The argument has the following format: "project_media_id,project_id,team_id"' do
     argument :ids, !types.String
 

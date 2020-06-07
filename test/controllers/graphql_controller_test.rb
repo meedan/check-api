@@ -146,11 +146,11 @@ class GraphqlControllerTest < ActionController::TestCase
     c.assign_user(u.id)
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, created_at, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { ... on User { name } } } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
-    assert_not_empty data['published']
+    assert_not_empty data['created_at']
     assert_not_nil data['last_status_obj']['dbid']
     assert data.has_key?('language')
     assert data.has_key?('language_code')
@@ -165,10 +165,10 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_token
     p = create_project team: @team
     pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, log_count } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { created_at, language, last_status_obj {dbid}, log_count } }"
     post :create, query: query
     assert_response :success
-    assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
+    assert_not_empty JSON.parse(@response.body)['data']['project_media']['created_at']
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
     assert JSON.parse(@response.body)['data']['project_media'].has_key?('language')
   end
@@ -1068,7 +1068,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1085,7 +1085,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 

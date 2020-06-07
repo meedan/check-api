@@ -401,7 +401,7 @@ class GraphqlCrudOperations
     mutation.constantize
   end
 
-  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = false)
+  def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = true)
     update_fields = create_fields if update_fields.empty?
     generated = [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
     # FIXME: Do the same for update and destroy by refactoring them (#7858)
@@ -433,16 +433,6 @@ class GraphqlCrudOperations
       end
 
       instance_eval(&block)
-    end
-  end
-
-  def self.field_published
-    proc do |_classname|
-      field :published do
-        type types.String
-
-        resolve ->(obj, _args, _ctx) { obj.created_at.to_i.to_s }
-      end
     end
   end
 
@@ -491,7 +481,10 @@ class GraphqlCrudOperations
     {
       fragment: 'str',
       annotated_id: 'str',
-      annotated_type: 'str'
+      annotated_type: 'str',
+      set_attribution: 'str',
+      action: 'str',
+      action_data: 'str'
     }
   end
 
@@ -551,7 +544,7 @@ class GraphqlCrudOperations
 
       field :image_data, JsonStringType
 
-      field :data, JsonStringType
+      field :data, JsonStringType, 'Annotation content'
 
       field :parsed_fragment, JsonStringType
 

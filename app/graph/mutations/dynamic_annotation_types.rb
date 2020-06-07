@@ -20,7 +20,7 @@ DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_typ
       })
 
       parents = ['project_media', 'source', 'project']
-      Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('dynamic_annotation_#{type}', create_fields, update_fields, parents) unless defined? Create
+      Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('dynamic_annotation_#{type}', create_fields, update_fields, parents, false) unless defined? Create
     end
 
     DynamicAnnotation#{klass}Type = GraphqlCrudOperations.define_annotation_type('dynamic_annotation_#{type}', {}) do
