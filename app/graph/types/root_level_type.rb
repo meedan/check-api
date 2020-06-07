@@ -1,6 +1,6 @@
 RootLevelType = GraphQL::ObjectType.define do
   name 'RootLevel'
-  description 'TODO'
+  description 'Root-level queries and utilities.'
 
   interfaces [NodeIdentification.interface]
 

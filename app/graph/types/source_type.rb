@@ -30,7 +30,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :collaborators, -> { UserType.connection_type }, 'TODO' do
+  connection :collaborators, -> { UserType.connection_type }, 'Users who collaborated on this source' do
     resolve ->(source, _args, _ctx) {
       source.collaborators
     }

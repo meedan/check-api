@@ -57,7 +57,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   # TODO Delegate to Media
-  field :domain, types.String, 'TODO' do
+  field :domain, types.String do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         media.respond_to?(:domain) ? media.domain : ''
@@ -66,7 +66,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   # TODO Delegate to Media
-  field :account, -> { AccountType }, "Account this item is associated with" do
+  field :account, -> { AccountType }, 'Account this item is associated with' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
         RecordLoader.for(Account).load(media.account_id)

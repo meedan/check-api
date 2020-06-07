@@ -10,7 +10,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :get_slack_channel, types.String, 'Slack channel to notify about this project activity' # TODO Rename to 'slack_channel'
   field :pusher_channel, types.String, 'Channel for push notifications'
   field :medias_count, types.Int, 'Count of items in this collection'
-  field :search_id, types.String, 'TODO'
+  field :search_id, types.String # TODO Document
   field :url, types.String, 'Collection permalink'
   field :search, CheckSearchType, 'Search interface'
   field :auto_tasks, JsonStringType # TODO Why is this here?

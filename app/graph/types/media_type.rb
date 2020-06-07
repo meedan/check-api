@@ -8,12 +8,12 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :quote, types.String, 'Text claim' # TODO Rename to 'claim'
   field :account_id, types.Int, 'Publisher account database id'
   field :project_id, types.Int # TODO Remove
-  field :domain, types.String, 'TODO'
-  field :embed_path, types.String, 'TODO'
+  field :domain, types.String # TODO Delegate to metadata
+  field :embed_path, types.String # TODO Delegate to metadata
   field :thumbnail_path, types.String, 'Thumbnail representing this item' # TODO Rename to 'picture_thumbnail'
   field :picture, types.String, 'Picture representing this item'
-  field :type, types.String, 'TODO' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
-  field :file_path, types.String, 'TODO'
+  field :type, types.String # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
+  field :file_path, types.String # TODO Review
 
   field :account, -> { AccountType }, 'Publisher account' do
     resolve -> (media, _args, _ctx) {

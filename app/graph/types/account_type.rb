@@ -4,7 +4,7 @@ AccountType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :data, types.String, 'TODO'
+  field :data, types.String # TODO Review
   field :url, !types.String, 'Account URL'
   field :provider, types.String, 'Account host'
   field :uid, types.String, 'Account id on host'

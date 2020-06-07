@@ -6,13 +6,13 @@ VersionType = GraphqlCrudOperations.define_default_type do
 
   field :item_type, types.String, 'Database type of item' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
   field :item_id, types.String, 'Database id of item'
-  field :event, types.String, 'TODO'
-  field :event_type, types.String, 'TODO'
+  field :event, types.String # TODO Document
+  field :event_type, types.String # TODO Document
   field :object_after, types.String # Do we need both this and 'object_changes'?
-  field :meta, types.String, 'TODO'
-  field :object_changes_json, types.String, 'TODO' # TODO Convert to JsonStringType and rename to 'item_diff'
-  field :associated_graphql_id, types.String, 'TODO'
-  field :smooch_user_slack_channel_url, types.String, 'TODO'
+  field :meta, types.String # TODO Document
+  field :object_changes_json, types.String # TODO Convert to JsonStringType and rename to 'item_diff'
+  field :associated_graphql_id, types.String # TODO Document
+  field :smooch_user_slack_channel_url, types.String # TODO Document
 
   field :user, -> { UserType }, 'Log entry creator' do
     resolve ->(version, _args, _ctx) {
@@ -39,20 +39,14 @@ VersionType = GraphqlCrudOperations.define_default_type do
   end
 
   # TODO Don't we already have annotation above?
-  field :task do
-    type -> { TaskType }
-    description 'TODO'
-
+  field :task, -> { TaskType } do # TODO Document
     resolve ->(version, _args, _ctx) {
       version.task
     }
   end
 
   # TODO Don't we already have annotation above?
-  field :tag do
-    type -> { TagType }
-    description 'TODO'
-
+  field :tag, -> { TagType } do  # TODO Document
     resolve ->(version, _args, _ctx) {
       Tag.find(version.annotation.id) unless version.annotation.nil?
     }

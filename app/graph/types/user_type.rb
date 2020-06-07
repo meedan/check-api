@@ -6,8 +6,8 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   field :email, types.String, 'Email'
   field :unconfirmed_email, types.String, 'Email before confirmation'
-  field :providers, JsonStringType, 'TODO'
-  field :uuid, types.String, 'TODO'
+  field :providers, JsonStringType # TODO Document
+  field :uuid, types.String # TODO Document
   field :profile_image, types.String, 'Picture' # TODO Rename to 'picture'
   field :login, types.String, 'Login'
   field :name, types.String, 'Name'
@@ -20,10 +20,10 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :get_send_successful_login_notifications, types.Boolean, 'Setting for receiving email notifications about all login activity'
   field :get_send_failed_login_notifications, types.Boolean, 'Setting for receiving email notifications about failed login activity'
 
-  field :bot_events, types.String, 'TODO'
+  field :bot_events, types.String # TODO Why is this here?
   field :is_bot, types.Boolean, 'Is this user a bot?'
   field :is_active, types.Boolean, 'Is this user active?'
-  field :two_factor, JsonStringType, 'TODO'
+  field :two_factor, JsonStringType # TODO Document
   field :settings, JsonStringType, 'Settings' # TODO Show setting schema in description
   field :accepted_terms, types.Boolean, 'Has use accepted latest terms?' # TODO Rename to 'has_accepted_latest_terms'
   field :last_accepted_terms_at, types.String, 'Last date at which the user accepted the terms of use' # TODO Change to Int type
