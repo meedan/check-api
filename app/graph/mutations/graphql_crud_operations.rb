@@ -389,7 +389,7 @@ class GraphqlCrudOperations
     mutation = "Create#{type.camelize.pluralize}Mutation"
     Object.class_eval <<-TES
       class #{mutation} < GraphQL::Schema::Mutation
-        argument :inputs, [#{input_type}], required: true
+        argument :inputs, [#{input_type}], 'List of #{type.camelize.pluralize} to create', required: true
 
         field :enqueued, Boolean, null: false
 
@@ -439,16 +439,26 @@ class GraphqlCrudOperations
   def self.field_annotations
     proc do |_classname|
       connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this item' do
-        argument :annotation_type, !types.String
+        argument :annotation_type, !types.String, 'Comma-separated list of annotation types' # TODO Convert to array of strings
 
-        resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
+        resolve ->(obj, args, _ctx) {
+          obj.get_annotations(args['annotation_type'].split(',').map(&:strip))
+        }
       end
 
       field :annotations_count, types.Int, 'Count of annotations describing this item' do
-        argument :annotation_type, !types.String
+        argument :annotation_type, !types.String, 'Comma-separated list of annotation types' # TODO Convert to array of strings
 
         resolve ->(obj, args, _ctx) {
           obj.get_annotations(args['annotation_type'].split(',').map(&:strip)).count
+        }
+      end
+
+      field :annotation, -> { AnnotationType }, 'Latest annotation of a given type' do
+        argument :annotation_type, !types.String, 'Annotation type'
+
+        resolve ->(project_media, args, _ctx) {
+          project_media.get_dynamic_annotation(args['annotation_type'])
         }
       end
     end
@@ -457,11 +467,11 @@ class GraphqlCrudOperations
   def self.field_log
     proc do |_classname|
       connection :log, -> { VersionType.connection_type }, 'Version-control log entries for this item' do
-        argument :event_types, types[types.String]
-        argument :field_names, types[types.String]
-        argument :annotation_types, types[types.String]
-        argument :who_dunnit, types[types.String]
-        argument :include_related, types.Boolean
+        argument :event_types, types[types.String], 'Event types'
+        argument :field_names, types[types.String], 'Field names'
+        argument :annotation_types, types[types.String], 'Annotation types'
+        argument :who_dunnit, types[types.String], 'User names' # TODO This seems wrong because `get_versions_log` expects an object with attribute `id`
+        argument :include_related, types.Boolean, 'Include related items?'
 
         resolve ->(obj, args, _ctx) {
           obj.get_versions_log(args['event_types'], args['field_names'], args['annotation_types'], args['who_dunnit'], args['include_related'])
@@ -469,7 +479,6 @@ class GraphqlCrudOperations
       end
 
       field :log_count, types.Int, 'Count of version-control log entries for this item' do
-
         resolve ->(obj, _args, _ctx) {
           obj.get_versions_log_count
         }
@@ -520,9 +529,10 @@ class GraphqlCrudOperations
       field :annotated, AnnotatedUnion, 'Annotated item'
 
       connection :annotations, -> { AnnotationUnion.connection_type }, 'Annotations describing this annotation' do
-        argument :annotation_type, !types.String
+        argument :annotation_type, !types.String, 'Comma-separated list of annotation types' # TODO Convert to array of strings
+
         resolve ->(annotation, args, _ctx) {
-          Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
+          Annotation.where(annotation_type: args['annotation_type'].split(',').map(&:strip), annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
         }
       end
 
@@ -536,6 +546,14 @@ class GraphqlCrudOperations
         resolve ->(annotation, _args, _ctx) {
           ids = annotation.attribution.split(',').map(&:to_i)
           User.where(id: ids)
+        }
+      end
+
+      field :field, types.String, 'Value of annotation field' do # TODO Map field type
+        argument :name, !types.String, 'Field name'
+
+        resolve ->(annotation, args, _ctx) {
+          annotation.get_field_value(args['name'])
         }
       end
 

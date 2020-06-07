@@ -70,6 +70,7 @@ module ProjectAssociation
       (self.is_a?(ProjectMedia) && include_related) ? self.related_items_ids : [self.id]
     end
 
+    # TODO Is this correct?
     def get_versions_log_count
       self.reload.cached_annotations_count
     end

@@ -976,7 +976,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Francês', languages['fr']
   end
 
-  test "should get field value and dynamic annotation(s)" do
+  test "should get field value and dynamic annotations" do
     [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
     create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     ft1 = create_field_type(field_type: 'select', label: 'Select')
@@ -989,13 +989,13 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid, status: field(name: \"verification_status_status\") }, annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal a.id, data['annotation']['dbid'].to_i
     assert_equal a.id, data['annotations']['edges'][0]['node']['dbid'].to_i
-    assert_equal 'verified', data['field_value']
+    assert_equal 'verified', data['annotation']['status']
   end
 
   test "should create media with custom field" do

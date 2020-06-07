@@ -43,6 +43,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Simplify
   field :tasks_count, JsonStringType, 'Counts of tasks: all, open, completed' do
     resolve -> (project_media, _args, _ctx) {
       {
@@ -62,7 +63,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO: Remove and let client retrieve from media
+  # TODO Delegate to Media
   field :account, -> { AccountType }, "Account this item is associated with" do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
@@ -111,6 +112,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   instance_exec :project_media, &GraphqlCrudOperations.field_log
+  instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
   # TODO Replace with annotations + argument
   connection :tags, -> { TagType.connection_type }, 'Item tags' do
@@ -148,7 +150,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       project_media.last_status
     }
   end
-
   field :last_status_obj do
     type -> { DynamicType }
 
@@ -158,7 +159,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO What's this for?
+  # TODO Review overridden logic
   field :overridden do
     type JsonStringType
 
@@ -167,7 +168,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Merge this and 'language_code'
+  # TODO Replace with annotations + argument
   field :language do
     type types.String
 
@@ -176,6 +177,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  # TODO Replace with annotations + argument
   field :language_code do
     type types.String
 
@@ -184,33 +186,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Merge with annotations below
-  field :annotation do
-    type -> { AnnotationType }
-    argument :annotation_type, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      project_media.get_dynamic_annotation(args['annotation_type'])
-    }
-  end
-
-  instance_exec :project_media, &GraphqlCrudOperations.field_annotations
-
-  field :field_value, types.String do
-    argument :annotation_type_field_name, !types.String
-
-    resolve ->(project_media, args, _ctx) {
-      annotation_type, field_name = args['annotation_type_field_name'].to_s.split(':')
-      if !annotation_type.blank? && !field_name.blank?
-        annotation = project_media.get_dynamic_annotation(annotation_type)
-        annotation.nil? ? nil : annotation.get_field_value(field_name)
-      end
-    }
-  end
-
-  connection :assignments, -> { AnnotationType.connection_type } do
-    argument :user_id, !types.Int
-    argument :annotation_type, !types.String
+  connection :assignments, -> { AnnotationType.connection_type }, 'List of assigned annotations for this item' do
+    argument :user_id, !types.Int, 'Filter by given user database id'
+    argument :annotation_type, !types.String, 'Filter by given annotation type'
 
     resolve ->(project_media, args, _ctx) {
       Annotation.joins(:assignments).where('annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => project_media.id, 'assignments.user_id' => args['user_id'], 'annotations.annotation_type' => args['annotation_type'])
