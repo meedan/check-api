@@ -528,7 +528,7 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user(u)
     create_team_task team_id: t.id, label: 'Foo'
 
-    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, description, options, project_ids, team_id, team { slug } } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
