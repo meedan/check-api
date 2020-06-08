@@ -11,6 +11,23 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate presence of project and media project" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media team: t
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: p, project_media: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: nil, project_media: create_project_media
+    end
+    p.archived = true
+    p.save!
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: p, project_media: nil
+    end
+  end
+
   test "should belong to project" do
     p = create_project
     pmp = create_project_media_project project: p

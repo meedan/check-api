@@ -184,11 +184,11 @@ module ProjectMediaCreators
   end
 
   def copy_to_project
-    add_project_media_project_record(self.copy_to_project_id) if self.copy_to_project_id && ProjectMediaProject.where(project_id: self.copy_to_project_id, project_media_id: self.id).last.nil?
+    add_project_media_project_record(self.copy_to_project_id)
   end
 
   def add_to_project
-    add_project_media_project_record(self.add_to_project_id) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
+    add_project_media_project_record(self.add_to_project_id)
   end
 
   def move_to_project
@@ -207,6 +207,6 @@ module ProjectMediaCreators
   end
 
   def add_project_media_project_record(project_id)
-    ProjectMediaProject.create!(project_id: project_id, project_media_id: self.id, skip_notifications: self.skip_notifications)
+    ProjectMediaProject.create!(project_id: project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if project_id && ProjectMediaProject.where(project_id: project_id, project_media_id: self.id).last.nil?
   end
 end

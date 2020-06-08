@@ -37,8 +37,9 @@ module ProjectAssociation
       if obj && (obj.project_ids.include?(pid) || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        obj = ProjectMediaProject.where(project_id: pid, project_media_id: objid).last
-        return obj.project_media.id if obj
+        obj = ProjectMedia.joins("INNER JOIN project_media_projects pmp ON pmp.project_media_id = project_medias.id")
+        .where("pmp.project_id = ? AND project_medias.media_id = ?", pid, objid).last
+        return obj.id if obj
       end
     end
   end
@@ -102,7 +103,6 @@ module ProjectAssociation
 
     def is_being_copied
       self.team && self.team.is_being_copied
-      # self.project && self.project.is_being_copied
     end
 
     private

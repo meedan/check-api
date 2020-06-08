@@ -852,8 +852,8 @@ module SampleData
     options.each do |key, value|
       pmp.send("#{key}=", value) if pmp.respond_to?("#{key}=")
     end
-    pmp.project_media = create_project_media if pmp.project_media.nil?
-    pmp.project = create_project if pmp.project.nil?
+    pmp.project_media = create_project_media unless options.has_key?(:project_media)
+    pmp.project = create_project unless options.has_key?(:project)
     pmp.save!
     pmp.reload
   end

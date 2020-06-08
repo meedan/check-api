@@ -11,7 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
 
-  validates_presence_of :media
+  validates_presence_of :media, :team
 
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
