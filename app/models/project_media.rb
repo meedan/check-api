@@ -187,7 +187,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    project = self.project_ids.blank? ? nil : Project.find_by_id(self.project_ids.first) 
+    project = self.project_ids.blank? ? nil : Project.find_by_id(self.project_ids.first)
     project ? "#{project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 

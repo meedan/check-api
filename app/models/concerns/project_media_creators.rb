@@ -184,17 +184,17 @@ module ProjectMediaCreators
   end
 
   def copy_to_project
-    ProjectMediaProject.create!(project_id: self.copy_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.copy_to_project_id && ProjectMediaProject.where(project_id: self.copy_to_project_id, project_media_id: self.id).last.nil?
+    add_project_media_project_record(self.copy_to_project_id) if self.copy_to_project_id && ProjectMediaProject.where(project_id: self.copy_to_project_id, project_media_id: self.id).last.nil?
   end
 
   def add_to_project
-    ProjectMediaProject.create!(project_id: self.add_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
+    add_project_media_project_record(self.add_to_project_id) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
   end
 
   def move_to_project
     if self.move_to_project_id
       ProjectMediaProject.where(project_media_id: self.id).delete_all
-      ProjectMediaProject.create!(project_media_id: self.id, project_id: self.move_to_project_id)
+      add_project_media_project_record(self.move_to_project_id)
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.move_to_project_id, YAML::dump(User.current), YAML::dump({ model: self }))
     end
   end
@@ -204,5 +204,9 @@ module ProjectMediaCreators
       pmp = ProjectMediaProject.where(project_id: self.remove_from_project_id, project_media_id: self.id).last
       pmp.destroy! unless pmp.nil?
     end
+  end
+
+  def add_project_media_project_record(project_id)
+    ProjectMediaProject.create!(project_id: project_id, project_media_id: self.id, skip_notifications: self.skip_notifications)
   end
 end

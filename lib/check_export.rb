@@ -106,12 +106,12 @@ module CheckExport
   def export_images(last_id = 0, _annotation_types = [])
     require 'open-uri'
     output = {}
-    ProjectMedia.order(:id).joins(:media).joins(:project_media_projects).where('medias.type' => 'UploadedImage', 'project_media_projects.project_id' => self.id).find_each(start: last_id + 1) do |pm|
+    get_media_by_type('UploadedImage').find_each(start: last_id + 1) do |pm|
       path = pm.media.picture
       key = [self.team.slug, self.title.parameterize, pm.id].join('_') + File.extname(path)
       output[key] = open(path).read
     end
-    ProjectMedia.order(:id).joins(:media).joins(:project_media_projects).where('medias.type' => 'Link', 'project_media_projects.project_id' => self.id).find_each(start: last_id + 1) do |pm|
+    get_media_by_type('Link').find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
         screenshot_url = JSON.parse(pm.get_annotations('archiver').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
@@ -121,6 +121,11 @@ module CheckExport
       end
     end
     output
+  end
+
+  def get_media_by_type(type)
+    ProjectMedia.order(:id).joins(:media).joins(:project_media_projects)
+    .where('medias.type' => type, 'project_media_projects.project_id' => self.id)
   end
 
   def export_zip(type, last_id = 0, annotation_types = ['comment', 'task'])
