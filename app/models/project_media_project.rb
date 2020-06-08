@@ -8,7 +8,7 @@ class ProjectMediaProject < ActiveRecord::Base
 
   validates_presence_of :project, :project_media
   # TODO: fixme remove project archived validation from ProjectMedia
-  validate :project_is_not_archived, unless: proc { |pmp| pmp.project_media && pmp.project_media.is_being_copied }
+  # validate :project_is_not_archived, unless: proc { |pmp| pmp.project_media && pmp.project_media.is_being_copied }
 
   after_create :update_index_in_elasticsearch
   after_destroy :update_index_in_elasticsearch
@@ -38,9 +38,7 @@ class ProjectMediaProject < ActiveRecord::Base
     end
   end
 
-  private
-
-  def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
-  end
+  # def project_is_not_archived
+  #   parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
+  # end
 end
