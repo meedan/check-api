@@ -50,7 +50,7 @@ class Task < ActiveRecord::Base
   end
 
   def project
-    self&.annotated&.projects.first
+    self&.annotated&.projects&.first
   end
 
   def team

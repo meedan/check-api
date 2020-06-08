@@ -37,9 +37,7 @@ module ProjectAssociation
       if obj && (obj.project_ids.include?(pid) || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        # key = :media_id
         obj = ProjectMediaProject.where(project_id: pid, project_media: objid).last
-        # obj = self.where(project_id: pid).where("#{key} = ?", objid).last
         return obj.project_media.id if obj
       end
     end

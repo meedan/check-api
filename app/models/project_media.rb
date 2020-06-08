@@ -18,8 +18,8 @@ class ProjectMedia < ActiveRecord::Base
 
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
-  after_commit :create_relationship, :copy_to_project, :add_to_project, :move_to_project, :remove_from_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
+  after_commit :create_relationship, :copy_to_project, :move_to_project, :remove_from_project, :add_to_project, on: [:update, :create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 
