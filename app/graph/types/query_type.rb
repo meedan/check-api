@@ -149,7 +149,7 @@ QueryType = GraphQL::ObjectType.define do
 
   # Getters by ID
   [:source, :user, :task, :tag_text, :bot_user].each do |type|
-    field type, "#{type.to_s.camelize}Type".constantize, 'Information about a #{type} given its id' do
+    field type, "#{type.to_s.camelize}Type".constantize, "Information about a #{type} given its id" do
       argument :id, !types.ID
 
       resolve -> (_obj, args, ctx) do
