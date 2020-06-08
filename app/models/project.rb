@@ -7,8 +7,6 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  # has_many :project_medias, dependent: :nullify
-  # has_many :medias , through: :project_medias
   has_many :project_media_projects, dependent: :destroy
   has_many :project_medias, through: :project_media_projects
 
@@ -34,11 +32,6 @@ class Project < ActiveRecord::Base
   check_settings
 
   include CheckExport
-
-  # TODO: Sawy - remove
-  # def before_destroy_later
-  #   ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
-  # end
 
   def check_search_team
     self.team.check_search_team
@@ -186,19 +179,6 @@ class Project < ActiveRecord::Base
     self.token = nil if self.is_being_copied
     self.token ||= SecureRandom.uuid
   end
-
-  # TODO: Sawy - move to team
-  # def auto_tasks(only_selected = false)
-  #   tasks = []
-  #   self.team.team_tasks.order('id ASC').each do |task|
-  #     if only_selected
-  #       tasks << task if task.project_ids.include?(self.id)
-  #     else
-  #       tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
-  #     end
-  #   end
-  #   tasks
-  # end
 
   def self.archive_or_restore_project_medias_if_needed(archived, team_id)
     ProjectMedia.where({ team_id: team_id }).update_all({ archived: archived })

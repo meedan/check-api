@@ -23,13 +23,10 @@ class ProjectMedia < ActiveRecord::Base
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 
-  # TODO: review pushed for projects
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  # targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.team] },
-                  # bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.team, pm.copied_to_project] },
-                  targets: proc { |pm| [pm.project_was, pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.project_was, pm.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.media_project, pm.project_was, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.media_project, pm.project_was, pm.team, pm.copied_to_project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -287,7 +284,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def add_destination_team_tasks_bg(project)
-    tasks = project.team.auto_tasks(true)
+    tasks = project.team.auto_tasks(project.id, true)
     tasks.each do |task|
       # check if task exists
       tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)

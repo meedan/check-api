@@ -251,7 +251,6 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project media versions to find previous project" do
-    # TODO: Sawy check the versions for ProjectMediaProject
     authenticate_with_user
     p = create_project team: @team
     p2 = create_project team: @team

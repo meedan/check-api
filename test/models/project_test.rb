@@ -689,16 +689,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil u.reload.current_project_id
   end
 
-  # TODO: Sawy - moved to team
-  # test "should return team tasks" do
-  #   t = create_team
-  #   p = create_project team: t
-  #   create_team_task team_id: t.id, project_ids: [p.id + 1]
-  #   assert p.reload.team.auto_tasks.empty?
-  #   tt = create_team_task team_id: t.id, project_ids: [p.id]
-  #   assert_equal [tt], p.reload.team.auto_tasks
-  # end
-
   test "should get team" do
     t = create_team
     p = create_project team: t

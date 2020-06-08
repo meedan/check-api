@@ -518,7 +518,6 @@ module SampleData
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
-    # options[:project] = create_project unless options.has_key?(:project)
     if options.has_key?(:project) && !options[:project].nil?
       options[:team] = options[:project].team
       options[:add_to_project_id] = options[:project].id unless options.has_key?(:add_to_project_id)

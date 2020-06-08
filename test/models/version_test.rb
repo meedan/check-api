@@ -58,26 +58,6 @@ class VersionTest < ActiveSupport::TestCase
     assert_not_nil v.whodunnit
   end
 
-  # TODO: Sawy project versions should be in ProjectMediaProject
-  # test "should get projects" do
-  #   create_verification_status_stuff
-  #   v = create_version
-  #   t = create_team
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
-  #   assert_equal [], v.projects
-  #   m = create_valid_media
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'owner'
-  #   with_current_user_and_team(u, t) do
-  #     pm = create_project_media project: p1, media: m, user: u
-  #     pm = ProjectMedia.find(pm.id)
-  #     pm.move_to_project_id = p2.id
-  #     pm.save!
-  #     assert_equal [p1, p2], pm.versions.last.projects
-  #   end
-  # end
-
   test "should get task" do
     Version.delete_all
     v = create_version

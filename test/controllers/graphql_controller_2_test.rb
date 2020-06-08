@@ -1090,10 +1090,9 @@ class GraphqlController2Test < ActionController::TestCase
       pm4.destroy!
       Sidekiq::Worker.drain_all
       assert_equal 0, Sidekiq::Worker.jobs.size
-      # TODO : Sawy fix bulk move
-      # assert_equal [p2], pm1.projects
-      # assert_equal [p2], pm2.projects
-      # assert_equal [p2], pm3.projects
+      assert_equal [p2], pm1.reload.projects
+      assert_equal [p2], pm2.reload.projects
+      assert_equal [p1], pm3.reload.projects
       assert_nil ProjectMedia.where(id: pm4.id).last
     end
   end
@@ -1215,7 +1214,6 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id }, current_project_media { id } } }'
     post :create, query: query, team: t.slug
-    pp JSON.parse(@response.body)
     assert_response :success
     assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['deletedId']
     assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['source_project_media']['id']

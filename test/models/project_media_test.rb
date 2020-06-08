@@ -394,7 +394,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy fix auto-tasks generation
   test "should add team tasks when adding or moving items" do
     t =  create_team
     p = create_project team: t
@@ -407,13 +406,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal 1, pm.annotations('task').count
       pm.add_to_project_id = p2.id
       pm.save!
-      # assert_equal 2, pm.annotations('task').count
+      assert_equal 2, pm.annotations('task').count
       pm2 = create_project_media team: t, add_to_project_id: p.id
       assert_equal 1, pm2.annotations('task').count
-      # pm2.previous_project_id = pm2.project_id
+      pm2.previous_project_id = pm2.media_project.id
       pm2.move_to_project_id = p2.id
       pm2.save!
-      # assert_equal 2, pm2.annotations('task').count
+      assert_equal 2, pm2.annotations('task').count
     end
     Team.unstub(:current)
   end
@@ -432,7 +431,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     User.current = nil
   end
 
-  # TODO: Sawy 
+  # TODO: Sawy - review queries as there is no versions for ProjectMedia related to project change
   # test "should check if project media belonged to a previous project" do
   #   t = create_team
   #   u = create_user
@@ -500,8 +499,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.move_to_project_id = p2.id
     pm.save!
     assert_equal p1, pm.project_was
-    # TODO Sawy: fix
-    # assert_equal [p2], pm.reload.projects
+    assert_equal [p2], pm.reload.projects
   end
 
   test "should refresh Pender data" do
@@ -976,16 +974,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
   end
 
-  # TODO: Sawy add a validation to ProjectMediaProject
-  # test "should not create project media under archived project" do
-  #   p = create_project
-  #   p.archived = true
-  #   p.save!
+  test "should not create project media under archived project" do
+    p = create_project
+    p.archived = true
+    p.save!
 
-  #   assert_raises ActiveRecord::RecordInvalid do
-  #     create_project_media project: p
-  #   end
-  # end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media project: p
+    end
+  end
 
   test "should archive" do
     pm = create_project_media
@@ -1269,16 +1266,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy
-  # test "should get previous project search object" do
-  #   p1 = create_project
-  #   p2 = create_project
-  #   pm = create_project_media project: p1
-  #   pm.previous_project_id = p1.id
-  #   pm.project_id = p2.id
-  #   pm.save!
-  #   assert_kind_of CheckSearch, pm.check_search_project_was
-  # end
+  test "should get previous project search object" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    pm.previous_project_id = p1.id
+    pm.move_to_project_id = p2.id
+    pm.save!
+    assert_kind_of CheckSearch, pm.check_search_project_was
+  end
 
   test "should complete media if there are pending tasks" do
     create_verification_status_stuff

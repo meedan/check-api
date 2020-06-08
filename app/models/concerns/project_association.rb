@@ -85,14 +85,15 @@ module ProjectAssociation
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(project_id team_id archived sources_count)
+      obj = self.reload
       data = {
-        'project_id' => self.project_ids,
-        'team_id' => self.team_id,
-        'archived' => self.archived.to_i,
-        'sources_count' => self.sources_count
+        'project_id' => obj.project_ids,
+        'team_id' => obj.team_id,
+        'archived' => obj.archived.to_i,
+        'sources_count' => obj.sources_count
       }
-      options = { keys: keys, data: data, parent: self }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
+      options = { keys: keys, data: data, parent: obj }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
     end
 
     def destroy_elasticsearch_media

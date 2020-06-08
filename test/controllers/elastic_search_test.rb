@@ -160,10 +160,6 @@ class ElasticSearchTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
-    # TODO: Sawy nothing changed as project_id deleted
-    # last_version = pm.versions.last
-    # assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
-    # assert_equal u.id.to_s, last_version.whodunnit
   end
 
   test "should not update es inactive field in bulk update" do

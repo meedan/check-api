@@ -812,7 +812,6 @@ class Bot::Smooch < BotUser
 
   def self.save_text_message(message)
     text = message['text']
-    # project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
     team_id = Team.where(id: config['team_id'].to_i).last
 
     begin

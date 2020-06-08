@@ -31,7 +31,6 @@ module Workflow
       type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       statuses = ::Workflow::Workflow.core_options(annotated, annotation_type)
       getter = "get_#{type.downcase}_#{annotation_type.pluralize}"
-      # team = annotated&.team || annotated&.project&.team
       team = annotated&.team
       custom_statuses = team&.send(getter)
       custom_statuses || statuses

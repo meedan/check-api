@@ -7,7 +7,6 @@ class Media < ActiveRecord::Base
   belongs_to :account
   belongs_to :user
   has_many :project_medias, dependent: :destroy
-  # has_many :projects, through: :project_medias
   has_annotations
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
