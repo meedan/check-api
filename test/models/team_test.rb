@@ -2834,4 +2834,68 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should send custom verification statuses to Transifex" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
+      assert_nothing_raised do
+        t.set_media_verification_statuses(value)
+        t.save!
+      end
+    end
+  end
+
+  test "should not send custom verification statuses to Transifex" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
+      CheckI18n.stubs(:upload_custom_strings_to_transifex).raises(StandardError)
+      assert_raises StandardError do
+        t.set_media_verification_statuses(value)
+        t.save!
+      end
+      CheckI18n.unstub(:upload_custom_strings_to_transifex)
+    end
+  end
+
+  test "should create Transifex resource if it does not exist" do
+    require 'transifex'
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
+        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+      ]
+    }
+    t = create_team
+    ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
+    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    ::Transifex::Project.any_instance.unstub(:resource)
+  end
 end

@@ -163,8 +163,8 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     ])
     tb.save!
     tbi = create_team_bot_installation user_id: tb.id, settings: { archive_archive_is_enabled: false }
+    assert tbi.get_archive_archive_org_enabled
     assert !tbi.get_archive_archive_is_enabled
-    assert_nil tbi.get_archive_archive_org_enabled
-    assert_nil tbi.get_archive_keep_backup_enabled
+    assert !tbi.get_archive_keep_backup_enabled
   end
 end
