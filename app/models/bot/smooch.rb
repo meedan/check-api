@@ -794,7 +794,7 @@ class Bot::Smooch < BotUser
     return nil if hashtags.blank?
 
     # Only add team tags.
-    TagText.where(team_id: pm.team_id).each do |tag|
+    TagText.where("team_id = ? AND text IN (?)", pm.team_id, hashtags).each do |tag|
       unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
         Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
       end
