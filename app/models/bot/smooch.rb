@@ -447,11 +447,12 @@ class Bot::Smooch < BotUser
   end
 
   # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-  def self.format_template_message(template, placeholders, fallback, language)
+  def self.format_template_message(template, placeholders, image, fallback, language)
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
     locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : 'en'
     data = { namespace: namespace, template: template, fallback: fallback, language: locale }
+    data['header_image'] = image unless image.blank?
     output = ['&((']
     data.each do |key, value|
       output << "#{key}=[[#{value}]]"
@@ -489,7 +490,7 @@ class Bot::Smooch < BotUser
     query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
     placeholders = [query_date, original['message']]
     fallback = original['message']
-    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, nil, fallback, language))
     true
   end
 
@@ -504,9 +505,9 @@ class Bot::Smooch < BotUser
         text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
         text = I18n.t(:smooch_bot_no_text_message, { locale: language }) if text.blank?
         image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
-        placeholders = [query_date, text, image]
+        placeholders = [query_date, text]
         fallback = [text, image].map(&:to_s).join("\n")
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, image, fallback, language))
         return true
       end
     end
@@ -523,7 +524,7 @@ class Bot::Smooch < BotUser
         language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
         query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information', [query_date, m.text], m.text, language))
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed', [query_date, m.text], nil, m.text, language))
         return true
       end
     end
@@ -916,10 +917,10 @@ class Bot::Smooch < BotUser
         message = workflow['smooch_message_smooch_bot_result_changed']
         self.send_message_to_user(uid, message)
         sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'report_update')
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
       end
     else
-      self.send_report_to_user(uid, data, pm, lang, 'report')
+      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
   end
 
@@ -958,7 +959,7 @@ class Bot::Smooch < BotUser
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'report')
+      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
     end
   end
 
