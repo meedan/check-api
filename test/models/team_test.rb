@@ -2550,15 +2550,15 @@ class TeamTest < ActiveSupport::TestCase
     rules[0][:rules][:groups][1][:operator] = 'or'
     t.rules = rules.to_json
     t.save!
+    p1 = p1.reload
     pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
     pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
     assert_equal [p2], pm1.projects
     assert_equal [p2], pm2.projects
-    # TODO: Sawy fix 
-    # assert_equal [p2], pm3.projects
-    # assert_equal [p2], pm4.projects
+    assert_equal [p2], pm3.projects
+    assert_equal [p2], pm4.projects
   end
 
   test "should match rules with operators 2" do

@@ -428,22 +428,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     User.current = nil
   end
 
-  # TODO: Sawy - review queries as there is no versions for ProjectMedia related to project change
-  # test "should check if project media belonged to a previous project" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t
-  #   p = create_project team: t
-  #   p2 = create_project team: t
-  #   with_current_user_and_team(u, t) do
-  #     pm = create_project_media team: t, add_to_project_id: p
-  #     assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
-  #     pm.project = p2; pm.save!
-  #     assert_equal p2, pm.project
-  #     assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
-  #   end
-  # end
-
   test "should get log" do
     create_verification_status_stuff
     create_task_status_stuff(false)
