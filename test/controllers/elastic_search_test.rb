@@ -30,7 +30,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
     sleep 20
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
     ids = []
@@ -58,28 +58,25 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
-    p_ids = []
     m_ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
       m_ids << id["node"]["dbid"]
-      p_ids << id["node"]["project_id"]
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
-    assert_equal [p.id, p2.id], p_ids.sort
     pm2.metadata = {description: 'new_description'}.to_json
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, metadata } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, metadata } } } } }'
     post :create, query: query
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = id["node"]["metadata"]
+      result[id["node"]["dbid"]] = id["node"]["metadata"]
     end
-    assert_equal 'new_description', result[p2.id]["description"]
-    assert_equal 'search_desc', result[p.id]["description"]
+    assert_equal 'new_description', result[pm2.id]["description"]
+    assert_equal 'search_desc', result[pm.id]["description"]
   end
 
   test "should search by dynamic annotation" do
@@ -156,10 +153,10 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     authenticate_with_user(u)
     id = Base64.encode64("ProjectMedia/#{pm.id}")
-    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", move_to_project_id: #{p2.id} }) { project_media { project_id } } }"
+    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", move_to_project_id: #{p2.id} }) { project_media { project_ids } } }"
     post :create, query: query, team: @team.slug
     assert_response :success
-    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
+    assert_equal [p2.id], JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_ids']
   end
 
   test "should not update es inactive field in bulk update" do

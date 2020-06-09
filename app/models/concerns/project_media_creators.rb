@@ -4,9 +4,7 @@ module ProjectMediaCreators
   extend ActiveSupport::Concern
 
   def get_team
-    team = self.team
-    team = self.project&.team if team.nil? && self.respond_to?(:project)
-    team
+    self.team
   end
 
   def create_auto_tasks(tasks = [])

@@ -794,14 +794,11 @@ class Bot::Smooch < BotUser
     return nil if hashtags.blank?
 
     # Only add team tags.
-    TagText
-      .joins('LEFT JOIN projects ON projects.team_id = tag_texts.team_id')
-      .where('projects.id=? AND text IN (?)', pm.project_ids.first, hashtags)
-      .each do |tag|
-        unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
-          Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
-        end
+    TagText.where(team_id: pm.team_id).each do |tag|
+      unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
+        Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
       end
+    end
   end
 
   def self.ban_user(message)

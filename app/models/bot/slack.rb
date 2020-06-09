@@ -25,12 +25,10 @@ class Bot::Slack < BotUser
   end
 
   def notify_slack(model)
-    p = self.get_project(model)
-    t = self.get_team(model, p)
+    t = self.get_team(model)
 
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)
-      channel = p.setting(:slack_channel) unless p.nil?
       channel ||= t.setting(:slack_channel)
       attachment = model.slack_notification_message if model.respond_to?(:slack_notification_message)
       attachment = {
@@ -38,10 +36,10 @@ class Bot::Slack < BotUser
       } if attachment.is_a? String
       self.send_notification(model, webhook, channel, attachment)
     end
-    self.notify_admin(model, t, p)
+    self.notify_admin(model, t)
   end
 
-  def notify_admin(model, team, project)
+  def notify_admin(model, team)
     if self.should_notify?(self, model)
       webhook = self.setting(:slack_webhook)
       channel = self.setting(:slack_channel)
@@ -51,7 +49,6 @@ class Bot::Slack < BotUser
       } if attachment.is_a? String
       unless attachment&.dig(:pretext).blank?
         prefix = team.name
-        prefix += ": #{project.title}" unless project.nil?
         attachment[:pretext] = "[#{prefix}] #{attachment[:pretext]}"
       end
       self.send_notification(model, webhook, channel, attachment)
@@ -107,24 +104,8 @@ class Bot::Slack < BotUser
 
   protected
 
-  def get_project(model)
-    p = model.project if model.respond_to?(:project)
-    model = model.assigned if model.is_a?(Assignment)
-    p = model if model.class.to_s == 'Project'
-    p = self.get_project_for_annotation(model) if model.is_annotation?
-    p
-  end
-
-  def get_project_for_annotation(model)
-    p = nil
-    p = model&.annotated&.media_project if model.annotated_type == 'ProjectMedia'
-    p = model&.annotated&.annotated&.media_project if model.annotated_type == 'Task'
-    p
-  end
-
-  def get_team(model, project)
+  def get_team(model)
     t = model.team if model.respond_to?(:team)
-    t ||= project.team unless project.nil?
     t = Team.where(id: model.get_team.last.to_i).last if t.nil? && model.is_annotation?
     t
   end
@@ -195,7 +176,6 @@ class Bot::Slack < BotUser
       json[0]['color'] = self.last_status_color
       json[0]['fields'][0]['value'] = self.get_versions_log_count
       json[0]['fields'][2]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
-      json[0]['fields'][3]['value'] = self.media_project&.title
 
       json[0]['fields'][4] = { title: 'Tasks Completed', value: "#{self.completed_tasks_count}/#{self.all_tasks.size}", short: true } if self.all_tasks.size > 0
 

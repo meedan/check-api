@@ -5,7 +5,7 @@ module CheckExport
 
   def export(last_id = 0, annotation_types = ['comment', 'task'])
     self.project_medias.order(:id).find_each(start: last_id + 1).collect{ |pm| Hash[
-      project_id: pm.project_ids.first,
+      team_id: pm.team_id,
       report_id: pm.id,
       report_title: pm.title,
       report_url: pm.full_url,

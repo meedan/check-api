@@ -294,7 +294,7 @@ class TeamBotTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment text: 'Test Comment'
     s = create_source name: 'Test Source'
-    assert_equal pm.id, tb.graphql_result('id, dbid, project { title }', pm, t)['dbid']
+    assert_equal pm.id, tb.graphql_result('id, dbid', pm, t)['dbid']
     assert_equal 'Test Source', tb.graphql_result('id, dbid, name', s, t)['name']
     assert_equal({ text: 'Test Comment' }.to_json, tb.graphql_result('id, dbid, content', c, t)['content'])
     assert tb.graphql_result('invalid fragment', c, t).has_key?('error')

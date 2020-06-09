@@ -134,6 +134,7 @@ module AnnotationBase
         status_id = self.annotated&.last_status_obj&.id
         users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
       elsif self.annotation_type == 'verification_status'
+        # TODO: Sawy
         project_id = self.annotated&.project_ids.first
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end
@@ -265,7 +266,6 @@ module AnnotationBase
     team = []
     obj = self.annotated.reload if self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
-    obj = obj.project if obj.respond_to?(:project) && obj.project
     if !obj.nil? && obj.respond_to?(:team)
       team = [obj.team.id] unless obj.team.nil?
     end
@@ -325,7 +325,7 @@ module AnnotationBase
   end
 
   def team_for_slack_params(object)
-    object.respond_to?(:project) ? object.project.team : object.team
+    object.team
   end
 
   def slack_params
@@ -338,7 +338,6 @@ module AnnotationBase
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
-      project: Bot::Slack.to_slack(object.media_project&.title&.to_s),
       role: I18n.t("role_" + user.role(team).to_s),
       team: Bot::Slack.to_slack(team.name),
       item: Bot::Slack.to_slack_url(object.full_url, item),

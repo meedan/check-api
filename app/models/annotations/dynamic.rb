@@ -195,7 +195,7 @@ class Dynamic < ActiveRecord::Base
 
   def attribution_contains_only_team_members
     unless self.set_attribution.blank?
-      team_id = self.annotated.respond_to?(:project) ? self.annotated.project.team_id : self.annotated.team_id
+      team_id = self.annotated.team_id
       members_ids = TeamUser.where(team_id: team_id, status: 'member').map(&:user_id).map(&:to_i)
       invalid = []
       self.set_attribution.split(',').each do |uid|

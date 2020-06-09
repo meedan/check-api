@@ -95,7 +95,7 @@ class GraphqlController2Test < ActionController::TestCase
       error_info = ret['errors'].first
       assert_equal error_info.keys.sort, ['code', 'data', 'message'].sort
       assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
-      assert_kind_of Integer, error_info['data']['project_id']
+      assert_kind_of Integer, error_info['data']['team_id']
       assert_kind_of Integer, error_info['data']['id']
       assert_equal 'media', error_info['data']['type']
     end

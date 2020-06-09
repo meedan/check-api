@@ -33,8 +33,7 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      # TODO: Sawy - review versions query
-      if obj && (obj.project_ids.include?(pid) || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      if obj && (obj.project_ids.include?(pid) || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
         obj = ProjectMedia.joins("INNER JOIN project_media_projects pmp ON pmp.project_media_id = project_medias.id")
@@ -120,10 +119,10 @@ module ProjectAssociation
       obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
       unless obj.nil?
         error = {
-          message: I18n.t("#{obj_name}_exists", project_id: obj.project_ids.first, id: obj.id),
+          message: I18n.t("#{obj_name}_exists", team_id: obj.team_id, id: obj.id),
           code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
           data: {
-            project_id: obj.project_ids.first,
+            team_id: obj.team_id,
             type: obj_name,
             id: obj.id,
             url: obj.full_url

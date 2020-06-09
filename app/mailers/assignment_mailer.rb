@@ -10,7 +10,6 @@ class AssignmentMailer < ApplicationMailer
       url = project_media.full_url
       title, media_title = project_media.title
       description = project_media.description
-      project = project_media.media_project
       team = project_media.team
       if annotation.annotation_type == 'task'
         task = annotation.load

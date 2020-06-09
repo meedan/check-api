@@ -7,8 +7,6 @@ class ProjectMediaProject < ActiveRecord::Base
   belongs_to :project_media
 
   validates_presence_of :project, :project_media
-  # TODO: fixme remove project archived validation from ProjectMedia
-  # validate :project_is_not_archived, unless: proc { |pmp| pmp.project_media && pmp.project_media.is_being_copied }
 
   after_create :update_index_in_elasticsearch
   after_destroy :update_index_in_elasticsearch
@@ -37,8 +35,4 @@ class ProjectMediaProject < ActiveRecord::Base
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self.project_media }))
     end
   end
-
-  # def project_is_not_archived
-  #   parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
-  # end
 end

@@ -25,8 +25,8 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.media_project, pm.project_was, pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.media_project, pm.project_was, pm.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.project_was, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project_was, pm.team, pm.copied_to_project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -54,7 +54,6 @@ class ProjectMedia < ActiveRecord::Base
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
       role: I18n.t('role_' + user.role(self.team).to_s),
-      project: Bot::Slack.to_slack(self.media_project&.title&.to_s),
       team: Bot::Slack.to_slack(self.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),
@@ -187,8 +186,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    project = self.project_ids.blank? ? nil : Project.find_by_id(self.project_ids.first)
-    project ? "#{project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
+    "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)
@@ -277,10 +275,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def project_ids
     self.projects.map(&:id)
-  end
-
-  def media_project
-    self.projects.first
   end
 
   def add_destination_team_tasks_bg(project)

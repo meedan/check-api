@@ -76,25 +76,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # field :account do
-  #   type -> { AccountType }
-  #
-  #   resolve -> (project_media, _args, _ctx) {
-  #     RecordLoader.for(Media).load(project_media.media_id).then do |media|
-  #       RecordLoader.for(Account).load(media.account_id)
-  #     end
-  #   }
-  # end
-  #
-  # field :team do
-  #   type -> { TeamType }
-  #
-  #   resolve ->(project_media, _args, _ctx) {
-  #     RecordLoader.for(Project).load(project_media.project_id).then do |project|
-  #       RecordLoader.for(Team).load(project.team_id)
-  #     end
-  #   }
-  # end
   { media: :account }.each do |key, value|
     type = "#{value.to_s.capitalize}Type".constantize
     field value do
@@ -113,22 +94,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Team).load(project_media.team_id)
-    }
-  end
-
-  field :project_id do
-    type types.Int
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current ? Project.current.reload.id : project_media.reload.project_ids.first
-    }
-  end
-
-  field :project do
-    type -> { ProjectType }
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current || RecordLoader.for(Project).load(project_media.project_ids.first)
     }
   end
 

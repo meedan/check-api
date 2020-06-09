@@ -126,11 +126,9 @@ class Ability
       if v_obj
         teams = v_obj.get_team if v_obj.respond_to?(:get_team)
         teams << v_obj.team_id if teams.blank? and v_obj.respond_to?(:team)
-        teams << v_obj.project.team_id if teams.blank? and v_obj.respond_to?(:project)
       end
       if v_obj_parent
         teams << v_obj_parent.team_id if v_obj_parent.respond_to?(:team)
-        teams << v_obj_parent.project.team_id if v_obj_parent.respond_to?(:project)
       end
       teams.include?(@context_team.id)
     end

@@ -352,7 +352,7 @@ class ProjectTest < ActiveSupport::TestCase
       task = create_task annotator: create_user, annotated: pm
       exported_data = p.export
       assert_equal 1, exported_data.size
-      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal p.team_id, exported_data.first[:team_id]
       assert_equal pm.id, exported_data.first[:report_id]
       assert_equal 'sports', exported_data.first[:tags]
       assert_equal c.text, exported_data.first[:note_content_1]
@@ -373,7 +373,7 @@ class ProjectTest < ActiveSupport::TestCase
       task = create_task annotator: create_user, annotated: pm
       exported_data = p.export(pm.id)
       assert_equal 1, exported_data.size
-      assert_equal p.id, exported_data.first[:project_id]
+      assert_equal p.team_id, exported_data.first[:team_id]
       assert_equal pm2.id, exported_data.first[:report_id]
       assert_equal 'music', exported_data.first[:tags]
       assert_equal 'Note 2', exported_data.first[:note_content_1]
@@ -460,7 +460,7 @@ class ProjectTest < ActiveSupport::TestCase
     task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     task.save!
     exported_data = p.export_csv.values.first
-    header = "project_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note"
+    header = "team_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note"
     assert_match(header, exported_data)
   end
 
