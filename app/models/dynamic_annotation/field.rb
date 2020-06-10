@@ -35,6 +35,10 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     json.merge({ formatted_value: self.to_s })
   end
 
+  def team
+    self.annotation.team
+  end
+
   include Versioned
 
   protected

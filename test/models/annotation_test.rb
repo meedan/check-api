@@ -56,9 +56,9 @@ class AnnotationTest < ActiveSupport::TestCase
     mc = create_comment annotated: nil
     pm = create_project_media project: p, media: m
     pm.add_annotation mc
-    assert_equal mc.get_team, [t.id]
+    assert_equal mc.team, t
     c = create_comment annotated: nil
-    assert_empty c.get_team
+    assert_nil c.team
   end
 
   test "should have number of annotations" do
@@ -400,7 +400,7 @@ class AnnotationTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm
     c.assign_user(u.id)
-    assert_equal [t.id], c.assignments.last.get_team
+    assert_equal t, c.assignments.last.team
   end
 
   test "should assign users when status is created" do

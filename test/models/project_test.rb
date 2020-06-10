@@ -692,7 +692,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should get team" do
     t = create_team
     p = create_project team: t
-    assert_equal t.id, p.get_team.first
+    assert_equal t, p.team
   end
 
   test "should notify Slack when project is assigned" do

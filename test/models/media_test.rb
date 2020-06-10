@@ -157,18 +157,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal [pm1, pm2], m.project_medias
   end
 
-  test "should have projects" do
-    p1 = create_project
-    p2 = create_project
-    pm1 = create_project_media project: p1
-    pm2 = create_project_media project: p2
-    m = create_valid_media
-    assert_equal [], m.project_medias
-    m.project_medias << pm1
-    m.project_medias << pm2
-    assert_equal [p1, p2].sort, m.projects.sort
-  end
-
   test "should set URL from Pender" do
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
@@ -296,24 +284,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    assert_equal m.get_team, [t.id]
-  end
-
-  test "should set project" do
-    p = create_project
-    m = nil
-    assert_difference 'ProjectMedia.count' do
-      m = create_valid_media project_id: p.id
-    end
-    assert_equal [p], m.projects
-  end
-
-  test "should not set project" do
-    m = nil
-    assert_no_difference 'ProjectMedia.count' do
-      m = create_valid_media
-    end
-    assert_equal [], m.projects
+    assert_equal m.get_teams, [t.id]
   end
 
   test "should get domain" do

@@ -48,6 +48,10 @@ class Team < ActiveRecord::Base
     url || CONFIG['checkdesk_client'] + '/' + self.slug
   end
 
+  def team
+    self
+  end
+
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end

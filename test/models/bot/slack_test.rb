@@ -176,7 +176,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     tk = create_task annotated: pm
     c = create_comment annotated: tk
-    assert_equal t, Bot::Slack.new.send(:get_team, c)
+    assert_equal t, c.team
   end
 
   test "should notify about related claims" do

@@ -17,20 +17,8 @@ class Version < Partitioned::ByForeignKey
   end
 
   def self.get_team_id_from_item_type(item_type, item)
-    case item_type
-    when 'Dynamic', 'Task', 'Tag', 'Comment', 'Annotation'
-      item.team&.id
-    when 'DynamicAnnotation::Field'
-      item.annotation&.team&.id
-    when 'Relationship'
-      item.source&.team_id
-    when 'ProjectMedia', 'Account', 'Source', 'Project', 'Assignment'
-      item.team_id
-    when 'Team'
-      item.id
-    else
-      nil
-    end
+    item = item.source if item_type == 'Relationship'
+    item.respond_to?(:team) ? item.team&.id : nil
   end
 
   def item_class
