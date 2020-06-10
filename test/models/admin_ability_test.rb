@@ -252,15 +252,11 @@ class AdminAbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s = create_status status: 'verified', annotated: pm
-
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, s)
       assert ability.can?(:update, s)
       assert ability.can?(:destroy, s)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
-      assert ability.cannot?(:destroy, s)
     end
   end
 
@@ -268,26 +264,19 @@ class AdminAbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     em = create_metadata annotated: pm
-
     link = create_valid_media({ type: 'link', team: t })
     em_link = create_metadata annotated: link
-
     account = create_valid_account team: t
     em_account = create_metadata annotated: account
-
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, em)
       assert ability.cannot?(:read, em)
       assert ability.can?(:update, em)
       assert ability.can?(:destroy, em)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:destroy, em)
-
       assert ability.cannot?(:read, em_link)
       assert ability.cannot?(:update, em_link)
       assert ability.cannot?(:destroy, em_link)
-
       assert ability.can?(:update, em_account)
       assert ability.cannot?(:read, em_account)
       assert ability.can?(:destroy, em_account)
@@ -298,15 +287,11 @@ class AdminAbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
-
     with_current_user_and_team(u) do
       ability = AdminAbility.new
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:update, tg)
       assert ability.can?(:destroy, tg)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -463,11 +448,8 @@ class AdminAbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     tk = create_task annotator: u, annotated: pm
-
     with_current_user_and_team(u) do
       ability = AdminAbility.new
-      assert ability.cannot?(:create, tk)
-      pm.update_column(:team_id, nil)
       assert ability.cannot?(:create, tk)
     end
   end

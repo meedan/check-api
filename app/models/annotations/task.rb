@@ -49,10 +49,6 @@ class Task < ActiveRecord::Base
     self.last_task_status
   end
 
-  def team
-    self&.annotated&.team
-  end
-
   def to_s
     self.label
   end

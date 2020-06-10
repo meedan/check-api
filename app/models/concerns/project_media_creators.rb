@@ -3,12 +3,8 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def get_team
-    self.team
-  end
-
   def create_auto_tasks(tasks = [])
-    team = self.get_team
+    team = self.team
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
@@ -86,7 +82,7 @@ module ProjectMediaCreators
   end
 
   def create_link
-    team = self.get_team || Team.current
+    team = self.team || Team.current
     pender_key = team.get_pender_key if team
     url = Link.normalized(self.url, pender_key)
     Link.find_by(url: url) || Link.create(url: url, pender_key: pender_key)

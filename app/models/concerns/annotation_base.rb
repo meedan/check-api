@@ -262,18 +262,18 @@ module AnnotationBase
     Base64.encode64(str)
   end
 
-  def get_team
-    team = []
-    obj = self.annotated.reload if self.annotated
+  def team
+    team = nil
+    obj = self.annotated if self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
     if !obj.nil? && obj.respond_to?(:team)
-      team = [obj.team.id] unless obj.team.nil?
+      team = obj.team
     end
     team
   end
 
   def team_id
-    self.get_team.last.to_i
+    self.team&.id
   end
 
   def current_team
@@ -324,17 +324,13 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
-  def team_for_slack_params(object)
-    object.team
-  end
-
   def slack_params
     object = self.project_media
     item = object.title
     item_type = object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
     user = User.current or self.annotator
-    team = self.team_for_slack_params(object)
+    team = object.team
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,

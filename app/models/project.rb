@@ -53,10 +53,6 @@ class Project < ActiveRecord::Base
     image_callback(value)
   end
 
-  def get_team
-    [self.team.id]
-  end
-
   def avatar
     # We are not really using now, so just return the default image
     # self.lead_image&.file&.public_url&.to_s

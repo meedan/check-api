@@ -684,14 +684,10 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s =  create_status status: 'verified', annotator: u, annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:create, s)
       assert ability.cannot?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
   end
@@ -725,14 +721,10 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s =  create_status status: 'verified', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
       assert ability.can?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
   end
@@ -745,15 +737,11 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s = create_status status: 'verified', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
       assert ability.can?(:update, s)
       assert ability.can?(:destroy, s)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
-      assert ability.cannot?(:destroy, s)
     end
   end
 
@@ -764,14 +752,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     em = create_metadata annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, em)
       assert ability.can?(:update, em)
       assert ability.can?(:destroy, em)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:destroy, em)
     end
   end
 
@@ -794,9 +779,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:update, tg)
       assert ability.can?(:destroy, tg)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -828,15 +810,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tg)
       assert ability.can?(:update, tg)
       assert ability.can?(:destroy, tg)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -847,15 +825,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tg)
       assert ability.can?(:update, tg)
       assert ability.can?(:destroy, tg)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -1248,8 +1222,6 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tk)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tk)
     end
   end
 
@@ -1265,8 +1237,6 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tk)
-      pm.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tk)
     end
   end
 
@@ -2131,7 +2101,6 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "should be able to leave team" do
     TeamUser.role_types.each do |role|
-      puts role
       User.current = Team.current = nil
       u = create_user
       t = create_team

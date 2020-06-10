@@ -25,7 +25,7 @@ class Bot::Slack < BotUser
   end
 
   def notify_slack(model)
-    t = self.get_team(model)
+    t = model.team if model.respond_to?(:team)
 
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)
@@ -103,12 +103,6 @@ class Bot::Slack < BotUser
   end
 
   protected
-
-  def get_team(model)
-    t = model.team if model.respond_to?(:team)
-    t = Team.where(id: model.get_team.last.to_i).last if t.nil? && model.is_annotation?
-    t
-  end
 
   module SlackMessage
     def self.included(base)

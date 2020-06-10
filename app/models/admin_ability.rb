@@ -38,15 +38,15 @@ class AdminAbility
     end
     %w(annotation comment tag dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        !(obj.get_team & @teams).empty?
+        @teams.include?(obj.team.id) if obj.team
       end
     end
 
     can :update, [Dynamic, Annotation], ['annotation_type = ?', 'metadata'] do |obj|
-      !(obj.get_team & @teams).empty?
+      @teams.include?(obj.team.id) if obj.team
     end
     can :destroy, DynamicAnnotation::Field do |obj|
-      !(obj.annotation.get_team & @teams).empty?
+      @teams.include?(obj.annotation.team.id) if obj.annotation.team
     end
 
     can :create, Version

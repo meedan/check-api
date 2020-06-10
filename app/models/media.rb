@@ -21,16 +21,8 @@ class Media < ActiveRecord::Base
     'Media'
   end
 
-  def projects
-    ProjectMediaProject.where(project_media_id: self.project_medias.map(&:id)).map(&:project)
-  end
-
-  def get_team
-    self.projects.map(&:team_id)
-  end
-
-  def get_team_objects
-    self.projects.map(&:team)
+  def get_teams
+    self.project_medias.map(&:team_id)
   end
 
   def file_path

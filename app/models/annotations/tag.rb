@@ -28,15 +28,11 @@ class Tag < ActiveRecord::Base
     self.tag_text_object&.text&.to_s
   end
 
-  def team
-    Team.where(id: self.get_team.first).last
-  end
-
   private
 
   def get_tag_text_reference
     if self.tag.is_a?(String)
-      team_id = self.get_team.first
+      team_id = self.team_id
       tag_text = TagText.where(text: self.tag, team_id: team_id).last
       if tag_text.nil? && team_id.present?
         tag_text = TagText.new

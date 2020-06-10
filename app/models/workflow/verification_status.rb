@@ -42,7 +42,7 @@ class Workflow::VerificationStatus < Workflow::Base
 
     def apply_rules
       status = self.annotation&.load
-      team = Team.where(id: status.get_team.last.to_i).last
+      team = Team.where(id: status.team_id).last
       if !team.nil? && status.annotated_type == 'ProjectMedia'
         # Evaluate only the rules that contain a condition that matches this status
         rule_ids = team.get_rules_that_match_condition do |condition, value|
