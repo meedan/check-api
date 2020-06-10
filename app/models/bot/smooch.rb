@@ -498,15 +498,16 @@ class Bot::Smooch < BotUser
     pm = ProjectMedia.where(id: original['project_media_id']).last
     unless pm.nil?
       report = pm.get_dynamic_annotation('report_design')
-      if !report.nil? && report.get_field_value('state') == 'published'
+      if report&.get_field_value('state') == 'published'
         template = original['fallback_template']
         language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
-        text = I18n.t(:smooch_bot_no_text_message, { locale: language }) if text.blank?
         image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
-        placeholders = [query_date, text]
-        fallback = [text, image].map(&:to_s).join("\n")
+        placeholders = [query_date, text].reject{ |p| p.blank? }
+        fallback = [text, image].reject{ |p| p.blank? }.map(&:to_s).join("\n")
+        template = "#{template}_text_only" if image.blank?
+        template = "#{template}_image_only" if text.blank?
         self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, image, fallback, language))
         return true
       end
@@ -524,7 +525,7 @@ class Bot::Smooch < BotUser
         language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
         query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed', [query_date, m.text], nil, m.text, language))
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed_text_only', [query_date, m.text], nil, m.text, language))
         return true
       end
     end
