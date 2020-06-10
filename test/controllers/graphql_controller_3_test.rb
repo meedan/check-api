@@ -990,4 +990,53 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 1, child_comments.size
     assert_equal 'Child', child_comments[0]['node']['text']
   end
+
+  test "should create and retrieve clips" do
+    json_schema = {
+      type: 'object',
+      required: ['label'],
+      properties: {
+        label: { type: 'string' }
+      }
+    }
+    DynamicAnnotation::AnnotationType.reset_column_information
+    create_annotation_type_and_fields('Clip', {}, json_schema)
+    u = create_user is_admin: true
+    p = create_project
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+
+    query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
+    assert_difference 'Annotation.where(annotation_type: "clip").count', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    annotation = JSON.parse(@response.body)['data']['createDynamic']['dynamic']
+    assert_equal 'Clip Label', annotation['data']['label']
+    assert_equal({ 't' => [10, 20] }, annotation['parsed_fragment'])
+
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          clips: annotations(first: 10000, annotation_type: "clip") {
+            edges {
+              node {
+                ... on Dynamic {
+                  id
+                  data
+                  parsed_fragment
+                }
+              }
+            }
+          }
+        }
+      } 
+    }
+    post :create, query: query, team: pm.team.slug
+    assert_response :success
+    clips = JSON.parse(@response.body)['data']['project_media']['clips']['edges']
+    assert_equal 1, clips.size
+    assert_equal 'Clip Label', clips[0]['node']['data']['label']
+    assert_equal({ 't' => [10, 20] }, clips[0]['node']['parsed_fragment'])
+  end
 end
