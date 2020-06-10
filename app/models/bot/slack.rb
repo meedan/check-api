@@ -102,8 +102,6 @@ class Bot::Slack < BotUser
     end
   end
 
-  protected
-
   module SlackMessage
     def self.included(base)
       base.send :extend, ClassMethods
