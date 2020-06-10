@@ -39,6 +39,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :trash_count, types.Int
   field :get_languages, types.String
+  field :get_language, types.String
 
   field :public_team do
     type PublicTeamType

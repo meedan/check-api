@@ -12,22 +12,18 @@ class WebhooksControllerTest < ActionController::TestCase
       { name: 'smooch_secret_key_secret', label: 'Smooch Secret Key: Secret', type: 'string', default: '' },
       { name: 'smooch_webhook_secret', label: 'Smooch Webhook Secret', type: 'string', default: '' },
       { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
-      { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
-      { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
-      { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 }
+      { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' }
     ]
     @team = create_team
     @project = create_project team_id: @team.id
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: []
     settings = {
       'smooch_project_id' => @project.id,
-      'smooch_bot_id' => random_string,
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => random_string,
       'smooch_secret_key_key_id' => random_string,
       'smooch_secret_key_secret' => random_string,
-      'smooch_template_namespace' => random_string,
-      'smooch_window_duration' => 10
+      'smooch_template_namespace' => random_string
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: settings, team_id: @team.id
   end

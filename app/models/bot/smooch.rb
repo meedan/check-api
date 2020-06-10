@@ -166,21 +166,6 @@ class Bot::Smooch < BotUser
         self.save!
       end
     end
-
-    # Upload custom strings to Transifex
-    after_save do
-      if self.bot_user.identifier == 'smooch'
-        strings = {}
-        self.settings.each do |key, value|
-          strings[key.to_s.gsub(/^smooch_message_smooch_bot_/, '')] = value if key.to_s =~ /^smooch_message_/ && !value.blank?
-        end
-        ['main', 'secondary', 'query'].each do |state|
-          value = self.settings.dig("smooch_state_#{state}", 'smooch_menu_message')
-          strings["smooch_state_#{state}_smooch_menu_message"] = value unless value.blank?
-        end
-        CheckI18n.upload_custom_strings_to_transifex_in_background(self.team, 'smooch_bot', strings) unless strings.blank?
-      end
-    end
   end
 
   SMOOCH_PAYLOAD_JSON_SCHEMA = {
@@ -332,19 +317,42 @@ class Bot::Smooch < BotUser
     self.parse_message_based_on_state(message, app_id)
   end
 
+  def self.get_workflow(language = nil)
+    team = Team.find(self.config['team_id'])
+    default_language = team.get_language || 'en'
+    language ||= default_language
+    workflow = nil
+    default_workflow = nil
+    self.config['smooch_workflows'].each do |w|
+      default_workflow = w if w['smooch_workflow_language'] == default_language
+      workflow = w if w['smooch_workflow_language'] == language
+    end
+    workflow || default_workflow
+  end
+
+  def self.get_user_language(message, state = nil)
+    uid = message['authorId']
+    Rails.cache.fetch("smooch:user_language:#{uid}") do
+      team = Team.find(self.config['team_id'])
+      language = team.get_language || 'en'
+      language = self.get_language(message) if state == 'waiting_for_message'
+      language
+    end
+  end
+
   def self.parse_message_based_on_state(message, app_id)
     uid = message['authorId']
-    message['language'] ||= Rails.cache.read("smooch:user_language:#{uid}")
     sm = CheckStateMachine.new(uid)
     state = sm.state.value
+    language = self.get_user_language(message, state)
+    workflow = self.get_workflow(language)
+    message['language'] = language
     case state
     when 'waiting_for_message'
-      message['language'] = self.get_language(message)
-      Rails.cache.write("smooch:user_language:#{uid}", message['language'])
-      has_main_menu = (self.config.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
+      has_main_menu = (workflow.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
-        main_message = [self.i18n_t(:smooch_bot_greetings, { locale: message['language'] }), self.i18n_t(['smooch_bot', 'smooch_state_main', 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        main_message = [workflow['smooch_message_smooch_bot_greetings'], workflow.dig('smooch_state_main', 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, main_message)
       else
         sm.go_to_query
@@ -352,7 +360,7 @@ class Bot::Smooch < BotUser
       end
     when 'main', 'secondary'
       if !self.process_menu_option(message, state)
-        no_option_message = [self.i18n_t(:smooch_bot_option_not_available, { locale: message['language'] }), self.i18n_t(['smooch_bot', "smooch_state_#{state}", 'smooch_menu_message'], { locale: message['language'] })].join("\n\n")
+        no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], workflow.dig("smooch_state_#{state}", 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
@@ -363,18 +371,24 @@ class Bot::Smooch < BotUser
   def self.process_menu_option(message, state)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
-    self.config.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
+    language = self.get_user_language(message, state)
+    workflow = self.get_workflow(language)
+    workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           sm.send("go_to_#{new_state}")
-          self.send_message_to_user(uid, self.i18n_t(['smooch_bot', "smooch_state_#{new_state}", 'smooch_menu_message'], { locale: message['language'] }))
+          self.send_message_to_user(uid, workflow.dig("smooch_state_#{new_state}", 'smooch_menu_message'))
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
-          lang = message['language'].blank? ? 'en' : message['language']
-          self.send_report_to_user(uid, {}, pm, lang)
+          self.send_report_to_user(uid, {}, pm, language)
           sm.reset
+        elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
+          Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
+          sm.send('go_to_main')
+          workflow = self.get_workflow(option['smooch_menu_option_value'])
+          self.send_message_to_user(uid, workflow.dig('smooch_state_main', 'smooch_menu_message'))
         end
         return true
       end
@@ -427,25 +441,18 @@ class Bot::Smooch < BotUser
     self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
   end
 
-  def self.i18n_t(key, options = {})
-    config = self.config || {}
-    team = Team.where(id: config['team_id'].to_i).last
-    fallback = key.is_a?(Array) ? config.dig(*(key - ['smooch_bot'])) : config["smooch_message_#{key}"]
-    key = key.join('_') if key.is_a?(Array)
-    CheckI18n.i18n_t(team, key, fallback, options)
-  end
-
   def self.template_locale_options
     languages = Team.current&.get_languages
     languages.blank? ? ['en'] : languages
   end
 
   # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-  def self.format_template_message(template, placeholders, fallback, language)
+  def self.format_template_message(template, placeholders, image, fallback, language)
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
     locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : 'en'
     data = { namespace: namespace, template: template, fallback: fallback, language: locale }
+    data['header_image'] = image unless image.blank?
     output = ['&((']
     data.each do |key, value|
       output << "#{key}=[[#{value}]]"
@@ -479,11 +486,11 @@ class Bot::Smooch < BotUser
 
   def self.resend_rules_message_after_window(message, original)
     template = original['fallback_template']
-    language = original['language']
+    language = self.get_user_language(message)
     query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
     placeholders = [query_date, original['message']]
     fallback = original['message']
-    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, nil, fallback, language))
     true
   end
 
@@ -493,14 +500,14 @@ class Bot::Smooch < BotUser
       report = pm.get_dynamic_annotation('report_design')
       if !report.nil? && report.get_field_value('state') == 'published'
         template = original['fallback_template']
-        language = original['language']
+        language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
         text = I18n.t(:smooch_bot_no_text_message, { locale: language }) if text.blank?
         image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
-        placeholders = [query_date, text, image]
+        placeholders = [query_date, text]
         fallback = [text, image].map(&:to_s).join("\n")
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, fallback, language))
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, image, fallback, language))
         return true
       end
     end
@@ -514,10 +521,10 @@ class Bot::Smooch < BotUser
     return if result.nil?
     result.messages.each do |m|
       if m.source&.type == 'slack' && m.id == message['message']['_id']
-        language = self.get_language({ 'text' => m.text })
+        language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
         date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
         query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information', [query_date, m.text], m.text, language))
+        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed', [query_date, m.text], nil, m.text, language))
         return true
       end
     end
@@ -546,8 +553,9 @@ class Bot::Smooch < BotUser
 
   def self.discard_or_process_message(message, app_id)
     if self.config['smooch_disabled']
-      message['language'] = self.get_language(message)
-      self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_disabled, { locale: message['language'] }), {}, true)
+      language = self.get_user_language(message)
+      workflow = self.get_workflow(language)
+      self.send_message_to_user(message['authorId'], workflow['smooch_message_smooch_bot_disabled'], {}, true)
     else
       self.process_message(message, app_id)
     end
@@ -611,13 +619,14 @@ class Bot::Smooch < BotUser
   def self.send_tos_if_needed(uid, lang)
     last = Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i
     if last < User.terms_last_updated_at_by_page('tos_smooch') || last < Time.now.yesterday.to_i
-      self.send_message_to_user(uid, ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_tos, { locale: lang, tos: CheckConfig.get('tos_smooch_url') }))
+      workflow = self.get_workflow(lang)
+      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_ask_for_tos'].gsub('%{tos}', CheckConfig.get('tos_smooch_url')))
       Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     end
   end
 
   def self.process_message(message, app_id)
-    message['language'] = self.get_language(message)
+    message['language'] = self.get_user_language(message)
 
     return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
 
@@ -637,7 +646,8 @@ class Bot::Smooch < BotUser
 
   def self.save_message_later_and_reply_to_user(message, app_id)
     self.save_message_later(message, app_id)
-    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(:smooch_bot_message_confirmed, { locale: message['language'] }))
+    workflow = self.get_workflow(message['language'])
+    self.send_message_to_user(message['authorId'], workflow['smooch_message_smooch_bot_message_confirmed'])
   end
 
   def self.get_text_from_message(message)
@@ -671,9 +681,10 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_error_message(message, is_supported)
-    error_message = is_supported[:type] == false ? :smooch_bot_message_type_unsupported : :smooch_bot_message_size_unsupported
     max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
-    self.send_message_to_user(message['authorId'], ::Bot::Smooch.i18n_t(error_message, { locale: message['language'], max_size: max_size }))
+    workflow = self.get_workflow(message['language'])
+    error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
+    self.send_message_to_user(message['authorId'], error_message)
   end
 
   def self.smooch_api_client
@@ -893,20 +904,20 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.send_correction_to_user(data, previous_status, status, pm, subscribed_at, last_published_at, action)
+  def self.send_correction_to_user(data, _previous_status, _status, pm, subscribed_at, last_published_at, action)
     uid = data['authorId']
     lang = data['language']
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i
       if ['publish', 'republish_and_resend'].include?(action)
-        params = { locale: lang, status: status, previous_status: previous_status, url: '' }
-        message = self.i18n_t(:smooch_bot_result_changed, params)
+        workflow = self.get_workflow(lang)
+        message = workflow['smooch_message_smooch_bot_result_changed']
         self.send_message_to_user(uid, message)
         sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'report_update')
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
       end
     else
-      self.send_report_to_user(uid, data, pm, lang, 'report')
+      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
   end
 
@@ -945,7 +956,7 @@ class Bot::Smooch < BotUser
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
       self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'report')
+      self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
     end
   end
 
