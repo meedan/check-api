@@ -1,5 +1,4 @@
 window.addEventListener('graphiql.rendered', function(e) {
-
   // Add jQuery
   var script = document.createElement('script');
   script.type = 'text/javascript';
@@ -19,5 +18,8 @@ window.addEventListener('graphiql.rendered', function(e) {
     $form.append($key);
     $form.append($button);
     $form.insertAfter(jQuery('.toolbar-button').last());
+
+    // Insert META tag to avoid CF CAPTCHA.
+    jQuery('HEAD').append('<meta name="referrer" content="no-referrer">');
   }
 }, false);
