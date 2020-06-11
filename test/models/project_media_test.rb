@@ -1506,9 +1506,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal result.demand, 1
     result = MediaSearch.find(ms_pm2)
     assert_equal result.demand, 2
-    result = CheckSearch.new({projects: [p.id], sort: 'requests'}.to_json)
+    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json)
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p.id], sort: 'requests', sort_type: 'asc'}.to_json)
+    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id)
     r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
