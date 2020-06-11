@@ -496,21 +496,21 @@ class Bot::Smooch < BotUser
 
   def self.resend_report_after_window(message, original)
     pm = ProjectMedia.where(id: original['project_media_id']).last
-    unless pm.nil?
-      report = pm.get_dynamic_annotation('report_design')
-      if report&.get_field_value('state') == 'published'
-        template = original['fallback_template']
-        language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
-        query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-        text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
-        image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : I18n.t(:smooch_bot_no_visual_card, { locale: language })
-        placeholders = [query_date, text].reject{ |p| p.blank? }
-        fallback = [text, image].reject{ |p| p.blank? }.map(&:to_s).join("\n")
-        template = "#{template}_text_only" if image.blank?
-        template = "#{template}_image_only" if text.blank?
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, image, fallback, language))
-        return true
-      end
+    report = pm&.get_dynamic_annotation('report_design')
+    if report&.get_field_value('state') == 'published'
+      template = original['fallback_template']
+      language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
+      query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
+      text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
+      image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : nil
+      fallback = [text, image].reject{ |p| p.blank? }.map(&:to_s).join("\n")
+      # FIXME: We should check with WhatsApp if we can have longer text... we truncate at 70 because the limit is 160 but our longest template has 90 characters
+      text = text.to_s.truncate(70) unless image.blank?
+      placeholders = [query_date, text].reject{ |p| p.blank? }
+      template = "#{template}_text_only" if image.blank?
+      template = "#{template}_image_only" if text.blank?
+      self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, image, fallback, language))
+      return true
     end
     false
   end
