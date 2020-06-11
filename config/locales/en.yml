@@ -540,8 +540,6 @@ en:
     any verification reports, because this project is no longer active.
   smooch_bot_result_changed: "❗️The fact-check that we sent to you has been *updated*
     with new information"
-  smooch_bot_no_visual_card: "(no image provided)"
-  smooch_bot_no_text_message: "(no text provided)"
   permissions_info:
     roles:
       owner:
