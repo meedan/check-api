@@ -23,7 +23,7 @@ module AnnotationPrivate
   end
 
   def notify_team_bots(event)
-    team = self.team_id
+    team = self.team&.id
     BotUser.enqueue_event("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
     task = Task.where(id: self.id).last if self.annotation_type == 'task'
     BotUser.enqueue_event("#{event}_annotation_task_#{self.data['type']}", team, task) unless team.blank? || task.blank?

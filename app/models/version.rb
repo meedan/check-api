@@ -16,11 +16,6 @@ class Version < Partitioned::ByForeignKey
     integer_field_value.to_i / partition_table_size * partition_table_size
   end
 
-  def self.get_team_id_from_item_type(item_type, item)
-    item = item.source if item_type == 'Relationship'
-    item.respond_to?(:team) ? item.team&.id : nil
-  end
-
   def item_class
     self.item_type.constantize
   end
@@ -240,8 +235,7 @@ class Version < Partitioned::ByForeignKey
 
   def get_team_id
     item = self.item
-    return nil if item.nil?
-    Version.get_team_id_from_item_type(self.item_type, item)
+    self.item.nil? ? nil : self.item.team&.id
   end
 
   private

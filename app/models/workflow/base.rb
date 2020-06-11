@@ -48,7 +48,7 @@ module Workflow
       id = self.id
       proc do
         can [:destroy, :update], Dynamic, ['annotation_type = ?', id] do |obj|
-          obj.team_id == @context_team.id && obj.annotation_type == id
+          obj.team&.id == @context_team.id && obj.annotation_type == id
         end
       end
     end
@@ -57,7 +57,7 @@ module Workflow
       id = self.id
       proc do
         can [:create, :update], Dynamic, ['annotation_type = ?', id] do |obj|
-          obj.team_id == @context_team.id && !obj.annotated_is_archived? && obj.annotation_type == id && (@user.role?(:editor) || !obj.locked?)
+          obj.team&.id == @context_team.id && !obj.annotated_is_archived? && obj.annotation_type == id && (@user.role?(:editor) || !obj.locked?)
         end
         cannot [:destroy], Dynamic, ['annotation_type = ?', id] do |obj|
           obj.annotation_type == id
@@ -78,10 +78,10 @@ module Workflow
       id = self.id
       proc do
         can :destroy, Dynamic do |obj|
-          @teams.include?(obj.team_id)
+          @teams.include?(obj.team&.id)
         end
         can :update, Dynamic, ['annotation_type = ?', id] do |obj|
-          @teams.include?(obj.team_id) && obj.annotation_type == id
+          @teams.include?(obj.team&.id) && obj.annotation_type == id
         end
       end
     end

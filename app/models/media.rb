@@ -21,7 +21,7 @@ class Media < ActiveRecord::Base
     'Media'
   end
 
-  def get_teams
+  def team_ids
     self.project_medias.map(&:team_id)
   end
 

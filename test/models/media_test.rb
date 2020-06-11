@@ -284,7 +284,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    assert_equal m.get_teams, [t.id]
+    assert_equal m.team_ids, [t.id]
   end
 
   test "should get domain" do

@@ -49,6 +49,10 @@ class Relationship < ActiveRecord::Base
     self.target&.graphql_id.to_s
   end
 
+  def team
+    self.source.team
+  end
+
   def current_project_media
     ProjectMedia.where(id: self.current_id.to_i).last
   end

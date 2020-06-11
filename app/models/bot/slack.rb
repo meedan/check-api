@@ -25,7 +25,7 @@ class Bot::Slack < BotUser
   end
 
   def notify_slack(model)
-    t = model.team if model.respond_to?(:team)
+    t = model.team
 
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)

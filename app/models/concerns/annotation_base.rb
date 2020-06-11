@@ -138,7 +138,7 @@ module AnnotationBase
         project_id = self.annotated&.project_ids.first
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end
-      users = TeamUser.where(team_id: self.team_id, user_id: users, status: 'member').map(&:user_id) unless users.blank?
+      users = TeamUser.where(team_id: self.team&.id, user_id: users, status: 'member').map(&:user_id) unless users.blank?
       Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
     end
 
@@ -190,7 +190,7 @@ module AnnotationBase
   end
 
   def annotation_versions(options = {})
-    Version.from_partition(self.team_id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
+    Version.from_partition(self.team_&.id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
@@ -263,17 +263,9 @@ module AnnotationBase
   end
 
   def team
-    team = nil
     obj = self.annotated if self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
-    if !obj.nil? && obj.respond_to?(:team)
-      team = obj.team
-    end
-    team
-  end
-
-  def team_id
-    self.team&.id
+    obj.nil? ? nil: obj.team
   end
 
   def current_team

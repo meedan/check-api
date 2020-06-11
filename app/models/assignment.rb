@@ -28,10 +28,6 @@ class Assignment < ActiveRecord::Base
     assigned.nil? ? nil : assigned.team
   end
 
-  def team_id
-    self.team&.id
-  end
-
   protected
 
   def send_email_notification(action)

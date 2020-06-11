@@ -56,6 +56,10 @@ module ActiveRecordExtensions
     user.nil? ? nil : user.id
   end
 
+  def method_missing(key, *args, &block)
+    key.to_s == 'team' ? nil : super
+  end
+
   def dbid
     self.id
   end
@@ -69,7 +73,7 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    Version.from_partition(Version.get_team_id_from_item_type(self.class_name, self)).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if self.class_name.constantize.paper_trail.enabled?
+    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if self.class_name.constantize.paper_trail.enabled?
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
