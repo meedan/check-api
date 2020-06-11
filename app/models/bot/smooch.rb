@@ -504,8 +504,8 @@ class Bot::Smooch < BotUser
       text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
       image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : nil
       fallback = [text, image].reject{ |p| p.blank? }.map(&:to_s).join("\n")
-      # FIXME: We should check with WhatsApp if we can have longer text... we truncate at 70 because the limit is 160 but our longest template has 90 characters
-      text = text.to_s.truncate(70) unless image.blank?
+      # FIXME: We should check with WhatsApp if we can have longer text... we truncate at 70 because the limit is 160 (template + placeholders) but our longest template has 90 characters
+      text = text.to_s.truncate(70 - query_date.size) unless image.blank?
       placeholders = [query_date, text].reject{ |p| p.blank? }
       template = "#{template}_text_only" if image.blank?
       template = "#{template}_image_only" if text.blank?
