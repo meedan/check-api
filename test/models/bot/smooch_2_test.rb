@@ -270,56 +270,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should send strings to Transifex" do
-    t = create_team
-    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
-
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      s = tbi.settings.clone
-      s['smooch_message_smooch_bot_meme'] = random_string
-      s['smooch_message_smooch_bot_not_final'] = random_string
-      tbi.settings = s
-      assert_nothing_raised do
-        tbi.save!
-      end
-      CheckI18n.stubs(:upload_custom_strings_to_transifex).raises(StandardError)
-      s['smooch_message_smooch_bot_meme'] = random_string
-      s['smooch_message_smooch_bot_not_final'] = random_string
-      tbi.settings = s
-      assert_raises StandardError do
-        tbi.save!
-      end
-      CheckI18n.unstub(:upload_custom_strings_to_transifex)
-    end
-  end
-
-  test "should get message string" do
-    slug = random_string.downcase
-    c1 = 'Here is your meme'
-    c2 = 'Aqui está o seu meme'
-    t = create_team slug: slug
-    tbi = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: t.id
-    RequestStore.store[:smooch_bot_settings] = tbi.settings.with_indifferent_access.merge({ team_id: t.id })
-    k = 'smooch_bot_meme'
-    assert_equal I18n.t(k), Bot::Smooch.i18n_t(k)
-    assert_equal I18n.t(k, locale: 'pt'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    t.set_language = 'fr'
-    t.save!
-    assert_equal I18n.t(k, locale: 'fr'), Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    t.settings.delete(:language)
-    t.save!
-    RequestStore.store[:smooch_bot_settings]['smooch_message_smooch_bot_meme'] = c1
-    assert_equal c1, Bot::Smooch.i18n_t(k)
-    assert_equal c1, Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    I18n.stubs(:exists?).with("custom_message_#{k}_#{slug}").returns(true)
-    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, {}).returns(c1)
-    I18n.stubs(:t).with("custom_message_#{k}_#{slug}".to_sym, { locale: 'pt' }).returns(c2)
-    assert_equal c1, Bot::Smooch.i18n_t(k)
-    assert_equal c2, Bot::Smooch.i18n_t(k, { locale: 'pt' })
-    I18n.unstub(:t)
-    I18n.unstub(:exists?)
-  end
-
   test "should not accept new requests if bot is disabled" do
     u = create_user is_admin: true
     uid = random_string
@@ -484,44 +434,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       }.to_json
       assert Bot::Smooch.run(payload)
     end
-  end
-
-  test "should create Transifex resource if it does not exist" do
-    require 'transifex'
-    t = create_team
-    ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      s = @settings.clone
-      s['smooch_message_smooch_bot_meme'] = random_string
-      s['smooch_message_smooch_bot_not_final'] = random_string
-      create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
-    end
-    ::Transifex::Project.any_instance.unstub(:resource)
-  end
-
-  test "should delete Transifex resource if no localization setting" do
-    require 'transifex'
-    t = create_team
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      s = @settings.clone
-      s['smooch_message_smooch_bot_meme'] = random_string
-      s['smooch_message_smooch_bot_not_final'] = random_string
-      s['smooch_localize_messages'] = false
-      create_team_bot_installation user_id: @bot.id, settings: s, team_id: t.id
-    end
-  end
-
-  test "should never return an empty string" do
-    t = create_team slug: 'reverso'
-    settings = @settings.clone.merge({ 'team_id' => t.id, 'smooch_message_smooch_bot_ask_for_confirmation' => 'Custom Message' })
-    Bot::Smooch.stubs(:config).returns(settings)
-    I18n.stubs(:t).with(:smooch_bot_ask_for_confirmation, { locale: 'es' }).returns('Default Message')
-    I18n.stubs(:exists?).with('custom_message_smooch_bot_ask_for_confirmation_reverso').returns(true)
-    I18n.stubs(:t).with(:custom_message_smooch_bot_ask_for_confirmation_reverso, { locale: 'es' }).returns('')
-    assert_equal 'Custom Message', ::Bot::Smooch.i18n_t(:smooch_bot_ask_for_confirmation, { locale: 'es' })
-    I18n.unstub(:t)
-    I18n.unstub(:exists?)
-    Bot::Smooch.unstub(:config)
   end
 
   # Add tests to test/models/bot/smooch_3_test.rb

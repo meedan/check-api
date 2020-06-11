@@ -79,6 +79,7 @@ class AdminControllerTest < ActionController::TestCase
     b = create_team_bot login: 'smooch'
     t = random_string
     tbi = create_team_bot_installation
+    tbi = TeamBotInstallation.find(tbi.id)
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }

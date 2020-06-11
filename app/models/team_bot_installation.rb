@@ -28,12 +28,15 @@ class TeamBotInstallation < TeamUser
   end
 
   def settings_follow_schema
-    errors.add(:settings, 'must follow the schema') if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank? && !JSON::Validator.validate(JSON.parse(self.bot_user.settings_as_json_schema(true)), self.settings)
+    if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank?
+      value = JSON.parse(self.bot_user.settings_as_json_schema(true))
+      errors.add(:settings, JSON::Validator.fully_validate(value, self.settings)) if !JSON::Validator.validate(value, self.settings)
+    end
   end
 
   def apply_default_settings
     bot = self.bot_user
-    if !bot.blank? && !bot.get_settings.blank? && self.settings.blank?
+    if !bot.blank? && !bot.get_settings.blank?
       settings = {}
       bot.get_settings.each do |setting|
         s = setting.with_indifferent_access
@@ -44,7 +47,8 @@ class TeamBotInstallation < TeamUser
         default ||= [] if type == 'array'
         settings[s[:name]] = default
       end
-      self.settings = settings
+      current_settings = self.settings || {}
+      self.settings = settings.merge(current_settings)
     end
   end
 
