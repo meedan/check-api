@@ -67,9 +67,9 @@ module AnnotationBase
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
-                    if: proc { |a| ['ProjectMedia', 'ProjectSource', 'Source'].include?(a.annotated_type) && !['slack_message', 'smooch_response'].include?(a.annotation_type) && !a.skip_notifications },
+                    if: proc { |a| ['ProjectMedia', 'Source'].include?(a.annotated_type) && !['slack_message', 'smooch_response'].include?(a.annotation_type) && !a.skip_notifications },
                     event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
-                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.project, a.annotated.media] : (a.annotated_type == 'ProjectSource' ? [a.annotated.source] : [a.annotated]) },
+                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated.media] : [a.annotated] },
                     data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
 
     before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
@@ -198,10 +198,6 @@ module AnnotationBase
 
   def project_media
     self.annotated_type == 'ProjectMedia' ? self.annotated : (self.annotated.project_media if self.annotated.respond_to?(:project_media))
-  end
-
-  def project_source
-    self.annotated if self.annotated_type == 'ProjectSource'
   end
 
   def project
@@ -334,9 +330,9 @@ module AnnotationBase
   end
 
   def slack_params
-    object = self.project_media || self.project_source
-    item = self.annotated_type == 'ProjectSource' ? object.source.name : object.title
-    item_type = self.annotated_type == 'ProjectSource' ? 'source' : object.media.class.name.underscore
+    object = self.project_media
+    item = object.title
+    item_type = object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
     user = User.current or self.annotator
     team = self.team_for_slack_params(object)

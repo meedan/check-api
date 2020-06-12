@@ -37,12 +37,6 @@ module ProjectMediaCreators
 
   private
 
-  def set_project_source
-    team = self.team || self.project&.team
-    return if team.nil? || team.is_being_copied
-    self.create_project_source
-  end
-
   def create_annotation
     unless self.set_annotation.blank?
       params = JSON.parse(self.set_annotation)
@@ -167,26 +161,6 @@ module ProjectMediaCreators
         }
         task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
         task.save!
-      end
-    end
-  end
-
-  def create_project_source
-    return if self.project_id.blank?
-    a = self.media.account
-    source = Account.create_for_source(a.url, nil, false, self.disable_es_callbacks).source unless a.nil?
-    if source.nil?
-      cs = ClaimSource.where(media_id: self.media_id).last
-      source = cs.source unless cs.nil?
-    end
-    unless source.nil?
-      unless ProjectSource.where(project_id: self.project_id, source_id: source.id).exists?
-        ps = ProjectSource.new
-        ps.project_id = self.project_id
-        ps.source_id = source.id
-        ps.disable_es_callbacks = self.disable_es_callbacks
-        ps.skip_check_ability = true
-        ps.save!
       end
     end
   end

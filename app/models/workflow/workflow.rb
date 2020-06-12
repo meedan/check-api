@@ -14,7 +14,7 @@ module Workflow
 
     def self.core_options(annotated, annotation_type)
       klass = "Workflow::#{annotation_type.camelize}".constantize
-      type = (annotated.class_name == 'ProjectMedia') ? 'media' : (annotated.class_name == 'ProjectSource' ? 'source' : annotated.class_name)
+      type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
       key = "#{type.upcase}_CORE_#{annotation_type.pluralize.upcase}"
       statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: I18n.t(:"statuses.media.undetermined.label"), description: I18n.t(:"statuses.media.undetermined.description"), style: '' }]
@@ -28,7 +28,7 @@ module Workflow
     end
 
     def self.options(annotated, annotation_type)
-      type = (annotated.class_name == 'ProjectMedia') ? 'media' : (annotated.class_name == 'ProjectSource' ? 'source' : annotated.class_name)
+      type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       statuses = ::Workflow::Workflow.core_options(annotated, annotation_type)
       getter = "get_#{type.downcase}_#{annotation_type.pluralize}"
       team = annotated&.team || annotated&.project&.team

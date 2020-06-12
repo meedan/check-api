@@ -104,13 +104,13 @@ class TaskTest < ActiveSupport::TestCase
     t.save!
     r = t.responses.first
     assert_not_nil Annotation.where(id: r.id).last
-    assert_equal 10, DynamicAnnotation::Field.count
-    assert_equal 11, Dynamic.count
+    assert_equal 1, DynamicAnnotation::Field.where("annotation_type LIKE 'task_response%'").count
+    assert_equal 1, Dynamic.where("annotation_type LIKE 'task_response%'").count
     t.disable_es_callbacks = true
     t.destroy
     assert_nil Annotation.where(id: r.id).last
-    assert_equal 9, Dynamic.count
-    assert_equal 9, DynamicAnnotation::Field.count
+    assert_equal 0, DynamicAnnotation::Field.where("annotation_type LIKE 'task_response%'").count
+    assert_equal 0, Dynamic.where("annotation_type LIKE 'task_response%'").count
   end
 
   test "should notify on Slack when task is assigned" do

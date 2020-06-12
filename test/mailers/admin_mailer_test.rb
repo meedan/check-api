@@ -13,7 +13,6 @@ class AdminMailerTest < ActionMailer::TestCase
 
   test "should include on download link cc only members with notifications enabled" do
     t = create_team
-    t.set_max_number_of_members 10
     t.save!
     p = create_project team: t
     requestor = create_user

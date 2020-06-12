@@ -76,9 +76,9 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = create_project_source
+    s1 = create_project_media
     assert_equal [], s1.annotations
-    s2 = create_project_source
+    s2 = create_project_media
     assert_equal [], s2.annotations
 
     c1a = create_comment annotated: nil
@@ -161,8 +161,8 @@ class CommentTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_project_source
-    s2 = create_project_source
+    s1 = create_project_media
+    s2 = create_project_media
     c1 = create_comment annotator: u1, annotated: s1
     c2 = create_comment annotator: u1, annotated: s1
     c3 = create_comment annotator: u1, annotated: s1
@@ -446,13 +446,9 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal [t.id], c.get_team
   end
 
-  test "should notify Pusher when comment is created for source or media" do
+  test "should notify Pusher when comment is created for media" do
     pm = create_project_media
     c = create_comment annotated: pm
-    assert c.sent_to_pusher
-
-    ps = create_project_source
-    c = create_comment annotated: ps
     assert c.sent_to_pusher
   end
 

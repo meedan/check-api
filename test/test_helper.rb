@@ -124,7 +124,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
@@ -140,6 +140,12 @@ class ActiveSupport::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
     WebMock.stub_request(:get, /#{CONFIG['narcissus_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    WebMock.stub_request(:get, /api\.smooch\.io/)
+    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
+    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
+    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
+    WebMock.stub_request(:delete, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: 'ok')
     RequestStore.store[:skip_cached_field_update] = true
   end
 
@@ -490,101 +496,369 @@ class ActiveSupport::TestCase
     @bid = random_string
     BotUser.delete_all
     settings = [
-      { name: 'smooch_app_id', label: 'Smooch App ID', type: 'string', default: '' },
-      { name: 'smooch_secret_key_key_id', label: 'Smooch Secret Key: Key ID', type: 'string', default: '' },
-      { name: 'smooch_secret_key_secret', label: 'Smooch Secret Key: Secret', type: 'string', default: '' },
-      { name: 'smooch_webhook_secret', label: 'Smooch Webhook Secret', type: 'string', default: '' },
-      { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
-      { name: 'smooch_bot_id', label: 'Smooch Bot ID', type: 'string', default: '' },
-      { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' },
-      { name: 'smooch_window_duration', label: 'Window Duration (in hours - after this time since the last message from the user, the user will be notified... enter 0 to disable)', type: 'number', default: 20 },
-      { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: false },
-    ]
-    {
-      'smooch_bot_result' => 'Message sent with the verification results (placeholders: %{status} (final status of the report) and %{url} (public URL to verification results))',
-      'smooch_bot_result_changed' => 'Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))',
-      'smooch_bot_ask_for_confirmation' => 'Message that asks the user to confirm the request to verify an item... should mention that the user needs to sent "1" to confirm',
-      'smooch_bot_message_confirmed' => 'Message that confirms to the user that the request is in the queue to be verified',
-      'smooch_bot_message_type_unsupported' => 'Message that informs the user that the type of message is not supported (for example, audio and video)',
-      'smooch_bot_message_unconfirmed' => 'Message sent when the user does not send "1" to confirm a request',
-      'smooch_bot_not_final' => 'Message when an item was wrongly marked as final, but that status is reverted (placeholder: %{status} (previous final status))',
-      'smooch_bot_meme' => 'Message sent along with a meme (placeholder: %{url} (public URL to verification results))',
-    }.each do |name, label|
-      settings << { name: "smooch_message_#{name}", label: label, type: 'string', default: '' }
-    end
-    settings << { name: 'smooch_message_smooch_bot_greetings', label: 'First message that is sent to the user as an introduction about the service', type: 'string', default: '' }
-    {
-      'main': 'Main menu',
-      'secondary': 'Secondary menu',
-      'query': 'User query'
-    }.each do |state, label|
-      settings << {
-        'name': "smooch_state_#{state}",
-        'label': label,
-        'type': 'object',
-        'default': {},
-        'properties': {
-          'smooch_menu_message': {
-            'type': 'string',
-            'title': 'Message',
-            'default': ''
+      {
+        "name": "smooch_workflows",
+        "label": '',
+        "type": "array",
+        "default": [
+          {
+            "smooch_workflow_language": "en"
           },
-          'smooch_menu_options': {
-            'title': 'Menu options',
-            'type': 'array',
-            'default': [],
-            'items': {
-              'title': 'Option',
-              'type': 'object',
-              'properties': {
-                'smooch_menu_option_keyword': {
-                  'title': 'If',
-                  'type': 'string',
-                  'default': ''
+          {
+            "smooch_message_smooch_bot_result_changed": ""
+          },
+          {
+            "smooch_message_smooch_bot_message_confirmed": ""
+          },
+          {
+            "smooch_message_smooch_bot_message_type_unsupported": ""
+          },
+          {
+            "smooch_message_smooch_bot_disabled": ""
+          },
+          {
+            "smooch_message_smooch_bot_ask_for_tos": ""
+          },
+          {
+            "smooch_message_smooch_bot_greetings": ""
+          },
+          {
+            "smooch_state_main": {}
+          },
+          {
+            "smooch_state_secondary": {}
+          },
+          {
+            "smooch_message_smooch_bot_option_not_available": ""
+          },
+          {
+            "smooch_state_query": {}
+          }
+        ],
+        "items": {
+          "title": "Workflow",
+          "type": "object",
+          "properties": {
+            "smooch_workflow_language": {
+              "title": "Language",
+              "type": "string",
+              "default": "en"
+            },
+            "smooch_message_smooch_bot_result_changed": {
+              "type": "string",
+              "title": "Message sent with the new verification results when a final status of an item changes (placeholders: %{previous_status} (previous final status of the report), %{status} (new final status of the report) and %{url} (public URL to verification results))",
+              "default": ""
+            },
+            "smooch_message_smooch_bot_message_confirmed": {
+              "type": "string",
+              "title": "Message that confirms to the user that the request is in the queue to be verified",
+              "default": ""
+            },
+            "smooch_message_smooch_bot_message_type_unsupported": {
+              "type": "string",
+              "title": "Message that informs the user that the type of message is not supported (for example, audio and video)",
+              "default": ""
+            },
+            "smooch_message_smooch_bot_disabled": {
+              "type": "string",
+              "title": "Message sent to user when this bot is disabled and not accepting requests",
+              "default": ""
+            },
+            "smooch_message_smooch_bot_ask_for_tos": {
+              "type": "string",
+              "title": "Message sent to user to ask them to agree to the Terms of Service (placeholders: %{tos} (TOS URL))",
+              "default": ""
+            },
+            "smooch_message_smooch_bot_greetings": {
+              "type": "string",
+              "title": "First message that is sent to the user as an introduction about the service",
+              "default": ""
+            },
+            "smooch_state_main": {
+              "type": "object",
+              "title": "Main menu",
+              "properties": {
+                "smooch_menu_message": {
+                  "type": "string",
+                  "title": "Message",
+                  "default": ""
                 },
-                'smooch_menu_option_value': {
-                  'title': 'Then',
-                  'type': 'string',
-                  'enum': [
-                    { 'key': 'main_state', 'value': 'Main menu' },
-                    { 'key': 'secondary_state', 'value': 'Secondary menu' },
-                    { 'key': 'query_state', 'value': 'User query' },
-                    { 'key': 'resource', 'value': 'Resource' }
-                  ],
-                  'default': ''
+                "smooch_menu_options": {
+                  "title": "Menu options",
+                  "type": "array",
+                  "default": [],
+                  "items": {
+                    "title": "Option",
+                    "type": "object",
+                    "properties": {
+                      "smooch_menu_option_keyword": {
+                        "title": "If",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_option_value": {
+                        "title": "Then",
+                        "type": "string",
+                        "enum": [
+                          {
+                            "key": "main_state",
+                            "value": "Main menu"
+                          },
+                          {
+                            "key": "secondary_state",
+                            "value": "Secondary menu"
+                          },
+                          {
+                            "key": "query_state",
+                            "value": "Query prompt"
+                          },
+                          {
+                            "key": "resource",
+                            "value": "Report"
+                          }
+                        ],
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_title": {
+                        "title": "Then",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_id": {
+                        "title": "Project Media ID",
+                        "type": [
+                          "string",
+                          "integer"
+                        ],
+                        "default": ""
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "smooch_state_secondary": {
+              "type": "object",
+              "title": "Secondary menu",
+              "properties": {
+                "smooch_menu_message": {
+                  "type": "string",
+                  "title": "Message",
+                  "default": ""
                 },
-                'smooch_menu_project_media_id': {
-                  'title': 'Project Media ID',
-                  'type': ['string', 'integer'],
-                  'default': '',
+                "smooch_menu_options": {
+                  "title": "Menu options",
+                  "type": "array",
+                  "default": [],
+                  "items": {
+                    "title": "Option",
+                    "type": "object",
+                    "properties": {
+                      "smooch_menu_option_keyword": {
+                        "title": "If",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_option_value": {
+                        "title": "Then",
+                        "type": "string",
+                        "enum": [
+                          {
+                            "key": "main_state",
+                            "value": "Main menu"
+                          },
+                          {
+                            "key": "secondary_state",
+                            "value": "Secondary menu"
+                          },
+                          {
+                            "key": "query_state",
+                            "value": "Query prompt"
+                          },
+                          {
+                            "key": "resource",
+                            "value": "Report"
+                          }
+                        ],
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_title": {
+                        "title": "Then",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_id": {
+                        "title": "Project Media ID",
+                        "type": [
+                          "string",
+                          "integer"
+                        ],
+                        "default": ""
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "smooch_message_smooch_bot_option_not_available": {
+              "type": "string",
+              "title": "Option not available",
+              "default": ""
+            },
+            "smooch_state_query": {
+              "type": "object",
+              "title": "User query",
+              "properties": {
+                "smooch_menu_message": {
+                  "type": "string",
+                  "title": "Message",
+                  "default": ""
                 },
+                "smooch_menu_options": {
+                  "title": "Menu options",
+                  "type": "array",
+                  "default": [],
+                  "items": {
+                    "title": "Option",
+                    "type": "object",
+                    "properties": {
+                      "smooch_menu_option_keyword": {
+                        "title": "If",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_option_value": {
+                        "title": "Then",
+                        "type": "string",
+                        "enum": [
+                          {
+                            "key": "main_state",
+                            "value": "Main menu"
+                          },
+                          {
+                            "key": "secondary_state",
+                            "value": "Secondary menu"
+                          },
+                          {
+                            "key": "query_state",
+                            "value": "Query prompt"
+                          },
+                          {
+                            "key": "resource",
+                            "value": "Report"
+                          }
+                        ],
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_title": {
+                        "title": "Then",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_project_media_id": {
+                        "title": "Project Media ID",
+                        "type": [
+                          "string",
+                          "integer"
+                        ],
+                        "default": ""
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
+      },
+      {
+        "name": "smooch_app_id",
+        "label": "Smooch App ID",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "smooch_secret_key_key_id",
+        "label": "Smooch Secret Key: Key ID",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "smooch_secret_key_secret",
+        "label": "Smooch Secret Key: Secret",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "smooch_webhook_secret",
+        "label": "Smooch Webhook Secret",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "smooch_template_namespace",
+        "label": "Smooch Template Namespace",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "smooch_project_id",
+        "label": "Check Project ID",
+        "type": "number",
+        "default": ""
+      },
+      {
+        "name": "smooch_twitter_authorization_url",
+        "label": "Visit this link to authorize the Twitter Business Account that will forward DMs to this bot",
+        "type": "readonly",
+        "default": ""
+      },
+      {
+        "name": "smooch_disabled",
+        "label": "Disable",
+        "type": "boolean",
+        "default": "false"
+      },
+      {
+        "name": "smooch_authorization_token",
+        "label": "Internal Token (used for authorization)",
+        "type": "hidden",
+        "default": ""
+      },
+      {
+        "name": "smooch_template_locales",
+        "label": "Choose which locales are supported by the templates",
+        "type": "array",
+        "default": [
+          "en"
+        ],
+        "items": {
+          "type": "string",
+          "enum": [
+            "en"
+          ]
+        }
       }
-    end
-    settings << { name: 'smooch_message_smooch_bot_option_not_available', label: 'Option not available', type: 'string', default: '' }
-    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
-    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
-    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:delete, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: 'ok')
+    ]
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
     @settings = {
       'smooch_project_id' => @project.id,
-      'smooch_bot_id' => @bid,
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => @app_id,
       'smooch_secret_key_key_id' => random_string,
       'smooch_secret_key_secret' => random_string,
       'smooch_template_namespace' => random_string,
-      'smooch_window_duration' => 10,
-      'smooch_localize_messages' => true,
-      'team_id' => @team.id
+      'team_id' => @team.id,
+      'smooch_workflows' => [
+        {
+          'smooch_workflow_language' => 'en',
+          'smooch_message_smooch_bot_greetings': 'Hello!',
+          'smooch_message_smooch_bot_ask_for_tos': 'TOS: %{tos}',
+        }
+      ]
     }
     if menu
-      @settings.merge!({
+      @settings['smooch_workflows'][0].merge!({
         'smooch_state_main' => {
           'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',
           'smooch_menu_options' => [{
@@ -605,7 +879,12 @@ class ActiveSupport::TestCase
               'smooch_menu_option_keyword' => '2, two ',
               'smooch_menu_option_value' => 'query_state',
               'smooch_menu_project_media_id' => ''
-            }
+            },
+            {
+              'smooch_menu_option_keyword' => ' 3 , three ',
+              'smooch_menu_option_value' => 'pt',
+              'smooch_menu_project_media_id' => ''
+            },
           ]
         },
         'smooch_state_query' => {
@@ -617,6 +896,21 @@ class ActiveSupport::TestCase
               'smooch_menu_project_media_id' => ''
             }
           ]
+        }
+      })
+      @settings['smooch_workflows'][1] = @settings['smooch_workflows'][0].clone.merge({
+        'smooch_workflow_language' => 'pt',
+        'smooch_state_main' => {
+          'smooch_menu_message' => 'Olá, bem-vindo! Envie 1 para enviar uma requisição.',
+          'smooch_menu_options' => [{
+            'smooch_menu_option_keyword' => '1, um',
+            'smooch_menu_option_value' => 'query_state',
+            'smooch_menu_project_media_id' => ''
+          }]
+        },
+        'smooch_state_query' => {
+          'smooch_menu_message' => 'Enter your query or send 0 to go back to the main menu',
+          'smooch_menu_options' => []
         }
       })
     end

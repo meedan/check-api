@@ -39,9 +39,9 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = create_project_source
+    s1 = create_project_media
     assert_equal [], s1.annotations
-    s2 = create_project_source
+    s2 = create_project_media
     assert_equal [], s2.annotations
 
     t1a = create_tag
@@ -105,8 +105,8 @@ class TagTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = create_project_source
-    s2 = create_project_source
+    s1 = create_project_media
+    s2 = create_project_media
     t1 = create_tag annotator: u1, annotated: s1
     t2 = create_tag annotator: u1, annotated: s1
     t3 = create_tag annotator: u1, annotated: s1
@@ -145,8 +145,8 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should not have same tag applied to same object" do
-    s1 = create_project_source
-    s2 = create_project_source
+    s1 = create_project_media
+    s2 = create_project_media
     p = create_project
     assert_difference 'Tag.length', 8 do
       assert_nothing_raised do
@@ -171,7 +171,7 @@ class TagTest < ActiveSupport::TestCase
   end
 
   test "should not tell that one tag contained in another is a duplicate" do
-    s = create_project_source
+    s = create_project_media
     assert_difference 'Tag.length', 2 do
       assert_nothing_raised do
         create_tag tag: 'foo bar', annotated: s
@@ -192,15 +192,6 @@ class TagTest < ActiveSupport::TestCase
     assert_raise ActiveModel::ForbiddenAttributesError do
       Tag.create(params)
     end
-  end
-
-  test "should return project source" do
-    pm = create_project_media
-    ps = create_project_source
-    t1 = create_tag annotated: pm
-    t2 = create_tag annotated: ps
-    assert_nil t1.project_source
-    assert_equal ps, t2.project_source
   end
 
   test "should not get tag text reference if tag is already a number" do
@@ -237,7 +228,7 @@ class TagTest < ActiveSupport::TestCase
 
   test "should exist only one tag text for duplicated tags of the same team" do
     t = create_team
-    p = create_project team: t 
+    p = create_project team: t
     assert_difference 'TagText.count' do
       5.times { create_tag(tag: 'test', annotated: create_project_media(project: p)) }
     end
@@ -261,38 +252,6 @@ class TagTest < ActiveSupport::TestCase
     assert_equal 'test', t.tag_text
   end
 
-  test "should delete tag text if last tag is deleted" do
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    tt = create_tag_text team_id: t.id
-    t1 = create_tag tag: tt.id, annotated: pm1
-    t2 = create_tag tag: tt.id, annotated: pm2
-    assert_no_difference 'TagText.count' do
-      t1.destroy
-    end
-    assert_difference 'TagText.count', -1 do
-      t2.destroy
-    end
-  end
-
-  test "should not delete tag text if last tag is deleted but tag text is teamwide" do
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    tt = create_tag_text team_id: t.id, teamwide: true
-    t1 = create_tag tag: tt.id, annotated: pm1
-    t2 = create_tag tag: tt.id, annotated: pm2
-    assert_no_difference 'TagText.count' do
-      t1.destroy
-    end
-    assert_no_difference 'TagText.count' do
-      t2.destroy
-    end
-  end
-
   test "should get team" do
     t = create_tag
     assert_kind_of Team, t.team
@@ -303,8 +262,8 @@ class TagTest < ActiveSupport::TestCase
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
-    tt1 = create_tag_text team_id: t.id, teamwide: true
-    tt2 = create_tag_text team_id: t.id, teamwide: true
+    tt1 = create_tag_text team_id: t.id
+    tt2 = create_tag_text team_id: t.id
     t1 = create_tag tag: tt1.id, annotated: pm1
     t2 = create_tag tag: tt1.id, annotated: pm2
     tt2.delete

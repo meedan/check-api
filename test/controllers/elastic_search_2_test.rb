@@ -28,7 +28,6 @@ class ElasticSearch2Test < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
       pids = ProjectMedia.where(project_id: p.id).map(&:id)
-      pids.concat ProjectSource.where(project_id: p.id).map(&:id)
       sleep 5
       results = MediaSearch.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.map(&:annotated_id).sort

@@ -16,5 +16,5 @@ module AnnotationMutations
     locked: 'bool'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('annotation', create_fields, update_fields, ['source', 'project_media', 'project', 'project_source', 'task'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('annotation', create_fields, update_fields, ['source', 'project_media', 'project', 'task'])
 end

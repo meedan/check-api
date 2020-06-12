@@ -52,19 +52,16 @@ class GraphqlController3Test < ActionController::TestCase
     n.times do
       pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
       s = create_source
-      create_project_source project: p, source: s, disable_es_callbacks: false
       create_account_source source: s, disable_es_callbacks: false
       m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
-      pm.project_source
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false
     pm.archived = true
     pm.save!
-    pm.project_source
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -948,5 +945,98 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
+  end
+
+  test "should get nested comment" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c1 = create_comment annotated: pm, text: 'Parent'
+    c2 = create_comment annotated: c1, text: 'Child'
+    authenticate_with_user(u)
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          comments: annotations(first: 10000, annotation_type: "comment") {
+            edges {
+              node {
+                ... on Comment {
+                  id
+                  text
+                  comments: annotations(first: 10000, annotation_type: "comment") {
+                    edges {
+                      node {
+                        ... on Comment {
+                          id
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }   
+    }
+    post :create, query: query, team: t.slug
+    assert_response :success
+    comments = JSON.parse(@response.body)['data']['project_media']['comments']['edges']
+    assert_equal 1, comments.size
+    assert_equal 'Parent', comments[0]['node']['text']
+    child_comments = comments[0]['node']['comments']['edges']
+    assert_equal 1, child_comments.size
+    assert_equal 'Child', child_comments[0]['node']['text']
+  end
+
+  test "should create and retrieve clips" do
+    json_schema = {
+      type: 'object',
+      required: ['label'],
+      properties: {
+        label: { type: 'string' }
+      }
+    }
+    DynamicAnnotation::AnnotationType.reset_column_information
+    create_annotation_type_and_fields('Clip', {}, json_schema)
+    u = create_user is_admin: true
+    p = create_project
+    pm = create_project_media project: p
+    authenticate_with_user(u)
+
+    query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
+    assert_difference 'Annotation.where(annotation_type: "clip").count', 1 do
+      post :create, query: query, team: pm.team.slug
+    end
+    assert_response :success
+    annotation = JSON.parse(@response.body)['data']['createDynamic']['dynamic']
+    assert_equal 'Clip Label', annotation['data']['label']
+    assert_equal({ 't' => [10, 20] }, annotation['parsed_fragment'])
+
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          clips: annotations(first: 10000, annotation_type: "clip") {
+            edges {
+              node {
+                ... on Dynamic {
+                  id
+                  data
+                  parsed_fragment
+                }
+              }
+            }
+          }
+        }
+      } 
+    }
+    post :create, query: query, team: pm.team.slug
+    assert_response :success
+    clips = JSON.parse(@response.body)['data']['project_media']['clips']['edges']
+    assert_equal 1, clips.size
+    assert_equal 'Clip Label', clips[0]['node']['data']['label']
+    assert_equal({ 't' => [10, 20] }, clips[0]['node']['parsed_fragment'])
   end
 end

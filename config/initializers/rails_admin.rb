@@ -79,7 +79,6 @@ RailsAdmin.config do |config|
     'Media',
     'Project',
     'ProjectMedia',
-    'ProjectSource',
     'Source',
     'Team',
     'TeamUser',
@@ -344,12 +343,6 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
 
-      field :max_number_of_members do
-        label 'Maximum number of members'
-        formatted_value{ bindings[:object].get_max_number_of_members }
-        visible_only_for_admin
-      end
-
       id = CONFIG['default_project_media_workflow']
       field "media_#{id.pluralize}", :yaml do
         partial 'json_editor'
@@ -487,10 +480,6 @@ RailsAdmin.config do |config|
         searchable [:title, :id]
       end
     end
-  end
-
-  config.model 'ProjectSource' do
-    label 'ProjectSource'
   end
 
   config.model 'TeamBotInstallation' do

@@ -67,13 +67,6 @@ def project_medias_query(table, field = '*')
      #{table}.project_id IN (#{get_ids('projects')})"
 end
 
-def project_sources_query(table, field = '*')
-  "SELECT #{table}.#{field}
-   FROM #{table}
-   WHERE
-     #{table}.project_id IN (#{get_ids('projects')})"
-end
-
 def users_query(table, field = '*')
   users_from_team_query(table, field) + ' UNION ' + users_outside_team_query(table, field)
 end
@@ -125,7 +118,7 @@ def relationships_query(table, field = '*')
 end
 
 def annotations_query(table, field = '*', _annotation_type = nil, annotated_type = nil)
-  annotated_types = annotated_type.nil? ? ['accounts', 'sources', 'medias', 'project_medias', 'project_sources'] : [annotated_type]
+  annotated_types = annotated_type.nil? ? ['accounts', 'sources', 'medias', 'project_medias'] : [annotated_type]
   unions = []
   annotated_types.each do |annotated_table|
     unions << "SELECT a.#{field} FROM #{table} a WHERE a.annotated_type = '#{annotated_table.classify}' AND a.annotated_id IN (#{get_ids(annotated_table)})"
