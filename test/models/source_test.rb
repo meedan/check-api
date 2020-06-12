@@ -66,28 +66,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal [a1, a2], s.accounts
   end
 
-  test "should have project sources" do
-    ps1 = create_project_source
-    ps2 = create_project_source
-    s = create_source
-    assert_equal [], s.project_sources
-    s.project_sources << ps1
-    s.project_sources << ps2
-    assert_equal [ps1, ps2], s.project_sources
-  end
-
-  test "should have projects" do
-    p1 = create_project
-    p2 = create_project
-    ps1 = create_project_source project: p1
-    ps2 = create_project_source project: p2
-    s = create_source
-    assert_equal [], s.project_sources
-    s.project_sources << ps1
-    s.project_sources << ps2
-    assert_equal [p1, p2].to_a.sort, s.projects.to_a.sort
-  end
-
   test "should have user" do
     u = create_user
     s = create_source user: u
@@ -134,11 +112,7 @@ class SourceTest < ActiveSupport::TestCase
     m = create_valid_media(account: create_valid_account(source: s))
     pm = create_project_media project: p, media: m
     assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal [pm2], cs.source.medias
+    assert_equal 1, s.medias_count
   end
 
   test "should get collaborators" do
@@ -176,22 +150,13 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 'test', s.description
   end
 
-  test "should get tags" do
+  test "should get annotations" do
     t = create_team
     t2 = create_team
-    p = create_project team: t
-    p2 = create_project team: t2
-    s = create_source
-    ps = create_project_source project: p, source: s
-    ps2 = create_project_source project: p2, source: s
-    tag = create_tag annotated: ps
-    tag2 = create_tag annotated: ps2
+    s = create_source team: t
+    tag = create_tag annotated: s
+    tag2 = create_tag annotated: s
     assert_equal [tag, tag2].sort, s.get_annotations('tag').sort
-    Team.stubs(:current).returns(t)
-    assert_equal [tag], s.get_annotations('tag')
-    Team.stubs(:current).returns(t2)
-    assert_equal [tag2], s.get_annotations('tag')
-    Team.unstub(:current)
   end
 
   test "should get db id" do
@@ -217,7 +182,7 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create ProjectSource", "create Project"].sort
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
@@ -242,15 +207,6 @@ class SourceTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     tu.delete
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
-  end
-
-  test "should get team" do
-    t = create_team
-    p = create_project team: t
-    ps = create_project_source project: p
-    s = create_source
-    s.project_sources << ps
-    assert_equal [t.id], s.get_team
   end
 
   test "should protect attributes from mass assignment" do
@@ -291,38 +247,6 @@ class SourceTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordInvalid do
         create_source file: 'ruby-small.png'
       end
-    end
-  end
-
-  test "should get log" do
-    u = create_user
-    t = create_team
-    s = create_source team: t
-    p = create_project team: t
-    p2 = create_project team: t
-    create_team_user user: u, team: t, role: 'owner'
-
-    with_current_user_and_team(u, t) do
-      ps = create_project_source project: p, source: s, user: u
-      ps2 = create_project_source project: p2, source: s, user: u
-      c = create_comment annotated: ps
-      tg = create_tag annotated: ps
-      f = create_flag annotated: ps
-      s.name = 'update name'; s.skip_check_ability = true; s.save!
-      c2 = create_comment annotated: ps2
-      f2 = create_flag annotated: ps2
-      assert_equal ["create_comment", "create_tag", "create_dynamic", "update_source", "create_comment", "create_dynamic"].sort, s.get_versions_log.map(&:event_type).sort
-      assert_equal 6, s.get_versions_log_count
-      c.destroy!
-      assert_equal 6, s.get_versions_log_count
-      tg.destroy!
-      assert_equal 6, s.get_versions_log_count
-      f.destroy!
-      assert_equal 6, s.get_versions_log_count
-      c2.destroy!
-      assert_equal 6, s.get_versions_log_count
-      f2.destroy!
-      assert_equal 6, s.get_versions_log_count
     end
   end
 
@@ -534,19 +458,6 @@ class SourceTest < ActiveSupport::TestCase
     assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
       create_source
     end
-  end
-
-  test "should get medias count" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
-    assert_equal [pm], s.medias
-    # get media for claim attributions
-    pm2 = create_project_media project: p, quote: 'Claim', quote_attributions: {name: 'source name'}.to_json
-    cs = ClaimSource.where(media_id: pm2.media_id).last
-    assert_not_nil cs.source
-    assert_equal 1, cs.source.medias_count
   end
 
   test "should get accounts count" do

@@ -642,7 +642,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         assert_equal 'main', sm.state.value
         send_message_to_smooch_bot('1', uid)
         assert_equal 'secondary', sm.state.value
-        send_message_to_smooch_bot('tWo', uid)
+        assert_equal 'en', Bot::Smooch.get_user_language({ 'authorId' => uid })
+        send_message_to_smooch_bot('3', uid)
+        assert_equal 'main', sm.state.value
+        assert_equal 'pt', Bot::Smooch.get_user_language({ 'authorId' => uid })
+        send_message_to_smooch_bot('um', uid)
         assert_equal 'query', sm.state.value
       end
     end
@@ -714,6 +718,80 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal 'waiting_for_message', sm.state.value
     end
     Time.unstub(:now)
+  end
+
+  test "should resend report after window" do
+    msgid = random_string
+    pm = create_project_media
+    publish_report(pm)
+    response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+    Bot::Smooch.save_smooch_response(response, pm, random_string, 'report', 'en')
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+    pm.destroy!
+    assert !Bot::Smooch.resend_message_after_window(message)
+  end
+
+  test "should resend Slack message after window" do
+    msgid = random_string
+    result = OpenStruct.new({ messages: [OpenStruct.new({ source: OpenStruct.new(type: 'slack'), id: msgid, text: random_string })]})
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+    result = OpenStruct.new({ messages: [] })
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+    assert !Bot::Smooch.resend_message_after_window(message)
+  end
+
+  test "should resend rules action message after window" do
+    msgid = random_string
+    pm = create_project_media
+    publish_report(pm)
+    response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+    Bot::Smooch.save_smooch_response(response, pm, random_string, 'fact_check_status', 'en', { message: random_string })
+    message = {
+      app: {
+        '_id': @app_id
+      },
+      appUser: {
+        '_id': random_string,
+      },
+      message: {
+        '_id': msgid
+      }
+    }.to_json
+    assert Bot::Smooch.resend_message_after_window(message)
+  end
+
+  test "should get locales" do
+    t1 = create_team
+    Team.current = t1
+    assert_equal ['en'], Bot::Smooch.template_locale_options
+    t2 = create_team
+    t2.set_languages = ['es', 'pt']
+    t2.save!
+    Team.current = t2
+    assert_equal ['es', 'pt'], Bot::Smooch.template_locale_options
   end
 
   protected

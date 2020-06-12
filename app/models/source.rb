@@ -8,9 +8,7 @@ class Source < ActiveRecord::Base
   include CustomLock
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
-  has_many :project_sources
   has_many :account_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
   has_many :accounts, through: :account_sources
   belongs_to :user
   belongs_to :team
@@ -25,8 +23,7 @@ class Source < ActiveRecord::Base
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
   after_create :create_metadata, :notify_team_bots_create
-  after_update :notify_team_bots_update, :send_slack_notification
-  after_commit :update_elasticsearch_source, on: :update
+  after_update :notify_team_bots_update
   after_save :cache_source_overridden
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
@@ -41,57 +38,9 @@ class Source < ActiveRecord::Base
     image_callback(value)
   end
 
-  def slack_params
-    user = User.current or self.user
-    project_source = self.project_sources[0]
-    {
-      user: Bot::Slack.to_slack(user.name),
-      user_image: user.profile_image,
-      role: I18n.t("role_" + user.role(self.team).to_s),
-      team: Bot::Slack.to_slack(self.team.name),
-      type: I18n.t("activerecord.models.source"),
-      title: Bot::Slack.to_slack(self.name),
-      project: Bot::Slack.to_slack(project_source.project.title),
-      description: Bot::Slack.to_slack(self.description, false),
-      url: project_source.full_url,
-      button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.source"), app: CONFIG['app_name']
-      })
-    }
-  end
-
-  def slack_notification_message(update = true)
-    return nil if self.project_sources.blank?
-    params = self.slack_params
-    event = update ? "update" : "create"
-    {
-      pretext: I18n.t("slack.messages.project_source_#{event}", params),
-      author_icon: params[:user_image],
-      author_name: params[:user],
-      text: params[:description],
-      title_link: params[:url],
-      title: params[:title],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ],
-      fields: [
-        {
-          title: I18n.t(:'slack.fields.project'),
-          value: params[:project],
-          short: true
-        }
-      ]
-    }
-  end
-
   def medias
     #TODO: fix me - list valid project media ids
     m_ids = Media.where(account_id: self.account_ids).map(&:id)
-    m_ids.concat ClaimSource.where(source_id: self.id).map(&:media_id)
     conditions = { media_id: m_ids }
     conditions['projects.team_id'] = Team.current.id unless Team.current.nil?
     ProjectMedia.joins(:project).where(conditions)
@@ -109,13 +58,6 @@ class Source < ActiveRecord::Base
     self.accounts.count
   end
 
-  def get_team
-    teams = []
-    projects = self.projects.map(&:id)
-    teams = Project.where(:id => projects).map(&:team_id).uniq unless projects.empty?
-    return teams
-  end
-
   def image
     custom = self.public_path
     custom || self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
@@ -131,30 +73,11 @@ class Source < ActiveRecord::Base
   end
 
   def get_annotations(type = nil)
-    conditions = {}
-    conditions[:annotation_type] = type unless type.nil?
-    conditions[:annotated_type] = 'ProjectSource'
-    conditions[:annotated_id] = get_project_sources.map(&:id)
-    self.annotations(type) + Annotation.where(conditions)
+    self.annotations(type)
   end
 
   def file_mandatory?
     false
-  end
-
-  def update_elasticsearch_source
-    return if self.disable_es_callbacks
-    self.project_sources.each do |parent|
-      self.update_elasticsearch_doc(%w(title description), {'title' => self.name, 'description' => self.description}, parent)
-    end
-  end
-
-  def get_versions_log(_event_types = nil, _field_names = nil, _annotation_types = nil, _whodunnit = nil, _include_related = false)
-    Version.from_partition(self.team_id).where(associated_type: 'ProjectSource', associated_id: get_project_sources).order('created_at ASC')
-  end
-
-  def get_versions_log_count
-    get_project_sources.sum(:cached_annotations_count)
   end
 
   def update_from_pender_data(data)
@@ -216,12 +139,6 @@ class Source < ActiveRecord::Base
 
   def set_team
     self.team = Team.current unless Team.current.nil?
-  end
-
-  def get_project_sources
-    conditions = {}
-    conditions[:project_id] = Team.current.projects unless Team.current.nil?
-    self.project_sources.where(conditions)
   end
 
   def is_unique_per_team

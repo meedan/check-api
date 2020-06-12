@@ -450,7 +450,7 @@ class GraphqlCrudOperations
 
   def self.field_annotations
     proc do |_classname|
-      connection :annotations, -> { AnnotationType.connection_type } do
+      connection :annotations, -> { AnnotationUnion.connection_type } do
         argument :annotation_type, !types.String
 
         resolve ->(obj, args, _ctx) { obj.get_annotations(args['annotation_type'].split(',').map(&:strip)) }
@@ -495,25 +495,6 @@ class GraphqlCrudOperations
         resolve ->(obj, _args, _ctx) {
           obj.get_versions_log_count
         }
-      end
-    end
-  end
-
-  def self.project_association
-    proc do |class_name, field_name, type|
-      field field_name do
-        type type
-        description 'Information about a project association, The argument should be given like this: "project_association_id,project_id,team_id"'
-        argument :ids, !types.String
-        resolve -> (_obj, args, ctx) do
-          objid, pid, tid = args['ids'].split(',').map(&:to_i)
-          tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-          project = Project.where(id: pid, team_id: tid).last
-          pid = project.nil? ? 0 : project.id
-          Project.current = project
-          objid = class_name.belonged_to_project(objid, pid, tid) || 0
-          GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
-        end
       end
     end
   end
@@ -563,6 +544,13 @@ class GraphqlCrudOperations
       connection :assignments, -> { UserType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.assigned_users
+        }
+      end
+
+      connection :annotations, -> { AnnotationUnion.connection_type } do
+        argument :annotation_type, !types.String
+        resolve ->(annotation, args, _ctx) {
+          Annotation.where(annotation_type: args['annotation_type'], annotated_type: ['Annotation', annotation.annotation_type.camelize], annotated_id: annotation.id)
         }
       end
 
