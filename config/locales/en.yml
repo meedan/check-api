@@ -843,6 +843,9 @@ en:
     about 30 seconds after your last message. We will try to get you a response, but
     please note that we are not able to respond to every request.\n\n*Press 0 (or
     \U0001F4CC)* to go back to the *Main Menu* "
+  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: Thanks
+    again for submitting to AFP Fact Check. Our team is currently investigating the
+    claim and will respond soon.
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: Thanks
     for inquiring about AFP Fact Check. Our team of journalists use digital verification
     tools and traditional reporting skills to debunk misleading content or fake messages
@@ -852,9 +855,6 @@ en:
     Agence France-Presse, which has 201 bureaus in 151 countries worldwide. Our reporting
     in India can be found at https://factcheck.afp.com/afp-india   Please send us
     misleading content being shared on social media and help us fight fake news.
-  custom_message_rule_action_send_message_491f115ce383510fe4ceb32ddbafa4a3_afp-fact-check: Thanks
-    again for submitting to AFP Fact Check. Our team is currently investigating the
-    claim and will respond shortly.
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: Thank
     you for submitting content to AFP Fact Check. Unfortunately, our team is unable
     to investigate this material. Please note that AFP does not fact check rumours,
@@ -928,6 +928,8 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
+  custom_message_status_undetermined_boom: Undetermined
+  custom_message_status_factchecked_boom: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
@@ -1197,6 +1199,10 @@ en:
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: Sorry,
     we're are not able to verify your request currenly. It is not possible to fact-check
     everything. Moreover, opinion, satire or vague claims are out of scope.
+  custom_message_status_false_infotagion: 'False'
+  custom_message_status_misleading_infotagion: Misleading
+  custom_message_status_true_infotagion: 'True'
+  custom_message_status_unconfirmed_infotagion: Unconfirmed
   custom_message_status_undetermined_africa-check: Unstarted
   custom_message_status_in_progress_africa-check: In progress
   custom_message_status_false_africa-check: Incorrect
@@ -1368,6 +1374,8 @@ en:
     မေးခွန်းများ ၊ သင်စစ်ဆေးစေချင်သော ဓါတ်ပုံများ၊ ဗီဒီယို၊ လင့် သို့မဟုတ် မေးခွန်းများကို
     ပို့ပါ ။ ကျွန်ုပ်တို့ ရှာဖွေတဲ့အခါ အသုံးပြုလို့ရနိုင်မယ့် အသေးစိတ်အကြောင်းအရာတွေလည်း
     ပို့နိင်ပါတယ် ။ \n\n မူလ နေရာကို ပြန်သွားရန် 0 (သုည) ကို နှိပ်ပါ ။ "
+  custom_message_status_verified_newtestteam02: 'true'
+  custom_message_status_false_newtestteam02: 'false'
   custom_message_smooch_bot_result_reverso: 'Este pedido que nos hiciste ya fue verificado
     y nos dio %{status}. Acá te pasamos el link a la verificación: %{url}'
   custom_message_smooch_bot_result_changed_reverso: "El mensaje que nos enviaste fue
