@@ -234,7 +234,6 @@ class Version < Partitioned::ByForeignKey
   end
 
   def get_team_id
-    item = self.item
     self.item.nil? ? nil : self.item.team&.id
   end
 

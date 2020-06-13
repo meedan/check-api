@@ -70,7 +70,7 @@ class VersionTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     User.current = u
     t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
-    Version.from_partition(t.team_id).where(item_type: 'DynamicAnnotation::Field').each do |version|
+    Version.from_partition(t.team&.id).where(item_type: 'DynamicAnnotation::Field').each do |version|
       assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
     end
     User.current = nil

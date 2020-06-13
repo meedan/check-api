@@ -228,11 +228,11 @@ class Ability
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
     end
     can :update, DynamicAnnotation::Field do |obj|
-      obj.annotation.team_id == @context_team.id and !obj.annotation.annotated_is_archived?
+      obj.annotation.team&.id == @context_team.id and !obj.annotation.annotated_is_archived?
     end
     can :destroy, Version do |obj|
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
-      !v_obj.nil? and v_obj.project.team_id == @context_team.id and v_obj.media.user_id = @user.id
+      !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
     contributor_and_annotator_perms
   end

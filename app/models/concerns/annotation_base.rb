@@ -190,7 +190,7 @@ module AnnotationBase
   end
 
   def annotation_versions(options = {})
-    Version.from_partition(self.team_&.id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
+    Version.from_partition(self.team&.id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
