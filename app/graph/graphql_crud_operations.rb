@@ -582,6 +582,7 @@ class GraphqlCrudOperations
   end
 end
 
+# TODO Remove and replace with actual types or with types.JSON when we upgrade graphql gem
 JsonStringType = GraphQL::ScalarType.define do
   name "JsonStringType"
   coerce_input -> (val, _ctx) { JSON.parse(val) }

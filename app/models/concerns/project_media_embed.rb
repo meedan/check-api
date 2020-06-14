@@ -100,7 +100,7 @@ module ProjectMediaEmbed
       permalink: self.full_url.to_s,
       oembed_url: self.oembed_url,
       embed_url: self.embed_url
-    }.to_json
+    }
   end
 
   def mark_as_embedded

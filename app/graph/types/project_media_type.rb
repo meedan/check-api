@@ -144,39 +144,30 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Replace with annotations + argument
   field :metadata, JsonStringType, 'Item metadata'
 
   # TODO Merge this and 'last_status_obj' into 'status'
-  field :last_status do
-    type types.String
-
+  field :last_status, types.String do
     resolve ->(project_media, _args, _ctx) {
       project_media.last_status
     }
   end
-  field :last_status_obj do
-    type -> { DynamicType }
-
+  field :last_status_obj, -> { DynamicType } do
     resolve -> (project_media, _args, _ctx) {
       obj = project_media.last_status_obj
       obj.is_a?(Dynamic) ? obj : obj.load
     }
   end
 
-  # TODO Review overridden logic
-  field :overridden do
-    type JsonStringType
-
+  # TODO Remove overridden logic
+  field :overridden, JsonStringType do
     resolve ->(project_media, _args, _ctx) {
       project_media.overridden
     }
   end
 
   # TODO Replace with annotations + argument
-  field :language do
-    type types.String
-
+  field :language, types.String, 'Item language' do
     resolve ->(project_media, _args, _ctx) {
       project_media.get_dynamic_annotation('language')&.get_field('language')&.send(:to_s)
     }

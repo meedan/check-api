@@ -222,9 +222,10 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 'Title A', metadata['metadata']['title']
     # original metadata
     assert_equal 'test media', metadata['media']['metadata']['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata } }"
+    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata, oembed } }"
     post :create, query: query, team: @team.slug
     assert_response :success
+    puts @response.body
     data = JSON.parse(@response.body)['data']['project_media']['metadata']
     assert_equal 'Title B', data['title']
   end

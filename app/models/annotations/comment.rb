@@ -74,10 +74,15 @@ class Comment < ActiveRecord::Base
   # Supports only media for the time being
   def extract_check_entities
     ids = []
-    pattern = Regexp.new(self.annotated.team.url + '(/project/[0-9]+)?/media/([0-9]+)')
-    self.text.scan(pattern).each do |match|
-      ids << match[1].to_i
+
+    # TODO Remove first condition when every model responds to :team
+    if self.annotated.respond_to?(:team) and self.text
+      pattern = Regexp.new(self.annotated.team.url + '(/project/[0-9]+)?/media/([0-9]+)')
+      self.text.scan(pattern).each do |match|
+        ids << match[1].to_i
+      end
     end
+
     self.entities = ids
   end
 
