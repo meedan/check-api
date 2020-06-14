@@ -3,11 +3,6 @@ require 'active_support/concern'
 module ProjectMediaCachedFields
   extend ActiveSupport::Concern
 
-  # FIXME: Need to get this value from some API and update it periodically
-  def virality
-    0
-  end
-
   module ClassMethods
     def metadata_update(field)
       {

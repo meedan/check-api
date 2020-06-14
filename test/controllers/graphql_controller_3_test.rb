@@ -452,9 +452,8 @@ class GraphqlController3Test < ActionController::TestCase
               picture
               title
               description
-              virality
-              demand
-              linked_items_count
+              requests_related_count
+              related_count
               type
               status
               first_seen: created_at
@@ -477,11 +476,10 @@ class GraphqlController3Test < ActionController::TestCase
       pm = pm_node['node']
       assert_equal 'Title Test', pm['title']
       assert_equal 'Description Test', pm['description']
-      assert_equal 0, pm['virality']
-      assert_equal 1, pm['linked_items_count']
+      assert_equal 1, pm['related_count']
       assert_equal 'UploadedImage', pm['type']
       assert_not_equal pm['first_seen'], pm['last_seen']
-      assert_equal 2, pm['demand']
+      assert_equal 2, pm['requests_related_count']
     end
   end
 
@@ -1030,7 +1028,7 @@ class GraphqlController3Test < ActionController::TestCase
             }
           }
         }
-      } 
+      }
     }
     post :create, query: query, team: pm.team.slug
     assert_response :success

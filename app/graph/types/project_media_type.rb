@@ -15,13 +15,20 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :title, types.String, 'Title'
   field :description, types.String, 'Description'
   field :picture, types.String, 'Picture'
-  field :virality, types.Int, 'Virality, social reach as measured by item host'
   field :requests_count, types.Int, 'Count of requests made for this item'
-  field :demand, types.Int # TODO What's the diff with requests_count?
-  field :linked_items_count, types.Int, 'Count of related items' # TODO Rename to 'related_items_count'
+  field :requests_related_count, types.Int, 'Count of requests made for this item and all related items' do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.demand
+    }
+  end
+  field :related_count, types.Int, 'Count of related items' do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.linked_items_count
+    }
+  end
   field :last_seen, types.String, 'when was this item last requested' # TODO Convert to date and rename to 'last_requested'
   field :status, types.String, 'Workflow status'
-  field :share_count, types.Int # TODO What's the diff with virality?
+  field :share_count, types.Int, 'Count of social shares'
   field :team_id, types.Int, 'Team this item is associated with (database id)'
 
   field :type, types.String, 'Item type'  do # TODO Delegate to Media

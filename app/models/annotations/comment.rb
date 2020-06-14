@@ -69,34 +69,14 @@ class Comment < ActiveRecord::Base
     Version.from_partition(self.team_id).where(item_type: 'Comment', item_id: self.id.to_s, event_type: 'create_comment').first
   end
 
-  protected
-
-  def extract_check_urls
-    urls = []
-    team = self.annotated_type === 'ProjectMedia' ? self.annotated.team : nil
-    if team
-      words = self.text.to_s.split(/\s+/)
-      pattern = Regexp.new(CONFIG['checkdesk_client'])
-      words.each do |word|
-        match = word.match(pattern)
-        if !match.nil? && Team.slug_from_url(word) == team.slug
-          urls << word
-        end
-      end
-    end
-    urls
-  end
-
   private
 
   # Supports only media for the time being
   def extract_check_entities
     ids = []
-    self.extract_check_urls.each do |url|
-      match = url.match(/\/project\/([0-9]+)\/media\/([0-9]+)/)
-      unless match.nil?
-        ids << match[2]
-      end
+    pattern = Regexp.new(self.annotated.team.url + '(/project/[0-9]+)?/media/([0-9]+)')
+    self.text.scan(pattern).each do |match|
+      ids << match[1].to_i
     end
     self.entities = ids
   end

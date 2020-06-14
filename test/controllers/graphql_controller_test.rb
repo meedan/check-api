@@ -706,7 +706,7 @@ class GraphqlControllerTest < ActionController::TestCase
       end
     end
 
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
+    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions } } }  } } } } } }"
 
     assert_queries 380, '<' do
       post :create, query: query, team: 'team'

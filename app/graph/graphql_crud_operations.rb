@@ -512,7 +512,7 @@ class GraphqlCrudOperations
 
       connection :references, -> { ProjectMediaType.connection_type }, 'Items referenced by this annotation' do
         resolve ->(annotation, _args, _ctx) {
-          ProjectMedia.where(id: annotation.entities).to_a
+          ProjectMedia.where(id: annotation.entities.map(&:to_i)).to_a
         }
       end
 

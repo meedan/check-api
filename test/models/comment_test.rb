@@ -293,7 +293,7 @@ class CommentTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p2
     p3 = create_project team: t2
     pm3 = create_project_media project: p3
-    text = "Please check reports #{CONFIG['checkdesk_client']}/test/project/#{p1.id}/media/#{pm1.id} and #{CONFIG['checkdesk_client']}/test/project/#{p2.id}/media/#{pm2.id} and #{CONFIG['checkdesk_client']}/test2/project/1/media/#{pm3.id} because they are nice"
+    text = "Please check reports #{CONFIG['checkdesk_client']}/test/project/#{p1.id}/media/#{pm1.id} and #{CONFIG['checkdesk_client']}/test/media/#{pm2.id} and #{CONFIG['checkdesk_client']}/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
     assert_includes c.entities, pm1.id
     assert_includes c.entities, pm2.id
