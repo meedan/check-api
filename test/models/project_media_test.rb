@@ -829,7 +829,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       PenderClient::Request.unstub(:get_medias)
       expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
         .gsub(/.*<body/m, '<body')
-        .gsub('https?://[^:]*:3000', CONFIG['checkdesk_base_url'])
+        .gsub(/%checkdesk_base_url%/m, CONFIG['checkdesk_base_url'])
       actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
     end
@@ -837,7 +837,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should have metadata for oEmbed" do
     pm = create_project_media
-    assert_kind_of String, pm.oembed
+    assert_kind_of Hash, pm.oembed
   end
 
   test "should clear caches when media is updated" do
