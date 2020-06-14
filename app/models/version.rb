@@ -97,6 +97,8 @@ class Version < Partitioned::ByForeignKey
     self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
   end
 
+  # TODO: Sawy fixme (projects/teams)
+  # Should log project/team changes to show right logs for move to /copy to in activities logs
   def projects
     ret = []
     if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'

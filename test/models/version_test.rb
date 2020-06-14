@@ -136,6 +136,20 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal v.id, v.dbid
   end
 
+  test "should get projects and teams" do
+    u = create_user is_admin: true
+    t = create_team
+    t2 = create_team
+    User.current = u
+    pm = create_project_media team: t
+    pm.team = t2
+    pm.save!
+    log = pm.get_versions_log.last
+    assert_equal [t, t2], log.get_from_object_changes(:team)
+    assert_empty log.projects
+    User.current = nil
+  end
+
   test "should get source" do
     v = create_version
     assert_nil v.source
