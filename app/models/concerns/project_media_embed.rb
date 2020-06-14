@@ -92,7 +92,7 @@ module ProjectMediaEmbed
     self.annotations.where(annotation_type: 'comment').count
   end
 
-  def oembed_metadata
+  def oembed
     {
       title: self.title.to_s,
       description: self.description.to_s,

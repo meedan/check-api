@@ -5,7 +5,7 @@ class ElasticSearch2Test < ActionController::TestCase
     super
     setup_elasticsearch
   end
-  
+
   test "should get teams" do
     u = create_user
     t = create_team
@@ -106,8 +106,7 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       # Update title
       pm2.reload; pm2.disable_es_callbacks = false
-      info = {title: 'override_title'}.to_json
-      pm2.metadata = info
+      pm2.metadata = { title: 'override_title' }.to_json
       pm.reload; pm.disable_es_callbacks = false
       pm.refresh_media = true
       pm.save!

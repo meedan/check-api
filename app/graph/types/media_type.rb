@@ -14,19 +14,8 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :picture, types.String, 'Picture representing this item'
   field :type, types.String # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
   field :file_path, types.String # TODO Review
-
-  field :account, -> { AccountType }, 'Publisher account' do
-    resolve -> (media, _args, _ctx) {
-      media.account
-    }
-  end
-
-  field :metadata, JsonStringType, 'Item metadata' do
-    resolve ->(media, _args, _ctx) {
-      media.metadata
-    }
-  end
-
+  field :account, -> { AccountType }, 'Publisher account'
+  field :metadata, JsonStringType, 'Item metadata'
   field :dbid, types.Int, 'Database id of this record'
   field :pusher_channel, types.String, 'Channel for push notifications'
 end

@@ -510,9 +510,9 @@ class GraphqlCrudOperations
       # TODO Map field types and add documentation
       fields.each { |name, _field_type| field name, types.String }
 
-      connection :medias, -> { ProjectMediaType.connection_type }, 'Items referenced by this annotation' do
+      connection :references, -> { ProjectMediaType.connection_type }, 'Items referenced by this annotation' do
         resolve ->(annotation, _args, _ctx) {
-          annotation.entity_objects
+          ProjectMedia.where(id: annotation.entities).to_a
         }
       end
 

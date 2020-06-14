@@ -837,7 +837,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should have metadata for oEmbed" do
     pm = create_project_media
-    assert_kind_of String, pm.oembed_metadata
+    assert_kind_of String, pm.oembed
   end
 
   test "should clear caches when media is updated" do

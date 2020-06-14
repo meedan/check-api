@@ -295,9 +295,9 @@ class CommentTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p3
     text = "Please check reports #{CONFIG['checkdesk_client']}/test/project/#{p1.id}/media/#{pm1.id} and #{CONFIG['checkdesk_client']}/test/project/#{p2.id}/media/#{pm2.id} and #{CONFIG['checkdesk_client']}/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
-    assert_includes c.entity_objects, pm1
-    assert_includes c.entity_objects, pm2
-    refute_includes c.entity_objects, pm3
+    assert_includes c.entities, pm1.id
+    assert_includes c.entities, pm2.id
+    refute_includes c.entities, pm3.id
   end
 
   test "should protect attributes from mass assignment" do
@@ -436,7 +436,7 @@ class CommentTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     text = "Please check this report [#{CONFIG['checkdesk_client']}/test/project/#{p.id}/media/#{pm.id}]"
     c = create_comment text: text, annotated: pm
-    assert_includes c.entity_objects, pm
+    assert_includes c.entities, pm.id
   end
 
   test "should get team for a source comment" do

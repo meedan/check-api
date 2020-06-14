@@ -8,7 +8,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :media_id, types.Int, 'Media this item is associated with (database id)'
   field :url, types.String, 'Media URL' # TODO Delegate to Media
   field :quote, types.String, 'Text claim' # TODO Delegate to Media
-  field :oembed_metadata, types.String # TODO Merge with 'metadata'?
+  field :oembed, JsonStringType, 'Embed information for this media'
   field :archived, types.Boolean, 'Is this item in trash?' # TODO Rename to 'is_archived'
   field :author_role, types.String # TODO Merge with 'user'?
   field :report_type, types.String # TODO Merge with 'type'?
@@ -98,7 +98,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO: Don't understand this
+  # TODO: Rewrite
   connection :projects, -> { ProjectType.connection_type }, 'Projects associated with this item' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id).then do |media|
@@ -138,11 +138,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   end
 
   # TODO Replace with annotations + argument
-  field :metadata, JsonStringType, 'Item metadata' do
-    resolve ->(project_media, _args, _ctx) {
-      project_media.metadata
-    }
-  end
+  field :metadata, JsonStringType, 'Item metadata'
 
   # TODO Merge this and 'last_status_obj' into 'status'
   field :last_status do

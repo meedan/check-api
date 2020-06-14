@@ -283,11 +283,6 @@ module AnnotationBase
     team
   end
 
-  # Supports only media for the time being
-  def entity_objects
-    ProjectMedia.where(id: self.entities).to_a
-  end
-
   def method_missing(key, *args, &block)
     (args.empty? && !block_given?) ? self.data[key] : super
   end
