@@ -76,7 +76,8 @@ class Comment < ActiveRecord::Base
     ids = []
 
     # TODO Remove first condition when every model responds to :team
-    if self.annotated.team and self.text
+    # TODO Remove second condition when every model belongs to a team
+    if self.annotated.respond_to?(:team) and self.annotated.team and self.text
       pattern = Regexp.new(self.annotated.team.url + '(/project/[0-9]+)?/media/([0-9]+)')
       self.text.scan(pattern).each do |match|
         ids << match[1].to_i
