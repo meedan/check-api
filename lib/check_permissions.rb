@@ -87,10 +87,18 @@ module CheckPermissions
           model.team_id = Team.current.id
         end
 
+        model = self.set_media_for_permissions(model) if self.class.name == 'ProjectMedia'
+
         perms["create #{data}"] = ability.can?(:create, model)
       end
     end
     perms
+  end
+
+  def set_media_for_permissions(model)
+    model.media_id = self.id if model.respond_to?(:media_id)
+    model.annotated = self if model.respond_to?(:annotated)
+    model
   end
 
   def get_operation
