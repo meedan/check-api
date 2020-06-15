@@ -709,10 +709,9 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
-    # TODO: Sawy most important to review queries size
-    # assert_queries 380, '<' do
+    assert_queries 380, '<' do
       post :create, query: query, team: 'team'
-    # end
+    end
 
     assert_response :success
     assert_equal n, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].size

@@ -3,6 +3,8 @@ class ProjectMediaProject < ActiveRecord::Base
   include CheckPusher
   include ValidationsHelper
 
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
+
   belongs_to :project
   belongs_to :project_media
 

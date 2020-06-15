@@ -18,7 +18,8 @@ module TeamDuplication
           team = t.deep_clone include: [
             :sources,
             :projects,
-            { project_medias: [:source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]},
+            {project_medias: [versions: { if: lambda{|v| v.associated_id.blank? }}]},
+            # { project_medias: [:source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]},
             :team_users,
             :contacts,
             :team_tasks
@@ -179,7 +180,6 @@ module TeamDuplication
         v.event = 'copy'
         changes = {}
         changes['team_id'] = [@original_team.id, @copy_team.id]
-        changes['project_id'] = [ProjectMedia.find(original).project.id, copy.project.id]
         v.whodunnit = user.id
         v.object_changes = changes.to_json
         v.save(validate: false)

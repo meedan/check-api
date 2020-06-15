@@ -15,9 +15,7 @@ module ProjectAssociation
   end
 
   def check_search_project(project = nil)
-    if project.nil? && !self.project_ids.blank?
-      project = Project.where(id: self.project_ids).first
-    end
+    project ||= self.project_is
     return nil if project.nil?
     project.check_search_project
   end

@@ -40,6 +40,25 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     assert_equal pm, pmp.reload.project_media
   end
 
+  test "should have versions" do
+    m = create_valid_media
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    pm = create_project_media team: t
+    p = create_project team: t
+    pmp = nil
+    with_current_user_and_team(u, t) do
+      assert_difference 'PaperTrail::Version.count', 1 do
+        pmp = create_project_media_project project: p, project_media: pm
+      end
+    end
+    v = pmp.versions.last
+    assert_not_nil v
+    assert_equal v.associated_type, pm.class.name
+    assert_equal v.associated_id, pm.id
+  end
+
   test "should not add the same project media to the same project more than once" do
     p = create_project
     pm = create_project_media

@@ -25,8 +25,8 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project_was, pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.project_was, pm.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.project_is, pm.project_was, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project_is, pm.project_was, pm.team, pm.copied_to_project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -157,6 +157,13 @@ class ProjectMedia < ActiveRecord::Base
       m.client_mutation_id = self.client_mutation_id
       self.override_metadata_data(m, info)
     end
+  end
+
+  def project_is
+    # return current project for pusher
+    # TODO: replace with self.projects to notifiy all related projects
+    pid = [self.add_to_project_id, self.move_to_project_id, self.copy_to_project_id].reject(&:blank?).first
+    pid.nil? ? nil : Project.find_by_id(pid)
   end
 
   def project_was

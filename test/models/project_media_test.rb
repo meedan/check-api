@@ -470,16 +470,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get previous project" do
+  test "should get previous and target project" do
     p1 = create_project
     p2 = create_project
     pm = create_project_media project: p1
     assert_equal [p1], pm.projects
     assert_nil pm.project_was
+    pm = ProjectMedia.find pm.id
     pm.previous_project_id = p1.id
     pm.move_to_project_id = p2.id
     pm.save!
     assert_equal p1, pm.project_was
+    assert_equal p2, pm.project_is
     assert_equal [p2], pm.reload.projects
   end
 

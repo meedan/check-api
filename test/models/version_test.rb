@@ -136,7 +136,7 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal v.id, v.dbid
   end
 
-  test "should get projects and teams" do
+  test "should get teams" do
     u = create_user is_admin: true
     t = create_team
     t2 = create_team
@@ -146,7 +146,6 @@ class VersionTest < ActiveSupport::TestCase
     pm.save!
     log = pm.get_versions_log.last
     assert_equal [t, t2], log.get_from_object_changes(:team)
-    assert_empty log.projects
     User.current = nil
   end
 
