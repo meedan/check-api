@@ -431,12 +431,12 @@ class GraphqlController3Test < ActionController::TestCase
 
     m = create_uploaded_image
     pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
-    info = { title: random_string, description: random_string }.to_json; pm.metadata = info; pm.save!
+    pm.metadata = { title: random_string, description: random_string }; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
-    info = { title: 'Title Test', description: 'Description Test' }.to_json; pm.metadata = info; pm.save!
+    pm.metadata = { title: 'Title Test', description: 'Description Test' }; pm.save!
 
     sleep 10
 

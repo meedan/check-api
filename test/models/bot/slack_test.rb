@@ -156,8 +156,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        pm.metadata = { title: 'Foo', description: 'Bar' }
         pm.save!
       end
     end

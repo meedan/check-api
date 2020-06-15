@@ -106,7 +106,7 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       # Update title
       pm2.reload; pm2.disable_es_callbacks = false
-      pm2.metadata = { title: 'override_title' }.to_json
+      pm2.metadata = { title: 'override_title' }
       pm.reload; pm.disable_es_callbacks = false
       pm.refresh_media = true
       pm.save!
@@ -157,7 +157,7 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     # update title or description
     ElasticSearchWorker.clear
-    pm.metadata = { title: 'title', description: 'description' }.to_json
+    pm.metadata = { title: 'title', description: 'description' }
     assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear

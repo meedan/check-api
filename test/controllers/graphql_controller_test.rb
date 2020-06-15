@@ -210,11 +210,9 @@ class GraphqlControllerTest < ActionController::TestCase
     pm1 = create_project_media project: p, media: m
     pm2 = create_project_media project: p2
     # Update media title and description with context p
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.metadata = info
+    pm1.metadata = { title: 'Title A', description: 'Desc A' }
     # Update media title and description with context p2
-    info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.metadata = info
+    pm2.metadata = { title: 'Title B', description: 'Desc B' }
     query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata, media { metadata} } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -240,8 +238,7 @@ class GraphqlControllerTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     pm = create_project_media project: p, media: m
     # Update media title and description
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm.metadata = info
+    pm.metadata = { title: 'Title A', description: 'Desc A' }
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
     post :create, query: query, team: @team.slug
     assert_response :success

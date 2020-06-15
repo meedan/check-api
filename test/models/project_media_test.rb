@@ -241,15 +241,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'test media', data['title']
     assert_equal 'add desc', data['description']
     # Update media title and description for pm1
-    info = { title: 'Title A', description: 'Desc A' }.to_json
-    pm1.metadata = info
-    info = { title: 'Title AA', description: 'Desc AA' }.to_json
-    pm1.metadata = info
+    pm1.metadata = { title: 'Title A', description: 'Desc A' }
+    pm1.metadata = { title: 'Title AA', description: 'Desc AA' }
     # Update media title and description for pm2
-    info = { title: 'Title B', description: 'Desc B' }.to_json
-    pm2.metadata = info
-    info = { title: 'Title BB', description: 'Desc BB' }.to_json
-    pm2.metadata = info
+    pm2.metadata = { title: 'Title B', description: 'Desc B' }
+    pm2.metadata = { title: 'Title BB', description: 'Desc BB' }
     # fetch data for pm1
     data = pm1.metadata
     assert_equal 'Title AA', data['title']
@@ -363,22 +359,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media url: url, project: p
     attributes = pm.overridden_metadata_attributes
     attributes.each{|k| assert_not pm.overridden[k]}
-    pm.metadata = { title: 'title' }.to_json
+    pm.metadata = { title: 'title' }
     assert pm.overridden['title']
     attributes = pm.overridden_metadata_attributes
     attributes.delete('title')
     attributes.each{ |k| assert_not pm.overridden[k] }
-    pm.metadata = { description: 'description' }.to_json
+    pm.metadata = { description: 'description' }
     assert pm.overridden['description']
     attributes.delete('description')
     attributes.each{ |k| assert_not pm.overridden[k] }
-    pm.metadata = { username: 'username' }.to_json
+    pm.metadata = { username: 'username' }
     assert pm.overridden['username']
     attributes.delete('username')
     attributes.each{ |k| assert_not pm.overridden[k] }
     # Claim media
     pm = create_project_media quote: 'Claim', project: p
-    pm.metadata = { title: 'title', description: 'description', username: 'username' }.to_json
+    pm.metadata = { title: 'title', description: 'description', username: 'username' }
     pm.overridden_metadata_attributes.each{ |k| assert_not pm.overridden[k] }
   end
 
@@ -484,8 +480,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
       s.status = 'In Progress'; s.save!
       e = create_metadata annotated: pm, title: 'Test'
-      info = { title: 'Foo' }.to_json; pm.metadata = info; pm.save!
-      info = { title: 'Bar' }.to_json; pm.metadata = info; pm.save!
+      pm.metadata = { title: 'Foo' }; pm.save!
+      pm.metadata = { title: 'Bar' }; pm.save!
       pm.project_id = p2.id; pm.save!
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
@@ -1024,15 +1020,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u1, t) do
       pm = create_project_media project: p, user: u1
       pm = ProjectMedia.find(pm.id)
-      info = { title: 'Title' }.to_json
-      pm.metadata = info
+      pm.metadata = { title: 'Title' }
       pm.save!
     end
 
     with_current_user_and_team(u2, t) do
       pm = ProjectMedia.find(pm.id)
-      info = { title: 'Title' }.to_json
-      pm.metadata = info
+      pm.metadata = { title: 'Title' }
       pm.save!
     end
 
@@ -1047,8 +1041,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_nil pm.reload.description
-    info = { description: 'Test 2' }.to_json
-    pm.metadata = info
+    pm.metadata = { description: 'Test 2' }
     pm.save!
     assert_equal 'Test 2', pm.reload.description
   end
@@ -1448,7 +1441,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Media Title', pm.metadata['title']
     assert_equal 'Media Description', pm.metadata['description']
     assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
-      pm.metadata = { title: 'Project Media Title', description: 'Project Media Description' }.to_json
+      pm.metadata = { title: 'Project Media Title', description: 'Project Media Description' }
       pm.save!
     end
     l = Media.find(l.id)
@@ -1602,14 +1595,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache title" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
-    pm.metadata = { title: 'Title 1' }.to_json
+    pm.metadata = { title: 'Title 1' }
     pm.save!
     assert pm.respond_to?(:title)
     assert_queries 0, '=' do
       assert_equal 'Title 1', pm.title
     end
     pm = create_project_media
-    pm.metadata = { title: 'Title 2' }.to_json
+    pm.metadata = { title: 'Title 2' }
     pm.save!
     assert_queries 0, '=' do
       assert_equal 'Title 2', pm.title
@@ -1622,14 +1615,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache description" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
-    pm.metadata = { description: 'Description 1' }.to_json
+    pm.metadata = { description: 'Description 1' }
     pm.save!
     assert pm.respond_to?(:description)
     assert_queries 0, '=' do
       assert_equal 'Description 1', pm.description
     end
     pm = create_project_media
-    pm.metadata = { description: 'Description 2' }.to_json
+    pm.metadata = { description: 'Description 2' }
     pm.save!
     assert_queries 0, '=' do
       assert_equal 'Description 2', pm.description

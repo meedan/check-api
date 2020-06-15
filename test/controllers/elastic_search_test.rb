@@ -69,7 +69,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
     assert_equal [p.id, p2.id], p_ids.sort
-    pm2.metadata = {description: 'new_description'}.to_json
+    pm2.metadata = { description: 'new_description' }
     sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, metadata } } } } }'
     post :create, query: query
@@ -212,7 +212,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: "search_title"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # overide title then search
-    pm.metadata = {title: 'search_title_a'}.to_json
+    pm.metadata = { title: 'search_title_a' }
     sleep 1
     result = CheckSearch.new({keyword: "search_title_a"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
