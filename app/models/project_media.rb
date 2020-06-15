@@ -142,7 +142,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def metadata=(info)
-    info = info.blank? ? {} : JSON.parse(info)
+    info = info.blank? ? {} : info
     unless info.blank?
       m = self.get_annotations('metadata').last
       m = m.load unless m.nil?

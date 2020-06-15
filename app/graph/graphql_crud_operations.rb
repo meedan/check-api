@@ -584,7 +584,8 @@ end
 
 # TODO Remove and replace with actual types or with types.JSON when we upgrade graphql gem
 JsonStringType = GraphQL::ScalarType.define do
-  name "JsonStringType"
+  name "JSON"
+  description "Represents untyped JSON"
   coerce_input -> (val, _ctx) { JSON.parse(val) }
   coerce_result -> (val, _ctx) { val.as_json }
 end
