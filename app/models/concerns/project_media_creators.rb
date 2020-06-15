@@ -51,7 +51,7 @@ module ProjectMediaCreators
   end
 
   def set_quote_metadata
-    self.metadata = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.metadata = ({ title: self.media.quote }) unless self.media.quote.blank?
     set_title_for_files unless self.media.file.blank?
   end
 
@@ -65,7 +65,7 @@ module ProjectMediaCreators
       file_path = self.media.file.path
       title = File.basename(file_path, File.extname(file_path))
     end
-    self.metadata = ({ title: title }.to_json)
+    self.metadata = ({ title: title })
   end
 
   protected
