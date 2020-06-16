@@ -142,6 +142,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
       }.to_json
       f = create_field field_name: 'response_geolocation', value: geojson
       assert_equal 'Only Name', f.to_s
+      assert_equal JSON.parse(geojson), f.value_json
     end
   end
 
