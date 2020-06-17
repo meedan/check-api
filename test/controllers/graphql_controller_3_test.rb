@@ -1060,4 +1060,22 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert 3, JSON.parse(@response.body)['data']['task']['order']
   end
+
+  test "should get team user from user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t
+    authenticate_with_user(u)
+
+    query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    puts @response.body
+    assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
+
+    query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['me']['team_user']
+  end
 end
