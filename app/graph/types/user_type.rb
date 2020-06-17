@@ -85,6 +85,14 @@ UserType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :team_user do
+    type TeamUserType
+    argument :team_slug, !types.String
+    resolve ->(user, args, _ctx) {
+      TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id).last
+    }
+  end
+
   connection :teams, -> { TeamType.connection_type } do
     resolve ->(user, _args, _ctx) {
       user.teams

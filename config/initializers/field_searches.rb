@@ -60,6 +60,7 @@ Dynamic.class_eval do
     geojson = JSON.parse(self.get_field_value(:response_geolocation))
     coordinates = geojson['geometry']['coordinates']
     indexable = geojson['properties']['name']
+    return {} unless geojson['geometry']['type'] == 'Point'
 
     if coordinates[0] != 0 || coordinates[1] != 0
       # re-compute long value before sending to Elasticsearch
