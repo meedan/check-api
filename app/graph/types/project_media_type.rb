@@ -171,7 +171,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :tasks, -> { TaskType.connection_type } do
     resolve ->(project_media, _args, _ctx) {
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
+      tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id).to_a
+      tasks.sort_by!{ |obj| obj.order}
     }
   end
 
