@@ -81,6 +81,7 @@ RailsAdmin.config do |config|
     'ProjectMedia',
     'Source',
     'Team',
+    'TeamTask',
     'TeamUser',
     'User',
     'BotUser',
@@ -395,6 +396,35 @@ RailsAdmin.config do |config|
           TeamUser.status_types
         end
       end
+    end
+  end
+
+  config.model 'TeamTask' do
+    list do
+      field :team
+      field :label
+      field :task_type
+      field :description
+      field :options
+      field :project_ids
+      field :required
+      field :order
+      field :json_schema
+    end
+
+    edit do
+      field :team
+      field :label
+      field :description
+      field :required
+      field :order
+      field :project_ids, :enum do
+        enum do
+          bindings[:object].team.projects.map { |p| [ p.title, p.id ] }
+        end
+      end
+      field :options
+      field :json_schema
     end
   end
 

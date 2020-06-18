@@ -28,6 +28,7 @@ class Task < ActiveRecord::Base
   field :suggestions_count, Integer
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
+  field :order, Integer
 
   field :json_schema
 
@@ -130,7 +131,7 @@ class Task < ActiveRecord::Base
 
   def content
     hash = {}
-    %w(label type description options status suggestions_count pending_suggestions_count).each{ |key| hash[key] = self.send(key) }
+    %w(label type description options status suggestions_count pending_suggestions_count order).each{ |key| hash[key] = self.send(key) }
     hash.to_json
   end
 
@@ -242,6 +243,27 @@ class Task < ActiveRecord::Base
 
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
+  end
+
+  def self.order_tasks(tasks)
+    errors = []
+    tasks.each do |item|
+      item = item.symbolize_keys
+      begin
+        task = Task.where(annotation_type: 'task', id: item[:id]).last
+        if task.nil?
+          errors << {id: item[:id], error: I18n.t(:error_record_not_found, { type: 'Task', id: item[:id] })}
+        else
+          task.paper_trail.without_versioning do
+            task.order = item[:order].to_i
+            task.save!
+          end
+        end
+      rescue StandardError => e
+        errors << {id: item[:id], error: e.message}
+      end
+    end
+    errors
   end
 
   private
