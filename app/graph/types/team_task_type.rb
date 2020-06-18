@@ -13,6 +13,7 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
   field :team_id, types.Int
   field :team, TeamType
   field :json_schema, types.String
+  field :order, types.Int
 
   field :type do
     type types.String

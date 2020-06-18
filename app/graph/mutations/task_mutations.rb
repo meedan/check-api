@@ -2,7 +2,8 @@ module TaskMutations
   fields = {
     description: 'str',
     assigned_to_ids: 'str',
-    json_schema: 'str'
+    json_schema: 'str',
+    order: 'int'
   }
 
   create_fields = {

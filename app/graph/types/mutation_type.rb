@@ -70,6 +70,7 @@ MutationType = GraphQL::ObjectType.define do
   field :userDisconnectLoginAccount, field: UserDisconnectLoginAccountMutation.field
   field :userTwoFactorAuthentication, field: UserTwoFactorAuthenticationMutation.field
   field :generateTwoFactorBackupCodes, field: GenerateTwoFactorBackupCodesMutation.field
+  field :tasksOrder, field: TasksOrderMutation.field
 
   field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field

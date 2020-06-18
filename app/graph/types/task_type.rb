@@ -46,6 +46,8 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
 
   field :team_task_id, types.Int
 
+  field :order, types.Int
+
   field :log_count do
     type types.Int
 
