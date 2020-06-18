@@ -92,10 +92,15 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm3 = create_project_media team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      tt = create_team_task team_id: t.id, project_ids: [p.id], description: 'Foo', options: [{ label: 'Foo' }]
+      tt = create_team_task team_id: t.id, project_ids: [p.id], order: 2, description: 'Foo', options: [{ label: 'Foo' }]
+      tt2 = create_team_task team_id: t.id, project_ids: [p.id], order: 1, description: 'Foo2', options: [{ label: 'Foo2' }]
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
       assert_not_nil pm_tt
+      assert_not_nil pm_tt2
+      assert_equal pm_tt.order, tt.order
+      assert_equal pm_tt2.order, tt2.order
       assert_nil pm3_tt
       # update project list to all items
       assert_difference 'Annotation.where(annotation_type: "task").count', 1 do

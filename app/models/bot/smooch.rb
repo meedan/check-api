@@ -447,9 +447,10 @@ class Bot::Smooch < BotUser
   end
 
   # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-  def self.format_template_message(template, placeholders, image, fallback, language)
+  def self.format_template_message(template_name, placeholders, image, fallback, language)
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
+    template = self.config["smooch_template_name_for_#{template_name}"] || template_name
     locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : 'en'
     data = { namespace: namespace, template: template, fallback: fallback, language: locale }
     data['header_image'] = image unless image.blank?
