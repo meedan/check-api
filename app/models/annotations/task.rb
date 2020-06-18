@@ -250,10 +250,14 @@ class Task < ActiveRecord::Base
     tasks.each do |item|
       item = item.symbolize_keys
       begin
-        task = Task.find item[:id]
-        task.paper_trail.without_versioning do
-          task.order = item[:order].to_i
-          task.save!
+        task = Task.where(annotation_type: 'task', id: item[:id]).last
+        if task.nil?
+          errors << {id: item[:id], error: I18n.t(:error_record_not_found, { type: 'Task', id: item[:id] })}
+        else
+          task.paper_trail.without_versioning do
+            task.order = item[:order].to_i
+            task.save!
+          end
         end
       rescue StandardError => e
         errors << {id: item[:id], error: e.message}

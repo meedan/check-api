@@ -139,8 +139,8 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_read('project_media', 'last_status')
     authenticate_with_user
     p = create_project team: @team
-    tt = create_team_task team_id: t.id, project_ids: [p.id], order: 2
-    tt2 = create_team_task team_id: t.id, project_ids: [p.id], order: 1
+    tt = create_team_task team_id: @team.id, project_ids: [p.id], order: 2
+    tt2 = create_team_task team_id: @team.id, project_ids: [p.id], order: 1
     pm = create_project_media project: p
     u = create_user name: 'The Annotator'
     create_team_user user: u, team: @team
@@ -161,8 +161,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert users.include?('The Annotator')
     users = data['annotations']['edges'].collect{ |e| e['node']['assignments']['edges'][0]['node']['name'] }
     assert users.include?('The Annotator')
-    assert_equal tt2.id, data['tasks']['edges']['node'][0]['dbid']
-    assert_equal tt.id, data['tasks']['edges']['node'][0]['dbid']
+    # test task order
+    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+    pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+    assert_equal pm_tt2.id, data['tasks']['edges'][0]['node']['dbid'].to_i
+    assert_equal pm_tt.id, data['tasks']['edges'][1]['node']['dbid'].to_i
   end
 
   test "should read project medias with team_id as argument" do
