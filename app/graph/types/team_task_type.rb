@@ -6,6 +6,7 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
 
   field :label, types.String, 'Label'
   field :description, types.String, 'Description'
+  field :order, types.Int, 'Order among tasks'
   field :project_ids, JsonStringType, 'Projects associated with this team task (database ids)' # TODO Convert to [types.Int]
   field :team_id, types.Int, 'Team associated with this team task (database id)'
   field :team, TeamType, 'Team associated with this team task'

@@ -19,9 +19,7 @@ DynamicAnnotation::Field.class_eval do
     geojson = JSON.parse(self.value)
     value = geojson['properties']['name']
     coordinates = geojson['geometry']['coordinates']
-    if coordinates[0].to_i != 0 || coordinates[1].to_i != 0
-      value += " (#{coordinates[0]}, #{coordinates[1]})"
-    end
+    value += " (#{coordinates.join(', ')})"
     value
   end
 

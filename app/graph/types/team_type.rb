@@ -109,7 +109,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   connection :team_tasks, -> { TeamTaskType.connection_type } do
     resolve ->(team, _args, _ctx) {
-      team.team_tasks.order('id ASC')
+      team.team_tasks.order(order: :asc)
     }
   end
 

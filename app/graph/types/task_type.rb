@@ -40,6 +40,8 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
 
   field :team_task_id, types.Int, 'Team task database id'
 
+  field :order, types.Int, 'Order among tasks'
+
   field :log_count, types.Int, 'Count of log entries for this item' do
     resolve -> (task, _args, _ctx) {
       obj = task.load || task

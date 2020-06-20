@@ -329,6 +329,7 @@ en:
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
   error_login_2fa: Please complete your sign-in by supplying an authentication code.
+  error_record_not_found: Couldn't find %{type} with 'id'=%{id}
   mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},

@@ -80,31 +80,32 @@ UserType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :teams, -> { TeamType.connection_type }, 'Teams where this user is a member' do
-    resolve ->(user, _args, _ctx) {
+    resolve -> (user, _args, _ctx) do
       user.teams
-    }
+    end
   end
 
   connection :team_users, -> { TeamUserType.connection_type }, 'Team memberships of this user' do
-    resolve ->(user, _args, _ctx) {
-      user.team_users
-    }
+    argument :team_slug, types.String, 'Team slug to match'
+
+    resolve -> (user, args, _ctx) do
+      args['team_slug'].blank? ? user.team_users : TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id)
+    end
   end
 
   # TODO Review usage
   connection :annotations, -> { AnnotationType.connection_type }, 'Annotations made by this user' do
-    argument :type, types.String # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
+    argument :type, types.String, 'Annotation type to match' # TODO Consider enum type https://graphql.org/learn/schema/#enumeration-types
 
-    resolve ->(user, args, _ctx) {
-      type = args['type']
-      type.blank? ? user.annotations : user.annotations(type)
-    }
+    resolve -> (user, args, _ctx) do
+      args['type'].blank? ? user.annotations : user.annotations(args['type'])
+    end
   end
 
   connection :assignments, -> { ProjectMediaType.connection_type }, 'Assignments for this user' do
-    argument :team_id, types.Int
+    argument :team_id, types.Int, 'Database id of team to match'
 
-    resolve ->(user, args, _ctx) {
+    resolve -> (user, args, _ctx) do
       # TODO Better implementation:
       # - single query
       # - use current team if argument is blank
@@ -115,7 +116,7 @@ UserType = GraphqlCrudOperations.define_default_type do
       # TODO Remove finished items
       # pms.reject { |pm| pm.is_finished? }
       pms
-    }
+    end
   end
 
   field :dbid, types.Int, 'Database id of this record'

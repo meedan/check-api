@@ -21,5 +21,6 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :dbid, types.Int, 'Database id of this record'
   field :permissions, types.String, 'CRUD permissions of this record for current user'
 end
