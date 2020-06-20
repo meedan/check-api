@@ -1065,15 +1065,14 @@ class GraphqlController3Test < ActionController::TestCase
     tu = create_team_user user: u, team: t
     authenticate_with_user(u)
 
-    query = 'query { me { team_users(team_slug: "' + t.slug + '") { dbid } } }'
+    query = 'query { me { team_users(team_slug: "' + t.slug + '") { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
-    puts @response.body
-    assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_users'][0]['dbid']
+    assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_users']['edges'][0]['node']['dbid']
 
-    query = 'query { me { team_users(team_slug: "' + random_string + '") { dbid } } }'
+    query = 'query { me { team_users(team_slug: "' + random_string + '") { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['me']['team_users']
+    assert_nil JSON.parse(@response.body)['data']['me']['team_users']['edges'][0]
   end
 end
