@@ -1,5 +1,7 @@
 class AddNewFieldsToReportDesign < ActiveRecord::Migration
   def change
+    RequestStore.store[:skip_rules] = true
+
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last
     unless at.nil?
       json_schema = at.json_schema.clone.with_indifferent_access
@@ -40,5 +42,7 @@ class AddNewFieldsToReportDesign < ActiveRecord::Migration
         report.save!
       end
     end
+
+    RequestStore.store[:skip_rules] = false
   end
 end
