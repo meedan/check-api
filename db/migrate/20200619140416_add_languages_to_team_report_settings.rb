@@ -1,5 +1,7 @@
 class AddLanguagesToTeamReportSettings < ActiveRecord::Migration
   def change
+    RequestStore.store[:skip_rules] = true
+
     Team.find_each do |team|
       settings = team.settings || {}
       settings = settings.with_indifferent_access
@@ -22,5 +24,7 @@ class AddLanguagesToTeamReportSettings < ActiveRecord::Migration
         team.save!
       end
     end
+
+    RequestStore.store[:skip_rules] = false
   end
 end
