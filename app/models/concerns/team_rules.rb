@@ -236,7 +236,7 @@ module TeamRules
   end
 
   def apply_rules_and_actions(pm, only_rule_ids = nil)
-    return if pm.skip_rules
+    return if pm.skip_rules || RequestStore.store[:skip_rules]
     begin
       matched_rules_ids = []
       self.apply_rules(pm, only_rule_ids) do |rules_and_actions|

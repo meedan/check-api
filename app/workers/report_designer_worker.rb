@@ -20,13 +20,16 @@ class ReportDesignerWorker
   def perform(id, action)
     d = Dynamic.where(id: id).last
     return if d.nil?
-    d.report_image_generate_png if d.get_field_value('use_visual_card')
+    data = d.data.with_indifferent_access
+    data[:options].each_with_index do |option, i|
+      d.report_image_generate_png(i) if d.report_design_field_value('use_visual_card', option[:language])
+    end
     pm = ProjectMedia.where(id: d.annotated_id).last
     ::Bot::Smooch.send_report_to_users(pm, action) unless pm.nil?
-    d.set_fields = d.data.merge({
-      last_published: Time.now.to_i.to_s,
-      previous_published_status_label: d.get_field_value('status_label').to_s
-    }).to_json
+    d = Dynamic.where(id: id).last
+    data = d.data.with_indifferent_access
+    data[:last_published] = Time.now.to_i.to_s
+    d.data = data
     d.save!
     pm.clear_caches
   end

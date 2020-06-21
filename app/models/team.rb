@@ -133,20 +133,9 @@ class Team < ActiveRecord::Base
     self.send(:set_media_verification_statuses, value)
   end
 
-  def disclaimer=(text)
-    self.send(:set_disclaimer, text)
-  end
-
-  def introduction=(text)
-    self.send(:set_introduction, text)
-  end
-
-  def use_disclaimer=(bool)
-    self.send(:set_use_disclaimer, (bool.to_i == 1))
-  end
-
-  def use_introduction=(bool)
-    self.send(:set_use_introduction, (bool.to_i == 1))
+  def report=(report_settings)
+    settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
+    self.send(:set_report, settings)
   end
 
   def team_user
