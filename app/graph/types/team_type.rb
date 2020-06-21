@@ -20,10 +20,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_embed_whitelist, types.String
   field :get_report_design_image_template, types.String
   field :get_status_target_turnaround, types.String
-  field :get_disclaimer, types.String
-  field :get_introduction, types.String
-  field :get_use_disclaimer, types.Boolean
-  field :get_use_introduction, types.Boolean
   field :pusher_channel, types.String
   field :search_id, types.String
   field :search, CheckSearchType
@@ -40,6 +36,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :trash_count, types.Int
   field :get_languages, types.String
   field :get_language, types.String
+  field :get_report, JsonStringType
 
   field :public_team do
     type PublicTeamType

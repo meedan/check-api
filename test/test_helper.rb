@@ -964,9 +964,9 @@ class ActiveSupport::TestCase
     Bot::Smooch.run(payload)
   end
 
-  def publish_report(pm = nil, data = {}, report = nil)
+  def publish_report(pm = nil, data = {}, report = nil, option_data = {})
     pm ||= create_project_media
-    r = report || create_report(pm, data)
+    r = report || create_report(pm, data, 'save', option_data)
     r = Dynamic.find(r.id)
     r.set_fields = { state: 'published' }.to_json
     r.action = 'publish'
@@ -974,23 +974,27 @@ class ActiveSupport::TestCase
     r
   end
 
-  def create_report(pm, data = {}, action = 'save')
+  def create_report(pm, data = {}, action = 'save', option_data = {})
     create_report_design_annotation_type if DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last.nil?
     r = create_dynamic_annotation annotation_type: 'report_design', annotated: pm
     default_data = {
       state: 'paused',
-      status_label: random_string,
-      description: random_string,
-      headline: random_string,
-      use_visual_card: true,
-      use_introduction: true,
-      introduction: 'Regarding {{query_message}} on {{query_date}}, it is {{status}}.',
-      theme_color: '#FF0000',
-      url: random_url,
-      use_text_message: true,
-      text: random_string,
-      use_disclaimer: true,
-      disclaimer: random_string
+      options: [{
+        language: 'en',
+        status_label: random_string,
+        description: random_string,
+        headline: random_string,
+        use_visual_card: true,
+        image: '',
+        use_introduction: true,
+        introduction: 'Regarding {{query_message}} on {{query_date}}, it is {{status}}.',
+        theme_color: '#FF0000',
+        url: random_url,
+        use_text_message: true,
+        text: random_string,
+        use_disclaimer: true,
+        disclaimer: random_string
+      }.merge(option_data)]
     }
     r.set_fields = default_data.merge(data).to_json
     r.action = action

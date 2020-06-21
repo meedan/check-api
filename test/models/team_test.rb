@@ -2367,16 +2367,21 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should define report settings" do
     t = create_team
-    t.use_introduction = true
-    t.use_disclaimer = true
-    t.introduction = random_string
-    t.disclaimer = random_string
+    t.report = {
+      en: {
+        use_introduction: true,
+        use_disclaimer: true,
+        introduction: random_string,
+        disclaimer: random_string
+      }
+    }
     t.save!
     t = Team.find(t.id)
-    assert t.get_use_introduction
-    assert t.get_use_disclaimer
-    assert_not_nil t.get_introduction
-    assert_not_nil t.get_disclaimer
+    r = t.get_report[:en]
+    assert r[:use_introduction]
+    assert r[:use_disclaimer]
+    assert_not_nil r[:introduction]
+    assert_not_nil r[:disclaimer]
   end
 
   test "should get dynamic fields schema for items without list" do

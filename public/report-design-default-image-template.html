@@ -12,6 +12,7 @@
         line-height: 1.5em;
         width: 500px;
         height: 500px;
+        overflow: hidden;
       }
 
       body.bn {
@@ -38,7 +39,6 @@
         color: #CCCCCC;
         font-size: 22px;
         padding: 20px 40px;
-        background: white;
         height: 100px;
         width: 100%;
         overflow: hidden;
@@ -55,8 +55,11 @@
         padding: 20px 40px;
       }
 
+      #image > div {
+        display: flex;
+      }
+
       .translucid {
-        background: rgba(255, 255, 255, 0.75);
         padding: 20px;
         display: inline-block;
         width: auto;
@@ -69,36 +72,68 @@
         font-size: 32px;
       }
 
+      #date {
+        font-size: 18px;
+      }
+
       #description {
-        color: black;
         font-size: 16px;
       }
 
       #url {
-        color: black;
         font-size: 18px;
-        padding: 13px 20px 13px 65px;
-        background-color: rgba(255, 255, 255, 0.75);
-        background-position: 20px 5px;
-        background-repeat: no-repeat;
-        background-size: 40px 40px;
+      }
+
+      #avatar {
+        height: 64px;
+        width: 64px;
+        display: inline-block;
+        margin-bottom: 10px;
+        background-color: white;
+        background-size: contain;
         background-image: url('%AVATAR_URL%');
+      }
+
+      .light .translucid {
+        background: rgba(255, 255, 255, 0.75);
+      }
+      
+      .light #description, .light #url, .light #date {
+        color: black;
+      }
+
+      .light #title {
+        background: white;
+      }
+
+      .dark .translucid {
+        background: rgba(0, 0, 0, 0.75);
+      }
+      
+      .dark #description, .dark #url, .dark #date {
+        color: white;
+      }
+
+      .dark #title {
+        background: black;
       }
     </style>
   </head>
-  <body>
+  <body class="report">
     <div id="frame">
       <div id="top"></div>
       <div id="title"></div>
       <div id="image">
         <div>
           <div id="status" class="translucid"></div>
+          <div id="date" class="translucid"></div>
         </div>
         <div>
           <div id="description" class="translucid"></div>
         </div>
         <div>
-          <div class="translucid" id="url"></div>
+          <div id="avatar"></div>
+          <div id="url" class="translucid"></div>
         </div>
       </div>
     </div>
