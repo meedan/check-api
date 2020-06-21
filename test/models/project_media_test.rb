@@ -836,7 +836,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media
       PenderClient::Request.stubs(:get_medias)
-      publish_report(pm, {
+      publish_report(pm, {}, nil, {
         use_visual_card: false,
         use_text_message: true,
         use_disclaimer: false,

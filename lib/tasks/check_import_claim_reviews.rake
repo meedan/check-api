@@ -93,25 +93,30 @@ namespace :check do
 
       # Create a published report
 
+      language ||= 'en'
       report = Dynamic.new
       report.annotation_type = 'report_design'
       report.annotated = pm
-      report.set_fields = {
+      fields = {
         state: 'published',
-        status_label: pm.status_i18n(pm.last_verification_status),
-        description: item.dig('raw_claim', 'articleBody'),
-        headline: headline,
-        use_visual_card: true,
-        image: image ? image['url'] : '',
-        use_introduction: false,
-        introduction: '',
-        theme_color: pm.last_status_color,
-        url: item.dig('raw_claim', 'publisher', 'url'),
-        use_text_message: true,
-        text: [item.dig('raw_claim', 'articleBody'), item.dig('raw_claim', 'url')].join("\n\n"),
-        use_disclaimer: false,
-        disclaimer: ''
-      }.to_json
+        options: [{
+          language: language,
+          status_label: pm.status_i18n(pm.last_verification_status),
+          description: item.dig('raw_claim', 'articleBody'),
+          headline: headline,
+          use_visual_card: true,
+          image: image ? image['url'] : '',
+          use_introduction: false,
+          introduction: '',
+          theme_color: pm.last_status_color,
+          url: item.dig('raw_claim', 'publisher', 'url'),
+          use_text_message: true,
+          text: [item.dig('raw_claim', 'articleBody'), item.dig('raw_claim', 'url')].join("\n\n"),
+          use_disclaimer: false,
+          disclaimer: ''
+        }]
+      }
+      report.set_fields = fields.to_json
       report.save!
       report.report_image_generate_png
     

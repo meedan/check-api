@@ -16,9 +16,10 @@
     <article id="container">
       <div id="content">
         <%
+          language = @project_media.team.get_language || 'en'
           annotation = @project_media.get_dynamic_annotation('report_design')
-          image = (annotation && annotation.get_field_value('use_visual_card')) ? annotation.report_design_image_url : nil
-          text = (annotation && annotation.get_field_value('use_text_message')) ? annotation.report_design_text : nil
+          image = (annotation && annotation.report_design_field_value('use_visual_card', language)) ? annotation.report_design_image_url(language) : nil
+          text = (annotation && annotation.report_design_field_value('use_text_message', language)) ? annotation.report_design_text(language) : nil
         %>
         <% if image %>
           <div id="image">
