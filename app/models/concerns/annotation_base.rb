@@ -75,7 +75,6 @@ module AnnotationBase
     before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
     after_create :notify_team_bots_create
-    after_commit :assign_to_users, on: :create
     after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
@@ -126,20 +125,6 @@ module AnnotationBase
       else
         []
       end
-    end
-
-    def assign_to_users
-      users = []
-      if self.annotation_type == 'task'
-        status_id = self.annotated&.last_status_obj&.id
-        users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
-      elsif self.annotation_type == 'verification_status'
-        # TODO: Sawy
-        project_id = self.annotated&.project_ids.first
-        users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
-      end
-      users = TeamUser.where(team_id: self.team&.id, user_id: users, status: 'member').map(&:user_id) unless users.blank?
-      Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
     end
 
     def parsed_fragment

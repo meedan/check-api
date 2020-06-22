@@ -188,8 +188,16 @@ module ProjectMediaCreators
 
   def move_to_project
     if self.move_to_project_id
-      ProjectMediaProject.where(project_media_id: self.id).delete_all
-      add_project_media_project_record(self.move_to_project_id)
+      pmp = ProjectMediaProject.where(project_media_id: self.id, project_id: self.previous_project_id).last unless self.previous_project_id.nil?
+      if pmp.nil?
+        ProjectMediaProject.where(project_media_id: self.id).delete_all
+        add_project_media_project_record(self.move_to_project_id)
+      else
+        pmp.project_id = self.move_to_project_id
+        pmp.skip_check_ability = true
+        pmp.skip_check_ability = self.skip_notifications
+        pmp.save!
+      end
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.move_to_project_id, YAML::dump(User.current), YAML::dump({ model: self }))
     end
   end

@@ -15,7 +15,6 @@ module ProjectMediaMutations
   })
 
   update_fields = fields.merge({
-    project_id: 'int',
     previous_project_id: 'int',
     copy_to_project_id: 'int',
     move_to_project_id: 'int',
