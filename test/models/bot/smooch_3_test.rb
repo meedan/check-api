@@ -650,9 +650,12 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         assert_equal 'query', sm.state.value
       end
     end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     assert_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot(random_string, uid)
     end
+    Rails.cache.unstub(:read)
     assert_equal 'waiting_for_message', sm.state.value
   end
 
