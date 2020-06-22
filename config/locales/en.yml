@@ -651,6 +651,7 @@ en:
   team_rule_title_contains_keyword: Item title contains one or more of the following
     keywords
   team_rule_select_type: Select type
+  team_rule_select_language: Select language
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
@@ -683,6 +684,7 @@ en:
   team_rule_operator: Operator
   team_rule_json_schema_validation: Rules format is not valid
   team_rule_updated_at: Updated
+  team_rule_item_language_is: Item language is
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
