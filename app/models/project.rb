@@ -32,6 +32,39 @@ class Project < ActiveRecord::Base
 
   check_settings
 
+  cached_field :medias_count,
+    start_as: 0,
+    update_es: false,
+    recalculate: proc { |p|
+      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
+    },
+    update_on: [
+      {
+        model: ProjectMediaProject,
+        affected_ids: proc { |pmp| [pmp.project_id] },
+        events: {
+          create: proc { |p, _pmp| p.medias_count + 1 },
+          destroy: proc { |p, _pmp| p.medias_count - 1 }
+        }
+      },
+      {
+        model: Relationship,
+        affected_ids: proc { |r| ProjectMediaProject.where(project_media_id: r.target_id).map(&:project_id) },
+        events: {
+          create: :recalculate,
+          destroy: :recalculate
+        }
+      },
+      {
+        model: ProjectMedia,
+        if: proc { |pm| pm.archived_changed? },
+        affected_ids: proc { |pm| ProjectMediaProject.where(project_media_id: pm.id).map(&:project_id) },
+        events: {
+          update: proc { |p, pm| pm.archived ? (p.medias_count - 1) : (p.medias_count + 1) },
+        }
+      },
+    ]
+
   include CheckExport
 
   def before_destroy_later
@@ -85,10 +118,6 @@ class Project < ActiveRecord::Base
       }
     end
     project
-  end
-
-  def medias_count
-    ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => self.id, 'project_medias.sources_count' => 0 }).count
   end
 
   def slack_notifications_enabled=(enabled)

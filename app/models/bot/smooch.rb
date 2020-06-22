@@ -441,8 +441,9 @@ class Bot::Smooch < BotUser
     self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
   end
 
-  def self.template_locale_options
-    languages = Team.current&.get_languages
+  def self.template_locale_options(team_slug = nil)
+    team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
+    languages = team&.get_languages
     languages.blank? ? ['en'] : languages
   end
 
@@ -906,14 +907,13 @@ class Bot::Smooch < BotUser
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i
-      if ['publish', 'republish_and_resend'].include?(action)
-        workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed']
-        self.send_message_to_user(uid, message)
-        sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
-      end
+    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
+      workflow = self.get_workflow(lang)
+      message = workflow['smooch_message_smooch_bot_result_changed']
+      self.send_message_to_user(uid, message)
+      sleep 1
+      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
@@ -1009,6 +1009,6 @@ class Bot::Smooch < BotUser
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
-    sm.reset unless ['human_mode', 'query'].include?(sm.state.value)
+    sm.reset unless sm.state.value == 'human_mode'
   end
 end
