@@ -410,7 +410,7 @@ class GraphqlController2Test < ActionController::TestCase
     tb3 = create_team_bot set_approved: true, name: 'Other Bot'
     create_team_bot_installation user_id: tb2.id, team_id: t.id
 
-    query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
+    query = 'query read { team(slug: "test") { team_bots { edges { node { name, settings_as_json_schema(team_slug: "test"), team_author { slug } } } } } }'
     post :create, query: query
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['team_bots']['edges']
