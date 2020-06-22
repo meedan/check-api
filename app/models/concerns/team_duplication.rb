@@ -173,7 +173,7 @@ module TeamDuplication
 
     def self.create_copy_version(pm_mapping, user)
       return if pm_mapping.blank? || user.nil?
-      pm_mapping.each_pair do |original, copy|
+      pm_mapping.each_pair do |_original, copy|
         v = Version.new
         v.item_id, v.item_type = copy.id, copy.class_name
         v.associated_id, v.associated_type = copy.id, copy.class_name

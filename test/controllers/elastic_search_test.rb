@@ -169,7 +169,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm1 = create_project_media project: p, disable_es_callbacks: false
       pm2 = create_project_media project: p, disable_es_callbacks: false
       authenticate_with_user(u)
-      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
+      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"],previous_project_id: #{p.id}, move_to_project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
       post :create, query: query, team: @team.slug
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
