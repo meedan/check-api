@@ -195,7 +195,7 @@ module ProjectMediaCreators
       else
         pmp.project_id = self.move_to_project_id
         pmp.skip_check_ability = true
-        pmp.skip_check_ability = self.skip_notifications
+        pmp.skip_notifications = self.skip_notifications
         pmp.save!
       end
       TeamTaskWorker.perform_in(1.second, 'add_or_move', self.move_to_project_id, YAML::dump(User.current), YAML::dump({ model: self }))
