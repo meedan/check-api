@@ -1531,6 +1531,8 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return rules as JSON schema" do
     t = create_team
+    t.set_languages ['en', 'es', 'pt']
+    t.save!
     create_flag_annotation_type
     create_project team: t
     create_tag_text team: t
@@ -2902,5 +2904,55 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
     ::Transifex::Project.any_instance.unstub(:resource)
+  end
+
+  test "should match rule by language" do
+    at = create_annotation_type annotation_type: 'language'
+    create_field_instance name: 'language', annotation_type_object: at
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t
+    pm2 = create_project_media project: p2
+    pm3 = create_project_media team: t
+    assert_equal 0, p1.reload.project_media_projects.count
+    assert_equal 1, p2.reload.project_media_projects.count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_language_is",
+                "rule_value": "pt"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
+    create_dynamic_annotation annotated: pm2, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
+    a = create_dynamic_annotation annotated: pm3, annotation_type: 'language', set_fields: { language: 'es' }.to_json
+    assert_equal 2, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
+    a = Dynamic.find(a.id)
+    a.set_fields = { language: 'pt' }.to_json
+    a.save!
+    assert_equal 3, p1.reload.project_media_projects.count
+    assert_equal 0, p2.reload.project_media_projects.count
   end
 end

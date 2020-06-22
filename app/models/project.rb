@@ -43,8 +43,8 @@ class Project < ActiveRecord::Base
         model: ProjectMediaProject,
         affected_ids: proc { |pmp| [pmp.project_id] },
         events: {
-          create: proc { |p, _pmp| p.medias_count + 1 },
-          destroy: proc { |p, _pmp| p.medias_count - 1 }
+          create: :recalculate,
+          destroy: :recalculate
         }
       },
       {
@@ -60,7 +60,7 @@ class Project < ActiveRecord::Base
         if: proc { |pm| pm.archived_changed? },
         affected_ids: proc { |pm| ProjectMediaProject.where(project_media_id: pm.id).map(&:project_id) },
         events: {
-          update: proc { |p, pm| pm.archived ? (p.medias_count - 1) : (p.medias_count + 1) },
+          update: :recalculate
         }
       },
     ]
