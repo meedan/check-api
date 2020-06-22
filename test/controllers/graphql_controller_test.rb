@@ -1043,11 +1043,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", disclaimer: "Test" }) { team { id } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", report: "{}" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
-    assert_equal 'Test', t.reload.get_disclaimer
+    assert_equal({}, t.reload.get_report)
   end
 
   test "should read account sources from source" do

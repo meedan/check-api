@@ -298,19 +298,20 @@ class DynamicTest < ActiveSupport::TestCase
 
   test "should save report design image in a path" do
     create_report_design_annotation_type
-    d = create_dynamic_annotation annotation_type: 'report_design', file: 'rails.png', set_fields: { image: '' }.to_json, action: 'save'
+    d = create_dynamic_annotation annotation_type: 'report_design', file: 'rails.png', set_fields: { options: [{ language: 'en', image: '' }] }.to_json, action: 'save'
     assert_not_nil d.file
-    assert_match /rails.png/, d.reload.get_field_value('image')
-    d.set_fields = { image: 'http://imgur.com/test.png' }.to_json
+    assert_match /rails.png/, d.reload.report_design_field_value('image', 'en')
+    d.set_fields = { options: [{ language: 'en', image: 'http://imgur.com/test.png' }] }.to_json
     d.save!
     d = Dynamic.find(d.id)
-    assert_equal 'http://imgur.com/test.png', d.get_field_value('image')
+    assert_equal 'http://imgur.com/test.png', d.report_design_field_value('image', 'en')
   end
 
   test "should not crash if introduction is null" do
     create_report_design_annotation_type
-    d = create_dynamic_annotation annotation_type: 'report_design', set_fields: {}.to_json
-    assert_equal '', d.report_design_introduction({ 'text' => random_string })
+    f = { options: [{ 'text' => random_string }] }
+    d = create_dynamic_annotation annotation_type: 'report_design', set_fields: f.to_json
+    assert_equal '', d.report_design_introduction(f, 'en')
   end
 
   test "should not send report for secondary item if primary does not have a report" do

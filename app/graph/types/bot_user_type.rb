@@ -14,7 +14,14 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :login, types.String, 'Login name'
   field :installed, types.Boolean, 'Is the bot approved for Check-wide use?' # TODO Rename to is_approved
   field :installations_count, types.Int, 'Count of team installations'
-  field :settings_as_json_schema, types.String # TODO Convert to JsonStringType?
+  field :settings_as_json_schema, types.String do # TODO Convert to JsonStringType?
+    argument :team_slug, types.String, 'Filter by team slug'
+
+    resolve -> (bot, args, _ctx) {
+      bot.settings_as_json_schema(false, args['team_slug'])
+    }
+  end
+
   field :settings_ui_schema, types.String # TODO Convert to JsonStringType?
   field :installation, TeamBotInstallationType # TODO What's this for?
 

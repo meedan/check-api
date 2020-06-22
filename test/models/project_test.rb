@@ -773,4 +773,33 @@ class ProjectTest < ActiveSupport::TestCase
     assert_kind_of CheckSearch, create_project.check_search_team
     assert_kind_of Array, create_project.check_search_team.projects
   end
+
+  test "should cache medias_count" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media team: t, project: nil
+    pm2 = create_project_media team: t, project: nil
+    pm3 = create_project_media team: t, project: nil
+    assert_equal 0, p.reload.medias_count
+    create_project_media_project project: p, project_media: pm1
+    assert_equal 1, p.reload.medias_count
+    create_project_media_project project: p, project_media: pm2
+    assert_equal 2, p.reload.medias_count
+    pmp = create_project_media_project project: p, project_media: pm3
+    assert_equal 3, p.reload.medias_count
+    pmp.destroy!
+    assert_equal 2, p.reload.medias_count
+    r = create_relationship source_id: pm1.id, target_id: pm2.id
+    assert_equal 1, p.reload.medias_count
+    r.destroy!
+    assert_equal 2, p.reload.medias_count
+    pm1.archived = true
+    pm1.save!
+    assert_equal 1, p.reload.medias_count
+    pm1.archived = false
+    pm1.save!
+    assert_equal 2, p.reload.medias_count
+    RequestStore.store[:skip_cached_field_update] = true
+  end
 end

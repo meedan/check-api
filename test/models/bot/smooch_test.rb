@@ -366,12 +366,12 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     r = create_report(pm)
     pa1 = r.reload.get_field_value('last_published')
-    assert !r.reload.get_field_value('visual_card_url')
+    assert !r.reload.report_design_field_value('visual_card_url', 'en')
     r = Dynamic.find(r.id)
     r.save!
-    assert !r.reload.get_field_value('visual_card_url')
+    assert !r.reload.report_design_field_value('visual_card_url', 'en')
     publish_report(pm, {}, r)
-    assert r.reload.get_field_value('visual_card_url')
+    assert r.reload.report_design_field_value('visual_card_url', 'en')
     pa2 = r.reload.get_field_value('last_published')
     assert_not_equal pa1.to_s, pa2.to_s
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -384,8 +384,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     r.action = 'pause'
     r.save!
     s.save!
-    assert_equal 'In Progress', r.reload.get_field_value('status_label')
-    assert_not_equal 'In Progress', r.reload.get_field_value('previous_published_status_label')
+    assert_equal 'In Progress', r.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'In Progress', r.reload.report_design_field_value('previous_published_status_label', 'en')
     r = Dynamic.find(r.id)
     r.set_fields = { state: 'published' }.to_json
     r.action = 'republish_and_resend'
