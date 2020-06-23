@@ -31,7 +31,7 @@ Dynamic.class_eval do
         default = option[field] if option[:language] == default_language
       end
     end
-    value.nil? ? default : value
+    value.blank? ? default : value
   end
 
   def report_design_image_url(language)
