@@ -15,15 +15,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Later, remove from here...
-  resources :sources
-  resources :teams
-  resources :users
-  resources :accounts
-  resources :medias
-  resources :projects
-  # ...until here
-
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       scope ':pattern', constraints: { pattern: /me|graphql|graphql\/batch|users\/sign_out|users\/sign_in|users/ } do

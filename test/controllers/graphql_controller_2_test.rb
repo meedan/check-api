@@ -410,7 +410,7 @@ class GraphqlController2Test < ActionController::TestCase
     tb3 = create_team_bot set_approved: true, name: 'Other Bot'
     create_team_bot_installation user_id: tb2.id, team_id: t.id
 
-    query = 'query read { team(slug: "test") { team_bots { edges { node { name, team_author { slug } } } } } }'
+    query = 'query read { team(slug: "test") { team_bots { edges { node { name, settings_as_json_schema(team_slug: "test"), team_author { slug } } } } } }'
     post :create, query: query
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['team_bots']['edges']
@@ -526,14 +526,19 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
-    create_team_task team_id: t.id, label: 'Foo'
+    tt = create_team_task team_id: t.id, order: 3
+    tt2 = create_team_task team_id: t.id, order: 5
+    tt3 = create_team_task team_id: t.id, label: 'Foo'
 
-    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, description, options, project_ids, required, team_id, team { slug } } } } } }"
+    query = "query GetById { team(id: \"#{t.id}\") { team_tasks { edges { node { label, dbid, type, order, description, options, project_ids, required, team_id, team { slug } } } } } }"
     post :create, query: query, team: t.slug
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
-    assert_equal 'Foo', data['team_tasks']['edges'][0]['node']['label']
+    assert_equal 0, data['team_tasks']['edges'][0]['node']['order']
+    assert_equal tt3.id, data['team_tasks']['edges'][0]['node']['dbid']
+    assert_equal tt.id, data['team_tasks']['edges'][1]['node']['dbid']
+    assert_equal tt2.id, data['team_tasks']['edges'][2]['node']['dbid']
   end
 
   test "should not import spreadsheet if URL is not present" do

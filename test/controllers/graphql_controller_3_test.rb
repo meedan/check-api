@@ -1039,4 +1039,61 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 'Clip Label', clips[0]['node']['data']['label']
     assert_equal({ 't' => [10, 20] }, clips[0]['node']['parsed_fragment'])
   end
+
+  test "should re-order tasks" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm = create_project_media project: p
+    t1 = create_task annotated: pm
+    t2 = create_task
+    authenticate_with_user(u)
+    tasks = '[{\"id\":' + "#{t1.id}" + ',\"order\":3},{\"id\":' + "#{t2.id}" + ',\"order\":2}, {\"id\":99999,\"order\":2}]'
+    query = "mutation tasksOrder { tasksOrder(input: { clientMutationId: \"1\", tasks: \"#{tasks}\" }) { success, errors } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 3, t1.reload.order
+    assert_equal 2, JSON.parse(@response.body)['data']['tasksOrder']['errors'].size
+    query = "query GetById { task(id: \"#{t1.id}\") { dbid, order } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert 3, JSON.parse(@response.body)['data']['task']['order']
+  end
+
+  test "should get team user from user" do
+    u = create_user
+    t = create_team
+    tu = create_team_user user: u, team: t
+    authenticate_with_user(u)
+
+    query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    puts @response.body
+    assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
+
+    query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
+    post :create, query: query
+    assert_response :success
+    assert_nil JSON.parse(@response.body)['data']['me']['team_user']
+  end
+
+  test "should create report with multiple images" do
+    create_report_design_annotation_type
+    u = create_user is_admin: true
+    pm = create_project_media
+    authenticate_with_user(u)
+    path1 = File.join(Rails.root, 'test', 'data', 'rails.png')
+    path2 = File.join(Rails.root, 'test', 'data', 'rails2.png')
+    file1 = Rack::Test::UploadedFile.new(path1, 'image/png')
+    file2 = Rack::Test::UploadedFile.new(path2, 'image/png')
+    query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":[{\"language\":\"en\"},{\"language\":\"es\",\"image\":\"http://test.com/test.png\"},{\"language\":\"pt\"}]}" }) { dynamic { dbid } } }'
+    post :create, query: query, file: { '2' => file2, '0' => file1 }
+    assert_response :success
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationReportDesign']['dynamic']['dbid']).data.with_indifferent_access
+    assert_match /rails\.png/, d[:options][0]['image']
+    assert_match /^http/, d[:options][1]['image']
+    assert_match /rails2\.png/, d[:options][2]['image']
+  end
 end

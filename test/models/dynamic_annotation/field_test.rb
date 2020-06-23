@@ -141,7 +141,8 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
         }
       }.to_json
       f = create_field field_name: 'response_geolocation', value: geojson
-      assert_equal 'Only Name', f.to_s
+      assert_equal 'Only Name (0, 0)', f.to_s
+      assert_equal JSON.parse(geojson), f.value_json
     end
   end
 
@@ -200,6 +201,48 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p1 }).count
     assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p2, external_id: 20 }).count
     assert_equal 1, DynamicAnnotation::Field.find_in_json({ provider: p2, external_id: 30 }).count
+  end
+
+  test "should accept geojson polygon" do
+    create_geojson_field
+
+    assert_nothing_raised do
+      geojson = {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                12.401415380468768,
+                41.979683334337345
+              ],
+              [
+                12.406908544531268,
+                41.81818006732377
+              ],
+              [
+                12.590929540625018,
+                41.77313177519179
+              ],
+              [
+                12.733751806250018,
+                41.88569312999465
+              ],
+              [
+                12.632128271093768,
+                42.012343110768704
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "name": "Rome"
+        }
+      }.to_json
+      f = create_field field_name: 'response_geolocation', value: geojson, disable_es_callbacks: false
+      f.to_s
+    end
   end
 
   protected

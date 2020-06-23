@@ -62,10 +62,14 @@ class Workflow::VerificationStatus < Workflow::Base
       report = pm.get_annotations('report_design').last
       unless report.nil?
         report = report.load
-        report.set_fields = report.data.merge({
-          theme_color: pm.last_status_color,
-          status_label: pm.status_i18n(pm.last_verification_status)
-        }).to_json
+        data = report.data.clone.with_indifferent_access
+        data[:options].each_with_index do |option, i|
+          data[:options][i].merge!({
+            theme_color: pm.last_status_color,
+            status_label: pm.status_i18n(pm.last_verification_status, { locale: option[:language] })
+          })
+        end
+        report.data = data
         report.save!
       end
     end

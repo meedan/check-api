@@ -17,6 +17,25 @@ class TaskTest < ActiveSupport::TestCase
     assert_not_nil t.content
   end
 
+  test "should order tasks" do
+    team = create_team
+    u = create_user
+    create_team_user team: team, user: u, role: 'owner'
+    p = create_project team: team
+    pm = create_project_media project: p
+    with_current_user_and_team(u, team) do
+      t1 = create_task annotated: pm
+      t1.label = 'new title'
+      t1.save!
+      v_count = t1.annotation_versions.count
+      Task.order_tasks([{id: t1.id, order: 5}])
+      t1 = t1.reload
+      assert_equal 5, t1.order
+      assert_equal v_count, t1.annotation_versions.count
+      assert JSON.parse(t1.content).keys.include?('order')
+    end
+  end
+
   test "should not create task with blank label" do
     assert_no_difference 'Task.length' do
       assert_raises ActiveRecord::RecordInvalid do

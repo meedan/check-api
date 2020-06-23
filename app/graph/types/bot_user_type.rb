@@ -15,9 +15,17 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :dbid, types.Int
   field :installed, types.Boolean
   field :installations_count, types.Int
-  field :settings_as_json_schema, types.String
   field :settings_ui_schema, types.String
   field :installation, TeamBotInstallationType
+
+  field :settings_as_json_schema do
+    type types.String
+    argument :team_slug, types.String # Some settings options are team-specific
+
+    resolve -> (bot, args, _ctx) {
+      bot.settings_as_json_schema(false, args['team_slug'])
+    }
+  end
 
   field :team_author do
     type -> { TeamType }
