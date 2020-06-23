@@ -329,7 +329,7 @@ en:
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
   error_login_2fa: Please complete your sign-in by supplying an authentication code.
-  error_record_not_found: Couldn't find %{type} with 'id'=%{id}
+  error_record_not_found: "%{type} #%{id} not found"
   mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},
@@ -931,6 +931,8 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
+  custom_message_status_undetermined_boom-test: Undetermined
+  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_undetermined_boom: Undetermined
   custom_message_status_factchecked_boom: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
@@ -1014,12 +1016,12 @@ en:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_status_undetermined_check-message-demo: Unstarted
   custom_message_status_in_progress_check-message-demo: In Progress
+  custom_message_status_inconclusive_check-message-demo: Out of scope
   custom_message_status_false_check-message-demo: 'False'
   custom_message_status_verified_check-message-demo: 'True'
   custom_message_status_not_applicable_check-message-demo: Out of scope
-  custom_message_status_report-true_check-message-demo: 'Report: Correct'
-  custom_message_status_report-false_check-message-demo: 'Report: False'
-  custom_message_status_bot-resource_check-message-demo: Bot resource
+  custom_message_status_report-true_check-message-demo: Misleading
+  custom_message_status_report-false_check-message-demo: Can't be verified
   custom_message_smooch_bot_result_check-message-demo: |
     [Verification Report]
 
@@ -1079,11 +1081,11 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n
     \     \n*Reply 0 (or \U0001F4CC)* to go back to the *Main Menu*"
-  custom_message_rule_action_send_message_098b5f5e36f0b33b41e826805e7d1c49_check-message-demo: We
-    started looking at your request now.
-  custom_message_rule_action_send_message_677d98190cfdd0c7667bb0add2d6b48a_check-message-demo: 'Unfortunately,
-    we cannot fact check this claim. Here are some guidelines on how to submit content
-    we can work with: Meedan.com'
+  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: We
+    started looking at it.
+  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: "Thank
+    you! We could not fact-check this item. Here is a short guide to submit content
+    that we can fact check:\n \nmeedan.com/guide"
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1195,8 +1197,8 @@ en:
     will be sent to our fact-checkers 30 seconds after your last message. We will
     try to revert, but please note that we are not able to respond to every request.
     \n\n\n*Choose 0 (or \U0001F4CC)* to go back to the *Main Menu* "
-  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: Thanks
-    again for reaching out to India Today Fact Check.  Our team is currently working
+  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: Thanks
+    again for reaching out to India Today Fact Check.  Our team is currenlty working
     on your request and we will get back to you. Meanwhile, you can read our latest
     fact check stories here. https://www.indiatoday.in/fact-check
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: Sorry,
@@ -1261,24 +1263,13 @@ en:
     you are looking for more information about COVID-19  type *COVID* (or \U0001F9A0)
     to get the latest facts about the novel coronavirus disease (COVID-19\n\nReply
     *menu* to go back to the *Main Menu*\""
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: "❌
-    We are sorry, we can't assist with your query.\n\nPlease view our submission guidelines
-    here:\n\nafricacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F637
-    If you would like more information on COVID-19 you can find our current reports,
-    factsheets and fact-checks by clicking here: \n\nafricacheck.org/reports/live-guide-all-our-coronavirus-fact-checks-in-one-place/"
+  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: "We
+    can’t fact-check the message you sent us. Please read our submission guidelines
+    here: \nhttps://africacheck.org/how-to-fact-check/submit-a-claim-to-check/"
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: Africa
     Check is a non-profit organisation working to promote accuracy in public debate
     and the media in Africa. We try to raise the quality of information available
     to society across the continent. We can help you sort fact from fiction. https://africacheck.org/
-  custom_message_rule_action_send_message_44ca395f31e5a67c48cc9307445f8a3e_africa-check: "\U0001F50E
-    We are not able to review your claim without additional information. \n\nYou can
-    re-submit your query by typing \"Kweli\" and then entering the word *check* when
-    you are prompted. You can then re-send your claim together with the following
-    information: \n\na) One line explaining what you would like us to check; and \nb)
-    Any other information you can provide about where you saw or found the link, video,
-    image or information you would like us to check. \n\nWe receive a large volume
-    of queries, and are not able to check each one. For more information on our latest
-    fact-checks, visit africacheck.org\n"
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has
@@ -1641,6 +1632,8 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_status_factchecked_test-2: Fact-Checked
+  custom_message_status_undetermined_test-2: Undetermined
   custom_message_status_undetermined_test-custom-status: Status A
   custom_message_status_status_b_test-custom-status: Status B
   custom_message_status_foo-bar_test-custom-status: Foo Bar
