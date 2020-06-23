@@ -46,7 +46,7 @@ module Api
       protected
 
       def parse_graphql_result
-        context = { ability: @ability, file: request.params[:file] }
+        context = { ability: @ability, file: parse_uploaded_files }
         begin
           result = yield(context)
           render json: result
@@ -57,6 +57,18 @@ module Api
         rescue ActiveRecord::StaleObjectError => e
           render json: format_error_message(e), status: 409
         end
+      end
+
+      def parse_uploaded_files
+        file_param = request.params[:file]
+        file = file_param
+        if file_param.is_a?(Hash)
+          file = []
+          file_param.each do |key, value|
+            file[key.to_i] = value
+          end
+        end
+        file
       end
 
       def prepare_query_variables(vars)

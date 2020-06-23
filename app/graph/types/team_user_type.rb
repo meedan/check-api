@@ -4,6 +4,7 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :dbid, types.Int
   field :user_id, types.Int
   field :team_id, types.Int
   field :status, types.String

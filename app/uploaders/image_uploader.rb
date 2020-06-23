@@ -17,6 +17,10 @@ class ImageUploader < FileUploader
     ImageUploader.upload_extensions
   end
 
+  def remove!
+    super unless model.keep_file
+  end
+
   def self.upload_extensions
     %w(jpg jpeg gif png)
   end

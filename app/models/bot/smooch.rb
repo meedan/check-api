@@ -441,8 +441,9 @@ class Bot::Smooch < BotUser
     self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
   end
 
-  def self.template_locale_options
-    languages = Team.current&.get_languages
+  def self.template_locale_options(team_slug = nil)
+    team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
+    languages = team&.get_languages
     languages.blank? ? ['en'] : languages
   end
 
@@ -451,7 +452,8 @@ class Bot::Smooch < BotUser
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
     template = self.config["smooch_template_name_for_#{template_name}"] || template_name
-    locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : 'en'
+    default_language = Team.where(id: self.config['team_id'].to_i).last&.get_language || 'en'
+    locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
     data = { namespace: namespace, template: template, fallback: fallback, language: locale }
     data['header_image'] = image unless image.blank?
     output = ['&((']
@@ -502,8 +504,8 @@ class Bot::Smooch < BotUser
       template = original['fallback_template']
       language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
       query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-      text = report.get_field_value('use_text_message') ? report.report_design_text.to_s : nil
-      image = report.get_field_value('use_visual_card') ? report.report_design_image_url.to_s : nil
+      text = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
+      image = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
       self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
       self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
       return true
@@ -892,30 +894,27 @@ class Bot::Smooch < BotUser
     parent = Relationship.where(target_id: pm.id).last&.source || pm
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
-    previous_status = report.get_field_value('previous_published_status_label')
-    status = report.get_field_value('status_label')
     last_published_at = report.get_field_value('last_published').to_i
     ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
       pm2.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_correction_to_user(data, previous_status, status, parent, annotation.created_at, last_published_at, action) unless self.config['smooch_disabled']
+        self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action) unless self.config['smooch_disabled']
       end
     end
   end
 
-  def self.send_correction_to_user(data, _previous_status, _status, pm, subscribed_at, last_published_at, action)
+  def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action)
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i
-      if ['publish', 'republish_and_resend'].include?(action)
-        workflow = self.get_workflow(lang)
-        message = workflow['smooch_message_smooch_bot_result_changed']
-        self.send_message_to_user(uid, message)
-        sleep 1
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
-      end
+    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
+      workflow = self.get_workflow(lang)
+      message = workflow['smooch_message_smooch_bot_result_changed']
+      self.send_message_to_user(uid, message)
+      sleep 1
+      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
     end
@@ -926,17 +925,17 @@ class Bot::Smooch < BotUser
     report = parent.get_dynamic_annotation('report_design')
     if report&.get_field_value('state') == 'published'
       last_smooch_response = nil
-      if report.get_field_value('use_introduction')
-        introduction = report.report_design_introduction(data)
+      if report.report_design_field_value('use_introduction', lang)
+        introduction = report.report_design_introduction(data, lang)
         last_smooch_response = self.send_message_to_user(uid, introduction)
         sleep 1
       end
-      if report.get_field_value('use_visual_card')
-        last_smooch_response = self.send_message_to_user(uid, '', { type: 'image', mediaUrl: report.report_design_image_url })
+      if report.report_design_field_value('use_visual_card', lang)
+        last_smooch_response = self.send_message_to_user(uid, '', { type: 'image', mediaUrl: report.report_design_image_url(lang) })
         sleep 3
       end
-      if report.get_field_value('use_text_message')
-        last_smooch_response = self.send_message_to_user(uid, report.report_design_text)
+      if report.report_design_field_value('use_text_message', lang)
+        last_smooch_response = self.send_message_to_user(uid, report.report_design_text(lang))
       end
       self.send_tos_if_needed(uid, lang)
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
@@ -1011,6 +1010,6 @@ class Bot::Smooch < BotUser
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
-    sm.reset unless ['human_mode', 'query'].include?(sm.state.value)
+    sm.reset unless sm.state.value == 'human_mode'
   end
 end
