@@ -31,6 +31,12 @@ VersionType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :projects, -> { ProjectType.connection_type } do
+    resolve ->(version, _args, _ctx) {
+      version.projects
+    }
+  end
+
   connection :teams, -> { TeamType.connection_type } do
     resolve ->(version, _args, _ctx) {
       version.teams

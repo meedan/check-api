@@ -97,6 +97,14 @@ class Version < Partitioned::ByForeignKey
     self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
   end
 
+  def projects
+    ret = []
+    if (self.item_type == 'ProjectMediaProject' && self.event == 'update') || self.event_type == 'copy_projectmedia'
+      ret = get_from_object_changes(:project)
+    end
+    ret
+  end
+
   def teams
     ret = []
     ret = get_from_object_changes(:team) if self.event_type == 'copy_projectmedia'
