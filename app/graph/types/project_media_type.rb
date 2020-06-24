@@ -173,7 +173,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     resolve ->(project_media, _args, _ctx) {
       tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
       # Order tasks by order field
-      ids = tasks.to_a.sort_by{ |obj| obj.order}.map(&:id)
+      ids = tasks.to_a.sort_by{ |obj| obj.order ||= 0 }.map(&:id)
       values = []
       ids.each_with_index do |id, i|
         values << "(#{id}, #{i})"
