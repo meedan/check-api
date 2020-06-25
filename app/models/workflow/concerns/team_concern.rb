@@ -9,22 +9,22 @@ module Workflow
           type: 'object',
           required: ['label', 'active', 'default', 'statuses'],
           properties: {
-            label: { type: 'string' },
-            active: { type: 'string' },
-            default: { type: 'string' },
+            label: { type: 'string', title: 'Label' },
+            active: { type: 'string', title: 'Active' },
+            default: { type: 'string', title: 'Default' },
             statuses: {
               type: 'array',
               items: {
                 type: 'object',
                 required: ['id', 'style'],
                 properties: {
-                  id: { type: 'string' },
+                  id: { type: 'string', title: 'Identifier' },
                   style: {
                     type: 'object',
                     properties: {
-                      color: { type: 'string' },
-                      backgroundColor: { type: 'string' },
-                      borderColor: { type: 'string' }
+                      color: { type: 'string', title: 'Color', format: 'color' },
+                      backgroundColor: { type: 'string', title: 'Background color', format: 'color' },
+                      borderColor: { type: 'string', title: 'Border color', format: 'color' }
                     }
                   },
                   locales: {
@@ -45,6 +45,10 @@ module Workflow
             }
           }
         }
+
+        def self.custom_statuses_schema
+          CUSTOM_STATUSES_SCHEMA
+        end
 
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil|

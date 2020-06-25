@@ -14,9 +14,7 @@
     no_additional_properties: true,
     disable_edit_json: true,
     form_name_root: "<%= @object.class.to_s.underscore %>[<%= field.method_name.to_s %>]",
-    schema: {
-      "$ref": "<%= @object.json_schema_url(field_name) %>"
-    },
+    schema: <%= @object.rails_admin_json_schema(field_name).to_json.html_safe %>,
     startval: <%== value.to_json %>
   });
 </script>
