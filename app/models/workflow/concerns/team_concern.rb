@@ -14,8 +14,11 @@ module Workflow
             default: { type: 'string', title: 'Default' },
             statuses: {
               type: 'array',
+              title: 'Statuses',
               items: {
                 type: 'object',
+                title: 'Status',
+                headerTemplate: '{{i1}} - {{self.id}}',
                 required: ['id', 'style'],
                 properties: {
                   id: { type: 'string', title: 'Identifier' },
@@ -71,6 +74,7 @@ module Workflow
 
           define_method "set_#{id.pluralize}" do |type, statuses|
             value = statuses.is_a?(String) ? JSON.parse(statuses) : statuses
+            value[:statuses] = get_values_from_entry(value.with_indifferent_access[:statuses])
             self.send("set_#{type}_#{id.pluralize}", value)
           end
         end

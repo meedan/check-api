@@ -298,6 +298,12 @@ class Team < ActiveRecord::Base
     self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
   end
 
+  protected
+
+  def get_values_from_entry(entry)
+    (entry && entry.respond_to?(:values)) ? entry.values : entry
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
