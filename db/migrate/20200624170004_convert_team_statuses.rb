@@ -6,7 +6,7 @@ class ConvertTeamStatuses < ActiveRecord::Migration
       if settings.has_key?('media_verification_statuses')
         puts "Updating verification statuses for team #{team.name}..."
         begin
-          statuses = team.get_media_verification_statuses.clone
+          statuses = settings.with_indifferent_access[:media_verification_statuses]
           next if statuses.blank? || statuses[:statuses].blank?
           statuses[:active] ||= statuses[:default]
           team.get_media_verification_statuses[:statuses].each_with_index do |status, i|

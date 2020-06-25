@@ -211,8 +211,22 @@ class Team < ActiveRecord::Base
     self
   end
 
-  def json_schema_url(field)
-    URI.join(CONFIG['checkdesk_base_url'], "/#{field}.json")
+  def rails_admin_json_schema(field)
+    statuses_schema = Team.custom_statuses_schema.clone
+    statuses_schema[:properties][:statuses][:items][:properties][:locales].delete(:patternProperties)
+    properties = {}
+    self.get_languages.to_a.each do |locale|
+      properties[locale] = {
+        type: 'object',
+        required: ['label', 'description'],
+        properties: {
+          label: { type: 'string', title: "Label (#{CheckCldr.language_code_to_name(locale)})" },
+          description: { type: 'string', title: "Description (#{CheckCldr.language_code_to_name(locale)})" }
+        }
+      }
+    end
+    statuses_schema[:properties][:statuses][:items][:properties][:locales][:properties] = properties
+    field =~ /statuses/ ? statuses_schema : {}
   end
 
   def public_team_id
