@@ -182,7 +182,7 @@ class ElasticSearch5Test < ActionController::TestCase
       default: 'foo-bar',
       active: 'foo-bar',
       statuses: [
-        { id: 'foo-bar', label: 'Foo Bar', description: '', style: 'blue' }
+        { id: 'foo-bar', style: { color: 'blue' }, locales: { en: { label: 'Foo Bar', description: '' } } }
       ]
     }
     t = create_team

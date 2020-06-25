@@ -275,10 +275,6 @@ RailsAdmin.config do |config|
     end
 
     show do
-      id = CONFIG['default_project_media_workflow']
-      configure "get_media_#{id.pluralize}", :json do
-        label "Media #{id.pluralize.tr('_', ' ')}"
-      end
       configure :get_slack_notifications_enabled do
         label 'Enable Slack notifications'
       end
@@ -342,12 +338,6 @@ RailsAdmin.config do |config|
 
       field :archived do
         visible_only_for_admin
-      end
-
-      id = CONFIG['default_project_media_workflow']
-      field "media_#{id.pluralize}", :yaml do
-        partial 'json_editor'
-        help "A list of custom #{id.pluralize.tr('_', ' ')} for items that match your team's guidelines."
       end
 
       field :slack_notifications_enabled, :boolean do

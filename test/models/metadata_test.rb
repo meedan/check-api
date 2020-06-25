@@ -1,9 +1,5 @@
 require_relative '../test_helper'
 
-class SampleModel < ActiveRecord::Base
-  has_annotations
-end
-
 class MetadataTest < ActiveSupport::TestCase
   test "should create metadata" do
     pm = create_project_media
@@ -19,9 +15,9 @@ class MetadataTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s1 = SampleModel.create!
+    s1 = create_project_media
     assert_equal [], s1.annotations
-    s2 = SampleModel.create!
+    s2 = create_project_media
     assert_equal [], s2.annotations
 
     em1a = create_metadata annotated: nil
@@ -66,8 +62,8 @@ class MetadataTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     u3 = create_user
-    s1 = SampleModel.create!
-    s2 = SampleModel.create!
+    s1 = create_project_media
+    s2 = create_project_media
     em1 = create_metadata annotator: u1, annotated: s1
     em2 = create_metadata annotator: u1, annotated: s1
     em3 = create_metadata annotator: u1, annotated: s1

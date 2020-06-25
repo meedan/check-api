@@ -24,7 +24,6 @@ class Team < ActiveRecord::Base
       Ability.new(User.current, team)
     end
   end
-  after_save :upload_custom_status_strings_to_transifex, if: proc { |t| t.custom_statuses_changed? }
   after_update :archive_or_restore_projects_if_needed
   before_destroy :destroy_versions
   after_destroy :reset_current_team
@@ -123,12 +122,6 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
-  def add_media_verification_statuses=(value)
-    value.symbolize_keys!
-    value[:statuses].each{|status| status.symbolize_keys!}
-    self.send(:set_media_verification_statuses, value)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -219,8 +212,7 @@ class Team < ActiveRecord::Base
   end
 
   def json_schema_url(field)
-    filename = field.match(/_statuses$/) ? 'statuses' : field
-    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+    URI.join(CONFIG['checkdesk_base_url'], "/#{field}.json")
   end
 
   def public_team_id
@@ -290,12 +282,6 @@ class Team < ActiveRecord::Base
 
   def get_report_design_image_template
     self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
-  end
-
-  protected
-
-  def get_values_from_entry(entry)
-    (entry && entry.respond_to?(:values)) ? entry.values : entry
   end
 
   # private
