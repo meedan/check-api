@@ -17,7 +17,7 @@ module TeamMutations
     slack_webhook: 'str',
     slack_channel: 'str',
     add_auto_task: 'json',
-    add_media_verification_statuses: 'json',
+    media_verification_statuses: 'json',
     set_team_tasks: 'json',
     rules: 'str',
     remove_auto_task: 'str', # label
