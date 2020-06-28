@@ -190,17 +190,24 @@ class Bot::Slack < BotUser
       end
 
       json = JSON.parse(attachments)
-      json[0]['title'] = "#{label.upcase}: #{self.title.to_s.truncate(140)}"
-      json[0]['text'] = self.description.to_s.truncate(500)
-      json[0]['color'] = self.last_status_color
-      json[0]['fields'][0]['value'] = self.get_versions_log_count
-      json[0]['fields'][2]['value'] = "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>"
-      json[0]['fields'][3]['value'] = self.project.title
-
-      json[0]['fields'][4] = { title: 'Tasks Completed', value: "#{self.completed_tasks_count}/#{self.all_tasks.size}", short: true } if self.all_tasks.size > 0
-
-      tags = self.get_annotations('tag').map(&:tag)
-      json[0]['fields'][5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
+      if json[0]
+        json[0]['title'] = "#{label.upcase}: #{self.title.to_s.truncate(140)}"
+        json[0]['text'] = self.description.to_s.truncate(500)
+        json[0]['color'] = self.last_status_color
+        if json[0]['fields']
+          tags = self.get_annotations('tag').map(&:tag)
+          data = {
+            0 => self.get_versions_log_count,
+            2 => "<!date^#{self.updated_at.to_i}^{date} {time}|#{self.updated_at.to_i}>",
+            3 => self.project.title
+          }
+          data[4] = { title: 'Tasks Completed', value: "#{self.completed_tasks_count}/#{self.all_tasks.size}", short: true } if self.all_tasks.size > 0
+          data[5] = { title: 'Tags', value: tags.join(', '), short: true } if tags.size > 0
+          data.each do |k, v|
+            json[0]['fields'][k]['value'] = v if json[0]['fields'][k]
+          end
+        end
+      end
 
       json.to_json
     end
