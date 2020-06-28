@@ -188,7 +188,12 @@ class Bot::Slack < BotUser
         statuses = statuses.with_indifferent_access['statuses']
         statuses.each { |status| label = status['label'] if status['id'] == self.last_status }
       end
+      set_json_for_message_attachments(attachments, label)
+    end
 
+    private
+
+    def set_json_for_message_attachments(attachments, label)
       json = JSON.parse(attachments)
       if json[0]
         json[0]['title'] = "#{label.upcase}: #{self.title.to_s.truncate(140)}"
@@ -208,9 +213,9 @@ class Bot::Slack < BotUser
           end
         end
       end
-
       json.to_json
     end
+
   end
 
   Comment.class_eval do
