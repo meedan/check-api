@@ -166,6 +166,26 @@ class Bot::SlackTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
   end
 
+  test "should not through error for slack notification if attachments fields is nil" do
+    create_verification_status_stuff(false)
+    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    RequestStore.store[:disable_es_callbacks] = true
+    stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
+    pm = create_project_media
+    a = [{ fields: [{}, {}, {}, nil, {}, {}] }].to_json
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
+    stub_configs({ 'slack_token' => '123456' }) do
+      Sidekiq::Testing.inline! do
+        info = { title: 'Foo', description: 'Bar' }.to_json
+        pm.metadata = info
+        pm.save!
+      end
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    WebMock.allow_net_connect!
+  end
+
   test "should truncate text" do
     assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
   end

@@ -18,7 +18,17 @@ module Workflow
       core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
       key = "#{type.upcase}_CORE_#{annotation_type.pluralize.upcase}"
       statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: I18n.t(:"statuses.media.undetermined.label"), description: I18n.t(:"statuses.media.undetermined.description"), style: '' }]
-
+      statuses = statuses.collect do |status|
+        locales = {}
+        I18n.available_locales.each do |locale|
+          key = status[:id]
+          locales[locale] = {
+            label: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', { locale: locale }),
+            description: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.description', { locale: locale })
+          }
+        end
+        status.with_indifferent_access.merge({ locales: locales })
+      end
       {
         label: 'Status',
         default: klass.core_default_value,
@@ -42,7 +52,7 @@ module Workflow
     end
 
     def self.validate_custom_statuses(team_id, statuses, id)
-      keys = statuses[:statuses].collect{ |s| s[:id] }
+      keys = statuses[:statuses].to_a.collect{ |s| s[:id] }
       joins = [
         'INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id',
         "INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'"

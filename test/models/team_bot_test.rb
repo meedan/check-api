@@ -396,7 +396,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should get JSON schema path" do
     tb = create_team_bot
-    assert_match /^http/, tb.json_schema_url('events')
+    assert_kind_of Hash, tb.rails_admin_json_schema('events')
   end
 
   test "should not be approved by default" do

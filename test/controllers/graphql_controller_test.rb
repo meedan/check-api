@@ -1039,8 +1039,17 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     # media verification status
-    statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", add_media_verification_statuses: "' + statuses + '" }) { team { id } } }'
+    statuses = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
+        { id: '3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
+      ]
+    }.to_json.gsub('"', '\"')
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", media_verification_statuses: "' + statuses + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort

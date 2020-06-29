@@ -24,7 +24,6 @@ class Team < ActiveRecord::Base
       Ability.new(User.current, team)
     end
   end
-  after_save :upload_custom_status_strings_to_transifex, if: proc { |t| t.custom_statuses_changed? }
   after_update :archive_or_restore_projects_if_needed
   before_destroy :destroy_versions
   after_destroy :reset_current_team
@@ -125,12 +124,6 @@ class Team < ActiveRecord::Base
 
   def slack_channel=(channel)
     self.send(:set_slack_channel, channel)
-  end
-
-  def add_media_verification_statuses=(value)
-    value.symbolize_keys!
-    value[:statuses].each{|status| status.symbolize_keys!}
-    self.send(:set_media_verification_statuses, value)
   end
 
   def report=(report_settings)
@@ -234,9 +227,22 @@ class Team < ActiveRecord::Base
     self
   end
 
-  def json_schema_url(field)
-    filename = field.match(/_statuses$/) ? 'statuses' : field
-    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+  def rails_admin_json_schema(field)
+    statuses_schema = Team.custom_statuses_schema.clone
+    statuses_schema[:properties][:statuses][:items][:properties][:locales].delete(:patternProperties)
+    properties = {}
+    self.get_languages.to_a.each do |locale|
+      properties[locale] = {
+        type: 'object',
+        required: ['label', 'description'],
+        properties: {
+          label: { type: 'string', title: "Label (#{CheckCldr.language_code_to_name(locale)})" },
+          description: { type: 'string', title: "Description (#{CheckCldr.language_code_to_name(locale)})" }
+        }
+      }
+    end
+    statuses_schema[:properties][:statuses][:items][:properties][:locales][:properties] = properties
+    field =~ /statuses/ ? statuses_schema : {}
   end
 
   def public_team_id

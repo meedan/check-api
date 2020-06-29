@@ -1778,8 +1778,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       active: 'test',
       default: 'undetermined',
       statuses: [
-        { id: 'undetermined', label: 'Undetermined', completed: '0', description: 'The meaning of this status', style: 'blue' },
-        { id: 'test', label: 'Test', completed: '1', description: 'The meaning of this status', style: 'red' }
+        { id: 'undetermined', locales: { en: { label: 'Undetermined', description: '' } }, style: { color: 'blue' } },
+        { id: 'test', locales: { en: { label: 'Test', description: '' }, pt: { label: 'Teste', description: '' } }, style: { color: 'red' } }
       ]
     }
     t.set_media_verification_statuses(value)
