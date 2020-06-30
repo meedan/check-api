@@ -1,4 +1,5 @@
 require 'benchmark'
+require 'sqlite3'
 
 def api_keys_query(table)
   "SELECT #{table}.*
@@ -22,35 +23,35 @@ def dynamic_annotation_field_types_query(table)
 end
 
 def teams_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM #{table} WHERE id=#{@id}"
+  "SELECT #{table}.#{field} FROM #{table} WHERE id=#{@team.id}"
 end
 
 def accounts_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM #{table} WHERE team_id=#{@id}"
+  "SELECT #{table}.#{field} FROM #{table} WHERE team_id=#{@team.id}"
 end
 
 def contacts_query(table)
-  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@id}"
+  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@team.id}"
 end
 
 def projects_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM projects WHERE team_id=#{@id}"
+  "SELECT #{table}.#{field} FROM projects WHERE team_id=#{@team.id}"
 end
 
 def sources_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@id} OR (sources.user_id IN (#{get_ids('users')})) OR team_id IS NULL"
+  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@team.id} OR (sources.user_id IN (#{get_ids('users')})) OR team_id IS NULL"
 end
 
 def tag_texts_query(table)
-  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@id}"
+  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@team.id}"
 end
 
 def team_tasks_query(table)
-  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@id}"
+  "SELECT #{table}.* FROM #{table} WHERE team_id=#{@team.id}"
 end
 
 def team_users_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM #{table} WHERE team_id=#{@id}"
+  "SELECT #{table}.#{field} FROM #{table} WHERE team_id=#{@team.id}"
 end
 
 def account_sources_query(table, field = '*')
@@ -61,6 +62,12 @@ def account_sources_query(table, field = '*')
 end
 
 def project_medias_query(table, field = '*')
+  "SELECT #{table}.#{field}
+   FROM #{table}
+   WHERE #{table}.team_id=#{@team.id}"
+end
+
+def project_media_projects_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
    WHERE
@@ -86,12 +93,11 @@ def users_outside_team_query(table, field = '*')
    WHERE
      #{table}.id NOT IN (#{get_ids('team_users', 'user_id')})"
   return query unless field == '*'
-  temp_table = "users_outside#{@id}"
+  temp_table = "users_outside_#{@team.id}"
   conn = ActiveRecord::Base.connection
   conn.execute("CREATE TEMP TABLE #{temp_table} AS #{query}")
-  conn.execute("UPDATE #{temp_table} SET name = 'Anonymous', login = 'Anonymous', token = 'invalid_token', email = NULL, source_id = NULL")
-  "SELECT #{temp_table}.#{field}
-   FROM #{temp_table}"
+  conn.execute("UPDATE #{temp_table} SET name = 'Redacted', login = 'redacted', token = NULL, email = NULL, source_id = NULL")
+  "SELECT #{temp_table}.#{field} FROM #{temp_table}"
 end
 
 def medias_query(table, field = '*')
@@ -103,13 +109,6 @@ def medias_query(table, field = '*')
      project_medias.id IN (#{get_ids('project_medias')})"
 end
 
-def claim_sources_query(table, field = '*')
-  "SELECT #{table}.#{field}
-   FROM #{table}
-   WHERE
-     #{table}.source_id IN (#{get_ids('sources')})"
-end
-
 def relationships_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
@@ -117,8 +116,8 @@ def relationships_query(table, field = '*')
      #{table}.source_id IN (#{get_ids('project_medias')})"
 end
 
-def annotations_query(table, field = '*', _annotation_type = nil, annotated_type = nil)
-  annotated_types = annotated_type.nil? ? ['accounts', 'sources', 'medias', 'project_medias'] : [annotated_type]
+def annotations_query(table, field = '*')
+  annotated_types = ['accounts', 'sources', 'medias', 'project_medias']
   unions = []
   annotated_types.each do |annotated_table|
     unions << "SELECT a.#{field} FROM #{table} a WHERE a.annotated_type = '#{annotated_table.classify}' AND a.annotated_id IN (#{get_ids(annotated_table)})"
@@ -166,9 +165,8 @@ def login_activities_query(table, field = '*')
      #{table}.user_id IN (#{get_ids('users')})"
 end
 
-def versions_query(table)
-  select_query = "SELECT * FROM #{table}.p#{@id}"
-  copy_to_file(select_query, table, table)
+def versions_query(table, field = '*')
+  "SELECT #{table}.#{field} FROM #{table}_partitions.p#{@team.id} #{table}"
 end
 
 def get_dynamic_annotation_types
@@ -191,7 +189,7 @@ def get_ids(table, field = 'id')
 end
 
 def count(query)
-  count_query = query.gsub(/SELECT (.*) FROM/, 'SELECT COUNT(\1) FROM')
+  count_query = query.gsub(/SELECT\s+(.*)\s+FROM/, 'SELECT COUNT(\1) FROM')
   values = ActiveRecord::Base.connection.execute(count_query).values
   values.empty? ? 0 : values.first[0].to_i
 end
@@ -205,32 +203,32 @@ def primary_key(table)
   mapping.dig(table.to_sym) || 'id'
 end
 
+def dump_filepath
+  File.join(Dir.tmpdir, @team.slug + '_' + Digest::MD5.hexdigest([@team.slug, Time.now.to_i.to_s].join('_')).reverse)
+end
+
 def tmp_folder_path
   return @tmp_folder_path unless @tmp_folder_path.nil?
-  dir = File.join(Rails.root, 'tmp')
-  Dir.mkdir(dir) unless File.exist?(dir)
-
-  foldername = @id.to_s + '_' + Digest::MD5.hexdigest([@id, Time.now.to_i.to_s].join('_')).reverse
-  folder = File.join(dir, foldername)
-  Dir.mkdir(folder) unless File.exist?(folder)
+  folder = dump_filepath
+  FileUtils.mkdir_p(folder)
   @tmp_folder_path = folder
 end
 
 def copy_to_file(select_query, filename, table)
-  filename += '.copy'
+  filename += '.csv'
+  @progressbar.log "Export #{filename}"
+  @progressbar.increment
   begin
     filepath = File.join(tmp_folder_path, filename)
     @files[filename] = filepath
     total = count(select_query)
     offset = 0
     limit = 1000
-    puts "Generating #{filename}..."
     while offset <= total do
       paginated_query = select_query + " ORDER BY #{primary_key(table)} ASC LIMIT #{limit} OFFSET #{offset}"
       query = "COPY (#{paginated_query}) TO STDOUT NULL '*' CSV"
       query += " HEADER" if offset.zero?
       offset += limit
-      print "#{offset}/#{total}\r"
       $stdout.flush
       csv = []
       conn = ActiveRecord::Base.connection.raw_connection
@@ -243,95 +241,79 @@ def copy_to_file(select_query, filename, table)
         file.write(csv.join("").force_encoding("UTF-8"))
       end
     end
-
   rescue Exception => e
-    Rails.logger.warn "[Team Export] Could not create #{filename}: #{e.message} #{e.backtrace.join("\n")}"
+    raise "Error creating #{filename}: #{e.message}"
   end
 end
 
-def dump_filepath(slug)
-  filename = slug + '_' + Digest::MD5.hexdigest([slug, Time.now.to_i.to_s].join('_')).reverse
-  'team_dump/' + filename + '.zip'
-end
-
-def export_zip(slug)
+def export_zip
   require 'zip'
-  dump_password = SecureRandom.hex
-  buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(dump_password)) do |out|
+  zipfile = dump_filepath + '.zip'
+  password = SecureRandom.hex
+  Zip::OutputStream.open(zipfile, Zip::TraditionalEncrypter.new(password)) do |out|
     @files.each do |filename, filepath|
+      @progressbar.log "Zip #{filename}"
+      @progressbar.increment
       out.put_next_entry(filename)
       out.write File.read(filepath)
     end
   end
-  buffer.rewind
-  filename = dump_filepath(slug)
-  CheckS3.write(filename, 'application/zip', buffer.read)
-  [filename, dump_password]
+  puts "#{zipfile}: #{password}"
 end
 
 namespace :check do
-  # bundle exec rake check:export_team['team_slug','email@example.com','versions:users']
-  desc "export the data of a team to files"
-  task :export_team, [:team, :email, :except] => :environment do |_t, args|
-    team = if args.team.to_i > 0
-             Team.find_by_id args.team
-           else
-             Team.find_by_slug args.team
-           end
-    return "Could not find a team with id or slug #{args.team}" if team.nil?
-    slug, @id = team.slug, team.id
-    email = args.email
-    exceptions = args.except ? args.except.split(':') : []
-    puts "Skipping: #{exceptions}" unless exceptions.empty?
-    tables = ActiveRecord::Base.connection.tables - exceptions
-    puts "Dumping #{tables.size} tables."
-    @files ||= {}
-    tables.each do |table|
-      query = "#{table}_query"
-      begin
-        if self.respond_to?(query, table)
-          if ['versions', 'annotations'].include?(table)
-            send(query, table)
-          else
-            copy_to_file(send(query, table), table, table)
-          end
-            ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside#{@id};") if table == 'users'
-        else
-          puts "Missing query to copy #{table}"
-        end
-      rescue Exception => e
-        puts "Error dumping table #{table}: #{e.inspect}"
+  namespace :data do
+    desc "Export workspace data to files"
+    task :export_team, [:team] => :environment do |task, args|
+      # Get team id from passed option
+      raise "Usage: #{task.to_s}[team id or slug, exceptions... (optional)]" unless args.team
+      @team = if args.team.to_i > 0
+        Team.find_by_id args.team
+      else
+        Team.find_by_slug args.team
       end
-    end
-    filename, password = export_zip(slug)
-    FileUtils.remove_dir(tmp_folder_path, true) if File.exist?(tmp_folder_path)
-    puts "#{filename}: #{password}"
-    AdminMailer.delay.send_team_download_link(slug, filename, email, password) unless email.blank?
-  end
-
-  def table(name)
-    if name.match(/annotations_(.*)/)
-      'annotations'
-    elsif name.match(/versions_(.*)/)
-      'versions'
-    else
-      name
-    end
-  end
-
-  desc "import team files to database"
-  task :import_team, [:folder_path] => :environment do |_t, args|
-    @path = args.folder_path
-    conn = ActiveRecord::Base.connection
-    tables = conn.tables
-    Benchmark.bm(40) do |bm|
-      Dir.foreach(args.folder_path).each do |filename|
-        copy = filename.match(/(.*).copy/)
-        next unless copy
-        table_name = table(copy[1])
-        bm.report("#{table_name}: #{filename}") do
-          conn.execute("COPY #{table_name} FROM '/tmp/#{@path}/#{filename}' NULL '*' CSV HEADER")
+      exceptions = args.extras + [
+        "pghero_query_stats",
+        "schema_migrations",
+        "shortened_urls",
+        "claim_sources",
+        "project_sources"
+      ]
+      tables = ActiveRecord::Base.connection.tables - exceptions
+      # total = tables + csv files + 4 additional tables for annotations
+      @progressbar = ProgressBar.create(:total => (tables.count + 4) * 2)
+      @files ||= {}
+      tables.each do |table|
+        query = "#{table}_query"
+        begin
+          if self.respond_to?(query, table)
+            if table == "annotations"
+              send(query, table)
+            else
+              copy_to_file(send(query, table), table, table)
+            end
+          else
+            raise "Missing query to copy #{table}"
+          end
+        rescue Exception => e
+          raise "Error dumping table #{table}: #{e.message}"
         end
+        begin
+          ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside_#{@team.id};") if table == 'users'
+        rescue Exception => e
+        end
+      end
+      export_zip
+      FileUtils.remove_dir(@tmp_folder_path, true) if File.exist?(@tmp_folder_path)
+    end
+
+    def table(name)
+      if name.match(/annotations_(.*)/)
+        'annotations'
+      elsif name.match(/versions_(.*)/)
+        'versions'
+      else
+        name
       end
     end
   end
