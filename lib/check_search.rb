@@ -48,7 +48,7 @@ class CheckSearch
   end
 
   def self.id(options = {})
-    Base64.encode64("CheckSearch/#{options.to_json}")
+    Base64.strict_encode64("CheckSearch/#{options.to_json}")
   end
 
   def class_name

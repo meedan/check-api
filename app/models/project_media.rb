@@ -162,7 +162,13 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_was
-    Project.find(self.previous_project_id) unless self.previous_project_id.blank?
+    previous_project_id = self.previous_project_id || self.remove_from_project_id
+    Project.find(previous_project_id) unless previous_project_id.blank?
+  end
+
+  # FIXME: Refactor this method when project_id is removed
+  def project
+    self.add_to_project_id ? Project.find_by_id(self.add_to_project_id) : super
   end
 
   def copied_to_project
