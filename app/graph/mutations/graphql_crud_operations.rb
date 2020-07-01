@@ -217,12 +217,18 @@ class GraphqlCrudOperations
   end
 
   def self.define_optimistic_fields(obj, inputs, name)
-    if inputs[:ids] && name =~ /^check_search/
-      obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
-    end
+    if inputs[:ids]
+      if name =~ /^check_search/
+        obj = self.define_optimistic_fields_for_check_search(obj, inputs, name)
+      end
 
-    if inputs[:ids] && name =~ /^project/
-      obj = self.define_optimistic_fields_for_project(obj, inputs, name)
+      if name =~ /^project/
+        obj = self.define_optimistic_fields_for_project(obj, inputs, name)
+      end
+
+      if name == 'team'
+        obj = self.define_optimistic_fields_for_team(obj, inputs, name)
+      end
     end
 
     if name == 'project_media'
@@ -247,6 +253,21 @@ class GraphqlCrudOperations
     n = obj.medias_count
     obj.define_singleton_method(:medias_count) { n - inputs[:ids].size } if name == 'project_was'
     obj.define_singleton_method(:medias_count) { n + inputs[:ids].size } if name == 'project'
+    obj
+  end
+
+  def self.define_optimistic_fields_for_team(obj, inputs, _name)
+    obj = Team.current
+    medias_count = obj.medias_count
+    trash_count = obj.trash_count
+    ids_count = inputs[:ids].size
+    if inputs['archived'] == 1
+      obj.define_singleton_method(:medias_count) { medias_count - ids_count }
+      obj.define_singleton_method(:trash_count) { trash_count + ids_count }
+    elsif inputs['archived'] == 0
+      obj.define_singleton_method(:medias_count) { medias_count + ids_count }
+      obj.define_singleton_method(:trash_count) { trash_count - ids_count }
+    end
     obj
   end
 
