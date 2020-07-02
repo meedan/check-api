@@ -74,21 +74,6 @@ class Assignment < ActiveRecord::Base
     Assignment.delete(to_delete)
   end
 
-  def self.bulk_assign(obj, user_ids)
-    obj = YAML::load(obj)
-    klass = obj.is_annotation? ? 'Annotation' : obj.class.name
-    user_ids.each do |user_id|
-      if Assignment.where(user_id: user_id, assigned_type: klass, assigned_id: obj.id).last.nil?
-        a = Assignment.new
-        a.user_id = user_id
-        a.assigned_id = obj.id
-        a.assigned_type = klass
-        a.propagate_in_foreground = true
-        a.save!
-      end
-    end
-  end
-
   private
 
   def assigned_to_user_from_the_same_team

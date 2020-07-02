@@ -149,6 +149,21 @@ class VersionTest < ActiveSupport::TestCase
     User.current = nil
   end
 
+  test "should get projects" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    User.current = u
+    pm = create_project_media project: p
+    pm.move_to_project_id = p2.id
+    pm.previous_project_id = p.id
+    pm.save!
+    log = pm.get_versions_log.last
+    assert_equal [p, p2], log.projects
+    User.current = nil
+  end
+
   test "should get source" do
     v = create_version
     assert_nil v.source

@@ -40,6 +40,11 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     assert_equal pm, pmp.reload.project_media
   end
 
+  test "should get team" do
+    pmp = create_project_media_project
+    assert_kind_of Team, pmp.team
+  end
+
   test "should have versions" do
     m = create_valid_media
     t = create_team

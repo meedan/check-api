@@ -24,6 +24,10 @@ class ProjectMediaProject < ActiveRecord::Base
     self.project_media.graphql_id
   end
 
+  def team
+    self.project&.team
+  end
+
   private
 
   def update_index_in_elasticsearch
