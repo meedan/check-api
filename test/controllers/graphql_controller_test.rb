@@ -727,7 +727,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get node from global id for search" do
    authenticate_with_user
    options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
-   id = Base64.encode64("CheckSearch/#{options}")
+   id = Base64.strict_encode64("CheckSearch/#{options}")
    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
  end
