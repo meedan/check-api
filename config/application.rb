@@ -32,6 +32,7 @@ module Check
 
     config.i18n.fallbacks = ['en']
     config.i18n.default_locale = 'en'
+    config.i18n.enforce_available_locales = false
 
     if cfg['locale'].blank?
       config.i18n.available_locales = ["ar","bn","fr","hi","ml","pt","ro","ru","es","te","en"] # Do not change manually! Use `rake transifex:languages` instead, or set the `locale` key in your `config/config.yml`
