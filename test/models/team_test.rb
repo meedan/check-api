@@ -2799,7 +2799,10 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get translated message from Transifex if available" do
     t = create_team
+    t.set_language 'pt_PT'
+    t.save!
     assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo')
+    assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo', { locale: 'pt_PT' })
     assert_match /custom_message/, CheckI18n.i18n_t(t, 'custom_message', nil)
   end
 
