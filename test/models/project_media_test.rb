@@ -372,11 +372,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     create_team_task team_id: t.id
     create_team_task team_id: t.id, project_ids: [p2.id]
-    assert_difference 'Task.length', 1 do
-      pm1 = create_project_media project: p1
-    end
-    assert_difference 'Task.length', 2 do
-      pm2 = create_project_media project: p2
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm1 = create_project_media project: p1
+      end
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media project: p2
+      end
     end
   end
 
@@ -402,13 +404,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t, add_to_project_id: p.id
       assert_equal 1, pm.annotations('task').count
-      pm.add_to_project_id = p2.id
-      pm.save!
+      create_project_media_project project: p2, project_media: pm
       assert_equal 2, pm.annotations('task').count
       pm2 = create_project_media team: t, add_to_project_id: p.id
       assert_equal 1, pm2.annotations('task').count
-      pm2.move_to_project_id = p2.id
-      pm2.save!
+      pmp = ProjectMediaProject.where(project_id: p.id, project_media_id: pm2.id).last
+      pmp.project_id = p2.id
+      pmp.save!
       assert_equal 2, pm2.annotations('task').count
     end
     Team.unstub(:current)
@@ -452,7 +454,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       e = create_metadata annotated: pm, title: 'Test'
       info = { title: 'Foo' }.to_json; pm.metadata = info; pm.save!
       info = { title: 'Bar' }.to_json; pm.metadata = info; pm.save!
-      pm.add_to_project_id = p2.id; pm.save!
+      create_project_media_project project: p2, project_media: pm
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
       t = Task.find(t.id); t.label = 'Test?'; t.save!
@@ -468,21 +470,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       f.destroy
       assert_equal 15, pm.get_versions_log_count
     end
-  end
-
-  test "should get previous and target project" do
-    p1 = create_project
-    p2 = create_project
-    pm = create_project_media project: p1
-    assert_equal [p1], pm.projects
-    assert_nil pm.project_was
-    pm = ProjectMedia.find pm.id
-    pm.previous_project_id = p1.id
-    pm.move_to_project_id = p2.id
-    pm.save!
-    assert_equal p1, pm.project_was
-    assert_equal p2, pm.project_is
-    assert_equal [p2], pm.reload.projects
   end
 
   test "should refresh Pender data" do
@@ -584,12 +571,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should have reference to search team object" do
     pm = create_project_media
     assert_kind_of CheckSearch, pm.check_search_team
-  end
-
-  test "should have reference to search project object" do
-    p = create_project
-    pm = create_project_media project: p
-    assert_kind_of CheckSearch, pm.check_search_project
   end
 
   test "should get dynamic annotation by type" do
@@ -875,71 +856,73 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}, project_ids: [p2.id]
     create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}, project_ids: [p3.id]
 
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    # test empty json+ld
-    url = 'http://test1.com'
-    raw = {"json+ld": {}}
-    response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm = create_project_media project: p, url: url
-    t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
-    assert_nil t.first_response
+    Sidekiq::Testing.inline! do
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      # test empty json+ld
+      url = 'http://test1.com'
+      raw = {"json+ld": {}}
+      response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      pm = create_project_media project: p, url: url
+      t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
+      assert_nil t.first_response
 
-    # test with non exist value
-    url1 = 'http://test11.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
-    response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
-    pm1 = create_project_media project: p, url: url1
-    t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
-    assert_nil t.first_response
+      # test with non exist value
+      url1 = 'http://test11.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
+      response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+      pm1 = create_project_media project: p, url: url1
+      t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
+      assert_nil t.first_response
 
-    # test with empty value
-    url12 = 'http://test12.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
-    response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
-    pm12 = create_project_media project: p, url: url12
-    t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
-    assert_nil t.first_response
+      # test with empty value
+      url12 = 'http://test12.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
+      response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
+      pm12 = create_project_media project: p, url: url12
+      t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
+      assert_nil t.first_response
 
-    # test with single selection
-    url2 = 'http://test2.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
-    response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-    pm2 = create_project_media project: p, url: url2
-    t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
-    assert_equal "Suggested by Krzana: first_name", t.first_response
+      # test with single selection
+      url2 = 'http://test2.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
+      response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+      pm2 = create_project_media project: p, url: url2
+      t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
+      assert_equal "Suggested by Krzana: first_name", t.first_response
 
-    # test multiple selection (should get first one)
-    url3 = 'http://test3.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
-    response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
-    pm3 = create_project_media project: p, url: url3
-    t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
-    assert_equal "Suggested by Krzana: first_name", t.first_response
+      # test multiple selection (should get first one)
+      url3 = 'http://test3.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
+      response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
+      pm3 = create_project_media project: p, url: url3
+      t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
+      assert_equal "Suggested by Krzana: first_name", t.first_response
 
-    # test geolocation mapping
-    url4 = 'http://test4.com'
-    raw = { "json+ld": {
-      "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
-    } }
-    response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
-    pm4 = create_project_media project: p2, url: url4
-    t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
-    # assert_not_nil t.first_response
+      # test geolocation mapping
+      url4 = 'http://test4.com'
+      raw = { "json+ld": {
+        "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
+      } }
+      response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
+      pm4 = create_project_media project: p2, url: url4
+      t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
+      # assert_not_nil t.first_response
 
-    # test datetime mapping
-    url5 = 'http://test5.com'
-    raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
-    response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
-    pm5 = create_project_media project: p3, url: url5
-    t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
-    assert_not_nil t.first_response
+      # test datetime mapping
+      url5 = 'http://test5.com'
+      raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
+      response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
+      pm5 = create_project_media project: p3, url: url5
+      t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
+      assert_not_nil t.first_response
+    end
   end
 
   test "should expose conflict error from Pender" do
@@ -955,16 +938,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.media_type = 'Link'
     assert !pm.valid?
     assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
-  end
-
-  test "should not create project media under archived project" do
-    p = create_project
-    p.archived = true
-    p.save!
-
-    assert_raises ActiveRecord::RecordInvalid do
-      create_project_media project: p
-    end
   end
 
   test "should archive" do
@@ -1249,15 +1222,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get previous project search object" do
-    p1 = create_project
-    p2 = create_project
-    pm = create_project_media project: p1
-    pm.previous_project_id = p1.id
-    pm.move_to_project_id = p2.id
-    pm.save!
-    assert_kind_of CheckSearch, pm.check_search_project_was
-  end
 
   test "should complete media if there are pending tasks" do
     create_verification_status_stuff
@@ -1434,19 +1398,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Media Description', l.metadata['description']
     assert_equal 'Project Media Title', pm.metadata['title']
     assert_equal 'Project Media Description', pm.metadata['description']
-  end
-
-  test "should clone project media to another project" do
-    m = create_media
-    t = create_team
-    p0 = create_project team: t
-    pm = create_project_media add_to_project_id: p0.id
-    p = create_project
-    assert_difference 'ProjectMediaProject.count' do
-      pm.copy_to_project_id = p.id
-      pm.save!
-      assert_equal p, pm.copied_to_project
-    end
   end
 
   test "should cache and sort by demand" do
@@ -1694,34 +1645,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
   end
 
-  test "should add to list" do
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p1
-    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
-    assert_difference 'ProjectMediaProject.count' do
-      pm = ProjectMedia.find(pm.id)
-      pm.add_to_project_id = p2.id
-      pm.save!
-    end
-    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
-  end
-
-  test "should remove from list" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media team: t
-    pm.add_to_project_id = p.id; pm.save!
-    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
-    assert_difference 'ProjectMediaProject.count', -1 do
-      pm = ProjectMedia.find(pm.id)
-      pm.remove_from_project_id = p.id
-      pm.save!
-    end
-    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
-  end
-
   test "should handle indexing conflicts" do
     require File.join(Rails.root, 'lib', 'middleware_sidekiq_server_retry')
     Sidekiq::Testing.server_middleware do |chain|
@@ -1877,18 +1800,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should move item to another list" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media team: t
-    assert_empty pm.project_ids
-    pm = ProjectMedia.find(pm.id)
-    assert_difference 'ProjectMediaProject.count' do
-      pm.move_to_project_id = p.id
-      pm.save!
-    end
-  end
-
   test "should validate duplicate based on team" do
     t = create_team
     p = create_project team: t
@@ -1961,13 +1872,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
     PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
-    pm = ProjectMedia.create add_to_project_id: p.id, url: url1
+    pm = ProjectMedia.create url: url1
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
     t.set_pender_key = 'specific_token'; t.save!
 
-    pm = ProjectMedia.create! add_to_project_id: p.id, url: url2
+    pm = ProjectMedia.create! url: url2
     assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 

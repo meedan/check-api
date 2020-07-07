@@ -15,14 +15,10 @@ module ProjectMediaMutations
   })
 
   update_fields = fields.merge({
-    previous_project_id: 'int',
-    copy_to_project_id: 'int',
-    move_to_project_id: 'int',
-    remove_from_project_id: 'int',
     refresh_media: 'int',
     archived: 'int',
     metadata: 'str'
   })
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project_was', 'check_search_team', 'check_search_trash', 'check_search_project', 'check_search_project_was', 'relationships_target', 'relationships_source', 'related_to', 'team'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'relationships_target', 'relationships_source', 'related_to', 'team'])
 end

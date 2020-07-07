@@ -537,6 +537,10 @@ module SampleData
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
     pm.save!
+    if options.has_key?(:add_to_project_id)
+      project = Project.find_by_id options[:add_to_project_id]
+      create_project_media_project project_media: pm, project: project, disable_es_callbacks: options[:disable_es_callbacks] unless project.nil?
+    end
     pm.reload
   end
 

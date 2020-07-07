@@ -34,6 +34,16 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     assert_equal p, pmp.reload.project
   end
 
+  test "should not create project media under archived project" do
+    t = create_team
+    p = create_project team: t, archived: true
+    pm = create_project_media team: t
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: p, project_media: pm
+    end
+  end
+
   test "should belong to project media" do
     pm = create_project_media
     pmp = create_project_media_project project_media: pm
@@ -103,9 +113,10 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     p1 = create_project team: t
     p2 = create_project team: t
     pm = create_project_media project: p1
-    pm = ProjectMedia.find(pm.id)
-    pm.move_to_project_id = p2.id
-    pm.save!
+    pmp = pm.project_media_projects.last
+    # pm = ProjectMedia.find(pm.id)
+    pmp.project_id = p2.id
+    pmp.save!
     assert_equal [p2], pm.reload.project_media_projects.map(&:project)
   end
 

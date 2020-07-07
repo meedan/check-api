@@ -3,12 +3,12 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_auto_tasks(tasks = [])
+  def create_auto_tasks(project_id = nil, tasks = [])
     team = self.team
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.team.auto_tasks(self.add_to_project_id)
+      tasks = self.team.auto_tasks(project_id)
     end
     created = []
     tasks.each do |task|
@@ -176,40 +176,5 @@ module ProjectMediaCreators
         raise 'Could not create related item'
       end
     end
-  end
-
-  def copy_to_project
-    add_project_media_project_record(self.copy_to_project_id)
-  end
-
-  def add_to_project
-    add_project_media_project_record(self.add_to_project_id)
-  end
-
-  def move_to_project
-    if self.move_to_project_id
-      pmp = ProjectMediaProject.where(project_media_id: self.id, project_id: self.previous_project_id).last unless self.previous_project_id.nil?
-      if pmp.nil?
-        ProjectMediaProject.where(project_media_id: self.id).delete_all
-        add_project_media_project_record(self.move_to_project_id)
-      else
-        pmp.project_id = self.move_to_project_id
-        pmp.skip_check_ability = true
-        pmp.skip_notifications = self.skip_notifications
-        pmp.save!
-      end
-      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.move_to_project_id, YAML::dump(User.current), YAML::dump({ model: self }))
-    end
-  end
-
-  def remove_from_project
-    if self.remove_from_project_id
-      pmp = ProjectMediaProject.where(project_id: self.remove_from_project_id, project_media_id: self.id).last
-      pmp.destroy! unless pmp.nil?
-    end
-  end
-
-  def add_project_media_project_record(project_id)
-    ProjectMediaProject.create!(project_id: project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if project_id && ProjectMediaProject.where(project_id: project_id, project_media_id: self.id).last.nil?
   end
 end

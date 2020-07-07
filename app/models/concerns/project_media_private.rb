@@ -5,13 +5,6 @@ module ProjectMediaPrivate
 
   private
 
-  def project_is_not_archived
-    [self.add_to_project_id, self.move_to_project_id].reject(&:blank?).each do |pid|
-      project = Project.find_by_id pid
-      parent_is_not_archived(project, I18n.t(:error_project_archived)) unless project.nil?
-    end
-  end
-
   def update_media_account
     a = self.media.account
     metadata = self.media.metadata
@@ -69,14 +62,6 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    if self.team_id.blank? && !self.add_to_project_id.blank?
-      project = Project.find_by_id self.add_to_project_id
-      self.team_id = project.team_id unless project.nil?
-    end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
-  end
-
-  def create_project_media_project
-    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.add_to_project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.add_to_project_id.blank?
   end
 end

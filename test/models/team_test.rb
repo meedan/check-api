@@ -908,7 +908,8 @@ class TeamTest < ActiveSupport::TestCase
       p1 = create_project team: t
       pm = create_project_media user: u, team: t, project: p1
       p2 = create_project team: t
-      pm.move_to_project_id = p2.id; pm.save!
+      pmp = pm.project_media_projects.last
+      pmp.project_id = p2.id; pmp.save!
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
       assert copy.is_a?(Team)
@@ -1204,8 +1205,7 @@ class TeamTest < ActiveSupport::TestCase
       pm3 = create_project_media team: team
       create_relationship source_id: pm1.id, target_id: pm2.id
       # add pm1 to project2
-      pm1.add_to_project_id = project2.id
-      pm1.save!
+      create_project_media_project project: project2, project_media: pm1
 
       assert_equal 1, Relationship.count
       assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
@@ -2662,8 +2662,9 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     pm1 = create_project_media project: p1, quote: 'foo test'
     assert_equal [p2], pm1.reload.projects
-    pm1.move_to_project_id = p1.id
-    pm1.save!
+    pmp = pm1.project_media_projects.last
+    pmp.project_id = p1.id
+    pmp.save!
     assert_equal [p1], pm1.reload.projects
     s = pm1.last_status_obj
     s.status = 'In Progress'

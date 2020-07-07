@@ -5,23 +5,13 @@ module ProjectAssociation
   extend ActiveSupport::Concern
 
   def check_search_team
-    team = self.respond_to?(:team) ? self.team : self.project.team
+    team = self.team
     team.check_search_team
   end
 
   def check_search_trash
-    team = self.respond_to?(:team) ? self.team : self.project.team
+    team = self.team
     team.check_search_trash
-  end
-
-  def check_search_project(project = nil)
-    project ||= self.project_is
-    return nil if project.nil?
-    project.check_search_project
-  end
-
-  def check_search_project_was
-    self.check_search_project(self.project_was)
   end
 
   def as_json(_options = {})
