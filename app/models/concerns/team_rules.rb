@@ -120,9 +120,8 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        pm.move_to_project_id = project.id
-        pm.skip_check_ability = true
-        pm.save!
+        ProjectMediaProject.where(project_media_id: pm.id).delete_all
+        ProjectMediaProject.create!(project: project, project_media: pm, skip_check_ability: true)
       end
     end
 

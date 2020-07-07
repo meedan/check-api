@@ -17,7 +17,11 @@ class ProjectMediaProject < ActiveRecord::Base
   after_commit :add_destination_team_tasks, on: [:create]
   after_commit :update_index_in_elasticsearch, :update_team_tasks, on: [:create, :update]
 
-  notifies_pusher on: :commit, event: 'media_updated', targets: proc { |pmp| [pmp.project, pmp.project.team] }, data: proc { |pmp| { id: pmp.id }.to_json }
+  notifies_pusher on: [:save, :destroy],
+                  event: 'media_updated',
+                  targets: proc { |pmp| [pmp.project, pmp.project.team] },
+                  bulk_targets: proc { |pmp| [pmp.team] },
+                  data: proc { |pmp| { id: pmp.id }.to_json }
 
   def check_search_team
     team = self.team
