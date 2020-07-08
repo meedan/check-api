@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200624170005) do
+ActiveRecord::Schema.define(version: 20200706211437) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,9 +123,9 @@ ActiveRecord::Schema.define(version: 20200624170005) do
     t.text     "description"
     t.boolean  "optional",        default: true
     t.text     "settings"
-    t.string   "default_value"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.string   "default_value"
   end
 
   create_table "dynamic_annotation_field_types", primary_key: "field_type", force: :cascade do |t|
@@ -141,14 +141,15 @@ ActiveRecord::Schema.define(version: 20200624170005) do
     t.string   "annotation_type",              null: false
     t.string   "field_type",                   null: false
     t.text     "value",                        null: false
+    t.jsonb    "value_json",      default: {}
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
-    t.jsonb    "value_json",      default: {}
   end
 
   add_index "dynamic_annotation_fields", ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id", using: :btree
+  add_index "dynamic_annotation_fields", ["field_name"], name: "index_dynamic_annotation_fields_on_field_name", using: :btree
   add_index "dynamic_annotation_fields", ["field_type"], name: "index_dynamic_annotation_fields_on_field_type", using: :btree
-  add_index "dynamic_annotation_fields", ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)", using: :btree
+  add_index "dynamic_annotation_fields", ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)", using: :btree
   add_index "dynamic_annotation_fields", ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
 
   create_table "login_activities", force: :cascade do |t|
@@ -311,16 +312,16 @@ ActiveRecord::Schema.define(version: 20200624170005) do
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
-    t.string   "type"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
     t.string   "role"
     t.string   "status",                 default: "member"
-    t.text     "settings"
     t.integer  "invited_by_id"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_accepted_at"
+    t.text     "settings"
+    t.string   "type"
     t.string   "invitation_email"
   end
 
@@ -377,6 +378,7 @@ ActiveRecord::Schema.define(version: 20200624170005) do
     t.string   "unconfirmed_email"
     t.integer  "current_project_id"
     t.boolean  "is_active",                 default: true
+    t.datetime "last_accepted_terms_at"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_created_at"
@@ -385,7 +387,6 @@ ActiveRecord::Schema.define(version: 20200624170005) do
     t.integer  "invitation_limit"
     t.integer  "invited_by_id"
     t.string   "invited_by_type"
-    t.datetime "last_accepted_terms_at"
     t.string   "encrypted_otp_secret"
     t.string   "encrypted_otp_secret_iv"
     t.string   "encrypted_otp_secret_salt"
@@ -424,4 +425,8 @@ ActiveRecord::Schema.define(version: 20200624170005) do
   add_index "versions", ["item_type", "item_id", "whodunnit"], name: "index_versions_on_item_type_and_item_id_and_whodunnit", using: :btree
   add_index "versions", ["team_id"], name: "index_versions_on_team_id", using: :btree
 
+  add_foreign_key "accounts", "teams"
+  add_foreign_key "project_medias", "users"
+  add_foreign_key "sources", "teams"
+  add_foreign_key "users", "sources"
 end
