@@ -45,7 +45,7 @@ DynamicAnnotation::Field.class_eval do
     value = nil
     begin
       value = JSON.parse(field_value)
-    rescue JSON::ParserError
+    rescue
       return field_value
     end
     answer = value['selected'] || []

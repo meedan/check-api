@@ -398,36 +398,7 @@ class TeamTest < ActiveSupport::TestCase
   test "should not save custom verification status if it is not a hash" do
     t = create_team
     value = 'invalid_status'
-    assert_raises TypeError do
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-  end
-
-  test "should not change custom statuses that are already used in reports" do
-    create_verification_status_stuff
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    s = pm.last_verification_status_obj
-    value = {
-      label: 'Field label',
-      default: '1',
-      active: '2',
-      statuses: [
-        { id: '1', locales: { en: { label: 'Custom Status 1', description: '' } }, style: { color: 'red' } },
-        { id: '2', locales: { en: { label: 'Custom Status 2', description: '' } }, style: { color: 'blue' } }
-      ]
-    }
-    t.set_limits_custom_statuses(true)
-    t.save!
-    t = Team.find(t.id)
     assert_raises ActiveRecord::RecordInvalid do
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-    assert_nothing_raised do
-      value[:statuses] << { id: s.status, locales: { en: { label: s.status, description: '' } }, style: { color: 'blue' } }
       t.set_media_verification_statuses(value)
       t.save!
     end
