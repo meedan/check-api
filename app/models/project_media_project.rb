@@ -11,7 +11,7 @@ class ProjectMediaProject < ActiveRecord::Base
   belongs_to :project_media
 
   validates_presence_of :project, :project_media
-  validate :project_is_not_archived
+  validate :project_is_not_archived, unless: proc { |pmp| pmp.is_being_copied  }
 
   after_destroy :update_index_in_elasticsearch
   after_commit :add_destination_team_tasks, on: [:create]
@@ -54,6 +54,10 @@ class ProjectMediaProject < ActiveRecord::Base
 
   def team
     self.project&.team
+  end
+
+  def is_being_copied
+    self.team && self.team.is_being_copied
   end
 
   private

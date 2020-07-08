@@ -62,6 +62,14 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
+    if self.team_id.blank? && !self.add_to_project_id.blank?
+      project = Project.find_by_id self.add_to_project_id
+      self.team_id = project.team_id unless project.nil?
+    end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
+  end
+
+  def create_project_media_project
+    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.add_to_project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.add_to_project_id.blank?
   end
 end

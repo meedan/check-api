@@ -940,6 +940,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
   end
 
+  test "should not create project media under archived project" do
+    p = create_project archived: true
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media add_to_project_id: p.id
+    end
+  end
+
   test "should archive" do
     pm = create_project_media
     assert !pm.archived

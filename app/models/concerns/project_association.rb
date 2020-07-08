@@ -4,6 +4,14 @@ require 'error_codes'
 module ProjectAssociation
   extend ActiveSupport::Concern
 
+  def project
+    Project.find_by_id(self.add_to_project_id) unless self.add_to_project_id.nil?
+  end
+
+  def check_search_project
+    self.project.check_search_project unless self.project.nil?
+  end
+
   def check_search_team
     team = self.team
     team.check_search_team

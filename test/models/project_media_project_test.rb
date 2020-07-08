@@ -21,11 +21,6 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_project_media_project project: nil, project_media: create_project_media
     end
-    p.archived = true
-    p.save!
-    assert_raises ActiveRecord::RecordInvalid do
-      create_project_media_project project: p, project_media: nil
-    end
   end
 
   test "should belong to project" do

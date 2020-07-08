@@ -5,7 +5,7 @@ module ProjectMediaProjectMutations
   }
 
   update_fields = {
-    project_id: 'int',
+    project_id: '!int',
     previous_project_id: 'int'
   }
 

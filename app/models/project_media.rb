@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses,:add_to_project_id, :cached_permissions, :is_being_created, :related_to_id, :relationship, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -16,7 +16,7 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
+  after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
@@ -24,8 +24,8 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.team] },
+                  targets: proc { |pm| [pm.project, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project, pm.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
