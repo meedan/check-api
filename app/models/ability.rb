@@ -173,7 +173,7 @@ class Ability
       obj.related_to_team?(@context_team) && !obj.archived_was
     end
     can :update, ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id
+      obj.project && obj.project.team_id == @context_team.id && !obj.project_media.archived
     end
     can [:create, :update], Source, :team_id => @context_team.id
     can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }

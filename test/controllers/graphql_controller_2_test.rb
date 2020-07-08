@@ -674,6 +674,20 @@ class GraphqlController2Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
   end
 
+  test "should read project media project" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal p.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
+  end
+
   test "should list filtered users to annotator" do
     u1 = create_user name: 'Annotator'
     u2 = create_user name: 'Owner'
@@ -1124,12 +1138,15 @@ class GraphqlController2Test < ActionController::TestCase
       p2 = create_project team: t
       pm1 = create_project_media project: p
       pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
       pmp1 = pm1.reload.project_media_projects.last
       pmp2 = pm2.reload.project_media_projects.last
+      pmp3 = pm3.reload.project_media_projects.last
       Sidekiq::Worker.drain_all
 
       assert_equal p.id, pmp1.project_id
       assert_equal p.id, pmp2.project_id
+      assert_equal p.id, pmp3.project_id
       assert_equal 0, Sidekiq::Worker.jobs.size
 
       authenticate_with_user(u)
@@ -1141,10 +1158,13 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal 1, Sidekiq::Worker.jobs.size
       assert_equal [p.id], pm1.reload.project_ids
       assert_equal [p.id], pm2.reload.project_ids
+      assert_equal [p.id], pm3.reload.project_ids
+      pm3.update_column(:archived, true)
       Sidekiq::Worker.drain_all
       assert_equal 0, Sidekiq::Worker.jobs.size
       assert_equal [p2.id], pm1.reload.project_ids
       assert_equal [p2.id], pm2.reload.project_ids
+      assert_equal [p.id], pm3.reload.project_ids
     end
   end
 
