@@ -158,7 +158,6 @@ class VersionTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     pmp = pm.project_media_projects.last
     pmp.project_id = p2.id
-    # pm.previous_project_id = p.id
     pmp.save!
     log = pm.get_versions_log.last
     assert_equal [p, p2], log.projects

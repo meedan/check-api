@@ -1062,45 +1062,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm2.id, pmids[0]
   end
 
-  test "should bulk-update things" do
-    RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    authenticate_with_user(u)
-    # add_to action
-    query = "mutation { createProjectMediaProjects(inputs: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]) { enqueued } }"
-    assert_difference 'ProjectMediaProject.count', 2 do
-      post :create, query: query, team: t.slug
-    end
-    assert_response :success
-    assert JSON.parse(@response.body)['data']['createProjectMediaProjects']['enqueued']
-    pmp1 = pm1.reload.project_media_projects.last
-    pmp2 = pm2.reload.project_media_projects.last
-    assert_equal [p.id], pm1.reload.project_ids
-    assert_equal [p.id], pm2.reload.project_ids
-    Sidekiq::Testing.inline! do
-      # move_to action
-      p2 = create_project team: t
-      query = "mutation { updateProjectMediaProject(input: { clientMutationId: \"1\", id: \"#{pmp1.graphql_id}\", ids: [\"#{pmp1.graphql_id}\", \"#{pmp2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, project {dbid} } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      assert_equal [pmp1.graphql_id, pmp2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMediaProject']['affectedIds'].sort
-      # TODO: Sawy - fix me
-      # assert_equal [p2.id], pm1.reload.project_ids
-      # assert_equal [p2.id], pm2.reload.project_ids
-      # remove from action
-      query = "mutation { destroyProjectMediaProject(input: { clientMutationId: \"1\", id: \"#{pmp1.graphql_id}\", ids: [\"#{pmp1.graphql_id}\", \"#{pmp2.graphql_id}\"] }) { affectedIds } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      assert_equal [], pm1.reload.project_ids
-      assert_equal [], pm1.reload.project_ids
-    end
-  end
-
   test "should bulk-destroy things" do
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.fake! do
@@ -1131,6 +1092,90 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal 0, Sidekiq::Worker.jobs.size
       assert_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
+    end
+  end
+
+  test "should bulk-create project media project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    authenticate_with_user(u)
+    query = "mutation { createProjectMediaProjects(inputs: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]) { enqueued } }"
+    assert_difference 'ProjectMediaProject.count', 2 do
+      post :create, query: query, team: t.slug
+    end
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['createProjectMediaProjects']['enqueued']
+    assert_equal [p.id], pm1.reload.project_ids
+    assert_equal [p.id], pm2.reload.project_ids
+  end
+
+  test "should bulk-update project media project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p = create_project team: t
+      p2 = create_project team: t
+      pm1 = create_project_media project: p
+      pm2 = create_project_media project: p
+      pmp1 = pm1.reload.project_media_projects.last
+      pmp2 = pm2.reload.project_media_projects.last
+      Sidekiq::Worker.drain_all
+
+      assert_equal p.id, pmp1.project_id
+      assert_equal p.id, pmp2.project_id
+      assert_equal 0, Sidekiq::Worker.jobs.size
+
+      authenticate_with_user(u)
+      query = "mutation { updateProjectMediaProject(input: { clientMutationId: \"1\", id: \"#{pmp1.graphql_id}\", ids: [\"#{pmp1.graphql_id}\", \"#{pmp2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, project {dbid} } }"
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal [pmp1.graphql_id, pmp2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMediaProject']['affectedIds'].sort
+      sleep 1
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal [p.id], pm1.reload.project_ids
+      assert_equal [p.id], pm2.reload.project_ids
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      assert_equal [p2.id], pm1.reload.project_ids
+      assert_equal [p2.id], pm2.reload.project_ids
+    end
+  end
+
+  test "should bulk-destroy project media project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.fake! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p = create_project team: t
+      p = create_project team: t
+      pm1 = create_project_media project: p
+      pm2 = create_project_media project: p
+      pmp1 = pm1.reload.project_media_projects.last
+      pmp2 = pm2.reload.project_media_projects.last
+      Sidekiq::Worker.drain_all
+
+      assert_equal p.id, pmp1.project_id
+      assert_equal p.id, pmp2.project_id
+      assert_equal 0, Sidekiq::Worker.jobs.size
+
+      authenticate_with_user(u)
+      query = "mutation { destroyProjectMediaProject(input: { clientMutationId: \"1\", id: \"#{pmp1.graphql_id}\", ids: [\"#{pmp1.graphql_id}\", \"#{pmp2.graphql_id}\"] }) { affectedIds } }"
+      post :create, query: query, team: t.slug
+      assert_response :success
+      sleep 1
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      assert_equal [], pm1.reload.project_ids
+      assert_equal [], pm2.reload.project_ids
     end
   end
 
