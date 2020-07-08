@@ -6,6 +6,8 @@ class ConvertFieldsValueFromYamlToJson < ActiveRecord::Migration
   end
   
   def change
+    old_logger = ActiveRecord::Base.logger
+    ActiveRecord::Base.logger = nil
 
     # Create new table without any index, in order to be faster
 
@@ -28,6 +30,7 @@ class ConvertFieldsValueFromYamlToJson < ActiveRecord::Migration
     i = 0
     result = execute("SELECT * FROM dynamic_annotation_fields ORDER BY id ASC LIMIT #{BATCH_SIZE} OFFSET #{BATCH_SIZE * i}").to_a
     while !result.empty? do
+      print '.'
       result.each do |field|
         value = YAML.load(field['value'])
         field['value'] = value
@@ -50,5 +53,7 @@ class ConvertFieldsValueFromYamlToJson < ActiveRecord::Migration
     max = DynamicAnnotation::Field.maximum(:id)
     execute "ALTER SEQUENCE new_dynamic_annotation_fields_id_seq RESTART WITH #{max + 1}"
     puts "[#{Time.now}] Done!"
+
+    ActiveRecord::Base.logger = old_logger
   end
 end
