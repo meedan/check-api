@@ -682,10 +682,12 @@ class GraphqlController2Test < ActionController::TestCase
     authenticate_with_user(u)
     p = create_project team: t
     pm = create_project_media project: p
+    pmp = pm.project_media_projects.last
+    assert_not_nil pmp
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal p.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
+    assert_equal pmp.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
   end
 
   test "should list filtered users to annotator" do
