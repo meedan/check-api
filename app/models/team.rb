@@ -308,11 +308,10 @@ class Team < ActiveRecord::Base
       # Update all statuses in the database
       DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
 
-      # Update status cache
-      data.map(&:pmid).each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+      pmids = data.map(&:pmid)
 
-      # Update ElasticSearch
-      Team.delay.reindex_statuses(data.map(&:pmid).to_json, fallback_status_id)
+      # Update status cache
+      pmids.each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
 
       # Update team statuses after deleting one of them
       settings = self.settings || {}
@@ -320,10 +319,16 @@ class Team < ActiveRecord::Base
       statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
       self.set_media_verification_statuses = statuses
       self.save!
+
+      # Update ElasticSearch in background
+      Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
+
+      # Update reports in background
+      Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
     end
   end
 
-  def self.reindex_statuses(ids_json, fallback_status_id)
+  def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
     ids = JSON.parse(ids_json)
     client = MediaSearch.gateway.client
     index_alias = CheckElasticSearchModel.get_index_alias
@@ -336,6 +341,27 @@ class Team < ActiveRecord::Base
       es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: fields } } }
     end
     client.bulk body: es_body
+  end
+
+  def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
+    ids = JSON.parse(ids_json)
+    ids.each do |id|
+      report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: id).last
+      unless report.nil?
+        report = report.load
+        pm = ProjectMedia.find(id)
+        data = report.data.clone.with_indifferent_access
+        data[:state] = 'paused'
+        data[:options].each_with_index do |option, i|
+          data[:options][i].merge!({
+            theme_color: pm.status_color(fallback_status_id),
+            status_label: pm.status_i18n(fallback_status_id, { locale: option[:language] })
+          })
+        end
+        report.data = data
+        report.save!
+      end
+    end
   end
 
   protected
