@@ -412,12 +412,12 @@ class GraphqlCrudOperations
     mutation = "Create#{type.camelize.pluralize}Mutation"
     Object.class_eval <<-TES
       class #{mutation} < GraphQL::Schema::Mutation
-        argument :inputs, [#{input_type}], required: true
+        argument :input, [#{input_type}], required: true
 
         field :enqueued, Boolean, null: false
 
-        def resolve(inputs:)
-          GraphqlCrudOperations.bulk_create('#{type}', inputs)
+        def resolve(input:)
+          GraphqlCrudOperations.bulk_create('#{type}', input)
         end
       end
     TES

@@ -1120,7 +1120,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     authenticate_with_user(u)
-    query = "mutation { createProjectMediaProjects(inputs: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]) { enqueued } }"
+    query = "mutation { createProjectMediaProjects(input: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]) { enqueued } }"
     assert_difference 'ProjectMediaProject.count', 2 do
       post :create, query: query, team: t.slug
     end
@@ -1177,7 +1177,6 @@ class GraphqlController2Test < ActionController::TestCase
       t = create_team
       create_team_user team: t, user: u, role: 'owner'
       p = create_project team: t
-      p = create_project team: t
       pm1 = create_project_media project: p
       pm2 = create_project_media project: p
       pmp1 = pm1.reload.project_media_projects.last
@@ -1198,6 +1197,23 @@ class GraphqlController2Test < ActionController::TestCase
       assert_equal 0, Sidekiq::Worker.jobs.size
       assert_equal [], pm1.reload.project_ids
       assert_equal [], pm2.reload.project_ids
+    end
+  end
+
+  test "should rescue errors for bulk-operation" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      u = create_user
+      t = create_team
+      p = create_project team: t
+      pm1 = create_project_media project: p
+      pmp1 = pm1.reload.project_media_projects.last
+      assert_equal p.id, pmp1.project_id
+      authenticate_with_user(u)
+      query = "mutation { destroyProjectMediaProject(input: { clientMutationId: \"1\", id: \"#{pmp1.graphql_id}\", ids: [\"#{pmp1.graphql_id}\"] }) { affectedIds } }"
+      post :create, query: query, team: t.slug
+      assert_response :success
+      assert_equal [p.id], pm1.reload.project_ids
     end
   end
 
