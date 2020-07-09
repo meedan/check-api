@@ -314,6 +314,46 @@ class Team < ActiveRecord::Base
     self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
   end
 
+  def delete_custom_media_verification_status(status_id, fallback_status_id)
+    if !status_id.blank? && !fallback_status_id.blank?
+      data = DynamicAnnotation::Field
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
+        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'value' => status_id, 'pm.team_id' => self.id)
+        .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
+
+      # Update all statuses in the database
+      DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
+
+      # Update status cache
+      data.map(&:pmid).each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+
+      # Update ElasticSearch
+      Team.delay.reindex_statuses(data.map(&:pmid).to_json, fallback_status_id)
+
+      # Update team statuses after deleting one of them
+      settings = self.settings || {}
+      statuses = settings.with_indifferent_access[:media_verification_statuses]
+      statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
+      self.set_media_verification_statuses = statuses
+      self.save!
+    end
+  end
+
+  def self.reindex_statuses(ids_json, fallback_status_id)
+    ids = JSON.parse(ids_json)
+    client = MediaSearch.gateway.client
+    index_alias = CheckElasticSearchModel.get_index_alias
+    es_body = []
+    ids.each do |id|
+      model = ProjectMedia.new(id: id)
+      doc_id = model.get_es_doc_id(model)
+      model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: doc_id)
+      fields = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
+      es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: fields } } }
+    end
+    client.bulk body: es_body
+  end
+
   protected
 
   def get_values_from_entry(entry)

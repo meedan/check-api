@@ -8,7 +8,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   belongs_to :field_instance, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'field_name', primary_key: 'name'
   belongs_to :field_type_object, class_name: 'DynamicAnnotation::FieldType', foreign_key: 'field_type', primary_key: 'field_type'
 
-  serialize :value
+  serialize :value, JSON
 
   before_validation :set_annotation_type, :set_field_type, :set_json_value
 
