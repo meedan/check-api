@@ -1120,7 +1120,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     authenticate_with_user(u)
-    query = "mutation { createProjectMediaProjects(input: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]) { enqueued } }"
+    query = "mutation { createProjectMediaProjects(input: {clientMutationId: \"1\", inputs: [{ project_id: #{p.id}, project_media_id: #{pm1.id} }, { project_id: #{p.id}, project_media_id: #{pm2.id} }]}) { enqueued } }"
     assert_difference 'ProjectMediaProject.count', 2 do
       post :create, query: query, team: t.slug
     end

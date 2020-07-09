@@ -409,19 +409,13 @@ class GraphqlCrudOperations
       fields.each { |field_name, field_type| argument field_name, mapping[field_type] }
     end
     Object.const_set input_type, definition
-    mutation = "Create#{type.camelize.pluralize}Mutation"
-    Object.class_eval <<-TES
-      class #{mutation} < GraphQL::Schema::Mutation
-        argument :input, [#{input_type}], required: true
 
-        field :enqueued, Boolean, null: false
-
-        def resolve(input:)
-          GraphqlCrudOperations.bulk_create('#{type}', input)
-        end
-      end
-    TES
-    mutation.constantize
+    GraphQL::Relay::Mutation.define do
+      name "Create#{type.camelize.pluralize}Mutation"
+      input_field :inputs, types[input_type.constantize]
+      return_field :enqueued, types.Boolean
+      resolve -> (_root, input, _ctx) { GraphqlCrudOperations.bulk_create(type, input['inputs']) }
+    end
   end
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = false)

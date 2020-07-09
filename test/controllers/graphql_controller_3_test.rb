@@ -818,7 +818,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
     authenticate_with_user(u)
-    query = 'mutation { createTags(inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]) { enqueued } }'
+    query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]}) { enqueued } }'
     assert_difference 'Tag.length', 2 do
       post :create, query: query, team: t.slug
     end
