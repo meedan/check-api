@@ -20,7 +20,7 @@ module Workflow
                 headerTemplate: '{{i1}} - {{self.id}}',
                 required: ['id', 'style'],
                 properties: {
-                  id: { type: 'string', title: 'Identifier' },
+                  id: { type: 'string', title: 'Identifier', pattern: '^[0-9a-z_-]+$' },
                   style: {
                     type: 'object',
                     properties: {
