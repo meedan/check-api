@@ -1178,8 +1178,8 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     value = {
       label: 'Field label',
-      active: '1',
-      default: '1',
+      active: 'id1',
+      default: 'id1',
       statuses: [
         { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
         { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
