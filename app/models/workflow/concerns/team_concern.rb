@@ -61,7 +61,7 @@ module Workflow
                 .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia' INNER JOIN project_medias pm ON pm.id = a.annotated_id")
                 .where(field_name: "#{id}_status", 'pm.team_id' => self.id).group(:value).count]
               statuses[:statuses].each do |s|
-                s[:items_count] = count[s[:id].to_json]
+                s[:items_count] = count[s[:id].to_json].to_i
               end
             end
             if type.to_s == 'media' && published_reports_count
@@ -70,7 +70,7 @@ module Workflow
                 .joins("INNER JOIN annotations a2 ON a2.annotated_type = 'ProjectMedia' AND pm.id = a2.annotated_id")
                 .where(field_name: "#{id}_status", 'pm.team_id' => self.id, 'a2.annotation_type' => 'report_design').where('a2.data LIKE ?', '%state: published%').group(:value).count]
               statuses[:statuses].each do |s|
-                s[:published_reports_count] = count[s[:id].to_json]
+                s[:published_reports_count] = count[s[:id].to_json].to_i
               end
             end
             statuses
