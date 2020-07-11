@@ -597,8 +597,10 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
+    pmp = pm.project_media_projects.last
+    assert_not_nil pmp
 
-    query = 'mutation removeFromList { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", id: "' + pmp.graphql_id + '" }) { deletedId } }'
     assert_difference 'ProjectMediaProject.count', -1 do
       post :create, query: query, team: t
     end
