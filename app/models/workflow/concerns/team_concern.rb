@@ -20,7 +20,7 @@ module Workflow
                 headerTemplate: '{{i1}} - {{self.id}}',
                 required: ['id', 'style'],
                 properties: {
-                  id: { type: 'string', title: 'Identifier' },
+                  id: { type: 'string', title: 'Identifier', pattern: '^[0-9a-z_-]+$' },
                   style: {
                     type: 'object',
                     properties: {
@@ -53,14 +53,24 @@ module Workflow
         end
 
         ::Workflow::Workflow.workflow_ids.each do |id|
-          define_method id.pluralize do |type, obj = nil, items_count = false|
+          define_method id.pluralize do |type, obj = nil, items_count = false, published_reports_count = false|
             statuses = self.send("get_#{type}_#{id.pluralize}") || ::Workflow::Workflow.core_options(type.camelize.constantize.new, id)
             statuses[:statuses].each{ |s| s[:can_change] = true } if !obj.nil? && type.to_s == 'media'
             if type.to_s == 'media' && items_count
+              count = Hash[DynamicAnnotation::Field
+                .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia' INNER JOIN project_medias pm ON pm.id = a.annotated_id")
+                .where(field_name: "#{id}_status", 'pm.team_id' => self.id).group(:value).count]
               statuses[:statuses].each do |s|
-                s[:items_count] = DynamicAnnotation::Field
-                  .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia' INNER JOIN project_medias pm ON pm.id = a.annotated_id")
-                  .where(field_name: "#{id}_status", value: s[:id], 'pm.team_id' => self.id).count
+                s[:items_count] = count[s[:id].to_json].to_i
+              end
+            end
+            if type.to_s == 'media' && published_reports_count
+              count = Hash[DynamicAnnotation::Field
+                .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia' INNER JOIN project_medias pm ON pm.id = a.annotated_id")
+                .joins("INNER JOIN annotations a2 ON a2.annotated_type = 'ProjectMedia' AND pm.id = a2.annotated_id")
+                .where(field_name: "#{id}_status", 'pm.team_id' => self.id, 'a2.annotation_type' => 'report_design').where('a2.data LIKE ?', '%state: published%').group(:value).count]
+              statuses[:statuses].each do |s|
+                s[:published_reports_count] = count[s[:id].to_json].to_i
               end
             end
             statuses

@@ -2915,4 +2915,22 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'Estamos trabalhando nisso', pm.status_i18n(:in_progress, { locale: 'pt' })
     assert_equal 'Working on it', pm.status_i18n(:in_progress, { locale: 'es' })
   end
+
+  test "should not save custom verification statuses if identifier format is invalid" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: 'Custom Status 1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: 'Custom Status 2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
 end

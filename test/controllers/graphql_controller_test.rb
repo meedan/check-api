@@ -1109,7 +1109,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
-  test "should get core statuses with items count" do
+  test "should get core statuses with items count and published reports count" do
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -1120,19 +1120,21 @@ class GraphqlControllerTest < ActionController::TestCase
         s = pm.annotations.where(annotation_type: 'verification_status').last.load
         s.status = status
         s.save!
+        2.times { publish_report(pm) }
       end
     end
     create_team_user user: u, team: t, role: 'owner'
-    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true) } }"
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
     post :create, query: query, team: 'team'
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
     ['not_applicable', 'in_progress', 'false', 'verified'].each_with_index do |status, i|
       assert_equal i + 1, data.select{ |s| s['id'] == status }[0]['items_count']
+      assert_equal 2 * (i + 1), data.select{ |s| s['id'] == status }[0]['published_reports_count']
     end
   end
 
-  test "should get custom statuses with items count" do
+  test "should get custom statuses with items count and published reports count" do
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
@@ -1149,20 +1151,22 @@ class GraphqlControllerTest < ActionController::TestCase
     t.save!
     DynamicAnnotation::Field.delete_all
     ['1', '2'].each do |status|
-      (status.to_i * 2).times do
+      (status.to_i * 2).times do |i|
         pm = create_project_media project: nil, team: t
         s = pm.annotations.where(annotation_type: 'verification_status').last.load
         s.status = status
         s.save!
+        2.times { publish_report(pm) }
       end
     end
     create_team_user user: u, team: t, role: 'owner'
-    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true) } }"
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
     post :create, query: query, team: 'team'
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
     ['1', '2'].each do |status|
       assert_equal (status.to_i * 2), data.select{ |s| s['id'] == status }[0]['items_count']
+      assert_equal (status.to_i * 2 * 2), data.select{ |s| s['id'] == status }[0]['published_reports_count']
     end
   end
 
@@ -1174,8 +1178,8 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     value = {
       label: 'Field label',
-      active: '1',
-      default: '1',
+      active: 'id1',
+      default: 'id1',
       statuses: [
         { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
         { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
@@ -1189,11 +1193,13 @@ class GraphqlControllerTest < ActionController::TestCase
     s.status = 'id1'
     s.disable_es_callbacks = false
     s.save!
+    r1 = publish_report(pm1)
     pm2 = create_project_media project: nil, team: t
     s = pm2.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id2'
     s.disable_es_callbacks = false
     s.save!
+    r2 = publish_report(pm2)
     
     assert_equal 'id1', pm1.reload.last_status
     assert_equal 'id2', pm2.reload.last_status
@@ -1205,6 +1211,12 @@ class GraphqlControllerTest < ActionController::TestCase
     sleep 2
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
     assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'published', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
     
     query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
     post :create, query: query, team: 'team'
@@ -1220,6 +1232,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
     assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
     assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'paused', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_equal 'green', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
   end
 
   # Please add new tests to test/controllers/graphql_controller_2_test.rb
