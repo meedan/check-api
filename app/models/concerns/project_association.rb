@@ -12,6 +12,14 @@ module ProjectAssociation
     self.project.check_search_project unless self.project.nil?
   end
 
+  def project_was
+    Project.find_by_id(self.previous_project_id) unless self.previous_project_id.nil?
+  end
+
+  def check_search_project_was
+    self.project_was.check_search_project unless self.project_was.nil?
+  end
+
   def check_search_team
     team = self.team
     team.check_search_team

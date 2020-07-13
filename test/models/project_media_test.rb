@@ -472,6 +472,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get previous project and previous project search object" do
+    p1 = create_project
+    p2 = create_project
+    pm = create_project_media project: p1
+    assert_nil pm.project_was
+    pm.previous_project_id = p1.id
+    pm.save!
+    assert_equal p1, pm.project_was
+    assert_kind_of CheckSearch, pm.check_search_project_was
+  end
+
   test "should refresh Pender data" do
     create_verification_status_stuff
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
