@@ -145,7 +145,7 @@ class TestController < ApplicationController
   end
 
   def new_bot
-    b = create_team_bot name: 'Testing Bot', set_approved: true
+    b = create_team_bot name: 'Testing Bot', set_approved: true, login: random_string
     render_success 'bot', b
   end
 
