@@ -302,11 +302,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, ctx, parents = [])
     returns = {}
     obj = nil
-    if inputs[:id]
-      obj = self.object_from_id(inputs[:id])
-    elsif inputs[:project_id] && inputs[:project_media_id]
-      obj = ProjectMediaProject.where(project_id: inputs[:project_id], project_media_id: inputs[:project_media_id]).last
-    end
+    obj = self.object_from_id(inputs[:id]) if inputs[:id]
     unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)

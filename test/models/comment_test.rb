@@ -443,7 +443,7 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team
     s = create_source team: t
     c = create_comment annotated: s
-    assert_equal [t.id], c.get_team
+    assert_equal t, c.team
   end
 
   test "should notify Pusher when comment is created for media" do

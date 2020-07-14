@@ -30,7 +30,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm2.id], ids
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
     sleep 20
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
     ids = []
@@ -58,28 +58,25 @@ class ElasticSearchTest < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query
     assert_response :success
-    p_ids = []
     m_ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
       m_ids << id["node"]["dbid"]
-      p_ids << id["node"]["project_id"]
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
-    assert_equal [p.id, p2.id], p_ids.sort
     pm2.metadata = {description: 'new_description'}.to_json
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, metadata } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, metadata } } } } }'
     post :create, query: query
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["project_id"]] = id["node"]["metadata"]
+      result[id["node"]["dbid"]] = id["node"]["metadata"]
     end
-    assert_equal 'new_description', result[p2.id]["description"]
-    assert_equal 'search_desc', result[p.id]["description"]
+    assert_equal 'new_description', result[pm2.id]["description"]
+    assert_equal 'search_desc', result[pm.id]["description"]
   end
 
   test "should search by dynamic annotation" do
@@ -146,46 +143,28 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal 'Test', node['first_response_value']
   end
 
-  test "should move report to other projects" do
-    u = create_user
-    @team = create_team
-    p = create_project team: @team
-    p2 = create_project team: @team
-    create_team_user user: u, team: @team, role: 'owner'
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    authenticate_with_user(u)
-    id = Base64.encode64("ProjectMedia/#{pm.id}")
-    query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
-    last_version = pm.versions.last
-    assert_equal [p.id, p2.id], JSON.parse(last_version.object_changes)['project_id']
-    assert_equal u.id.to_s, last_version.whodunnit
-  end
-
-  test "should not update es inactive field in bulk update" do
-    Sidekiq::Testing.inline! do
-      u = create_user
-      @team = create_team
-      p = create_project team: @team
-      p2 = create_project team: @team
-      create_team_user user: u, team: @team, role: 'owner'
-      pm1 = create_project_media project: p, disable_es_callbacks: false
-      pm2 = create_project_media project: p, disable_es_callbacks: false
-      authenticate_with_user(u)
-      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
-      post :create, query: query, team: @team.slug
-      assert_response :success
-      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
-      # sleep 1
-      ms1 = MediaSearch.find(get_es_id(pm1))
-      ms2 = MediaSearch.find(get_es_id(pm2))
-      assert_equal pm1.reload.inactive.to_i, ms1.inactive
-      assert_equal pm2.reload.inactive.to_i, ms2.inactive
-    end
-  end
+  # TODO: Sawy
+  # test "should not update es inactive field in bulk update" do
+  #   Sidekiq::Testing.inline! do
+  #     u = create_user
+  #     @team = create_team
+  #     p = create_project team: @team
+  #     p2 = create_project team: @team
+  #     create_team_user user: u, team: @team, role: 'owner'
+  #     pm1 = create_project_media project: p, disable_es_callbacks: false
+  #     pm2 = create_project_media project: p, disable_es_callbacks: false
+  #     authenticate_with_user(u)
+  #     query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"],previous_project_id: #{p.id}, move_to_project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
+  #     post :create, query: query, team: @team.slug
+  #     assert_response :success
+  #     assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
+  #     # sleep 1
+  #     ms1 = MediaSearch.find(get_es_id(pm1))
+  #     ms2 = MediaSearch.find(get_es_id(pm2))
+  #     assert_equal pm1.reload.inactive.to_i, ms1.inactive
+  #     assert_equal pm2.reload.inactive.to_i, ms2.inactive
+  #   end
+  # end
 
   test "should search with keyword" do
     t = create_team

@@ -5,7 +5,7 @@ class PointTagsToTagTexts < ActiveRecord::Migration
     Tag.where(annotation_type: 'tag').find_each do |tag|
       next unless ['ProjectMedia', 'Source', 'Task'].include?(tag.annotated_type)
       next if tag.annotated && tag.annotated.respond_to?(:archived) && tag.annotated.archived
-      next if tag.get_team.empty?
+      next if tag.team.nil?
       tag.updated_at = Time.now
       tag.skip_check_ability = true
       tag.skip_notifications = true

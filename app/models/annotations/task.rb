@@ -50,14 +50,6 @@ class Task < ActiveRecord::Base
     self.last_task_status
   end
 
-  def project
-    self&.annotated&.project
-  end
-
-  def team
-    self&.annotated&.team
-  end
-
   def to_s
     self.label
   end
@@ -190,7 +182,7 @@ class Task < ActiveRecord::Base
     return nil if @response.nil?
     @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
     return nil if @field.nil?
-    Version.from_partition(self.team_id).where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
+    Version.from_partition(self.team&.id).where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
   end
 
   def first_response
@@ -205,7 +197,7 @@ class Task < ActiveRecord::Base
   end
 
   def log
-    Version.from_partition(self.team_id).where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
+    Version.from_partition(self.team&.id).where(associated_type: 'Task', associated_id: self.id).where.not("object_after LIKE '%task_status%'").order('id ASC')
   end
 
   def reject_suggestion=(version_id)
@@ -234,7 +226,7 @@ class Task < ActiveRecord::Base
     response.save!
 
     # Save review information in version
-    version = Version.from_partition(self.team_id).where(id: version_id).last
+    version = Version.from_partition(self.team&.id).where(id: version_id).last
     version.update_column(:meta, review) unless version.nil?
 
     # Update number of suggestions

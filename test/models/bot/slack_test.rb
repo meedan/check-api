@@ -19,10 +19,10 @@ class Bot::SlackTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       p = create_project team: t
       pm = create_project_media project: p
-      @bot.notify_admin(pm, t, p)
+      @bot.notify_admin(pm, t)
       assert pm.sent_to_slack
       s = create_source
-      @bot.notify_admin(s, t, p)
+      @bot.notify_admin(s, t)
       assert_not s.sent_to_slack
     end
   end
@@ -51,7 +51,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
       p = create_project team: t
-      @bot.notify_admin(p, t, p)
+      @bot.notify_admin(p, t)
       assert_nil p.sent_to_slack
     end
   end
@@ -190,14 +190,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
     assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
   end
 
-  test "should get project and team for task comment" do
+  test "should team for task comment" do
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
     c = create_comment annotated: tk
-    assert_equal p, Bot::Slack.new.send(:get_project, c)
-    assert_equal t, Bot::Slack.new.send(:get_team, c, p)
+    assert_equal t, c.team
   end
 
   test "should notify about related claims" do

@@ -375,8 +375,9 @@ class User < ActiveRecord::Base
 
   def cached_assignments
     Rails.cache.fetch("annotator-allowed-ids-#{self.id}", expires_in: 45.seconds, race_condition_ttl: 45.seconds) do
-      pms = Annotation.project_media_assigned_to_user(self, 'id, project_id').to_a
-      { pids: pms.map(&:project_id).uniq, pmids: pms.map(&:id).uniq }
+      pms = Annotation.project_media_assigned_to_user(self, 'id').to_a
+      pids = ProjectMediaProject.where(project_media_id: pms.map(&:id)).map(&:project_id)
+      { pids: pids, pmids: pms.map(&:id).uniq }
     end
   end
 

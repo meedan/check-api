@@ -189,7 +189,7 @@ class TestController < ApplicationController
     user = params[:email].blank? ? nil : User.where(email: params[:email]).last
     User.current = user
     pm = ProjectMedia.new
-    pm.project_id = params[:project_id]
+    pm.add_to_project_id = params[:project_id]
     pm.quote = params[:quote] if type == 'claim'
     pm.url = params[:url] if type == 'link'
     pm.media_type = type.camelize

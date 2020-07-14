@@ -47,6 +47,10 @@ class Team < ActiveRecord::Base
     url || CONFIG['checkdesk_client'] + '/' + self.slug
   end
 
+  def team
+    self
+  end
+
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end
@@ -131,6 +135,18 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
+  def auto_tasks(add_to_project_id, only_selected = false)
+    tasks = []
+    self.team_tasks.order('id ASC').each do |task|
+      if only_selected
+        tasks << task if task.project_ids.include?(add_to_project_id)
+      else
+        tasks << task if task.project_ids.include?(add_to_project_id) || task.project_ids.blank?
+      end
+    end
+    tasks
+  end
+
   def add_auto_task=(task)
     TeamTask.create! task.merge({ team_id: self.id })
   end
@@ -156,7 +172,7 @@ class Team < ActiveRecord::Base
   def self.archive_or_restore_projects_if_needed(archived, team_id)
     Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
-    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
+    ProjectMedia.where(team_id:team_id).update_all({ archived: archived })
   end
 
   def self.empty_trash(team_id)

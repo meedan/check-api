@@ -5,10 +5,6 @@ module ProjectMediaPrivate
 
   private
 
-  def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived))
-  end
-
   def update_media_account
     a = self.media.account
     metadata = self.media.metadata
@@ -21,8 +17,7 @@ module ProjectMediaPrivate
   end
 
   def account_from_author_url(author_url, source)
-    team = self.get_team
-    pender_key = team.get_pender_key if team
+    pender_key = self.team.get_pender_key if self.team
     begin Account.create_for_source(author_url, source, false, false, pender_key) rescue nil end
   end
 
@@ -67,20 +62,14 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    self.team_id = self.project.team_id if self.team_id.blank? && !self.project_id.blank?
+    if self.team_id.blank? && !self.add_to_project_id.blank?
+      project = Project.find_by_id self.add_to_project_id
+      self.team_id = project.team_id unless project.nil?
+    end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
   end
 
   def create_project_media_project
-    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.project_id.blank?
-  end
-
-  def update_project_media_project
-    if self.previous_changes.keys.include?('project_id') || self.changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
-      ProjectMediaProject.where(project_media_id: self.id).destroy_all
-      ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id)
-      # Update team task
-      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self }))
-    end
+    ProjectMediaProject.create!(project_media_id: self.id, project_id: self.add_to_project_id, disable_es_callbacks: self.disable_es_callbacks) unless self.add_to_project_id.blank?
   end
 end

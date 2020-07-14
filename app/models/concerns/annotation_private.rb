@@ -23,7 +23,7 @@ module AnnotationPrivate
   end
 
   def notify_team_bots(event)
-    team = self.get_team.first
+    team = self.team&.id
     BotUser.enqueue_event("#{event}_annotation_#{self.annotation_type}", team, self) unless team.blank?
     task = Task.where(id: self.id).last if self.annotation_type == 'task'
     BotUser.enqueue_event("#{event}_annotation_task_#{self.data['type']}", team, task) unless team.blank? || task.blank?
@@ -32,7 +32,7 @@ module AnnotationPrivate
   def notify_bot_author
     if self.annotator.is_a?(BotUser)
       bot = self.annotator
-      team = self.get_team.first
+      team = self.team_id
       BotUser.enqueue_event("update_annotation_own", team, self, bot) unless team.blank? || bot.blank?
     end
   end

@@ -89,8 +89,8 @@ class ElasticSearch5Test < ActionController::TestCase
       sleep 1
       result = MediaSearch.find(get_es_id(pm))
       p.destroy
-      assert_equal 0, ProjectMedia.where(project_id: id).count
-      assert_equal 1, ProjectMedia.where(project_id: nil).count
+      assert_equal 0, ProjectMediaProject.where(project_id: id).count
+      assert_equal 1, ProjectMedia.where(id: pm.id).count
       assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
     end

@@ -6,7 +6,6 @@ module ProjectMediaAssociations
   included do
     include AnnotationBase::Association
 
-    belongs_to :project
     belongs_to :media
     belongs_to :user
     belongs_to :team
@@ -15,6 +14,7 @@ module ProjectMediaAssociations
     has_many :sources, through: :target_relationships, source: :source
     has_many :targets, through: :source_relationships, source: :target
     has_many :project_media_projects, dependent: :destroy
+    has_many :projects, through: :project_media_projects
     has_annotations
   end
 end

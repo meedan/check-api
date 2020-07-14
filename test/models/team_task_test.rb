@@ -86,8 +86,10 @@ class TeamTaskTest < ActiveSupport::TestCase
   test "should add teamwide task to existing items" do
     t =  create_team
     p = create_project team: t
+    # p2 = create_project team: t
     pm = create_project_media project: p
-    pm3 = create_project_media project: nil, team_id: t.id
+    # pm2 = create_project_media project: p2
+    pm3 = create_project_media team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, project_ids: [p.id], order: 2, description: 'Foo', options: [{ label: 'Foo' }]
@@ -122,14 +124,14 @@ class TeamTaskTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media project: p, archived: true
     tt =create_team_task team_id: t.id, project_ids: [p2.id]
-    pm2 = create_project_media project: p2
-    # Assign task to user and archive the item
-    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm2_tt.assigned_to_ids = u2.id
-    pm2_tt.save!
-    pm2.archived = true
-    pm2.save!
     Sidekiq::Testing.inline! do
+      pm2 = create_project_media project: p2
+      # Assign task to user and archive the item
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt.assigned_to_ids = u2.id
+      pm2_tt.save!
+      pm2.archived = true
+      pm2.save!
       with_current_user_and_team(u, t) do
         assert_no_difference 'Annotation.where(annotation_type: "task").count' do
           create_team_task team_id: t.id, project_ids: [p.id]
@@ -147,7 +149,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media project: p
     pm2 = create_project_media project: p2
-    pm3 = create_project_media project: nil, team_id: t.id
+    pm3 = create_project_media team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = nil
@@ -180,12 +182,12 @@ class TeamTaskTest < ActiveSupport::TestCase
     create_project_media project: p, archived: 1
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id, project_ids: [p2.id], description: 'Foo', options: [{ label: 'Foo' }]
-    pm2 = create_project_media project: p2
-    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    assert_nil pm_tt
-    assert_not_nil pm2_tt
     Sidekiq::Testing.inline! do
+      pm2 = create_project_media project: p2
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_nil pm_tt
+      assert_not_nil pm2_tt
       # update title
       tt.label = 'update label'; tt.save!
       pm2_tt = pm2_tt.reload
@@ -232,26 +234,26 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id, project_ids: [p2.id], label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
-    pm2 = create_project_media project: p2
-    pm3 = create_project_media project: p2
-    pm4 = create_project_media project: p2
-    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    assert_nil pm_tt
-    assert_not_nil pm2_tt
-    assert_not_nil pm3_tt
-    assert_not_nil pm4_tt
-    # add response to task for pm2 & pm4
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    pm2_tt.save!
-    pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    pm4_tt.save!
     Sidekiq::Testing.inline! do
+      pm2 = create_project_media project: p2
+      pm3 = create_project_media project: p2
+      pm4 = create_project_media project: p2
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_nil pm_tt
+      assert_not_nil pm2_tt
+      assert_not_nil pm3_tt
+      assert_not_nil pm4_tt
+      # add response to task for pm2 & pm4
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm2_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm2_tt.save!
+      pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm4_tt.save!
       # update title/description/options
       tt.label = 'update label'
       tt.description = 'update desc'
@@ -349,30 +351,30 @@ class TeamTaskTest < ActiveSupport::TestCase
     p = create_project team: t
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id, project_ids: [p.id]
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
-    pm4 = create_project_media project: p
-    pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
-    assert_not_nil pm_tt
-    assert_not_nil pm2_tt
-    assert_not_nil pm3_tt
-    assert_not_nil pm4_tt
-    # test with these cases
-    # pm (0 answer - not verified) / pm2 (0 answer - verified)
-    # pm3 (with answer - not verified) / pm4 (with answer - verified)
-    # add response to task for pm3 & pm4
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm3_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    pm3_tt.save!
-    pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    pm4_tt.save!
     Sidekiq::Testing.inline! do
+      pm = create_project_media project: p
+      pm2 = create_project_media project: p
+      pm3 = create_project_media project: p
+      pm4 = create_project_media project: p
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm2_tt
+      assert_not_nil pm3_tt
+      assert_not_nil pm4_tt
+      # test with these cases
+      # pm (0 answer - not verified) / pm2 (0 answer - verified)
+      # pm3 (with answer - not verified) / pm4 (with answer - verified)
+      # add response to task for pm3 & pm4
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm3_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm3_tt.save!
+      pm4_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm4_tt.save!
       tt.keep_completed_tasks = false
       tt.destroy
       assert_raises ActiveRecord::RecordNotFound do
@@ -398,7 +400,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     tt = create_team_task team_id: t.id, project_ids: [p2.id]
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { project_id: p.id })
+    tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
   end
 end
