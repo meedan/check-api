@@ -30,14 +30,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :verification_statuses do
-    type JsonStringType
-
-    resolve -> (project_media, _args, _ctx) {
-      project_media.team.send('verification_statuses', 'media', project_media)
-    }
-  end
-
   field :permissions, types.String do
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
