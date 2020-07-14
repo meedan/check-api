@@ -424,4 +424,6 @@ ActiveRecord::Schema.define(version: 20200624170005) do
   add_index "versions", ["item_type", "item_id", "whodunnit"], name: "index_versions_on_item_type_and_item_id_and_whodunnit", using: :btree
   add_index "versions", ["team_id"], name: "index_versions_on_team_id", using: :btree
 
+  add_foreign_key "sources", "teams"
+  add_foreign_key "users", "sources"
 end
