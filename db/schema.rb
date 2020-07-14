@@ -206,7 +206,6 @@ ActiveRecord::Schema.define(version: 20200706211437) do
   add_index "project_media_projects", ["project_media_id"], name: "index_project_media_projects_on_project_media_id", using: :btree
 
   create_table "project_medias", force: :cascade do |t|
-    t.integer  "project_id"
     t.integer  "media_id"
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
@@ -222,7 +221,6 @@ ActiveRecord::Schema.define(version: 20200706211437) do
   add_index "project_medias", ["id"], name: "index_project_medias_on_id", using: :btree
   add_index "project_medias", ["inactive"], name: "index_project_medias_on_inactive", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
-  add_index "project_medias", ["project_id", "media_id"], name: "index_project_medias_on_project_id_and_media_id", unique: true, using: :btree
   add_index "project_medias", ["team_id"], name: "index_project_medias_on_team_id", using: :btree
 
   create_table "projects", force: :cascade do |t|

@@ -105,7 +105,7 @@ QueryType = GraphQL::ObjectType.define do
       m = Link.where(url: Link.normalized(args['url'])).last if m.nil?
       return [] if m.nil?
       tids = User.current.team_ids
-      ProjectMedia.joins(:project).where('project_medias.media_id' => m.id, 'projects.team_id' => tids)
+      ProjectMedia.where(media_id: m.id, team_id: tids)
     }
   end
 

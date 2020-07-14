@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id, :skip_rules, :add_to_project_id, :remove_from_project_id
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :relationship, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -11,22 +11,21 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
 
-  validates_presence_of :media
+  validates_presence_of :media, :team
 
-  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
-  after_commit :create_relationship, :copy_to_project, :add_to_project, :remove_from_project, on: [:update, :create]
   after_commit :apply_rules_and_actions, on: [:create]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :update_project_media_project
+  after_commit :create_relationship, on: [:update, :create]
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.project_was, pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.project, pm.project_was, pm.team, pm.copied_to_project] },
+                  targets: proc { |pm| [pm.project, pm.media, pm.team] },
+                  bulk_targets: proc { |pm| [pm.project, pm.team] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -35,7 +34,6 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def related_to_team?(team)
-    (self.team ||= self.project.team) if self.project
     self.team == team
   end
 
@@ -55,7 +53,6 @@ class ProjectMedia < ActiveRecord::Base
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
       role: I18n.t('role_' + user.role(self.team).to_s),
-      project: Bot::Slack.to_slack(self.project&.title&.to_s),
       team: Bot::Slack.to_slack(self.team.name),
       type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
       title: Bot::Slack.to_slack(self.title),
@@ -161,26 +158,12 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def project_was
-    previous_project_id = self.previous_project_id || self.remove_from_project_id
-    Project.find(previous_project_id) unless previous_project_id.blank?
-  end
-
-  # FIXME: Refactor this method when project_id is removed
-  def project
-    self.add_to_project_id ? Project.find_by_id(self.add_to_project_id) : super
-  end
-
-  def copied_to_project
-    Project.find(self.copy_to_project_id) unless self.copy_to_project_id.blank?
-  end
-
   def refresh_media=(_refresh)
     Bot::Keep.archiver_annotation_types.each do |type|
       a = self.annotations.where(annotation_type: 'archiver').last
       a.nil? ? self.create_archive_annotation(type) : self.reset_archive_response(a, type)
     end
-    team = self.get_team
+    team = self.team
     pender_key = team.get_pender_key if team
     self.media.pender_key = pender_key
     self.media.refresh_pender_data
@@ -194,7 +177,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    self.project ? "#{self.project.url}/media/#{self.id}" : "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
+    "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)
@@ -282,17 +265,17 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def project_ids
-    ProjectMediaProject.where(project_media_id: self.id).map(&:project_id)
+    self.projects.map(&:id)
   end
 
   def add_destination_team_tasks_bg(project)
-    tasks = project.auto_tasks(true)
+    tasks = project.team.auto_tasks(project.id, true)
     tasks.each do |task|
       # check if task exists
       tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', task.id).count
       if tt_exists == 0
-        self.create_auto_tasks([task])
+        self.create_auto_tasks(project.id, [task])
       end
     end unless tasks.nil?
   end

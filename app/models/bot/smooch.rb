@@ -804,14 +804,11 @@ class Bot::Smooch < BotUser
     return nil if hashtags.blank?
 
     # Only add team tags.
-    TagText
-      .joins('LEFT JOIN projects ON projects.team_id = tag_texts.team_id')
-      .where('projects.id=? AND text IN (?)', pm.project_id, hashtags)
-      .each do |tag|
-        unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
-          Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
-        end
+    TagText.where("team_id = ? AND text IN (?)", pm.team_id, hashtags).each do |tag|
+      unless pm.annotations('tag').map(&:tag_text).include?(tag.text)
+        Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
       end
+    end
   end
 
   def self.ban_user(message)
@@ -822,15 +819,15 @@ class Bot::Smooch < BotUser
 
   def self.save_text_message(message)
     text = message['text']
-    project_ids = Team.where(id: config['team_id'].to_i).last.project_ids
+    team_id = Team.where(id: config['team_id'].to_i).last
 
     begin
       url = self.extract_url(text)
       pm = nil
       if url.nil?
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Claim', { quote: text })
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.team_id' => team_id).last || self.create_project_media(message, 'Claim', { quote: text })
       else
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.project_id' => project_ids).last || self.create_project_media(message, 'Link', { url: url })
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last || self.create_project_media(message, 'Link', { url: url })
       end
 
       self.add_hashtags(text, pm)
@@ -843,7 +840,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_project_media(message, type, extra)
-    pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
+    pm = ProjectMedia.create!({ add_to_project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
   end
@@ -872,14 +869,14 @@ class Bot::Smooch < BotUser
       filepath = File.join(Rails.root, 'tmp', filename)
       media_type = type == 'image' ? 'UploadedImage' : 'UploadedVideo'
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
+      pm = ProjectMedia.joins(:media).joins(:project_media_projects).where('medias.type' => media_type, 'medias.file' => filename, 'project_media_projects.project_id' => message['project_id']).last
       if pm.nil?
         m = media_type.constantize.new
         File.open(filepath) do |f2|
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.create!(add_to_project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
       FileUtils.rm_f filepath

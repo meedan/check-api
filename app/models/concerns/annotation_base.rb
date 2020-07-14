@@ -75,7 +75,6 @@ module AnnotationBase
     before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
     after_create :notify_team_bots_create
-    after_commit :assign_to_users, on: :create
     after_update :notify_team_bots_update, :notify_bot_author
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
@@ -128,19 +127,6 @@ module AnnotationBase
       end
     end
 
-    def assign_to_users
-      users = []
-      if self.annotation_type == 'task'
-        status_id = self.annotated&.last_status_obj&.id
-        users = User.joins(:assignments).where('assignments.assigned_id' => status_id, 'assignments.assigned_type' => 'Annotation').map(&:id).uniq
-      elsif self.annotation_type == 'verification_status'
-        project_id = self.annotated&.project_id
-        users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
-      end
-      users = TeamUser.where(team_id: self.team_id, user_id: users, status: 'member').map(&:user_id) unless users.blank?
-      Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
-    end
-
     def parsed_fragment
       list = begin
                JSON.parse(URI.decode(self.fragment))
@@ -189,7 +175,7 @@ module AnnotationBase
   end
 
   def annotation_versions(options = {})
-    Version.from_partition(self.team_id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
+    Version.from_partition(self.team&.id).where(options).where(item_type: [self.class.to_s], item_id: self.id).order('id ASC')
   end
 
   def source
@@ -261,25 +247,15 @@ module AnnotationBase
     Base64.encode64(str)
   end
 
-  def get_team
-    team = []
-    obj = self.annotated
+  def team
+    obj = self.annotated if self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
-    obj = obj.project if obj.respond_to?(:project) && obj.project
-    if !obj.nil? && obj.respond_to?(:team)
-      team = [obj.team.id] unless obj.team.nil?
-    end
-    team
-  end
-
-  def team_id
-    self.get_team.last.to_i
+    obj.nil? ? nil: obj.team
   end
 
   def current_team
     team = nil
-    team = self.annotated.project.team if self.annotated_type === 'ProjectMedia' && self.annotated.project
-    team = self.annotated.team if self.annotated_type === 'ProjectMedia' && self.annotated.team
+    team = self.annotated.team if self.annotated_type === 'ProjectMedia'
     team
   end
 
@@ -325,21 +301,16 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: true).last.present?
   end
 
-  def team_for_slack_params(object)
-    object.project ? object.project.team : object.team
-  end
-
   def slack_params
     object = self.project_media
     item = object.title
     item_type = object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
     user = User.current or self.annotator
-    team = self.team_for_slack_params(object)
+    team = object.team
     {
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
-      project: Bot::Slack.to_slack(object.project&.title&.to_s),
       role: I18n.t("role_" + user.role(team).to_s),
       team: Bot::Slack.to_slack(team.name),
       item: Bot::Slack.to_slack_url(object.full_url, item),

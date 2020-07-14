@@ -107,7 +107,7 @@ module TeamImport
       media = get_item(item, project)
       pm = media[:project_media]
       if pm.nil?
-        pm = ProjectMedia.create!({project_id: project, user_id: user_id}.merge(media[:params]))
+        pm = ProjectMedia.create!({ add_to_project_id: project, user_id: user_id, team_id: media[:team_id] }.merge(media[:params]))
       end
       pm
     end
@@ -150,8 +150,11 @@ module TeamImport
       uri = URI.parse(URI.encode(item))
       params = uri.host.nil? ? {quote: item} : {url: item}
       media = Media.where(params).first
-      pm = ProjectMedia.where(project_id: project, media_id: media.id).first if media
-      {params: params, project_media: pm}
+      pm = ProjectMedia.where(media_id: media.id)
+      .joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
+      .where("pmp.project_id = ?", project).first if media
+      project_obj = Project.find_by_id project
+      {params: params, project_media: pm, team_id: project_obj&.team&.id}
     end
 
     def assign_to_user(pm, assigned_to, row)
