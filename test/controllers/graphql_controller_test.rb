@@ -658,18 +658,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get media statuses" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    m = create_media project_id: p.id
-    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
-  end
-
   test "should get project media team" do
     u = create_user
     authenticate_with_user(u)
@@ -1084,7 +1072,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1101,7 +1089,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1200,7 +1188,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s.disable_es_callbacks = false
     s.save!
     r2 = publish_report(pm2)
-    
+
     assert_equal 'id1', pm1.reload.last_status
     assert_equal 'id2', pm2.reload.last_status
     assert_queries(0, '=') do
@@ -1217,11 +1205,11 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
     assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
     assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
-    
+
     query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
     post :create, query: query, team: 'team'
     assert_response :success
-    
+
     assert_equal 'id1', pm1.reload.last_status
     assert_equal 'id3', pm2.reload.last_status
     assert_queries(0, '=') do
