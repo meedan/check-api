@@ -4,6 +4,7 @@ ProjectMediaProjectType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
+  field :dbid, types.Int
   field :project_id, types.Int
   field :project_media_id, types.Int
   field :project, ProjectType
