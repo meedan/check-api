@@ -90,5 +90,5 @@ deploy_live:
     - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
     - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
     - echo "new Image was deployed $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
-   only:
+  only:
     - master
