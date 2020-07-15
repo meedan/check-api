@@ -34,6 +34,10 @@ module ProjectMediaCreators
 
   private
 
+  def create_auto_tasks_for_team_item
+    TeamTaskWorker.perform_in(1.second, 'add_or_move', nil, YAML::dump(User.current), YAML::dump({ model: self }))
+  end
+
   def create_annotation
     unless self.set_annotation.blank?
       params = JSON.parse(self.set_annotation)
