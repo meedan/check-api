@@ -47,6 +47,10 @@ class Team < ActiveRecord::Base
     url || CONFIG['checkdesk_client'] + '/' + self.slug
   end
 
+  def team
+    self
+  end
+
   def members_count
     self.team_users.where(status: 'member').permissioned(self).count
   end
@@ -131,6 +135,18 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
+  def auto_tasks(add_to_project_id, only_selected = false)
+    tasks = []
+    self.team_tasks.order('id ASC').each do |task|
+      if only_selected
+        tasks << task if task.project_ids.include?(add_to_project_id)
+      else
+        tasks << task if task.project_ids.include?(add_to_project_id) || task.project_ids.blank?
+      end
+    end
+    tasks
+  end
+
   def add_auto_task=(task)
     TeamTask.create! task.merge({ team_id: self.id })
   end
@@ -156,7 +172,7 @@ class Team < ActiveRecord::Base
   def self.archive_or_restore_projects_if_needed(archived, team_id)
     Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
-    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
+    ProjectMedia.where(team_id:team_id).update_all({ archived: archived })
   end
 
   def self.empty_trash(team_id)
@@ -296,6 +312,72 @@ class Team < ActiveRecord::Base
 
   def get_report_design_image_template
     self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
+  end
+
+  def delete_custom_media_verification_status(status_id, fallback_status_id)
+    if !status_id.blank? && !fallback_status_id.blank?
+      data = DynamicAnnotation::Field
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
+        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'value' => status_id, 'pm.team_id' => self.id)
+        .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
+
+      # Update all statuses in the database
+      DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
+
+      pmids = data.map(&:pmid)
+
+      # Update status cache
+      pmids.each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+
+      # Update team statuses after deleting one of them
+      settings = self.settings || {}
+      statuses = settings.with_indifferent_access[:media_verification_statuses]
+      statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
+      self.set_media_verification_statuses = statuses
+      self.save!
+
+      # Update ElasticSearch in background
+      Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
+
+      # Update reports in background
+      Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
+    end
+  end
+
+  def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
+    ids = JSON.parse(ids_json)
+    client = MediaSearch.gateway.client
+    index_alias = CheckElasticSearchModel.get_index_alias
+    es_body = []
+    ids.each do |id|
+      model = ProjectMedia.new(id: id)
+      doc_id = model.get_es_doc_id(model)
+      model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: doc_id)
+      fields = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
+      es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: fields } } }
+    end
+    client.bulk body: es_body
+  end
+
+  def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
+    ids = JSON.parse(ids_json)
+    ids.each do |id|
+      report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: id).last
+      unless report.nil?
+        report = report.load
+        pm = ProjectMedia.find(id)
+        data = report.data.clone.with_indifferent_access
+        data[:state] = 'paused'
+        data[:options].each_with_index do |option, i|
+          data[:options][i].merge!({
+            theme_color: pm.status_color(fallback_status_id),
+            status_label: pm.status_i18n(fallback_status_id, { locale: option[:language] })
+          })
+        end
+        report.data = data
+        report.save!
+      end
+    end
   end
 
   protected

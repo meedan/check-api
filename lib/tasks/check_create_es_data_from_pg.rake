@@ -58,6 +58,12 @@ namespace :check do
               updated_at << d.updated_at
             end
             doc.dynamics = dynamics
+            # Rules TODO: test
+            # matched_rules_ids = []
+            # obj.team.apply_rules(obj) do |rules_and_actions|
+            #   matched_rules_ids << Team.rule_id(rules_and_actions)
+            # end
+            # doc.rules = matched_rules_ids
           end
           doc.updated_at = updated_at.max
           begin

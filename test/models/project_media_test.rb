@@ -15,20 +15,19 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
     m = create_valid_media
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     assert_difference 'ProjectMedia.count' do
       with_current_user_and_team(u, t) do
-        pm = create_project_media project: p, media: m
+        pm = create_project_media team: t, media: m
         assert_equal u, pm.user
       end
     end
     # should be uinq
     assert_no_difference 'ProjectMedia.count' do
       assert_raises RuntimeError do
-        create_project_media project: p, media: m
+        create_project_media team: t, media: m
       end
     end
     # journalist should assign any media
@@ -37,13 +36,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu.update_column(:role, 'journalist')
     pm = nil
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m2
+      pm = create_project_media team: t, media: m2
     end
-    m3 = create_valid_media
+    m3 = create_valid_media user_id: u.id
     m3.user_id = u.id; m3.save!
     assert_difference 'ProjectMedia.count' do
-      pm = create_project_media project: p, media: m3
-      pm.project = create_project team: t
+      pm = create_project_media team: t, media: m3
+      # pm.project = create_project team: t
       pm.save!
     end
     User.unstub(:current)
@@ -51,13 +50,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have a media not not necessarily a project" do
-    assert_difference 'ProjectMedia.count' do
-      assert_nothing_raised do
-        create_project_media project: nil
-      end
-      assert_raise ActiveRecord::RecordInvalid do
-        create_project_media media: nil
-      end
+    assert_nothing_raised do
+      create_project_media project: nil
+    end
+    assert_raise ActiveRecord::RecordInvalid do
+      create_project_media media: nil
     end
   end
 
@@ -94,11 +91,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should contributor add a new media" do
     t = create_team
     u = create_user
-    p = create_project team: t
     tu = create_team_user team: t, user: u, role: 'contributor'
     with_current_user_and_team(u, t) do
       assert_difference 'ProjectMedia.count' do
-        create_project_media project: p, quote: 'Claim report'
+        create_project_media team: t, quote: 'Claim report'
       end
     end
   end
@@ -106,15 +102,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should update and destroy project media" do
     u = create_user
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
     m = create_valid_media user_id: u.id
     create_team_user team: t, user: u
-    pm = create_project_media project: p, media: m, user: u
+    pm = create_project_media team: t, media: m, user: u
     with_current_user_and_team(u, t) do
-      pm.project_id = p2.id; pm.save!
-      pm.reload
-      assert_equal pm.project_id, p2.id
+      pm.save!
     end
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'editor'
@@ -129,10 +121,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm_own = nil
     with_current_user_and_team(u2, t) do
       own_media = create_valid_media user: u2
-      pm_own = create_project_media project: p, media: own_media, user: u2
-      pm_own.project_id = p2.id; pm_own.save!
-      pm_own.reload
-      assert_equal pm_own.project_id, p2.id
+      pm_own = create_project_media team: t, media: own_media, user: u2
+      pm_own.save!
     end
     assert_nothing_raised RuntimeError do
       with_current_user_and_team(u2, t) do
@@ -151,17 +141,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "non members should not read project media in private team" do
     u = create_user
     t = create_team
-    p = create_project team: t
-    m = create_media project: p
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t
     pu = create_user
     pt = create_team private: true
     create_team_user team: pt, user: pu
     pu2 = create_user
     create_team_user team: pt, user: pu2, status: 'requested'
-    pp = create_project team: pt
-    m = create_media project: pp
-    ppm = create_project_media project: pp, media: m
+    ppm = create_project_media team: pt
     ProjectMedia.find_if_can(pm.id)
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) do
@@ -182,15 +168,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
       m = create_valid_media
-      pm = create_project_media project: p, media: m
+      pm = create_project_media team: t, media: m
       assert pm.sent_to_slack
       assert_match I18n.t("slack.messages.project_media_create", pm.slack_params), pm.slack_notification_message[:pretext]
       m = create_claim_media
-      pm = create_project_media project: p, media: m
+      pm = create_project_media team: t, media: m
       assert pm.sent_to_slack
     end
   end
@@ -306,7 +291,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     create_bot name: 'Check Bot'
     pm = ProjectMedia.new
-    pm.project_id = create_project.id
+    pm.team_id = create_team.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
@@ -320,16 +305,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     u = create_user
     team = create_team slug: 'workspace-slug'
-    p = create_project team: team
     create_team_user team: team, user: bot, role: 'owner'
     create_team_user team: team, user: u, role: 'owner'
     # test with smooch user
     with_current_user_and_team(bot, team) do
-      pm = create_project_media project: p, media: m
+      pm = create_project_media team: team, media: m
       count = Media.where(type: 'UploadedImage').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
       assert_equal pm.title, "image-#{team.slug}-#{count}"
-      pm2 = create_project_media project: p, media: v
+      pm2 = create_project_media team: team, media: v
       count = Media.where(type: 'UploadedVideo').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
       assert_equal pm2.title, "video-#{team.slug}-#{count}"
@@ -337,9 +321,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     # test with non smooch user
     with_current_user_and_team(u, team) do
-      pm = create_project_media project: p, media: m
+      pm = create_project_media team: team, media: m
       assert_equal pm.title, "rails"
-      pm2 = create_project_media project: p, media: v
+      pm2 = create_project_media team: team, media: v
       assert_equal pm2.title, "rails"
     end
   end
@@ -388,11 +372,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     create_team_task team_id: t.id
     create_team_task team_id: t.id, project_ids: [p2.id]
-    assert_difference 'Task.length', 1 do
-      pm1 = create_project_media project: p1
-    end
-    assert_difference 'Task.length', 2 do
-      pm2 = create_project_media project: p2
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm1 = create_project_media project: p1
+      end
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media project: p2
+      end
     end
   end
 
@@ -400,11 +386,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     create_team_task team_id: t.id
     u = create_user
-    p = create_project team: t
     tu = create_team_user team: t, user: u, role: 'contributor'
     with_current_user_and_team(u, t) do
       assert_difference 'Task.length' do
-        create_project_media project: p
+        create_project_media team: t
       end
     end
   end
@@ -417,16 +402,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
+      pm = create_project_media team: t, add_to_project_id: p.id
       assert_equal 1, pm.annotations('task').count
-      pm.add_to_project_id = p2.id
-      pm.save!
+      create_project_media_project project: p2, project_media: pm
       assert_equal 2, pm.annotations('task').count
-      pm2 = create_project_media project: p
+      pm2 = create_project_media team: t, add_to_project_id: p.id
       assert_equal 1, pm2.annotations('task').count
-      pm2.previous_project_id = pm2.project_id
-      pm2.project_id = p2.id
-      pm2.save!
+      pmp = ProjectMediaProject.where(project_id: p.id, project_media_id: pm2.id).last
+      pmp.project_id = p2.id
+      pmp.save!
       assert_equal 2, pm2.annotations('task').count
     end
     Team.unstub(:current)
@@ -435,31 +419,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should have versions" do
     m = create_valid_media
     t = create_team
-    p = create_project team: t
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
     assert_difference 'PaperTrail::Version.count', 1 do
-      pm = create_project_media project: p, media: m, user: u
+      pm = create_project_media team: t, media: m, user: u
     end
     assert_equal 1, pm.versions.count
     User.current = nil
-  end
-
-  test "should check if project media belonged to a previous project" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t
-    p = create_project team: t
-    p2 = create_project team: t
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p
-      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
-      pm.project = p2; pm.save!
-      assert_equal p2, pm.project
-      assert ProjectMedia.belonged_to_project(pm.id, p.id, t.id)
-    end
   end
 
   test "should get log" do
@@ -486,35 +454,33 @@ class ProjectMediaTest < ActiveSupport::TestCase
       e = create_metadata annotated: pm, title: 'Test'
       info = { title: 'Foo' }.to_json; pm.metadata = info; pm.save!
       info = { title: 'Bar' }.to_json; pm.metadata = info; pm.save!
-      pm.project_id = p2.id; pm.save!
+      create_project_media_project project: p2, project_media: pm
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
       t = Task.find(t.id); t.label = 'Test?'; t.save!
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_projectmedia", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "create_projectmediaproject", "create_projectmediaproject", "update_dynamicannotationfield", "update_dynamicannotationfield", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 15, pm.get_versions_log_count
       c.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
       tg.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
       f.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 15, pm.get_versions_log_count
     end
   end
 
-  test "should get previous project" do
+  test "should get previous project and previous project search object" do
     p1 = create_project
     p2 = create_project
     pm = create_project_media project: p1
-    assert_equal p1, pm.project
     assert_nil pm.project_was
     pm.previous_project_id = p1.id
-    pm.project_id = p2.id
     pm.save!
     assert_equal p1, pm.project_was
-    assert_equal p2, pm.project
+    assert_kind_of CheckSearch, pm.check_search_project_was
   end
 
   test "should refresh Pender data" do
@@ -558,8 +524,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.refresh_media = true
@@ -619,11 +584,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_kind_of CheckSearch, pm.check_search_team
   end
 
-  test "should have reference to search project object" do
-    pm = create_project_media
-    assert_kind_of CheckSearch, pm.check_search_project
-  end
-
   test "should get dynamic annotation by type" do
     create_annotation_type annotation_type: 'foo'
     create_annotation_type annotation_type: 'bar'
@@ -650,8 +610,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u2 = create_user
     tu = create_team_user team: t, user: u, role: 'owner'
     tu = create_team_user team: t, user: u2
-    p = create_project team: t
-    pm = create_project_media project: p, quote: 'Claim', user: u2
+    pm = create_project_media team: t, quote: 'Claim', user: u2
     at = create_annotation_type annotation_type: 'test'
     ft = create_field_type
     fi = create_field_instance name: 'test', field_type_object: ft, annotation_type_object: at
@@ -667,8 +626,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should have Pender embeddable URL" do
     RequestStore[:request] = nil
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     stub_configs({ 'pender_url' => 'https://pender.fake' }) do
       assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
@@ -745,8 +703,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'journalist'
-    p = create_project team: t
-    pm = create_project_media project: p, user: u
+    pm = create_project_media team: t, user: u
     assert_equal 'journalist', pm.author_role
     pm.user = create_user
     assert_equal 'none', pm.author_role
@@ -910,71 +867,73 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}, project_ids: [p2.id]
     create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}, project_ids: [p3.id]
 
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    # test empty json+ld
-    url = 'http://test1.com'
-    raw = {"json+ld": {}}
-    response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm = create_project_media project: p, url: url
-    t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
-    assert_nil t.first_response
+    Sidekiq::Testing.inline! do
+      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      # test empty json+ld
+      url = 'http://test1.com'
+      raw = {"json+ld": {}}
+      response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      pm = create_project_media project: p, url: url
+      t = Task.where(annotation_type: 'task', annotated_id: pm.id).last
+      assert_nil t.first_response
 
-    # test with non exist value
-    url1 = 'http://test11.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
-    response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
-    pm1 = create_project_media project: p, url: url1
-    t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
-    assert_nil t.first_response
+      # test with non exist value
+      url1 = 'http://test11.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
+      response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+      pm1 = create_project_media project: p, url: url1
+      t = Task.where(annotation_type: 'task', annotated_id: pm1.id).last
+      assert_nil t.first_response
 
-    # test with empty value
-    url12 = 'http://test12.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
-    response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
-    pm12 = create_project_media project: p, url: url12
-    t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
-    assert_nil t.first_response
+      # test with empty value
+      url12 = 'http://test12.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
+      response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
+      pm12 = create_project_media project: p, url: url12
+      t = Task.where(annotation_type: 'task', annotated_id: pm12.id).last
+      assert_nil t.first_response
 
-    # test with single selection
-    url2 = 'http://test2.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
-    response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-    pm2 = create_project_media project: p, url: url2
-    t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
-    assert_equal "Suggested by Krzana: first_name", t.first_response
+      # test with single selection
+      url2 = 'http://test2.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
+      response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+      pm2 = create_project_media project: p, url: url2
+      t = Task.where(annotation_type: 'task', annotated_id: pm2.id).last
+      assert_equal "Suggested by Krzana: first_name", t.first_response
 
-    # test multiple selection (should get first one)
-    url3 = 'http://test3.com'
-    raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
-    response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
-    pm3 = create_project_media project: p, url: url3
-    t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
-    assert_equal "Suggested by Krzana: first_name", t.first_response
+      # test multiple selection (should get first one)
+      url3 = 'http://test3.com'
+      raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
+      response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
+      pm3 = create_project_media project: p, url: url3
+      t = Task.where(annotation_type: 'task', annotated_id: pm3.id).last
+      assert_equal "Suggested by Krzana: first_name", t.first_response
 
-    # test geolocation mapping
-    url4 = 'http://test4.com'
-    raw = { "json+ld": {
-      "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
-    } }
-    response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
-    pm4 = create_project_media project: p2, url: url4
-    t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
-    # assert_not_nil t.first_response
+      # test geolocation mapping
+      url4 = 'http://test4.com'
+      raw = { "json+ld": {
+        "mentions": [ { "name": "Delimara Powerplant", "@type": "Place", "geo": { "latitude": 35.83020073454, "longitude": 14.55602645874 } } ]
+      } }
+      response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
+      pm4 = create_project_media project: p2, url: url4
+      t = Task.where(annotation_type: 'task', annotated_id: pm4.id).last
+      # assert_not_nil t.first_response
 
-    # test datetime mapping
-    url5 = 'http://test5.com'
-    raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
-    response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
-    pm5 = create_project_media project: p3, url: url5
-    t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
-    # assert_not_nil t.first_response
+      # test datetime mapping
+      url5 = 'http://test5.com'
+      raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
+      response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
+      pm5 = create_project_media project: p3, url: url5
+      t = Task.where(annotation_type: 'task', annotated_id: pm5.id).last
+      assert_not_nil t.first_response
+    end
   end
 
   test "should expose conflict error from Pender" do
@@ -983,9 +942,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     response = '{"type":"error","data":{"message":"Conflict","code":9}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response, status: 409)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response, status: 409)
-    p = create_project
+    t = create_team
     pm = ProjectMedia.new
-    pm.project = p
+    pm.team = t
     pm.url = url
     pm.media_type = 'Link'
     assert !pm.valid?
@@ -993,12 +952,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media under archived project" do
-    p = create_project
-    p.archived = true
-    p.save!
-
+    p = create_project archived: true
     assert_raises ActiveRecord::RecordInvalid do
-      create_project_media project: p
+      create_project_media add_to_project_id: p.id
     end
   end
 
@@ -1032,13 +988,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
-    p = create_project team: t
     create_team_user team: t, user: u1, role: 'owner'
     create_team_user team: t, user: u2, role: 'owner'
     pm = nil
 
     with_current_user_and_team(u1, t) do
-      pm = create_project_media project: p, user: u1
+      pm = create_project_media team: t, user: u1
       pm = ProjectMedia.find(pm.id)
       info = { title: 'Title' }.to_json
       pm.metadata = info
@@ -1081,7 +1036,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t, add_to_project_id: p.id
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -1136,8 +1091,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -1158,10 +1112,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
     Link.any_instance.stubs(:pender_data).returns({ screenshot_taken: 1, 'archives' => {} })
     Link.any_instance.stubs(:pender_embed).raises(RuntimeError)
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -1186,13 +1139,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
-    p = create_project team: t
 
     with_current_user_and_team(u, t) do
       time = Time.now - 10.minutes
       Time.stubs(:now).returns(time)
 
-      pm = create_project_media project: p, user: u
+      pm = create_project_media team: t, user: u
       assert_equal '', pm.time_to_status(:first)
       assert_equal '', pm.time_to_status(:last)
 
@@ -1283,20 +1235,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = ProjectMedia.new
       pm.url = url
       pm.media_type = 'Link'
-      pm.project = create_project
+      pm.team = create_team
       pm.save!
     end
   end
 
-  test "should get previous project search object" do
-    p1 = create_project
-    p2 = create_project
-    pm = create_project_media project: p1
-    pm.previous_project_id = p1.id
-    pm.project_id = p2.id
-    pm.save!
-    assert_kind_of CheckSearch, pm.check_search_project_was
-  end
 
   test "should complete media if there are pending tasks" do
     create_verification_status_stuff
@@ -1475,28 +1418,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Project Media Description', pm.metadata['description']
   end
 
-  test "should clone project media to another project" do
-    m = create_media
-    pm = create_project_media
-    p = create_project
-    assert_difference 'ProjectMedia.count' do
-      pm.copy_to_project_id = p.id
-      pm.save!
-      assert_equal p, pm.copied_to_project
-    end
-  end
-
   test "should cache and sort by demand" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
+    team = create_team
+    p = create_project team: team
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media project: p, disable_es_callbacks: false
+    pm = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
@@ -1513,7 +1446,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
-    pm3 = create_project_media project: p
+    pm3 = create_project_media team: team, add_to_project_id: p.id
     ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
@@ -1537,15 +1470,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache number of linked items" do
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
-    pm = create_project_media project: p
+    t = create_team
+    pm = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
-    pm2 = create_project_media project: p
+    pm2 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
     create_relationship source_id: pm.id, target_id: pm2.id
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
-    pm3 = create_project_media project: p
+    pm3 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
     r = create_relationship source_id: pm.id, target_id: pm3.id
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
@@ -1572,9 +1505,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should cache last seen" do
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
+    team = create_team
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media project: p
+    pm = create_project_media team: team
     assert_queries(0, '=') { pm.last_seen }
     assert_equal pm.created_at.to_i, pm.last_seen
     assert_queries(0, '>') do
@@ -1584,7 +1517,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
-    pm2 = create_project_media project: p
+    pm2 = create_project_media team: team
     r = create_relationship source_id: pm.id, target_id: pm2.id
     t = pm2.created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
@@ -1660,9 +1593,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # sortable fields are [linked_items_count, last_seen and share_count]
     setup_elasticsearch
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
+    team = create_team
+    p = create_project team: team
+    pm = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
     result = MediaSearch.find(get_es_id(pm))
     assert_equal 0, result.linked_items_count
@@ -1671,7 +1604,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = MediaSearch.find(get_es_id(pm))
     assert_equal t, result.last_seen
 
-    pm2 = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
     r = create_relationship source_id: pm.id, target_id: pm2.id
     t = pm2.created_at.to_i
@@ -1696,8 +1629,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get team" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     assert_equal t, pm.reload.team
     t2 = create_team
     pm.team = t2
@@ -1710,12 +1642,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
-    create_project_media project: p
-    create_project_media team_id: t.id, project: p1
-    create_project_media team_id: t.id, archived: true, project: p
-    create_project_media team_id: t.id, inactive: true, project: p
-    pm = create_project_media team_id: t.id, project: p1
-    create_relationship source_id: pm.id, target_id: create_project_media(project: p).id
+    pm = create_project_media team: t, add_to_project_id: p.id
+    create_project_media team: t, add_to_project_id: p1.id
+    create_project_media team: t, archived: true, add_to_project_id: p.id
+    create_project_media team: t, inactive: true, add_to_project_id: p.id
+    pm = create_project_media team: t, add_to_project_id: p1.id
+    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id
     create_project_media_project project_media: pm, project: p2
     assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
@@ -1729,33 +1661,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p1
     create_project_media_project project_media: pm, project: p2
     assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
-  end
-
-  test "should add to list" do
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p1
-    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
-    assert_difference 'ProjectMediaProject.count' do
-      pm = ProjectMedia.find(pm.id)
-      pm.add_to_project_id = p2.id
-      pm.save!
-    end
-    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p2.id).last
-  end
-
-  test "should remove from list" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_not_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
-    assert_difference 'ProjectMediaProject.count', -1 do
-      pm = ProjectMedia.find(pm.id)
-      pm.remove_from_project_id = p.id
-      pm.save!
-    end
-    assert_nil ProjectMediaProject.where(project_media_id: pm.id, project_id: p.id).last
   end
 
   test "should handle indexing conflicts" do
@@ -1913,18 +1818,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should move item to another list" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media team: t, project: nil
-    assert_nil pm.project_id
-    pm = ProjectMedia.find(pm.id)
-    assert_difference 'ProjectMediaProject.count' do
-      pm.project_id = p.id
-      pm.save!
-    end
-  end
-
   test "should validate duplicate based on team" do
     t = create_team
     p = create_project team: t
@@ -1932,29 +1825,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t2
     # Create media in different team with no list
     m = create_valid_media
-    create_project_media project: nil, team: t, media: m
+    create_project_media team: t, media: m
     assert_nothing_raised RuntimeError do
-      create_project_media project: nil, team: t2, url: m.url
+      create_project_media team: t2, url: m.url
     end
     # Try to add same item to list
     assert_raises RuntimeError do
-      create_project_media project: p, url: m.url
+      create_project_media team: t, url: m.url
     end
     # Create item in a list then try to add it via all items(with no list)
     m2 = create_valid_media
-    create_project_media project: p, media: m2
+    create_project_media team:t, add_to_project_id: p.id, media: m2
     assert_raises RuntimeError do
-      create_project_media project: nil, team: t, url: m2.url
+      create_project_media team: t, url: m2.url
     end
     # Add same item to list in different team
     assert_nothing_raised RuntimeError do
-      create_project_media project: p2, url: m2.url
+      create_project_media team: t2, url: m2.url
     end
     # create item in a list then try to add it to all items in different team
     m3 = create_valid_media
-    create_project_media project: p, media: m3
+    create_project_media team: t, add_to_project_id: p.id, media: m3
     assert_nothing_raised RuntimeError do
-      create_project_media team: t2, project: nil, url: m3.url
+      create_project_media team: t2, url: m3.url
     end
   end
 
@@ -1997,13 +1890,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
     PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
-    pm = ProjectMedia.create project: p, url: url1
+    pm = ProjectMedia.create url: url1
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
     t.set_pender_key = 'specific_token'; t.save!
 
-    pm = ProjectMedia.create! project: Project.find(p.id), url: url2
+    pm = ProjectMedia.create! url: url2
     assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 

@@ -302,11 +302,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, ctx, parents = [])
     returns = {}
     obj = nil
-    if inputs[:id]
-      obj = self.object_from_id(inputs[:id])
-    elsif inputs[:project_id] && inputs[:project_media_id]
-      obj = ProjectMediaProject.where(project_id: inputs[:project_id], project_media_id: inputs[:project_media_id]).last
-    end
+    obj = self.object_from_id(inputs[:id]) if inputs[:id]
     unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)
@@ -409,19 +405,13 @@ class GraphqlCrudOperations
       fields.each { |field_name, field_type| argument field_name, mapping[field_type] }
     end
     Object.const_set input_type, definition
-    mutation = "Create#{type.camelize.pluralize}Mutation"
-    Object.class_eval <<-TES
-      class #{mutation} < GraphQL::Schema::Mutation
-        argument :inputs, [#{input_type}], required: true
 
-        field :enqueued, Boolean, null: false
-
-        def resolve(inputs:)
-          GraphqlCrudOperations.bulk_create('#{type}', inputs)
-        end
-      end
-    TES
-    mutation.constantize
+    GraphQL::Relay::Mutation.define do
+      name "Create#{type.camelize.pluralize}Mutation"
+      input_field :inputs, types[input_type.constantize]
+      return_field :enqueued, types.Boolean
+      resolve -> (_root, input, _ctx) { GraphqlCrudOperations.bulk_create(type, input['inputs']) }
+    end
   end
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [], generate_bulk_mutation = false)

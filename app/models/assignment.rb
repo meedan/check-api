@@ -23,15 +23,9 @@ class Assignment < ActiveRecord::Base
     meta.to_json
   end
 
-  def get_team
+  def team
     assigned = self.assigned_type.constantize.where(id: self.assigned_id).last
-    return [] if assigned.nil?
-    return [assigned.team&.id] if assigned.is_a?(Project)
-    assigned.get_team if assigned.is_annotation?
-  end
-
-  def team_id
-    self.get_team&.last
+    assigned.nil? ? nil : assigned.team
   end
 
   protected
@@ -80,26 +74,11 @@ class Assignment < ActiveRecord::Base
     Assignment.delete(to_delete)
   end
 
-  def self.bulk_assign(obj, user_ids)
-    obj = YAML::load(obj)
-    klass = obj.is_annotation? ? 'Annotation' : obj.class.name
-    user_ids.each do |user_id|
-      if Assignment.where(user_id: user_id, assigned_type: klass, assigned_id: obj.id).last.nil?
-        a = Assignment.new
-        a.user_id = user_id
-        a.assigned_id = obj.id
-        a.assigned_type = klass
-        a.propagate_in_foreground = true
-        a.save!
-      end
-    end
-  end
-
   private
 
   def assigned_to_user_from_the_same_team
     if self.assigned.present?
-      team = self.get_team.empty? ? nil : Team.where(id: self.get_team[0]).last
+      team = self.team
       unless team.nil?
         member = TeamUser.where(team_id: team.id, user_id: self.user_id, status: 'member').last
         errors.add(:base, I18n.t(:error_user_is_not_a_team_member, default: 'Sorry, you can only assign to members of this team')) if member.nil?

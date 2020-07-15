@@ -17,10 +17,9 @@ MutationType = GraphQL::ObjectType.define do
   field :createTeam, field: TeamMutations::Create.field
   field :updateTeam, field: TeamMutations::Update.field
   field :destroyTeam, field: TeamMutations::Destroy.field
+  field :deleteTeamStatus, field: DeleteTeamStatusMutation.field
 
-  # field :createAccount, field: AccountMutations::Create.field
   field :updateAccount, field: AccountMutations::Update.field
-  # field :destroyAccount, field: AccountMutations::Destroy.field
 
   field :createAccountSource, field: AccountSourceMutations::Create.field
   field :updateAccountSource, field: AccountSourceMutations::Update.field
@@ -44,7 +43,6 @@ MutationType = GraphQL::ObjectType.define do
   field :createTags, field: TagMutations::BulkCreate.field
 
   field :createAnnotation, field: AnnotationMutations::Create.field
-  # field :updateAnnotation, field: AnnotationMutations::Update.field
   field :destroyAnnotation, field: AnnotationMutations::Destroy.field
 
   field :destroyVersion, field: VersionMutations::Destroy.field
@@ -100,5 +98,7 @@ MutationType = GraphQL::ObjectType.define do
   field :importSpreadsheet, field: ImportSpreadsheetMutation.field
 
   field :createProjectMediaProject, field: ProjectMediaProjectMutations::Create.field
+  field :updateProjectMediaProject, field: ProjectMediaProjectMutations::Update.field
   field :destroyProjectMediaProject, field: ProjectMediaProjectMutations::Destroy.field
+  field :createProjectMediaProjects, field: ProjectMediaProjectMutations::BulkCreate.field
 end

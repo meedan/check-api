@@ -6,8 +6,20 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   end
 
   test "should create project media project" do
-    assert_difference 'ProjectMediaProject.count', 2 do
+    assert_difference 'ProjectMediaProject.count', 1 do
       create_project_media_project
+    end
+  end
+
+  test "should validate presence of project and media project" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media team: t
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: p, project_media: nil
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: nil, project_media: create_project_media
     end
   end
 
@@ -17,10 +29,44 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     assert_equal p, pmp.reload.project
   end
 
+  test "should not create project media under archived project" do
+    t = create_team
+    p = create_project team: t, archived: true
+    pm = create_project_media team: t
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media_project project: p, project_media: pm
+    end
+  end
+
   test "should belong to project media" do
     pm = create_project_media
     pmp = create_project_media_project project_media: pm
     assert_equal pm, pmp.reload.project_media
+  end
+
+  test "should get team" do
+    pmp = create_project_media_project
+    assert_kind_of Team, pmp.team
+  end
+
+  test "should have versions" do
+    m = create_valid_media
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    pm = create_project_media team: t
+    p = create_project team: t
+    pmp = nil
+    with_current_user_and_team(u, t) do
+      assert_difference 'PaperTrail::Version.count', 1 do
+        pmp = create_project_media_project project: p, project_media: pm
+      end
+    end
+    v = pmp.versions.last
+    assert_not_nil v
+    assert_equal v.associated_type, pm.class.name
+    assert_equal v.associated_id, pm.id
   end
 
   test "should not add the same project media to the same project more than once" do
@@ -38,8 +84,9 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
 
   test "should create project media project when project media is created" do
     pm = nil
+    p = create_project
     assert_difference 'ProjectMediaProject.count' do
-      pm = create_project_media
+      pm = create_project_media project: p
     end
     create_project_media_project project_media: pm
     assert_difference 'ProjectMediaProject.count', -2 do
@@ -57,22 +104,23 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   end
 
   test "should change project media project when project media is moved" do
-    p1 = create_project
-    p2 = create_project
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
     pm = create_project_media project: p1
-    pm = ProjectMedia.find(pm.id)
-    pm.previous_project_id = pm.project_id
-    pm.project = p2
-    pm.save!
+    pmp = pm.project_media_projects.last
+    # pm = ProjectMedia.find(pm.id)
+    pmp.project_id = p2.id
+    pmp.save!
     assert_equal [p2], pm.reload.project_media_projects.map(&:project)
   end
 
   test "should not destroy project media when project is destroyed" do
     p = create_project
     pm = create_project_media project: p
-    assert_equal p.id, pm.reload.project_id
+    assert_equal [p.id], pm.reload.project_ids
     p.destroy!
-    assert_nil pm.reload.project_id
+    assert_empty pm.reload.project_ids
   end
 
   test "should index a list of project ids in ElasticSearch" do

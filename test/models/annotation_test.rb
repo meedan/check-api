@@ -56,9 +56,9 @@ class AnnotationTest < ActiveSupport::TestCase
     mc = create_comment annotated: nil
     pm = create_project_media project: p, media: m
     pm.add_annotation mc
-    assert_equal mc.get_team, [t.id]
+    assert_equal mc.team, t
     c = create_comment annotated: nil
-    assert_empty c.get_team
+    assert_nil c.team
   end
 
   test "should have number of annotations" do
@@ -320,7 +320,7 @@ class AnnotationTest < ActiveSupport::TestCase
     c1.assign_user(u.id)
     c2.assign_user(u.id)
     Assignment.create! assigned: p2, user: u
-    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id, project_id').sort
+    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id').sort
   end
 
   test "should save metadata in annotation" do
@@ -400,49 +400,7 @@ class AnnotationTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm
     c.assign_user(u.id)
-    assert_equal [t.id], c.assignments.last.get_team
-  end
-
-  test "should assign users when status is created" do
-    create_verification_status_stuff(false)
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      t = create_team
-      p = create_project team: t
-      3.times do
-        u = create_user
-        create_team_user user: u, team: t
-        p.assign_user(u.id)
-      end
-      # update status for one user to be `banned`
-      tu = TeamUser.where(team_id: t.id).last
-      tu.status = 'banned'
-      tu.save!
-      assert_difference 'Assignment.count', 2 do
-        Sidekiq::Testing.inline! do
-          create_project_media project: p
-        end
-      end
-    end
-  end
-
-  test "should assign users when task is created" do
-    create_verification_status_stuff(false)
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      t = create_team
-      p = create_project team: t
-      pm = create_project_media project: p
-      s = pm.last_status_obj
-      3.times do
-        u = create_user
-        create_team_user user: u, team: t
-        s.assign_user(u.id)
-      end
-      assert_difference 'Assignment.count', 3 do
-        Sidekiq::Testing.inline! do
-          create_task annotated: pm
-        end
-      end
-    end
+    assert_equal t, c.assignments.last.team
   end
 
   test "should not propagate assignments when generic annotations are assigned" do
