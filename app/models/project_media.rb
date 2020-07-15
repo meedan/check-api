@@ -16,7 +16,8 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_auto_tasks, :create_annotation, :send_slack_notification, :notify_team_bots_create
+  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :send_slack_notification, :notify_team_bots_create
+  after_create :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
@@ -268,8 +269,8 @@ class ProjectMedia < ActiveRecord::Base
     self.projects.map(&:id)
   end
 
-  def add_destination_team_tasks_bg(project)
-    tasks = project.team.auto_tasks(project.id, true)
+  def add_destination_team_tasks_bg(project, only_selected)
+    tasks = project.team.auto_tasks(project.id, only_selected)
     tasks.each do |task|
       # check if task exists
       tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)

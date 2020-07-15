@@ -1,5 +1,5 @@
 class ProjectMediaProject < ActiveRecord::Base
-  attr_accessor :previous_project_id
+  attr_accessor :previous_project_id, :set_tasks_responses
 
   include CheckElasticSearch
   include CheckPusher
@@ -14,8 +14,7 @@ class ProjectMediaProject < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pmp| pmp.is_being_copied  }
 
   after_destroy :update_index_in_elasticsearch
-  after_commit :add_destination_team_tasks, on: [:create]
-  after_commit :update_index_in_elasticsearch, :update_team_tasks, on: [:create, :update]
+  after_commit :update_index_in_elasticsearch, :add_remove_team_tasks, on: [:create, :update]
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -66,19 +65,18 @@ class ProjectMediaProject < ActiveRecord::Base
     parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end
 
-  def update_team_tasks
-    TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self.project_media }))
+  def add_remove_team_tasks
+    existing_items = ProjectMediaProject.where(project_media_id: self.project_media_id).count
+    options = {
+      model: self.project_media,
+      only_selected: existing_items > 1,
+      set_tasks_responses: self.set_tasks_responses
+    }
+    TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump(options))
   end
 
   def update_index_in_elasticsearch
     return if self.disable_es_callbacks
     self.update_elasticsearch_doc(['project_id'], { 'project_id' => self.project_media.projects.map(&:id) }, self.project_media)
-  end
-
-  def add_destination_team_tasks
-    existing_items = ProjectMediaProject.where(project_media_id: self.project_media_id).where.not(project_id: self.project_id).count
-    if existing_items > 0
-      TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump({ model: self.project_media }))
-    end
   end
 end

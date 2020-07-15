@@ -374,6 +374,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_task team_id: t.id, project_ids: [p2.id]
     Sidekiq::Testing.inline! do
       assert_difference 'Task.length', 1 do
+        pm1 = create_project_media team: t
+      end
+      assert_difference 'Task.length', 1 do
         pm1 = create_project_media project: p1
       end
       assert_difference 'Task.length', 2 do
@@ -387,9 +390,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_task team_id: t.id
     u = create_user
     tu = create_team_user team: t, user: u, role: 'contributor'
-    with_current_user_and_team(u, t) do
-      assert_difference 'Task.length' do
-        create_project_media team: t
+    Sidekiq::Testing.inline! do
+      with_current_user_and_team(u, t) do
+        assert_difference 'Task.length' do
+          create_project_media team: t
+        end
       end
     end
   end
@@ -412,6 +417,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pmp.project_id = p2.id
       pmp.save!
       assert_equal 2, pm2.annotations('task').count
+      pm3 = create_project_media team: t
+      assert_equal 1, pm3.annotations('task').count
+      assert_no_difference 'Task.length' do
+        create_project_media_project project: p, project_media: pm3
+      end
+      assert_difference 'Task.length', 1 do
+        create_project_media_project project: p2, project_media: pm3
+      end
     end
     Team.unstub(:current)
   end
@@ -840,10 +853,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     create_team_task team_id: t.id, label: 'When?'
-    pm = create_project_media(project: p, set_tasks_responses: { 'when' => 'Yesterday' })
-
-    t = Task.where(annotation_type: 'task').last
-    assert_equal 'Yesterday', t.first_response
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media project: p, set_tasks_responses: { 'when' => 'Yesterday' }
+        task = pm.annotations('task').last
+        assert_equal 'Yesterday', task.first_response
+      end
+    end
   end
 
   test "should auto-response for Krzana report" do

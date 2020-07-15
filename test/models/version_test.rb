@@ -144,7 +144,7 @@ class VersionTest < ActiveSupport::TestCase
     pm = create_project_media team: t
     pm.team = t2
     pm.save!
-    log = pm.get_versions_log.last
+    log = pm.get_versions_log(['update_projectmedia']).last
     assert_equal [t, t2], log.get_from_object_changes(:team)
     User.current = nil
   end
