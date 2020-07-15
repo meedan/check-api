@@ -14,11 +14,15 @@ class TeamTaskWorker
         team_task.send(fun, options, projects, keep_completed_tasks) if team_task.respond_to?(fun)
       end
     elsif action == 'add_or_move'
-      project = Project.find_by_id(id)
-      unless project.nil?
-        project_media = options[:model]
-        Team.current = project.team
-        project_media.add_destination_team_tasks_bg(project)
+      project_media = options[:model]
+      Team.current = project_media.team
+      if id.blank?
+        project_media.create_auto_tasks
+      else
+        project = Project.find_by_id(id)
+        only_selected = options[:only_selected]
+        project_media.set_tasks_responses = options[:set_tasks_responses] unless options[:set_tasks_responses].blank?
+        project_media.add_destination_team_tasks_bg(project, only_selected) unless project.nil?
       end
     elsif action == 'destroy'
       RequestStore.store[:skip_check_ability] = true
