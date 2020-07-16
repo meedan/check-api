@@ -81,9 +81,9 @@ class ProjectMediaProject < ActiveRecord::Base
   end
 
   def self.remove_related_team_tasks_bg(pid, pmid)
-    # Get team tasks the assigned to target list (pid)
+    # Get team tasks that assigned to target list (pid)
     tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
-    # Get opened tasks (tasks with zero answer)
+    # Get tasks with zero answer (should keep completed tasks)
     Task.where('annotations.annotation_type' => 'task', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmid)
     .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id))
     .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
