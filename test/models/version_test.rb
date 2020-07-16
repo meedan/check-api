@@ -139,14 +139,16 @@ class VersionTest < ActiveSupport::TestCase
   test "should get teams" do
     u = create_user is_admin: true
     t = create_team
+    create_team_user team: t, user: u, role: 'owner'
     t2 = create_team
-    User.current = u
-    pm = create_project_media team: t
-    pm.team = t2
-    pm.save!
-    log = pm.get_versions_log(['update_projectmedia']).last
-    assert_equal [t, t2], log.get_from_object_changes(:team)
-    User.current = nil
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      pm.team_id = t2.id
+      pm.skip_check_ability = true
+      pm.save!
+      log = pm.get_versions_log(['update_projectmedia']).last
+      assert_equal [t, t2], log.get_from_object_changes(:team)
+    end
   end
 
   test "should get projects" do
