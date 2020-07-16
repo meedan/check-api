@@ -429,6 +429,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should remove opened team tasks when remove_from project" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: []
+    tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
+    tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 3 do
+        pm = create_project_media team: t, add_to_project_id: p2.id
+      end
+      pmp = pm.project_media_projects.where(project_id: p2.id).last
+      assert_difference 'Task.length', -2 do
+        pmp.destroy
+      end
+      # should keep completed tasks (task with answer)
+      assert_difference 'Task.length', 3 do
+        pm = create_project_media team: t, add_to_project_id: p2.id
+      end
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm_tt2.save!
+      pmp = pm.project_media_projects.where(project_id: p2.id).last
+      assert_difference 'Task.length', -1 do
+        pmp.destroy
+      end
+    end
+    Team.unstub(:current)
+  end
+
   test "should have versions" do
     m = create_valid_media
     t = create_team

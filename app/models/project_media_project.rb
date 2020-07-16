@@ -15,6 +15,7 @@ class ProjectMediaProject < ActiveRecord::Base
 
   after_destroy :update_index_in_elasticsearch
   after_commit :update_index_in_elasticsearch, :add_remove_team_tasks, on: [:create, :update]
+  after_commit :remove_related_team_tasks, on: :destroy
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -73,6 +74,26 @@ class ProjectMediaProject < ActiveRecord::Base
       set_tasks_responses: self.set_tasks_responses
     }
     TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump(options))
+  end
+
+  def remove_related_team_tasks
+    TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id, YAML::dump(User.current), YAML::dump({ project_media_id: self.project_media_id }))
+  end
+
+  def self.remove_related_team_tasks_bg(pid, pmid)
+    # Get team tasks the assigned to target list (pid)
+    tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
+    # Get opened tasks (tasks with zero answer)
+    Task.where('annotations.annotation_type' => 'task', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmid)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id))
+    .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+    .where('responses.id' => nil).find_each do |t|
+      t.skip_check_ability = true
+      t.destroy
+    end
   end
 
   def update_index_in_elasticsearch
