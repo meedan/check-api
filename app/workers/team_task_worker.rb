@@ -15,6 +15,8 @@ class TeamTaskWorker
       end
     elsif action == 'add_or_move'
       handle_add_or_remove(id, options)
+    elsif action == 'remove_from'
+      handle_remove_from(id, options)
     elsif action == 'destroy'
       RequestStore.store[:skip_check_ability] = true
       TeamTask.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
@@ -36,6 +38,11 @@ class TeamTaskWorker
       project_media.set_tasks_responses = options[:set_tasks_responses] unless options[:set_tasks_responses].blank?
       project_media.add_destination_team_tasks_bg(project, only_selected) unless project.nil?
     end
+  end
+
+  def handle_remove_from(pid, options)
+    pm = ProjectMedia.find_by_id(options[:project_media_id])
+    ProjectMediaProject.remove_related_team_tasks_bg(pid, pm.id) unless pm.nil?
   end
 
 end
