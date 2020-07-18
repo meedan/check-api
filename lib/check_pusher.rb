@@ -7,6 +7,10 @@ module CheckPusher
     'check-channel-' + Digest::MD5.hexdigest(self.class_name + ':' + self.id.to_s + ':pusher_channel')
   end
 
+  def notify_pusher_channel
+    CheckPusher::Worker.perform_async(['check-api-global-channel'], 'update', { pusherChannels: [self.pusher_channel], pusherEvent: 'media_updated' }.to_json, self.actor_session_id)
+  end
+
   module ClassMethods
     def pusher_options
       @pusher_options
@@ -54,12 +58,6 @@ module CheckPusher
       data = options[:data].call(self)
 
       [event, targets, data]
-    end
-
-    def bulk_channels(action)
-      action = :save if action == :update
-      options = self.class.pusher_options[action]
-      options[:bulk_targets] ? options[:bulk_targets].call(self).reject{ |t| t.blank? }.map(&:pusher_channel) : []
     end
 
     def actor_session_id

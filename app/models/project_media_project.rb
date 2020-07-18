@@ -13,14 +13,13 @@ class ProjectMediaProject < ActiveRecord::Base
   validates_presence_of :project, :project_media
   validate :project_is_not_archived, unless: proc { |pmp| pmp.is_being_copied  }
 
-  after_destroy :update_index_in_elasticsearch
   after_commit :update_index_in_elasticsearch, :add_remove_team_tasks, on: [:create, :update]
+  after_destroy :update_index_in_elasticsearch
   after_commit :remove_related_team_tasks, on: :destroy
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pmp| [pmp.project, pmp.project.team] },
-                  bulk_targets: proc { |pmp| [pmp.team] },
+                  targets: proc { |pmp| [pmp.project, pmp.project&.team, pmp.project_was] },
                   data: proc { |pmp| { id: pmp.id }.to_json }
 
   def check_search_team
@@ -43,7 +42,6 @@ class ProjectMediaProject < ActiveRecord::Base
     self.check_search_project(self.project_was)
   end
 
-
   def project_was
     Project.find_by_id(self.previous_project_id) unless self.previous_project_id.blank?
   end
@@ -53,11 +51,133 @@ class ProjectMediaProject < ActiveRecord::Base
   end
 
   def team
-    self.project&.team
+    @team || self.project&.team
+  end
+
+  def team=(team)
+    @team = team
   end
 
   def is_being_copied
     self.team && self.team.is_being_copied
+  end
+
+  def self.bulk_create(inputs, team)
+    # Filter IDs
+    pmids = ProjectMedia.where(id: inputs.collect{ |input| input['project_media_id'] }, team_id: team.id).select(:id).map(&:id)
+    pids = Project.where(id: inputs.collect{ |input| input['project_id'] }, team_id: team.id, archived: false).select(:id).map(&:id)
+    inserts = []
+    inputs.each do |input|
+      inserts << input.to_h if pmids.include?(input['project_media_id']) && pids.include?(input['project_id'])
+    end
+
+    # Bulk-insert in a single SQL
+    result = ProjectMediaProject.import inserts, validate: false, recursive: false, timestamps: true, on_duplicate_key_ignore: true
+
+    # Bulk-update medias count of each project
+    Project.bulk_update_medias_count(pids)
+
+    # Other callbacks to run in background
+    ProjectMediaProject.delay.run_bulk_save_callbacks(result.ids.map(&:to_i).to_json)
+
+    # Notify Pusher
+    team.notify_pusher_channel
+
+    # Return first (hopefully only, for the Check Web usecase) project and notify
+    first_project = Project.find_by_id(pids[0])
+    first_project&.notify_pusher_channel
+
+    { team: team, project: first_project }
+  end
+
+  def self.run_bulk_save_callbacks(ids_json)
+    ids = JSON.parse(ids_json)
+    ids.each do |id|
+      pmp = ProjectMediaProject.find(id)
+      [:update_index_in_elasticsearch, :add_remove_team_tasks].each { |callback| pmp.send(callback) }
+    end
+  end
+
+  def self.filter_ids_by_team(input_ids, team)
+    pids = []
+    pmids = []
+    ids = []
+    pairs = []
+    ProjectMediaProject
+      .joins(:project, :project_media)
+      .where(id: input_ids, 'projects.team_id' => team.id, 'project_medias.team_id' => team.id)
+      .select('project_media_projects.id AS id, projects.id AS pid, project_medias.id AS pmid')
+      .each do |pmp|
+      ids << pmp.id
+      pids << pmp.pid
+      pmids << pmp.pmid
+      pairs << { project_id: pmp.pid, project_media_id: pmp.pmid }
+    end
+    [ids.uniq, pids.uniq, pmids.uniq, pairs]
+  end
+
+  def self.bulk_destroy(input_ids, fields, team)
+    # Filter IDs that belong to this team in a single SQL
+    ids, pids, pmids, pairs = self.filter_ids_by_team(input_ids, team)
+    pm_graphql_ids = pmids.collect{ |pmid| Base64.encode64("ProjectMedia/#{pmid}") }
+
+    # Bulk-delete in a single SQL
+    ProjectMediaProject.where(id: ids).delete_all
+
+    # Bulk-update medias count of each project
+    Project.bulk_update_medias_count(pids)
+
+    # Other callbacks to run in background
+    ProjectMediaProject.delay.run_bulk_destroy_callbacks(pmids.to_json, pairs.to_json)
+
+    project_was = Project.where(id: fields[:previous_project_id], team_id: team.id).last unless fields[:previous_project_id].blank?
+
+    # Notify Pusher
+    team.notify_pusher_channel
+    project_was&.notify_pusher_channel
+
+    { team: team, project_was: project_was, check_search_project_was: project_was&.check_search_project, ids: pm_graphql_ids }
+  end
+
+  def self.run_bulk_destroy_callbacks(pmids_json, pairs_json)
+    ids = JSON.parse(pmids_json)
+    pairs = JSON.parse(pairs_json)
+    ids.each do |id|
+      pm = ProjectMedia.find(id)
+      pm.update_elasticsearch_doc(['project_id'], { 'project_id' => pm.projects.map(&:id) }, pm)
+    end
+    pairs.each { |pair| self.remove_related_team_tasks_bg(pair['project_id'], pair['project_media_id']) }
+  end
+
+  def self.bulk_update(input_ids, updates, team)
+    # For now let's limit to project_id updates
+    return {} if updates.keys.map(&:to_s) != ['project_id'] &&
+      updates.keys.map(&:to_s).sort != ['previous_project_id', 'project_id']
+
+    project = Project.where(id: updates[:project_id], team_id: team.id).last
+    return {} if project.nil?
+
+    # Filter IDs that belong to this team in a single SQL
+    ids, pids, pmids, _pairs = self.filter_ids_by_team(input_ids, team)
+    pm_graphql_ids = pmids.collect{ |pmid| Base64.encode64("ProjectMedia/#{pmid}") }
+
+    # Bulk-update in a single SQL
+    ProjectMediaProject.where(id: ids).update_all(project_id: updates[:project_id])
+
+    # Bulk-update medias count of each project
+    Project.bulk_update_medias_count(pids.concat([updates[:project_id]]))
+
+    # Other callbacks to run in background
+    ProjectMediaProject.delay.run_bulk_save_callbacks(ids.to_json)
+
+    project_was = Project.where(id: updates[:previous_project_id], team_id: team.id).last unless updates[:previous_project_id].blank?
+
+    # Notify Pusher
+    team.notify_pusher_channel
+    project.notify_pusher_channel
+    project_was&.notify_pusher_channel
+
+    { team: team, project: project, project_was: project_was, check_search_project_was: project_was&.check_search_project, ids: pm_graphql_ids }
   end
 
   private

@@ -10,6 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   include ValidationsHelper
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
+  include ProjectMediaBulk
 
   validates_presence_of :media, :team
 
@@ -25,8 +26,7 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.project, pm.media, pm.team] },
-                  bulk_targets: proc { |pm| [pm.project, pm.team] },
+                  targets: proc { |pm| [pm.media, pm.team].concat(pm.projects) },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -258,11 +258,6 @@ class ProjectMedia < ActiveRecord::Base
         v.save!
       end
     end
-  end
-
-  def targets_by_users
-    ids = self.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").map(&:target_id)
-    ProjectMedia.where(id: ids)
   end
 
   def project_ids

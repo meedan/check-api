@@ -705,14 +705,10 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal 0, Sidekiq::Worker.jobs.size
         authenticate_with_token
         url = random_url
-        query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
+        query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
         post :create, query: query
         assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
-        # execute job and check that url was set
-        Sidekiq::Worker.drain_all
-        assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
+        assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # check that cache key exists
         key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
         assert_equal url, Rails.cache.read(key)
@@ -723,7 +719,7 @@ class GraphqlController3Test < ActionController::TestCase
         query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
         post :create, query: query
         assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
+        assert Sidekiq::Worker.jobs.size > 0
         assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # execute job and check that url was set
         Sidekiq::Worker.drain_all
@@ -789,23 +785,6 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
-  end
-
-  test "should bulk create tags" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    authenticate_with_user(u)
-    query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]}) { enqueued } }'
-    assert_difference 'Tag.length', 2 do
-      post :create, query: query, team: t.slug
-    end
-    assert_response :success
-    assert JSON.parse(@response.body)['data']['createTags']['enqueued']
-    assert_equal ['foo'], pm1.reload.get_annotations('tag').map(&:load).map(&:tag_text)
-    assert_equal ['bar'], pm2.reload.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should create comment with fragment" do
@@ -1075,5 +1054,26 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /rails\.png/, d[:options][0]['image']
     assert_match /^http/, d[:options][1]['image']
     assert_match /rails2\.png/, d[:options][2]['image']
+  end
+
+  test "should update project media project without an id" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+    assert_not_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
+    assert_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
+
+    query = 'mutation { updateProjectMediaProject(input: { clientMutationId: "1", previous_project_id: ' + p1.id.to_s + ', project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
+    assert_no_difference 'ProjectMediaProject.count' do
+      post :create, query: query, team: t
+      assert_response :success
+    end
+
+    assert_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
+    assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
   end
 end

@@ -50,7 +50,11 @@ class CheckGraphql
   end
 
   def self.decode_id(id)
-    Base64.decode64(id).split('/')
+    begin
+      Base64.decode64(id).split('/')
+    rescue
+      [nil, nil]
+    end
   end
 
   def self.object_from_id(id, _ctx)

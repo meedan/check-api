@@ -700,6 +700,7 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
+  bulk_operation_limit_error: "Sorry, the maximum number of items to be processed at once is %{limit}"
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
