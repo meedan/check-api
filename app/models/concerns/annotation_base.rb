@@ -248,6 +248,7 @@ module AnnotationBase
   end
 
   def team
+    return @team if @team
     obj = self.annotated if self.annotated
     obj = obj.annotated if obj.respond_to?(:annotated)
     obj.nil? ? nil: obj.team

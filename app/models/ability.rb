@@ -169,7 +169,7 @@ class Ability
     can :update, [Media, Link, Claim] do |obj|
       obj.team_ids.include?(@context_team.id)
     end
-    can [:update, :administer_content], ProjectMedia do |obj|
+    can [:update, :administer_content, :bulk_update], ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && !obj.archived_was
     end
     can :update, ProjectMediaProject do |obj|
@@ -188,6 +188,12 @@ class Ability
     end
     can :create, Task, ['annotation_type = ?', 'task'] do |task|
       task.team&.id == @context_team.id && !task.annotated_is_archived?
+    end
+    can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
+      obj.team == @context_team
+    end
+    can [:bulk_create, :bulk_update, :bulk_destroy], ProjectMediaProject do |obj|
+      obj.team == @context_team
     end
   end
 
@@ -257,6 +263,7 @@ class Ability
     can [:create, :destroy], ProjectMediaProject do |obj|
       obj.project && obj.project.team_id == @context_team.id
     end
+    cannot :bulk_update, ProjectMedia
   end
 
   def bot_permissions

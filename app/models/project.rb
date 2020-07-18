@@ -40,9 +40,10 @@ class Project < ActiveRecord::Base
     update_on: [
       {
         model: ProjectMediaProject,
-        affected_ids: proc { |pmp| [pmp.project_id] },
+        affected_ids: proc { |pmp| [pmp.project_id, pmp.previous_project_id] },
         events: {
           create: :recalculate,
+          update: :recalculate,
           destroy: :recalculate
         }
       },
@@ -236,6 +237,18 @@ class Project < ActiveRecord::Base
 
   def inactive
     team.inactive
+  end
+
+  def self.bulk_update_medias_count(pids)
+    pids_count = Hash[pids.product([0])] # Initialize all projects as zero
+    ProjectMediaProject
+      .joins(:project_media)
+      .where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
+      .group('project_media_projects.project_id')
+      .count.to_h.each do |pid, count|
+      pids_count[pid.to_i] = count.to_i
+    end
+    pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }
   end
 
   private

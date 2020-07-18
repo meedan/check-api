@@ -274,6 +274,9 @@ class Team < ActiveRecord::Base
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: true))
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
+    perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
+    perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
+    [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
 
@@ -345,18 +348,8 @@ class Team < ActiveRecord::Base
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
-    ids = JSON.parse(ids_json)
-    client = MediaSearch.gateway.client
-    index_alias = CheckElasticSearchModel.get_index_alias
-    es_body = []
-    ids.each do |id|
-      model = ProjectMedia.new(id: id)
-      doc_id = model.get_es_doc_id(model)
-      model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: doc_id)
-      fields = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
-      es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: fields } } }
-    end
-    client.bulk body: es_body
+    updates = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
+    ProjectMedia.bulk_reindex(ids_json, updates)
   end
 
   def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
