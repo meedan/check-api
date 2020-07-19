@@ -318,19 +318,29 @@ class Team < ActiveRecord::Base
   end
 
   def delete_custom_media_verification_status(status_id, fallback_status_id)
-    if !status_id.blank? && !fallback_status_id.blank?
+    unless status_id.blank?
       data = DynamicAnnotation::Field
         .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
         .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'value' => status_id, 'pm.team_id' => self.id)
         .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
-
-      # Update all statuses in the database
-      DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
-
       pmids = data.map(&:pmid)
 
-      # Update status cache
-      pmids.each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+      # Validations
+      raise I18n.t(:must_provide_fallback_when_deleting_status_in_use) if fallback_status_id.blank? && data.size > 0
+
+      unless fallback_status_id.blank?
+        # Update all statuses in the database
+        DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
+
+        # Update status cache
+        pmids.each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+
+        # Update ElasticSearch in background
+        Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
+
+        # Update reports in background
+        Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
+      end
 
       # Update team statuses after deleting one of them
       settings = self.settings || {}
@@ -338,12 +348,6 @@ class Team < ActiveRecord::Base
       statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
       self.set_media_verification_statuses = statuses
       self.save!
-
-      # Update ElasticSearch in background
-      Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
-
-      # Update reports in background
-      Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
     end
   end
 
