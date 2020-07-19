@@ -1166,4 +1166,39 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal 0, JSON.parse(@response.body)['data']['updateTeam']['public_team']['trash_count']
   end
+
+  test "should provide empty fallback only if deleted status has no items" do
+    t = create_team
+    value = {
+      label: 'Status',
+      active: 'id',
+      default: 'id',
+      statuses: [
+        { id: 'id', locales: { en: { label: 'Custom Status', description: 'The meaning of this status' } }, style: { color: 'red' } },
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+
+    pm = create_project_media project: nil, team: t
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id'
+    s.save!
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    pm.destroy!
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
+
+  # Please add new tests to test/controllers/graphql_controller_3_test.rb
 end

@@ -701,6 +701,7 @@ en:
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
   bulk_operation_limit_error: "Sorry, the maximum number of items to be processed at once is %{limit}"
+  must_provide_fallback_when_deleting_status_in_use: This status is being used, so you must provide a fallback status if you want to delete it
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
