@@ -100,8 +100,12 @@ UserType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :team_users, -> { TeamUserType.connection_type } do
-    resolve ->(user, _args, _ctx) {
-      user.team_users
+    argument :status, types.String
+
+    resolve ->(user, args, _ctx) {
+      team_users = user.team_users
+      team_users = team_users.where(status: args['status']) if args['status']
+      team_users
     }
   end
 
