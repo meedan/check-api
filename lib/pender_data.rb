@@ -6,6 +6,7 @@ module PenderData
     if !self.url.blank? && !self.skip_pender
       params = { url: self.url }
       params[:refresh] = '1' if force
+      params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
       result = { type: 'error', data: { code: -1 } }.with_indifferent_access
       pender_key = get_pender_key
       begin
