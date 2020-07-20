@@ -156,4 +156,20 @@ class Bot::Keep < BotUser
       end
     end
   end
+
+  Team.class_eval do
+    def enabled_archivers
+      bot = BotUser.find_by(login: 'keep')
+      bot_installation = self.team_bot_installations.find_by(user_id: bot&.id)
+      return '' if bot_installation.nil?
+      archivers = []
+      bot_installation.settings.each do |setting, value|
+        if value
+          match = setting.match(/archive_(.*)_enabled/)
+          archivers << match[1] unless match.nil?
+        end
+      end
+      archivers.join(',')
+    end
+  end
 end
