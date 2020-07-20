@@ -70,6 +70,8 @@ namespace :check do
         a.access_token = 'devkey'
         a.save!
       end
+
+      Rails.cache.clear
     end
   end
 end
