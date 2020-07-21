@@ -188,12 +188,6 @@ def get_ids(table, field = 'id')
   instance_variable_get("@#{table}_#{field}s")
 end
 
-def count(query)
-  count_query = query.gsub(/SELECT\s+(.*)\s+FROM/, 'SELECT COUNT(\1) FROM')
-  values = ActiveRecord::Base.connection.execute(count_query).values
-  values.empty? ? 0 : values.first[0].to_i
-end
-
 def primary_key(table)
   mapping = {
     dynamic_annotation_annotation_types: 'annotation_type',
@@ -221,24 +215,13 @@ def copy_to_file(select_query, filename, table)
   begin
     filepath = File.join(tmp_folder_path, filename)
     @files[filename] = filepath
-    total = count(select_query)
-    offset = 0
-    limit = 1000
-    while offset <= total do
-      paginated_query = select_query + " ORDER BY #{primary_key(table)} ASC LIMIT #{limit} OFFSET #{offset}"
-      query = "COPY (#{paginated_query}) TO STDOUT NULL '*' CSV"
-      query += " HEADER" if offset.zero?
-      offset += limit
-      $stdout.flush
-      csv = []
-      conn = ActiveRecord::Base.connection.raw_connection
+    query = "COPY (#{select_query}) TO STDOUT CSV HEADER"
+    conn = ActiveRecord::Base.connection.raw_connection
+    File.open(filepath, 'wb') do |file|
       conn.copy_data(query) do
-        while row = conn.get_copy_data
-          csv.push(row)
+        while chunk = conn.get_copy_data
+          file.write(chunk)
         end
-      end
-      File.open(filepath, 'a') do |file|
-        file.write(csv.join("").force_encoding("UTF-8"))
       end
     end
   rescue Exception => e
