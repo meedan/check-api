@@ -703,6 +703,8 @@ en:
   bulk_operation_limit_error: "Sorry, the maximum number of items to be processed at once is %{limit}"
   must_provide_fallback_when_deleting_status_in_use: This status is being used, so you must provide a fallback status if you want to delete it
   embed_no_content_yet: The report is being generated. This process can take a few minutes. Please refresh this page.
+  language_format_invalid: Language format is invalid. It should be a ISO 639-1 code.
+  languages_format_invalid: Languages format is invalid. It should be a list of ISO 639-1 codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação

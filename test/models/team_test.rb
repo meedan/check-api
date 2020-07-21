@@ -2933,4 +2933,40 @@ class TeamTest < ActiveSupport::TestCase
       t.save!
     end
   end
+
+  test "should validate language format" do
+    t = create_team
+    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.language = l
+        t.save!
+      end
+      assert_nil t.reload.get_language
+    end
+    ['pt', 'pt_BR'].each do |l|
+      assert_nothing_raised do
+        t.language = l
+        t.save!
+      end
+      assert_equal l, t.reload.get_language
+    end
+  end
+
+  test "should validate languages format" do
+    t = create_team
+    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.languages = ['en', l]
+        t.save!
+      end
+      assert_nil t.reload.get_languages
+    end
+    ['pt', 'pt_BR'].each do |l|
+      assert_nothing_raised do
+        t.languages = ['en', l]
+        t.save!
+      end
+      assert_equal ['en', l], t.reload.get_languages
+    end
+  end
 end
