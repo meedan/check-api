@@ -233,12 +233,11 @@ def export_zip
   require 'zip'
   zipfile = dump_filepath + '.zip'
   password = SecureRandom.hex
-  Zip::OutputStream.open(zipfile, Zip::TraditionalEncrypter.new(password)) do |out|
+  Zip::File.open(zipfile, Zip::TraditionalEncrypter.new(password)) do |out|
     @files.each do |filename, filepath|
       @progressbar.log "Zip #{filename}"
       @progressbar.increment
-      out.put_next_entry(filename)
-      out.write File.read(filepath)
+      out.add(filename, filepath)
     end
   end
   puts "#{zipfile}: #{password}"
