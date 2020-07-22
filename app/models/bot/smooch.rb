@@ -5,6 +5,8 @@ end
 
 class Bot::Smooch < BotUser
 
+  MESSAGE_BOUNDARY = "\u2063"
+
   check_settings
 
   ::ProjectMedia.class_eval do
@@ -349,26 +351,29 @@ class Bot::Smooch < BotUser
     message['language'] = language
     case state
     when 'waiting_for_message'
+      self.bundle_message(message)
       has_main_menu = (workflow.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
         main_message = [workflow['smooch_message_smooch_bot_greetings'], workflow.dig('smooch_state_main', 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, main_message)
       else
+        self.clear_user_bundled_messages(uid)
         sm.go_to_query
         self.parse_message_based_on_state(message, app_id)
       end
     when 'main', 'secondary'
-      if !self.process_menu_option(message, state)
+      if !self.process_menu_option(message, state, app_id)
         no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], workflow.dig("smooch_state_#{state}", 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
-      (self.process_menu_option(message, state) && Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")) || self.bundle_message(message, app_id)
+      (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
+        self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
-  def self.process_menu_option(message, state)
+  def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     language = self.get_user_language(message, state)
@@ -384,6 +389,7 @@ class Bot::Smooch < BotUser
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
           self.send_report_to_user(uid, {}, pm, language)
           sm.reset
+          self.clear_user_bundled_messages(uid)
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
@@ -393,15 +399,19 @@ class Bot::Smooch < BotUser
         return true
       end
     end
+    self.bundle_message(message)
     return false
   end
 
-  def self.bundle_message(message, app_id)
+  def self.bundle_message(message)
     uid = message['authorId']
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     redis.rpush(key, message.to_json)
-    self.delay_for(30.seconds, { queue: 'smooch', retry: 5 }).bundle_messages(uid, message['_id'], app_id)
+  end
+
+  def self.clear_user_bundled_messages(uid)
+    Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
   end
 
   def self.bundle_messages(uid, id, app_id)
@@ -426,7 +436,7 @@ class Bot::Smooch < BotUser
           end
           text << message['text'].to_s
         end
-        bundle['text'] = text.reject{ |t| t.blank? }.join("\n")
+        bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
         self.discard_or_process_message(bundle, app_id)
         redis.del(key)
         sm = CheckStateMachine.new(uid)
@@ -799,6 +809,14 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.extract_claim(text)
+    claim = ''
+    text.split(MESSAGE_BOUNDARY).each do |part|
+      claim = part.chomp if part.size > claim.size
+    end
+    claim
+  end
+
   def self.add_hashtags(text, pm)
     hashtags = Twitter::Extractor.extract_hashtags(text)
     return nil if hashtags.blank?
@@ -825,7 +843,8 @@ class Bot::Smooch < BotUser
       url = self.extract_url(text)
       pm = nil
       if url.nil?
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', text.downcase).where('project_medias.team_id' => team_id).last || self.create_project_media(message, 'Claim', { quote: text })
+        claim = self.extract_claim(text)
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team_id).last || self.create_project_media(message, 'Claim', { quote: claim })
       else
         pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last || self.create_project_media(message, 'Link', { url: url })
       end
@@ -1007,6 +1026,9 @@ class Bot::Smooch < BotUser
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
-    sm.reset unless sm.state.value == 'human_mode'
+    unless sm.state.value == 'human_mode'
+      sm.reset
+      self.clear_user_bundled_messages(uid) unless Rails.env.test?
+    end
   end
 end
