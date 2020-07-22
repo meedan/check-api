@@ -20,10 +20,19 @@ module PenderData
         self.pender_error_code = result['data']['code']
         self.retry_pender_or_fail(force, retry_on_error, result)
       else
-        self.pender_data = result['data'].merge(pender_key: pender_key)
-        # set url with normalized pender URL
-        self.url = begin result['data']['url'] rescue self.url end
+        self.pender_data = result['data'].to_h.merge(pender_key: pender_key)
+        self.url = self.get_url_from_result(result)
       end
+    end
+  end
+
+  def get_url_from_result(result)
+    # Set URL from normalized Pender URL
+    begin
+      url = result['data']['url']
+      url.blank? ? self.url : url
+    rescue
+      self.url
     end
   end
 
