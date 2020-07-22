@@ -700,11 +700,15 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
-  bulk_operation_limit_error: "Sorry, the maximum number of items to be processed at once is %{limit}"
-  must_provide_fallback_when_deleting_status_in_use: This status is being used, so you must provide a fallback status if you want to delete it
-  embed_no_content_yet: The report is being generated. This process can take a few minutes. Please refresh this page.
+  bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
+    once is %{limit}
+  must_provide_fallback_when_deleting_status_in_use: This status is being used, so
+    you must provide a fallback status if you want to delete it
+  embed_no_content_yet: The report is being generated. This process can take a few
+    minutes. Please refresh this page.
   language_format_invalid: Language format is invalid. It should be a ISO 639-1 code.
-  languages_format_invalid: Languages format is invalid. It should be a list of ISO 639-1 codes.
+  languages_format_invalid: Languages format is invalid. It should be a list of ISO
+    639-1 codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
@@ -869,6 +873,14 @@ en:
     conspiracy theories, satire, opinions or speculative claims.  However, we do invite
     you to submit any content that may have been digitally manipulated or is sharing
     dubious claims as facts. Our past reporting in India can be found at https://factcheck.afp.com/afp-india
+  custom_message_status_undetermined_africa-infodemic: Unstarted
+  custom_message_status_in_progress_africa-infodemic: In Progress
+  custom_message_status_priority_unassigned_africa-infodemic: 'Priority: Unassigned'
+  custom_message_status_priority_assigned_africa-infodemic: 'Priority: Assigned'
+  custom_message_status_rated_true_africa-infodemic: 'Rated: True'
+  custom_message_status_rated_false_africa-infodemic: 'Rated: False'
+  custom_message_status_rated_misleading_africa-infodemic: 'Rated: Misleading'
+  custom_message_status_rated_unproven_africa-infodemic: 'Rated: Unproven'
   custom_message_status_verified_boom-factcheck: 'True'
   custom_message_status_false_boom-factcheck: 'False'
   custom_message_status_not_applicable_boom-factcheck: Inconclusive
@@ -936,10 +948,10 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
-  custom_message_status_undetermined_boom-test: Undetermined
-  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_undetermined_boom: Undetermined
   custom_message_status_factchecked_boom: Fact-Checked
+  custom_message_status_undetermined_boom-test: Undetermined
+  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
@@ -1086,11 +1098,11 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n
     \     \n*Reply 0 (or \U0001F4CC)* to go back to the *Main Menu*"
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: We
-    started looking at it.
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: "Thank
-    you! We could not fact-check this item. Here is a short guide to submit content
-    that we can fact check:\n \nmeedan.com/guide"
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Thank
+    you for sending your query! We started looking at your request now.
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
+    we could not verify your query. Learn more about the type of content we can verify
+    at meedan.com
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1202,8 +1214,8 @@ en:
     will be sent to our fact-checkers 30 seconds after your last message. We will
     try to revert, but please note that we are not able to respond to every request.
     \n\n\n*Choose 0 (or \U0001F4CC)* to go back to the *Main Menu* "
-  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: Thanks
-    again for reaching out to India Today Fact Check.  Our team is currenlty working
+  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: Thanks
+    again for reaching out to India Today Fact Check.  Our team is currently working
     on your request and we will get back to you. Meanwhile, you can read our latest
     fact check stories here. https://www.indiatoday.in/fact-check
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: Sorry,
@@ -1268,9 +1280,11 @@ en:
     you are looking for more information about COVID-19  type *COVID* (or \U0001F9A0)
     to get the latest facts about the novel coronavirus disease (COVID-19\n\nReply
     *menu* to go back to the *Main Menu*\""
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: "We
-    can’t fact-check the message you sent us. Please read our submission guidelines
-    here: \nhttps://africacheck.org/how-to-fact-check/submit-a-claim-to-check/"
+  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: "❌
+    We are sorry, we can't assist with your query.\n\nPlease view our submission guidelines
+    here:\n\nafricacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F637
+    If you would like more information on COVID-19 you can find our current reports,
+    factsheets and fact-checks by clicking here: \n\nafricacheck.org/reports/live-guide-all-our-coronavirus-fact-checks-in-one-place/"
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: Africa
     Check is a non-profit organisation working to promote accuracy in public debate
     and the media in Africa. We try to raise the quality of information available
@@ -1455,6 +1469,7 @@ en:
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: Your
     request is in progress!
   custom_message_smooch_bot_disabled_smooch: Disabled :(
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: 新冠肺炎有新訊息
   custom_message_smooch_bot_result_changed_team-1: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_team-1: "Thank you! Your request has
