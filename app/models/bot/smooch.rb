@@ -363,17 +363,17 @@ class Bot::Smooch < BotUser
         self.parse_message_based_on_state(message, app_id)
       end
     when 'main', 'secondary'
-      if !self.process_menu_option(message, state, app_id)
+      if !self.process_menu_option(message, state)
         no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], workflow.dig("smooch_state_#{state}", 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
-      (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
+      (self.process_menu_option(message, state) && self.clear_user_bundled_messages(uid)) ||
         self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
-  def self.process_menu_option(message, state, app_id)
+  def self.process_menu_option(message, state)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     language = self.get_user_language(message, state)
