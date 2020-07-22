@@ -1,0 +1,1102 @@
+---
+fil:
+  statuses:
+    ids:
+      verification_status: beripikasyon
+      task_status: gawain
+    task:
+      unresolved:
+        label: Hindi pa nalulutas
+        description: Default, hindi pa nalulutas
+      resolved:
+        label: Nalutas na
+        description: Nalutas na ang gawain
+      cant_be_resolved:
+        label: Hindi malutas
+        description: Hindi posibleng malutas ang gawain
+    media:
+      undetermined:
+        label: Hindi pa nasisimulan
+        description: Default, kadaragdag pa lang, wala pang nasisimulang gawain
+      not_applicable:
+        label: Hindi konklusibo
+        description: Hindi maaaring makabuo ng konklusyon sa nakahandang ebidensya
+      in_progress:
+        label: Kasalukuyang Ginagawa
+        description: Nasimulan na ang gawain, pero wala pang nagagawang pagsasalin
+      not_true:
+        label: Mali
+        description: 'Konklusyon: hindi totoo ang nilalaman ng item'
+      verified:
+        label: Beripikado
+        description: 'Konklusyon: beripikado ang nilalaman ng item'
+      pending:
+        label: Hindi pa tapos
+        description: Default, kadaragdag pa lang, wala pang nasisimulang gawain
+      translated:
+        label: Naisalin na
+        description: Tapos na ang pagsasalin, hinihintay ang pagsusuri
+      ready:
+        label: Handa na
+        description: Nasuri na ang pagsasalin at inaprubahan na para sa paglalathala
+      error:
+        label: Error
+      'false':
+        description: 'Konklusyon: mali ang nilalaman ng item'
+      inconclusive:
+        label: Hindi konklusibo
+      misleading:
+        label: Mapanlinlang
+      disputed:
+        label: Pinagtatalo
+      out_of_scope:
+        label: Labas sa Saklaw
+      junk:
+        label: Hindi magagamit
+      unstarted:
+        label: Hindi pa nasisimulan
+        description: Default, kadaragdag pa lamang, wala pang nasisimulang gawain
+    source:
+      undetermined:
+        label: Hindi pa nasisimulan
+        description: Default, kadaragdag pa lang, wala pang nasisimulang gawain
+      credible:
+        label: Kapani-paniwala
+        description: 'Konklusyon: kapani-paniwala ang source'
+      not_credible:
+        label: Hindi Kapani-paniwala
+        description: 'Konklusyon: hindi kapani-paniwala ang source'
+      slightly_credible:
+        label: Bahagyang Kapani-paniwala
+        description: 'Konklusyon: bahagyang kapani-paniwala ang source'
+      sockpuppet:
+        label: Sockpuppet
+        description: 'Konklusyon: ang source ay isang sockpuppet'
+  errors:
+    messages:
+      invalid_password: Hindi wastong password
+      invalid_qrcode: Hindi wastong validation code
+      extension_white_list_error: 'hindi maaaring magkaroon ng uring %{extension},
+        ang mga pinahihintulutang uri: %{allowed_types}'
+      invalid_size: dapat nasa pagitan ng %{min_width}x%{min_height} at %{max_width}x%{max_height}
+        pixels
+      mini_magick_processing_error: 'Paumanhin, hindi namin ma-proseso ang larawan.
+        Ito ang error: %{e}'
+      annotation_mandatory_fields: Mangyaring itakda ang lahat ng kinakailangang parang
+      annotation_type_does_not_exist: hindi umiiral
+      invalid_attribution: Hindi wastong atribusyon
+      must_resolve_required_tasks_first: Dapat munang malutas ang mga kinakailangang
+        gawain
+      image_too_large: Paumanhin, hindi namin sinusuportahan ang mga larawang higit
+        sa %{max_size}
+      video_too_large: Paumanhin, hindi namin sinusuportahan ang mga video na higit
+        sa %{max_size}
+      pender_conflict: Kasalukuyan nang pina-parse ang link. Mangyaring sumubok muli
+        pagkatapos ng ilang segundo.
+      pender_url_invalid: Hindi wasto ang link na ito.
+      pender_url_unsafe: Hindi ligtas ang link na ito.
+      pender_could_not_parse: Hindi ma-parse ang link na ito.
+      invalid_format_for_languages: Hindi wasto ang format ng mga wika. Ang inaasahan
+        ay `['en', 'ar', ...]`
+  activerecord:
+    models:
+      link: Link
+      claim: Teksto
+      uploaded_file: File
+      uploaded_image: Larawan
+      uploaded_video: Video
+      task: Gawain
+      comment: Note
+      project_media: Item
+      media: Item
+      project: Listahan
+      team: Workspace
+      user: User
+      source: Source
+      project_source: Source
+    attributes:
+      tag:
+        data: Tag
+      uploaded_file:
+        file: File
+      uploaded_image:
+        file: Larawan
+      uploaded_video:
+        file: Video
+      team:
+        slug: URL ng workspace
+      source:
+        name: Pangalan
+      contact:
+        phone: Telepono
+      comment:
+        text: Note
+      user:
+        reset_password_token: I-reset ang password token
+        email: E-mail
+    errors:
+      models:
+        tag:
+          attributes:
+            data:
+              already_exists: ay dati na
+        team:
+          attributes:
+            slug:
+              slug_format: tumatanggap lang ng titik, bilang, at gitling
+      messages:
+        record_invalid: 'Nag-fail ang pagpapatunay: %{errors}'
+        improbable_phone: ay hindi wastong numero
+        too_short:
+          one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
+          other: ay masyadong maikli (hindi bababa sa %{count} karakter)
+  slack_webhook_format_wrong: Hindi wasto ang Slack webhook, ang format dapat ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slug_is_reserved: ay nakareserba na
+  invalid_media_item: Paumanhin, hindi ito valid item
+  invalid_default_status_for_custom_verification_status: Hindi wasto ang default na
+    status identifier
+  invalid_active_status_for_custom_verification_status: Hindi wasto ang active status
+    identifier
+  invalid_label_for_custom_verification_status: Kinakailangan ang status label
+  invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at
+    ang nilalaman lang dapat ito ay mga maliiit na titik, bilang, gitling, at salungguhit
+  invalid_statuses_format_for_custom_verification_status: 'Ang mga custom verification
+    status, dapat may mga wastong entry para sa: label, identifier, deskripsyon, at
+    istilo'
+  mail_account_confirmation: Pagkumpirma ng account sa %{app_name}
+  slack:
+    fields:
+      assigned: Itinalaga kay
+      unassigned: Inalis mula sa pagkakatalaga kay
+      project: Listahan
+      source: Source
+      status: Status
+      status_previous: Ang nakaraang status
+      related_to: May kaugnayan sa
+      view_button: Tingnan ang %{type} sa %{app}
+      project_source: Source
+      project_media: Item
+      attribution: Sinagutan ni
+    messages:
+      task_create: Nagdagdag si %{user} (%{role} sa %{team}) ng Gawain
+      task_edit: Nag-edit si %{user} (%{role} sa %{team}) ng gawain
+      task_assign: 'Nagtalaga si %{user} (%{role} sa %{team}) ng %{type} '
+      task_unassign: Nag-alis si %{user} (%{role} sa %{team}) ng %{type} mula sa pagkakatalaga
+      task_answer_create: Sumagot si %{user} (%{role} sa %{team}) ng isang Gawain
+      task_answer_edit: Nag-edit si %{user} (%{role} sa %{team}) ng sagot sa isang
+        Gawain
+      task_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa isang Gawain
+      project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
+        %{parent_type}
+      project_media_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
+      project_media_create_related: Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay
+        na %{type}
+      project_media_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
+      project_media_status: Iniba ni %{user} (%{role} sa %{team}) ang %{workflow}
+        status ng isang %{type}
+      project_media_assign: Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}
+      project_media_unassign: Inalis ni %{user} (%{role} sa %{team}) ang %{type} mula
+        sa pagkakatalaga
+      project_source_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
+        isang %{parent_type}
+      project_source_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
+      project_source_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
+      project_create: Gumawa si %{user} (%{role} sa %{team}) ng Listahan
+      project_assign: Nagtalaga si %{user} (%{role} ng %{team}) ng Listahan
+      project_unassign: Nag-alis si %{user} (%{role} ng %{team}) ng Listahan mula
+        sa pagkakatalaga
+      user_member: Sumali si %{user} sa workspace na %{team}
+      user_requested: Humiling si %{user} na sumali sa workspace na %{team}
+      user_invited: Inanyayahan si %{user} na sumali sa workspace na %{team}
+      user_banned: Na-ban si %{user} mula sa workspace na %{team}
+  mail_view_welcome: Maligayang pagdating sa %{app_name}
+  mail_view_register: 'Isang hakbang ka na lang mula sa paggamit ng %{app_name}! Mangyaring
+    kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
+  mail_confirm_button: Kumpirmahin ang account ko
+  slack_restricted_join_to_members: 'Paumanhin, hindi ka maaaring sumali sa %{team_name}dahil
+    mga miyembro lang ng Slack workspace(s) na %{teams} ang makakasali rito.  '
+  admin:
+    actions:
+      send_reset_password_email:
+        menu: Ipadala ang mga panuto sa pag-reset ng password
+      export_project:
+        menu: I-export ang datos
+      export_images:
+        menu: I-export ang larawan
+      delete_tasks:
+        done: binura ang mga gawain
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: 'Sigurado ka bang nais mong burahin ang lahat ng gawain sa workspace
+            na <strong>%{team}</strong>? Tatanggalin ang mga sumusunod na gawain:'
+      duplicate_team:
+        menu: I-duplicate ang workspace
+        done: kinopya
+        are_you_sure_you_want_to_copy_team:
+          html: Sigurado ka bang nais mong kopyahin ang lahat ng gawain sa workspace
+            na <strong>%{team}</strong>? Kokopyahin din ang lahat ng kaugnay na datos.
+        the_team_is_being_copied: Kasalukuyan nang kinokopya ang workspace
+        url_when_ready:
+          html: Kapag handa na, makikita ang kopya ng workspace sa <strong>%{copy_url}</strong>
+    flash:
+      delete_team_scheduled: Kasalukuyang binubura ang workspace na %{team}
+  email_not_found: Hindi matagpuan ang e-mail
+  slack_channel_format_wrong: Hindi wastong Slack channel
+  invalid_token: Hindi Wastong Token
+  time:
+    formats:
+      oembed: "%B %d, %Y"
+      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      email: "%B %d, %Y %I:%M %p %Z"
+  oembed_disclaimer_undetermined: Hindi pa nabeberipika ni %{team} ang item na ito
+  oembed_disclaimer_in_progress: Ang item na ito ay bineberipika pa ni %{team} nitong
+    %{date}
+  oembed_disclaimer_verified: Ang item na ito ay natukoy na beripikado ni %{team}
+    noong %{date}
+  oembed_disclaimer_false: Ang item na ito ay natukoy na mali ni %{team} noong %{date}
+  oembed_disclaimer_not_applicable: Walang maabot na konklusyon si %{team} tungkol
+    sa item na ito nitong %{date}
+  oembed_source_date: "%{date} sa %{provider}"
+  role_editor: tagapag-edit
+  role_owner: may-ari
+  role_contributor: tagapag-ambag
+  role_journalist: peryodista
+  role_annotator: anotador
+  role_none: miyembro
+  role_: sysadmin
+  oembed_credit: Idinagdag ni %{user} (%{role}) %{date}
+  oembed_notes_count:
+    one: Isang note
+    other: "%{count} na note"
+  oembed_completed_tasks_count:
+    one: Isang nakumpletong gawain
+    other: "%{count} nakumpletong gawain"
+  oembed_verification_tasks: Gawain
+  oembed_tasks: Mga gawain
+  oembed_translations: Mga pagsasalin
+  oembed_expand_all: Palawakin lahat
+  oembed_collapse_all: I-collapse lahat
+  oembed_resolved_tasks_count:
+    one: Isang gawaing naresolba
+    other: "%{count} nalutas na gawain"
+  oembed_notes: Mga note
+  duplicate_source: Naririto ang source
+  geolocation_invalid_value: Ang lokasyon ay dapat magkaroon ng wastong GeoJSON (http://geojson.org/)
+  datetime_invalid_date: Mangyaring magbigay ng wastong petsa
+  error_team_archived: Paumanhin, hindi maaaring magdagdag ng listahan sa binasurang
+    workspace
+  error_project_archived: Paumanhin, hindi maaaring magdagdag ng item sa binasurang
+    listahan
+  error_team_archived_for_source: Paumanhin, hindi maaaring magdagdag ng source sa
+    binasurang workspace
+  permission_error: Paumanhin, hindi ka pinahihintulutang magsagawa ng operasyong
+    ito
+  error_annotated_archived: Paumanhin, hindi maaaring magdagdag ng note sa binasurang
+    item
+  only_super_admin_can_do_this: Paumanhin, mga system administrator lang ang maaaring
+    gumawa ng pagbabagong ito
+  cant_change_custom_statuses: |-
+    Paumanhin, hindi mo maaaring baguhin ang status definitions dahil mawawala ang ibang status. Ang mga status identifier na ito: %{statuses} ay ginagamit ng mga sumusunod na item:
+    %{urls} %{others_amount}
+  account_exists: Dati na ang account na ito
+  media_exists: Dati na ang item na ito
+  source_exists: Dati na ang source na ito
+  email_exists: ay nakuha na
+  banned_user: 'Paumanhin, na-ban ang iyong account mula sa %{app_name}. Mangyaring
+    makipag-ugnay sa support team kung sa tingin mo ay isa itong pagkakamali. '
+  devise:
+    mailer:
+      reset_password_instructions:
+        subject: Mga panuto sa pag-reset ng password sa %{app_name}
+        header_title: Kahilingan para sa pag-reset ng password
+        header_text: Natanggap namin ang iyong kahilingang i-reset ang iyong password
+          sa %{app_name}.
+        action: I-reset ang iyong password
+        expiry: Lilipas ang kahilingang ito sa loob ng %{expire} oras.
+        instruction_1: Mag-click dito para gumawa ng bagong kahilingan.
+        instruction_2: Kung hindi ikaw ang gumawa ng kahilingang ito, o nahihirapan
+          ka sa pag-reset ng iyong password, mangyaring makipag-ugnay sa amin sa %{support_email}.
+      invitation_instructions:
+        subject: Inanyayahan ka ni %{user} na sumali sa workspace na %{team}
+        hello: Kumusta %{name}
+        someone_invited_you_default:
+          html: Inanyayahan ka ni %{name} na sumali sa workspace na %{team} bilang
+            %{role}.
+        someone_invited_you_custom:
+          html: 'Inanyayahan ka ni %{name} sa workspace na %{team} bilang %{role},
+            at nagsasabing:'
+        accept: Tanggapin ang paanyaya
+        accept_until: Ang paanyayang ito ay lilipas sa %{due_date}.
+        ignore: Kung ayaw mong tanggapin ang paanyayang ito, mangyaring huwag pansinin
+          ang email na ito.
+        app_team: Workspace ng %{app}
+    failure:
+      unconfirmed: Mangyaring tingnan ang iyong email para maberipika ang iyong account.
+  user_invitation:
+    invited: Naanyayahan na ang user sa workspace na ito.
+    member: Miyembro na ang user na ito.
+    team_found: Hindi matagpuan ang workspace.
+    invalid: Hindi wastong invitation token.
+    no_invitation: Wala pang paanyaya para sa workspace na %{name}
+  error_user_is_not_a_team_member: Paumanhin, maaari ka lamang magtalaga sa mga miyembro
+    nitong workspace
+  error_login_with_exists_account: Paumanhin, may ibang user nang gumagamit ng account
+    na ito
+  error_login_2fa: Mangyaring kumpletuhin ang iyong sign-in sa pagbibigay ng authentication
+    code.
+  error_record_not_found: 'Hindi matagpuan ang %{type} #%{id}'
+  mail_see_it: 'Maaari mo itong matagpuan sa:'
+  mails_notifications:
+    greeting: Kumusta, %{username}?
+    greeting_anonymous: Kumusta?
+    project_view: Tingnan ang listahan
+    unsubscribe: Mag-unsubscribe
+    unsubscribe_link: "%{unsubscribe} mula sa mga abisong ito"
+    copyright_html: '%{app_name} ng <a href="https://meedan.com">Meedan</a>'
+    register:
+      subject: Bagong account para sa iyo sa %{app_name}
+      header_text: |-
+        Matagumpay kang nakapag-sign-up sa %{app_name}!
+        <br>
+        Para makapag-login sa site, sundan lang ang link na ito: %{url}. Ilagay itong email address at itong password: %{password}.
+      login_button: Mag-login sa %{app_name}
+      footer_text: Salamat sa pagsali at magandang araw sa iyo!
+    duplicated:
+      subject: Ang iyong lpamamaraan ng pag-login sa %{app_name}
+      header_title: Duplicate Account
+      one_email: |-
+        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login mo sa %{app_name}.</p>
+        <p>Ang nangyari: Sinubukan mong mag-sign in sa %{app_name} gamit ang %{user_provider}-based account na naka-link sa %{user_email}.
+        Pero ang email address na ito ay nakaugnay na sa isang %{duplicate_provider}-based account sa %{app_name}.</p>
+        <p>Ang susunod na gagawin: Mag-sign in gamit ang %{duplicate_provider}.</p>
+        <p>Matapos ito, mala-login ka sa account na ginagamit mo noon.
+        Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
+      both_emails: |-
+        <p>Isa lamang itong paalala para matulungan kang siguruhin ang pag-login mo sa %{app_name}.</p>
+        <p>Ang nangyari: Sinubukan mong gumawa ng bagong email- based account sa %{app_name}, pero dati na ang account na ito.</p>
+        <p>Subukan mong mag-sign in gamit ang iyong email at password, sa halip na gumawa ng panibagong account.</p>
+        <p>Matapos ito, mala-login ka sa account na ginagamit mo noon. Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
+      email: email
+    invitation:
+      title: Bagong Paanyaya
+    delete_user:
+      subject: "[%{team}] May user na binura"
+      header_title: Binura ang User
+      header_text: May user account na binura at nilipat ang pagkakatalaga ng nilalaman
+        nito sa %{anonymous} user %{id}
+      anonymous: anonymous
+    admin_mailer:
+      team_download_subject: "[%{team}] Handa nang ma-download ang workspace data
+        snapshot"
+      team_dump_title: Data ng Workspace
+      types:
+        dump: snapshot ng datos
+        csv: ulat
+        images: arkibo ng larawan
+      team_dump_text: 'Humingi ka ng data snapshot para sa workspace na %{team} -
+        narito ang link para ma-download ito: %{link}'
+      team_dump_button: I-download ang datos ng workspace
+      decompress_text: Ang %{type} ay mada-download bilang compressed at encrypted
+        na file. Para ma-decompress ito, mangyaring gamitin ang password na %{password}.
+      expire_note: Mangyaring tandaang mage-expire ang link na ito sa loob ng %{days}
+        araw.
+      project_export_csv_subject: "[%{team} - %{project}] Handa nang ma-download ang
+        list report"
+      project_export_images_subject: "[%{team} - %{project}] Handa nang ma-download
+        ang arkibo ng larawan ng listahan"
+      project_export_title: Datos ng Listahan
+      project_export_button: I-download ang datos ng listahan
+      project_export_csv_text: 'Humingi ka ng ulat para sa listahang %{project} -
+        narito ang link para ma-download ito: %{link}'
+      project_export_images_text: 'Humingi ka ng arkibo ng larawan para sa listahang
+        %{project} - narito ang link para ma-download ito: %{link}'
+      team_import_subject: Natapos na ang pag-angkat mo ng datos
+      team_import_title: Pag-angkat ng Datos
+      team_import_text: "<p>Natapos na ang iyong gawaing pag-angkat ng datos papasok
+        sa %{app_name}. Maaari mong matingnan ang %{worksheet_url} para masuri ang
+        status ng bawat aangkating item. Tandaang maaari mong ulitin ang pag-aangkat
+        pagkatapos mong maayos ang anumang mga pagkakamaling naka-ulat doon - hindi
+        madu-duplicate ang mga item na nauna nang inangkat."
+    task_resolved:
+      subject: "[%{team} - %{project}] Nasagutang Gawain"
+      header_title: Nasagutang Gawain
+      header_text: Sumagot si %{author} ng isang gawain sa listahang %{project} sa
+        %{team}.
+      section_title: Sino o ano ang pinagkunan ng item?
+      status: Status
+      media_h: Item
+    media_status:
+      label: item
+      subject: "[%{team} - %{project}] May item status na minarkahan bilang %{status}"
+      header_title: Naka-update ang Item Status
+      header_text: In-update ni %{author} ang status ng isang item sa listahang %{project}
+        sa %{team}.
+      section_title: Minarkahan bilang %{status}.
+      added_to: Idinagdag sa %{app_name}
+      update_h: Huling Update
+      tasks_h: Mga Natapos na Gawain
+    assignment:
+      assign_task_subject: "[%{team} - %{project}] May gawaing itinalaga sa iyo"
+      unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis mula sa pagkakatalaga
+        sa iyo"
+      assign_project_subject: "[%{team} - %{project}] May listahang itinalaga sa iyo"
+      unassign_project_subject: "[%{team} - %{project}] May listahang inalis sa pagkakatalaga
+        mula sa iyo"
+      assign_media_subject: "[%{team} - %{project}] May item na itinalaga sa iyo"
+      unassign_media_subject: "[%{team} - %{project}] May item na inalis sa pagkakatalaga
+        mula sa iyo"
+      assign_project_title: Listahang Nakatalaga
+      unassign_project_title: Listahang Inalis sa Pagkakatalaga
+      assign_project_text: 'Itinalaga ni %{author} ang listahang %{project} sa %{team}. '
+      unassign_project_text: Inalis ni %{author} ang listahang %{project} mula sa
+        pagkakatalaga sa %{team}.
+      assign_task_title: Gawaing Nakatalaga
+      unassign_task_title: Gawaing Inalis sa Pagkakatalaga
+      assign_task_text: Nagtalaga si %{author} ng isang gawain sa listahang %{project}
+        sa %{team}.
+      unassign_task_text: Nag-alis si %{author} ng isang gawain mula sa pagkakatalaga
+        sa listahang %{project} sa %{team}.
+      assign_media_title: Item na Nakatalaga
+      unassign_media_title: Item na Inalis sa Pagkakatalaga
+      assign_media_text: Nagtalaga si %{author} ng isang item sa listahang %{project}
+        sa %{team}.
+      unassign_media_text: Nag-alis si %{author} ng isang item mula sa pagkakatalaga
+        sa listahang %{project} sa %{team}.
+      assign_log: Itinalaga ni %{author} ang %{model} kay %{username}
+      unassign_log: Inalis ni %{author} ang %{model} mula sa pagkakatalaga kay %{username}
+      assign_by: Itinalaga ni
+      unassign_by: Inalis sa pagkakatalaga ni
+      project_button: Pumunta sa pahina ng listahan
+    request_to_join:
+      subject: Kahilingang sumali sa workplace na %{team}
+      team_page: pahina ng workspace
+      team_button: Pumunta sa pahina ng workspace
+      rejected_subject: Tinanggihan ang iyong kahilingang sumali sa %{team}
+      approved_subject: Maligayang pagdating sa workspace na %{team}
+      request_title: Kahilingang sumali sa workspace na %{team}
+      request_text: Nais sumali ni %{name} (%{email}) sa workspace na %{team} sa %{app_name}.
+        Maaaring iproseso ang kahilingang ito sa pagbisita sa %{url}.
+      approved_title: Maligayang pagdating sa workspace na %{team}
+      approved_text: Inaprubahan ang iyong kahilingang sumali sa workspace na %{team}
+        sa %{app_name}. Maaari ka nang pumunta sa %{url} at magsimulang mag-ambag.
+      rejected_title: Tinanggihan ang Kahilingan
+      rejected_text: Paumanhin, tinanggihan ang iyong kahilingang sumali sa workspace
+        na %{team} sa %{app_name}.
+  mail_security:
+    device_subject: 'Alertong panseguridad: May bagong login sa %{app_name} mula sa
+      %{browser} sa %{platform}'
+    ip_subject: 'Alertong panseguridad: May bago o kakaibang login sa %{app_name}'
+    failed_subject: 'Alertong panseguridad: Mga bigong pagtatangka na mag-login sa
+      %{app_name}'
+    ip: Nag-sign in ka sa %{location}
+    device: Naka-sign in ka sa %{browser} sa %{platform}
+    devise_name: "%{browser} sa %{platform}"
+    failed: May mga natuklasang bigong pagtatangka sa pag-login
+    password_text: agarang i-reset ang iyong password.
+    device_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula
+      sa bagong device. Kung hindi ito ikaw, dapat mong %{change_password}
+    ip_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula sa
+      bagong lokasyon. Kung hindi ito ikaw, dapat mong %{change_password}
+    failed_text: Mukhang may maramihang pagtatangka para makapag-login sa iyong %{app_name}
+      account. Kung ikaw ito, ligtas na maaari mong hindi pansinin ang email na ito.
+      Kung hindi ito ikaw, dapat mong %{change_password}
+    time_h: Oras
+    device_h: Device
+    location_h: Lokasyon
+    location_disclaimer: "* Ang lokasyon ay tinatantiya base sa IP address na pinagmulan
+      nito."
+    ip_h: IP Address
+    privacy: "%{manage} ang iyong mga abiso sa email • Dagdagan ang kaalaman tungkol
+      sa aming %{privacy}"
+    privacy_text: Patakaran sa Pagkapribado
+    manage_text: Mamahala
+    privace_manage_plain: I-manage ang mga abiso sa email
+    privacy_plain: Dagdagan ang kaalaman tungkol sa aming Patakaran sa Pagkapribado
+  archive_keep_backup: Video Vault
+  archive_pender_archive: Screenshot
+  archive_archive_is: Archive.is
+  archive_archive_org: Archive.org
+  workflow_status_not_valid: Hindi wastong status
+  workflow_status_permission_error: Paumahin, hindi ka pinahihintulutang baguhin ang
+    status na ito.
+  blank_default_status_for_custom_verification_status: Mangyaring magbigay ng 'default'
+    na value para sa mga custom verification status
+  blank_active_status_for_custom_verification_status: Mangyaring magbigay ng 'active'
+    na value para sa mga custom verification status
+  bot_name_exists_for_this_team: Mayroon nang bot sa pangalang binigay sa loob ng
+    workspace na ito
+  bot_team_id_doesnt_exist: Paumanhin, walang workspace sa binigay na identifier
+  bot_team_id_mandatory_to_create: Paumanhin, kinakailangang mamili ng workspace para
+    makagawa ng bot
+  bot_not_approved_for_installation: Paumanhin, hindi naaprubahan ang bot na ito kaya
+    hindi ito ma-install
+  only_admins_can_approve_bots: Paumanhin, mga system administrator lang ang maaaring
+    mag-approve ng bot
+  could_not_save_related_bot_data: Paumanhin, hindi maidagdag ang bot sa workspace
+    na ito
+  bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
+    ang isang bot - mangyaring magpadala na lamang ng imumungkahing sagot
+  bot_cant_add_review_to_task: Paumanhin, hindi nakasusuri ng gawain ang isang bot
+  task_suggestion_invalid_value: Ang isang mungkahi ay dapat JSON hash na may 'mungkahi'
+    (ang akwtal na value na ikinokopya sa sagot sa gawain kapag tinanggap) at 'komento'
+    (ipinakikita sa users)
+  tag_text_id_not_found: Paumanhin, walang tag sa binigay na identifier
+  annotation_type_language_label: Wika
+  smooch_bot_message_confirmed: |-
+    Salamat. Naipadala na ang iyong kahilingan sa aming pila pamberipikasyon.
+
+    Sisikapin naming magpadala ng ulat sa loob ng 24 oras, pero mangyaring tandaan na hindi namin kayang masagutan ang bawat kahilingan.
+  smooch_bot_message_unconfirmed: Bilang hindi ka sumagot ng 1, hindi na namin pa
+    ipo-proseso ang iyong kahilingan. Salamat.
+  smooch_bot_message_type_unsupported: Paumanhin, hindi namin sinusuportahan ang ganitong
+    uri ng mensahe.
+  smooch_bot_message_size_unsupported: Paumanhin, hindi namin sinusuportahan ang mga
+    file na higit sa %{max_size}.
+  smooch_bot_result: |-
+    [Ulat Pamberipikasyon] Ang iyong binahaging item sa amin ay minarkahan bilang *%{status}*.
+
+    Narito ang mga ginawa naming hakbang para matukoy ito: %{url}
+  smooch_bot_ask_for_confirmation: |-
+    Salamat sa pagpapadala ng kahilingang ito. Nais mo bang beripikahin namin ang nilalaman nito?
+
+    Para magsabi ng oo, *mangyaring mag-reply ng 1*. Ang anumang ibang tugon ay tatapos sa ating pag-uusap.
+  smooch_bot_ask_for_tos: |-
+    Salamat sa paglapit sa Check Message!
+
+    Maaari mong gamitin ang serbisyong ito para humiling ng pagbeberipika, pagfa-fact-check, at pagsisiyasat ng balita at kaalaman. Ang Check Message ay ipinagkakaloob sa iyo sa ilalim nitong mga Tuntunin ng Serbisyo: %{tos}. Sa patuloy na paggamit sa serbisyong ito, *sumasang-ayon kang magpailalim sa mga tuntuning ito*. Dapat kang huminto sa paggamit ng Check Message sakaling hindi ka sumasang-ayon.
+  smooch_bot_window_closing: Napakarami ng mga kahilingan sa channel na ito, at hindi
+    pa namin nalulutas ang iyong kahilingan. Maraming salamat sa iyong pasensya.
+  smooch_bot_not_final: |-
+    [Ulat Pamberipikasyon - PAGWAWASTO] Ang iyong binahaging mensahe sa amin ay maling namarkahan bilang *%{status}*.
+
+    Nasa pila pa rin namin ito para sa karagdagang beripikasyon.
+  smooch_bot_disabled: Salamat sa pagpapadala ng mensaheng ito. Hindi kami makapagbalik
+    ng anumang ulat pamberipikasyon, dahil hindi na aktibo ang proyektong ito.
+  smooch_bot_result_changed: "❗️Ang ipinadala naming fact-check sa iyo ay *in-update*
+    ng bagong impormasyon"
+  permissions_info:
+    roles:
+      owner:
+        description: Ang mga may-ari ang may kontrol sa workspace.
+      editor:
+        description: Ang mga tagapag-edit ang namamahala sa workspace at mga listahan.
+      journalist:
+        description: Ang mga peryodista ang nagbeberipika ng impormasyon.
+      contributor:
+        description: Ang mga tagapag-ambag ay kayang magdagdag ng bagong impormasyong
+          ibeberipika. Kadalasan, sila ay mga miyembro ng publiko.
+      annotator:
+        description: Ang mga anotador ay kaya lang tumingin at sumagot ng mga gawaing
+          itinalaga sa kanila.
+    permissions:
+      sections:
+        project_management:
+          name: Pamamahala ng listahan
+          permissions:
+            create: Gumawa ng listahan
+            edit: I-edit ang listahan
+            delete: Burahin ang listahan
+            add_item: Magdagdag ng item sa listahan
+        item_page_management:
+          name: Pamamahala ng item
+          permissions:
+            edit: I-edit ang item
+            move: Ilipat ang item
+            change_status: Palitan ang status ng item
+            lock_unlock_status: I-lock/i-unlock ang status
+            add_remove_tag: Magdagdag/magtanggal ng mga tag
+            send_to_trash: Ipadala ang item o source sa basurahan
+            empty_trash: Ubusin ang laman ng basurahan
+        task_management:
+          name: Pamamahala ng gawain
+          permissions:
+            create: Gumawa ng gawain
+            edit: I-edit ang gawain
+            delete: Burahin ang gawain
+            add_response: Magdagdag ng tugon
+            delete_repsonse: Burahin ang tugon
+            assign_task: Magtalaga ng gawain o item
+        team_management:
+          name: pamamahala ng workspace
+          permissions:
+            delete: Isara ang workspace
+            edit: I-edit ang impormasyon ng workspace
+            set_private: Itakda ang workspace bilang pribado
+            edit_status: I-edit ang mga workspace status
+            edit_tasks: Gumawa at mag-edit ng mga gawaing pang-workspace
+            roles: I-edit ang mga papel sa workspace
+            third_party: Magdagdag ng mga third-party integration
+            invite_owner: Mag-anyaya, mag-apruba, at magtanggal ng mga may-ari ng
+              workspace
+            invite_members: Mag-anyaya, mag-apruba, at magtanggal ng mga miyembro
+              ng workspace
+  team_import:
+    invalid_google_spreadsheet_url: Hindi wastong URL ng spreadsheet %{spreadsheet_url}
+    not_found_google_spreadsheet_url: Hindi matagpuan ang spreadsheet sa %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: Hindi mapatunayan ang Google Drive gamit
+      ang kasalukuyang mga kredensyal. Mangyaring makipag-ugnay sa support team para
+      ipagbigay-alam sa kanila ang insidenteng ito.
+    team_not_present: Hindi matagpuan ang kasalukuyang workspace habang nag-aangkat
+      ng datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
+    user_not_present: Hindi matagpuan ang kasalukuyang user habang nag-aangkat ng
+      datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
+    user_not_authorized: Paumanhin, hindi ka pinahihintulutang mag-angkat ng datos
+      sa workspace na ito.
+    invalid_project: Hindi wastong listahan %{project}
+    invalid_user: Hindi wastong may-akda %{user}
+    invalid_status: Hindi wastong status %{status}
+    blank_user: Hindi wastong blangkong may-akda
+    blank_annotator: Hindi wastong blangkong anotador
+    blank_project: Hindi wastong blangkong listahan
+    invalid_annotator: Hindi wastong anotador %{user}
+    invalid_assignee: Hindi wastong assignee %{user}
+  cant_mutate_inactive_object: Paumanhin, may nakabinbing operasyon para sa item na
+    ito, kaya hindi mo pa ito maaaring baguhin ngayon. Mangyaring sumubok ulit mamaya.
+  embed_expand_all: Palawakin lahat
+  embed_collapse_all: I-collapse lahat
+  embed_tasks: Mga gawain
+  embed_description: Deskripsyon
+  other_language: Iba pa
+  unidentified_language: Hindi matukoy
+  relationship_item_has_parent: Ang item na ito ay anak na ng iba pang item
+  smooch_requests: Mga kahilingan
+  smooch_requests_asc: Pinakabihirang hilingin
+  smooch_requests_desc: Pinakamadalas hilingin
+  bot_request_url_invalid: Hindi wasto ang URL ng bot
+  smooch_twitter_success: Tagumpay! Ang mga matatanggap na DM nitong Twitter account
+    ay hahawakan na ng Smooch Bot.
+  invalid_task_answer: Paumanhin, hindi wasto ang format ng task answer na ito
+  team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
+  team_rule_project_ids: I-apply sa listahan
+  team_rule_destination: Mamili ng listahang patutunguhan
+  team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko
+    at dapat kakaiba
+  team_rules: Mga panuntunan
+  team_rule_conditions: Kung
+  team_rule_condition: Kung
+  team_rule_condition_definition: Mamili ng kundisyon
+  team_rule_has_less_than_x_words: Ang kahilingan ay hindi humihigit sa sumusunod
+    na bilang ng mga salita
+  team_rule_title_matches_regexp: Tugma ang pamagat ng item sa regular expression
+    na ito
+  team_rule_request_matches_regexp: Tugma ang kahilingan sa regular expression na
+    ito
+  team_rule_type_is: Ang uri ng item ay
+  team_rule_type_is_claim: Teksto
+  team_rule_type_is_link: Link
+  team_rule_type_is_uploadedimage: Larawan
+  team_rule_type_is_uploadedvideo: Video
+  team_rule_contains_keyword: Ang kahilingan ay naglalaman ng isa o higit pa sa sumusunod
+    na mga keyword
+  team_rule_title_contains_keyword: Nilalaman ng pamagat ng item ang isa o higit pa
+    sa mga sumusunod na keyword
+  team_rule_select_type: Mamili ng uri
+  team_rule_select_language: Mamili ng wika
+  team_rule_tagged_as: Ang item ay naka-tag bilang
+  team_rule_select_tag: Mamili ng tag
+  team_rule_select_status: Mamili ng status
+  team_rule_status_is: Ang item status ay
+  team_rule_type_regexp: Mag-type ng regular expression
+  team_rule_type_number: Ilagay ang dami ng salita
+  team_rule_value: Mag-type ng listahan ng keywords na ipinaghihiwalay ng mga kuwit
+  team_rule_actions: Samakatuwid
+  team_rule_action: Samakatuwid
+  team_rule_action_definition: Mamili ng gagawin
+  team_rule_send_to_trash: Ipadala sa basurahan
+  team_rule_move_to_project: Ilipat ang item sa listahan
+  team_rule_copy_to_project: Idagdag ang item sa listahan
+  team_rule_ban_submitter: I-ban ang nagsumite (hindi na lalabas ang mga susunod nilang
+    mensahe sa Check)
+  team_rule_all_items: Lahat ng item
+  team_rule_send_message_to_user: Ipadala ang mensahe sa user
+  team_rule_action_value: I-type ang mensahe rito
+  team_rule_item_titles_are_similar: Magkatulad ang mga pamagat ng item
+  team_rule_item_images_are_similar: Magkatulad ang mga larawan
+  team_rule_relate_similar_items: Ipag-ugnay ang mga item
+  team_rule_type_title_threshold: Distansya sa pagitan ng mga pamagat ng item
+  team_rule_type_image_threshold: Layo sa pagitan ng mga larawan
+  team_rule_type_flag_threshold: May posibilidad na hindi bababa sa
+  team_rule_select_flag: Mamili ng flag
+  team_rule_flagged_as: Naka-flag ang item bilang
+  team_rule_report_is_published: Nailathala ang ulat
+  team_rule_report_is_paused: Nakahinto ang ulat
+  team_rule_condition_groups: Mga grupong pangkundisyon
+  team_rule_condition_group: Grupong pangkundisyon
+  team_rule_operator: Operator
+  team_rule_json_schema_validation: Hindi wasto ang format ng mga panuntunan
+  team_rule_updated_at: In-update noong
+  team_rule_item_language_is: Ang wika ng item ay
+  flag_adult: Pang-matanda
+  flag_spoof: Spoof
+  flag_medical: Pang-medikal
+  flag_violence: Karahasan
+  flag_racy: Sekswal
+  flag_spam: Spam
+  annotation_type_flag_name_label: I-flag
+  annotation_type_flag_value_label: Posibilidad ng pagkaka-flag
+  flag_likelihood_0: Hindi matukoy
+  flag_likelihood_1: Higit na walang katiyakan
+  flag_likelihood_2: Walang katiyakan
+  flag_likelihood_3: Posible
+  flag_likelihood_4: Maaari
+  flag_likelihood_5: Higit na maaari
+  relationship_not_same_team: Dapat nasa iisang workspace ang magkaugnay na item
+  cant_change_status_if_item_is_published: Paumanhin, hindi ka maaaring magpalit ng
+    status habang nakalathala ang ulat
+  custom_message_status_undetermined_afp-checamos: ''
+  custom_message_status_in_progress_afp-checamos: ''
+  custom_message_status_inconclusive_afp-checamos: ''
+  custom_message_status_false_afp-checamos: ''
+  custom_message_status_verified_afp-checamos: ''
+  custom_message_status_true_afp-checamos: ''
+  custom_message_status_misleading_afp-checamos: ''
+  custom_message_status_satire_afp-checamos: ''
+  custom_message_status_out_of_scope_afp-checamos: ''
+  custom_message_status_warning_afp-checamos: ''
+  custom_message_status_sugestao_afp-checamos: ''
+  custom_message_status_necessario-mais-dados_afp-checamos: ''
+  custom_message_status_resources_afp-checamos: ''
+  custom_message_smooch_bot_result_afp-checamos: ''
+  custom_message_smooch_bot_result_changed_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
+  custom_message_smooch_bot_message_confirmed_afp-checamos: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-checamos: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-checamos: ''
+  custom_message_smooch_bot_not_final_afp-checamos: ''
+  custom_message_smooch_bot_meme_afp-checamos: ''
+  custom_message_smooch_bot_window_closing_afp-checamos: ''
+  custom_message_smooch_bot_disabled_afp-checamos: ''
+  custom_message_smooch_bot_ask_for_tos_afp-checamos: ''
+  custom_message_smooch_bot_greetings_afp-checamos: ''
+  custom_message_smooch_bot_option_not_available_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
+  custom_message_status_undetermined_afp-fact-check: ''
+  custom_message_status_in_progress_afp-fact-check: ''
+  custom_message_status_inconclusive_afp-fact-check: ''
+  custom_message_status_false_afp-fact-check: ''
+  custom_message_status_verified_afp-fact-check: ''
+  custom_message_status_misleading_afp-fact-check: ''
+  custom_message_status_report-misleading_afp-fact-check: ''
+  custom_message_status_report-correct_afp-fact-check: ''
+  custom_message_status_report-false_afp-fact-check: ''
+  custom_message_status_need-orientation_afp-fact-check: ''
+  custom_message_smooch_bot_result_afp-fact-check: ''
+  custom_message_smooch_bot_result_changed_afp-fact-check: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
+  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
+  custom_message_smooch_bot_not_final_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: ''
+  custom_message_smooch_bot_window_closing_afp-fact-check: ''
+  custom_message_smooch_bot_disabled_afp-fact-check: ''
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
+  custom_message_smooch_bot_greetings_afp-fact-check: ''
+  custom_message_smooch_bot_option_not_available_afp-fact-check: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
+  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
+  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
+  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_status_undetermined_africa-infodemic: ''
+  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_priority_unassigned_africa-infodemic: ''
+  custom_message_status_priority_assigned_africa-infodemic: ''
+  custom_message_status_rated_true_africa-infodemic: ''
+  custom_message_status_rated_false_africa-infodemic: ''
+  custom_message_status_rated_misleading_africa-infodemic: ''
+  custom_message_status_rated_unproven_africa-infodemic: ''
+  custom_message_status_verified_boom-factcheck: ''
+  custom_message_status_false_boom-factcheck: ''
+  custom_message_status_not_applicable_boom-factcheck: ''
+  custom_message_status_misleading_boom-factcheck: ''
+  custom_message_status_partly-true_boom-factcheck: ''
+  custom_message_status_undetermined_boom-factcheck: ''
+  custom_message_status_in_progress_boom-factcheck: ''
+  custom_message_status_out_of_scope_boom-factcheck: ''
+  custom_message_status_in_the_news_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: ''
+  custom_message_status_bot-resource_boom-factcheck: ''
+  custom_message_smooch_bot_result_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: ''
+  custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
+  custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
+  custom_message_smooch_bot_not_final_boom-factcheck: ''
+  custom_message_smooch_bot_meme_boom-factcheck: ''
+  custom_message_smooch_bot_window_closing_boom-factcheck: ''
+  custom_message_smooch_bot_disabled_boom-factcheck: ''
+  custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
+  custom_message_smooch_bot_greetings_boom-factcheck: ''
+  custom_message_smooch_bot_option_not_available_boom-factcheck: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
+  custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
+  custom_message_status_unstarted_check-bot-garden: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_result_changed_caio: ''
+  custom_message_smooch_bot_message_confirmed_caio: ''
+  custom_message_smooch_bot_message_type_unsupported_caio: ''
+  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: ''
+  custom_message_smooch_bot_option_not_available_caio: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
+  custom_message_status_undetermined_check-message-demo: ''
+  custom_message_status_in_progress_check-message-demo: ''
+  custom_message_status_inconclusive_check-message-demo: ''
+  custom_message_status_false_check-message-demo: ''
+  custom_message_status_verified_check-message-demo: ''
+  custom_message_status_not_applicable_check-message-demo: ''
+  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-false_check-message-demo: ''
+  custom_message_smooch_bot_result_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_not_final_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
+  custom_message_smooch_bot_greetings_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_checkpoint: ''
+  custom_message_smooch_bot_message_confirmed_checkpoint: ''
+  custom_message_smooch_bot_message_unconfirmed_checkpoint: ''
+  custom_message_smooch_bot_disabled_checkpoint: ''
+  custom_message_smooch_bot_message_type_unsupported_checkpoint: ''
+  custom_message_smooch_bot_meme_checkpoint: ''
+  custom_message_smooch_bot_result_checkpoint: ''
+  custom_message_smooch_bot_result_changed_checkpoint: ''
+  custom_message_smooch_bot_not_final_checkpoint: ''
+  custom_message_smooch_bot_ask_for_tos_checkpoint: ''
+  custom_message_status_verified_checkpoint: ''
+  custom_message_status_false_checkpoint: ''
+  custom_message_status_in_progress_checkpoint: ''
+  custom_message_status_inconclusive_checkpoint: ''
+  custom_message_status_misleading_checkpoint: ''
+  custom_message_status_disputed_checkpoint: ''
+  custom_message_status_unstarted_checkpoint: ''
+  custom_message_status_error_checkpoint: ''
+  custom_message_status_out_of_scope_checkpoint: ''
+  custom_message_status_junk_checkpoint: ''
+  custom_message_status_undetermined_india-today: ''
+  custom_message_status_in_progress_india-today: ''
+  custom_message_status_inconclusive_india-today: ''
+  custom_message_status_false_india-today: ''
+  custom_message_status_verified_india-today: ''
+  custom_message_status_half_true_india-today: ''
+  custom_message_status_misleading_india-today: ''
+  custom_message_status_report-false_india-today: ''
+  custom_message_status_report-true_india-today: ''
+  custom_message_status_report_misleading_india-today: ''
+  custom_message_status_report-inconclusive_india-today: ''
+  custom_message_status_report_half_true_india-today: ''
+  custom_message_smooch_bot_result_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: ''
+  custom_message_smooch_bot_message_confirmed_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_unconfirmed_india-today: ''
+  custom_message_smooch_bot_not_final_india-today: ''
+  custom_message_smooch_bot_meme_india-today: ''
+  custom_message_smooch_bot_window_closing_india-today: ''
+  custom_message_smooch_bot_disabled_india-today: ''
+  custom_message_smooch_bot_ask_for_tos_india-today: ''
+  custom_message_smooch_bot_greetings_india-today: ''
+  custom_message_smooch_bot_option_not_available_india-today: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
+  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
+  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_status_false_infotagion: ''
+  custom_message_status_misleading_infotagion: ''
+  custom_message_status_true_infotagion: ''
+  custom_message_status_unconfirmed_infotagion: ''
+  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_false_africa-check: ''
+  custom_message_status_verified_africa-check: ''
+  custom_message_status_mostly-correct_africa-check: ''
+  custom_message_status_misleading_africa-check: ''
+  custom_message_status_inconclusive_africa-check: ''
+  custom_message_status_more-information_africa-check: ''
+  custom_message_status_out-of-scope_africa-check: ''
+  custom_message_status_more-about-africa-check_africa-check: ''
+  custom_message_status_report_more_information_africa-check: ''
+  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_message_confirmed_africa-check: ''
+  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
+  custom_message_smooch_bot_disabled_africa-check: ''
+  custom_message_smooch_bot_ask_for_tos_africa-check: ''
+  custom_message_smooch_bot_greetings_africa-check: ''
+  custom_message_smooch_bot_option_not_available_africa-check: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
+  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
+  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
+  custom_message_smooch_bot_result_changed_lebanon: ''
+  custom_message_smooch_bot_message_confirmed_lebanon: ''
+  custom_message_smooch_bot_message_type_unsupported_lebanon: ''
+  custom_message_smooch_bot_disabled_lebanon: ''
+  custom_message_smooch_bot_ask_for_tos_lebanon: ''
+  custom_message_smooch_bot_greetings_lebanon: ''
+  custom_message_smooch_bot_option_not_available_lebanon: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: ''
+  custom_message_status_start_mantis-8135: ''
+  custom_message_status_pause_mantis-8135: ''
+  custom_message_status_undetermined_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_undetermined_mmtan: ''
+  custom_message_status_standard_mmtan: ''
+  custom_message_status_moderate_mmtan: ''
+  custom_message_status_urgent_mmtan: ''
+  custom_message_status_all_items_mmtan: ''
+  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_d-progress_mmtan-2: ''
+  custom_message_status_d-archive_mmtan-2: ''
+  custom_message_status_f-progress_mmtan-2: ''
+  custom_message_status_f-archived_mmtan-2: ''
+  custom_message_status_undetermined_mtan: ''
+  custom_message_status_standard_mtan: ''
+  custom_message_status_moderate_mtan: ''
+  custom_message_status_urgent_mtan: ''
+  custom_message_status_all_items_mtan: ''
+  custom_message_status_resources_mtan: ''
+  custom_message_status_true_mtan: ''
+  custom_message_status_false_mtan: ''
+  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_smooch_bot_message_confirmed_mtan: ''
+  custom_message_smooch_bot_message_type_unsupported_mtan: ''
+  custom_message_smooch_bot_disabled_mtan: ''
+  custom_message_smooch_bot_ask_for_tos_mtan: ''
+  custom_message_smooch_bot_greetings_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
+  custom_message_status_verified_newtestteam02: ''
+  custom_message_status_false_newtestteam02: ''
+  custom_message_smooch_bot_result_reverso: ''
+  custom_message_smooch_bot_result_changed_reverso: ''
+  custom_message_smooch_bot_ask_for_confirmation_reverso: ''
+  custom_message_smooch_bot_message_confirmed_reverso: ''
+  custom_message_smooch_bot_message_type_unsupported_reverso: ''
+  custom_message_smooch_bot_message_unconfirmed_reverso: ''
+  custom_message_smooch_bot_not_final_reverso: ''
+  custom_message_smooch_bot_meme_reverso: ''
+  custom_message_smooch_bot_window_closing_reverso: ''
+  custom_message_smooch_bot_ask_for_tos_reverso: ''
+  custom_message_smooch_bot_result_changed_sawy: ''
+  custom_message_smooch_bot_message_confirmed_sawy: ''
+  custom_message_smooch_bot_message_type_unsupported_sawy: ''
+  custom_message_smooch_bot_disabled_sawy: ''
+  custom_message_smooch_bot_ask_for_tos_sawy: ''
+  custom_message_smooch_bot_greetings_sawy: ''
+  custom_message_smooch_bot_option_not_available_sawy: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
+  custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
+  custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
+  custom_message_smooch_bot_result_changed_team-1: ''
+  custom_message_smooch_bot_message_confirmed_team-1: ''
+  custom_message_smooch_bot_message_type_unsupported_team-1: ''
+  custom_message_smooch_bot_disabled_team-1: ''
+  custom_message_smooch_bot_ask_for_tos_team-1: ''
+  custom_message_smooch_bot_greetings_team-1: ''
+  custom_message_smooch_bot_option_not_available_team-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
+  custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
+  custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test: ''
+  custom_message_smooch_bot_message_confirmed_test: ''
+  custom_message_smooch_bot_message_type_unsupported_test: ''
+  custom_message_smooch_bot_disabled_test: ''
+  custom_message_smooch_bot_ask_for_tos_test: ''
+  custom_message_smooch_bot_greetings_test: ''
+  custom_message_smooch_bot_option_not_available_test: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
+  custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
+  custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
+  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: ''
+  custom_message_smooch_bot_option_not_available_test-3: ''
+  custom_message_smooch_bot_result_changed_test-16: ''
+  custom_message_smooch_bot_message_confirmed_test-16: ''
+  custom_message_smooch_bot_message_type_unsupported_test-16: ''
+  custom_message_smooch_bot_disabled_test-16: ''
+  custom_message_smooch_bot_ask_for_tos_test-16: ''
+  custom_message_smooch_bot_greetings_test-16: ''
+  custom_message_smooch_bot_option_not_available_test-16: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: ''
+  custom_message_smooch_bot_result_changed_test-2: ''
+  custom_message_smooch_bot_message_confirmed_test-2: ''
+  custom_message_smooch_bot_message_type_unsupported_test-2: ''
+  custom_message_smooch_bot_disabled_test-2: ''
+  custom_message_smooch_bot_ask_for_tos_test-2: ''
+  custom_message_smooch_bot_greetings_test-2: ''
+  custom_message_smooch_bot_option_not_available_test-2: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_status_factchecked_test-2: ''
+  custom_message_status_undetermined_test-2: ''
+  custom_message_status_undetermined_test-custom-status: ''
+  custom_message_status_status_b_test-custom-status: ''
+  custom_message_status_foo-bar_test-custom-status: ''
+  custom_message_status_foo-final_test-custom-status: ''
+  custom_message_smooch_bot_result_test-govtech-pap: ''
+  custom_message_smooch_bot_result_changed_test-govtech-pap: ''
+  custom_message_smooch_bot_ask_for_confirmation_test-govtech-pap: ''
+  custom_message_smooch_bot_message_confirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
+  custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
+  custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_status_video_as_evidence_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: ''
+  custom_message_status_in_progress_watching-western-sahara: ''
+  custom_message_status_inconclusive_watching-western-sahara: ''
+  custom_message_status_false_watching-western-sahara: ''
+  custom_message_status_verified_watching-western-sahara: ''
