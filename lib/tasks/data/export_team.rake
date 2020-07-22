@@ -228,13 +228,12 @@ end
 def export_zip
   require 'zip'
   zipfile = dump_filepath + '.zip'
-  password = SecureRandom.hex
-  Zip::File.open(zipfile, Zip::TraditionalEncrypter.new(password)) do |out|
+  Zip::File.open(zipfile, Zip::File::CREATE) do |out|
     @files.each do |filename, filepath|
       out.add(filename, filepath)
     end
   end
-  puts "#{zipfile}: #{password}"
+  puts "#{zipfile}"
 end
 
 namespace :check do
