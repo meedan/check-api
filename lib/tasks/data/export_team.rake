@@ -7,7 +7,7 @@ def api_keys_query(table)
    INNER JOIN
      users ON users.api_key_id = #{table}.id
    WHERE
-     users.id IN (#{get_ids('users')})"
+     users.id IN (#{user_ids_query})"
 end
 
 def dynamic_annotation_annotation_types_query(table, field = '*')
@@ -39,7 +39,7 @@ def projects_query(table, field = '*')
 end
 
 def sources_query(table, field = '*')
-  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@team.id} OR (sources.user_id IN (#{get_ids('users')})) OR team_id IS NULL"
+  "SELECT #{table}.#{field} FROM sources WHERE team_id=#{@team.id} OR (sources.user_id IN (#{user_ids_query})) OR team_id IS NULL"
 end
 
 def tag_texts_query(table)
@@ -82,22 +82,25 @@ def users_from_team_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
    WHERE
-     #{table}.id IN (#{get_ids('team_users', 'user_id')})"
+     #{table}.id IN (#{team_user_user_ids_query})"
 end
 
 def users_outside_team_query(table, field = '*')
-  query = "SELECT DISTINCT #{table}.#{field}
-   FROM #{table}
-   INNER JOIN
-     project_medias ON project_medias.user_id = #{table}.id AND project_medias.id IN (#{get_ids('project_medias')})
-   WHERE
-     #{table}.id NOT IN (#{get_ids('team_users', 'user_id')})"
-  return query unless field == '*'
-  temp_table = "users_outside_#{@team.id}"
   conn = ActiveRecord::Base.connection
-  conn.execute("CREATE TEMP TABLE #{temp_table} AS #{query}")
-  conn.execute("UPDATE #{temp_table} SET name = 'Redacted', login = 'redacted', token = NULL, email = NULL, source_id = NULL")
-  "SELECT #{temp_table}.#{field} FROM #{temp_table}"
+  masks = {
+    name: conn.quote_string('Redacted'),
+    login: conn.quote_string('Redacted'),
+    token: 'NULL',
+    email: 'NULL',
+    source_id: 'NULL',
+  }
+  columns = if field == '*' then User.column_names else [field] end
+  column_clauses = columns.map{ |col| if masks.include?(col) then "#{masks[col]} AS #{col}" else col end }
+  query = "SELECT DISTINCT #{column_clauses.join(', ')}
+   FROM #{table}
+   WHERE
+     id IN (SELECT user_id FROM project_medias WHERE project_medias.id IN (#{get_ids('project_medias')}))
+     AND id NOT IN (#{team_user_user_ids_query})"
 end
 
 def medias_query(table, field = '*')
@@ -117,22 +120,14 @@ def relationships_query(table, field = '*')
 end
 
 def annotations_query(table, field = '*')
-  annotated_types = ['accounts', 'sources', 'medias', 'project_medias']
-  unions = []
-  annotated_types.each do |annotated_table|
-    unions << "SELECT a.#{field} FROM #{table} a WHERE a.annotated_type = '#{annotated_table.classify}' AND a.annotated_id IN (#{get_ids(annotated_table)})"
-    copy_to_file(unions.last, "#{table}_#{annotated_table}", table) if field == '*'
-  end
-  unions << send('annotations_tasks_query', 'annotations', field)
-  copy_to_file(unions.last, "#{table}_tasks", table) if field == '*'
-  unions.join(' UNION ')
-end
-
-def annotations_tasks_query(table, field = '*')
-  "SELECT a.#{field}
-   FROM #{table} a, #{table} t
-   WHERE
-     a.annotated_id = t.id AND a.annotated_type = 'Task' AND t.annotated_type = 'ProjectMedia' AND t.annotated_id IN (#{get_ids('project_medias')})"
+  "SELECT #{table}.#{field}
+   FROM #{table}
+   WHERE (annotated_type = 'ProjectMedia' AND annotated_id IN (#{get_ids('project_medias')}))
+     OR (annotated_type = 'Account' AND annotated_id IN (#{get_ids('accounts')}))
+     OR (annotated_type = 'Source' AND annotated_id IN (#{get_ids('sources')}))
+     OR (annotated_type = 'Media' AND annotated_id IN (#{get_ids('medias')}))
+     OR (annotated_type = 'Task' AND annotated_id IN (SELECT id FROM annotations a2 WHERE annotations.annotated_id = a2.id AND a2.annotated_type = 'ProjectMedia' AND a2.annotated_id IN (#{get_ids('project_medias')})))
+   "
 end
 
 def bounces_query(table, field = '*')
@@ -141,14 +136,14 @@ def bounces_query(table, field = '*')
    INNER JOIN
      users ON users.email = #{table}.email
    WHERE
-     users.id IN (#{get_ids('users')})"
+     users.id IN (#{user_ids_query})"
 end
 
 def assignments_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
    WHERE
-     #{table}.user_id IN (#{get_ids('users')})"
+     #{table}.user_id IN (#{user_ids_query})"
 end
 
 def dynamic_annotation_fields_query(table, field = '*')
@@ -162,7 +157,7 @@ def login_activities_query(table, field = '*')
   "SELECT #{table}.#{field}
    FROM #{table}
    WHERE
-     #{table}.user_id IN (#{get_ids('users')})"
+     #{table}.user_id IN (#{user_ids_query})"
 end
 
 def versions_query(table, field = '*')
@@ -179,13 +174,16 @@ def get_annotation_types
   @annotation_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
+def user_ids_query
+  users_query('users', 'id')
+end
+
+def team_user_user_ids_query
+  team_users_query('team_users', 'user_id')
+end
+
 def get_ids(table, field = 'id')
-  query = send("#{table}_query", table, field)
-  if instance_variable_get("@#{table}_#{field}s").nil?
-    ids = ActiveRecord::Base.connection.execute(query).values.map {|v| v[0] }.concat(['-1']).join(',')
-    instance_variable_set("@#{table}_#{field}s", ids)
-  end
-  instance_variable_get("@#{table}_#{field}s")
+  send("#{table}_query", table, field)
 end
 
 def primary_key(table)
@@ -210,8 +208,6 @@ end
 
 def copy_to_file(select_query, filename, table)
   filename += '.csv'
-  @progressbar.log "Export #{filename}"
-  @progressbar.increment
   begin
     filepath = File.join(tmp_folder_path, filename)
     @files[filename] = filepath
@@ -235,8 +231,6 @@ def export_zip
   password = SecureRandom.hex
   Zip::File.open(zipfile, Zip::TraditionalEncrypter.new(password)) do |out|
     @files.each do |filename, filepath|
-      @progressbar.log "Zip #{filename}"
-      @progressbar.increment
       out.add(filename, filepath)
     end
   end
@@ -259,30 +253,17 @@ namespace :check do
         "schema_migrations",
         "shortened_urls",
         "claim_sources",
-        "project_sources"
+        "project_sources",
       ]
       tables = ActiveRecord::Base.connection.tables - exceptions
-      # total = tables + csv files + 4 additional tables for annotations
-      @progressbar = ProgressBar.create(:total => (tables.count + 4) * 2)
+      # total = tables + csv files
       @files ||= {}
       tables.each do |table|
         query = "#{table}_query"
-        begin
-          if self.respond_to?(query, table)
-            if table == "annotations"
-              send(query, table)
-            else
-              copy_to_file(send(query, table), table, table)
-            end
-          else
-            raise "Missing query to copy #{table}"
-          end
-        rescue Exception => e
-          raise "Error dumping table #{table}: #{e.message}"
-        end
-        begin
-          ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside_#{@team.id};") if table == 'users'
-        rescue Exception => e
+        if self.respond_to?(query, table)
+          copy_to_file(send(query, table), table, table)
+        else
+          raise "Missing query to copy #{table}"
         end
       end
       export_zip
@@ -290,9 +271,7 @@ namespace :check do
     end
 
     def table(name)
-      if name.match(/annotations_(.*)/)
-        'annotations'
-      elsif name.match(/versions_(.*)/)
+      if name.match(/versions_(.*)/)
         'versions'
       else
         name
