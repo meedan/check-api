@@ -143,4 +143,21 @@ class Bot::KeepTest < ActiveSupport::TestCase
     result = MediaSearch.find(es_id)
     assert_equal 321, result.share_count
   end
+
+  test "should return archivers enabled on a bot installation" do
+    t = create_team
+    t.set_limits_keep = true
+    t.save!
+
+    BotUser.delete_all
+    tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_archive_org_enabled', type: 'boolean' }, { name: 'archive_archive_is_enabled', type: 'boolean' }, { name: 'archive_video_archiver_enabled', type: 'boolean' }], set_approved: true
+    tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
+    assert_equal '', Team.find(t.id).enabled_archivers
+
+    tbi.set_archive_archive_org_enabled = true
+    tbi.set_archive_archive_is_enabled = true
+    tbi.set_archive_video_archiver_enabled = false
+    tbi.save!
+    assert_equal 'archive_org,archive_is', Team.find(t.id).enabled_archivers
+  end
 end

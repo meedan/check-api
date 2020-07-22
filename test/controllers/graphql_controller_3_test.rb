@@ -1076,4 +1076,31 @@ class GraphqlController3Test < ActionController::TestCase
     assert_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
     assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
   end
+
+  test "should define team languages settings" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+
+    assert_nil t.reload.get_language
+    assert_nil t.reload.get_languages
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "por" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", languages: "[\"por\"]" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    assert_nil t.reload.get_language
+    assert_nil t.reload.get_languages
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", languages: "[\"es\", \"pt\"]" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+
+    assert_equal 'pt_BR', t.reload.get_language
+    assert_equal ['es', 'pt'], t.reload.get_languages
+  end
 end

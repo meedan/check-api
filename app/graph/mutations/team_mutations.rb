@@ -23,8 +23,9 @@ module TeamMutations
     remove_auto_task: 'str', # label
     contact: 'str',
     empty_trash: 'int',
-    report: 'json'
-
+    report: 'json',
+    language: 'str',
+    languages: 'json'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'public_team'])

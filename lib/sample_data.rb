@@ -567,7 +567,9 @@ module SampleData
   def create_valid_media(options = {})
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
+    params = { url: url }
+    params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
+    WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
@@ -576,7 +578,9 @@ module SampleData
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
-    WebMock.stub_request(:get, pender_url).with({ query: { url: CGI.escape(url) } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
+    params = { url: CGI.escape(url) }
+    params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
+    WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: CGI.escape(url) })
     create_account(options)
   end

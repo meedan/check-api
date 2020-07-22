@@ -165,6 +165,15 @@ class Team < ActiveRecord::Base
     self.send(:set_rules, JSON.parse(rules))
   end
 
+  def languages=(languages)
+    languages = languages.is_a?(String) ? JSON.parse(languages) : languages
+    self.send(:set_languages, languages.uniq)
+  end
+
+  def language=(language)
+    self.send(:set_language, language)
+  end
+
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end

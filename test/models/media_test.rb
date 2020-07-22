@@ -576,4 +576,25 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal 'Specific token', Link.find(l.id).metadata['title']
     PenderClient::Request.unstub(:get_medias)
   end
+
+  test "should use normalized URL from Pender" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url1 = random_url
+    url2 = random_url
+    response = { 'type' => 'media', 'data' => { 'url' => url2, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+    l = create_link url: url1
+    assert_equal url2, l.reload.url
+  end
+
+  test "should not use normalized URL from Pender" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = random_url
+    response = { 'type' => 'media' }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_raises ActiveRecord::RecordInvalid do
+      l = create_link url: url
+      assert_equal url, l.reload.url
+    end
+  end
 end
