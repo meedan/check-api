@@ -489,7 +489,7 @@ module SampleData
     create_media(options.merge({ type: 'UploadedVideo' }))
   end
 
-  def create_uploaded_audio(options = { file: 'rails.wav' })
+  def create_uploaded_audio(options = { file: 'rails.mp3' })
     create_media(options.merge({ type: 'UploadedAudio' }))
   end
 

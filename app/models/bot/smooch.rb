@@ -659,7 +659,7 @@ class Bot::Smooch < BotUser
     type = message['type']
     if type == 'file'
       message['mediaType'] = self.detect_media_type(message) if message['mediaType'].blank?
-      m = message['mediaType'].to_s.match(/^(image|video)\//)
+      m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
       type = m[1] unless m.nil?
     end
     message['mediaSize'] ||= 0
@@ -673,6 +673,8 @@ class Bot::Smooch < BotUser
       ret[:size] = message['mediaSize'] <= UploadedImage.max_size
     when 'video'
       ret[:size] = message['mediaSize'] <= UploadedVideo.max_size
+    when 'audio'
+      ret[:size] = message['mediaSize'] <= UploadedAudio.max_size
     else
       ret = { type: false, size: false }
     end
@@ -680,7 +682,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_error_message(message, is_supported)
-    max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
+    max_size = "Uploaded#{is_supported[:m_type].camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)
@@ -725,21 +727,7 @@ class Bot::Smooch < BotUser
     self.get_installation('smooch_app_id', app_id)
     Team.current = Team.where(id: self.config['team_id']).last
     message['project_id'] = self.get_project_id(message)
-
-    pm = case message['type']
-         when 'text'
-           self.save_text_message(message)
-         when 'image'
-           self.save_media_message(message)
-         when 'video'
-           self.save_media_message(message, 'video')
-         when 'file'
-           message['mediaType'] = self.detect_media_type(message)
-           m = message['mediaType'].to_s.match(/^(image|video)\//)
-           m.nil? ? return : self.save_media_message(message, m[1])
-         else
-           return
-         end
+    pm = self.create_project_media_from_message(message)
 
     return if pm.nil?
 
@@ -754,6 +742,26 @@ class Bot::Smooch < BotUser
 
     # If item is published (or parent item), send a report right away
     self.send_report_to_user(message['authorId'], message, pm, message['language'])
+  end
+
+  def self.create_project_media_from_message(message)
+    pm = case message['type']
+         when 'text'
+           self.save_text_message(message)
+         when 'image'
+           self.save_media_message(message)
+         when 'video'
+           self.save_media_message(message, 'video')
+         when 'audio'
+           self.save_media_message(message, 'audio')
+         when 'file'
+           message['mediaType'] = self.detect_media_type(message)
+           m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
+           m.nil? ? return : self.save_media_message(message, m[1])
+         else
+           return
+         end
+    pm
   end
 
   def self.create_smooch_request(pm, message, app_id, author)
@@ -865,9 +873,17 @@ class Bot::Smooch < BotUser
 
       data = f.read
       hash = Digest::MD5.hexdigest(data)
-      filename = type == 'image' ? "#{hash}.jpeg" : "#{hash}.mp4"
+      filename =
+        if type == 'image'
+          "#{hash}.jpeg"
+        elsif type == 'video'
+          "#{hash}.mp4"
+        elsif type == 'audio'
+          "#{hash}.mp3"
+        end
+
       filepath = File.join(Rails.root, 'tmp', filename)
-      media_type = type == 'image' ? 'UploadedImage' : 'UploadedVideo'
+      media_type = "Uploaded#{type.camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
       pm = ProjectMedia.joins(:media).joins(:project_media_projects).where('medias.type' => media_type, 'medias.file' => filename, 'project_media_projects.project_id' => message['project_id']).last
       if pm.nil?
