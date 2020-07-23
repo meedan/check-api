@@ -15,12 +15,14 @@ class UploadedAudioTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create uploaded video through project media" do
+  test "should create uploaded audio through project media" do
     pm = ProjectMedia.new
     pm.team_id = create_team.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.mp3'))
     pm.media_type = 'UploadedAudio'
     pm.disable_es_callbacks = true
     pm.save!
+    # verify file path
+    assert_not_nil pm.reload.media.file_path
   end
 end
