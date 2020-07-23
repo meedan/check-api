@@ -11,8 +11,18 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
-RUN apt-get update && apt-get install --no-install-recommends -y nodejs git build-essential libpq-dev sqlite3 libsqlite3-dev graphicsmagick inotify-tools \
+# sqlite3, lz4: for check:data:export_team task
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
     ffmpegthumbnailer
+    git \
+    graphicsmagick \
+    inotify-tools \
+    libpq-dev \
+    libsqlite3-dev \
+    lz4 \
+    nodejs \
+    sqlite3
 
 # install our app
 WORKDIR /app
