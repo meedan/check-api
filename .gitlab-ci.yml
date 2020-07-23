@@ -86,7 +86,7 @@ deploy_live:
   script:
     - apk add --no-cache curl python3 py3-pip git
     - pip install ecs-deploy==1.10.1
-    - ecs update live-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  
+    - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  
     - ecs run ecs-qa live-check-api-migration
     - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
     - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600
