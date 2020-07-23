@@ -9,7 +9,7 @@ class RulesIndexWorker
       Rails.cache.write("rules_indexing_in_progress_for_team_#{team.id}", 1)
       index = CheckElasticSearchModel.get_index_alias
       es_bodies = []
-      ProjectMedia.joins(:project).where('projects.team_id' => team.id).find_each do |pm|
+      ProjectMedia.where(team_id: team.id).find_each do |pm|
         cancel(team_id) and return false if Rails.cache.read("cancel_rules_indexing_for_team_#{team_id}")
         matched_rules_ids = []
         team.apply_rules(pm) do |rules_and_actions|

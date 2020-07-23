@@ -684,14 +684,10 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s =  create_status status: 'verified', annotator: u, annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:create, s)
       assert ability.cannot?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
   end
@@ -711,7 +707,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, s)
       assert ability.cannot?(:destroy, s)
       Rails.cache.clear
-      p.update_column(:team_id, t2.id)
+      pm.update_column(:team_id, t2.id)
       assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
@@ -725,14 +721,10 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s =  create_status status: 'verified', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
       assert ability.can?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
   end
@@ -745,15 +737,11 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pm = create_project_media project: p, media: m
     s = create_status status: 'verified', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, s)
       assert ability.can?(:update, s)
       assert ability.can?(:destroy, s)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, s)
-      assert ability.cannot?(:destroy, s)
     end
   end
 
@@ -764,14 +752,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     em = create_metadata annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, em)
       assert ability.can?(:update, em)
       assert ability.can?(:destroy, em)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:destroy, em)
     end
   end
 
@@ -794,9 +779,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:update, tg)
       assert ability.can?(:destroy, tg)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -815,7 +797,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, tg)
       assert ability.can?(:destroy, tg)
       Rails.cache.clear
-      p.update_column(:team_id, t2.id)
+      pm.update_column(:team_id, t2.id)
       assert ability.cannot?(:create, tg)
       assert ability.cannot?(:destroy, tg)
     end
@@ -828,15 +810,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tg)
       assert ability.can?(:update, tg)
       assert ability.can?(:destroy, tg)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -847,15 +825,11 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
-
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tg)
       assert ability.can?(:update, tg)
       assert ability.can?(:destroy, tg)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
     end
   end
 
@@ -1045,7 +1019,7 @@ class AbilityTest < ActiveSupport::TestCase
     a = create_account
 
     with_current_user_and_team(u, t) do
-      assert_equal ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort, JSON.parse(t.permissions).keys.sort
+      assert_equal ["bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort, JSON.parse(t.permissions).keys.sort
       assert_equal ["read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
@@ -1248,8 +1222,6 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tk)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tk)
     end
   end
 
@@ -1265,8 +1237,6 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, tk)
-      p.update_column(:team_id, nil)
-      assert ability.cannot?(:create, tk)
     end
   end
 
@@ -2122,16 +2092,15 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       4.times { Ability.new }
       queries = assert_queries do
-        ProjectMedia.where(project_id: p.id).permissioned.permissioned.count
+        ProjectMedia.where(team_id: t.id).permissioned.permissioned.count
       end
-      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"project_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
+      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"team_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
       assert_equal query, queries.first
     end
   end
 
   test "should be able to leave team" do
     TeamUser.role_types.each do |role|
-      puts role
       User.current = Team.current = nil
       u = create_user
       t = create_team

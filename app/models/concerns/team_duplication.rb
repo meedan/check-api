@@ -14,12 +14,18 @@ module TeamDuplication
       begin
         ActiveRecord::Base.transaction do
           Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [ :sources, { projects: [ { project_medias: [ :project_media_projects, :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
+          team = t.deep_clone include: [
+            :sources,
+            { projects: [:project_media_projects] },
+            { project_medias: [versions: { if: lambda{|v| v.associated_id.blank? }}]},
+            :team_users,
+            :contacts,
+            :team_tasks
+          ] do |original, copy|
             @cloned_versions << copy if original.is_a?(Version)
             self.set_mapping(original, copy) unless original.is_a?(Version)
             self.copy_image(original, copy)
             self.versions_log_mapping(original, copy)
-            self.flag_relationships(original, copy)
             self.flag_project_medias(original, copy)
           end
           team.slug = team.generate_copy_slug
@@ -27,8 +33,9 @@ module TeamDuplication
           team.save(validate: false)
           @copy_team = team
           self.copy_annotations
-          self.update_relationships
           self.update_project_medias
+          self.update_project_media_projects
+          self.copy_relationships(@mapping[:"ProjectMedia"])
           self.copy_versions(@mapping[:"Version"])
           self.update_cloned_versions(@cloned_versions)
           self.create_copy_version(@mapping[:ProjectMedia], user)
@@ -44,11 +51,6 @@ module TeamDuplication
     def self.log_error(e, t)
       self.notify_error(e, { team_id: t.id }, RequestStore[:request])
       Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
-    end
-
-    def self.flag_relationships(original, copy)
-      original.is_being_copied = true if original.is_a?(Relationship)
-      copy.is_being_copied = true if copy.is_a?(Relationship)
     end
 
     def self.flag_project_medias(original, copy)
@@ -108,6 +110,24 @@ module TeamDuplication
       end
     end
 
+    def self.copy_relationships(pm_mapping)
+      return if pm_mapping.blank?
+      Relationship.where(source_id: pm_mapping.keys).find_each do |r|
+        copy_r = r.dup
+        self.set_mapping(r, copy_r);
+        copy_r.is_being_copied = true
+        self.update_relationships(copy_r)
+        copy_r.save(validate: false)
+      end
+    end
+
+    def self.update_relationships(copy_r)
+      [:source_id, :target_id].each do |r|
+        pm_mapping = @mapping.dig(:ProjectMedia, copy_r.send(r))
+        copy_r.send("#{r}=", pm_mapping.id) if pm_mapping
+      end
+    end
+
     def self.copy_versions(versions_mapping)
       return if versions_mapping.blank?
       versions_mapping.each_pair do |original, copy|
@@ -164,14 +184,13 @@ module TeamDuplication
 
     def self.create_copy_version(pm_mapping, user)
       return if pm_mapping.blank? || user.nil?
-      pm_mapping.each_pair do |original, copy|
+      pm_mapping.each_pair do |_original, copy|
         v = Version.new
         v.item_id, v.item_type = copy.id, copy.class_name
         v.associated_id, v.associated_type = copy.id, copy.class_name
         v.event = 'copy'
         changes = {}
         changes['team_id'] = [@original_team.id, @copy_team.id]
-        changes['project_id'] = [ProjectMedia.find(original).project.id, copy.project.id]
         v.whodunnit = user.id
         v.object_changes = changes.to_json
         v.save(validate: false)
@@ -185,20 +204,18 @@ module TeamDuplication
       end
     end
 
-    def self.update_relationships
-      return if @mapping[:Relationship].blank?
-      @mapping[:Relationship].each_value do |copy|
-        [:source_id, :target_id].each do |r|
-          pm_mapping = @mapping.dig(:ProjectMedia, copy.send(r))
-          copy.update_column(r, pm_mapping.id) if pm_mapping
-        end
-      end
-    end
-
     def self.update_project_medias
       return if @mapping[:ProjectMedia].blank?
       @mapping[:ProjectMedia].each_value do |copy|
         copy.update_column(:team_id, @copy_team.id)
+      end
+    end
+
+    def self.update_project_media_projects
+      return if @mapping[:ProjectMediaProject].blank?
+      @mapping[:ProjectMediaProject].each_value do |copy|
+        pm_mapping = @mapping.dig(:ProjectMedia, copy.send(:project_media_id))
+        copy.update_column(:project_media_id, pm_mapping.id) if pm_mapping
       end
     end
   end

@@ -58,25 +58,6 @@ class VersionTest < ActiveSupport::TestCase
     assert_not_nil v.whodunnit
   end
 
-  test "should get projects" do
-    create_verification_status_stuff
-    v = create_version
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    assert_equal [], v.projects
-    m = create_valid_media
-    u = create_user
-    create_team_user user: u, team: t, role: 'owner'
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p1, media: m, user: u
-      pm = ProjectMedia.find(pm.id)
-      pm.project_id = p2.id
-      pm.save!
-      assert_equal [p1, p2], pm.versions.last.projects
-    end
-  end
-
   test "should get task" do
     Version.delete_all
     v = create_version
@@ -89,7 +70,7 @@ class VersionTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     User.current = u
     t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
-    Version.from_partition(t.team_id).where(item_type: 'DynamicAnnotation::Field').each do |version|
+    Version.from_partition(t.team&.id).where(item_type: 'DynamicAnnotation::Field').each do |version|
       assert_equal(t, version.task) if version.item.annotation.annotation_type =~ /response/
     end
     User.current = nil
@@ -153,6 +134,38 @@ class VersionTest < ActiveSupport::TestCase
   test "should return dbid" do
     v = create_version
     assert_equal v.id, v.dbid
+  end
+
+  test "should get teams" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t
+      pm.team_id = t2.id
+      pm.skip_check_ability = true
+      pm.save!
+      log = pm.get_versions_log(['update_projectmedia']).last
+      assert_equal [t, t2], log.get_from_object_changes(:team)
+    end
+  end
+
+  test "should get projects" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    p = create_project team: t
+    p2 = create_project team: t
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p
+      pmp = pm.project_media_projects.last
+      assert_not_nil pmp
+      pmp.project_id = p2.id
+      pmp.save!
+      log = pm.get_versions_log(['update_projectmediaproject']).last
+      assert_equal [p, p2], log.projects
+    end
   end
 
   test "should get source" do

@@ -24,7 +24,6 @@ class Team < ActiveRecord::Base
       Ability.new(User.current, team)
     end
   end
-  after_save :upload_custom_status_strings_to_transifex, if: proc { |t| t.custom_statuses_changed? }
   after_update :archive_or_restore_projects_if_needed
   before_destroy :destroy_versions
   after_destroy :reset_current_team
@@ -46,6 +45,10 @@ class Team < ActiveRecord::Base
   def url
     url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
     url || CONFIG['checkdesk_client'] + '/' + self.slug
+  end
+
+  def team
+    self
   end
 
   def members_count
@@ -123,12 +126,6 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_channel, channel)
   end
 
-  def add_media_verification_statuses=(value)
-    value.symbolize_keys!
-    value[:statuses].each{|status| status.symbolize_keys!}
-    self.send(:set_media_verification_statuses, value)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -136,6 +133,18 @@ class Team < ActiveRecord::Base
 
   def team_user
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
+  end
+
+  def auto_tasks(add_to_project_id, only_selected = false)
+    tasks = []
+    self.team_tasks.order('id ASC').each do |task|
+      if only_selected
+        tasks << task if task.project_ids.include?(add_to_project_id)
+      else
+        tasks << task if task.project_ids.include?(add_to_project_id) || task.project_ids.blank?
+      end
+    end
+    tasks
   end
 
   def add_auto_task=(task)
@@ -156,6 +165,15 @@ class Team < ActiveRecord::Base
     self.send(:set_rules, JSON.parse(rules))
   end
 
+  def languages=(languages)
+    languages = languages.is_a?(String) ? JSON.parse(languages) : languages
+    self.send(:set_languages, languages.uniq)
+  end
+
+  def language=(language)
+    self.send(:set_language, language)
+  end
+
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
@@ -163,7 +181,7 @@ class Team < ActiveRecord::Base
   def self.archive_or_restore_projects_if_needed(archived, team_id)
     Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
-    ProjectMedia.joins(:project).where({ 'projects.team_id' => team_id }).update_all({ archived: archived })
+    ProjectMedia.where(team_id:team_id).update_all({ archived: archived })
   end
 
   def self.empty_trash(team_id)
@@ -218,9 +236,22 @@ class Team < ActiveRecord::Base
     self
   end
 
-  def json_schema_url(field)
-    filename = field.match(/_statuses$/) ? 'statuses' : field
-    URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json")
+  def rails_admin_json_schema(field)
+    statuses_schema = Team.custom_statuses_schema.clone
+    statuses_schema[:properties][:statuses][:items][:properties][:locales].delete(:patternProperties)
+    properties = {}
+    self.get_languages.to_a.each do |locale|
+      properties[locale] = {
+        type: 'object',
+        required: ['label', 'description'],
+        properties: {
+          label: { type: 'string', title: "Label (#{CheckCldr.language_code_to_name(locale)})" },
+          description: { type: 'string', title: "Description (#{CheckCldr.language_code_to_name(locale)})" }
+        }
+      }
+    end
+    statuses_schema[:properties][:statuses][:items][:properties][:locales][:properties] = properties
+    field =~ /statuses/ ? statuses_schema : {}
   end
 
   def public_team_id
@@ -252,6 +283,9 @@ class Team < ActiveRecord::Base
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: true))
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
+    perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
+    perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
+    [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
 
@@ -290,6 +324,66 @@ class Team < ActiveRecord::Base
 
   def get_report_design_image_template
     self.settings[:report_design_image_template] || self.settings['report_design_image_template'] || File.read(File.join(Rails.root, 'public', 'report-design-default-image-template.html'))
+  end
+
+  def delete_custom_media_verification_status(status_id, fallback_status_id)
+    unless status_id.blank?
+      data = DynamicAnnotation::Field
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
+        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'value' => status_id, 'pm.team_id' => self.id)
+        .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
+      pmids = data.map(&:pmid)
+
+      # Validations
+      raise I18n.t(:must_provide_fallback_when_deleting_status_in_use) if fallback_status_id.blank? && data.size > 0
+
+      unless fallback_status_id.blank?
+        # Update all statuses in the database
+        DynamicAnnotation::Field.where(id: data.map(&:fid)).update_all(value: fallback_status_id)
+
+        # Update status cache
+        pmids.each { |id| Rails.cache.write("check_cached_field:ProjectMedia:#{id}:status", fallback_status_id) }
+
+        # Update ElasticSearch in background
+        Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
+
+        # Update reports in background
+        Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
+      end
+
+      # Update team statuses after deleting one of them
+      settings = self.settings || {}
+      statuses = settings.with_indifferent_access[:media_verification_statuses]
+      statuses[:statuses] = statuses[:statuses].reject{ |s| s[:id] == status_id }
+      self.set_media_verification_statuses = statuses
+      self.save!
+    end
+  end
+
+  def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
+    updates = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
+    ProjectMedia.bulk_reindex(ids_json, updates)
+  end
+
+  def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
+    ids = JSON.parse(ids_json)
+    ids.each do |id|
+      report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: id).last
+      unless report.nil?
+        report = report.load
+        pm = ProjectMedia.find(id)
+        data = report.data.clone.with_indifferent_access
+        data[:state] = 'paused'
+        data[:options].each_with_index do |option, i|
+          data[:options][i].merge!({
+            theme_color: pm.status_color(fallback_status_id),
+            status_label: pm.status_i18n(fallback_status_id, { locale: option[:language] })
+          })
+        end
+        report.data = data
+        report.save!
+      end
+    end
   end
 
   protected

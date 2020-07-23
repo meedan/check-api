@@ -16,25 +16,6 @@ class Version < Partitioned::ByForeignKey
     integer_field_value.to_i / partition_table_size * partition_table_size
   end
 
-  def self.get_team_id_from_item_type(item_type, item)
-    case item_type
-    when 'Dynamic', 'Task', 'Tag', 'Comment', 'Annotation'
-      item.get_team.last
-    when 'DynamicAnnotation::Field'
-      item.annotation&.get_team&.last
-    when 'Relationship'
-      item.source&.project&.team_id
-    when 'ProjectMedia'
-      item.project&.team_id
-    when 'Account', 'Source', 'Project', 'Assignment'
-      item.team_id
-    when 'Team'
-      item.id
-    else
-      nil
-    end
-  end
-
   def item_class
     self.item_type.constantize
   end
@@ -118,7 +99,7 @@ class Version < Partitioned::ByForeignKey
 
   def projects
     ret = []
-    if (self.item_type == 'ProjectMedia' && self.event == 'update') || self.event_type == 'copy_projectmedia'
+    if (self.item_type == 'ProjectMediaProject' && self.event == 'update') || self.event_type == 'copy_projectmedia'
       ret = get_from_object_changes(:project)
     end
     ret
@@ -182,6 +163,8 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
+    when 'create_projectmediaproject', 'update_projectmediaproject'
+      self.get_associated_from_projectmediaproject
     end
   end
 
@@ -219,6 +202,11 @@ class Version < Partitioned::ByForeignKey
     self.get_associated_from_core_annotation(self.item.assigned) if self.item.assigned_type == 'Annotation'
   end
 
+  def get_associated_from_projectmediaproject
+    pmp = self.item
+    pmp.nil? ? [nil, nil] : ['ProjectMedia', pmp.project_media_id]
+  end
+
   def set_project_association
     associated = self.get_associated || [nil, nil]
     self.associated_type = associated[0]
@@ -253,9 +241,7 @@ class Version < Partitioned::ByForeignKey
   end
 
   def get_team_id
-    item = self.item
-    return nil if item.nil?
-    Version.get_team_id_from_item_type(self.item_type, item)
+    self.item.nil? ? nil : self.item.team&.id
   end
 
   private

@@ -33,7 +33,7 @@ module CheckPermissions
         self.where(id: id, inactive: false).last
       elsif self.name == 'ProjectMedia'
         pm = self.find(id)
-        pm.project&.inactive ? nil : pm
+        pm.team&.inactive ? nil : pm
       elsif self.name == 'Version'
         tid = Team.current&.id.to_i
         self.from_partition(tid).where(id: id).last
@@ -87,22 +87,12 @@ module CheckPermissions
           model.team_id = Team.current.id
         end
 
-        model = self.set_project_for_permissions(model) if self.respond_to?(:project)
+        model = self.set_media_for_permissions(model) if self.class.name == 'ProjectMedia'
 
         perms["create #{data}"] = ability.can?(:create, model)
       end
     end
     perms
-  end
-
-  def set_project_for_permissions(model)
-    if self.class.name == 'ProjectMedia'
-      model = self.set_media_for_permissions(model)
-    end
-    unless self.project.nil?
-      model.project_id = self.project.id if model.respond_to?(:project_id)
-    end
-    model
   end
 
   def set_media_for_permissions(model)

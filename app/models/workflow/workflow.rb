@@ -18,7 +18,17 @@ module Workflow
       core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
       key = "#{type.upcase}_CORE_#{annotation_type.pluralize.upcase}"
       statuses = core_statuses.has_key?(key) ? core_statuses[key] : [{ id: 'undetermined', label: I18n.t(:"statuses.media.undetermined.label"), description: I18n.t(:"statuses.media.undetermined.description"), style: '' }]
-
+      statuses = statuses.collect do |status|
+        locales = {}
+        I18n.available_locales.each do |locale|
+          key = status[:id]
+          locales[locale] = {
+            label: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', { locale: locale }),
+            description: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.description', { locale: locale })
+          }
+        end
+        status.with_indifferent_access.merge({ locales: locales })
+      end
       {
         label: 'Status',
         default: klass.core_default_value,
@@ -31,7 +41,7 @@ module Workflow
       type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       statuses = ::Workflow::Workflow.core_options(annotated, annotation_type)
       getter = "get_#{type.downcase}_#{annotation_type.pluralize}"
-      team = annotated&.team || annotated&.project&.team
+      team = annotated&.team
       custom_statuses = team&.send(getter)
       custom_statuses || statuses
     end
@@ -39,19 +49,6 @@ module Workflow
     def self.get_status(annotated, annotation_type, id)
       statuses = ::Workflow::Workflow.options(annotated, annotation_type)[:statuses]
       return statuses.select{ |st| st['id'] == id }&.first
-    end
-
-    def self.validate_custom_statuses(team_id, statuses, id)
-      keys = statuses[:statuses].collect{ |s| s[:id] }
-      joins = [
-        'INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id',
-        "INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'"
-      ].join(' ')
-      query = DynamicAnnotation::Field.joins(joins).where('a.annotation_type' => id, 'pm.team_id' => team_id).where('value NOT IN (?)', keys)
-      count = query.count
-      project_medias = query.first(3).collect{ |f| f.annotation.annotated }
-      list = project_medias.collect{ |pm| s = pm.send("last_#{id}"); { project_media: pm.id, url: pm.full_url, status: s } unless keys.include?(s) }.compact
-      { list: list, count: count }
     end
 
     include ::Workflow::Concerns::CheckSearchConcern

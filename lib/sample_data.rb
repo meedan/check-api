@@ -445,10 +445,6 @@ module SampleData
     m.user_id = options.has_key?(:user_id) ? options[:user_id] : user.id
     m.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
 
-    if options.has_key?(:team)
-      options[:project_id] = create_project(team: options[:team]).id
-    end
-
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -531,7 +527,11 @@ module SampleData
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
     pm = ProjectMedia.new
-    options[:project] = create_project unless options.has_key?(:project)
+    if options.has_key?(:project) && !options[:project].nil?
+      options[:team] = options[:project].team
+      options[:add_to_project_id] = options[:project].id unless options.has_key?(:add_to_project_id)
+    end
+    options[:team] = create_team unless options.has_key?(:team)
     options[:media] = create_valid_media unless options.has_key?(:media)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
@@ -563,7 +563,9 @@ module SampleData
   def create_valid_media(options = {})
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
+    params = { url: url }
+    params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
+    WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
     create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
   end
 
@@ -572,7 +574,9 @@ module SampleData
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
-    WebMock.stub_request(:get, pender_url).with({ query: { url: CGI.escape(url) } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
+    params = { url: CGI.escape(url) }
+    params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
+    WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
     options.merge!({ url: CGI.escape(url) })
     create_account(options)
   end
@@ -861,8 +865,8 @@ module SampleData
     options.each do |key, value|
       pmp.send("#{key}=", value) if pmp.respond_to?("#{key}=")
     end
-    pmp.project_media = create_project_media if pmp.project_media.nil?
-    pmp.project = create_project if pmp.project.nil?
+    pmp.project_media = create_project_media unless options.has_key?(:project_media)
+    pmp.project = create_project unless options.has_key?(:project)
     pmp.save!
     pmp.reload
   end

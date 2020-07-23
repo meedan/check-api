@@ -1,13 +1,12 @@
 class Media < ActiveRecord::Base
   self.inheritance_column = :type
 
-  attr_accessor :project_id, :project_object, :disable_es_callbacks
+  attr_accessor :disable_es_callbacks
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], class_name: 'Version'
   belongs_to :account
   belongs_to :user
   has_many :project_medias, dependent: :destroy
-  has_many :projects, through: :project_medias
   has_annotations
 
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
@@ -22,12 +21,8 @@ class Media < ActiveRecord::Base
     'Media'
   end
 
-  def get_team
-    self.projects.map(&:team_id)
-  end
-
-  def get_team_objects
-    self.projects.map(&:team)
+  def team_ids
+    self.project_medias.map(&:team_id)
   end
 
   def file_path

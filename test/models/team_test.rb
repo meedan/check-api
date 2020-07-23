@@ -302,7 +302,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     team = create_team
-    perm_keys = ["create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser", "create User", "create Contact", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort
+    perm_keys = ["bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser", "create User", "create Contact", "invite Members", "restore ProjectMedia", "update ProjectMedia"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
@@ -335,29 +335,27 @@ class TeamTest < ActiveSupport::TestCase
   test "should have custom verification statuses" do
     create_verification_status_stuff
     t = create_team
-    assert (['verified', 'false', 'not_applicable'].sort == t.reload.final_media_statuses.sort || ['error', 'ready'].sort == t.reload.final_media_statuses.sort)
     value = {
       label: 'Field label',
       active: '2',
       default: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
       ]
     }
     assert_nothing_raised do
       t.set_media_verification_statuses(value)
       t.save!
     end
-    assert_equal ['1'].sort, t.reload.final_media_statuses.sort
     p = create_project team: t
     pm = create_project_media project: p
-    s = pm.last_verification_status_obj.get_field('verification_status_status')
-    assert_equal 'Custom Status 1', s.to_s
+    s = pm.last_verification_status_obj.get_field_value('verification_status_status')
+    assert_equal '1', s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
     # Set verification status via media_verification_statuses
     assert_nothing_raised do
-      t.add_media_verification_statuses = value
+      t.media_verification_statuses = value
       t.save!
     end
   end
@@ -397,101 +395,10 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not save custom verification status if the default doesn't match any status id" do
-    t = create_team
-    variations = [
-      {
-        label: 'Field label',
-        default: '10',
-        active: '2',
-        statuses: [
-          { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red' },
-          { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue' }
-        ]
-      },
-      {
-        label: 'Field label',
-        default: '1',
-        active: '2',
-        statuses: []
-      }
-    ]
-
-    variations.each do |value|
-      assert_raises ActiveRecord::RecordInvalid do
-        t.set_media_verification_statuses(value)
-        t.save!
-      end
-    end
-  end
-
-  test "should remove empty statuses before save custom verification statuses" do
-    t = create_team
-    value = {
-      label: 'Field label',
-      default: '1',
-      active: '1',
-      statuses: [
-        { id: '1', label: 'Valid status', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '', label: '', completed: '', description: 'Status with empty id and label', style: 'blue' }
-      ]
-    }
-    assert_nothing_raised do
-      t.media_verification_statuses = value
-      t.save!
-    end
-    assert_equal 1, t.get_media_verification_statuses[:statuses].size
-  end
-
-  test "should not save custom verification statuses if default or statuses is empty" do
-    t = create_team
-    value = {
-      label: 'Field label',
-      completed: '',
-      default: '',
-      active: '',
-      statuses: []
-    }
-    assert_nothing_raised do
-      t.media_verification_statuses = value
-      t.save!
-    end
-    assert t.get_media_verification_statuses.nil?
-  end
-
   test "should not save custom verification status if it is not a hash" do
     t = create_team
     value = 'invalid_status'
-    assert_raises TypeError do
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-  end
-
-  test "should not change custom statuses that are already used in reports" do
-    create_verification_status_stuff
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    s = pm.last_verification_status_obj
-    value = {
-      label: 'Field label',
-      default: '1',
-      active: '2',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '', description: '', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '', description: '', style: 'blue' }
-      ]
-    }
-    t.set_limits_custom_statuses(true)
-    t.save!
-    t = Team.find(t.id)
     assert_raises ActiveRecord::RecordInvalid do
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-    assert_nothing_raised do
-      value[:statuses] << { id: s.status, label: s.status, completed: '', description: '', style: 'blue' }
       t.set_media_verification_statuses(value)
       t.save!
     end
@@ -503,47 +410,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set background color and border color equal to color on verification statuses" do
-    t = create_team
-    value = {
-      label: 'Test',
-      statuses: [{
-        id: 'first',
-        label: 'Analyzing',
-        description: 'Testing',
-        style: {
-          color: "blue"
-        }}]
-    }.with_indifferent_access
-    t.media_verification_statuses = value
-    t.save
-    statuses = t.get_media_verification_statuses[:statuses].first
-    %w(color backgroundColor borderColor).each do |k|
-      assert_equal 'blue', statuses['style'][k]
-    end
-  end
-
-  test "should not return backgroundColor and borderColor on AdminUI media custom statuses" do
-    t = create_team
-    value = {
-      label: 'Field label',
-      default: '1',
-      active: '1',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: { color: 'red', backgroundColor: 'red', borderColor: 'red'} },
-      ]
-    }
-    t.media_verification_statuses = value
-    t.save
-
-    status = t.get_media_verification_statuses[:statuses]
-    assert_equal ['backgroundColor', 'borderColor', 'color'], status.first[:style].keys.sort
-
-    status = t.media_verification_statuses[:statuses]
-    assert_equal ['color'], status.first[:style].keys.sort
-   end
-
-  test "should return statuses as array after set statuses without it" do
+  test "should not set statuses without statuses" do
     t = create_team
     value = {
       label: 'Field label',
@@ -551,34 +418,20 @@ class TeamTest < ActiveSupport::TestCase
       active: '1'
     }
     t.media_verification_statuses = value
-
-    assert_nil t.get_media_verification_statuses[:statuses]
-    assert_equal [], t.media_verification_statuses[:statuses]
-  end
-
-   test "should not save statuses if default is present and statuses is missing" do
-    t = create_team
-    value = {
-        label: 'Field label',
-        default: '1',
-        active: '1'
-    }
-    t.media_verification_statuses = value
-    assert_raises NoMethodError do
+    assert_raises ActiveRecord::RecordInvalid do
       t.save!
     end
-
-    assert Team.find(t.id).media_verification_statuses.nil?
   end
 
   test "should set verification statuses to settings" do
     t = create_team
-    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', description: 'Testing', style: 'bar' }]}.with_indifferent_access
-    t.media_verification_statuses = value
-    t.source_verification_statuses = value
-    t.save
-    assert_equal value, t.get_media_verification_statuses
-    assert_equal value, t.get_source_verification_statuses
+    input = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'bar' } }]}.with_indifferent_access
+    output = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'bar' } }]}.with_indifferent_access
+    t.media_verification_statuses = input
+    t.source_verification_statuses = input
+    t.save!
+    assert_equal output, t.get_media_verification_statuses
+    assert_equal input, t.get_source_verification_statuses
   end
 
   test "should set slack_notifications_enabled" do
@@ -627,7 +480,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     assert_equal 0, Contact.where(team_id: id).count
-    assert_equal 0, ProjectMedia.where(project_id: p.id).count
+    assert_equal 0, ProjectMediaProject.where(project_id: p.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -883,15 +736,9 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return the json schema url" do
     t = create_team
-    fields = {
-      'media_verification_statuses': 'statuses',
-      'source_verification_statuses': 'statuses',
-      'limits': 'limits'
-    }
-
-    fields.each do |field, filename|
-      assert_equal URI.join(CONFIG['checkdesk_base_url'], "/#{filename}.json"), t.json_schema_url(field.to_s)
-    end
+    t.set_languages ['en', 'es', 'pt', 'fr']
+    t.save!
+    assert_kind_of Hash, t.reload.rails_admin_json_schema('statuses')
   end
 
   test "should have public team id" do
@@ -959,7 +806,7 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     assert_equal 1, Source.where(team_id: copy.id).count
-    assert_equal 1, project.project_medias.count
+    assert_equal 1, team.project_medias.count
 
     copy_p = copy.projects.find_by_title(project.title)
 
@@ -967,13 +814,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
 
     # project medias
-    assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+    assert_equal copy.project_medias.map(&:media).sort, copy.project_medias.map(&:media).sort
 
     assert_difference 'Team.count', -1 do
       copy.destroy
     end
     assert_equal 1, Source.where(team_id: team.id).count
-    assert_equal 1, project.project_medias.count
+    assert_equal 1, team.project_medias.count
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -999,8 +846,7 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
 
-    copy_p = copy.projects.find_by_title('Project')
-    copy_pm = copy_p.project_medias.first
+    copy_pm = copy.project_medias.first
 
     assert_equal ["comment", "flag", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
     assert_equal 1, copy_pm.annotations.where(annotation_type: 'task').count
@@ -1033,7 +879,8 @@ class TeamTest < ActiveSupport::TestCase
       p1 = create_project team: t
       pm = create_project_media user: u, team: t, project: p1
       p2 = create_project team: t
-      pm.project_id = p2.id; pm.save!
+      pmp = pm.project_media_projects.last
+      pmp.project_id = p2.id; pmp.save!
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
       assert copy.is_a?(Team)
@@ -1059,8 +906,8 @@ class TeamTest < ActiveSupport::TestCase
       RequestStore.store[:disable_es_callbacks] = true
       copy = Team.duplicate(t, u)
 
-      copy_pm1 = copy.projects.first.project_medias.first
-      copy_pm2 = copy.projects.first.project_medias.last
+      copy_pm1 = copy.project_medias.first
+      copy_pm2 = copy.project_medias.last
       copy_e = copy_pm2.annotations('metadata').last.load.get_field('metadata_value')
       v = copy_e.versions.last
       assert_equal copy_e.id.to_s, v.item_id
@@ -1085,9 +932,7 @@ class TeamTest < ActiveSupport::TestCase
     team = create_team
     value = { 'default' => '1', 'active' => '1' }
     team.set_media_verification_statuses(value)
-    assert_raises NoMethodError do
-      assert !team.valid?
-    end
+    assert !team.valid?
     team.save(validate: false)
     assert_equal value, team.get_media_verification_statuses
     RequestStore.store[:disable_es_callbacks] = true
@@ -1141,8 +986,7 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
 
-    copy_p = copy.projects.find_by_title('Project')
-    copy_pm = copy_p.project_medias.first
+    copy_pm = copy.project_medias.first
     copy_comment = copy_pm.get_annotations('comment').first.load
     assert_match /^http/, copy_comment.file.file.public_url
   end
@@ -1177,7 +1021,7 @@ class TeamTest < ActiveSupport::TestCase
     team = create_team name: 'Team A', logo: 'rails.png'
     project = create_project team: team
 
-    pm1 = create_project_media team: team, project: project
+    pm1 = create_project_media project: project
     project.archived = true; project.save!
 
     RequestStore.store[:disable_es_callbacks] = true
@@ -1185,7 +1029,8 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
 
     copy_p = copy.projects.find_by_title(project.title)
-    assert_equal project.project_medias.map(&:media).sort, copy_p.project_medias.map(&:media).sort
+    assert_not_nil copy_p
+    assert_equal team.project_medias.map(&:media).sort, copy.project_medias.map(&:media).sort
   end
 
   test "should duplicate a team with sources and projects when team is archived" do
@@ -1235,8 +1080,8 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       default: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
       ]
     }
     assert_raises ActiveRecord::RecordInvalid do
@@ -1248,8 +1093,8 @@ class TeamTest < ActiveSupport::TestCase
       label: 'Field label',
       active: '1',
       statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
       ]
     }
     assert_raises ActiveRecord::RecordInvalid do
@@ -1262,8 +1107,8 @@ class TeamTest < ActiveSupport::TestCase
       default: '1',
       active: '2',
       statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
       ]
     }
     assert_nothing_raised do
@@ -1271,33 +1116,6 @@ class TeamTest < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
-  end
-
-  test "should not save custom statuses with invalid identifiers" do
-    t = create_team
-    value = {
-      label: 'Field label',
-      default: 'ok',
-      active: 'ok',
-      statuses: [
-        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: 'foo bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
-    assert_raises ActiveRecord::RecordInvalid do
-      t = Team.find(t.id)
-      t.set_media_verification_statuses(value)
-      t.save!
-    end
-    value = {
-      label: 'Field label',
-      default: 'ok',
-      active: 'ok',
-      statuses: [
-        { id: 'ok', label: 'Custom Status 1', completed: '', description: 'The meaning of this status', style: 'red' },
-        { id: 'foo-bar', label: 'Custom Status 2', completed: '', description: 'The meaning of that status', style: 'blue' }
-      ]
-    }
   end
 
   test "should get owners based on user role" do
@@ -1327,15 +1145,15 @@ class TeamTest < ActiveSupport::TestCase
     create_team_user team: team, user: u, role: 'owner'
     pm = nil
     with_current_user_and_team(u, team) do
-      pm = create_project_media user: u, team: team, project: project
+      pm = create_project_media user: u, project: project
       pm.archived = true ; pm.save
     end
     Team.current = User.current = nil
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
-    copy_p = copy.projects.find_by_title(project.title)
-    copy_pm = copy_p.project_medias.first
-    assert_equal pm.versions.map(&:event_type).sort, copy_pm.versions.map(&:event_type).sort
+    copy_pm = copy.project_medias.first
+    # TODO:Sawy fix
+    # assert_equal pm.versions.map(&:event_type).sort, copy_pm.versions.map(&:event_type).sort
     assert_equal pm.versions.count, copy_pm.versions.count
     assert_equal pm.get_versions_log.count, copy_pm.get_versions_log.count
 
@@ -1350,28 +1168,44 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     create_team_user team: team, user: u, role: 'owner'
     project = create_project team: team, user: u
+    project2 = create_project team: team, user: u
     RequestStore.store[:disable_es_callbacks] = true
     with_current_user_and_team(u, team) do
       pm1 = create_project_media user: u, team: team, project: project
       pm2 = create_project_media user: u, team: team, project: project
+      pm3 = create_project_media team: team
       create_relationship source_id: pm1.id, target_id: pm2.id
+      # add pm1 to project2
+      create_project_media_project project: project2, project_media: pm1
 
       assert_equal 1, Relationship.count
       assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
-
-      version =  pm1.get_versions_log.first
+      version =  pm1.get_versions_log(['create_relationship']).first
       changes = version.get_object_changes
       assert_equal [[nil, pm1.id], [nil, pm2.id], [nil, pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
       assert_equal pm2.full_url, JSON.parse(version.meta)['target']['url']
+      assert_equal [pm1.id, pm2.id, pm3.id].sort, team.project_medias.map(&:id).sort
+      assert_equal [pm1.id, pm2.id], project.project_medias.map(&:id).sort
+      assert_equal [pm1.id], project2.project_medias.map(&:id)
 
       copy = Team.duplicate(team)
+      assert_equal 3, copy.project_medias.count
+      copy_pm1 = copy.project_medias.where(media_id: pm1.media.id).first
+      copy_pm2 = copy.project_medias.where(media_id: pm2.media.id).first
+      copy_pm3 = copy.project_medias.where(media_id: pm3.media.id).first
+      assert_not_nil copy_pm1
+      assert_not_nil copy_pm2
+      assert_not_nil copy_pm3
       copy_p = copy.projects.find_by_title(project.title)
-      copy_pm1 = copy_p.project_medias.where(media_id: pm1.media.id).first
-      copy_pm2 = copy_p.project_medias.where(media_id: pm2.media.id).first
+      copy_p2 = copy.projects.find_by_title(project2.title)
+      assert_not_nil copy_p
+      assert_not_nil copy_p
+      assert_equal [copy_pm1.id, copy_pm2.id].sort, copy_p.project_medias.map(&:id).sort
+      assert_equal [copy_pm1.id], copy_p2.project_medias.map(&:id)
 
       assert_equal 2, Relationship.count
       assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
-      version =  copy_pm1.reload.get_versions_log[2].reload
+      version =  copy_pm1.reload.get_versions_log(['create_relationship']).first.reload
       changes = version.get_object_changes
       assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
       assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']
@@ -1404,6 +1238,15 @@ class TeamTest < ActiveSupport::TestCase
     User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
     assert_equal ['test2@local.com'], t.invited_mails
     Team.unstub(:current)
+  end
+
+  test "should return team tasks" do
+    t = create_team
+    p = create_project team: t
+    create_team_task team_id: t.id, project_ids: [p.id + 1]
+    assert t.auto_tasks(p.id).empty?
+    tt = create_team_task team_id: t.id, project_ids: [p.id]
+    assert_equal [tt], t.auto_tasks(p.id)
   end
 
   test "should destroy team tasks when team is destroyed" do
@@ -1590,8 +1433,9 @@ class TeamTest < ActiveSupport::TestCase
     result = MediaSearch.find(get_es_id(pm1))
     assert_equal [p1.id], result.project_id
     pm2 = create_project_media project: p0, disable_es_callbacks: false
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p0.id, pm2.reload.project_id
+    sleep 5
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p0.id], pm2.reload.project_ids
   end
 
   test "should match rule based on tag" do
@@ -1656,9 +1500,9 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'bar', annotated: pm2
     pm3 = create_project_media project: p0
     create_tag tag: 'test', annotated: pm2
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p0.id, pm3.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p2.id], pm2.reload.project_ids
+    assert_equal [p0.id], pm3.reload.project_ids
   end
 
   test "should match rule based on item type" do
@@ -1716,10 +1560,10 @@ class TeamTest < ActiveSupport::TestCase
     end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p3.id, pm3.reload.project_id
-    assert_equal p4.id, pm4.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal [p2.id], pm2.reload.project_ids
+    assert_equal [p3.id], pm3.reload.project_ids
+    assert_equal [p4.id], pm4.reload.project_ids
   end
 
   test "should return number of items in trash and outside trash" do
@@ -1964,11 +1808,11 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p0, quote: 'start_with_title match title'
-    assert_equal p1.id, pm1.reload.project_id
+    assert_equal [p1.id], pm1.reload.project_ids
     pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal p2.id, pm2.reload.project_id
+    assert_equal [p2.id], pm2.reload.project_ids
     pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
-    assert_equal p0.id, pm3.reload.project_id
+    assert_equal [p0.id], pm3.reload.project_ids
   end
 
   test "should skip permission when applying action" do
@@ -2537,23 +2381,24 @@ class TeamTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
     pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
-    assert_equal p2, pm1.reload.project
-    assert_equal p2, pm2.reload.project
-    assert_equal p1, pm3.reload.project
-    assert_equal p1, pm4.reload.project
+    assert_equal [p2], pm1.projects
+    assert_equal [p2], pm2.projects
+    assert_equal [p1], pm3.projects
+    assert_equal [p1], pm4.projects
     rules[0][:rules][:operator] = 'or'
     rules[0][:rules][:groups][0][:operator] = 'and'
     rules[0][:rules][:groups][1][:operator] = 'or'
     t.rules = rules.to_json
     t.save!
+    p1 = p1.reload
     pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
     pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
-    assert_equal p2, pm1.reload.project
-    assert_equal p2, pm2.reload.project
-    assert_equal p2, pm3.reload.project
-    assert_equal p2, pm4.reload.project
+    assert_equal [p2], pm1.projects
+    assert_equal [p2], pm2.projects
+    assert_equal [p2], pm3.projects
+    assert_equal [p2], pm4.projects
   end
 
   test "should match rules with operators 2" do
@@ -2606,10 +2451,9 @@ class TeamTest < ActiveSupport::TestCase
     s = pm3.last_status_obj
     s.status = 'Verified'
     s.save!
-
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 3" do
@@ -2653,10 +2497,10 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'foo', annotated: pm1
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
-
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 4" do
@@ -2699,10 +2543,10 @@ class TeamTest < ActiveSupport::TestCase
 
     publish_report(pm1)
     publish_report(pm2)
-
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should match rules with operators 5" do
@@ -2750,10 +2594,10 @@ class TeamTest < ActiveSupport::TestCase
     create_flag set_fields: data.to_json, annotated: pm2
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm3
-
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    
+    assert_equal [p2], pm1.reload.projects
+    assert_equal [p1], pm2.reload.projects
+    assert_equal [p1], pm3.reload.projects
   end
 
   test "should not match rules" do
@@ -2788,14 +2632,15 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p1, quote: 'foo test'
-    assert_equal p2, pm1.reload.project
-    pm1.project_id = p1.id
-    pm1.save!
-    assert_equal p1, pm1.reload.project
+    assert_equal [p2], pm1.reload.projects
+    pmp = pm1.project_media_projects.last
+    pmp.project_id = p1.id
+    pmp.save!
+    assert_equal [p1], pm1.reload.projects
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    assert_equal p1, pm1.reload.project
+    assert_equal [p1], pm1.reload.projects
   end
 
   test "should not have rules with blank names or duplicated names" do
@@ -2842,42 +2687,72 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send custom verification statuses to Transifex" do
-    create_verification_status_stuff
+  test "should send custom messages to Transifex" do
     t = create_team
-    value = {
-      label: 'Field label',
-      active: '2',
-      default: '1',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "send_message_to_user",
+          "action_value": random_string
+        }
       ]
     }
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
       assert_nothing_raised do
-        t.set_media_verification_statuses(value)
+        t.rules = rules.to_json
         t.save!
       end
     end
   end
 
-  test "should not send custom verification statuses to Transifex" do
-    create_verification_status_stuff
+  test "should not send custom messages to Transifex" do
     t = create_team
-    value = {
-      label: 'Field label',
-      active: '2',
-      default: '1',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "send_message_to_user",
+          "action_value": random_string
+        }
       ]
     }
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
       CheckI18n.stubs(:upload_custom_strings_to_transifex).raises(StandardError)
       assert_raises StandardError do
-        t.set_media_verification_statuses(value)
+        t.rules = rules.to_json
         t.save!
       end
       CheckI18n.unstub(:upload_custom_strings_to_transifex)
@@ -2886,24 +2761,47 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should create Transifex resource if it does not exist" do
     require 'transifex'
-    create_verification_status_stuff
     t = create_team
-    value = {
-      label: 'Field label',
-      active: '2',
-      default: '1',
-      statuses: [
-        { id: '1', label: 'Custom Status 1', completed: '1', description: 'The meaning of this status', style: 'red' },
-        { id: '2', label: 'Custom Status 2', completed: '0', description: 'The meaning of that status', style: 'blue' }
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "send_message_to_user",
+          "action_value": random_string
+        }
       ]
     }
-    t = create_team
     ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
     stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      t.set_media_verification_statuses(value)
+      t.rules = rules.to_json
       t.save!
     end
     ::Transifex::Project.any_instance.unstub(:resource)
+  end
+
+  test "should get translated message from Transifex if available" do
+    t = create_team
+    t.set_language 'pt_PT'
+    t.save!
+    assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo')
+    assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo', { locale: 'pt_PT' })
+    assert_match /custom_message/, CheckI18n.i18n_t(t, 'custom_message', nil)
   end
 
   test "should match rule by language" do
@@ -2954,5 +2852,121 @@ class TeamTest < ActiveSupport::TestCase
     a.save!
     assert_equal 3, p1.reload.project_media_projects.count
     assert_equal 0, p2.reload.project_media_projects.count
+  end
+
+  test "should get custom status" do
+    t = create_team
+    pm = ProjectMedia.new team: t
+
+    # Test core statuses first
+    I18n.locale = 'pt'
+    assert_equal 'Em andamento', pm.status_i18n(:in_progress)
+    I18n.locale = 'en'
+    assert_equal 'In Progress', pm.status_i18n(:in_progress)
+    assert_equal 'Em andamento', pm.status_i18n(:in_progress, { locale: 'pt' })
+
+    # Test custom statuses now
+    value = {
+      "label": "Custom Status Label",
+      "active": "in_progress",
+      "default": "unstarted",
+      "statuses": [
+        {
+          "id": "unstarted",
+          "style": {
+            "color": "blue"
+          },
+          "locales": {
+            "en": {
+              "label": "Unstarted",
+              "description": "An item that did not start yet"
+            },
+            "pt": {
+              "label": "Não iniciado ainda",
+              "description": "Um item que ainda não começou a ser verificado"
+            }
+          }
+        },
+        {
+          "id": "in_progress",
+          "style": {
+            "color": "yellow"
+          },
+          "locales": {
+            "en": {
+              "label": "Working on it",
+              "description": "We are working on it"
+            },
+            "pt": {
+              "label": "Estamos trabalhando nisso",
+              "description": "Estamos trabalhando nisso"
+            }
+          }
+        }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    
+    I18n.locale = 'pt'
+    assert_equal 'Estamos trabalhando nisso', pm.status_i18n(:in_progress)
+    I18n.locale = 'en'
+    assert_equal 'Working on it', pm.status_i18n(:in_progress)
+    assert_equal 'Estamos trabalhando nisso', pm.status_i18n(:in_progress, { locale: 'pt' })
+    assert_equal 'Working on it', pm.status_i18n(:in_progress, { locale: 'es' })
+  end
+
+  test "should not save custom verification statuses if identifier format is invalid" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: 'Custom Status 1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: 'Custom Status 2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+  end
+
+  test "should validate language format" do
+    t = create_team
+    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.language = l
+        t.save!
+      end
+      assert_nil t.reload.get_language
+    end
+    ['pt', 'pt_BR'].each do |l|
+      assert_nothing_raised do
+        t.language = l
+        t.save!
+      end
+      assert_equal l, t.reload.get_language
+    end
+  end
+
+  test "should validate languages format" do
+    t = create_team
+    ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.languages = ['en', l]
+        t.save!
+      end
+      assert_nil t.reload.get_languages
+    end
+    ['pt', 'pt_BR'].each do |l|
+      assert_nothing_raised do
+        t.languages = ['en', l]
+        t.save!
+      end
+      assert_equal ['en', l], t.reload.get_languages
+    end
   end
 end

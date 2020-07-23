@@ -60,7 +60,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": "invalid"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
-      pm1 = create_project_media project: @pm.project, media: create_uploaded_image
+      pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_nil pm1.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
@@ -78,13 +78,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           }
         ]
       }.to_json)
-      pm2 = create_project_media project: @pm.project, media: create_uploaded_image
+      pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       assert_equal [pm1.id], Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
       assert_nil pm2.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
         "result": valid_flags_data
       }.to_json)
-      pm3 = create_project_media project: @pm.project, media: create_uploaded_image
+      pm3 = create_project_media team: @pm.team, media: create_uploaded_image
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
     end

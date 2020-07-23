@@ -146,7 +146,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal @project.id, pm.project_id
+    assert_equal [@project.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -171,7 +171,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal p1.id, pm.project_id
+    assert_equal [p1.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -196,7 +196,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal p2.id, pm.project_id
+    assert_equal [p2.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -795,6 +795,97 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     t2.save!
     Team.current = t2
     assert_equal ['es', 'pt'], Bot::Smooch.template_locale_options
+  end
+
+  test "should split bundled messages" do
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'foo',
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'bar'
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'test'
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'Dynamic.where(annotation_type: "smooch").count' do
+        Sidekiq::Worker.drain_all
+      end
+      assert_equal ['bar', 'foo', 'test'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
+    end
+  end
+
+  test "should bundle all user messages" do
+    setup_smooch_bot(true)
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    Sidekiq::Testing.fake! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot('Hello', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('What?', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('Hum', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('1', uid) # Discards all messages: the user is seeing a resource, which closes the cycle
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot('Hello again', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('ONE ', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('2', uid)
+        assert_equal 'query', sm.state.value
+        send_message_to_smooch_bot('0', uid) # Discards all messages: the user cancels the process
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('Hello for the last time', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('ONE ', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('2', uid)
+        assert_equal 'query', sm.state.value
+      end
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
+    assert_difference 'ProjectMedia.count' do
+      send_message_to_smooch_bot('Query', uid)
+    end
+    Rails.cache.unstub(:read)
+    Sidekiq::Worker.drain_all
+    assert_equal 'waiting_for_message', sm.state.value
+    assert_equal ['Hello for the last time', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
   protected

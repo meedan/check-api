@@ -1367,8 +1367,8 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm1 = create_project_media team: t, project: nil
-    pm2 = create_project_media team: t, project: nil
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     a = create_task annotated: pm1
     a2 = create_task annotated: pm2
     Assignment.create!(user: u, assigned_type: 'Annotation', assigned_id: a.id)

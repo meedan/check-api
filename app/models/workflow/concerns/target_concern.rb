@@ -71,7 +71,7 @@ module Workflow
               ts.annotator = self.user
               ts.set_fields = fields.to_json
               ts.created_at = self.created_at
-              ts.save
+              ts.save!
               User.current = user
             end
           end

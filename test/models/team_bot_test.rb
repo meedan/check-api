@@ -294,18 +294,18 @@ class TeamBotTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     c = create_comment text: 'Test Comment'
     s = create_source name: 'Test Source'
-    assert_equal pm.id, tb.graphql_result('id, dbid, project { title }', pm, t)['dbid']
+    assert_equal pm.id, tb.graphql_result('id, dbid', pm, t)['dbid']
     assert_equal 'Test Source', tb.graphql_result('id, dbid, name', s, t)['name']
     assert_equal({ text: 'Test Comment' }.to_json, tb.graphql_result('id, dbid, content', c, t)['content'])
     assert tb.graphql_result('invalid fragment', c, t).has_key?('error')
   end
 
   test "should call bot over event subscription" do
-    t = create_team
+    t = create_team name: 'Test Team'
     p1 = create_project team: t, title: 'Test Project'
     p2 = create_project team: t, title: 'Another Test Project'
-    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'project { title }' }], set_request_url: 'http://bot'
-    data = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
+    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { name }' }], set_request_url: 'http://bot'
+    data = { event: 'create_project_media', data: { team: { name: 'Test Team' } } }
     WebMock.disable_net_connect!
     WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
 
@@ -313,6 +313,9 @@ class TeamBotTest < ActiveSupport::TestCase
       assert_nothing_raised do
         create_project_media project: p1
       end
+
+      t.name = random_string
+      t.save!
 
       assert_raises WebMock::NetConnectNotAllowedError do
         create_project_media project: p2
@@ -345,9 +348,9 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should enqueue bot notifications" do
     t = create_team
     p = create_project team: t, title: 'Test Project'
-    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'project { title }' }, { event: 'update_project_media', graphql: 'project { title }' }], set_request_url: 'http://bot'
-    data_create = { event: 'create_project_media', data: { project: { title: 'Test Project' } } }
-    data_update = { event: 'update_project_media', data: { project: { title: 'Test Project' } } }
+    tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { slug }' }, { event: 'update_project_media', graphql: 'team { slug }' }], set_request_url: 'http://bot'
+    data_create = { event: 'create_project_media', data: { team: { slug: t.slug } } }
+    data_update = { event: 'update_project_media', data: { team: { slug: t.slug } } }
     create_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
     update_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_update)).to_return(body: 'ok')
     WebMock.disable_net_connect!
@@ -393,7 +396,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should get JSON schema path" do
     tb = create_team_bot
-    assert_match /^http/, tb.json_schema_url('events')
+    assert_kind_of Hash, tb.rails_admin_json_schema('events')
   end
 
   test "should not be approved by default" do
