@@ -53,7 +53,35 @@ class Bot::Smooch < BotUser
         end
       end
     end
-    after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
+    after_save do
+      if self.annotation_type == 'smooch_user'
+        id = self.get_field_value('smooch_user_id')
+        unless id.blank?
+          sm = CheckStateMachine.new(id)
+          case self.action
+          when 'deactivate'
+            sm.enter_human_mode
+          when 'reactivate'
+            sm.leave_human_mode
+          when 'refresh_timeout'
+            Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
+          else
+            app_id = self.get_field_value('smooch_user_app_id')
+            message = self.action.to_s.match(/^send (.*)$/)
+            unless message.nil?
+              Bot::Smooch.get_installation('smooch_app_id', app_id)
+              payload = {
+                '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
+                authorId: id,
+                type: 'text',
+                text: message[1]
+              }.with_indifferent_access
+              Bot::Smooch.save_message_later(payload, app_id)
+            end
+          end
+        end
+      end
+    end
     before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
 
     scope :smooch_user, -> { where(annotation_type: 'smooch_user').joins(:fields).where('dynamic_annotation_fields.field_name' => 'smooch_user_data') }
@@ -67,34 +95,6 @@ class Bot::Smooch < BotUser
         Rails.cache.delete_matched("smooch:request:#{uid}:*")
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
-      end
-    end
-
-    def change_smooch_user_state
-      id = self.get_field_value('smooch_user_id')
-      unless id.blank?
-        sm = CheckStateMachine.new(id)
-        case self.action
-        when 'deactivate'
-          sm.enter_human_mode
-        when 'reactivate'
-          sm.leave_human_mode
-        when 'refresh_timeout'
-          Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
-        else
-          app_id = self.get_field_value('smooch_user_app_id')
-          message = self.action.to_s.match(/^send (.*)$/)
-          unless message.nil?
-            Bot::Smooch.get_installation('smooch_app_id', app_id)
-            payload = {
-              '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
-              authorId: id,
-              type: 'text',
-              text: message[1]
-            }.with_indifferent_access
-            Bot::Smooch.save_message_later(payload, app_id)
-          end
-        end
       end
     end
   end
@@ -755,22 +755,12 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_project_media_from_message(message)
-    pm = case message['type']
-         when 'text'
-           self.save_text_message(message)
-         when 'image'
-           self.save_media_message(message)
-         when 'video'
-           self.save_media_message(message, 'video')
-         when 'audio'
-           self.save_media_message(message, 'audio')
-         when 'file'
-           message['mediaType'] = self.detect_media_type(message)
-           m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
-           m.nil? ? return : self.save_media_message(message, m[1])
-         else
-           return
-         end
+    pm =
+      if message['type'] == 'text'
+        self.save_text_message(message)
+      else
+        self.save_media_message(message)
+      end
     pm
   end
 
@@ -886,23 +876,23 @@ class Bot::Smooch < BotUser
     type || message['mediaType']
   end
 
-  def self.save_media_message(message, type = 'image')
+  def self.save_media_message(message)
+    if message['type'] == 'file'
+      message['mediaType'] = self.detect_media_type(message)
+      m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
+      message['type'] = m[1] unless  m.nil?
+    end
+    allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }
+    return unless ['image', 'video', 'audio'].include?(message['type'])
+
     open(message['mediaUrl']) do |f|
       text = message['text']
 
       data = f.read
       hash = Digest::MD5.hexdigest(data)
-      filename =
-        if type == 'image'
-          "#{hash}.jpeg"
-        elsif type == 'video'
-          "#{hash}.mp4"
-        elsif type == 'audio'
-          "#{hash}.mp3"
-        end
-
+      filename = "#{hash}.#{allowed_types[message['type']]}"
       filepath = File.join(Rails.root, 'tmp', filename)
-      media_type = "Uploaded#{type.camelize}"
+      media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
       pm = ProjectMedia.joins(:media).joins(:project_media_projects).where('medias.type' => media_type, 'medias.file' => filename, 'project_media_projects.project_id' => message['project_id']).last
       if pm.nil?
