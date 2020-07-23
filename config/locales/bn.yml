@@ -100,6 +100,14 @@ bn:
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_status_undetermined_africa-infodemic: ''
+  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_priority_unassigned_africa-infodemic: ''
+  custom_message_status_priority_assigned_africa-infodemic: ''
+  custom_message_status_rated_true_africa-infodemic: ''
+  custom_message_status_rated_false_africa-infodemic: ''
+  custom_message_status_rated_misleading_africa-infodemic: ''
+  custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: সত্য
   custom_message_status_false_boom-factcheck: মিথ্যা
   custom_message_status_not_applicable_boom-factcheck: নিরসন করা য়ায়ানি
@@ -164,10 +172,10 @@ bn:
     পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
     পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
     দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -213,8 +221,8 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: ''
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     এই বার্তা পাঠানোর জন্য আপনাকে ধন্যবাদ
 
@@ -282,7 +290,7 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
-  custom_message_rule_action_send_message_ef36ade46fe1c5c9aaeecb1504fd8707_india-today: ''
+  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
   custom_message_status_false_infotagion: ''
   custom_message_status_misleading_infotagion: ''
@@ -309,7 +317,7 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_0b7ddeb67444f1c3ea7825747d6768a8_africa-check: ''
+  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
@@ -377,6 +385,7 @@ bn:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
   custom_message_smooch_bot_result_changed_team-1: ''
   custom_message_smooch_bot_message_confirmed_team-1: ''
   custom_message_smooch_bot_message_type_unsupported_team-1: ''
