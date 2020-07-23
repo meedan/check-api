@@ -27,7 +27,7 @@ namespace :check do
         team_id = version.get_team_id
         if team_id.nil?
           assoc = version.associated
-          team_id = Version.get_team_id_from_item_type(version.associated_type, assoc) if assoc
+          team_id = assoc.team&.id if assoc
         end
         next if team_id.nil?
         mapping[team_id] ||= []

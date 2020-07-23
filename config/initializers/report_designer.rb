@@ -44,7 +44,7 @@ Dynamic.class_eval do
   end
 
   def report_design_date(date, language)
-    I18n.l(date, locale: language.to_s.gsub('_', '-'), format: :long)
+    I18n.l(date, locale: language.to_s.tr('_', '-'), format: :long)
   end
 
   def report_image_generate_png(option_index)

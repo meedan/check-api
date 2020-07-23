@@ -31,6 +31,11 @@
             <p><%= simple_format(text).gsub(/\*([^*]*)\*/, '<b>\1</b>').gsub(/_([^_]*)_/, '<i>\1</i>').gsub(/```([^`]*)```/, '<code>\1</code>').gsub(/~([^~]*)~/, '<strike>\1</strike>').html_safe %></p>
           </div>
         <% end %>
+        <% if !image && !text %>
+          <div id="blank">
+            <p><%= I18n.t(:embed_no_content_yet) %></p>
+          </div>
+        <% end %>
       </div>
     </article>
 

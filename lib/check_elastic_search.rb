@@ -3,14 +3,10 @@ module CheckElasticSearch
   def create_elasticsearch_doc_bg(_options)
     doc_id = Base64.encode64("#{self.class.name}/#{self.id}")
     return if doc_exists?(doc_id)
-    p = self.project
     ms = MediaSearch.new
     ms.id = doc_id
-    ms.team_id = self.team_id if self.is_a?(ProjectMedia)
-    unless p.nil?
-      ms.team_id = p.team_id
-      ms.project_id = [p.id]
-    end
+    ms.team_id = self.team_id
+    ms.project_id = self.project_ids
     rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
     ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
     ms.set_es_annotated(self)

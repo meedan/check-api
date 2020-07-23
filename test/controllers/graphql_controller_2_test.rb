@@ -30,7 +30,7 @@ class GraphqlController2Test < ActionController::TestCase
     end
     sleep 2
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
     assert_response :success
@@ -84,7 +84,7 @@ class GraphqlController2Test < ActionController::TestCase
       p = create_project team: t
       authenticate_with_user(u)
 
-      query = 'mutation { createProjectMedia(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', url: "' + url + '"}) { project_media { id } } }'
+      query = 'mutation { createProjectMedia(input: { clientMutationId: "1", url: "' + url + '"}) { project_media { id } } }'
       post :create, query: query, team: t.slug
       assert_response :success
 
@@ -95,7 +95,7 @@ class GraphqlController2Test < ActionController::TestCase
       error_info = ret['errors'].first
       assert_equal error_info.keys.sort, ['code', 'data', 'message'].sort
       assert_equal ::LapisConstants::ErrorCodes::DUPLICATED, error_info['code']
-      assert_kind_of Integer, error_info['data']['project_id']
+      assert_kind_of Integer, error_info['data']['team_id']
       assert_kind_of Integer, error_info['data']['id']
       assert_equal 'media', error_info['data']['type']
     end
@@ -297,7 +297,7 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'contributor'
     authenticate_with_user(u)
-    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", project_id: ' + p.id.to_s + ', related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
     assert_difference 'Relationship.count' do
       post :create, query: query, team: t
     end
@@ -672,6 +672,22 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
+  end
+
+  test "should read project media project" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'contributor'
+    authenticate_with_user(u)
+    p = create_project team: t
+    pm = create_project_media project: p
+    pmp = pm.project_media_projects.last
+    assert_not_nil pmp
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal pmp.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
   end
 
   test "should list filtered users to annotator" do
@@ -1062,108 +1078,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm2.id, pmids[0]
   end
 
-  test "should bulk-update things" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.fake! do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'owner'
-      p1 = create_project team: t
-      p2 = create_project team: t
-      pm1 = create_project_media project: p1
-      pm2 = create_project_media project: p1
-      pm3 = create_project_media project: p1
-      pm4 = create_project_media project: p1
-      Sidekiq::Worker.drain_all
-
-      assert_equal p1, pm1.reload.project
-      assert_equal p1, pm2.reload.project
-      assert_equal p1, pm3.reload.project
-      assert_equal 0, Sidekiq::Worker.jobs.size
-
-      authenticate_with_user(u)
-      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\", \"#{pm3.graphql_id}\", \"#{pm4.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      assert_equal [pm1.graphql_id, pm2.graphql_id, pm3.graphql_id, pm4.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
-      sleep 1
-      assert_equal 1, Sidekiq::Worker.jobs.size
-      assert_equal p1, pm1.reload.project
-      assert_equal p1, pm2.reload.project
-      assert_equal p1, pm3.reload.project
-      pm3.update_column(:archived, true)
-      pm4.destroy!
-      Sidekiq::Worker.drain_all
-      assert_equal 0, Sidekiq::Worker.jobs.size
-      assert_equal p2, ProjectMedia.find(pm1.id).project
-      assert_equal p2, ProjectMedia.find(pm2.id).project
-      assert_equal p1, ProjectMedia.find(pm3.id).project
-      assert_nil ProjectMedia.where(id: pm4.id).last
-    end
-  end
-
-  test "should bulk-destroy things" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.fake! do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'owner'
-      p1 = create_project team: t
-      p2 = create_project team: t
-      pm1 = create_project_media project: p1
-      pm2 = create_project_media project: p1
-      Sidekiq::Worker.drain_all
-
-      assert_not_nil ProjectMedia.where(id: pm1.id).last
-      assert_not_nil ProjectMedia.where(id: pm2.id).last
-      assert_equal 0, Sidekiq::Worker.jobs.size
-
-      authenticate_with_user(u)
-      query = "mutation { destroyProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"] }) { affectedIds, check_search_team { number_of_results }, project { medias_count } } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['destroyProjectMedia']['affectedIds'].sort
-      sleep 1
-      # size change due to obj.save! instead of update_all in `freeze_or_unfreeze_objects` method
-      # assert_equal 1, Sidekiq::Worker.jobs.size
-      assert_not_nil ProjectMedia.where(id: pm1.id).last
-      assert_not_nil ProjectMedia.where(id: pm2.id).last
-      Sidekiq::Worker.drain_all
-      assert_equal 0, Sidekiq::Worker.jobs.size
-      assert_nil ProjectMedia.where(id: pm1.id).last
-      assert_nil ProjectMedia.where(id: pm2.id).last
-    end
-  end
-
-  test "should set statuses of related items" do
-    Sidekiq::Testing.fake! do
-      BotUser.delete_all
-      b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: []
-      u = create_user
-      t = create_team
-      create_team_bot_installation user_id: b.id, team_id: t.id
-      create_team_user team: t, user: u, role: 'owner'
-      p = create_project team: t
-      pm1 = create_project_media project: p
-      pm2 = create_project_media project: p
-      pm3 = create_project_media project: p
-      create_relationship source_id: pm1.id, target_id: pm2.id, user: create_user
-      create_relationship source_id: pm1.id, target_id: pm3.id, user: create_user
-      authenticate_with_user(u)
-
-      assert_equal 'undetermined', pm1.reload.last_verification_status
-      assert_equal 'undetermined', pm2.reload.last_verification_status
-      assert_equal 'undetermined', pm3.reload.last_verification_status
-
-      d = pm1.last_verification_status_obj
-
-      query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { targets_by_users(first: 10) { edges { node { last_status } } } } } }'
-      post :create, query: query, team: t.slug
-      assert_response :success
-      assert_equal ['verified', 'verified'].sort, JSON.parse(@response.body)['data']['updateDynamic']['project_media']['targets_by_users']['edges'].collect{ |x| x['node']['last_status'] }
-    end
-  end
-
   test "should not remove logo when update team" do
     u = create_user
     team = create_team
@@ -1253,65 +1167,38 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal 0, JSON.parse(@response.body)['data']['updateTeam']['public_team']['trash_count']
   end
 
-  test "should bulk-trash items" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.fake! do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'owner'
-      pm1 = create_project_media project: nil, team: t
-      pm2 = create_project_media project: nil, team: t
-      Sidekiq::Worker.drain_all
-      assert !pm1.reload.archived
-      assert !pm2.reload.archived
-      assert_equal 0, Sidekiq::Worker.jobs.size
+  test "should provide empty fallback only if deleted status has no items" do
+    t = create_team
+    value = {
+      label: 'Status',
+      active: 'id',
+      default: 'id',
+      statuses: [
+        { id: 'id', locales: { en: { label: 'Custom Status', description: 'The meaning of this status' } }, style: { color: 'red' } },
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
 
-      authenticate_with_user(u)
-      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], archived: 1 }) { affectedIds, team { medias_count, trash_count } } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['updateProjectMedia']
-      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, data['affectedIds'].sort
-      assert_equal 0, data['team']['medias_count']
-      assert_equal 2, data['team']['trash_count']
-      sleep 1
-      assert_equal 1, Sidekiq::Worker.jobs.size
-      Sidekiq::Worker.drain_all
-      assert_equal 0, Sidekiq::Worker.jobs.size
-      assert pm1.reload.archived
-      assert pm2.reload.archived
-    end
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+
+    pm = create_project_media project: nil, team: t
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id'
+    s.save!
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    pm.destroy!
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
   end
 
-  test "should bulk-restore items" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.fake! do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'owner'
-      pm1 = create_project_media project: nil, team: t
-      pm2 = create_project_media project: nil, team: t
-      pm1.archived = true ; pm1.save!
-      pm2.archived = true ; pm2.save!
-      Sidekiq::Worker.drain_all
-      assert pm1.reload.archived
-      assert pm2.reload.archived
-      assert_equal 0, Sidekiq::Worker.jobs.size
-
-      authenticate_with_user(u)
-      query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], archived: 0 }) { affectedIds, team { medias_count, trash_count } } }"
-      post :create, query: query, team: t.slug
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['updateProjectMedia']
-      assert_equal [pm1.graphql_id, pm2.graphql_id].sort, data['affectedIds'].sort
-      assert_equal 2, data['team']['medias_count']
-      assert_equal 0, data['team']['trash_count']
-      sleep 1
-      assert_equal 1, Sidekiq::Worker.jobs.size
-      Sidekiq::Worker.drain_all
-      assert_equal 0, Sidekiq::Worker.jobs.size
-      assert !pm1.reload.archived
-      assert !pm2.reload.archived
-    end
-  end
+  # Please add new tests to test/controllers/graphql_controller_3_test.rb
 end

@@ -36,7 +36,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
   end
 
   test "should have value" do
-    value = { lat: '-13.34', lon: '2.54' }
+    value = { 'lat' => '-13.34', 'lon' => '2.54' }
     f = create_field value: value
     assert_equal value, f.reload.value
   end
