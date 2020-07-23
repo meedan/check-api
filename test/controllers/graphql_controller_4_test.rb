@@ -301,6 +301,16 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 2, p4.reload.medias_count
   end
 
+  test "should update archived media by owner" do
+    pm = create_project_media team: @t, archived: true
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
+    post :create, query: query, team: @t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    permissions = JSON.parse(data['permissions'])
+    assert_equal true, permissions['update ProjectMedia']
+  end
+
   protected
 
   def assert_error_message(expected)

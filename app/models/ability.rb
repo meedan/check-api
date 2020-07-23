@@ -139,7 +139,7 @@ class Ability
     can :update, Project, :team_id => @context_team.id
     can [:update, :destroy], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can :destroy, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+      obj.related_to_team?(@context_team) && obj.user_id == @user.id
     end
     %w(annotation comment dynamic task).each do |annotation_type|
       can [:destroy, :update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
@@ -170,7 +170,7 @@ class Ability
       obj.team_ids.include?(@context_team.id)
     end
     can [:update, :administer_content, :bulk_update], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && !obj.archived_was
+      obj.related_to_team?(@context_team)
     end
     can :update, ProjectMediaProject do |obj|
       obj.project && obj.project.team_id == @context_team.id && !obj.project_media.archived
@@ -213,7 +213,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == false
     end
     can :update, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+      obj.related_to_team?(@context_team) && obj.user_id == @user.id
     end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.team&.id == @context_team.id and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived? && !obj.locked?
