@@ -16,7 +16,7 @@ build_qa:
 
   script:
     - apk add --no-cache curl python3 py3-pip
-    - pip install awscli==1.16.201
+    - pip install awscli==1.18.103
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA" .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
@@ -39,7 +39,7 @@ deploy_qa:
   script:
     - apk add --no-cache curl python3 py3-pip git
     - pip install ecs-deploy==1.10.1
-    - pip install awscli==1.16.201
+    - pip install awscli==1.18.103
     - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  
     - taskArn=$(aws ecs run-task --cluster ecs-qa --task-definition qa-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
@@ -64,7 +64,7 @@ build_live:
   script:
     - apk add --no-cache curl python3 py3-pip git
     - pip install docutils==0.14
-    - pip install awscli==1.16.201
+    - pip install awscli==1.18.103
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA" .
     - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
@@ -88,7 +88,7 @@ deploy_live:
   script:
     - apk add --no-cache curl python3 py3-pip git
     - pip install ecs-deploy==1.10.1
-    - pip install awscli==1.16.201
+    - pip install awscli==1.18.103
     - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  
     - taskArn=$(aws ecs run-task --cluster ecs-live --task-definition live-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
