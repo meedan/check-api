@@ -15,7 +15,7 @@ class CheckSearch
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
   end
 
-  MEDIA_TYPES = %w[claims links images videos]
+  MEDIA_TYPES = %w[claims links images videos audios]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count'
@@ -287,7 +287,8 @@ class CheckSearch
         'claims' => ['Claim'],
         'links' => 'Link',
         'images' => 'UploadedImage',
-        'videos' => 'UploadedVideo'
+        'videos' => 'UploadedVideo',
+        'audios' => 'UploadedAudio'
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       doc_c << { terms: { 'associated_type': types } }

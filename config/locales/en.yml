@@ -94,6 +94,7 @@ en:
       must_resolve_required_tasks_first: Required tasks must be resolved first
       image_too_large: Sorry, we don't support images larger than %{max_size}.
       video_too_large: Sorry, we don't support videos larger than %{max_size}.
+      audio_too_large: Sorry, we don't support audios larger than %{max_size}.
       pender_conflict: This link is already being parsed. Please try again in a few
         seconds.
       pender_url_invalid: This link is invalid.

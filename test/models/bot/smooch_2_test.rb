@@ -206,21 +206,26 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     assert_not CheckI18n.is_rtl_lang?
   end
 
-  test "should support file only if image or video" do
+  test "should support file only if image or video or audio" do
     assert Bot::Smooch.supported_message?({ 'type' => 'image' })[:type]
     assert Bot::Smooch.supported_message?({ 'type' => 'video' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'audio' })[:type]
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:type]
     assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg' })[:type]
     assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4' })[:type]
+    assert Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'audio/mpeg' })[:type]
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:type]
     # should not supoort invalid size
     large_image =  UploadedImage.max_size + random_number
     large_video =  UploadedVideo.max_size + random_number
+    large_audio =  UploadedAudio.max_size + random_number
     assert !Bot::Smooch.supported_message?({ 'type' => 'image', 'mediaSize' => large_image })[:size]
     assert !Bot::Smooch.supported_message?({ 'type' => 'video', 'mediaSize' => large_video })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'audio', 'mediaSize' => large_video })[:size]
     assert Bot::Smooch.supported_message?({ 'type' => 'text' })[:size]
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'image/jpeg', 'mediaSize' => large_image })[:size]
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'video/mp4', 'mediaSize' => large_video })[:size]
+    assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'audio/mpeg', 'mediaSize' => large_audio })[:size]
     assert !Bot::Smooch.supported_message?({ 'type' => 'file', 'mediaType' => 'application/pdf' })[:size]
   end
 

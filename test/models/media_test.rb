@@ -521,12 +521,14 @@ class MediaTest < ActiveSupport::TestCase
     i = create_uploaded_image
     f = create_uploaded_file
     v = create_uploaded_video
+    a = create_uploaded_audio
     m = Media.new
     assert_equal 'twitter', l.media_type
     assert_equal 'quote', c.media_type
     assert_equal 'uploaded image', i.media_type
     assert_equal 'uploaded file', f.media_type
     assert_equal 'uploaded video', v.media_type
+    assert_equal 'uploaded audio', a.media_type
     assert_equal '', m.media_type
   end
 

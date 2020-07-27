@@ -57,10 +57,10 @@ module ProjectMediaCreators
   end
 
   def set_title_for_files
-    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage'].include?(self.media.type)
+    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
       type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", self.team&.id).count
-      type = self.media.type == 'UploadedVideo' ? 'video' : 'image'
+      type = self.media.type.sub('Uploaded', '').downcase
       title = "#{type}-#{self.team&.slug}-#{type_count}"
     else
       file_path = self.media.file.path
@@ -71,7 +71,7 @@ module ProjectMediaCreators
 
   protected
 
-  def create_video_or_image(media_type = 'UploadedImage')
+  def create_with_file(media_type = 'UploadedImage')
     m = media_type.constantize.new
     m.file = self.file
     m.save!
@@ -97,8 +97,8 @@ module ProjectMediaCreators
     m = nil
     self.set_media_type if self.media_type.blank?
     case self.media_type
-    when 'UploadedImage', 'UploadedVideo'
-      m = self.create_video_or_image(media_type)
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      m = self.create_with_file(media_type)
     when 'Claim'
       m = self.create_claim
     when 'Link'

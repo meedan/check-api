@@ -299,9 +299,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'rails', pm.metadata['title']
   end
 
-  test "should set automatic title for images and videos" do
+  test "should set automatic title for images videos and audios" do
     m = create_uploaded_image file: 'rails.png'
     v = create_uploaded_video file: 'rails.mp4'
+    a = create_uploaded_audio file: 'rails.mp3'
     bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     u = create_user
     team = create_team slug: 'workspace-slug'
@@ -317,7 +318,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       count = Media.where(type: 'UploadedVideo').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
       assert_equal pm2.title, "video-#{team.slug}-#{count}"
-      pm.destroy; pm2.destroy
+      pm3 = create_project_media team: team, media: a
+      count = Media.where(type: 'UploadedAudio').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
+      .where("pm.team_id = ?", team&.id).count
+      assert_equal pm3.title, "audio-#{team.slug}-#{count}"
+      pm.destroy; pm2.destroy; pm3.destroy
     end
     # test with non smooch user
     with_current_user_and_team(u, team) do
@@ -325,6 +330,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal pm.title, "rails"
       pm2 = create_project_media team: team, media: v
       assert_equal pm2.title, "rails"
+      pm3 = create_project_media team: team, media: a
+      assert_equal pm3.title, "rails"
     end
   end
 
