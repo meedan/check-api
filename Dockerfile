@@ -14,7 +14,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 # sqlite3, lz4: for check:data:export_team task
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    ffmpegthumbnailer
+    ffmpegthumbnailer \
     git \
     graphicsmagick \
     inotify-tools \
