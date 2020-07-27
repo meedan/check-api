@@ -64,7 +64,7 @@ module TableStrategies
 
     # Returns a SELECT clause for selecting the whole table
     def select_sql
-      columns = ActiveRecord::Base.connection.columns(pg_table_name).map do |column|
+      columns = wanted_active_record_columns.map do |column|
         clause = override_field_select_sql(column)
         quoted_column_name = Q.quote_column_name(column.name)
         if clause.nil?
@@ -94,8 +94,32 @@ module TableStrategies
 
     protected
 
+    def all_active_record_columns
+      ActiveRecord::Base.connection.columns(pg_table_name)
+    end
+
+    # If non-nil, make it a Set: a whitelist of names we want.
+    def wanted_column_names
+      nil  # nil => select all columns
+    end
+
+    def wanted_active_record_columns
+      all = all_active_record_columns
+      filter = wanted_column_names
+      if filter.nil?
+        all
+      else
+        ret = all.select { |column| filter.include?(column.name) }
+        unhandled_column_names = (filter - ret.map(&:name)).to_a.sort
+        if unhandled_column_names.size > 0
+          raise "Script/data discrepancy: columns #{unhandled_column_names} do not exist in table #{pg_table_name}"
+        end
+        ret
+      end
+    end
+
     def define_sqlite3_table_sql()
-      columns = ActiveRecord::Base.connection.columns(pg_table_name)
+      columns = wanted_active_record_columns
       lines = []
       lines << "CREATE TABLE #{table_name} ("
       lines.concat(columns.map{|column| "  #{define_sqlite3_column(column)},"})
@@ -106,7 +130,7 @@ module TableStrategies
 
     def copy_data_to_sqlite3(db)
       conn = ActiveRecord::Base.connection
-      columns = conn.columns(pg_table_name)
+      columns = wanted_active_record_columns
       pg_conn = conn.raw_connection
       decode = PG::TextDecoder::CopyRow.new(type_map: build_pg_copy_rows_type_map(columns))
 
@@ -361,6 +385,22 @@ module TableStrategies
 
     protected
 
+    def wanted_column_names
+      Set.new(%w(
+        id
+        item_type
+        item_id
+        event
+        whodunnit
+        object_changes
+        created_at
+        event_type
+        associated_id
+        associated_type
+        team_id
+      ))
+    end
+
     def pg_table_name
       "versions_partitions.p#{team_id}"
     end
@@ -416,7 +456,7 @@ namespace :check do
             TableStrategies::TeamTask,
             TableStrategies::TeamUser,
             TableStrategies::User,
-            #TableStrategies::Version,
+            TableStrategies::Version,
         ]
           dumper = klass.new(team_id)
           puts "Dumping #{dumper.table_name}..."
