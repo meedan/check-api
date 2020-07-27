@@ -883,7 +883,7 @@ class Bot::Smooch < BotUser
       message['type'] = m[1] unless  m.nil?
     end
     allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }
-    return unless ['image', 'video', 'audio'].include?(message['type'])
+    return unless allowed_types.keys.include?(message['type'])
 
     open(message['mediaUrl']) do |f|
       text = message['text']
