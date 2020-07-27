@@ -1103,4 +1103,27 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 'pt_BR', t.reload.get_language
     assert_equal ['es', 'pt'], t.reload.get_languages
   end
+
+  test "should define team custom statuses" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+
+    custom_statuses = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", media_verification_statuses: ' + custom_statuses.to_json.to_json + ' }) { team { id, verification_statuses_with_counters: verification_statuses(items_count: true, published_reports_count: true), verification_statuses } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
+    assert_match /items_count/, data['verification_statuses_with_counters'].to_json
+    assert_no_match /items_count/, data['verification_statuses'].to_json
+  end
 end
