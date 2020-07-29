@@ -100,8 +100,7 @@ class GraphqlCrudOperations
   end
 
   def self.update(type, inputs, ctx, parents = [])
-    obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
-    obj = ProjectMediaProject.where(project_id: inputs[:previous_project_id], project_media_id: inputs[:project_media_id]).last if obj.nil? && type.to_s == 'project_media_project'
+    obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : self.load_project_media_project_without_id(type, inputs)
     returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', obj, inputs, ctx, parents, returns)
   end
@@ -128,10 +127,15 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.destroy(inputs, ctx, parents = [])
+  def self.load_project_media_project_without_id(type, inputs)
+    ProjectMediaProject.where(project_id: inputs[:previous_project_id] || inputs[:project_id], project_media_id: inputs[:project_media_id]).last if type.to_s == 'project_media_project'
+  end
+
+  def self.destroy(type, inputs, ctx, parents = [])
     returns = {}
     obj = nil
     obj = self.object_from_id(inputs[:id]) if inputs[:id]
+    obj = self.load_project_media_project_without_id(type, inputs) if obj.nil?
     unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)
@@ -286,7 +290,7 @@ class GraphqlCrudOperations
 
       GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
-      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(type, inputs, ctx, parents) }
     end
   end
 
