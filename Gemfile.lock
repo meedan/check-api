@@ -10,17 +10,6 @@ GIT
       pg
 
 GIT
-  remote: https://github.com/dkhofer/partitioned.git
-  revision: 4ff50a00a1b0957cd0116569b78ef0d0b522f652
-  branch: rails-4-2
-  specs:
-    partitioned (2.1.0)
-      activerecord (~> 4.2.1)
-      activerecord-redshift-adapter
-      bulk_data_methods
-      pg
-
-GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 1d1837136eba5723132eebbd8c0176860c184e0c
   specs:
@@ -41,6 +30,17 @@ GIT
   specs:
     graphiql-rails (1.4.2)
       rails
+
+GIT
+  remote: https://github.com/meedan/partitioned.git
+  revision: 48c952171472f7e5c608ab1e0adfacf3f97a4320
+  branch: rails-4-2
+  specs:
+    partitioned (2.1.0)
+      activerecord (~> 4.2.1)
+      activerecord-redshift-adapter
+      bulk_data_methods
+      pg
 
 GIT
   remote: https://github.com/meedan/pender-client.git

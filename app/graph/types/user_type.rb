@@ -87,9 +87,12 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   connection :team_users, -> { TeamUserType.connection_type }, 'Team memberships of this user' do
     argument :team_slug, types.String, 'Team slug to match'
+    argument :status, types.String, 'Member status to match'
 
     resolve -> (user, args, _ctx) do
-      args['team_slug'].blank? ? user.team_users : TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id)
+      team_users = args['team_slug'].blank? ? user.team_users : TeamUser.joins(:team).where('teams.slug' => args['team_slug'], user_id: user.id)
+      team_users = team_users.where(status: args['status']) if args['status']
+      team_users
     end
   end
 

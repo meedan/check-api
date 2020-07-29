@@ -7,9 +7,8 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  has_many :project_medias, dependent: :nullify
-  has_many :medias , through: :project_medias
   has_many :project_media_projects, dependent: :destroy
+  has_many :project_medias, through: :project_media_projects
 
   mount_uploader :lead_image, ImageUploader
 
@@ -41,10 +40,11 @@ class Project < ActiveRecord::Base
     update_on: [
       {
         model: ProjectMediaProject,
-        affected_ids: proc { |pmp| [pmp.project_id] },
+        affected_ids: proc { |pmp| [pmp.project_id, pmp.previous_project_id] },
         events: {
-          create: proc { |p, _pmp| p.medias_count + 1 },
-          destroy: proc { |p, _pmp| p.medias_count - 1 }
+          create: :recalculate,
+          update: :recalculate,
+          destroy: :recalculate
         }
       },
       {
@@ -60,16 +60,12 @@ class Project < ActiveRecord::Base
         if: proc { |pm| pm.archived_changed? },
         affected_ids: proc { |pm| ProjectMediaProject.where(project_media_id: pm.id).map(&:project_id) },
         events: {
-          update: proc { |p, pm| pm.archived ? (p.medias_count - 1) : (p.medias_count + 1) },
+          update: :recalculate
         }
       },
     ]
 
   include CheckExport
-
-  def before_destroy_later
-    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
-  end
 
   def check_search_team
     self.team.check_search_team
@@ -77,10 +73,6 @@ class Project < ActiveRecord::Base
 
   def check_search_project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
-  end
-
-  def get_team
-    [self.team.id]
   end
 
   def avatar
@@ -202,20 +194,8 @@ class Project < ActiveRecord::Base
     self.token ||= SecureRandom.uuid
   end
 
-  def auto_tasks(only_selected = false)
-    tasks = []
-    self.team.team_tasks.order('id ASC').each do |task|
-      if only_selected
-        tasks << task if task.project_ids.include?(self.id)
-      else
-        tasks << task if task.project_ids.include?(self.id) || task.project_ids.blank?
-      end
-    end
-    tasks
-  end
-
-  def self.archive_or_restore_project_medias_if_needed(archived, project_id)
-    ProjectMedia.where({ project_id: project_id }).update_all({ archived: archived })
+  def self.archive_or_restore_project_medias_if_needed(archived, team_id)
+    ProjectMedia.where({ team_id: team_id }).update_all({ archived: archived })
   end
 
   def self.current
@@ -232,7 +212,8 @@ class Project < ActiveRecord::Base
 
   def propagate_assignment_to(user = nil)
     targets = []
-    ProjectMedia.where(project_id: self.id).find_each do |pm|
+    ProjectMedia.joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
+    .where("pmp.project_id = ?", self.id).find_each do |pm|
       status = pm.last_status_obj
       unless status.nil?
         targets << status
@@ -244,6 +225,18 @@ class Project < ActiveRecord::Base
 
   def inactive
     team.inactive
+  end
+
+  def self.bulk_update_medias_count(pids)
+    pids_count = Hash[pids.product([0])] # Initialize all projects as zero
+    ProjectMediaProject
+      .joins(:project_media)
+      .where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
+      .group('project_media_projects.project_id')
+      .count.to_h.each do |pid, count|
+      pids_count[pid.to_i] = count.to_i
+    end
+    pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }
   end
 
   private
@@ -268,7 +261,7 @@ class Project < ActiveRecord::Base
   end
 
   def archive_or_restore_project_medias_if_needed
-    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.id) if self.archived_changed?
+    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.team_id) if self.archived_changed?
   end
 
   def team_is_not_archived

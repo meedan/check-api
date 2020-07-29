@@ -336,6 +336,7 @@ pt:
   error_login_with_exists_account: Desculpe, existe outro usuário que já está usando
     esta conta
   error_login_2fa: Por favor complete o processo utilizando o código de autenticação.
+  error_record_not_found: "%{type} #%{id} não encontrado(a)."
   mail_see_it: 'Você pode o ver aqui: '
   mails_notifications:
     greeting: Olá %{username},
@@ -664,6 +665,7 @@ pt:
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
   team_rule_title_contains_keyword: O titulo do item contém uma ou mais destas palavras-chave
   team_rule_select_type: Selecione o tipo
+  team_rule_select_language: Selecione idioma
   team_rule_tagged_as: O item está marcado como
   team_rule_select_tag: Selecione tag
   team_rule_select_status: Selecione status
@@ -697,6 +699,7 @@ pt:
   team_rule_operator: Operador
   team_rule_json_schema_validation: O formato das regras não é válido
   team_rule_updated_at: Atualizada
+  team_rule_item_language_is: O idioma do item é
   flag_adult: Adulto
   flag_spoof: Falsificação
   flag_medical: Médico
@@ -712,6 +715,16 @@ pt:
   flag_likelihood_4: Provável
   flag_likelihood_5: Muito provável
   relationship_not_same_team: Itens relacionados devem existir na mesma área de trabalho
+  bulk_operation_limit_error: Desculpe, o número máximo de itens a serem processados
+    de uma só vez é %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Esse status está sendo usado,
+    portanto, você deve fornecer um status de fallback se desejar excluí-lo
+  embed_no_content_yet: O relato está sendo gerado. Esse processo pode demorar alguns
+    minutos. Atualize esta página.
+  language_format_invalid: O formato do idioma é inválido. Deve ser um código ISO
+    639-1.
+  languages_format_invalid: O formato dos idiomas é inválido. Deve ser uma lista de
+    códigos ISO 639-1.
   cant_change_status_if_item_is_published: Desculpe, você não pode alterar o status
     enquanto o relato é publicado
   custom_message_status_undetermined_afp-checamos: ''
@@ -727,8 +740,6 @@ pt:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_resources_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
@@ -745,6 +756,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-fact-check: ''
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
@@ -774,6 +787,14 @@ pt:
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_status_undetermined_africa-infodemic: ''
+  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_priority_unassigned_africa-infodemic: ''
+  custom_message_status_priority_assigned_africa-infodemic: ''
+  custom_message_status_rated_true_africa-infodemic: ''
+  custom_message_status_rated_false_africa-infodemic: ''
+  custom_message_status_rated_misleading_africa-infodemic: ''
+  custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -802,6 +823,8 @@ pt:
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -825,12 +848,12 @@ pt:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_status_undetermined_check-message-demo: Não Iniciado
   custom_message_status_in_progress_check-message-demo: Ainda Em Andamento
+  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: Não É Verdade
   custom_message_status_verified_check-message-demo: Verdadeiro
   custom_message_status_not_applicable_check-message-demo: Fora da Linha de Atuação
-  custom_message_status_report-true_check-message-demo: Relato Verdadeiro
-  custom_message_status_report-false_check-message-demo: Relato Não Verdadeiro
-  custom_message_status_bot-resource_check-message-demo: Recurso do bot
+  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: "❗️ A checagem que
     te enviamos foi *atualizada* com nova informação:"
@@ -849,8 +872,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: ''
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Obrigado por enviar esta mensagem.
 
@@ -948,7 +971,6 @@ pt:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_rule_action_send_message_44ca395f31e5a67c48cc9307445f8a3e_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
@@ -1015,6 +1037,7 @@ pt:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
   custom_message_smooch_bot_result_changed_team-1: ''
   custom_message_smooch_bot_message_confirmed_team-1: ''
   custom_message_smooch_bot_message_type_unsupported_team-1: ''
@@ -1066,6 +1089,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_status_factchecked_test-2: ''
+  custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
   custom_message_status_status_b_test-custom-status: ''
   custom_message_status_foo-bar_test-custom-status: ''

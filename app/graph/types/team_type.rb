@@ -41,8 +41,11 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   field :verification_statuses, JsonStringType, 'Verification statuses used in this team' do
-    resolve -> (team, _args, _ctx) do
-      team.send('verification_statuses', 'media')
+    argument :items_count, types.Boolean # TODO What's this?
+    argument :published_reports_count, types.Boolean # TODO What's this?
+
+    resolve -> (team, args, _ctx) do
+      team.reload.send('verification_statuses', 'media', nil, args['items_count'], args['published_reports_count'])
     end
   end
 

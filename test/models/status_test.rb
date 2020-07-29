@@ -185,7 +185,7 @@ class StatusTest < ActiveSupport::TestCase
       create_status annotated: pm, status: '1'
     end
 
-    value = { label: 'Test', default: '1', active: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', default: '1', active: '1', statuses: [{ id: '1', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'blue' } }] }
     t.set_media_verification_statuses(value)
     t.save!
 
@@ -204,14 +204,14 @@ class StatusTest < ActiveSupport::TestCase
 
     assert_equal 'undetermined', Workflow::Workflow.options(pm, 'verification_status')[:default]
 
-    value = { label: 'Test', active: '1', default: '1', statuses: [{ id: '1', label: 'Analyzing', completed: '', description: 'Testing', style: 'foo' }] }
+    value = { label: 'Test', active: '1', default: '1', statuses: [{ id: '1', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'blue' } }] }
     t.set_media_verification_statuses(value)
     t.save!
 
     pm = create_project_media project: p
     assert_equal '1', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
 
-    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', label: 'Analyzing', completed: '', description: 'Testing', style: 'bar' }] }
+    value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'red' } }] }
     t2.set_media_verification_statuses(value)
     t2.save!
     pm2 = create_project_media project: p2

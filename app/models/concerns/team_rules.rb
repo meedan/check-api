@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused']
+           'report_is_paused', 'item_language_is']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -98,6 +98,10 @@ module TeamRules
     def report_state_is(pm, state)
       pm.get_annotations('report_design').map(&:load).select{ |report| report.get_field_value('state') == state }.size > 0
     end
+
+    def item_language_is(pm, value, _rule_id)
+      pm.get_dynamic_annotation('language')&.get_field_value('language') == value
+    end
   end
 
   module Actions
@@ -116,10 +120,8 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        pm.previous_project_id = pm.project_id
-        pm.project_id = project.id
-        pm.skip_check_ability = true
-        pm.save!
+        ProjectMediaProject.where(project_media_id: pm.id).destroy_all
+        ProjectMediaProject.create!(project: project, project_media: pm, skip_check_ability: true)
       end
     end
 
@@ -190,7 +192,8 @@ module TeamRules
       flags: DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a
              .reject{ |f| f == 'spam' } # We are currently hiding the SPAM flag, as per #8220
              .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
-      likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } }
+      likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
+      languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } }
     })
     ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end

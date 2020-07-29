@@ -90,9 +90,9 @@ es:
       video_too_large: Lo sentimos, no procesamos vídeos más grandes que %{max_size}.
       pender_conflict: Este enlace ya está siendo analizado. Por favor, intente de
         nuevo en unos segundos.
-      pender_url_invalid: Este enlace es inválido
+      pender_url_invalid: Este enlace es inválido.
       pender_url_unsafe: Este enlace no es seguro.
-      pender_could_not_parse: No se pudo analizar este enlace
+      pender_could_not_parse: No se pudo analizar este enlace.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
   activerecord:
@@ -180,7 +180,7 @@ es:
       task_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
       task_unassign: "%{user} (%{role} at %{team}) desasigno un %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) respondió una Tarea"
-      task_answer_edit: "%{user} (%{role} at %{team}) editó la respuesta de la Tarea"
+      task_answer_edit: "%{user} (%{role} en %{team}) editó la respuesta de la Tarea"
       task_comment: "%{user} (%{role} at %{team}) agregó una nota a una Tarea"
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
@@ -195,10 +195,10 @@ es:
         %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
-      project_create: "%{user} (%{role} at %{team}) creó una Lista"
-      project_assign: "%{user} (%{role} at %{team}) asignó una Lista"
-      project_unassign: "%{user} (%{role} at %{team}) desasignó una Lista"
-      user_member: "%{user} unido al área de trabajo %{team}"
+      project_create: "%{user} (%{role} en %{team}) creó una Lista"
+      project_assign: "%{user} (%{role} en %{team}) asignó una Lista"
+      project_unassign: "%{user} (%{role} en %{team}) desasignó una Lista"
+      user_member: "%{user} se unió al área de trabajo %{team}"
       user_requested: "%{user} solicitó unirse al área de trabajo %{team}"
       user_invited: "%{user} fue invitado a unirse al área de trabajo %{team}"
       user_banned: "%{user}fue suspendido del área de trabajo %{team}"
@@ -227,9 +227,9 @@ es:
         are_you_sure_you_want_to_copy_team:
           html: "¿Estás seguro(a) que quieres copiar el área de trabajo <strong>%{team}</strong>?
             Todos los datos relacionados también serán copiados."
-        the_team_is_being_copied: El área de trabajo está siendo duplicado
+        the_team_is_being_copied: El área de trabajo está siendo copiado
         url_when_ready:
-          html: Cuando esté lista, la copia del área de trabajo estará disponible
+          html: Cuando esté listo(a), la copia del área de trabajo estará disponible
             en <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: El área de trabajo %{team} está siendo eliminado
@@ -246,11 +246,11 @@ es:
   oembed_disclaimer_in_progress: Este item está siendo verificado por %{team} desde
     %{date}
   oembed_disclaimer_verified: Este item ha sido determinado para ser verificado por  %{team}
-    em %{date}
+    en %{date}
   oembed_disclaimer_false: Este item ha sido determinado para ser falso por  %{team}
-    em %{date}
-  oembed_disclaimer_not_applicable: El área de trabajo %{team} no pudo llegar a ninguna
-    conclusión sobre la precisión de este medio, el %{date}
+    en %{date}
+  oembed_disclaimer_not_applicable: No se pudo llegar a ninguna conclusión sobre este
+    ítem por parte de %{team} a partir de%{date}
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
   role_owner: propietario
@@ -291,7 +291,7 @@ es:
     Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
     %{urls} %{others_amount}
   account_exists: Esta cuenta ya existe
-  media_exists: Este item ya existe
+  media_exists: Este ítem ya existe
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor
@@ -309,12 +309,12 @@ es:
         instruction_2: Si tu no has hecho esta solicitud, o estás teniendo dificultades
           para restablecer tu contraseña, ponte en contacto con nosotros %{support_email}
       invitation_instructions:
-        subject: "%{user} te invitou a unirse al área de trabajo %{team}"
+        subject: "%{user} te invitó a unirte al área de trabajo %{team}"
         hello: "¡Hola %{name}!"
         someone_invited_you_default:
-          html: "%{name}Te ha invitado a unirte al área de trabajo %{team} como %{role}."
+          html: "%{name}te ha invitado a unirte al área de trabajo %{team} como %{role}."
         someone_invited_you_custom:
-          html: "%{name}Te ha invitado a unirte al área de trabajo %{team} como %{role},
+          html: "%{name}te ha invitado a unirte al área de trabajo %{team} como %{role},
             diciendo:"
         accept: Aceptar invitación
         accept_until: Esta invitación expirará a las %{due_date}.
@@ -327,13 +327,14 @@ es:
     member: Este usuario ya es miembro.
     team_found: Área de trabajo no encontrada.
     invalid: Símbolo (token) de invitación es inválido.
-    no_invitation: No hay invitación para el área de trabajo %{name}
+    no_invitation: No existe invitación para el área de trabajo %{name}
   error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros
     de esta área de trabajo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando
     esta cuenta
   error_login_2fa: 'Por favor completa tu inicio de sesión proporcionando un código
     de autenticación. '
+  error_record_not_found: "%{type} #%{id} no encontrado(a)"
   mail_see_it: 'Puedes verlo en:'
   mails_notifications:
     greeting: Hola %{username},
@@ -386,7 +387,7 @@ es:
         csv: informe
         images: archivo de imágenes
       team_dump_text: 'Solicitaste descargar una captura de datos del área de trabajo
-        %{project} - aquí está el enlace de descarga: %{link}'
+        %{project} - aquí está el enlace para descargarla: %{link}'
       team_dump_button: Descargar los datos del área de trabajo
       decompress_text: El %{type} se descargará como un archivo comprimido y cifrado.
         Para descomprimirlo, usa esta contraseña %{password}.
@@ -398,9 +399,9 @@ es:
       project_export_title: Datos de la lista
       project_export_button: Descargar los datos de la lista
       project_export_csv_text: 'Solicitaste descargar un informe de la lista %{project}
-        - aquí está el enlace de descarga: %{link}'
+        - aquí está el enlace para descargarlo: %{link}'
       project_export_images_text: 'Solicitaste descargar el archivo de imágenes de
-        la lista %{project} - aquí está el enlace de descarga: %{link}'
+        la lista %{project} - aquí está el enlace para descargarlo: %{link}'
       team_import_subject: Tu importación de datos se ha completado
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}.
@@ -417,8 +418,8 @@ es:
       media_h: Ítem
     media_status:
       label: ítem
-      subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
-      header_title: El estado del item ha sido actualizado
+      subject: "[%{team} - %{project}] El estado del ítem fue marcado como %{status}"
+      header_title: El estado del ítem ha sido actualizado
       header_text: " %{author} actualizó el estado de un ítem de la lista %{project}
         en %{team}."
       section_title: Marcado como %{status}.
@@ -441,8 +442,8 @@ es:
       assign_task_text: "%{author} asignó una tarea en la lista %{project} en %{team}."
       unassign_task_text: "%{author} desasignó una tarea de la lista %{project} en
         %{team}. "
-      assign_media_title: Ítem asignado
-      unassign_media_title: Ítem desasignado
+      assign_media_title: Ítem Asignado
+      unassign_media_title: Ítem Desasignado
       assign_media_text: "%{author} asignó un ítem de la lista %{project} en %{team}."
       unassign_media_text: "%{author} desasignó un ítem de la lista %{project} en
         %{team}. "
@@ -450,19 +451,19 @@ es:
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
-      project_button: Ir a la página de la lista.
+      project_button: Ir a la página de la lista
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo
       team_button: Ir a la página del área de trabajo.
       rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
-      approved_subject: 'Bienvenida/Bienvenido a área de trabajo %{team} '
+      approved_subject: 'Bienvenido(a) al área de trabajo %{team} '
       request_title: Solicitar unirse a área de trabajo %{team}
       request_text: "%{name} (%{email}) quiere unirse a área de trabajo %{team} en
         %{app_name}. Puedes procesas esta solicitud visitando %{url}."
-      approved_title: 'Bienvenida/Bienvenido a área de trabajo %{team} '
-      approved_text: "¡Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue
-        aprobada. Puedes ir a %{url} y empezar a contribuir!"
+      approved_title: 'Bienvenido(a) al área de trabajo %{team} '
+      approved_text: Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue
+        aprobada. Puedes ir a %{url} y empezar a contribuir.
       rejected_title: Solicitud denegada
       rejected_text: Lo sentimos, pero tu solicitud para unirte a área de trabajo
         %{team} en %{app_name} no fue aprobada.
@@ -496,7 +497,7 @@ es:
     privace_manage_plain: Gestiona tus notificaciones de correo electrónico
     privacy_plain: Aprende más acerca de nuestras Políticas de Privacidad
   archive_keep_backup: Video Vault
-  archive_pender_archive: Capturas de pantalla
+  archive_pender_archive: Captura de pantalla
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Estado inválido
@@ -530,8 +531,7 @@ es:
     Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
   smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el
     número 1,  no procesaremos más tu solicitud. ¡Gracias! '
-  smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía
-    no los procesamos.
+  smooch_bot_message_type_unsupported: 'Lo sentimos, no procesamos este tipo de mensaje. '
   smooch_bot_message_size_unsupported: Lo sentimos, no procesamos archivos más grandes
     que %{max_size}.
   smooch_bot_result: |-
@@ -545,7 +545,7 @@ es:
   smooch_bot_ask_for_tos: |-
     ¡Gracias por comunicarse con Check Message!
 
-    Puede utilizar este servicio para solicitar la verificación de hechos e investigación de noticias e información. Check Message se proporciona bajo de estos términos de servicio: %{tos}. Al continuar utilizando este servicio, *usted acepta estar sujeto a estos términos*. Debe dejar de usar Check Message si no está de acuerdo.
+    Puede utilizar este servicio para solicitar la verificación de hechos, y la investigación de noticias e información. Check Message es proporcionado a usted bajo estos términos de servicio: %{tos}. Al continuar utilizando este servicio, *usted acepta estar sujeto a estos términos*. Debe dejar de usar Check Message si no está de acuerdo.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido en este
     canal es bastante alto y aún no hemos podido resolver tu solicitud. \nGracias
     por tu paciencia."
@@ -561,7 +561,7 @@ es:
       owner:
         description: Los propietarios controlan el espacio de trabajo.
       editor:
-        description: Los editores administran la área de trabajo y las listas.
+        description: Los editores administran el área de trabajo y las listas.
       journalist:
         description: Periodistas verificaron la información.
       contributor:
@@ -629,7 +629,7 @@ es:
     invalid_status: Estado inválido %{status}
     blank_user: Autor en blanco inválido
     blank_annotator: Anotación en blanco inválida
-    blank_project: Lista en blanco inválido
+    blank_project: Lista en blanco inválida
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
   cant_mutate_inactive_object: Lo sentimos, hay una operación pendiente para este
@@ -659,7 +659,8 @@ es:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Seleccionar condición
-  team_rule_has_less_than_x_words: La solicitud tiene menos de este número de palabras
+  team_rule_has_less_than_x_words: La solicitud tiene menos del siguiente número de
+    palabras
   team_rule_title_matches_regexp: El título del ítem coincide con esta expresión regular
   team_rule_request_matches_regexp: La solicitud coincide con esta expresión regular
   team_rule_type_is: El tipo de ítem es
@@ -672,12 +673,13 @@ es:
   team_rule_title_contains_keyword: El título del ítem contiene una o más de las siguientes
     palabras clave
   team_rule_select_type: Seleccionar tipo
+  team_rule_select_language: 'Selecciona el idioma '
   team_rule_tagged_as: Ítem etiquetado como
-  team_rule_select_tag: Seleccionar tag
+  team_rule_select_tag: Seleccionar etiqueta
   team_rule_select_status: Seleccionar estado
-  team_rule_status_is: El estado de ítem es
+  team_rule_status_is: El estado del ítem es
   team_rule_type_regexp: Escribe una expresión regular
-  team_rule_type_number: Ingrese la cantidad de palabras
+  team_rule_type_number: Ingrese el número de palabras
   team_rule_value: Escribe una lista de palabras clave separadas por comas
   team_rule_actions: Entonces
   team_rule_action: Entonces
@@ -685,7 +687,7 @@ es:
   team_rule_send_to_trash: Enviar a la papelera
   team_rule_move_to_project: Mover ítem a la lista
   team_rule_copy_to_project: Añadir ítem a la lista
-  team_rule_ban_submitter: Prohibir el remitente (sus mensajes futuros no aparecerán
+  team_rule_ban_submitter: Prohibir el remitente (sus futuros mensajes no aparecerán
     en Check)
   team_rule_all_items: Todos los ítems
   team_rule_send_message_to_user: Enviar mensaje al usuario
@@ -705,6 +707,7 @@ es:
   team_rule_operator: Operador
   team_rule_json_schema_validation: El formato de las reglas no es válido
   team_rule_updated_at: Actualizada
+  team_rule_item_language_is: El idioma de ítem es
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -721,6 +724,16 @@ es:
   flag_likelihood_5: Muy probable
   relationship_not_same_team: Los elementos relacionados deben existir en el misma
     área de trabajo
+  bulk_operation_limit_error: Lo sentimos, el número máximo de elementos que se procesarán
+    a la vez es %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Este estado se está utilizando,
+    por lo que debe proporcionar un estado de reserva si desea eliminarlo
+  embed_no_content_yet: El informe se está generando. Este proceso puede demorar unos
+    minutos. Por favor actualice esta página.
+  language_format_invalid: El formato del idioma no es válido. Debe ser un código
+    ISO 639-1.
+  languages_format_invalid: El formato de idiomas no es válido. Debe ser una lista
+    de códigos ISO 639-1.
   cant_change_status_if_item_is_published: Lo sentimos, no puede cambiar el estado
     mientras se publica el informe
   custom_message_status_undetermined_afp-checamos: ''
@@ -736,8 +749,6 @@ es:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_resources_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
@@ -754,6 +765,8 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-fact-check: ''
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
@@ -783,6 +796,14 @@ es:
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_status_undetermined_africa-infodemic: ''
+  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_priority_unassigned_africa-infodemic: ''
+  custom_message_status_priority_assigned_africa-infodemic: ''
+  custom_message_status_rated_true_africa-infodemic: ''
+  custom_message_status_rated_false_africa-infodemic: ''
+  custom_message_status_rated_misleading_africa-infodemic: ''
+  custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -811,6 +832,8 @@ es:
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -834,12 +857,12 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
+  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
-  custom_message_status_bot-resource_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
@@ -856,8 +879,8 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: ''
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Gracias por enviar este mensaje.
 
@@ -956,7 +979,6 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_rule_action_send_message_44ca395f31e5a67c48cc9307445f8a3e_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
@@ -1023,6 +1045,7 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
   custom_message_smooch_bot_result_changed_team-1: ''
   custom_message_smooch_bot_message_confirmed_team-1: ''
   custom_message_smooch_bot_message_type_unsupported_team-1: ''
@@ -1074,6 +1097,8 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_status_factchecked_test-2: ''
+  custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
   custom_message_status_status_b_test-custom-status: ''
   custom_message_status_foo-bar_test-custom-status: ''

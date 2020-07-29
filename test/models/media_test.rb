@@ -33,11 +33,13 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
-    m = create_media team: t
+    p = create_project team: t
+    m = create_media project_id: p.id
     pu = create_user
     pt = create_team private: true
+    p2 = create_project team: pt
     create_team_user user: pu, team: pt, role: 'owner'
-    pm = create_media team: pt
+    pm = create_media project_id: p2
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
@@ -153,18 +155,6 @@ class MediaTest < ActiveSupport::TestCase
     m.project_medias << pm1
     m.project_medias << pm2
     assert_equal [pm1, pm2], m.project_medias
-  end
-
-  test "should have projects" do
-    p1 = create_project
-    p2 = create_project
-    pm1 = create_project_media project: p1
-    pm2 = create_project_media project: p2
-    m = create_valid_media
-    assert_equal [], m.project_medias
-    m.project_medias << pm1
-    m.project_medias << pm2
-    assert_equal [p1, p2].sort, m.projects.sort
   end
 
   test "should set URL from Pender" do
@@ -294,24 +284,7 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    assert_equal m.get_team, [t.id]
-  end
-
-  test "should set project" do
-    p = create_project
-    m = nil
-    assert_difference 'ProjectMedia.count' do
-      m = create_valid_media project_id: p.id
-    end
-    assert_equal [p], m.projects
-  end
-
-  test "should not set project" do
-    m = nil
-    assert_no_difference 'ProjectMedia.count' do
-      m = create_valid_media
-    end
-    assert_equal [], m.projects
+    assert_equal m.team_ids, [t.id]
   end
 
   test "should get domain" do
@@ -437,14 +410,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_match /png$/, i.thumbnail_path
   end
 
-  test "should get media team objects" do
-    m = create_valid_media
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, media: m
-    assert_equal m.get_team_objects, [t]
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
@@ -556,12 +521,14 @@ class MediaTest < ActiveSupport::TestCase
     i = create_uploaded_image
     f = create_uploaded_file
     v = create_uploaded_video
+    a = create_uploaded_audio
     m = Media.new
     assert_equal 'twitter', l.media_type
     assert_equal 'quote', c.media_type
     assert_equal 'uploaded image', i.media_type
     assert_equal 'uploaded file', f.media_type
     assert_equal 'uploaded video', v.media_type
+    assert_equal 'uploaded audio', a.media_type
     assert_equal '', m.media_type
   end
 
@@ -608,5 +575,26 @@ class MediaTest < ActiveSupport::TestCase
     l.save!
     assert_equal 'Specific token', Link.find(l.id).metadata['title']
     PenderClient::Request.unstub(:get_medias)
+  end
+
+  test "should use normalized URL from Pender" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url1 = random_url
+    url2 = random_url
+    response = { 'type' => 'media', 'data' => { 'url' => url2, 'type' => 'item', 'description' => 'Foo' } }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
+    l = create_link url: url1
+    assert_equal url2, l.reload.url
+  end
+
+  test "should not use normalized URL from Pender" do
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    url = random_url
+    response = { 'type' => 'media' }.to_json
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    assert_raises ActiveRecord::RecordInvalid do
+      l = create_link url: url
+      assert_equal url, l.reload.url
+    end
   end
 end

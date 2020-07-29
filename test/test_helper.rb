@@ -124,7 +124,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, ProjectMediaProject].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
@@ -931,12 +931,16 @@ class ActiveSupport::TestCase
     @media_url_2 = 'https://smooch.com/image/test2.jpeg'
     @media_url_3 = 'https://smooch.com/image/large-image.jpeg'
     @video_url = 'https://smooch.com/video/test.mp4'
-    @video_ur_2 = 'https://smooch.com/video/fake-video.mp4'
+    @video_url_2 = 'https://smooch.com/video/fake-video.mp4'
+    @audio_url = 'https://smooch.com/audio/test.mp3'
+    @audio_url_2 = 'https://smooch.com/audio/fake-audio.mp3'
     WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
     WebMock.stub_request(:get, 'https://smooch.com/image/large-image.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
     WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
     WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:get, 'https://smooch.com/audio/test.mp3').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+    WebMock.stub_request(:get, 'https://smooch.com/audio/fake-audio.mp3').to_return(status: 200, body: '', headers: {})
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })

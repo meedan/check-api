@@ -12,7 +12,7 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp, :set_data
   after_create :create_fields
   after_update :update_fields
-  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design'].include?(d.annotation_type) }
+  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language'].include?(d.annotation_type) }
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
@@ -195,7 +195,7 @@ class Dynamic < ActiveRecord::Base
 
   def attribution_contains_only_team_members
     unless self.set_attribution.blank?
-      team_id = self.annotated.project ? self.annotated.project.team_id : self.annotated.team_id
+      team_id = self.annotated.team&.id
       members_ids = TeamUser.where(team_id: team_id, status: 'member').map(&:user_id).map(&:to_i)
       invalid = []
       self.set_attribution.split(',').each do |uid|
@@ -216,10 +216,11 @@ class Dynamic < ActiveRecord::Base
   def apply_rules_and_actions
     if self.annotated_type == 'ProjectMedia'
       team = self.annotated.team
-      # Evaluate only the rules that contain a condition that matches this report or flag
+      # Evaluate only the rules that contain a condition that matches this report, language or flag
       rule_ids = []
       rule_ids = self.send(:rule_ids_for_report) if self.annotation_type == 'report_design'
       rule_ids = self.send(:rule_ids_for_flag) if self.annotation_type == 'flag'
+      rule_ids = self.send(:rule_ids_for_language) if self.annotation_type == 'language'
       team.apply_rules_and_actions(self.annotated, rule_ids)
     end
   end
@@ -233,6 +234,12 @@ class Dynamic < ActiveRecord::Base
   def rule_ids_for_flag
     self.annotated.team.get_rules_that_match_condition do |condition, value|
       condition == 'flagged_as' && self.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i
+    end
+  end
+
+  def rule_ids_for_language
+    self.annotated.team.get_rules_that_match_condition do |condition, value|
+      condition == 'item_language_is' && self.get_field_value('language') == value
     end
   end
 end

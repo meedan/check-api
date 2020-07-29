@@ -4,24 +4,30 @@ require 'error_codes'
 module ProjectAssociation
   extend ActiveSupport::Concern
 
+  def project
+    Project.find_by_id(self.add_to_project_id) unless self.add_to_project_id.nil?
+  end
+
+  def check_search_project
+    self.project.check_search_project unless self.project.nil?
+  end
+
+  def project_was
+    Project.find_by_id(self.previous_project_id) unless self.previous_project_id.nil?
+  end
+
+  def check_search_project_was
+    self.project_was.check_search_project unless self.project_was.nil?
+  end
+
   def check_search_team
-    team = self.respond_to?(:team) ? self.team : self.project.team
+    team = self.team
     team.check_search_team
   end
 
   def check_search_trash
-    team = self.respond_to?(:team) ? self.team : self.project.team
+    team = self.team
     team.check_search_trash
-  end
-
-  def check_search_project(project = nil)
-    project ||= self.project
-    return nil if project.nil?
-    project.check_search_project
-  end
-
-  def check_search_project_was
-    self.check_search_project(self.project_was)
   end
 
   def as_json(_options = {})
@@ -31,11 +37,11 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_id == pid || obj.versions.from_partition(obj.team_id).where_object(project_id: pid).exists? || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      if obj && (obj.project_ids.include?(pid) || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        key = self.to_s == 'ProjectMedia' ? :media_id : :source_id
-        obj = self.where(project_id: pid).where("#{key} = ?", objid).last
+        obj = ProjectMedia.joins("INNER JOIN project_media_projects pmp ON pmp.project_media_id = project_medias.id")
+        .where("pmp.project_id = ? AND project_medias.media_id = ?", pid, objid).last
         return obj.id if obj
       end
     end
@@ -84,14 +90,15 @@ module ProjectAssociation
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(project_id team_id archived sources_count)
+      obj = self.reload
       data = {
-        'project_id' => self.project_id,
-        'team_id' => self.team_id,
-        'archived' => self.archived.to_i,
-        'sources_count' => self.sources_count
+        'project_id' => obj.project_ids,
+        'team_id' => obj.team_id,
+        'archived' => obj.archived.to_i,
+        'sources_count' => obj.sources_count
       }
-      options = { keys: keys, data: data, parent: self }
-      ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'update_doc')
+      options = { keys: keys, data: data, parent: obj }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
     end
 
     def destroy_elasticsearch_media
@@ -99,7 +106,7 @@ module ProjectAssociation
     end
 
     def is_being_copied
-      self.project && self.project.is_being_copied
+      self.team && self.team.is_being_copied
     end
 
     private
@@ -117,10 +124,10 @@ module ProjectAssociation
       obj = ProjectMedia.where(team_id: self.team_id, media_id: self.media_id).last
       unless obj.nil?
         error = {
-          message: I18n.t("#{obj_name}_exists", project_id: obj.project_id, id: obj.id),
+          message: I18n.t("#{obj_name}_exists", team_id: obj.team_id, id: obj.id),
           code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
           data: {
-            project_id: obj.project_id,
+            team_id: obj.team_id,
             type: obj_name,
             id: obj.id,
             url: obj.full_url

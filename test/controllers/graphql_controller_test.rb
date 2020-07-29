@@ -124,15 +124,15 @@ class GraphqlControllerTest < ActionController::TestCase
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('project_media', { project_id: p.id, url: url, media_type: 'Link' })
+    assert_graphql_create('project_media', { add_to_project_id: p.id, url: url, media_type: 'Link' })
     # create claim report
-    assert_graphql_create('project_media', { project_id: p.id, media_type: 'Claim', quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
+    assert_graphql_create('project_media', { add_to_project_id: p.id, media_type: 'Claim', quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
   end
 
   test "should create project media" do
     p = create_project team: @team
     m = create_valid_media
-    assert_graphql_create('project_media', { media_id: m.id, project_id: p.id })
+    assert_graphql_create('project_media', { media_id: m.id, add_to_project_id: p.id })
   end
 
   test "should read project medias" do
@@ -264,9 +264,9 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    pm.project = p2
-    pm.save!
+    pmp = pm.project_media_projects.last
+    pmp.project_id = p2.id
+    pmp.save!
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -377,7 +377,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read object from project media" do
-    assert_graphql_read_object('project_media', { 'project' => 'title', 'media' => 'url'})
+    assert_graphql_read_object('project_media', { 'media' => 'url' })
   end
 
   test "should read object from team user" do
@@ -656,18 +656,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get media statuses" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    m = create_media project_id: p.id
-    query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
-  end
-
   test "should get project media team" do
     u = create_user
     authenticate_with_user(u)
@@ -724,7 +712,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get node from global id for search" do
    authenticate_with_user
    options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
-   id = Base64.encode64("CheckSearch/#{options}")
+   id = Base64.strict_encode64("CheckSearch/#{options}")
    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
  end
@@ -741,7 +729,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1", add_to_project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     assert_difference 'UploadedImage.count' do
       post :create, query: query, file: file
     end
@@ -1008,7 +996,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_annotation_type_and_fields('Syrian Archive Data', { 'Id' => ['Id', false] })
     p = create_project team: @team
     fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
-    query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", add_to_project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
@@ -1036,8 +1024,17 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     # media verification status
-    statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", add_media_verification_statuses: "' + statuses + '" }) { team { id } } }'
+    statuses = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
+        { id: '3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
+      ]
+    }.to_json.gsub('"', '\"')
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", media_verification_statuses: "' + statuses + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
@@ -1073,7 +1070,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1090,12 +1087,143 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should get core statuses with items count and published reports count" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    DynamicAnnotation::Field.delete_all
+    ['not_applicable', 'in_progress', 'false', 'verified'].each_with_index do |status, i|
+      (i + 1).times do
+        pm = create_project_media project: nil, team: t
+        s = pm.annotations.where(annotation_type: 'verification_status').last.load
+        s.status = status
+        s.save!
+        2.times { publish_report(pm) }
+      end
+    end
+    create_team_user user: u, team: t, role: 'owner'
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
+    post :create, query: query, team: 'team'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
+    ['not_applicable', 'in_progress', 'false', 'verified'].each_with_index do |status, i|
+      assert_equal i + 1, data.select{ |s| s['id'] == status }[0]['items_count']
+      assert_equal 2 * (i + 1), data.select{ |s| s['id'] == status }[0]['published_reports_count']
+    end
+  end
+
+  test "should get custom statuses with items count and published reports count" do
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    DynamicAnnotation::Field.delete_all
+    ['1', '2'].each do |status|
+      (status.to_i * 2).times do |i|
+        pm = create_project_media project: nil, team: t
+        s = pm.annotations.where(annotation_type: 'verification_status').last.load
+        s.status = status
+        s.save!
+        2.times { publish_report(pm) }
+      end
+    end
+    create_team_user user: u, team: t, role: 'owner'
+    query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
+    post :create, query: query, team: 'team'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['verification_statuses']['statuses']
+    ['1', '2'].each do |status|
+      assert_equal (status.to_i * 2), data.select{ |s| s['id'] == status }[0]['items_count']
+      assert_equal (status.to_i * 2 * 2), data.select{ |s| s['id'] == status }[0]['published_reports_count']
+    end
+  end
+
+  test "should delete custom status" do
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t, role: 'owner'
+    value = {
+      label: 'Field label',
+      active: 'id1',
+      default: 'id1',
+      statuses: [
+        { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
+        { id: 'id3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    pm1 = create_project_media project: nil, team: t
+    s = pm1.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id1'
+    s.disable_es_callbacks = false
+    s.save!
+    r1 = publish_report(pm1)
+    pm2 = create_project_media project: nil, team: t
+    s = pm2.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id2'
+    s.disable_es_callbacks = false
+    s.save!
+    r2 = publish_report(pm2)
+
+    assert_equal 'id1', pm1.reload.last_status
+    assert_equal 'id2', pm2.reload.last_status
+    assert_queries(0, '=') do
+      assert_equal 'id1', pm1.status
+      assert_equal 'id2', pm2.status
+    end
+    assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
+    sleep 2
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
+    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'published', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
+    post :create, query: query, team: 'team'
+    assert_response :success
+
+    assert_equal 'id1', pm1.reload.last_status
+    assert_equal 'id3', pm2.reload.last_status
+    assert_queries(0, '=') do
+      assert_equal 'id1', pm1.status
+      assert_equal 'id3', pm2.status
+    end
+    sleep 2
+    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'paused', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_equal 'green', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
   end
 
   # Please add new tests to test/controllers/graphql_controller_2_test.rb

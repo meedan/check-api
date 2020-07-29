@@ -149,11 +149,15 @@ module ProjectMediaEmbed
   end
 
   def last_status_color
+    self.status_color(self.last_status)
+  end
+
+  def status_color(status_id)
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)
     statuses = statuses.with_indifferent_access['statuses']
     color = nil
     statuses.each do |status|
-      color = status['style']['backgroundColor'] if status['id'] == self.last_status
+      color = (status['style']['backgroundColor'] || status['style']['color']) if status['id'] == status_id
     end
     color
   end

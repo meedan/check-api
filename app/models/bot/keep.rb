@@ -18,8 +18,7 @@ class Bot::Keep < BotUser
       'pender_archive', # Screenshot
       'archive_is',     # Archive.is
       'archive_org',    # Archive.org
-      'perma_cc',       # Perma.cc
-      'video_archiver'  # Video download
+      'perma_cc'       # Perma.cc
     ]
   end
 
@@ -154,6 +153,22 @@ class Bot::Keep < BotUser
       Bot::Keep.archiver_annotation_types.each do |type|
         self.create_archive_annotation(type)
       end
+    end
+  end
+
+  Team.class_eval do
+    def enabled_archivers
+      bot = BotUser.find_by(login: 'keep')
+      bot_installation = self.team_bot_installations.find_by(user_id: bot&.id)
+      return '' if bot_installation.nil?
+      archivers = []
+      bot_installation.settings.each do |setting, value|
+        if value
+          match = setting.match(/archive_(.*)_enabled/)
+          archivers << match[1] unless match.nil?
+        end
+      end
+      archivers.join(',')
     end
   end
 end

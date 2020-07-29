@@ -13,6 +13,7 @@
         width: 500px;
         height: 500px;
         overflow: hidden;
+        position: relative;
       }
 
       body.bn {
@@ -21,12 +22,17 @@
 
       div {
         box-sizing: border-box;
+        margin: 0;
       }
 
       #frame {
         background: white;
         width: 500px;
         height: 500px;
+        border: 1px solid #CCCCCC;
+        overflow: hidden;
+        position: relative;
+        box-sizing: border-box;
       }
 
       #top {
@@ -38,21 +44,21 @@
       #title {
         color: #CCCCCC;
         font-size: 22px;
-        padding: 20px 40px;
-        height: 100px;
+        padding: 10px 20px;
+        height: 70px;
         width: 100%;
         overflow: hidden;
       }
 
       #image {
         width: 100%;
-        height: 380px;
+        height: 410px;
         background-color: white;
         background-position: center center;
         background-repeat: no-repeat;
         background-size: cover;
         background-image: url('%IMAGE_URL%');
-        padding: 20px 40px;
+        padding: 5px 20px 0 20px;
       }
 
       #image > div {
@@ -60,38 +66,60 @@
       }
 
       .translucid {
-        padding: 20px;
+        padding: 10px;
         display: inline-block;
         width: auto;
+        margin-bottom: 5px;
+      }
+
+      #avatar-and-status {
+        height: 48px;
+        overflow: hidden;
+      }
+
+      #avatar {
+        height: 48px;
+        width: 48px;
+        display: inline-block;
         margin-bottom: 10px;
+        background-color: white;
+        background-size: contain;
+        background-image: url('%AVATAR_URL%');
       }
 
       #status {
         color: #CCCCCC;
         text-transform: uppercase;
         font-size: 32px;
+        height: 48px;
+        line-height: 32px;
+        overflow: hidden;
       }
 
       #date {
         font-size: 18px;
+        margin-top: 5px;
+      }
+
+      #url-and-description {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
       }
 
       #description {
-        font-size: 16px;
+        font-size: 18px;
+        padding: 10px 20px;
+        display: block;
+        margin: 0;
       }
 
       #url {
         font-size: 18px;
-      }
-
-      #avatar {
-        height: 64px;
-        width: 64px;
-        display: inline-block;
-        margin-bottom: 10px;
-        background-color: white;
-        background-size: contain;
-        background-image: url('%AVATAR_URL%');
+        margin: 0 20px;
       }
 
       .light .translucid {
@@ -124,17 +152,19 @@
       <div id="top"></div>
       <div id="title"></div>
       <div id="image">
-        <div>
+        <div id="avatar-and-status">
+          <div id="avatar"></div>
           <div id="status" class="translucid"></div>
+        </div>
+        <div>
           <div id="date" class="translucid"></div>
         </div>
+      </div>
+      <div id="url-and-description">
         <div>
-          <div id="description" class="translucid"></div>
-        </div>
-        <div>
-          <div id="avatar"></div>
           <div id="url" class="translucid"></div>
         </div>
+        <div id="description" class="translucid"></div>
       </div>
     </div>
   </body>

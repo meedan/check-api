@@ -31,7 +31,7 @@ Dynamic.class_eval do
         default = option[field] if option[:language] == default_language
       end
     end
-    value.nil? ? default : value
+    value.blank? ? default : value
   end
 
   def report_design_image_url(language)
@@ -44,7 +44,7 @@ Dynamic.class_eval do
   end
 
   def report_design_date(date, language)
-    I18n.l(date, locale: language, format: :long)
+    I18n.l(date, locale: language.to_s.tr('_', '-'), format: :long)
   end
 
   def report_image_generate_png(option_index)

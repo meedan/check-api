@@ -13,4 +13,6 @@ AboutType = GraphQL::ObjectType.define do
   field :image_min_dimensions, types.String, 'Minimum image dimensions'
   field :video_max_size, types.String, 'Maximum video upload size'
   field :video_extensions, types.String, 'Allowed video types'
+  field :audio_max_size, types.String, 'Maximum audio upload size'
+  field :audio_extensions, types.String, 'Allowed audio types'
 end

@@ -329,7 +329,7 @@ en:
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
   error_login_2fa: Please complete your sign-in by supplying an authentication code.
-  error_record_not_found: Couldn't find %{type} with 'id'=%{id}
+  error_record_not_found: "%{type} #%{id} not found"
   mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},
@@ -651,6 +651,7 @@ en:
   team_rule_title_contains_keyword: Item title contains one or more of the following
     keywords
   team_rule_select_type: Select type
+  team_rule_select_language: Select language
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
@@ -683,6 +684,7 @@ en:
   team_rule_operator: Operator
   team_rule_json_schema_validation: Rules format is not valid
   team_rule_updated_at: Updated
+  team_rule_item_language_is: Item language is
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -698,6 +700,15 @@ en:
   flag_likelihood_4: Likely
   flag_likelihood_5: Very likely
   relationship_not_same_team: Related items must exist in the same workspace
+  bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
+    once is %{limit}
+  must_provide_fallback_when_deleting_status_in_use: This status is being used, so
+    you must provide a fallback status if you want to delete it
+  embed_no_content_yet: The report is being generated. This process can take a few
+    minutes. Please refresh this page.
+  language_format_invalid: Language format is invalid. It should be a ISO 639-1 code.
+  languages_format_invalid: Languages format is invalid. It should be a list of ISO
+    639-1 codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
@@ -713,15 +724,6 @@ en:
   custom_message_status_sugestao_afp-checamos: Sugestão
   custom_message_status_necessario-mais-dados_afp-checamos: Necessário mais dados
   custom_message_status_resources_afp-checamos: Resources
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: Olá,
-    infelizmente o conteúdo que você compartilhou conosco está fora do nosso escopo
-    de checagem. Esperamos poder ajudá-lo em outra oportunidade.   O AFP Checamos
-    verifica informações, fotos e vídeos amplamente compartilhados em redes sociais,
-    sobre temas como Política, Cultura, Meio Ambiente, Saúde e Economia.
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: "Olá,
-    agradecemos o contato e a sugestão. \n\nPara realizarmos nossa verificação, precisamos
-    de mais alguns detalhes. Você pode nos encaminhar o vídeo, a foto ou o link do
-    conteúdo que deseja que seja checado?"
   custom_message_smooch_bot_result_afp-checamos: "[Seu conteúdo foi verificado] \n\n
     A mensagem que você compartilhou conosco foi classificada como %{status}.\n\nEsses
     são os passos que seguimos para chegar a esta conclusão: %{url}\n\n"
@@ -774,6 +776,15 @@ en:
     serão processados.\n\nCaso seja feita uma checagem, você receberá a conclusão
     por mensagem. O artigo também será publicado em: checamos.afp.com\n\nResponda
     *0* (ou \U0001F4CC) para voltar ao *menu principal*\n "
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: Olá,
+    infelizmente o conteúdo que você compartilhou conosco está fora do nosso escopo
+    de checagem. Esperamos poder ajudá-lo em outra oportunidade.   O AFP Checamos
+    verifica informações, fotos e vídeos amplamente compartilhados em redes sociais,
+    sobre temas como Política, Cultura, Meio Ambiente, Saúde e Economia.
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: "Olá,
+    agradecemos o contato e a sugestão. \n\nPara realizarmos nossa verificação, precisamos
+    de mais alguns detalhes. Você pode nos encaminhar o vídeo, a foto ou o link do
+    conteúdo que deseja que seja checado?"
   custom_message_status_undetermined_afp-fact-check: Unstarted
   custom_message_status_in_progress_afp-fact-check: In progress
   custom_message_status_inconclusive_afp-fact-check: Out of scope
@@ -862,6 +873,14 @@ en:
     conspiracy theories, satire, opinions or speculative claims.  However, we do invite
     you to submit any content that may have been digitally manipulated or is sharing
     dubious claims as facts. Our past reporting in India can be found at https://factcheck.afp.com/afp-india
+  custom_message_status_undetermined_africa-infodemic: Unstarted
+  custom_message_status_in_progress_africa-infodemic: In Progress
+  custom_message_status_priority_unassigned_africa-infodemic: 'Priority: Unassigned'
+  custom_message_status_priority_assigned_africa-infodemic: 'Priority: Assigned'
+  custom_message_status_rated_true_africa-infodemic: 'Rated: True'
+  custom_message_status_rated_false_africa-infodemic: 'Rated: False'
+  custom_message_status_rated_misleading_africa-infodemic: 'Rated: Misleading'
+  custom_message_status_rated_unproven_africa-infodemic: 'Rated: Unproven'
   custom_message_status_verified_boom-factcheck: 'True'
   custom_message_status_false_boom-factcheck: 'False'
   custom_message_status_not_applicable_boom-factcheck: Inconclusive
@@ -931,6 +950,8 @@ en:
     to read our fact-checks. '
   custom_message_status_undetermined_boom: Undetermined
   custom_message_status_factchecked_boom: Fact-Checked
+  custom_message_status_undetermined_boom-test: Undetermined
+  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
@@ -1012,12 +1033,12 @@ en:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_status_undetermined_check-message-demo: Unstarted
   custom_message_status_in_progress_check-message-demo: In Progress
+  custom_message_status_inconclusive_check-message-demo: Out of scope
   custom_message_status_false_check-message-demo: 'False'
   custom_message_status_verified_check-message-demo: 'True'
   custom_message_status_not_applicable_check-message-demo: Out of scope
-  custom_message_status_report-true_check-message-demo: 'Report: Correct'
-  custom_message_status_report-false_check-message-demo: 'Report: False'
-  custom_message_status_bot-resource_check-message-demo: Bot resource
+  custom_message_status_report-true_check-message-demo: Misleading
+  custom_message_status_report-false_check-message-demo: Can't be verified
   custom_message_smooch_bot_result_check-message-demo: |
     [Verification Report]
 
@@ -1077,11 +1098,11 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n
     \     \n*Reply 0 (or \U0001F4CC)* to go back to the *Main Menu*"
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: We
-    started looking at it.
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: "Thank
-    you! We could not fact-check this item. Here is a short guide to submit content
-    that we can fact check:\n \nmeedan.com/guide"
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Thank
+    you for sending your query! We started looking at your request now.
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
+    we could not verify your query. Learn more about the type of content we can verify
+    at meedan.com
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1268,15 +1289,6 @@ en:
     Check is a non-profit organisation working to promote accuracy in public debate
     and the media in Africa. We try to raise the quality of information available
     to society across the continent. We can help you sort fact from fiction. https://africacheck.org/
-  custom_message_rule_action_send_message_44ca395f31e5a67c48cc9307445f8a3e_africa-check: "\U0001F50E
-    We are not able to review your claim without additional information. \n\nYou can
-    re-submit your query by typing \"Kweli\" and then entering the word *check* when
-    you are prompted. You can then re-send your claim together with the following
-    information: \n\na) One line explaining what you would like us to check; and \nb)
-    Any other information you can provide about where you saw or found the link, video,
-    image or information you would like us to check. \n\nWe receive a large volume
-    of queries, and are not able to check each one. For more information on our latest
-    fact-checks, visit africacheck.org\n"
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has
@@ -1457,6 +1469,7 @@ en:
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: Your
     request is in progress!
   custom_message_smooch_bot_disabled_smooch: Disabled :(
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: 新冠肺炎有新訊息
   custom_message_smooch_bot_result_changed_team-1: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_team-1: "Thank you! Your request has
@@ -1639,6 +1652,8 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_status_factchecked_test-2: Fact-Checked
+  custom_message_status_undetermined_test-2: Undetermined
   custom_message_status_undetermined_test-custom-status: Status A
   custom_message_status_status_b_test-custom-status: Status B
   custom_message_status_foo-bar_test-custom-status: Foo Bar

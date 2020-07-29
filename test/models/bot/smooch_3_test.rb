@@ -146,7 +146,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal @project.id, pm.project_id
+    assert_equal [@project.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -171,7 +171,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal p1.id, pm.project_id
+    assert_equal [p1.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -196,7 +196,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal p2.id, pm.project_id
+    assert_equal [p2.id], pm.project_ids
     assert !pm.archived
 
     messages = [
@@ -450,6 +450,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
 
   test "should detect media type" do
     Sidekiq::Testing.inline! do
+      # video
       message = {
         type: 'file',
         text: random_string,
@@ -464,7 +465,26 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_difference 'ProjectMedia.count' do
         Bot::Smooch.save_message(message.to_json, @app_id)
       end
-      message['mediaUrl'] = @video_ur_2
+      message['mediaUrl'] = @video_url_2
+      assert_raises 'ActiveRecord::RecordInvalid' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      # audio
+      message = {
+        type: 'file',
+        text: random_string,
+        mediaUrl: @audio_url,
+        mediaType: 'image/jpeg',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string
+      }
+      assert_difference 'ProjectMedia.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      message['mediaUrl'] = @audio_url_2
       assert_raises 'ActiveRecord::RecordInvalid' do
         Bot::Smooch.save_message(message.to_json, @app_id)
       end
@@ -498,6 +518,15 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         text: random_string,
         mediaUrl: @video_url,
         mediaSize: UploadedVideo.max_size + random_number
+      },
+      {
+        '_id': random_string,
+        authorId: random_string,
+        type: 'audio',
+        mediaType: 'audio/mpeg',
+        text: random_string,
+        mediaUrl: @audio_url,
+        mediaSize: UploadedAudio.max_size + random_number
       }
 
     ]
@@ -571,6 +600,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
   end
 
   test "should support message without mediaType" do
+    # video
     message = {
       '_id': random_string,
       authorId: random_string,
@@ -588,7 +618,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @video_url,
-      mediaType: 'audio/ogg'
+      mediaType: 'newtype/ogg'
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert !is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -599,6 +629,38 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       type: 'file',
       text: random_string,
       mediaUrl: @video_url
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert is_supported.slice(:type, :size).all?{ |_k, v| v }
+    # audio
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @audio_url,
+      mediaType: 'audio/mpeg'
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert is_supported.slice(:type, :size).all?{ |_k, v| v }
+
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @audio_url,
+      mediaType: 'newtype/mp4'
+    }.with_indifferent_access
+    is_supported = Bot::Smooch.supported_message?(message)
+    assert !is_supported.slice(:type, :size).all?{ |_k, v| v }
+
+    message = {
+      '_id': random_string,
+      authorId: random_string,
+      type: 'file',
+      text: random_string,
+      mediaUrl: @audio_url
     }.with_indifferent_access
     is_supported = Bot::Smooch.supported_message?(message)
     assert is_supported.slice(:type, :size).all?{ |_k, v| v }
@@ -795,6 +857,97 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     t2.save!
     Team.current = t2
     assert_equal ['es', 'pt'], Bot::Smooch.template_locale_options
+  end
+
+  test "should split bundled messages" do
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'foo',
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'bar'
+        },
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: 'test'
+        }
+      ]
+      messages.each do |message|
+        payload = {
+          trigger: 'message:appUser',
+          app: {
+            '_id': @app_id
+          },
+          version: 'v1.1',
+          messages: [message],
+          appUser: {
+            '_id': random_string,
+            'conversationStarted': true
+          }
+        }.to_json
+        Bot::Smooch.run(payload)
+        sleep 1
+      end
+      assert_difference 'Dynamic.where(annotation_type: "smooch").count' do
+        Sidekiq::Worker.drain_all
+      end
+      assert_equal ['bar', 'foo', 'test'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp).sort
+    end
+  end
+
+  test "should bundle all user messages" do
+    setup_smooch_bot(true)
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+    Sidekiq::Testing.fake! do
+      assert_no_difference 'ProjectMedia.count' do
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot('Hello', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('What?', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('1', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('Hum', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('1', uid) # Discards all messages: the user is seeing a resource, which closes the cycle
+        assert_equal 'waiting_for_message', sm.state.value
+        send_message_to_smooch_bot('Hello again', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('ONE ', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('2', uid)
+        assert_equal 'query', sm.state.value
+        send_message_to_smooch_bot('0', uid) # Discards all messages: the user cancels the process
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('Hello for the last time', uid)
+        assert_equal 'main', sm.state.value
+        send_message_to_smooch_bot('ONE ', uid)
+        assert_equal 'secondary', sm.state.value
+        send_message_to_smooch_bot('2', uid)
+        assert_equal 'query', sm.state.value
+      end
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
+    assert_difference 'ProjectMedia.count' do
+      send_message_to_smooch_bot('Query', uid)
+    end
+    Rails.cache.unstub(:read)
+    Sidekiq::Worker.drain_all
+    assert_equal 'waiting_for_message', sm.state.value
+    assert_equal ['Hello for the last time', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
   protected

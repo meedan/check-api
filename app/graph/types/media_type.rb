@@ -7,7 +7,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :url, types.String, 'Media URL'
   field :quote, types.String, 'Text claim' # TODO Rename to 'claim'
   field :account_id, types.Int, 'Publisher account database id'
-  field :project_id, types.Int # TODO Remove
   field :domain, types.String # TODO Delegate to metadata
   field :embed_path, types.String # TODO Delegate to metadata
   field :thumbnail_path, types.String, 'Thumbnail representing this item' # TODO Rename to 'picture_thumbnail'

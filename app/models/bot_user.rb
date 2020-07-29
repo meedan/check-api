@@ -13,9 +13,33 @@ class BotUser < User
       EVENTS << "update_annotation_task_#{type}"
     end
   end
-  JSON_SCHEMA_PATH = File.join(Rails.root, 'public', 'events.json')
-  JSON_SCHEMA_TEMPLATE_PATH = File.join(Rails.root, 'public', 'events-template.json')
-  File.atomic_write(JSON_SCHEMA_PATH) { |file| file.write(File.read(JSON_SCHEMA_TEMPLATE_PATH).gsub('<%= BotUser::EVENTS %>', EVENTS.to_json)) }
+  JSON_SCHEMA = {
+    "title": "Events",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "title": "Subscription",
+      "headerTemplate": "{{i1}}. {{self.event}}",
+      "properties": {
+        "event": {
+          "title": "Event",
+          "default": "",
+          "description": "The type of event this bot is subscribing to",
+          "type": "string",
+          "enum": EVENTS,
+          "options": {
+            "enum_titles": EVENTS
+          }
+        },
+        "graphql": {
+          "title": "GraphQL Query Fragment",
+          "default": "id, dbid",
+          "description": "A GraphQL query fragment defining the data that should be sent to the bot when that event happens",
+          "type": "string"
+        }
+      }
+    }
+  }
 
   scope :not_approved, -> { where('settings LIKE ?', '%approved: false%') }
 
@@ -96,8 +120,8 @@ class BotUser < User
     self.send(:set_events, events)
   end
 
-  def json_schema_url(field)
-    URI.join(CONFIG['checkdesk_base_url'], '/' + field + '.json').to_s
+  def rails_admin_json_schema(field)
+    field == 'events' ? JSON_SCHEMA : {}
   end
 
   def subscribed_to?(event)

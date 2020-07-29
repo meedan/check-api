@@ -30,9 +30,17 @@ class Workflow::VerificationStatus < Workflow::Base
       if core_status_ids.include?(key.to_s) && custom_statuses.blank?
         I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', options)
       else
-        fallback = nil
-        custom_statuses.each { |s| fallback = s['label'] if s['id'] == key }
-        CheckI18n.i18n_t(self.team, 'status_' + key.to_s, fallback, options)
+        default_language = self.team.get_language || 'en'
+        language = options[:locale] || I18n.locale
+        default = nil
+        label = nil
+        custom_statuses.each do |s|
+          if s['id'].to_s == key.to_s
+            default = s.dig('locales', default_language, 'label')
+            label = s.dig('locales', language, 'label')
+          end
+        end
+        label.blank? ? default : label
       end
     end
   end
@@ -42,7 +50,7 @@ class Workflow::VerificationStatus < Workflow::Base
 
     def apply_rules
       status = self.annotation&.load
-      team = Team.where(id: status.get_team.last.to_i).last
+      team = status.team
       if !team.nil? && status.annotated_type == 'ProjectMedia'
         # Evaluate only the rules that contain a condition that matches this status
         rule_ids = team.get_rules_that_match_condition do |condition, value|
@@ -78,11 +86,12 @@ class Workflow::VerificationStatus < Workflow::Base
   Team.class_eval do
     def get_media_verification_statuses
       settings = self.settings || {}
+      settings.with_indifferent_access[:media_verification_statuses]
       custom_statuses = settings.with_indifferent_access[:media_verification_statuses]
       return custom_statuses unless custom_statuses.is_a?(Hash)
       if custom_statuses
         custom_statuses.with_indifferent_access['statuses'].to_a.each do |s|
-          s[:label] = CheckI18n.i18n_t(self, 'status_' + s[:id], s[:label])
+          s[:label] = ProjectMedia.new(team: self).status_i18n(s[:id]) # Return label in current language
         end
       end
       custom_statuses

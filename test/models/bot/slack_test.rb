@@ -19,10 +19,10 @@ class Bot::SlackTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       p = create_project team: t
       pm = create_project_media project: p
-      @bot.notify_admin(pm, t, p)
+      @bot.notify_admin(pm, t)
       assert pm.sent_to_slack
       s = create_source
-      @bot.notify_admin(s, t, p)
+      @bot.notify_admin(s, t)
       assert_not s.sent_to_slack
     end
   end
@@ -51,7 +51,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u, t) do
       p = create_project team: t
-      @bot.notify_admin(p, t, p)
+      @bot.notify_admin(p, t)
       assert_nil p.sent_to_slack
     end
   end
@@ -165,18 +165,37 @@ class Bot::SlackTest < ActiveSupport::TestCase
     WebMock.allow_net_connect!
   end
 
+  test "should not through error for slack notification if attachments fields is nil" do
+    create_verification_status_stuff(false)
+    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    RequestStore.store[:disable_es_callbacks] = true
+    stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
+    pm = create_project_media
+    a = [{ fields: [{}, {}, {}, nil, {}, {}] }].to_json
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
+    stub_configs({ 'slack_token' => '123456' }) do
+      Sidekiq::Testing.inline! do
+        info = { title: 'Foo', description: 'Bar' }.to_json
+        pm.metadata = info
+        pm.save!
+      end
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    WebMock.allow_net_connect!
+  end
+
   test "should truncate text" do
     assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
   end
 
-  test "should get project and team for task comment" do
+  test "should team for task comment" do
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
     c = create_comment annotated: tk
-    assert_equal p, Bot::Slack.new.send(:get_project, c)
-    assert_equal t, Bot::Slack.new.send(:get_team, c, p)
+    assert_equal t, c.team
   end
 
   test "should notify about related claims" do

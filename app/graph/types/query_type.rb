@@ -22,7 +22,9 @@ QueryType = GraphQL::ObjectType.define do
         image_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
         image_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         video_max_size: UploadedVideo.max_size_readable,
-        video_extensions: VideoUploader.upload_extensions.join(', ')
+        video_extensions: VideoUploader.upload_extensions.join(', '),
+        audio_max_size: UploadedAudio.max_size_readable,
+        audio_extensions: AudioUploader.upload_extensions.join(', '),
       })
     end
   end
@@ -95,7 +97,7 @@ QueryType = GraphQL::ObjectType.define do
       m = Link.where(url: Link.normalized(args['url'])).last if m.nil?
       return [] if m.nil?
       tids = User.current.team_ids
-      ProjectMedia.joins(:project).where('project_medias.media_id' => m.id, 'projects.team_id' => tids)
+      ProjectMedia.where(media_id: m.id, team_id: tids)
     }
   end
 

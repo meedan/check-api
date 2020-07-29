@@ -37,13 +37,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Why do we need this here?
-  field :verification_statuses, JsonStringType, 'List of verification statuses for this team' do
-    resolve -> (project_media, _args, _ctx) {
-      project_media.team.send('verification_statuses', 'media', project_media)
-    }
-  end
-
   field :permissions, types.String, 'CRUD permissions of this record for current user' do
     resolve -> (project_media, _args, ctx) {
       PermissionsLoader.for(ctx[:ability]).load(project_media.id).then do |pm|
@@ -87,34 +80,22 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # TODO Remove
-  field :project_id do
-    type types.Int
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current ? Project.current.reload.id : project_media.reload.project_id
-    }
-  end
-
-  # TODO Remove
-  field :project do
-    type -> { ProjectType }
-
-    resolve -> (project_media, _args, _ctx) {
-      Project.current || RecordLoader.for(Project).load(project_media.project_id)
+  # TODO: Merge with :projects below
+  field :project_media_project, ProjectMediaProjectType, 'Project associated with this item' do
+    argument :project_id, !types.Int, 'Project to match'
+    resolve -> (project_media, args, _ctx) {
+      ProjectMediaProject.where(project_media_id: project_media.id, project_id: args['project_id']).last
     }
   end
 
   # TODO: Rewrite
   connection :projects, -> { ProjectType.connection_type }, 'Projects associated with this item' do
     resolve -> (project_media, _args, _ctx) {
-      RecordLoader.for(Media).load(project_media.media_id).then do |media|
-        media.projects
-      end
+      project_media.projects
     }
   end
 
-  field :media, -> { MediaType }, 'Media this item is associated with' do
+  field :media, -> { MediaType }, 'Media associated with this item' do
     resolve -> (project_media, _args, _ctx) {
       RecordLoader.for(Media).load(project_media.media_id)
     }
@@ -135,7 +116,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     resolve ->(project_media, _args, _ctx) {
       tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
       # Order tasks by order field
-      ids = tasks.to_a.sort_by{ |obj| obj.order}.map(&:id)
+      ids = tasks.to_a.sort_by{ |obj| obj.order ||= 0 }.map(&:id)
       values = []
       ids.each_with_index do |id, i|
         values << "(#{id}, #{i})"

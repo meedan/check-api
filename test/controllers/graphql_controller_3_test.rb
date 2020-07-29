@@ -61,7 +61,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm.save!
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},project{id,dbid,title},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,created_at,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -595,13 +595,15 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
+    pmp = pm.project_media_projects.last
+    assert_not_nil pmp
 
-    query = 'mutation removeFromList { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", id: "' + pmp.graphql_id + '" }) { deletedId } }'
     assert_difference 'ProjectMediaProject.count', -1 do
       post :create, query: query, team: t
     end
     assert_response :success
-    assert_nil pm.reload.project_id
+    assert_empty pm.reload.project_ids
   end
 
   test "should return cached value for dynamic annotation" do
@@ -701,14 +703,10 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal 0, Sidekiq::Worker.jobs.size
         authenticate_with_token
         url = random_url
-        query = 'mutation { updateDynamic(input: { annotation_type: "smooch_user", clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
+        query = 'mutation { updateDynamic(input: { annotation_type: "smooch_user", clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
         post :create, query: query
         assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
-        # execute job and check that url was set
-        Sidekiq::Worker.drain_all
-        assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
+        assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # check that cache key exists
         key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
         assert_equal url, Rails.cache.read(key)
@@ -719,7 +717,7 @@ class GraphqlController3Test < ActionController::TestCase
         query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
         post :create, query: query
         assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
+        assert Sidekiq::Worker.jobs.size > 0
         assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # execute job and check that url was set
         Sidekiq::Worker.drain_all
@@ -785,45 +783,6 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
-  end
-
-  test "should get statuses from public team" do
-    u = create_user is_admin: true
-    t = create_team
-    authenticate_with_user(u)
-    query = "query { public_team(slug: \"#{t.slug}\") { verification_statuses } }"
-    post :create, query: query
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['public_team']['verification_statuses']
-  end
-
-  test "should get statuses from media" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    authenticate_with_user(u)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { verification_statuses } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['project_media']['verification_statuses']
-  end
-
-  test "should bulk create tags" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    authenticate_with_user(u)
-    query = 'mutation { createTags(inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + pm2.id.to_s + '" }]) { enqueued } }'
-    assert_difference 'Tag.length', 2 do
-      post :create, query: query, team: t.slug
-    end
-    assert_response :success
-    assert JSON.parse(@response.body)['data']['createTags']['enqueued']
-    assert_equal ['foo'], pm1.reload.get_annotations('tag').map(&:load).map(&:tag_text)
-    assert_equal ['bar'], pm2.reload.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should create comment with fragment" do
@@ -1092,5 +1051,76 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /rails\.png/, d[:options][0]['image']
     assert_match /^http/, d[:options][1]['image']
     assert_match /rails2\.png/, d[:options][2]['image']
+  end
+
+  test "should update project media project without an id" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p1
+    assert_not_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
+    assert_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
+
+    query = 'mutation { updateProjectMediaProject(input: { clientMutationId: "1", previous_project_id: ' + p1.id.to_s + ', project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
+    assert_no_difference 'ProjectMediaProject.count' do
+      post :create, query: query, team: t
+      assert_response :success
+    end
+
+    assert_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
+    assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
+  end
+
+  test "should define team languages settings" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+
+    assert_nil t.reload.get_language
+    assert_nil t.reload.get_languages
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "por" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", languages: "[\"por\"]" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    assert_nil t.reload.get_language
+    assert_nil t.reload.get_languages
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", languages: "[\"es\", \"pt\"]" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+
+    assert_equal 'pt_BR', t.reload.get_language
+    assert_equal ['es', 'pt'], t.reload.get_languages
+  end
+
+  test "should define team custom statuses" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+
+    custom_statuses = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", media_verification_statuses: ' + custom_statuses.to_json.to_json + ' }) { team { id, verification_statuses_with_counters: verification_statuses(items_count: true, published_reports_count: true), verification_statuses } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
+    assert_match /items_count/, data['verification_statuses_with_counters'].to_json
+    assert_no_match /items_count/, data['verification_statuses'].to_json
   end
 end

@@ -3,16 +3,12 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def get_team
-    self.team || self.project&.team
-  end
-
-  def create_auto_tasks(tasks = [])
-    team = self.get_team
+  def create_auto_tasks(project_id = nil, tasks = [])
+    team = self.team
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.project.nil? ? Project.new(team: team).auto_tasks : self.project.auto_tasks
+      tasks = self.team.auto_tasks(project_id)
     end
     created = []
     tasks.each do |task|
@@ -38,6 +34,10 @@ module ProjectMediaCreators
 
   private
 
+  def create_auto_tasks_for_team_item
+    TeamTaskWorker.perform_in(1.second, 'add_or_move', nil, YAML::dump(User.current), YAML::dump({ model: self }))
+  end
+
   def create_annotation
     unless self.set_annotation.blank?
       params = JSON.parse(self.set_annotation)
@@ -57,10 +57,10 @@ module ProjectMediaCreators
   end
 
   def set_title_for_files
-    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage'].include?(self.media.type)
+    if self.user&.login == 'smooch' && ['UploadedVideo', 'UploadedImage', 'UploadedAudio'].include?(self.media.type)
       type_count = Media.where(type: self.media.type).joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", self.team&.id).count
-      type = self.media.type == 'UploadedVideo' ? 'video' : 'image'
+      type = self.media.type.sub('Uploaded', '').downcase
       title = "#{type}-#{self.team&.slug}-#{type_count}"
     else
       file_path = self.media.file.path
@@ -71,7 +71,7 @@ module ProjectMediaCreators
 
   protected
 
-  def create_video_or_image(media_type = 'UploadedImage')
+  def create_with_file(media_type = 'UploadedImage')
     m = media_type.constantize.new
     m.file = self.file
     m.save!
@@ -87,7 +87,7 @@ module ProjectMediaCreators
   end
 
   def create_link
-    team = self.get_team || Team.current
+    team = self.team || Team.current
     pender_key = team.get_pender_key if team
     url = Link.normalized(self.url, pender_key)
     Link.find_by(url: url) || Link.create(url: url, pender_key: pender_key)
@@ -97,8 +97,8 @@ module ProjectMediaCreators
     m = nil
     self.set_media_type if self.media_type.blank?
     case self.media_type
-    when 'UploadedImage', 'UploadedVideo'
-      m = self.create_video_or_image(media_type)
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      m = self.create_with_file(media_type)
     when 'Claim'
       m = self.create_claim
     when 'Link'
@@ -179,21 +179,6 @@ module ProjectMediaCreators
       else
         raise 'Could not create related item'
       end
-    end
-  end
-
-  def copy_to_project
-    ProjectMedia.create!(project_id: self.copy_to_project_id, media_id: self.media_id, user: User.current, skip_notifications: self.skip_notifications, skip_rules: true) if self.copy_to_project_id
-  end
-
-  def add_to_project
-    ProjectMediaProject.create!(project_id: self.add_to_project_id, project_media_id: self.id, skip_notifications: self.skip_notifications) if self.add_to_project_id && ProjectMediaProject.where(project_id: self.add_to_project_id, project_media_id: self.id).last.nil?
-  end
-
-  def remove_from_project
-    if self.remove_from_project_id
-      pmp = ProjectMediaProject.where(project_id: self.remove_from_project_id, project_media_id: self.id).last
-      pmp.destroy! unless pmp.nil?
     end
   end
 end

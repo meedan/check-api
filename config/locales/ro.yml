@@ -17,6 +17,7 @@ ro:
     media:
       undetermined:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
       not_applicable:
         label: Neconcludent
         description: Nu este posibil de formulat concluzii în baza dovezilor disponibile
@@ -31,6 +32,7 @@ ro:
         description: 'Concluzia: conținutul elementului a fost verificat'
       pending:
         label: În așteptare
+        description: Implicit, abia adăugat, nu s-a început lucrul
       translated:
         label: Tradus
         description: Traducerea este gata, așteaptă revizuire
@@ -53,9 +55,11 @@ ro:
         label: Nedorit
       unstarted:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
     source:
       undetermined:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
       credible:
         label: Credibil
         description: 'Concluzia: sursa este credibilă'
@@ -70,19 +74,41 @@ ro:
         description: 'Concluzia: sursa este o clonă'
   errors:
     messages:
+      invalid_password: Parolă nevalidă
+      invalid_qrcode: Cod de validare nevalid
       extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise:
         %{allowed_types}'
       invalid_size: trebuie să fie între %{min_width}x%{min_height} și %{max_width}x%{max_height}
         pixeli
+      mini_magick_processing_error: 'Ne pare rău, nu am reușit să prelucrăm imaginea.
+        Eroare: %{e}'
+      annotation_mandatory_fields: Vă rugăm să setați toate câmpurile obligatorii
+      annotation_type_does_not_exist: nu există
+      invalid_attribution: Atribuire nevalidă
+      must_resolve_required_tasks_first: Trebuie rezolvate mai întâi sarcinile necesare
+      image_too_large: Ne pare rău, nu oferim suport pentru imagini mai mari de %{max_size}.
+      video_too_large: Ne pare rău, nu oferim suport pentru videoclipuri mai mari
+        de %{max_size}.
+      pender_conflict: Acest link este deja analizat sintactic. Vă rugăm să încercați
+        din nou în câteva secunde.
+      pender_url_invalid: Acest link este nevalid.
+      pender_url_unsafe: Acest link este nesigur.
+      pender_could_not_parse: Analiza acestui link a eșuat.
+      invalid_format_for_languages: Format nevalid de limbi. Se aștepta `['en', 'ar',
+        ...]`
   activerecord:
     models:
       link: Link
+      claim: Text
       uploaded_file: Fișier
       uploaded_image: Imagine
+      uploaded_video: Videoclip
       task: Sarcină
       comment: Notă
       project_media: Element
       media: Element
+      project: Listă
+      team: Spațiu de lucru
       user: Utilizator
       source: Sursa
       project_source: Sursa
@@ -93,6 +119,10 @@ ro:
         file: Fișier
       uploaded_image:
         file: Imagine
+      uploaded_video:
+        file: Videoclip
+      team:
+        slug: URL spațiu de lucru
       source:
         name: Nume
       contact:
@@ -122,6 +152,7 @@ ro:
   slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
+  invalid_media_item: Ne pare rău, nu este un element valid
   invalid_default_status_for_custom_verification_status: Identificatorul de stare
     implicit nu este valid
   invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
@@ -129,11 +160,15 @@ ro:
   invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
   invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu
     și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_verification_status: 'Stările personalizate de
+    verificare trebuie să aibă intrări valide pentru: etichetă, identificator, descriere
+    și stil'
   mail_account_confirmation: Confirmarea contului %{app_name}
   slack:
     fields:
       assigned: Atribuit lui
       unassigned: Transferat de la
+      project: Listă
       source: Sursa
       status: Starea
       status_previous: Starea precedentă
@@ -148,6 +183,7 @@ ro:
       task_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
       task_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
       task_answer_create: "%{user} (%{role} în %{team}) a dat răspuns la o Sarcină"
+      task_answer_edit: "%{user} (%{role} din%{team}) a editat răspunsul la o Sarcină"
       task_comment: "%{user} (%{role} în %{team}) a adăugat o notă la o Sarcină"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
@@ -161,6 +197,14 @@ ro:
       project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_source_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_source_update: "%{user} (%{role} în %{team}) a redactat %{type}"
+      project_create: "%{user} (%{role} din %{team}) a creat o Listă"
+      project_assign: "%{user} (%{role} din %{team}) a alocat o Listă"
+      project_unassign: "%{user} (%{role} din %{team}) a anulat alocarea unei Liste"
+      user_member: "%{user} s-a alăturat spațiului de lucru %{team}"
+      user_requested: "%{user} a cerut să se alăture spațiului de lucru %{team}"
+      user_invited: "%{user} a fost invitat(ă) să se alăture spațiului de lucru %{team}"
+      user_banned: "%{user} a primit interdicție să mai intre în spațiul de lucru
+        %{team}"
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa
     de e-mail, făcând click pe următorul link:'
@@ -461,8 +505,6 @@ ro:
   custom_message_status_sugestao_afp-checamos: ''
   custom_message_status_necessario-mais-dados_afp-checamos: ''
   custom_message_status_resources_afp-checamos: ''
-  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
-  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_smooch_bot_result_afp-checamos: ''
   custom_message_smooch_bot_result_changed_afp-checamos: ''
   custom_message_smooch_bot_ask_for_confirmation_afp-checamos: ''
@@ -479,6 +521,8 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-checamos: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
+  custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
+  custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-fact-check: ''
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
@@ -508,6 +552,14 @@ ro:
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_status_undetermined_africa-infodemic: ''
+  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_priority_unassigned_africa-infodemic: ''
+  custom_message_status_priority_assigned_africa-infodemic: ''
+  custom_message_status_rated_true_africa-infodemic: ''
+  custom_message_status_rated_false_africa-infodemic: ''
+  custom_message_status_rated_misleading_africa-infodemic: ''
+  custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: ''
   custom_message_status_not_applicable_boom-factcheck: ''
@@ -536,6 +588,8 @@ ro:
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: ''
   custom_message_smooch_bot_result_changed_test-1: ''
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -559,12 +613,12 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_status_undetermined_check-message-demo: ''
   custom_message_status_in_progress_check-message-demo: ''
+  custom_message_status_inconclusive_check-message-demo: ''
   custom_message_status_false_check-message-demo: ''
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
   custom_message_status_report-true_check-message-demo: ''
   custom_message_status_report-false_check-message-demo: ''
-  custom_message_status_bot-resource_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
@@ -581,8 +635,8 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_c96523434b5a192693a0b41c2d6d0d45_check-message-demo: ''
-  custom_message_rule_action_send_message_c5b0817b24035936fc1e5fdcee3583c2_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
+  custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Vă mulțumim pentru că ați transmis acest mesaj.
 
@@ -680,7 +734,6 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
   custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_rule_action_send_message_44ca395f31e5a67c48cc9307445f8a3e_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
@@ -747,6 +800,7 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
+  custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
   custom_message_smooch_bot_result_changed_team-1: ''
   custom_message_smooch_bot_message_confirmed_team-1: ''
   custom_message_smooch_bot_message_type_unsupported_team-1: ''
@@ -798,6 +852,8 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_status_factchecked_test-2: ''
+  custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
   custom_message_status_status_b_test-custom-status: ''
   custom_message_status_foo-bar_test-custom-status: ''
