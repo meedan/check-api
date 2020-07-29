@@ -23,6 +23,11 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
     && bundle install --jobs 20 --retry 5
 COPY . /app
 
+# remember the Rails console history
+RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
+    echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
+    echo 'IRB.conf[:HISTORY_FILE] = ENV["HOME"] + "/.irb-history"' >> ~/.irbrc
+
 # startup
 RUN chmod +x /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-background.sh
