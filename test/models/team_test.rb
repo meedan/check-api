@@ -1392,6 +1392,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should match rule based on status" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     create_task_status_stuff(false)
     setup_elasticsearch
@@ -1426,12 +1427,16 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p0, disable_es_callbacks: false
+    assert_equal 1, p0.reload.medias_count
+    assert_equal 0, p1.reload.medias_count
     s = pm1.last_status_obj
     s.status = 'in_progress'
     s.save!
     sleep 5
     result = MediaSearch.find(get_es_id(pm1))
     assert_equal [p1.id], result.project_id
+    assert_equal 0, p0.reload.medias_count
+    assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
     sleep 5
     assert_equal [p1.id], pm1.reload.project_ids
