@@ -1044,10 +1044,10 @@ class GraphqlController3Test < ActionController::TestCase
     path2 = File.join(Rails.root, 'test', 'data', 'rails2.png')
     file1 = Rack::Test::UploadedFile.new(path1, 'image/png')
     file2 = Rack::Test::UploadedFile.new(path2, 'image/png')
-    query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":[{\"language\":\"en\"},{\"language\":\"es\",\"image\":\"http://test.com/test.png\"},{\"language\":\"pt\"}]}" }) { dynamic { dbid } } }'
+    query = 'mutation create { createDynamic(input: { annotation_type: "report_design", action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":[{\"language\":\"en\"},{\"language\":\"es\",\"image\":\"http://test.com/test.png\"},{\"language\":\"pt\"}]}" }) { dynamic { dbid } } }'
     post :create, query: query, file: { '2' => file2, '0' => file1 }
     assert_response :success
-    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationReportDesign']['dynamic']['dbid']).data.with_indifferent_access
+    d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamic']['dynamic']['dbid']).data.with_indifferent_access
     assert_match /rails\.png/, d[:options][0]['image']
     assert_match /^http/, d[:options][1]['image']
     assert_match /rails2\.png/, d[:options][2]['image']
