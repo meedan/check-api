@@ -175,8 +175,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        pm.metadata = { title: 'Foo', description: 'Bar' }
         pm.save!
       end
     end
