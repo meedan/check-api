@@ -188,7 +188,7 @@ class GraphqlCrudOperations
       mapping = instance_exec(&GraphqlCrudOperations.type_mapping)
       name "#{update_or_destroy.to_s.capitalize}#{klass.name.pluralize}"
 
-      input_field :ids, !types[types.ID], "GraphQL ids of the records to #{update_or_destroy.to_s}"
+      input_field :ids, !types[types.ID], "GraphQL ids of the records to #{update_or_destroy}"
       fields.each { |field_name, field_type| input_field field_name, mapping[field_type] }
 
       return_field :ids, types[types.ID]
