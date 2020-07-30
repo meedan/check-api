@@ -1074,6 +1074,24 @@ class GraphqlController3Test < ActionController::TestCase
     assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
   end
 
+  test "should destroy project media project without an id" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_not_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
+
+    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    assert_difference 'ProjectMediaProject.count', -1 do
+      post :create, query: query, team: t
+      assert_response :success
+    end
+
+    assert_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
+  end
+
   test "should define team languages settings" do
     u = create_user is_admin: true
     authenticate_with_user(u)
