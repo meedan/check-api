@@ -17,6 +17,7 @@ class Team < ActiveRecord::Base
   mount_uploader :logo, ImageUploader
 
   before_validation :normalize_slug, on: :create
+  before_validation :set_default_language, on: :create
 
   after_find do |team|
     if User.current
