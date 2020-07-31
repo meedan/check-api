@@ -1179,4 +1179,22 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
+
+  test "should get project using API key" do
+    t = create_team
+    a = create_api_key
+    b = create_bot_user api_key_id: a.id, team: t
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query = 'query { me { dbid } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal b.id, JSON.parse(@response.body)['data']['me']['dbid']
+
+    query = 'query { project(id: "' + p.id.to_s + '") { dbid } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
+  end
 end
