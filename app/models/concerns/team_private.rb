@@ -54,4 +54,9 @@ module TeamPrivate
   def destroy_versions
     Version.from_partition(self.id).where(team_id: self.id).destroy_all
   end
+
+  def set_default_language
+    self.set_language 'en'
+    self.set_languages ['en']
+  end
 end

@@ -1099,6 +1099,9 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
+    t.set_language nil
+    t.set_languages nil
+    t.save!
 
     assert_nil t.reload.get_language
     assert_nil t.reload.get_languages
