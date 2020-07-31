@@ -1305,6 +1305,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get dynamic fields schema" do
     create_flag_annotation_type
     t = create_team slug: 'team'
+    t.set_languages []
+    t.save!
     p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
@@ -1370,6 +1372,7 @@ class TeamTest < ActiveSupport::TestCase
     create_flag_annotation_type
     create_project team: t
     create_tag_text team: t
+    2.times { create_team_user team: t }
     assert_not_nil t.rules_json_schema
   end
 
@@ -1896,7 +1899,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should get languages" do
     t = create_team
-    assert_equal nil, t.get_languages
+    assert_equal ['en'], t.get_languages
     t.settings = {:languages => ['ar', 'en']}; t.save!
     assert_equal ['ar', 'en'], t.get_languages
   end
@@ -2932,6 +2935,8 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should validate language format" do
     t = create_team
+    t.set_language nil
+    t.save!
     ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
       assert_raises ActiveRecord::RecordInvalid do
         t.language = l
@@ -2950,6 +2955,8 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should validate languages format" do
     t = create_team
+    t.set_languages nil
+    t.save!
     ['pT', 'pt-BR', 'portuguese', 'por', 'pt_BRA'].each do |l|
       assert_raises ActiveRecord::RecordInvalid do
         t.languages = ['en', l]
@@ -2964,5 +2971,53 @@ class TeamTest < ActiveSupport::TestCase
       end
       assert_equal ['en', l], t.reload.get_languages
     end
+  end
+
+  test "should match rule by user" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_user_is",
+                "rule_value": u.id.to_s
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    create_project_media team: t, user: u
+    create_project_media team: t
+    create_project_media user: u
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
+  end
+
+  test "should set default language when creating team" do
+    t = create_team
+    assert_equal 'en', t.get_language
+    assert_equal ['en'], t.get_languages
   end
 end

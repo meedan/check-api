@@ -652,6 +652,7 @@ en:
     keywords
   team_rule_select_type: Select type
   team_rule_select_language: Select language
+  team_rule_select_user: Select user
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
@@ -685,6 +686,7 @@ en:
   team_rule_json_schema_validation: Rules format is not valid
   team_rule_updated_at: Updated
   team_rule_item_language_is: Item language is
+  team_rule_item_user_is: Item was created by
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -711,6 +713,8 @@ en:
     639-1 codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
+  fetch_import_total_mismatch: Ups! The number of imported claim reviews (%{total}) is different from expected (%{expected})!
+  fetch_bot_service_unsupported: Service unsupported
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP

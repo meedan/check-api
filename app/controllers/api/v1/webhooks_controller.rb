@@ -6,7 +6,8 @@ module Api
       def index
         bot_name_to_class = {
           smooch: Bot::Smooch,
-          keep: Bot::Keep
+          keep: Bot::Keep,
+          fetch: Bot::Fetch
         }
         unless bot_name_to_class.has_key?(params[:name].to_sym)
           render_error('Bot not found', 'ID_NOT_FOUND', 404) and return
@@ -15,8 +16,8 @@ module Api
         unless bot.valid_request?(request)
           render_error('Invalid request', 'UNKNOWN') and return
         end
-        bot.webhook(request) if bot.respond_to?(:webhook)
-        render_success
+        response = bot.webhook(request) if bot.respond_to?(:webhook)
+        render_success 'success', response
       end
     end
   end
