@@ -79,6 +79,10 @@
                                 "value": "<%= I18n.t(:team_rule_item_language_is) %>"
                               },
                               {
+                                "key": "item_user_is",
+                                "value": "<%= I18n.t(:team_rule_item_user_is) %>"
+                              },
+                              {
                                 "key": "title_matches_regexp",
                                 "value": "<%= I18n.t(:team_rule_title_matches_regexp) %>"
                               },
@@ -176,6 +180,14 @@
                             },
                             "then": {
                               "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_language) %>", "type": "string", "enum": <%= languages.to_json %> } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "item_user_is" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_user) %>", "type": "string", "enum": <%= users.to_json %> } }
                             }
                           },
                           {

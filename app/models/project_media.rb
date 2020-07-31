@@ -246,6 +246,7 @@ class ProjectMedia < ActiveRecord::Base
     relationships.destroy_all
     targets.map(&:destroy)
     user = User.where(id: user_id).last
+    previous_user = User.current
     Relationship.where(target_id: project_media_id).each do |r|
       User.current = user
       r.skip_check_ability = true
@@ -258,6 +259,7 @@ class ProjectMedia < ActiveRecord::Base
         v.save!
       end
     end
+    User.current = previous_user
   end
 
   def project_ids
@@ -318,7 +320,7 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.verification_status = self.last_status
     # set fields with integer value
-    fields_i = ['archived', 'inactive', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand']
+    fields_i = ['archived', 'inactive', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id']
     fields_i.each{ |f| ms.send("#{f}=", self.send(f).to_i) }
   end
 

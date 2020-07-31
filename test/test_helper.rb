@@ -159,6 +159,7 @@ class ActiveSupport::TestCase
     RequestStore.unstub(:[])
     User.current = nil
     RequestStore.clear!
+    CONFIG.unstub(:[])
   end
 
   def valid_flags_data(random = true)

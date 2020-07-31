@@ -138,6 +138,7 @@ class CheckSearch
     filters = {}
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters = filters.merge({
       archived: archived,
@@ -294,7 +295,7 @@ class CheckSearch
       doc_c << { terms: { 'associated_type': types } }
     end
 
-    fields = { 'project_id' => 'projects' }
+    fields = { 'project_id' => 'projects', 'user_id' => 'users' }
     status_search_fields.each do |field|
       fields[field] = field
     end

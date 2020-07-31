@@ -1379,6 +1379,7 @@ class TeamTest < ActiveSupport::TestCase
     create_flag_annotation_type
     create_project team: t
     create_tag_text team: t
+    2.times { create_team_user team: t }
     assert_not_nil t.rules_json_schema
   end
 
@@ -2973,5 +2974,47 @@ class TeamTest < ActiveSupport::TestCase
       end
       assert_equal ['en', l], t.reload.get_languages
     end
+  end
+
+  test "should match rule by user" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_user_is",
+                "rule_value": u.id.to_s
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    create_project_media team: t, user: u
+    create_project_media team: t
+    create_project_media user: u
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
   end
 end
