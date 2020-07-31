@@ -1144,4 +1144,36 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /items_count/, data['verification_statuses_with_counters'].to_json
     assert_no_match /items_count/, data['verification_statuses'].to_json
   end
+
+  test "should filter by user in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t, quote: 'This is a test', media: nil, user: u, disable_es_callbacks: false
+    create_project_media team: t, user: u, disable_es_callbacks: false
+    create_project_media team: t, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should filter by user in PostgreSQL" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t, user: u
+    create_project_media team: t
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
 end

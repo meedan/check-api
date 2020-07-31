@@ -14,6 +14,7 @@ class MediaSearch
   attribute :inactive, Integer
   attribute :archived, Integer
   attribute :sources_count, Integer
+  attribute :user_id, Integer
   attribute :accounts, Array, mapping: {
     type: 'nested',
     properties: {
