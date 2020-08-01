@@ -659,10 +659,8 @@ class TeamTest < ActiveSupport::TestCase
       create_team_user user: u, team: t, role: 'owner'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
-      assert_equal 0, p.reload.project_medias.where(inactive: true).count
       with_current_user_and_team(u, t) do
        t.empty_trash = 1
-       assert_equal 3, p.reload.project_medias.where(inactive: true).count
       end
       assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end

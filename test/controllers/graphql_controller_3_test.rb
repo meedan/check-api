@@ -83,7 +83,6 @@ class GraphqlController3Test < ActionController::TestCase
     pm1b.disable_es_callbacks = false ; pm1b.updated_at = Time.now ; pm1b.save! ; sleep 1
     pm1a.disable_es_callbacks = false ; pm1a.updated_at = Time.now ; pm1a.save! ; sleep 1
     pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: true ; sleep 1
-    pm1d = create_project_media project: p1a, disable_es_callbacks: false, inactive: true ; sleep 1
     t2 = create_team
     p2 = create_project team: t2
     pm2 = []
