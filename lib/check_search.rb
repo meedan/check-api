@@ -142,7 +142,6 @@ class CheckSearch
     archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters = filters.merge({
       archived: archived,
-      inactive: false,
       sources_count: 0
     })
     build_search_range_filter(:pg, filters)
@@ -158,7 +157,6 @@ class CheckSearch
     if associated_type == 'ProjectMedia'
       archived = @options['archived'].to_i
       conditions << { term: { archived: archived } }
-      conditions << { term: { inactive: 0 } }
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)

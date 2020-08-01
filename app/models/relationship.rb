@@ -37,7 +37,6 @@ class Relationship < ActiveRecord::Base
     pms = []
     query.collect do |r|
       t = r.target
-      next if t.inactive
       pm = t
       pm.relationship = r
       pms << pm
@@ -105,7 +104,7 @@ class Relationship < ActiveRecord::Base
     list = []
     targets.each do |key, value|
       id = [project_media.id, key].join('/')
-      medias = ProjectMedia.where(id: value, inactive: false).order('id DESC').limit(limit).collect{ |t| t.relationship = relationships_mapping[t.id] ; t }.sort_by{ |t| t.relationship.id }.reverse
+      medias = ProjectMedia.where(id: value).order('id DESC').limit(limit).collect{ |t| t.relationship = relationships_mapping[t.id] ; t }.sort_by{ |t| t.relationship.id }.reverse
       list << { type: key, targets: medias, id: id }.with_indifferent_access
     end
     list
