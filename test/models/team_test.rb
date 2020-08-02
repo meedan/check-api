@@ -3027,4 +3027,50 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'en', t.get_language
     assert_equal ['en'], t.get_languages
   end
+
+  test "should match rule when item is opened" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_is_opened",
+                "rule_value": ""
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media user: u
+    pm1.opened = true ; pm1.save!
+    pm2.opened = false ; pm2.save!
+    pm3.opened = true ; pm3.save!
+
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
+  end
 end

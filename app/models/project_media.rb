@@ -22,6 +22,7 @@ class ProjectMedia < ActiveRecord::Base
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
+  after_update :apply_rules_and_actions, if: proc { |pm| pm.changes.keys.include?('opened') }
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
