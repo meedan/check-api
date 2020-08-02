@@ -688,6 +688,7 @@ en:
   team_rule_updated_at: Updated
   team_rule_item_language_is: Item language is
   team_rule_item_user_is: Item was created by
+  team_rule_item_is_opened: Item is opened
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
