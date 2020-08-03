@@ -865,8 +865,13 @@ class Bot::Smooch < BotUser
   def self.detect_media_type(message)
     type = nil
     begin
-      m_type = MimeMagic.by_magic(open(message['mediaUrl']))
-      type = m_type.type
+      headers = {}
+      url = URI(message['mediaUrl'])
+      Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+        headers = http.head(url.path).to_hash
+      end
+      m_type = headers['content-type'].first
+      type = m_type.split(';').first
       unless type.nil? || type == message['mediaType']
         Rails.logger.warn "[Smooch Bot] saved file #{message['mediaUrl']} as #{type} instead of #{message['mediaType']}"
       end
