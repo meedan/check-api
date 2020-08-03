@@ -925,13 +925,20 @@ class ActiveSupport::TestCase
     @video_url_2 = 'https://smooch.com/video/fake-video.mp4'
     @audio_url = 'https://smooch.com/audio/test.mp3'
     @audio_url_2 = 'https://smooch.com/audio/fake-audio.mp3'
-    WebMock.stub_request(:get, 'https://smooch.com/image/test.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
-    WebMock.stub_request(:get, 'https://smooch.com/image/test2.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
-    WebMock.stub_request(:get, 'https://smooch.com/image/large-image.jpeg').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
-    WebMock.stub_request(:get, 'https://smooch.com/video/test.mp4').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
-    WebMock.stub_request(:get, 'https://smooch.com/video/fake-video.mp4').to_return(status: 200, body: '', headers: {})
-    WebMock.stub_request(:get, 'https://smooch.com/audio/test.mp3').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
-    WebMock.stub_request(:get, 'https://smooch.com/audio/fake-audio.mp3').to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:get, @media_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+    WebMock.stub_request(:head, @media_url).to_return(status: 200, headers: {'content-type' => 'image/jpeg'})
+    WebMock.stub_request(:get, @media_url_2).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails2.png')))
+    WebMock.stub_request(:head, @media_url_2).to_return(status: 200, headers: {'content-type' => 'image/jpeg'})
+    WebMock.stub_request(:get, @media_url_3).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'large-image.jpg')))
+    WebMock.stub_request(:head, @media_url_3).to_return(status: 200, headers: {'content-type' => 'image/jpeg'})
+    WebMock.stub_request(:get, @video_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
+    WebMock.stub_request(:head, @video_url).to_return(status: 200, headers: {'content-type' => 'video/mp4'})
+    WebMock.stub_request(:get, @video_url_2).to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:head, @video_url_2).to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:get, @audio_url).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+    WebMock.stub_request(:head, @audio_url).to_return(status: 200, headers: {'content-type' => 'audio/mpeg'})
+    WebMock.stub_request(:get, @audio_url_2).to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:head, @audio_url_2).to_return(status: 200, body: '', headers: {})
     @link_url = random_url
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
