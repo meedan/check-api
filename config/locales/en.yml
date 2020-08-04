@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -101,7 +101,7 @@ en:
       pender_url_unsafe: This link is unsafe.
       pender_could_not_parse: Could not parse this link.
       invalid_format_for_languages: Invalid languages format. Expecting `['en', 'ar',
-        ...]`
+        …]`
   activerecord:
     models:
       link: Link
@@ -491,9 +491,9 @@ en:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Invalid status
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
-  blank_default_status_for_custom_verification_status: Please provide a 'default'
+  blank_default_status_for_custom_verification_status: Please provide a default
     value for the custom verification statuses
-  blank_active_status_for_custom_verification_status: Please provide an 'active' value
+  blank_active_status_for_custom_verification_status: Please provide an active value
     for the custom verification statuses
   bot_name_exists_for_this_team: There is already a bot with the provided name in
     this workspace
@@ -507,8 +507,8 @@ en:
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
-  task_suggestion_invalid_value: A suggestion must be a JSON hash with a 'suggestion'
-    (the actual value that is copied to the task answer when accepted) and a 'comment'
+  task_suggestion_invalid_value: A suggestion must be a JSON hash with attributes `suggestion`
+    (the actual value that is copied to the task answer when accepted) and `comment`
     (displayed to users)
   tag_text_id_not_found: Sorry, there is no tag with the provided identifier
   annotation_type_language_label: Language
