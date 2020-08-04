@@ -153,7 +153,7 @@ class Bot::Fetch < BotUser
             total += 1
           end
         end
-        raise I18n.t(:fetch_import_total_mismatch, { total: total, expected: service_info['count'] }) if total != service_info['count']
+        raise "[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})" if total != service_info['count']
       end
     end
 
