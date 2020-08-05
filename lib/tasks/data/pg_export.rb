@@ -477,7 +477,10 @@ module PgExport
       # Lz4 has an official file format, and it behaves similarly to Snappy.
       # Bonus: it has a command-line tool, so ad-hoc commands are simpler.
       puts "Compressing #{path}..."
-      `lz4 -f --favor-decSpeed #{sqlite_db_tempfile.path} #{path}`
+      puts `lz4 -f --favor-decSpeed #{sqlite_db_tempfile.path} #{path}`
+      if not $?.success?
+        raise "lz4 exited with code #{$?.exitstatus}"
+      end
     end
   end
 end
