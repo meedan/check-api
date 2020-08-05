@@ -1,3 +1,4 @@
+# :nocov:
 require 'benchmark'
 require 'sqlite3'
 require 'tempfile'

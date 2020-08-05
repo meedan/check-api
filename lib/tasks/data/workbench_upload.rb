@@ -1,3 +1,4 @@
+# :nocov:
 require 'aws-sdk-s3'
 require 'typhoeus'
 
