@@ -127,9 +127,10 @@ class Bot::Smooch < BotUser
       unless data.nil?
         obj = self.associated
         key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
-        slack_channel_url = Rails.cache.fetch(key) do
-          # Retrieve URL
-          get_slack_channel_url(obj, data)
+        slack_channel_url = Rails.cache.read(key)
+        if slack_channel_url.blank?
+          slack_channel_url = get_slack_channel_url(obj, data)
+          Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
         end
       end
       slack_channel_url
@@ -138,6 +139,7 @@ class Bot::Smooch < BotUser
     private
 
     def get_slack_channel_url(obj, data)
+      slack_channel_url = nil
       # Fetch project from Smooch Bot and fallback to obj.project_id
       pid = nil
       bot = BotUser.where(login: 'smooch').last
@@ -146,15 +148,13 @@ class Bot::Smooch < BotUser
       pid ||= obj.project_id
       smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
       .where("value_json ->> 'id' = ?", data['authorId'])
-      .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
-      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).uniq
-      field_value = nil
-      smooch_user_data.each do |f|
-        slack_channel_url = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: f.annotation.id).last
-        field_value = slack_channel_url.value unless slack_channel_url.nil?
-        break unless field_value.nil?
+      .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
+      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
+      unless smooch_user_data.nil?
+        field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
+        slack_channel_url = field_value.value unless field_value.nil?
       end
-      field_value
+      slack_channel_url
     end
   end
 
