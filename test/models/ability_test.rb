@@ -2163,4 +2163,35 @@ class AbilityTest < ActiveSupport::TestCase
       assert JSON.parse(t.permissions)['update ProjectMedia']
     end
   end
+
+  test "permissions for project media user" do
+    t = create_team
+    u1 = create_user
+    u2 = create_user
+    pm = create_project_media
+    pmu1 = ProjectMediaUser.create! project_media: pm, user: u1, read: true
+    pmu2 = ProjectMediaUser.create! project_media: pm, user: u2, read: true
+    with_current_user_and_team(u1, t) do
+      ability = Ability.new
+      assert ability.can?(:create, pmu1)
+      assert ability.can?(:update, pmu1)
+      assert ability.can?(:destroy, pmu1)
+      assert ability.can?(:read, pmu1)
+      assert ability.cannot?(:create, pmu2)
+      assert ability.cannot?(:update, pmu2)
+      assert ability.cannot?(:destroy, pmu2)
+      assert ability.cannot?(:read, pmu2)
+    end
+    with_current_user_and_team(u2, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, pmu1)
+      assert ability.cannot?(:update, pmu1)
+      assert ability.cannot?(:destroy, pmu1)
+      assert ability.cannot?(:read, pmu1)
+      assert ability.can?(:create, pmu2)
+      assert ability.can?(:update, pmu2)
+      assert ability.can?(:destroy, pmu2)
+      assert ability.can?(:read, pmu2)
+    end
+  end
 end

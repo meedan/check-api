@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_opened']
+           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -107,8 +107,8 @@ module TeamRules
       pm.user_id == value.to_i
     end
 
-    def item_is_opened(pm, _value, _rule_id)
-      pm.opened
+    def item_is_read(pm, _value, _rule_id)
+      pm.read
     end
   end
 

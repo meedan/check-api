@@ -139,6 +139,7 @@ class CheckSearch
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
+    filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters = filters.merge({
       archived: archived,
@@ -157,9 +158,10 @@ class CheckSearch
     if associated_type == 'ProjectMedia'
       archived = @options['archived'].to_i
       conditions << { term: { archived: archived } }
+      conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
-      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
+      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
       conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
@@ -298,7 +300,7 @@ class CheckSearch
       fields[field] = field
     end
     fields.each do |k, v|
-      doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
+      doc_c << { terms: { "#{k}": @options[v] } } if @options.has_key?(v)
     end
     doc_c
   end

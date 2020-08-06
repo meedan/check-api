@@ -22,7 +22,7 @@ class ProjectMedia < ActiveRecord::Base
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
-  after_update :apply_rules_and_actions, if: proc { |pm| pm.changes.keys.include?('opened') }
+  after_update :apply_rules_and_actions, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
@@ -321,7 +321,7 @@ class ProjectMedia < ActiveRecord::Base
     end
     ms.verification_status = self.last_status
     # set fields with integer value
-    fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id']
+    fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']
     fields_i.each{ |f| ms.send("#{f}=", self.send(f).to_i) }
   end
 
