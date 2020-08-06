@@ -19,7 +19,7 @@ module ProjectMediaMutations
     archived: 'int',
     previous_project_id: 'int',
     metadata: 'str',
-    opened: 'bool'
+    read: 'bool'
   })
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project', 'check_search_project', 'project_was', 'check_search_project_was', 'check_search_team', 'check_search_trash', 'relationships_target', 'relationships_source', 'related_to', 'team'])

@@ -3028,7 +3028,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['en'], t.get_languages
   end
 
-  test "should match rule when item is opened" do
+  test "should match rule when item is read" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     p = create_project team: t
@@ -3047,7 +3047,7 @@ class TeamTest < ActiveSupport::TestCase
             "operator": "and",
             "conditions": [
               {
-                "rule_definition": "item_is_opened",
+                "rule_definition": "item_is_read",
                 "rule_value": ""
               }
             ]
@@ -3066,9 +3066,8 @@ class TeamTest < ActiveSupport::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     pm3 = create_project_media user: u
-    pm1.opened = true ; pm1.save!
-    pm2.opened = false ; pm2.save!
-    pm3.opened = true ; pm3.save!
+    ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
+    ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
 
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count

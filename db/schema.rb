@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200801230948) do
+ActiveRecord::Schema.define(version: 20200804202431) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -205,6 +205,16 @@ ActiveRecord::Schema.define(version: 20200801230948) do
   add_index "project_media_projects", ["project_media_id", "project_id"], name: "index_project_media_projects_on_project_media_id_and_project_id", unique: true, using: :btree
   add_index "project_media_projects", ["project_media_id"], name: "index_project_media_projects_on_project_media_id", using: :btree
 
+  create_table "project_media_users", force: :cascade do |t|
+    t.integer "project_media_id"
+    t.integer "user_id"
+    t.boolean "read",             default: false, null: false
+  end
+
+  add_index "project_media_users", ["project_media_id", "user_id"], name: "index_project_media_users_on_project_media_id_and_user_id", unique: true, using: :btree
+  add_index "project_media_users", ["project_media_id"], name: "index_project_media_users_on_project_media_id", using: :btree
+  add_index "project_media_users", ["user_id"], name: "index_project_media_users_on_user_id", using: :btree
+
   create_table "project_medias", force: :cascade do |t|
     t.integer  "media_id"
     t.datetime "created_at",                               null: false
@@ -215,7 +225,7 @@ ActiveRecord::Schema.define(version: 20200801230948) do
     t.integer  "targets_count",            default: 0,     null: false
     t.integer  "sources_count",            default: 0,     null: false
     t.integer  "team_id"
-    t.boolean  "opened",                   default: false, null: false
+    t.boolean  "read",                     default: false, null: false
   end
 
   add_index "project_medias", ["id"], name: "index_project_medias_on_id", using: :btree

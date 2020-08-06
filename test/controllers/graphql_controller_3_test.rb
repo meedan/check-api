@@ -1028,7 +1028,6 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
     post :create, query: query
     assert_response :success
-    puts @response.body
     assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
 
     query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
@@ -1195,5 +1194,100 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
+  end
+
+  test "should mark item as read" do
+    pm = create_project_media
+    assert !pm.reload.read
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    assert_difference 'ProjectMediaUser.count' do
+      query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
+      post :create, query: query, team: pm.team.slug
+      assert_response :success
+      assert pm.reload.read
+
+      query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
+      post :create, query: query, team: pm.team.slug
+      assert_response 400
+    end
+  end
+
+  test "should return if item is read" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    ProjectMediaUser.create! user: u, project_media: pm1, read: true
+    pm2 = create_project_media project: p
+    ProjectMediaUser.create! user: create_user, project_media: pm2, read: true
+    pm3 = create_project_media project: p
+    authenticate_with_user(u)
+
+    {
+      pm1.id => [true, true],
+      pm2.id => [true, false],
+      pm3.id => [false, false]
+    }.each do |id, values|
+      ids = [id, p.id, t.id].join(',')
+      query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['project_media']
+      assert_equal values[0], data['read_by_someone']
+      assert_equal values[1], data['read_by_me']
+    end
+  end
+
+  test "should filter by read in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, quote: 'This is a test', media: nil, read: true, disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'This is another test', media: nil, disable_es_callbacks: false
+    pm3 = create_project_media quote: 'This is another test', media: nil, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+  end
+
+  test "should filter by read in PostgreSQL" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, read: true
+    pm2 = create_project_media team: t
+    pm3 = create_project_media
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
 end

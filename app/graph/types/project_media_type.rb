@@ -23,7 +23,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :last_seen, types.String
   field :status, types.String
   field :share_count, types.Int
-  field :opened, types.Boolean
+  field :is_read, types.Boolean do
+    argument :by_me, types.Boolean
+
+    resolve -> (project_media, args, _ctx) {
+      if args[:by_me]
+        !ProjectMediaUser.where(project_media_id: project_media.id, user_id: User.current&.id, read: true).last.nil?
+      else
+        project_media.read
+      end
+    }
+  end
 
   field :type, types.String  do
     resolve -> (project_media, _args, _ctx) {

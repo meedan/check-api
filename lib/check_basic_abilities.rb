@@ -89,6 +89,10 @@ module CheckBasicAbilities
       obj.get_approved || @user.cached_teams.include?(obj.team_author_id)
     end
 
+    can [:read, :create, :update, :destroy], ProjectMediaUser do |obj|
+      obj.user_id == @user.id
+    end
+
     annotation_perms_for_all_users
 
     cannot :manage, ApiKey
