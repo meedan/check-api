@@ -57,8 +57,13 @@ module ProjectMediaPrivate
     BotUser.enqueue_event("#{event}_project_media", self.team_id, self)
   end
 
-  def apply_rules_and_actions
-    self.team&.apply_rules_and_actions(self, nil)
+  def apply_rules_and_actions_on_create
+    self.team.apply_rules_and_actions(self, nil)
+  end
+
+  def apply_rules_and_actions_on_update
+    rule_ids = self.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_read' && self.read }
+    self.team.apply_rules_and_actions(self, rule_ids)
   end
 
   def set_team_id

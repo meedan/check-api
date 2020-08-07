@@ -3033,6 +3033,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     u = create_user
+    u2 = create_user
     create_team_user team: t, user: u
     assert_equal 0, p.reload.project_media_projects.count
     assert_equal 0, p.reload.medias_count
@@ -3061,14 +3062,42 @@ class TeamTest < ActiveSupport::TestCase
         }
       ]
     }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_user_is",
+                "rule_value": u2.id.to_s
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "send_to_trash",
+          "action_value": ""
+        }
+      ]
+    }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    pm3 = create_project_media user: u
+    pm1 = create_project_media team: t, user: u2
+    pm2 = create_project_media team: t, user: u2
+    pm3 = create_project_media user: u2
+    [pm1, pm2, pm3].each { |pm| pm.archived = false ; pm.save! }
     ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
     ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
 
+    assert !pm1.reload.archived
+    assert !pm2.reload.archived
+    assert !pm3.reload.archived
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end
