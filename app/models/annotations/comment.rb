@@ -65,10 +65,6 @@ class Comment < ActiveRecord::Base
     false
   end
 
-  def comment_version
-    Version.from_partition(self.team&.id).where(item_type: 'Comment', item_id: self.id.to_s, event_type: 'create_comment').first
-  end
-
   protected
 
   def extract_check_urls

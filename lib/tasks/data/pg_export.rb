@@ -1,3 +1,4 @@
+# :nocov:
 require 'benchmark'
 require 'sqlite3'
 require 'tempfile'
@@ -484,3 +485,4 @@ module PgExport
     end
   end
 end
+# :nocov:

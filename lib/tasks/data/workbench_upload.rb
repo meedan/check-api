@@ -1,3 +1,4 @@
+# :nocov:
 require 'aws-sdk-s3'
 require 'typhoeus'
 
@@ -65,3 +66,4 @@ module WorkbenchUpload
     response
   end
 end
+# :nocov:

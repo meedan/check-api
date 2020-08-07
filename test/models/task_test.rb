@@ -459,25 +459,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 'Unresolved', t.last_task_status_label
   end
 
-  test "should get response version" do
-    at = create_annotation_type annotation_type: 'task_response'
-    ft2 = create_field_type field_type: 'text'
-    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    tk.assign_user(u.id)
-    with_current_user_and_team(u ,t) do
-      tk.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
-      tk.save!
-      assert_not_nil tk.first_response_version
-      assert_kind_of Version, tk.first_response_version
-    end
-  end
-
   test "should allow editor to delete task" do
     t = create_team
     u = create_user
