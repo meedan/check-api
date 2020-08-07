@@ -41,6 +41,13 @@ hi:
         label: निरर्थक
       unstarted:
         label: अभी शुरू नहीं किया गया
+    source:
+      undetermined:
+        label: 'शुरू नहीं किया है '
+  smooch_bot_message_unconfirmed: 1 न भेजने पर आपका यह निवेदन यहीं समाप्त होता है.
+    धन्यवाद.
+  smooch_bot_window_closing: इस नंबर पर तथ्यों की जांच के निवेदन ज़्यादा होने के कारण
+    आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं. आपके धैर्य के लिए धन्यवाद.
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -141,7 +148,9 @@ hi:
     जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब देने में
     सक्षम नहीं हैं।\n\n *0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य मेन्यु* पर वापस जाना
     चाहते हैं "
-  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
+  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: एएफपी
+    फैक्ट-चेक टीम से संपर्क करने के लिए धन्यवाद। हमारी टीम अभी इस दावे की जाँच कर
+    रही है और जल्द ही आपको रिपोर्ट भेजने की कोशिश करेगी।
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: |-
     एएफपी फैक्ट-चेक के बारे में पूछताछ के लिए धन्यवाद। हमारे पत्रकारों की टीम डिजिटल वेरिफिकेशन टूल्स और पारंपरिक रिपोर्टिंग का बेहतर उपयोग कर इंटरनेट पर फैलाई जा रहीं भ्रामक और झूठी ख़बरों (फेक न्यूज़) की जांच करती है। जैसे कई बार सोशल मीडिया में एडिटेड फोटो, वीडियो और झूठे दावों को तथ्य के बतौर शेयर किया जाता है। स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं।
 
@@ -151,8 +160,8 @@ hi:
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: |-
     एएफपी फैक्ट-चेक टीम से संपर्क करने के लिए आपका धन्यवाद।
     दुर्भाग्यवश हमारी टीम आपके द्वारा भेजी गई सामग्री की सत्यता की जांच करने में असमर्थ है. स्पष्ट कर दें कि हम अफवाहों, किसी के निजी विचार, व्यंग्य या अनुमान की सत्यता की जांच नहीं करते हैं, लेकिन आप किसी भ्रामक अथवा झूठी ख़बर (फेक न्यूज़), संदेहास्पद मैसेज, फोटो, वीडियो और दावों की सत्यता जानने उसे एएफपी फैक्ट-चेक टीम को इसी हेल्पलाइन नंबर पर भेज सकते हैं. झूठी या भ्रामक खबरों पर हमारी रिपोर्टिंग आप यहां देख सकते हैं। https://factcheck.afp.com/afp-india
-  custom_message_status_undetermined_africa-infodemic: ''
-  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_undetermined_africa-infodemic: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_africa-infodemic: जारी है
   custom_message_status_priority_unassigned_africa-infodemic: ''
   custom_message_status_priority_assigned_africa-infodemic: ''
   custom_message_status_rated_true_africa-infodemic: ''
@@ -167,7 +176,7 @@ hi:
   custom_message_status_undetermined_boom-factcheck: 'शुरू नहीं किया है '
   custom_message_status_in_progress_boom-factcheck: 'काम जारी है '
   custom_message_status_out_of_scope_boom-factcheck: 'दायरे से बाहर '
-  custom_message_status_in_the_news_boom-factcheck: ''
+  custom_message_status_in_the_news_boom-factcheck: 'ख़बरों में '
   custom_message_status_junk_boom-factcheck: 'स्वीकार नहीं '
   custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: |-
@@ -233,52 +242,80 @@ hi:
     आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
     भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
     हमारे फ़ैक्ट चेक पढ़ें|"
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
-  custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_result_changed_caio: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_unstarted_check-bot-garden: 'शुरू नहीं किया है '
+  custom_message_smooch_bot_result_changed_caio: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
+    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_caio: ''
   custom_message_smooch_bot_message_type_unsupported_caio: ''
   custom_message_smooch_bot_disabled_caio: ''
   custom_message_smooch_bot_ask_for_tos_caio: ''
   custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: ''
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_status_undetermined_check-message-demo: ''
-  custom_message_status_in_progress_check-message-demo: ''
-  custom_message_status_inconclusive_check-message-demo: ''
-  custom_message_status_false_check-message-demo: ''
-  custom_message_status_verified_check-message-demo: ''
-  custom_message_status_not_applicable_check-message-demo: ''
-  custom_message_status_report-true_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_test-1: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_status_undetermined_check-message-demo: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_check-message-demo: जारी है
+  custom_message_status_inconclusive_check-message-demo: 'दायरे से बाहर '
+  custom_message_status_false_check-message-demo: 'ग़लत '
+  custom_message_status_verified_check-message-demo: 'सही '
+  custom_message_status_not_applicable_check-message-demo: 'दायरे से बाहर '
+  custom_message_status_report-true_check-message-demo: 'भ्रामक '
   custom_message_status_report-false_check-message-demo: ''
-  custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
-  custom_message_smooch_bot_message_confirmed_check-message-demo: ''
+  custom_message_smooch_bot_result_check-message-demo: |
+    [वेरिफिकेशन रिपोर्ट]
+    आपने जो सामग्री साझा की थी उसे %{status} चिन्हित किया गया है.
+
+
+    यह हमारी जांच प्रणाली रही है: %{url}
+  custom_message_smooch_bot_result_changed_check-message-demo: "❗️ आपको जो फ़ैक्ट-चेक
+    हमने भेजा था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: |
+    इस निवेदन के लिए आपका धन्यवाद. क्या आप इस सामग्री को सत्यापित करना चाहते हैं?
+
+    हाँ कहने के लिए, *जवाब में 1 लिखें*. इसके अलावा कोई और जवाब इस सामग्री के बारे में हमारी  बातचीत को रोक देगा.
+  custom_message_smooch_bot_message_confirmed_check-message-demo: |
+    शुभकानाएं! आपकी आग्रह की गयी सामग्री सत्यापित होने के लिए तैयार है.
+
+    हम आपको इसका विवरण अगले 24 घंटों में भेजने का प्रयास करेंगे, पर ध्यान रखें की हम हर निवेदन को जवाब देने में सक्षम नहीं हैं.
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
-  custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
-  custom_message_smooch_bot_disabled_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: 1 न भेजने पर आपका
+    यह निवेदन यहीं समाप्त होता है. धन्यवाद.
+  custom_message_smooch_bot_not_final_check-message-demo: |
+    [वेरिफिकेशन रिपोर्ट - सुधार] जो सामग्री आपने साझा की थी ग़लती से यह चिन्हित हो गयी है: *%{status}*
+
+
+    यह सामग्री अब भी जांच के अंतर्गत है.
+  custom_message_smooch_bot_meme_check-message-demo: हमने आपके निवेदन पर आधारित एक
+    मीम बनाया है जिसमें हमसे उक्त सामग्री को सत्यापित करने के लिए कहा गया था, अधिक
+    जानने के लिए इस लिंक पर जाएं %{url}
+  custom_message_smooch_bot_window_closing_check-message-demo: इस नंबर पर तथ्यों की
+    जांच के निवेदन ज़्यादा होने के कारण आपके निवेदन का जवाब हम अब तक नहीं दे पाए हैं.
+    आपके धैर्य के लिए धन्यवाद.
+  custom_message_smooch_bot_disabled_check-message-demo: सन्देश भेजने के लिए धन्यवाद.
+    हम किसी भी तरह का सत्यापित विवरण भेजने में असमर्थ हैं क्योंकि यह योजना अब समाप्त
+    हो चुकी है.
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
-  custom_message_smooch_bot_option_not_available_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916 माफ़
+    कीजिए, आपका सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
@@ -320,11 +357,11 @@ hi:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: ''
-  custom_message_status_junk_checkpoint: ''
+  custom_message_status_out_of_scope_checkpoint: दायरे से बाहर
+  custom_message_status_junk_checkpoint: 'स्वीकार नहीं '
   custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
   custom_message_status_in_progress_india-today: 'काम जारी है '
-  custom_message_status_inconclusive_india-today: ''
+  custom_message_status_inconclusive_india-today: 'दायरे से बाहर '
   custom_message_status_false_india-today: 'ग़लत '
   custom_message_status_verified_india-today: 'सही '
   custom_message_status_half_true_india-today: 'आधा सच '
@@ -406,58 +443,67 @@ hi:
     जवाब देने की कोशिश करेंगे। लेकिन ध्यान रखें- हम आपके हर अनुरोध का जवाब देने में
     सक्षम नहीं हैं। \n\n*0 दबाएँ (या \U0001F4CC)* अगर आप *मुख्य मेन्यु* पर वापस जाना
     चाहते हैं "
-  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
+  custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: हम
+    से संपर्क करने के लिए धन्यवाद. आपने जो मैसेज हमें भेजा है हम उसकी जांच करने में
+    लगे हैं. रिपोर्ट तैयार होते ही आपको भेज दी जाएगी.
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: 'माफ
     कीजिए - लेकिन आपके भेजे मैसेज की जांच कर पाना संभव नहीं है. हर मैसेज का फैक्ट-चेक
     नहीं हो सकता. जैसे हम किसी के विचार या फिर मज़ाक की जांच नहीं कर सकते. फैक्ट-चेक
     की ताजा स्टोरी आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html '
-  custom_message_status_false_infotagion: ''
-  custom_message_status_misleading_infotagion: ''
-  custom_message_status_true_infotagion: ''
+  custom_message_status_false_infotagion: 'ग़लत '
+  custom_message_status_misleading_infotagion: 'भ्रामक '
+  custom_message_status_true_infotagion: 'सही '
   custom_message_status_unconfirmed_infotagion: ''
-  custom_message_status_undetermined_africa-check: ''
-  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_undetermined_africa-check: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_africa-check: 'काम जारी है '
   custom_message_status_false_africa-check: ''
-  custom_message_status_verified_africa-check: ''
+  custom_message_status_verified_africa-check: 'सही '
   custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
+  custom_message_status_misleading_africa-check: 'भ्रामक '
   custom_message_status_inconclusive_africa-check: ''
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_result_changed_africa-check: "❗️ आपको जो फ़ैक्ट-चेक हमने
+    भेजा था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
   custom_message_smooch_bot_disabled_africa-check: ''
-  custom_message_smooch_bot_ask_for_tos_africa-check: ''
+  custom_message_smooch_bot_ask_for_tos_africa-check: |+
+    इस सेवा का इस्तेमाल आप सूचनाओं/समाचार की पड़ताल, तथ्यों को सत्यापित करने और फ़ैक्ट चेक के निवेदन के लिए कर सकते हैं | चेक मैसेज की सेवा आपको इन शर्तों के अंतर्गत उपलब्ध है: %{tos}. 
+
+    यदि आप सेवा जारी रखते हैं तो आप इन शर्तों से सहमत माने जाएंगे. यदि आप सहमत नहीं हैं तो इस टिपलाइन का इस्तेमाल समाप्त कर सकते हैं.
+
   custom_message_smooch_bot_greetings_africa-check: ''
   custom_message_smooch_bot_option_not_available_africa-check: ''
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_lebanon: ''
+  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_smooch_bot_result_changed_lebanon: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
   custom_message_smooch_bot_disabled_lebanon: ''
   custom_message_smooch_bot_ask_for_tos_lebanon: ''
   custom_message_smooch_bot_greetings_lebanon: ''
-  custom_message_smooch_bot_option_not_available_lebanon: ''
+  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: ''
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mantis-8305: ''
-  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: जारी है
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
   custom_message_status_urgent_mmtan: ''
   custom_message_status_all_items_mmtan: ''
-  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_unstarted_mmtan-2: 'शुरू नहीं किया है '
   custom_message_status_d-progress_mmtan-2: ''
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
@@ -468,15 +514,17 @@ hi:
   custom_message_status_urgent_mtan: ''
   custom_message_status_all_items_mtan: ''
   custom_message_status_resources_mtan: ''
-  custom_message_status_true_mtan: ''
-  custom_message_status_false_mtan: ''
-  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_status_true_mtan: 'सही '
+  custom_message_status_false_mtan: 'ग़लत '
+  custom_message_smooch_bot_result_changed_mtan: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
+    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_mtan: ''
   custom_message_smooch_bot_message_type_unsupported_mtan: ''
   custom_message_smooch_bot_disabled_mtan: ''
   custom_message_smooch_bot_ask_for_tos_mtan: ''
   custom_message_smooch_bot_greetings_mtan: ''
-  custom_message_smooch_bot_option_not_available_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
@@ -492,20 +540,23 @@ hi:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
-  custom_message_smooch_bot_result_changed_sawy: ''
+  custom_message_smooch_bot_result_changed_sawy: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
+    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_sawy: ''
   custom_message_smooch_bot_message_type_unsupported_sawy: ''
   custom_message_smooch_bot_disabled_sawy: ''
   custom_message_smooch_bot_ask_for_tos_sawy: ''
   custom_message_smooch_bot_greetings_sawy: ''
-  custom_message_smooch_bot_option_not_available_sawy: ''
+  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
-  custom_message_smooch_bot_result_changed_team-1: ''
+  custom_message_smooch_bot_result_changed_team-1: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_team-1: ''
   custom_message_smooch_bot_message_type_unsupported_team-1: ''
   custom_message_smooch_bot_disabled_team-1: ''
@@ -517,42 +568,50 @@ hi:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test: ''
+  custom_message_smooch_bot_result_changed_test: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
+    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_test: ''
   custom_message_smooch_bot_message_type_unsupported_test: ''
   custom_message_smooch_bot_disabled_test: ''
   custom_message_smooch_bot_ask_for_tos_test: ''
   custom_message_smooch_bot_greetings_test: ''
-  custom_message_smooch_bot_option_not_available_test: ''
+  custom_message_smooch_bot_option_not_available_test: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_test-3: ''
   custom_message_smooch_bot_message_type_unsupported_test-3: ''
   custom_message_smooch_bot_disabled_test-3: ''
   custom_message_smooch_bot_ask_for_tos_test-3: ''
   custom_message_smooch_bot_greetings_test-3: ''
-  custom_message_smooch_bot_option_not_available_test-3: ''
-  custom_message_smooch_bot_result_changed_test-16: ''
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
+  custom_message_smooch_bot_result_changed_test-16: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
   custom_message_smooch_bot_message_type_unsupported_test-16: ''
   custom_message_smooch_bot_disabled_test-16: ''
   custom_message_smooch_bot_ask_for_tos_test-16: ''
   custom_message_smooch_bot_greetings_test-16: ''
-  custom_message_smooch_bot_option_not_available_test-16: ''
+  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_result_changed_test-2: ''
+  custom_message_smooch_bot_result_changed_test-2: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
+    था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_test-2: ''
   custom_message_smooch_bot_message_type_unsupported_test-2: ''
   custom_message_smooch_bot_disabled_test-2: ''
   custom_message_smooch_bot_ask_for_tos_test-2: ''
   custom_message_smooch_bot_greetings_test-2: ''
-  custom_message_smooch_bot_option_not_available_test-2: ''
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
@@ -569,9 +628,11 @@ hi:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
-  custom_message_status_undetermined_watching-western-sahara: ''
-  custom_message_status_in_progress_watching-western-sahara: ''
-  custom_message_status_inconclusive_watching-western-sahara: ''
-  custom_message_status_false_watching-western-sahara: ''
-  custom_message_status_verified_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: 'शुरू नहीं किया है '
+  custom_message_status_in_progress_watching-western-sahara: जारी है
+  custom_message_status_inconclusive_watching-western-sahara: 'अनिर्णायक '
+  custom_message_status_false_watching-western-sahara: 'ग़लत '
+  custom_message_status_verified_watching-western-sahara: सत्यापित
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
