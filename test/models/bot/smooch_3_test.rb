@@ -950,6 +950,15 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
+  test "should save Smooch response error if the request to Smooch API fails" do
+    SmoochApi::ConversationApi.any_instance.stubs(:post_message).raises(SmoochApi::ApiError.new)
+    Bot::Smooch.stubs(:notify_error).returns(Airbrake::Promise.new)
+    response = Bot::Smooch.send_message_to_user(random_string, random_string)
+    assert !Bot::Smooch.save_smooch_response(response, create_project_media, Time.now, random_string)
+    SmoochApi::ConversationApi.any_instance.unstub(:post_message)
+    Bot::Smooch.unstub(:notify_error)
+  end
+
   protected
 
   def run_concurrent_requests

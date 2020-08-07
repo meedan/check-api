@@ -7,7 +7,7 @@ module ActiveRecordExtensions
     include CheckSettings
     include CheckCachedFields
 
-    attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache, :keep_file
+    attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache, :keep_file, :version_object
 
     before_save :check_ability
     before_destroy :check_destroy_ability, :destroy_annotations_and_versions, prepend: true
@@ -113,6 +113,15 @@ module ActiveRecordExtensions
   def cant_mutate_if_inactive
     if self.respond_to?(:inactive) && self.client_mutation_id && self.inactive
       raise I18n.t(:cant_mutate_inactive_object)
+    end
+  end
+
+  def save_with_version!
+    # https://github.com/paper-trail-gem/paper_trail/issues/215#issuecomment-21196200
+    transaction do
+      save!
+      self.version_object = Version.from_partition(self.team.id).where(item_type: self.class_name, item_id: self.id.to_s).last if self.class_name.constantize.paper_trail.enabled? && self.team
+      self
     end
   end
 end

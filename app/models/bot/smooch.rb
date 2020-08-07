@@ -721,6 +721,7 @@ class Bot::Smooch < BotUser
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
       e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
       self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
+      nil
     end
   end
 
@@ -970,7 +971,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
-    return if response.nil? || fallback_template.nil?
+    return false if response.nil? || fallback_template.nil?
     id = response&.message&.id
     Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end
