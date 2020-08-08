@@ -936,12 +936,14 @@ class Bot::Smooch < BotUser
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
-      workflow = self.get_workflow(lang)
-      message = workflow['smooch_message_smooch_bot_result_changed']
-      self.send_message_to_user(uid, message)
-      sleep 1
-      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    if subscribed_at.to_i < last_published_at.to_i
+      if ['publish', 'republish_and_resend'].include?(action)
+        workflow = self.get_workflow(lang)
+        message = workflow['smooch_message_smooch_bot_result_changed']
+        self.send_message_to_user(uid, message)
+        sleep 1
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+      end
     # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
