@@ -20,7 +20,7 @@ class GraphqlCrudOperations
       obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == 'test'
-    obj.save!
+    obj.save_with_version!
 
     name = obj.class_name.underscore
     { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, inputs, parents))
@@ -31,9 +31,10 @@ class GraphqlCrudOperations
     name = obj.class_name.underscore
     parents.each do |parent_name|
       child, parent = obj, obj.send(parent_name)
+      parent = obj.version_object if parent_name == 'version'
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'first_response_version', 'comment_version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -49,11 +50,9 @@ class GraphqlCrudOperations
       ret[:user] = User.current
     end
 
-    if [Comment, Task].include?(obj.class)
-      mapping = { 'Task' => 'first_response_version', 'Comment' => 'comment_version' }
-      method = mapping[obj.class_name]
-      version = obj.send(method)
-      ret["#{method}Edge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
+    if [Comment, Task, Dynamic].include?(obj.class)
+      version = obj.version_object
+      ret["versionEdge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
     end
 
     ret[:affectedId] = obj.graphql_id if obj.is_a?(ProjectMedia)
@@ -172,8 +171,7 @@ class GraphqlCrudOperations
         return_field(:user, UserType)
       end
 
-      version_edge_name = { 'task' => 'first_response', 'comment' => 'comment' }[type.to_s]
-      return_field("#{version_edge_name}_versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s)
+      return_field("versionEdge".to_sym, VersionType.edge_type) if ['task', 'comment'].include?(type.to_s) || type =~ /dynamic/
 
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
@@ -293,7 +291,6 @@ class GraphqlCrudOperations
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
       parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent)
-      parentclass = 'Version' if ['first_response_version', 'comment_version'].include?(parent)
       parentclass = 'TagText' if parent == 'tag_text_object'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end

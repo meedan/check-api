@@ -127,9 +127,10 @@ class Bot::Smooch < BotUser
       unless data.nil?
         obj = self.associated
         key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
-        slack_channel_url = Rails.cache.fetch(key) do
-          # Retrieve URL
-          get_slack_channel_url(obj, data)
+        slack_channel_url = Rails.cache.read(key)
+        if slack_channel_url.blank?
+          slack_channel_url = get_slack_channel_url(obj, data)
+          Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
         end
       end
       slack_channel_url
@@ -138,6 +139,7 @@ class Bot::Smooch < BotUser
     private
 
     def get_slack_channel_url(obj, data)
+      slack_channel_url = nil
       # Fetch project from Smooch Bot and fallback to obj.project_id
       pid = nil
       bot = BotUser.where(login: 'smooch').last
@@ -146,15 +148,13 @@ class Bot::Smooch < BotUser
       pid ||= obj.project_id
       smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
       .where("value_json ->> 'id' = ?", data['authorId'])
-      .joins("INNER JOIN annotations a ON a.annotation_type= dynamic_annotation_fields.annotation_type")
-      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).uniq
-      field_value = nil
-      smooch_user_data.each do |f|
-        slack_channel_url = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: f.annotation.id).last
-        field_value = slack_channel_url.value unless slack_channel_url.nil?
-        break unless field_value.nil?
+      .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
+      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
+      unless smooch_user_data.nil?
+        field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
+        slack_channel_url = field_value.value unless field_value.nil?
       end
-      field_value
+      slack_channel_url
     end
   end
 
@@ -721,6 +721,7 @@ class Bot::Smooch < BotUser
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
       e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
       self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
+      nil
     end
   end
 
@@ -865,8 +866,13 @@ class Bot::Smooch < BotUser
   def self.detect_media_type(message)
     type = nil
     begin
-      m_type = MimeMagic.by_magic(open(message['mediaUrl']))
-      type = m_type.type
+      headers = {}
+      url = URI(message['mediaUrl'])
+      Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+        headers = http.head(url.path).to_hash
+      end
+      m_type = headers['content-type'].first
+      type = m_type.split(';').first
       unless type.nil? || type == message['mediaType']
         Rails.logger.warn "[Smooch Bot] saved file #{message['mediaUrl']} as #{type} instead of #{message['mediaType']}"
       end
@@ -930,12 +936,14 @@ class Bot::Smooch < BotUser
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
-      workflow = self.get_workflow(lang)
-      message = workflow['smooch_message_smooch_bot_result_changed']
-      self.send_message_to_user(uid, message)
-      sleep 1
-      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    if subscribed_at.to_i < last_published_at.to_i
+      if ['publish', 'republish_and_resend'].include?(action)
+        workflow = self.get_workflow(lang)
+        message = workflow['smooch_message_smooch_bot_result_changed']
+        self.send_message_to_user(uid, message)
+        sleep 1
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+      end
     # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
@@ -965,7 +973,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
-    return if response.nil? || fallback_template.nil?
+    return false if response.nil? || fallback_template.nil?
     id = response&.message&.id
     Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end

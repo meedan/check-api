@@ -83,6 +83,10 @@
                                 "value": "<%= I18n.t(:team_rule_item_user_is) %>"
                               },
                               {
+                                "key": "item_is_read",
+                                "value": "<%= I18n.t(:team_rule_item_is_read) %>"
+                              },
+                              {
                                 "key": "title_matches_regexp",
                                 "value": "<%= I18n.t(:team_rule_title_matches_regexp) %>"
                               },

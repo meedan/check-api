@@ -1680,7 +1680,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media team: t, add_to_project_id: p.id
     create_project_media team: t, add_to_project_id: p1.id
     create_project_media team: t, archived: true, add_to_project_id: p.id
-    create_project_media team: t, inactive: true, add_to_project_id: p.id
     pm = create_project_media team: t, add_to_project_id: p1.id
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id
     create_project_media_project project_media: pm, project: p2

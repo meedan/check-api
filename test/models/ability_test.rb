@@ -2094,7 +2094,7 @@ class AbilityTest < ActiveSupport::TestCase
       queries = assert_queries do
         ProjectMedia.where(team_id: t.id).permissioned.permissioned.count
       end
-      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"team_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
+      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"team_id\" = $1 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
       assert_equal query, queries.first
     end
   end
@@ -2161,6 +2161,37 @@ class AbilityTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert JSON.parse(t.permissions)['restore ProjectMedia']
       assert JSON.parse(t.permissions)['update ProjectMedia']
+    end
+  end
+
+  test "permissions for project media user" do
+    t = create_team
+    u1 = create_user
+    u2 = create_user
+    pm = create_project_media
+    pmu1 = ProjectMediaUser.create! project_media: pm, user: u1, read: true
+    pmu2 = ProjectMediaUser.create! project_media: pm, user: u2, read: true
+    with_current_user_and_team(u1, t) do
+      ability = Ability.new
+      assert ability.can?(:create, pmu1)
+      assert ability.can?(:update, pmu1)
+      assert ability.can?(:destroy, pmu1)
+      assert ability.can?(:read, pmu1)
+      assert ability.cannot?(:create, pmu2)
+      assert ability.cannot?(:update, pmu2)
+      assert ability.cannot?(:destroy, pmu2)
+      assert ability.cannot?(:read, pmu2)
+    end
+    with_current_user_and_team(u2, t) do
+      ability = Ability.new
+      assert ability.cannot?(:create, pmu1)
+      assert ability.cannot?(:update, pmu1)
+      assert ability.cannot?(:destroy, pmu1)
+      assert ability.cannot?(:read, pmu1)
+      assert ability.can?(:create, pmu2)
+      assert ability.can?(:update, pmu2)
+      assert ability.can?(:destroy, pmu2)
+      assert ability.can?(:read, pmu2)
     end
   end
 end

@@ -176,12 +176,12 @@ class Task < ActiveRecord::Base
     @response
   end
 
-  def first_response_version
+  def version_object
     uid = User.current&.id
     @response ||= self.first_response_obj
-    return nil if @response.nil?
+    return @version_object if @response.nil?
     @field ||= @response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
-    return nil if @field.nil?
+    return @version_object if @field.nil?
     Version.from_partition(self.team&.id).where(whodunnit: uid, item_type: 'DynamicAnnotation::Field', item_id: @field.id.to_s).last
   end
 

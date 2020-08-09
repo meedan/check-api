@@ -650,10 +650,8 @@ class TeamTest < ActiveSupport::TestCase
       create_team_user user: u, team: t, role: 'owner'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
-      assert_equal 0, p.reload.project_medias.where(inactive: true).count
       with_current_user_and_team(u, t) do
        t.empty_trash = 1
-       assert_equal 3, p.reload.project_medias.where(inactive: true).count
       end
       assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
@@ -3019,5 +3017,79 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert_equal 'en', t.get_language
     assert_equal ['en'], t.get_languages
+  end
+
+  test "should match rule when item is read" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_is_read",
+                "rule_value": ""
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_user_is",
+                "rule_value": u2.id.to_s
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "send_to_trash",
+          "action_value": ""
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media team: t, user: u2
+    pm2 = create_project_media team: t, user: u2
+    pm3 = create_project_media user: u2
+    [pm1, pm2, pm3].each { |pm| pm.archived = false ; pm.save! }
+    ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
+    ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
+
+    assert !pm1.reload.archived
+    assert !pm2.reload.archived
+    assert !pm3.reload.archived
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
   end
 end

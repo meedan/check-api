@@ -30,6 +30,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :status, types.String, 'Workflow status'
   field :share_count, types.Int, 'Count of social shares'
   field :team_id, types.Int, 'Team this item is associated with (database id)'
+  field :is_read, types.Boolean, 'Has item been read?' do
+    argument :by_me, types.Boolean, 'Filter by current user'
+
+    resolve -> (project_media, args, _ctx) {
+      if args[:by_me]
+        !ProjectMediaUser.where(project_media_id: project_media.id, user_id: User.current&.id, read: true).last.nil?
+      else
+        project_media.read
+      end
+    }
+  end
 
   field :type, types.String, 'Item type'  do # TODO Delegate to Media
     resolve -> (project_media, _args, _ctx) {
@@ -83,6 +94,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   # TODO: Merge with :projects below
   field :project_media_project, ProjectMediaProjectType, 'Project associated with this item' do
     argument :project_id, !types.Int, 'Project to match'
+
     resolve -> (project_media, args, _ctx) {
       ProjectMediaProject.where(project_media_id: project_media.id, project_id: args['project_id']).last
     }
