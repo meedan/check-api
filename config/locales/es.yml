@@ -88,11 +88,12 @@ es:
       must_resolve_required_tasks_first: Las tareas requeridas deben resolverse primero
       image_too_large: Lo sentimos, no procesamos imágenes más grandes que %{max_size}.
       video_too_large: Lo sentimos, no procesamos vídeos más grandes que %{max_size}.
+      audio_too_large: Lo sentimos, no procesamos audios más grandes que %{max_size}.
       pender_conflict: Este enlace ya está siendo analizado. Por favor, intente de
         nuevo en unos segundos.
-      pender_url_invalid: Este enlace es inválido
+      pender_url_invalid: Este enlace es inválido.
       pender_url_unsafe: Este enlace no es seguro.
-      pender_could_not_parse: No se pudo analizar este enlace
+      pender_could_not_parse: No se pudo analizar este enlace.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
   activerecord:
@@ -180,7 +181,7 @@ es:
       task_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
       task_unassign: "%{user} (%{role} at %{team}) desasigno un %{type}"
       task_answer_create: "%{user} (%{role} at %{team}) respondió una Tarea"
-      task_answer_edit: "%{user} (%{role} at %{team}) editó la respuesta de la Tarea"
+      task_answer_edit: "%{user} (%{role} en %{team}) editó la respuesta de la Tarea"
       task_comment: "%{user} (%{role} at %{team}) agregó una nota a una Tarea"
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
@@ -195,10 +196,10 @@ es:
         %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
-      project_create: "%{user} (%{role} at %{team}) creó una Lista"
-      project_assign: "%{user} (%{role} at %{team}) asignó una Lista"
-      project_unassign: "%{user} (%{role} at %{team}) desasignó una Lista"
-      user_member: "%{user} unido al área de trabajo %{team}"
+      project_create: "%{user} (%{role} en %{team}) creó una Lista"
+      project_assign: "%{user} (%{role} en %{team}) asignó una Lista"
+      project_unassign: "%{user} (%{role} en %{team}) desasignó una Lista"
+      user_member: "%{user} se unió al área de trabajo %{team}"
       user_requested: "%{user} solicitó unirse al área de trabajo %{team}"
       user_invited: "%{user} fue invitado a unirse al área de trabajo %{team}"
       user_banned: "%{user}fue suspendido del área de trabajo %{team}"
@@ -227,9 +228,9 @@ es:
         are_you_sure_you_want_to_copy_team:
           html: "¿Estás seguro(a) que quieres copiar el área de trabajo <strong>%{team}</strong>?
             Todos los datos relacionados también serán copiados."
-        the_team_is_being_copied: El área de trabajo está siendo duplicado
+        the_team_is_being_copied: El área de trabajo está siendo copiado
         url_when_ready:
-          html: Cuando esté lista, la copia del área de trabajo estará disponible
+          html: Cuando esté listo(a), la copia del área de trabajo estará disponible
             en <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: El área de trabajo %{team} está siendo eliminado
@@ -246,11 +247,11 @@ es:
   oembed_disclaimer_in_progress: Este item está siendo verificado por %{team} desde
     %{date}
   oembed_disclaimer_verified: Este item ha sido determinado para ser verificado por  %{team}
-    em %{date}
+    en %{date}
   oembed_disclaimer_false: Este item ha sido determinado para ser falso por  %{team}
-    em %{date}
-  oembed_disclaimer_not_applicable: El área de trabajo %{team} no pudo llegar a ninguna
-    conclusión sobre la precisión de este medio, el %{date}
+    en %{date}
+  oembed_disclaimer_not_applicable: No se pudo llegar a ninguna conclusión sobre este
+    ítem por parte de %{team} a partir de%{date}
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
   role_owner: propietario
@@ -291,7 +292,7 @@ es:
     Lo sentimos, no puedes modificar las definiciones de estado porque algunos estados podrían perderse. Estos identificadores de estado: %{statuses} están en uso por los siguientes artículos:
     %{urls} %{others_amount}
   account_exists: Esta cuenta ya existe
-  media_exists: Este item ya existe
+  media_exists: Este ítem ya existe
   source_exists: Esta fuente ya existe
   email_exists: ya está en uso
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor
@@ -309,12 +310,12 @@ es:
         instruction_2: Si tu no has hecho esta solicitud, o estás teniendo dificultades
           para restablecer tu contraseña, ponte en contacto con nosotros %{support_email}
       invitation_instructions:
-        subject: "%{user} te invitou a unirse al área de trabajo %{team}"
+        subject: "%{user} te invitó a unirte al área de trabajo %{team}"
         hello: "¡Hola %{name}!"
         someone_invited_you_default:
-          html: "%{name}Te ha invitado a unirte al área de trabajo %{team} como %{role}."
+          html: "%{name}te ha invitado a unirte al área de trabajo %{team} como %{role}."
         someone_invited_you_custom:
-          html: "%{name}Te ha invitado a unirte al área de trabajo %{team} como %{role},
+          html: "%{name}te ha invitado a unirte al área de trabajo %{team} como %{role},
             diciendo:"
         accept: Aceptar invitación
         accept_until: Esta invitación expirará a las %{due_date}.
@@ -327,7 +328,7 @@ es:
     member: Este usuario ya es miembro.
     team_found: Área de trabajo no encontrada.
     invalid: Símbolo (token) de invitación es inválido.
-    no_invitation: No hay invitación para el área de trabajo %{name}
+    no_invitation: No existe invitación para el área de trabajo %{name}
   error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros
     de esta área de trabajo
   error_login_with_exists_account: Lo sentimos, hay otro usuario que ya está usando
@@ -387,7 +388,7 @@ es:
         csv: informe
         images: archivo de imágenes
       team_dump_text: 'Solicitaste descargar una captura de datos del área de trabajo
-        %{project} - aquí está el enlace de descarga: %{link}'
+        %{project} - aquí está el enlace para descargarla: %{link}'
       team_dump_button: Descargar los datos del área de trabajo
       decompress_text: El %{type} se descargará como un archivo comprimido y cifrado.
         Para descomprimirlo, usa esta contraseña %{password}.
@@ -399,9 +400,9 @@ es:
       project_export_title: Datos de la lista
       project_export_button: Descargar los datos de la lista
       project_export_csv_text: 'Solicitaste descargar un informe de la lista %{project}
-        - aquí está el enlace de descarga: %{link}'
+        - aquí está el enlace para descargarlo: %{link}'
       project_export_images_text: 'Solicitaste descargar el archivo de imágenes de
-        la lista %{project} - aquí está el enlace de descarga: %{link}'
+        la lista %{project} - aquí está el enlace para descargarlo: %{link}'
       team_import_subject: Tu importación de datos se ha completado
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}.
@@ -418,8 +419,8 @@ es:
       media_h: Ítem
     media_status:
       label: ítem
-      subject: "[%{team} - %{project}] El estado del item fue marcado como %{status}"
-      header_title: El estado del item ha sido actualizado
+      subject: "[%{team} - %{project}] El estado del ítem fue marcado como %{status}"
+      header_title: El estado del ítem ha sido actualizado
       header_text: " %{author} actualizó el estado de un ítem de la lista %{project}
         en %{team}."
       section_title: Marcado como %{status}.
@@ -442,8 +443,8 @@ es:
       assign_task_text: "%{author} asignó una tarea en la lista %{project} en %{team}."
       unassign_task_text: "%{author} desasignó una tarea de la lista %{project} en
         %{team}. "
-      assign_media_title: Ítem asignado
-      unassign_media_title: Ítem desasignado
+      assign_media_title: Ítem Asignado
+      unassign_media_title: Ítem Desasignado
       assign_media_text: "%{author} asignó un ítem de la lista %{project} en %{team}."
       unassign_media_text: "%{author} desasignó un ítem de la lista %{project} en
         %{team}. "
@@ -451,19 +452,19 @@ es:
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
-      project_button: Ir a la página de la lista.
+      project_button: Ir a la página de la lista
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo
       team_button: Ir a la página del área de trabajo.
       rejected_subject: Tu solicitud para unirte a %{team} no fue aprobada.
-      approved_subject: 'Bienvenida/Bienvenido a área de trabajo %{team} '
+      approved_subject: 'Bienvenido(a) al área de trabajo %{team} '
       request_title: Solicitar unirse a área de trabajo %{team}
       request_text: "%{name} (%{email}) quiere unirse a área de trabajo %{team} en
         %{app_name}. Puedes procesas esta solicitud visitando %{url}."
-      approved_title: 'Bienvenida/Bienvenido a área de trabajo %{team} '
-      approved_text: "¡Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue
-        aprobada. Puedes ir a %{url} y empezar a contribuir!"
+      approved_title: 'Bienvenido(a) al área de trabajo %{team} '
+      approved_text: Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue
+        aprobada. Puedes ir a %{url} y empezar a contribuir.
       rejected_title: Solicitud denegada
       rejected_text: Lo sentimos, pero tu solicitud para unirte a área de trabajo
         %{team} en %{app_name} no fue aprobada.
@@ -497,16 +498,12 @@ es:
     privace_manage_plain: Gestiona tus notificaciones de correo electrónico
     privacy_plain: Aprende más acerca de nuestras Políticas de Privacidad
   archive_keep_backup: Video Vault
-  archive_pender_archive: Capturas de pantalla
+  archive_pender_archive: Captura de pantalla
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Estado inválido
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar
     este estado.
-  blank_default_status_for_custom_verification_status: Por favor proporcione un valor
-    predeterminado para los estados de verificación personalizados
-  blank_active_status_for_custom_verification_status: Por favor proporcione un valor
-    activo para los estados de verificación personalizados
   bot_name_exists_for_this_team: Ya existe un bot con ese nombre en esta área de trabajo
   bot_team_id_doesnt_exist: Lo sentimos, no hay ninguna área de trabajo con el identificador
     proporcionado
@@ -521,7 +518,9 @@ es:
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
     directamente- por favor, envía una sugerencia de respuesta .
   bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
-  task_suggestion_invalid_value: Lo sentimos, el valor de la sugerencia no es válido
+  task_suggestion_invalid_value: Una sugerencia debe ser un hash JSON con los atributos
+    `sugerencia` (el valor real que se copia en la respuesta de la tarea cuando se
+    acepta) y` comentario` (se muestra a los usuarios)
   tag_text_id_not_found: Lo sentimos, no hay ninguna etiqueta con el identificador
     proporcionado
   annotation_type_language_label: Idioma
@@ -531,8 +530,7 @@ es:
     Intentaremos obtener un informe dentro de las 24 horas, pero ten en cuenta que no podemos responder a todas las solicitudes.
   smooch_bot_message_unconfirmed: 'Como no respondiste a la pregunta tecleando el
     número 1,  no procesaremos más tu solicitud. ¡Gracias! '
-  smooch_bot_message_type_unsupported: Lo sentimos, este tipo de formatos todavía
-    no los procesamos.
+  smooch_bot_message_type_unsupported: 'Lo sentimos, no procesamos este tipo de mensaje. '
   smooch_bot_message_size_unsupported: Lo sentimos, no procesamos archivos más grandes
     que %{max_size}.
   smooch_bot_result: |-
@@ -546,7 +544,7 @@ es:
   smooch_bot_ask_for_tos: |-
     ¡Gracias por comunicarse con Check Message!
 
-    Puede utilizar este servicio para solicitar la verificación de hechos e investigación de noticias e información. Check Message se proporciona bajo de estos términos de servicio: %{tos}. Al continuar utilizando este servicio, *usted acepta estar sujeto a estos términos*. Debe dejar de usar Check Message si no está de acuerdo.
+    Puede utilizar este servicio para solicitar la verificación de hechos, y la investigación de noticias e información. Check Message es proporcionado a usted bajo estos términos de servicio: %{tos}. Al continuar utilizando este servicio, *usted acepta estar sujeto a estos términos*. Debe dejar de usar Check Message si no está de acuerdo.
   smooch_bot_window_closing: "El volumen de solicitudes que hemos recibido en este
     canal es bastante alto y aún no hemos podido resolver tu solicitud. \nGracias
     por tu paciencia."
@@ -562,7 +560,7 @@ es:
       owner:
         description: Los propietarios controlan el espacio de trabajo.
       editor:
-        description: Los editores administran la área de trabajo y las listas.
+        description: Los editores administran el área de trabajo y las listas.
       journalist:
         description: Periodistas verificaron la información.
       contributor:
@@ -630,7 +628,7 @@ es:
     invalid_status: Estado inválido %{status}
     blank_user: Autor en blanco inválido
     blank_annotator: Anotación en blanco inválida
-    blank_project: Lista en blanco inválido
+    blank_project: Lista en blanco inválida
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
   cant_mutate_inactive_object: Lo sentimos, hay una operación pendiente para este
@@ -660,7 +658,8 @@ es:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Seleccionar condición
-  team_rule_has_less_than_x_words: La solicitud tiene menos de este número de palabras
+  team_rule_has_less_than_x_words: La solicitud tiene menos del siguiente número de
+    palabras
   team_rule_title_matches_regexp: El título del ítem coincide con esta expresión regular
   team_rule_request_matches_regexp: La solicitud coincide con esta expresión regular
   team_rule_type_is: El tipo de ítem es
@@ -674,12 +673,13 @@ es:
     palabras clave
   team_rule_select_type: Seleccionar tipo
   team_rule_select_language: 'Selecciona el idioma '
+  team_rule_select_user: Seleccionar usuario
   team_rule_tagged_as: Ítem etiquetado como
-  team_rule_select_tag: Seleccionar tag
+  team_rule_select_tag: Seleccionar etiqueta
   team_rule_select_status: Seleccionar estado
-  team_rule_status_is: El estado de ítem es
+  team_rule_status_is: El estado del ítem es
   team_rule_type_regexp: Escribe una expresión regular
-  team_rule_type_number: Ingrese la cantidad de palabras
+  team_rule_type_number: Ingrese el número de palabras
   team_rule_value: Escribe una lista de palabras clave separadas por comas
   team_rule_actions: Entonces
   team_rule_action: Entonces
@@ -687,7 +687,7 @@ es:
   team_rule_send_to_trash: Enviar a la papelera
   team_rule_move_to_project: Mover ítem a la lista
   team_rule_copy_to_project: Añadir ítem a la lista
-  team_rule_ban_submitter: Prohibir el remitente (sus mensajes futuros no aparecerán
+  team_rule_ban_submitter: Prohibir el remitente (sus futuros mensajes no aparecerán
     en Check)
   team_rule_all_items: Todos los ítems
   team_rule_send_message_to_user: Enviar mensaje al usuario
@@ -708,6 +708,7 @@ es:
   team_rule_json_schema_validation: El formato de las reglas no es válido
   team_rule_updated_at: Actualizada
   team_rule_item_language_is: El idioma de ítem es
+  team_rule_item_user_is: El ítem fue creado por
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -736,6 +737,7 @@ es:
     de códigos ISO 639-1.
   cant_change_status_if_item_is_published: Lo sentimos, no puede cambiar el estado
     mientras se publica el informe
+  fetch_bot_service_unsupported: Servicio no soportado
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -767,37 +769,43 @@ es:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
-  custom_message_status_undetermined_afp-fact-check: ''
+  custom_message_status_undetermined_afp-fact-check: Sin iniciar
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
-  custom_message_status_false_afp-fact-check: ''
+  custom_message_status_false_afp-fact-check: Falso
   custom_message_status_verified_afp-fact-check: ''
-  custom_message_status_misleading_afp-fact-check: ''
+  custom_message_status_misleading_afp-fact-check: Engañoso
   custom_message_status_report-misleading_afp-fact-check: ''
   custom_message_status_report-correct_afp-fact-check: ''
   custom_message_status_report-false_afp-fact-check: ''
   custom_message_status_need-orientation_afp-fact-check: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
-  custom_message_smooch_bot_result_changed_afp-fact-check: ''
+  custom_message_smooch_bot_result_changed_afp-fact-check: "❗️La verificación de datos
+    que le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
   custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Como no respondiste
+    con 1,  no continuaremos procesando tu solicitud. Gracias.
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
-  custom_message_smooch_bot_window_closing_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: Aquí hay un meme que creamos en base
+    al ítem que solicitaste que verifiquemos. Aprende más en%{url}.
+  custom_message_smooch_bot_window_closing_afp-fact-check: El volumen de solicitudes
+    en este canal es muy alto y aún no hemos podido resolver tu solicitud. Gracias
+    por tu paciencia.
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_greetings_afp-fact-check: ''
-  custom_message_smooch_bot_option_not_available_afp-fact-check: ''
+  custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Lo siento,
+    no entendí tu mensaje ¡Inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
-  custom_message_status_undetermined_africa-infodemic: ''
-  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_undetermined_africa-infodemic: Sin iniciar
+  custom_message_status_in_progress_africa-infodemic: En progreso
   custom_message_status_priority_unassigned_africa-infodemic: ''
   custom_message_status_priority_assigned_africa-infodemic: ''
   custom_message_status_rated_true_africa-infodemic: ''
@@ -805,18 +813,19 @@ es:
   custom_message_status_rated_misleading_africa-infodemic: ''
   custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
-  custom_message_status_false_boom-factcheck: ''
-  custom_message_status_not_applicable_boom-factcheck: ''
-  custom_message_status_misleading_boom-factcheck: ''
+  custom_message_status_false_boom-factcheck: Falso
+  custom_message_status_not_applicable_boom-factcheck: Inconcluso
+  custom_message_status_misleading_boom-factcheck: Engañoso
   custom_message_status_partly-true_boom-factcheck: ''
-  custom_message_status_undetermined_boom-factcheck: ''
+  custom_message_status_undetermined_boom-factcheck: Sin iniciar
   custom_message_status_in_progress_boom-factcheck: ''
   custom_message_status_out_of_scope_boom-factcheck: ''
   custom_message_status_in_the_news_boom-factcheck: ''
-  custom_message_status_junk_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: Basura
   custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_result_changed_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: "❗️La verificación de datos
+    que le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
@@ -825,60 +834,146 @@ es:
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_greetings_boom-factcheck: ''
-  custom_message_smooch_bot_option_not_available_boom-factcheck: ''
+  custom_message_smooch_bot_option_not_available_boom-factcheck: "\U0001F916Lo siento,
+    no entendí tu mensaje ¡Inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
-  custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_result_changed_caio: ''
-  custom_message_smooch_bot_message_confirmed_caio: ''
-  custom_message_smooch_bot_message_type_unsupported_caio: ''
-  custom_message_smooch_bot_disabled_caio: ''
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_status_undetermined_check-message-demo: ''
-  custom_message_status_in_progress_check-message-demo: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_unstarted_check-bot-garden: Sin iniciar
+  custom_message_smooch_bot_result_changed_caio: "❗️La verificación de datos que le
+    enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_caio: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_caio: 'Este servicio se proporciona bajo los
+    siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_caio: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Lo siento, no entendí
+    tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
+  custom_message_smooch_bot_result_changed_test-1: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_test-1: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_test-1: 'Este servicio se proporciona bajo
+    los siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_test-1: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Lo siento, no
+    entendí tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
+  custom_message_status_undetermined_check-message-demo: Sin iniciar
+  custom_message_status_in_progress_check-message-demo: En progreso
   custom_message_status_inconclusive_check-message-demo: ''
-  custom_message_status_false_check-message-demo: ''
+  custom_message_status_false_check-message-demo: Falso
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
-  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-true_check-message-demo: Engañoso
   custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: "❗️La verificación
+    de datos que le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: 'Como no respondiste
+    a la pregunta tecleando el número 1,  no procesaremos más tu solicitud. ¡Gracias! '
   custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: Hicimos este meme gracias a la
+    pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
+  custom_message_smooch_bot_window_closing_check-message-demo: "El volumen de solicitudes
+    que hemos recibido en este canal es bastante alto y aún no hemos podido resolver
+    tu solicitud. \nGracias por tu paciencia."
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
-  custom_message_smooch_bot_option_not_available_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Lo
+    siento, no entendí tu mensaje ¡Inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / oa mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *menú principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: "*Ingrese
+    la pregunta, el enlace, la imagen o el video que desea verificar*, seguido de
+    cualquier contexto o preguntas adicionales relacionadas con ese elemento. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *menú principal*"
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -921,12 +1016,12 @@ es:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: ''
-  custom_message_status_junk_checkpoint: ''
-  custom_message_status_undetermined_india-today: ''
+  custom_message_status_out_of_scope_checkpoint: Fuera de ámbito
+  custom_message_status_junk_checkpoint: Basura
+  custom_message_status_undetermined_india-today: Sin iniciar
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
-  custom_message_status_false_india-today: ''
+  custom_message_status_false_india-today: Falso
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
@@ -936,7 +1031,8 @@ es:
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
   custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: "❗️La verificación de datos
+    que le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_message_confirmed_india-today: ''
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
@@ -946,30 +1042,35 @@ es:
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: ''
+  custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Lo siento,
+    no entendí tu mensaje ¡Inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_status_false_infotagion: ''
-  custom_message_status_misleading_infotagion: ''
+  custom_message_status_false_infotagion: Falso
+  custom_message_status_misleading_infotagion: Engañoso
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
-  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_undetermined_africa-check: Sin iniciar
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
   custom_message_status_verified_africa-check: ''
   custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
+  custom_message_status_misleading_africa-check: Engañoso
   custom_message_status_inconclusive_africa-check: ''
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_result_changed_africa-check: "❗️La verificación de datos
+    que le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_message_confirmed_africa-check: ''
-  custom_message_smooch_bot_message_type_unsupported_africa-check: ''
+  custom_message_smooch_bot_message_type_unsupported_africa-check: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
   custom_message_smooch_bot_disabled_africa-check: ''
   custom_message_smooch_bot_ask_for_tos_africa-check: ''
   custom_message_smooch_bot_greetings_africa-check: ''
@@ -978,27 +1079,59 @@ es:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_lebanon: ''
-  custom_message_smooch_bot_message_confirmed_lebanon: ''
-  custom_message_smooch_bot_message_type_unsupported_lebanon: ''
-  custom_message_smooch_bot_disabled_lebanon: ''
-  custom_message_smooch_bot_ask_for_tos_lebanon: ''
-  custom_message_smooch_bot_greetings_lebanon: ''
-  custom_message_smooch_bot_option_not_available_lebanon: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: ''
+  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_smooch_bot_result_changed_lebanon: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_lebanon: "¡Gracias! Su solicitud ha
+    sido recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_lebanon: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_lebanon: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_lebanon: 'Este servicio se proporciona bajo
+    los siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_lebanon: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916Lo siento, no
+    entendí tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: "*Por
+    favor ingrese la pregunta, el enlace, la imagen o el video que desea verificar*,
+    seguido de cualquier contexto o preguntas adicionales relacionadas con ese ítem.
+    Su solicitud se enviará a los verificadores de hechos aproximadamente 30 segundos
+    después de que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)*
+    para volver al *Menú Principal*"
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mantis-8305: ''
-  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: En progreso
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
   custom_message_status_urgent_mmtan: ''
-  custom_message_status_all_items_mmtan: ''
-  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_all_items_mmtan: Todos los ítems
+  custom_message_status_unstarted_mmtan-2: Sin iniciar
   custom_message_status_d-progress_mmtan-2: ''
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
@@ -1007,19 +1140,32 @@ es:
   custom_message_status_standard_mtan: ''
   custom_message_status_moderate_mtan: ''
   custom_message_status_urgent_mtan: ''
-  custom_message_status_all_items_mtan: ''
+  custom_message_status_all_items_mtan: Todos los ítems
   custom_message_status_resources_mtan: ''
   custom_message_status_true_mtan: ''
-  custom_message_status_false_mtan: ''
-  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_status_false_mtan: Falso
+  custom_message_smooch_bot_result_changed_mtan: "❗️La verificación de datos que le
+    enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_message_confirmed_mtan: ''
   custom_message_smooch_bot_message_type_unsupported_mtan: ''
-  custom_message_smooch_bot_disabled_mtan: ''
-  custom_message_smooch_bot_ask_for_tos_mtan: ''
+  custom_message_smooch_bot_disabled_mtan: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_mtan: 'Este servicio se proporciona bajo los
+    siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_mtan: ''
-  custom_message_smooch_bot_option_not_available_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Lo siento, no entendí
+    tu mensaje ¡Inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / oa mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *menú principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
   custom_message_status_verified_newtestteam02: ''
   custom_message_status_false_newtestteam02: ''
@@ -1033,70 +1179,240 @@ es:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
-  custom_message_smooch_bot_result_changed_sawy: ''
-  custom_message_smooch_bot_message_confirmed_sawy: ''
-  custom_message_smooch_bot_message_type_unsupported_sawy: ''
-  custom_message_smooch_bot_disabled_sawy: ''
-  custom_message_smooch_bot_ask_for_tos_sawy: ''
-  custom_message_smooch_bot_greetings_sawy: ''
-  custom_message_smooch_bot_option_not_available_sawy: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_result_changed_sawy: "❗️La verificación de datos que le
+    enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_sawy: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_sawy: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_sawy: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_sawy: 'Este servicio se proporciona bajo los
+    siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_sawy: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Lo siento, no entendí
+    tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
-  custom_message_smooch_bot_result_changed_team-1: ''
-  custom_message_smooch_bot_message_confirmed_team-1: ''
-  custom_message_smooch_bot_message_type_unsupported_team-1: ''
-  custom_message_smooch_bot_disabled_team-1: ''
-  custom_message_smooch_bot_ask_for_tos_team-1: ''
+  custom_message_smooch_bot_result_changed_team-1: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_team-1: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_team-1: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_team-1: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_team-1: 'Este servicio se proporciona bajo
+    los siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_team-1: ''
   custom_message_smooch_bot_option_not_available_team-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test: ''
-  custom_message_smooch_bot_message_confirmed_test: ''
-  custom_message_smooch_bot_message_type_unsupported_test: ''
-  custom_message_smooch_bot_disabled_test: ''
-  custom_message_smooch_bot_ask_for_tos_test: ''
-  custom_message_smooch_bot_greetings_test: ''
-  custom_message_smooch_bot_option_not_available_test: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
+  custom_message_smooch_bot_result_changed_test: "❗️La verificación de datos que le
+    enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_test: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_test: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_test: 'Este servicio se proporciona bajo los
+    siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_test: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_test: "\U0001F916Lo siento, no entendí
+    tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: ''
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_test-3: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [Enlace a una página de verificación
+    de hechos en su sitio web]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *menú principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-3: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_test-3: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: ''
-  custom_message_smooch_bot_option_not_available_test-3: ''
-  custom_message_smooch_bot_result_changed_test-16: ''
-  custom_message_smooch_bot_message_confirmed_test-16: ''
-  custom_message_smooch_bot_message_type_unsupported_test-16: ''
-  custom_message_smooch_bot_disabled_test-16: ''
-  custom_message_smooch_bot_ask_for_tos_test-16: ''
+  custom_message_smooch_bot_greetings_test-3: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Lo siento, no
+    entendí tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_result_changed_test-16: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_test-16: "¡Gracias! Su solicitud ha
+    sido recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [Enlace a una página de verificación
+    de hechos en su sitio web]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *menú principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-16: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_test-16: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_test-16: 'Este servicio se proporciona bajo
+    los siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_test-16: ''
-  custom_message_smooch_bot_option_not_available_test-16: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_result_changed_test-2: ''
-  custom_message_smooch_bot_message_confirmed_test-2: ''
-  custom_message_smooch_bot_message_type_unsupported_test-2: ''
-  custom_message_smooch_bot_disabled_test-2: ''
-  custom_message_smooch_bot_ask_for_tos_test-2: ''
-  custom_message_smooch_bot_greetings_test-2: ''
-  custom_message_smooch_bot_option_not_available_test-2: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916Lo siento, no
+    entendí tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: "\U0001F4CC*Menú
+    principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / oa mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *menú principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: "*Ingrese
+    la pregunta, el enlace, la imagen o el video que desea verificar*, seguido de
+    cualquier contexto o preguntas adicionales relacionadas con ese elemento. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *menú principal*"
+  custom_message_smooch_bot_result_changed_test-2: "❗️La verificación de datos que
+    le enviamos se ha *actualizado* con nueva información:"
+  custom_message_smooch_bot_message_confirmed_test-2: "¡Gracias! Su solicitud ha sido
+    recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
+    para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
+    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
+    al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-2: |-
+    ❌Lo sentimos, no podemos aceptar este tipo de mensaje para verificación en este momento.
+
+    Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
+  custom_message_smooch_bot_disabled_test-2: |-
+    ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
+
+    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+  custom_message_smooch_bot_ask_for_tos_test-2: 'Este servicio se proporciona bajo
+    los siguientes Términos de Servicio: %{tos}'
+  custom_message_smooch_bot_greetings_test-2: "¡Hola! Bienvenido al bot de verificación
+    de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
+    relacionadas con temas como política, salud, finanzas y tecnología."
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Lo siento, no
+    entendí tu mensaje ¡Inténtalo de nuevo!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: "\U0001F4CC*Menú
+    Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
+    de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: "*Información
+    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    con cualquiera de los siguientes números (o emoji) para obtener información sobre
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
+    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: "*Por favor
+    ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
+    de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
+    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
+    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
+    al *Menú Principal*"
   custom_message_status_factchecked_test-2: ''
   custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
@@ -1110,9 +1426,11 @@ es:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
-  custom_message_status_undetermined_watching-western-sahara: ''
-  custom_message_status_in_progress_watching-western-sahara: ''
-  custom_message_status_inconclusive_watching-western-sahara: ''
-  custom_message_status_false_watching-western-sahara: ''
-  custom_message_status_verified_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: Sin iniciar
+  custom_message_status_in_progress_watching-western-sahara: En progreso
+  custom_message_status_inconclusive_watching-western-sahara: Inconcluso
+  custom_message_status_false_watching-western-sahara: Falso
+  custom_message_status_verified_watching-western-sahara: Verificado
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''

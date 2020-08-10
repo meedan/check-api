@@ -20,7 +20,7 @@ fil:
         description: Default, kadaragdag pa lang, wala pang nasisimulang gawain
       not_applicable:
         label: Hindi konklusibo
-        description: Hindi maaaring makabuo ng konklusyon sa nakahandang ebidensya
+        description: Walang mabuong konklusyon gamit ang nakahandang ebidensya
       in_progress:
         label: Kasalukuyang Ginagawa
         description: Nasimulan na ang gawain, pero wala pang nagagawang pagsasalin
@@ -31,28 +31,28 @@ fil:
         label: Beripikado
         description: 'Konklusyon: beripikado ang nilalaman ng item'
       pending:
-        label: Hindi pa tapos
+        label: Nakabinbin
         description: Default, kadaragdag pa lang, wala pang nasisimulang gawain
       translated:
         label: Naisalin na
         description: Tapos na ang pagsasalin, hinihintay ang pagsusuri
       ready:
         label: Handa na
-        description: Nasuri na ang pagsasalin at inaprubahan na para sa paglalathala
+        description: Nasuri na ang pagsasalin at inaprubahan para sa paglalathala
       error:
         label: Error
       'false':
-        description: 'Konklusyon: mali ang nilalaman ng item'
+        description: 'Konklusyon: hindi totoo ang nilalaman ng item'
       inconclusive:
         label: Hindi konklusibo
       misleading:
         label: Mapanlinlang
       disputed:
-        label: Pinagtatalo
+        label: Pinagtatalunan
       out_of_scope:
         label: Labas sa Saklaw
       junk:
-        label: Hindi magagamit
+        label: Junk
       unstarted:
         label: Hindi pa nasisimulan
         description: Default, kadaragdag pa lamang, wala pang nasisimulang gawain
@@ -82,22 +82,25 @@ fil:
         pixels
       mini_magick_processing_error: 'Paumanhin, hindi namin ma-proseso ang larawan.
         Ito ang error: %{e}'
-      annotation_mandatory_fields: Mangyaring itakda ang lahat ng kinakailangang parang
+      annotation_mandatory_fields: 'Mangyaring itakda ang lahat ng kinakailangan na
+        field. '
       annotation_type_does_not_exist: hindi umiiral
       invalid_attribution: Hindi wastong atribusyon
       must_resolve_required_tasks_first: Dapat munang malutas ang mga kinakailangang
         gawain
-      image_too_large: Paumanhin, hindi namin sinusuportahan ang mga larawang higit
-        sa %{max_size}
-      video_too_large: Paumanhin, hindi namin sinusuportahan ang mga video na higit
-        sa %{max_size}
+      image_too_large: Paumanhin, hindi namin suportado ang mga larawang higit sa
+        %{max_size}
+      video_too_large: Paumanhin, hindi namin suportado ang mga video na higit sa
+        %{max_size}
+      audio_too_large: Paumanhin, hindi namin suportado ang mga audio file na higit
+        sa %{max_size}.
       pender_conflict: Kasalukuyan nang pina-parse ang link. Mangyaring sumubok muli
         pagkatapos ng ilang segundo.
       pender_url_invalid: Hindi wasto ang link na ito.
       pender_url_unsafe: Hindi ligtas ang link na ito.
       pender_could_not_parse: Hindi ma-parse ang link na ito.
       invalid_format_for_languages: Hindi wasto ang format ng mga wika. Ang inaasahan
-        ay `['en', 'ar', ...]`
+        ay `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -143,31 +146,31 @@ fil:
         team:
           attributes:
             slug:
-              slug_format: tumatanggap lang ng titik, bilang, at gitling
+              slug_format: tumatanggap lang ng titik, numero, at gitling
       messages:
-        record_invalid: 'Nag-fail ang pagpapatunay: %{errors}'
+        record_invalid: 'Nabigo ang pagpapatunay: %{errors}'
         improbable_phone: ay hindi wastong numero
         too_short:
           one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
           other: ay masyadong maikli (hindi bababa sa %{count} karakter)
   slack_webhook_format_wrong: Hindi wasto ang Slack webhook, ang format dapat ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: ay nakareserba na
-  invalid_media_item: Paumanhin, hindi ito valid item
+  invalid_media_item: Paumanhin, hindi ito wastong item
   invalid_default_status_for_custom_verification_status: Hindi wasto ang default na
     status identifier
   invalid_active_status_for_custom_verification_status: Hindi wasto ang active status
     identifier
-  invalid_label_for_custom_verification_status: Kinakailangan ang status label
+  invalid_label_for_custom_verification_status: Kinakailangan ang label ng status
   invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at
-    ang nilalaman lang dapat ito ay mga maliiit na titik, bilang, gitling, at salungguhit
+    ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
   invalid_statuses_format_for_custom_verification_status: 'Ang mga custom verification
-    status, dapat may mga wastong entry para sa: label, identifier, deskripsyon, at
-    istilo'
+    status ay kailangang may mga wastong entry para sa: label, identifier, pagkakalarawan,
+    at istilo'
   mail_account_confirmation: Pagkumpirma ng account sa %{app_name}
   slack:
     fields:
       assigned: Itinalaga kay
-      unassigned: Inalis mula sa pagkakatalaga kay
+      unassigned: Inalis sa pagkakatalaga kay
       project: Listahan
       source: Source
       status: Status
@@ -181,8 +184,9 @@ fil:
       task_create: Nagdagdag si %{user} (%{role} sa %{team}) ng Gawain
       task_edit: Nag-edit si %{user} (%{role} sa %{team}) ng gawain
       task_assign: 'Nagtalaga si %{user} (%{role} sa %{team}) ng %{type} '
-      task_unassign: Nag-alis si %{user} (%{role} sa %{team}) ng %{type} mula sa pagkakatalaga
-      task_answer_create: Sumagot si %{user} (%{role} sa %{team}) ng isang Gawain
+      task_unassign: 'Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga ng
+        %{type} '
+      task_answer_create: Sinagutan ni %{user} (%{role} sa %{team}) ang isang Gawain
       task_answer_edit: Nag-edit si %{user} (%{role} sa %{team}) ng sagot sa isang
         Gawain
       task_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa isang Gawain
@@ -192,28 +196,28 @@ fil:
       project_media_create_related: Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay
         na %{type}
       project_media_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
-      project_media_status: Iniba ni %{user} (%{role} sa %{team}) ang %{workflow}
+      project_media_status: Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow}
         status ng isang %{type}
       project_media_assign: Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}
-      project_media_unassign: Inalis ni %{user} (%{role} sa %{team}) ang %{type} mula
-        sa pagkakatalaga
+      project_media_unassign: 'Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga
+        ng %{type} '
       project_source_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
-        isang %{parent_type}
+        %{parent_type}
       project_source_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
       project_source_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
       project_create: Gumawa si %{user} (%{role} sa %{team}) ng Listahan
       project_assign: Nagtalaga si %{user} (%{role} ng %{team}) ng Listahan
-      project_unassign: Nag-alis si %{user} (%{role} ng %{team}) ng Listahan mula
-        sa pagkakatalaga
+      project_unassign: Inalis ni %{user} (%{role} ng %{team}) ang pagkakatalaga ng
+        Listahan
       user_member: Sumali si %{user} sa workspace na %{team}
       user_requested: Humiling si %{user} na sumali sa workspace na %{team}
       user_invited: Inanyayahan si %{user} na sumali sa workspace na %{team}
-      user_banned: Na-ban si %{user} mula sa workspace na %{team}
+      user_banned: Ipinagbawal si %{user} sa workspace na %{team}
   mail_view_welcome: Maligayang pagdating sa %{app_name}
-  mail_view_register: 'Isang hakbang ka na lang mula sa paggamit ng %{app_name}! Mangyaring
+  mail_view_register: 'Isang hakbang na lang at magagamit mo na ang %{app_name}! Mangyaring
     kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
-  mail_confirm_button: Kumpirmahin ang account ko
-  slack_restricted_join_to_members: 'Paumanhin, hindi ka maaaring sumali sa %{team_name}dahil
+  mail_confirm_button: Kumpirmahin ang aking account
+  slack_restricted_join_to_members: 'Paumanhin, hindi ka pwedeng sumali sa %{team_name}dahil
     mga miyembro lang ng Slack workspace(s) na %{teams} ang makakasali rito.  '
   admin:
     actions:
@@ -222,18 +226,18 @@ fil:
       export_project:
         menu: I-export ang datos
       export_images:
-        menu: I-export ang larawan
+        menu: I-export ang mga larawan
       delete_tasks:
         done: binura ang mga gawain
         are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Sigurado ka bang nais mong burahin ang lahat ng gawain sa workspace
-            na <strong>%{team}</strong>? Tatanggalin ang mga sumusunod na gawain:'
+          html: 'Sigurado ka bang gusto mong burahin ang lahat ng gawain sa workspace
+            na <strong>%{team}</strong>? Tatanggalin ang sumusunod na mga gawain:'
       duplicate_team:
         menu: I-duplicate ang workspace
         done: kinopya
         are_you_sure_you_want_to_copy_team:
-          html: Sigurado ka bang nais mong kopyahin ang lahat ng gawain sa workspace
-            na <strong>%{team}</strong>? Kokopyahin din ang lahat ng kaugnay na datos.
+          html: Sigurado ka bang nais mong kopyahin ang workspace na <strong>%{team}</strong>?
+            Kokopyahin din ang lahat ng kaugnay na datos.
         the_team_is_being_copied: Kasalukuyan nang kinokopya ang workspace
         url_when_ready:
           html: Kapag handa na, makikita ang kopya ng workspace sa <strong>%{copy_url}</strong>
@@ -247,13 +251,14 @@ fil:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
-  oembed_disclaimer_undetermined: Hindi pa nabeberipika ni %{team} ang item na ito
-  oembed_disclaimer_in_progress: Ang item na ito ay bineberipika pa ni %{team} nitong
+  oembed_disclaimer_undetermined: Hindi pa nabeberipika ng %{team} ang item na ito
+  oembed_disclaimer_in_progress: Ang item na ito ay bineberipika ng %{team} nitong
     %{date}
-  oembed_disclaimer_verified: Ang item na ito ay natukoy na beripikado ni %{team}
+  oembed_disclaimer_verified: Ang item na ito ay natukoy na beripikado ng %{team}
     noong %{date}
-  oembed_disclaimer_false: Ang item na ito ay natukoy na mali ni %{team} noong %{date}
-  oembed_disclaimer_not_applicable: Walang maabot na konklusyon si %{team} tungkol
+  oembed_disclaimer_false: Ang item na ito ay natukoy na hindi totoo ng %{team} noong
+    %{date}
+  oembed_disclaimer_not_applicable: Walang narating na konklusyon ang %{team} tungkol
     sa item na ito nitong %{date}
   oembed_source_date: "%{date} sa %{provider}"
   role_editor: tagapag-edit
@@ -270,8 +275,8 @@ fil:
   oembed_completed_tasks_count:
     one: Isang nakumpletong gawain
     other: "%{count} nakumpletong gawain"
-  oembed_verification_tasks: Gawain
-  oembed_tasks: Mga gawain
+  oembed_verification_tasks: Mga Gawain
+  oembed_tasks: Mga Gawain
   oembed_translations: Mga pagsasalin
   oembed_expand_all: Palawakin lahat
   oembed_collapse_all: I-collapse lahat
@@ -279,35 +284,33 @@ fil:
     one: Isang gawaing naresolba
     other: "%{count} nalutas na gawain"
   oembed_notes: Mga note
-  duplicate_source: Naririto ang source
+  duplicate_source: Dati na ang source na ito
   geolocation_invalid_value: Ang lokasyon ay dapat magkaroon ng wastong GeoJSON (http://geojson.org/)
   datetime_invalid_date: Mangyaring magbigay ng wastong petsa
-  error_team_archived: Paumanhin, hindi maaaring magdagdag ng listahan sa binasurang
+  error_team_archived: Paumanhin, hindi pwede magdagdag ng listahan sa binasurang
     workspace
-  error_project_archived: Paumanhin, hindi maaaring magdagdag ng item sa binasurang
-    listahan
-  error_team_archived_for_source: Paumanhin, hindi maaaring magdagdag ng source sa
-    binasurang workspace
-  permission_error: Paumanhin, hindi ka pinahihintulutang magsagawa ng operasyong
-    ito
-  error_annotated_archived: Paumanhin, hindi maaaring magdagdag ng note sa binasurang
+  error_project_archived: Paumanhin, hindi pwede magdagdag ng item sa binasurang listahan
+  error_team_archived_for_source: Paumanhin, hindi pwede magdagdag ng source sa binasurang
+    workspace
+  permission_error: Paumanhin, hindi ka pinahihintulutang gawin ang operasyon na ito
+  error_annotated_archived: Paumanhin, hindi pwede magdagdag ng note sa binasurang
     item
-  only_super_admin_can_do_this: Paumanhin, mga system administrator lang ang maaaring
+  only_super_admin_can_do_this: Paumanhin, mga system administrator lang ang pwedeng
     gumawa ng pagbabagong ito
   cant_change_custom_statuses: |-
-    Paumanhin, hindi mo maaaring baguhin ang status definitions dahil mawawala ang ibang status. Ang mga status identifier na ito: %{statuses} ay ginagamit ng mga sumusunod na item:
+    Paumanhin, hindi mo pwedeng baguhin ang status definitions dahil mawawala ang ibang status. Ang mga status identifier na ito: %{statuses} ay ginagamit ng mga sumusunod na item:
     %{urls} %{others_amount}
   account_exists: Dati na ang account na ito
   media_exists: Dati na ang item na ito
   source_exists: Dati na ang source na ito
   email_exists: ay nakuha na
-  banned_user: 'Paumanhin, na-ban ang iyong account mula sa %{app_name}. Mangyaring
+  banned_user: 'Paumanhin, pinagbawal ang iyong account sa %{app_name}. Mangyaring
     makipag-ugnay sa support team kung sa tingin mo ay isa itong pagkakamali. '
   devise:
     mailer:
       reset_password_instructions:
         subject: Mga panuto sa pag-reset ng password sa %{app_name}
-        header_title: Kahilingan para sa pag-reset ng password
+        header_title: Kahilingan para i-reset ang password
         header_text: Natanggap namin ang iyong kahilingang i-reset ang iyong password
           sa %{app_name}.
         action: I-reset ang iyong password
@@ -325,9 +328,9 @@ fil:
           html: 'Inanyayahan ka ni %{name} sa workspace na %{team} bilang %{role},
             at nagsasabing:'
         accept: Tanggapin ang paanyaya
-        accept_until: Ang paanyayang ito ay lilipas sa %{due_date}.
-        ignore: Kung ayaw mong tanggapin ang paanyayang ito, mangyaring huwag pansinin
-          ang email na ito.
+        accept_until: Lilipas ang paanyayang ito sa %{due_date}.
+        ignore: Kung ayaw mong tanggapin ang paanyaya, mangyaring huwag pansinin ang
+          email na ito.
         app_team: Workspace ng %{app}
     failure:
       unconfirmed: Mangyaring tingnan ang iyong email para maberipika ang iyong account.
@@ -335,9 +338,9 @@ fil:
     invited: Naanyayahan na ang user sa workspace na ito.
     member: Miyembro na ang user na ito.
     team_found: Hindi matagpuan ang workspace.
-    invalid: Hindi wastong invitation token.
+    invalid: Hindi wastong token ng paanyaya.
     no_invitation: Wala pang paanyaya para sa workspace na %{name}
-  error_user_is_not_a_team_member: Paumanhin, maaari ka lamang magtalaga sa mga miyembro
+  error_user_is_not_a_team_member: Paumanhin, pwede ka lang magtalaga sa mga miyembro
     nitong workspace
   error_login_with_exists_account: Paumanhin, may ibang user nang gumagamit ng account
     na ito
@@ -357,148 +360,147 @@ fil:
       header_text: |-
         Matagumpay kang nakapag-sign-up sa %{app_name}!
         <br>
-        Para makapag-login sa site, sundan lang ang link na ito: %{url}. Ilagay itong email address at itong password: %{password}.
+        Para makapag-login sa site, sundan ang link na ito: %{url}. Ilagay ang email address at password na ito: %{password}.
       login_button: Mag-login sa %{app_name}
       footer_text: Salamat sa pagsali at magandang araw sa iyo!
     duplicated:
-      subject: Ang iyong lpamamaraan ng pag-login sa %{app_name}
+      subject: Ang iyong paraan ng pag-login sa %{app_name}
       header_title: Duplicate Account
       one_email: |-
-        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login mo sa %{app_name}.</p>
+        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
         <p>Ang nangyari: Sinubukan mong mag-sign in sa %{app_name} gamit ang %{user_provider}-based account na naka-link sa %{user_email}.
         Pero ang email address na ito ay nakaugnay na sa isang %{duplicate_provider}-based account sa %{app_name}.</p>
         <p>Ang susunod na gagawin: Mag-sign in gamit ang %{duplicate_provider}.</p>
-        <p>Matapos ito, mala-login ka sa account na ginagamit mo noon.
+        <p>Matapos ito, malo-login ka sa account na ginagamit mo noon.
         Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
       both_emails: |-
-        <p>Isa lamang itong paalala para matulungan kang siguruhin ang pag-login mo sa %{app_name}.</p>
+        <p>Isa lamang itong paalala para matulungan kang masiguro ang pag-login sa %{app_name}.</p>
         <p>Ang nangyari: Sinubukan mong gumawa ng bagong email- based account sa %{app_name}, pero dati na ang account na ito.</p>
         <p>Subukan mong mag-sign in gamit ang iyong email at password, sa halip na gumawa ng panibagong account.</p>
-        <p>Matapos ito, mala-login ka sa account na ginagamit mo noon. Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
+        <p>Matapos ito, malo-login ka sa account na ginagamit mo noon. Kung kailangan mo ng karagdagang tulong, mangyaring mag-email sa %{support_email}.</p>
       email: email
     invitation:
       title: Bagong Paanyaya
     delete_user:
       subject: "[%{team}] May user na binura"
       header_title: Binura ang User
-      header_text: May user account na binura at nilipat ang pagkakatalaga ng nilalaman
+      header_text: May binurang user account at nilipat ang pagkakatalaga ng nilalaman
         nito sa %{anonymous} user %{id}
       anonymous: anonymous
     admin_mailer:
       team_download_subject: "[%{team}] Handa nang ma-download ang workspace data
         snapshot"
-      team_dump_title: Data ng Workspace
+      team_dump_title: Datos ng Workspace
       types:
-        dump: snapshot ng datos
+        dump: data snapshot
         csv: ulat
-        images: arkibo ng larawan
+        images: artsibo ng mga larawan
       team_dump_text: 'Humingi ka ng data snapshot para sa workspace na %{team} -
         narito ang link para ma-download ito: %{link}'
       team_dump_button: I-download ang datos ng workspace
       decompress_text: Ang %{type} ay mada-download bilang compressed at encrypted
         na file. Para ma-decompress ito, mangyaring gamitin ang password na %{password}.
-      expire_note: Mangyaring tandaang mage-expire ang link na ito sa loob ng %{days}
-        araw.
+      expire_note: Pakitandaan na lilipas ang link na ito sa loob ng %{days} araw.
       project_export_csv_subject: "[%{team} - %{project}] Handa nang ma-download ang
-        list report"
+        ulat ng listahan"
       project_export_images_subject: "[%{team} - %{project}] Handa nang ma-download
-        ang arkibo ng larawan ng listahan"
+        ang artsibo ng mga larawan ng listahan"
       project_export_title: Datos ng Listahan
       project_export_button: I-download ang datos ng listahan
       project_export_csv_text: 'Humingi ka ng ulat para sa listahang %{project} -
         narito ang link para ma-download ito: %{link}'
-      project_export_images_text: 'Humingi ka ng arkibo ng larawan para sa listahang
+      project_export_images_text: 'Humingi ka ng artsibo ng mga larawan para sa listahang
         %{project} - narito ang link para ma-download ito: %{link}'
-      team_import_subject: Natapos na ang pag-angkat mo ng datos
+      team_import_subject: Nakumpleto ang iyong pag-angkat ng datos
       team_import_title: Pag-angkat ng Datos
-      team_import_text: "<p>Natapos na ang iyong gawaing pag-angkat ng datos papasok
-        sa %{app_name}. Maaari mong matingnan ang %{worksheet_url} para masuri ang
-        status ng bawat aangkating item. Tandaang maaari mong ulitin ang pag-aangkat
-        pagkatapos mong maayos ang anumang mga pagkakamaling naka-ulat doon - hindi
-        madu-duplicate ang mga item na nauna nang inangkat."
+      team_import_text: "<p>Natapos na ang iyong pag-angkat ng datos papasok sa %{app_name}.
+        Pwede mo itong makita sa %{worksheet_url} para masuri ang status ng bawat
+        item na iaangkat. Pakitandaan na pwede mong ulitin ang pag-aangkat pagkatapos
+        mong maayos ang anumang mga pagkakamaling naka-ulat doon - hindi madu-duplicate
+        ang mga item na nauna nang inangkat."
     task_resolved:
-      subject: "[%{team} - %{project}] Nasagutang Gawain"
-      header_title: Nasagutang Gawain
-      header_text: Sumagot si %{author} ng isang gawain sa listahang %{project} sa
-        %{team}.
-      section_title: Sino o ano ang pinagkunan ng item?
+      subject: "[%{team} - %{project}] Nasagutan ang Gawain"
+      header_title: Nasagutan ang Gawain
+      header_text: Sinagutan ni %{author} ang isang gawain sa listahang %{project}
+        sa %{team}.
+      section_title: Sino o ano ang source ng item?
       status: Status
       media_h: Item
     media_status:
       label: item
-      subject: "[%{team} - %{project}] May item status na minarkahan bilang %{status}"
-      header_title: Naka-update ang Item Status
+      subject: "[%{team} - %{project}] May status ng item na minarkahan bilang %{status}"
+      header_title: Na-update ang Status ng Item
       header_text: In-update ni %{author} ang status ng isang item sa listahang %{project}
         sa %{team}.
       section_title: Minarkahan bilang %{status}.
       added_to: Idinagdag sa %{app_name}
       update_h: Huling Update
-      tasks_h: Mga Natapos na Gawain
+      tasks_h: Mga Nakumpletong Gawain
     assignment:
       assign_task_subject: "[%{team} - %{project}] May gawaing itinalaga sa iyo"
-      unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis mula sa pagkakatalaga
+      unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis ang pagkakatalaga
         sa iyo"
       assign_project_subject: "[%{team} - %{project}] May listahang itinalaga sa iyo"
-      unassign_project_subject: "[%{team} - %{project}] May listahang inalis sa pagkakatalaga
-        mula sa iyo"
+      unassign_project_subject: "[%{team} - %{project}] May listahan na inalis ang
+        pagkakatalaga sa iyo"
       assign_media_subject: "[%{team} - %{project}] May item na itinalaga sa iyo"
-      unassign_media_subject: "[%{team} - %{project}] May item na inalis sa pagkakatalaga
-        mula sa iyo"
+      unassign_media_subject: "[%{team} - %{project}] May item na inalis ang pagkakatalaga
+        sa iyo"
       assign_project_title: Listahang Nakatalaga
       unassign_project_title: Listahang Inalis sa Pagkakatalaga
       assign_project_text: 'Itinalaga ni %{author} ang listahang %{project} sa %{team}. '
-      unassign_project_text: Inalis ni %{author} ang listahang %{project} mula sa
-        pagkakatalaga sa %{team}.
+      unassign_project_text: Inalis ni %{author} ang pagkakatalaga ng listahang %{project}
+        sa %{team}.
       assign_task_title: Gawaing Nakatalaga
       unassign_task_title: Gawaing Inalis sa Pagkakatalaga
       assign_task_text: Nagtalaga si %{author} ng isang gawain sa listahang %{project}
         sa %{team}.
-      unassign_task_text: Nag-alis si %{author} ng isang gawain mula sa pagkakatalaga
-        sa listahang %{project} sa %{team}.
+      unassign_task_text: Inalis ni %{author} ang pagkakatalaga ng isang gawain sa
+        listahang %{project} sa %{team}.
       assign_media_title: Item na Nakatalaga
       unassign_media_title: Item na Inalis sa Pagkakatalaga
-      assign_media_text: Nagtalaga si %{author} ng isang item sa listahang %{project}
+      assign_media_text: Itinalaga ni %{author} ang isang item sa listahang %{project}
         sa %{team}.
-      unassign_media_text: Nag-alis si %{author} ng isang item mula sa pagkakatalaga
-        sa listahang %{project} sa %{team}.
+      unassign_media_text: Inalis ni %{author} ang pagkakatalaga ng isang item sa
+        listahang %{project} sa %{team}.
       assign_log: Itinalaga ni %{author} ang %{model} kay %{username}
-      unassign_log: Inalis ni %{author} ang %{model} mula sa pagkakatalaga kay %{username}
+      unassign_log: Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}
       assign_by: Itinalaga ni
       unassign_by: Inalis sa pagkakatalaga ni
       project_button: Pumunta sa pahina ng listahan
     request_to_join:
-      subject: Kahilingang sumali sa workplace na %{team}
+      subject: Kahilingang sumali sa workspace na %{team}
       team_page: pahina ng workspace
       team_button: Pumunta sa pahina ng workspace
       rejected_subject: Tinanggihan ang iyong kahilingang sumali sa %{team}
       approved_subject: Maligayang pagdating sa workspace na %{team}
       request_title: Kahilingang sumali sa workspace na %{team}
       request_text: Nais sumali ni %{name} (%{email}) sa workspace na %{team} sa %{app_name}.
-        Maaaring iproseso ang kahilingang ito sa pagbisita sa %{url}.
+        Pwede mong iproseso ang kahilingang ito sa pagbisita sa %{url}.
       approved_title: Maligayang pagdating sa workspace na %{team}
       approved_text: Inaprubahan ang iyong kahilingang sumali sa workspace na %{team}
-        sa %{app_name}. Maaari ka nang pumunta sa %{url} at magsimulang mag-ambag.
+        sa %{app_name}. Pwede ka nang pumunta sa %{url} at magsimulang mag-ambag.
       rejected_title: Tinanggihan ang Kahilingan
       rejected_text: Paumanhin, tinanggihan ang iyong kahilingang sumali sa workspace
         na %{team} sa %{app_name}.
   mail_security:
     device_subject: 'Alertong panseguridad: May bagong login sa %{app_name} mula sa
       %{browser} sa %{platform}'
-    ip_subject: 'Alertong panseguridad: May bago o kakaibang login sa %{app_name}'
+    ip_subject: 'Alertong panseguridad: May bago o naiibang login sa %{app_name}'
     failed_subject: 'Alertong panseguridad: Mga bigong pagtatangka na mag-login sa
       %{app_name}'
-    ip: Nag-sign in ka sa %{location}
-    device: Naka-sign in ka sa %{browser} sa %{platform}
+    ip: Nag-sign in ka mula sa %{location}
+    device: Naka-sign in ka mula sa %{browser} sa %{platform}
     devise_name: "%{browser} sa %{platform}"
     failed: May mga natuklasang bigong pagtatangka sa pag-login
     password_text: agarang i-reset ang iyong password.
     device_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula
-      sa bagong device. Kung hindi ito ikaw, dapat mong %{change_password}
+      sa bagong device. Kung hindi ikaw ito, kailangan mong %{change_password}
     ip_text: Mukhang nag-sign in ka kamakailan sa iyong %{app_name} account mula sa
-      bagong lokasyon. Kung hindi ito ikaw, dapat mong %{change_password}
-    failed_text: Mukhang may maramihang pagtatangka para makapag-login sa iyong %{app_name}
-      account. Kung ikaw ito, ligtas na maaari mong hindi pansinin ang email na ito.
-      Kung hindi ito ikaw, dapat mong %{change_password}
+      bagong lokasyon. Kung hindi ikaw ito, kailangan mong %{change_password}
+    failed_text: Mukhang ilang beses na may nagtangkang mag-login sa iyong %{app_name}
+      account. Kung ikaw ito, ligtas ang hindi pansinin ang email na ito. Kung hindi
+      ikaw ito, dapat mong %{change_password}
     time_h: Oras
     device_h: Device
     location_h: Lokasyon
@@ -509,7 +511,7 @@ fil:
       sa aming %{privacy}"
     privacy_text: Patakaran sa Pagkapribado
     manage_text: Mamahala
-    privace_manage_plain: I-manage ang mga abiso sa email
+    privace_manage_plain: Mamahala sa mga abiso sa email
     privacy_plain: Dagdagan ang kaalaman tungkol sa aming Patakaran sa Pagkapribado
   archive_keep_backup: Video Vault
   archive_pender_archive: Screenshot
@@ -518,39 +520,40 @@ fil:
   workflow_status_not_valid: Hindi wastong status
   workflow_status_permission_error: Paumahin, hindi ka pinahihintulutang baguhin ang
     status na ito.
-  blank_default_status_for_custom_verification_status: Mangyaring magbigay ng 'default'
+  blank_default_status_for_custom_verification_status: Mangyaring magbigay ng default
     na value para sa mga custom verification status
-  blank_active_status_for_custom_verification_status: Mangyaring magbigay ng 'active'
-    na value para sa mga custom verification status
-  bot_name_exists_for_this_team: Mayroon nang bot sa pangalang binigay sa loob ng
-    workspace na ito
+  blank_active_status_for_custom_verification_status: |-
+    98%match
+    Mangyaring magbigay ng active na value para sa mga custom verification status
+  bot_name_exists_for_this_team: Meron nang bot sa pangalang binigay sa loob ng workspace
+    na ito
   bot_team_id_doesnt_exist: Paumanhin, walang workspace sa binigay na identifier
-  bot_team_id_mandatory_to_create: Paumanhin, kinakailangang mamili ng workspace para
+  bot_team_id_mandatory_to_create: Paumanhin, kailangan mong pumili ng workspace para
     makagawa ng bot
   bot_not_approved_for_installation: Paumanhin, hindi naaprubahan ang bot na ito kaya
     hindi ito ma-install
-  only_admins_can_approve_bots: Paumanhin, mga system administrator lang ang maaaring
+  only_admins_can_approve_bots: Paumanhin, mga system administrator lang ang pwedeng
     mag-approve ng bot
   could_not_save_related_bot_data: Paumanhin, hindi maidagdag ang bot sa workspace
     na ito
   bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
-    ang isang bot - mangyaring magpadala na lamang ng imumungkahing sagot
+    ang isang bot - mangyaring magpadala na lamang ng mungkahing sagot
   bot_cant_add_review_to_task: Paumanhin, hindi nakasusuri ng gawain ang isang bot
-  task_suggestion_invalid_value: Ang isang mungkahi ay dapat JSON hash na may 'mungkahi'
-    (ang akwtal na value na ikinokopya sa sagot sa gawain kapag tinanggap) at 'komento'
-    (ipinakikita sa users)
+  task_suggestion_invalid_value: Ang isang mungkahi ay dapat JSON hash na may mga
+    attribute na `mungkahi` (ang akwtal na value na ikinokopya sa sagot sa gawain
+    kapag tinanggap) at `komento` (ipinakikita sa mga user)
   tag_text_id_not_found: Paumanhin, walang tag sa binigay na identifier
   annotation_type_language_label: Wika
   smooch_bot_message_confirmed: |-
     Salamat. Naipadala na ang iyong kahilingan sa aming pila pamberipikasyon.
 
     Sisikapin naming magpadala ng ulat sa loob ng 24 oras, pero mangyaring tandaan na hindi namin kayang masagutan ang bawat kahilingan.
-  smooch_bot_message_unconfirmed: Bilang hindi ka sumagot ng 1, hindi na namin pa
-    ipo-proseso ang iyong kahilingan. Salamat.
-  smooch_bot_message_type_unsupported: Paumanhin, hindi namin sinusuportahan ang ganitong
+  smooch_bot_message_unconfirmed: Dahil hindi ka sumagot ng 1, hindi na namin ipo-proseso
+    pa ang iyong kahilingan. Salamat.
+  smooch_bot_message_type_unsupported: Paumanhin, hindi namin suportado ang ganitong
     uri ng mensahe.
-  smooch_bot_message_size_unsupported: Paumanhin, hindi namin sinusuportahan ang mga
-    file na higit sa %{max_size}.
+  smooch_bot_message_size_unsupported: Paumanhin, hindi namin suportado ang mga file
+    na higit sa %{max_size}.
   smooch_bot_result: |-
     [Ulat Pamberipikasyon] Ang iyong binahaging item sa amin ay minarkahan bilang *%{status}*.
 
@@ -562,14 +565,14 @@ fil:
   smooch_bot_ask_for_tos: |-
     Salamat sa paglapit sa Check Message!
 
-    Maaari mong gamitin ang serbisyong ito para humiling ng pagbeberipika, pagfa-fact-check, at pagsisiyasat ng balita at kaalaman. Ang Check Message ay ipinagkakaloob sa iyo sa ilalim nitong mga Tuntunin ng Serbisyo: %{tos}. Sa patuloy na paggamit sa serbisyong ito, *sumasang-ayon kang magpailalim sa mga tuntuning ito*. Dapat kang huminto sa paggamit ng Check Message sakaling hindi ka sumasang-ayon.
+    Pwede mong gamitin ang serbisyong ito para humiling ng pagbeberipika, pagfa-fact-check, at pagsisiyasat ng mga balita at impormasyon. Ang Check Message ay ipinagkakaloob sa iyo sa ilalim nitong mga Tuntunin ng Serbisyo: %{tos}. Sa patuloy na paggamit sa serbisyong ito, *sumasang-ayon kang magpailalim sa mga tuntuning ito*. Huminto sa paggamit ng Check Message sakaling hindi ka sumasang-ayon.
   smooch_bot_window_closing: Napakarami ng mga kahilingan sa channel na ito, at hindi
     pa namin nalulutas ang iyong kahilingan. Maraming salamat sa iyong pasensya.
   smooch_bot_not_final: |-
     [Ulat Pamberipikasyon - PAGWAWASTO] Ang iyong binahaging mensahe sa amin ay maling namarkahan bilang *%{status}*.
 
     Nasa pila pa rin namin ito para sa karagdagang beripikasyon.
-  smooch_bot_disabled: Salamat sa pagpapadala ng mensaheng ito. Hindi kami makapagbalik
+  smooch_bot_disabled: Salamat sa pagpapadala ng mensaheng ito. Hindi kami makapagpadala
     ng anumang ulat pamberipikasyon, dahil hindi na aktibo ang proyektong ito.
   smooch_bot_result_changed: "❗️Ang ipinadala naming fact-check sa iyo ay *in-update*
     ng bagong impormasyon"
@@ -582,10 +585,10 @@ fil:
       journalist:
         description: Ang mga peryodista ang nagbeberipika ng impormasyon.
       contributor:
-        description: Ang mga tagapag-ambag ay kayang magdagdag ng bagong impormasyong
-          ibeberipika. Kadalasan, sila ay mga miyembro ng publiko.
+        description: Pwedeng magdagdag ng bagong impormasyong ibeberipika ang mga
+          tagapag-ambag. Kadalasan, miyembro sila ng publiko.
       annotator:
-        description: Ang mga anotador ay kaya lang tumingin at sumagot ng mga gawaing
+        description: Ang mga anotador ay pwede lamang tumingin at sumagot ng mga gawaing
           itinalaga sa kanila.
     permissions:
       sections:
@@ -595,7 +598,7 @@ fil:
             create: Gumawa ng listahan
             edit: I-edit ang listahan
             delete: Burahin ang listahan
-            add_item: Magdagdag ng item sa listahan
+            add_item: Idagdag ang item sa listahan
         item_page_management:
           name: Pamamahala ng item
           permissions:
@@ -620,7 +623,7 @@ fil:
           permissions:
             delete: Isara ang workspace
             edit: I-edit ang impormasyon ng workspace
-            set_private: Itakda ang workspace bilang pribado
+            set_private: Gawing pribado ang workspace
             edit_status: I-edit ang mga workspace status
             edit_tasks: Gumawa at mag-edit ng mga gawaing pang-workspace
             roles: I-edit ang mga papel sa workspace
@@ -649,12 +652,12 @@ fil:
     blank_project: Hindi wastong blangkong listahan
     invalid_annotator: Hindi wastong anotador %{user}
     invalid_assignee: Hindi wastong assignee %{user}
-  cant_mutate_inactive_object: Paumanhin, may nakabinbing operasyon para sa item na
-    ito, kaya hindi mo pa ito maaaring baguhin ngayon. Mangyaring sumubok ulit mamaya.
+  cant_mutate_inactive_object: 'Paumanhin, may nakabinbin na operasyon para sa item
+    na ito, kaya hindi mo ito pwedeng baguhin ngayon. Mangyaring subukan ulit mamaya. '
   embed_expand_all: Palawakin lahat
   embed_collapse_all: I-collapse lahat
   embed_tasks: Mga gawain
-  embed_description: Deskripsyon
+  embed_description: Pagkakalarawan
   other_language: Iba pa
   unidentified_language: Hindi matukoy
   relationship_item_has_parent: Ang item na ito ay anak na ng iba pang item
@@ -662,9 +665,9 @@ fil:
   smooch_requests_asc: Pinakabihirang hilingin
   smooch_requests_desc: Pinakamadalas hilingin
   bot_request_url_invalid: Hindi wasto ang URL ng bot
-  smooch_twitter_success: Tagumpay! Ang mga matatanggap na DM nitong Twitter account
-    ay hahawakan na ng Smooch Bot.
-  invalid_task_answer: Paumanhin, hindi wasto ang format ng task answer na ito
+  smooch_twitter_success: 'Tagumpay! Ang Smooch Bot ang hahawak sa mga matatanggap
+    na DM ng Twitter account na ito. '
+  invalid_task_answer: Paumanhin, hindi wasto ang format ng sagot sa gawain na ito
   team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
   team_rule_project_ids: I-apply sa listahan
   team_rule_destination: Mamili ng listahang patutunguhan
@@ -674,8 +677,8 @@ fil:
   team_rule_conditions: Kung
   team_rule_condition: Kung
   team_rule_condition_definition: Mamili ng kundisyon
-  team_rule_has_less_than_x_words: Ang kahilingan ay hindi humihigit sa sumusunod
-    na bilang ng mga salita
+  team_rule_has_less_than_x_words: Ang kahilingan ay kumulang sa sumusunod na bilang
+    ng mga salita
   team_rule_title_matches_regexp: Tugma ang pamagat ng item sa regular expression
     na ito
   team_rule_request_matches_regexp: Tugma ang kahilingan sa regular expression na
@@ -691,57 +694,69 @@ fil:
     sa mga sumusunod na keyword
   team_rule_select_type: Mamili ng uri
   team_rule_select_language: Mamili ng wika
+  team_rule_select_user: Mamili ng user
   team_rule_tagged_as: Ang item ay naka-tag bilang
   team_rule_select_tag: Mamili ng tag
   team_rule_select_status: Mamili ng status
-  team_rule_status_is: Ang item status ay
+  team_rule_status_is: Ang status ng item ay
   team_rule_type_regexp: Mag-type ng regular expression
   team_rule_type_number: Ilagay ang dami ng salita
-  team_rule_value: Mag-type ng listahan ng keywords na ipinaghihiwalay ng mga kuwit
+  team_rule_value: Mag-type ng listahan ng mga keyword na pinaghihiwalay ng mga kuwit
   team_rule_actions: Samakatuwid
   team_rule_action: Samakatuwid
   team_rule_action_definition: Mamili ng gagawin
   team_rule_send_to_trash: Ipadala sa basurahan
   team_rule_move_to_project: Ilipat ang item sa listahan
   team_rule_copy_to_project: Idagdag ang item sa listahan
-  team_rule_ban_submitter: I-ban ang nagsumite (hindi na lalabas ang mga susunod nilang
-    mensahe sa Check)
-  team_rule_all_items: Lahat ng item
+  team_rule_ban_submitter: Ipagbawal ang nagsumite (hindi na lalabas ang mga susunod
+    nilang mensahe sa Check)
+  team_rule_all_items: Lahat ng mga item
   team_rule_send_message_to_user: Ipadala ang mensahe sa user
   team_rule_action_value: I-type ang mensahe rito
   team_rule_item_titles_are_similar: Magkatulad ang mga pamagat ng item
   team_rule_item_images_are_similar: Magkatulad ang mga larawan
   team_rule_relate_similar_items: Ipag-ugnay ang mga item
   team_rule_type_title_threshold: Distansya sa pagitan ng mga pamagat ng item
-  team_rule_type_image_threshold: Layo sa pagitan ng mga larawan
+  team_rule_type_image_threshold: Distansya sa pagitan ng mga larawan
   team_rule_type_flag_threshold: May posibilidad na hindi bababa sa
   team_rule_select_flag: Mamili ng flag
   team_rule_flagged_as: Naka-flag ang item bilang
-  team_rule_report_is_published: Nailathala ang ulat
+  team_rule_report_is_published: Nakalathala ang ulat
   team_rule_report_is_paused: Nakahinto ang ulat
   team_rule_condition_groups: Mga grupong pangkundisyon
   team_rule_condition_group: Grupong pangkundisyon
   team_rule_operator: Operator
   team_rule_json_schema_validation: Hindi wasto ang format ng mga panuntunan
-  team_rule_updated_at: In-update noong
+  team_rule_updated_at: In-update
   team_rule_item_language_is: Ang wika ng item ay
-  flag_adult: Pang-matanda
-  flag_spoof: Spoof
+  team_rule_item_user_is: Ginawa ang item ni
+  flag_adult: Hindi angkop sa bata
+  flag_spoof: Katatawanan
   flag_medical: Pang-medikal
   flag_violence: Karahasan
   flag_racy: Sekswal
   flag_spam: Spam
   annotation_type_flag_name_label: I-flag
-  annotation_type_flag_value_label: Posibilidad ng pagkaka-flag
+  annotation_type_flag_value_label: I-flag ang posibilidad
   flag_likelihood_0: Hindi matukoy
   flag_likelihood_1: Higit na walang katiyakan
   flag_likelihood_2: Walang katiyakan
   flag_likelihood_3: Posible
   flag_likelihood_4: Maaari
   flag_likelihood_5: Higit na maaari
-  relationship_not_same_team: Dapat nasa iisang workspace ang magkaugnay na item
-  cant_change_status_if_item_is_published: Paumanhin, hindi ka maaaring magpalit ng
+  relationship_not_same_team: Kailangang nasa iisang workspace ang magkaugnay na item
+  bulk_operation_limit_error: Paumanhin, ang pinakamalaking bilang ng mga item na
+    pwedeng iproseso nang sabay-sabay ay %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Ginagamit ang status na ito,
+    kaya kailangan mong magbigay ng fallback status kung gusto mo itong burahin
+  embed_no_content_yet: Binubuo ang ulat. Aabutin ng ilang minuto ang prosesong ito.
+    Mangyaring i-refresh ang pahinang ito.
+  language_format_invalid: Invalid ang format ng wika. ISO 639-1 code dapat ito.
+  languages_format_invalid: Hindi wasto ang format ng mga wika. Listahan dapat ito
+    ng mga ISO 639-1 code.
+  cant_change_status_if_item_is_published: Paumanhin, hindi mo pwedeng palitan ang
     status habang nakalathala ang ulat
+  fetch_bot_service_unsupported: Hindi suportado ang serbisyo
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -773,37 +788,42 @@ fil:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
-  custom_message_status_undetermined_afp-fact-check: ''
+  custom_message_status_undetermined_afp-fact-check: Hindi pa nasisimulan
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
-  custom_message_status_false_afp-fact-check: ''
+  custom_message_status_false_afp-fact-check: Mali
   custom_message_status_verified_afp-fact-check: ''
-  custom_message_status_misleading_afp-fact-check: ''
+  custom_message_status_misleading_afp-fact-check: Mapanlinlang
   custom_message_status_report-misleading_afp-fact-check: ''
   custom_message_status_report-correct_afp-fact-check: ''
   custom_message_status_report-false_afp-fact-check: ''
   custom_message_status_need-orientation_afp-fact-check: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
-  custom_message_smooch_bot_result_changed_afp-fact-check: ''
+  custom_message_smooch_bot_result_changed_afp-fact-check: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
   custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Dahil hindi ka sumagot
+    ng 1, hindi na namin ipo-proseso pa ang iyong kahilingan. Salamat.
   custom_message_smooch_bot_not_final_afp-fact-check: ''
   custom_message_smooch_bot_meme_afp-fact-check: ''
-  custom_message_smooch_bot_window_closing_afp-fact-check: ''
+  custom_message_smooch_bot_window_closing_afp-fact-check: Napakarami ng mga kahilingan
+    sa channel na ito, at hindi pa namin nalulutas ang iyong kahilingan. Maraming
+    salamat sa iyong pasensya.
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_greetings_afp-fact-check: ''
-  custom_message_smooch_bot_option_not_available_afp-fact-check: ''
+  custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Paumanhin,
+    hindi ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
-  custom_message_status_undetermined_africa-infodemic: ''
-  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_undetermined_africa-infodemic: Hindi pa nasisimulan
+  custom_message_status_in_progress_africa-infodemic: Kasalukuyang Ginagawa
   custom_message_status_priority_unassigned_africa-infodemic: ''
   custom_message_status_priority_assigned_africa-infodemic: ''
   custom_message_status_rated_true_africa-infodemic: ''
@@ -811,18 +831,19 @@ fil:
   custom_message_status_rated_misleading_africa-infodemic: ''
   custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
-  custom_message_status_false_boom-factcheck: ''
-  custom_message_status_not_applicable_boom-factcheck: ''
-  custom_message_status_misleading_boom-factcheck: ''
+  custom_message_status_false_boom-factcheck: Mali
+  custom_message_status_not_applicable_boom-factcheck: Hindi konklusibo
+  custom_message_status_misleading_boom-factcheck: Mapanlinlang
   custom_message_status_partly-true_boom-factcheck: ''
-  custom_message_status_undetermined_boom-factcheck: ''
+  custom_message_status_undetermined_boom-factcheck: Hindi pa nasisimulan
   custom_message_status_in_progress_boom-factcheck: ''
   custom_message_status_out_of_scope_boom-factcheck: ''
   custom_message_status_in_the_news_boom-factcheck: ''
-  custom_message_status_junk_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: Junk
   custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_result_changed_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
@@ -831,57 +852,129 @@ fil:
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_greetings_boom-factcheck: ''
-  custom_message_smooch_bot_option_not_available_boom-factcheck: ''
+  custom_message_smooch_bot_option_not_available_boom-factcheck: "\U0001F916Paumanhin,
+    hindi ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
-  custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_result_changed_caio: ''
-  custom_message_smooch_bot_message_confirmed_caio: ''
-  custom_message_smooch_bot_message_type_unsupported_caio: ''
-  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_unstarted_check-bot-garden: Hindi pa nasisimulan
+  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_status_undetermined_check-message-demo: ''
-  custom_message_status_in_progress_check-message-demo: ''
+  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
+  custom_message_smooch_bot_result_changed_test-1: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_test-1: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
+  custom_message_status_undetermined_check-message-demo: Hindi pa nasisimulan
+  custom_message_status_in_progress_check-message-demo: Kasalukuyang Ginagawa
   custom_message_status_inconclusive_check-message-demo: ''
-  custom_message_status_false_check-message-demo: ''
+  custom_message_status_false_check-message-demo: Mali
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
-  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-true_check-message-demo: Mapanlinlang
   custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: "❗️Ang fact-check na
+    ipinadala namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Dahil hindi ka
+    sumagot ng 1, hindi na namin ipo-proseso pa ang iyong kahilingan. Salamat.
   custom_message_smooch_bot_not_final_check-message-demo: ''
   custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_window_closing_check-message-demo: Napakarami ng mga kahilingan
+    sa channel na ito, at hindi pa namin nalulutas ang iyong kahilingan. Maraming
+    salamat sa iyong pasensya.
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
-  custom_message_smooch_bot_option_not_available_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Paumanhin,
+    hindi ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
@@ -905,12 +998,12 @@ fil:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: ''
-  custom_message_status_junk_checkpoint: ''
-  custom_message_status_undetermined_india-today: ''
+  custom_message_status_out_of_scope_checkpoint: Labas sa Saklaw
+  custom_message_status_junk_checkpoint: Junk
+  custom_message_status_undetermined_india-today: Hindi pa nasisimulan
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
-  custom_message_status_false_india-today: ''
+  custom_message_status_false_india-today: Mali
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
@@ -920,7 +1013,8 @@ fil:
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
   custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_india-today: ''
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
@@ -930,28 +1024,30 @@ fil:
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: ''
+  custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Paumanhin,
+    hindi ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_status_false_infotagion: ''
-  custom_message_status_misleading_infotagion: ''
+  custom_message_status_false_infotagion: Mali
+  custom_message_status_misleading_infotagion: Mapanlinlang
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
-  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_undetermined_africa-check: Hindi pa nasisimulan
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
   custom_message_status_verified_africa-check: ''
   custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
+  custom_message_status_misleading_africa-check: Mapanlinlang
   custom_message_status_inconclusive_africa-check: ''
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_result_changed_africa-check: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
   custom_message_smooch_bot_disabled_africa-check: ''
@@ -962,27 +1058,60 @@ fil:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_lebanon: ''
-  custom_message_smooch_bot_message_confirmed_lebanon: ''
-  custom_message_smooch_bot_message_type_unsupported_lebanon: ''
-  custom_message_smooch_bot_disabled_lebanon: ''
+  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_smooch_bot_result_changed_lebanon: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_lebanon: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_lebanon: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_lebanon: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_lebanon: ''
-  custom_message_smooch_bot_greetings_lebanon: ''
-  custom_message_smooch_bot_option_not_available_lebanon: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: ''
+  custom_message_smooch_bot_greetings_lebanon: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mantis-8305: ''
-  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: Kasalukuyang Ginagawa
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
   custom_message_status_urgent_mmtan: ''
-  custom_message_status_all_items_mmtan: ''
-  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_all_items_mmtan: Lahat ng mga item
+  custom_message_status_unstarted_mmtan-2: Hindi pa nasisimulan
   custom_message_status_d-progress_mmtan-2: ''
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
@@ -991,17 +1120,19 @@ fil:
   custom_message_status_standard_mtan: ''
   custom_message_status_moderate_mtan: ''
   custom_message_status_urgent_mtan: ''
-  custom_message_status_all_items_mtan: ''
+  custom_message_status_all_items_mtan: Lahat ng mga item
   custom_message_status_resources_mtan: ''
   custom_message_status_true_mtan: ''
-  custom_message_status_false_mtan: ''
-  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_status_false_mtan: Mali
+  custom_message_smooch_bot_result_changed_mtan: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_mtan: ''
   custom_message_smooch_bot_message_type_unsupported_mtan: ''
   custom_message_smooch_bot_disabled_mtan: ''
   custom_message_smooch_bot_ask_for_tos_mtan: ''
   custom_message_smooch_bot_greetings_mtan: ''
-  custom_message_smooch_bot_option_not_available_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
@@ -1017,70 +1148,205 @@ fil:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
-  custom_message_smooch_bot_result_changed_sawy: ''
-  custom_message_smooch_bot_message_confirmed_sawy: ''
-  custom_message_smooch_bot_message_type_unsupported_sawy: ''
-  custom_message_smooch_bot_disabled_sawy: ''
+  custom_message_smooch_bot_result_changed_sawy: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_sawy: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_sawy: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_sawy: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_sawy: ''
-  custom_message_smooch_bot_greetings_sawy: ''
-  custom_message_smooch_bot_option_not_available_sawy: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_greetings_sawy: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
-  custom_message_smooch_bot_result_changed_team-1: ''
-  custom_message_smooch_bot_message_confirmed_team-1: ''
-  custom_message_smooch_bot_message_type_unsupported_team-1: ''
-  custom_message_smooch_bot_disabled_team-1: ''
+  custom_message_smooch_bot_result_changed_team-1: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_team-1: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_team-1: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_team-1: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_team-1: ''
   custom_message_smooch_bot_greetings_team-1: ''
   custom_message_smooch_bot_option_not_available_team-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test: ''
-  custom_message_smooch_bot_message_confirmed_test: ''
-  custom_message_smooch_bot_message_type_unsupported_test: ''
-  custom_message_smooch_bot_disabled_test: ''
+  custom_message_smooch_bot_result_changed_test: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_test: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_test: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_test: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_test: ''
-  custom_message_smooch_bot_greetings_test: ''
-  custom_message_smooch_bot_option_not_available_test: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
+  custom_message_smooch_bot_greetings_test: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-3: ''
   custom_message_smooch_bot_message_type_unsupported_test-3: ''
   custom_message_smooch_bot_disabled_test-3: ''
   custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: ''
-  custom_message_smooch_bot_option_not_available_test-3: ''
-  custom_message_smooch_bot_result_changed_test-16: ''
+  custom_message_smooch_bot_greetings_test-3: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_result_changed_test-16: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
   custom_message_smooch_bot_message_type_unsupported_test-16: ''
   custom_message_smooch_bot_disabled_test-16: ''
   custom_message_smooch_bot_ask_for_tos_test-16: ''
   custom_message_smooch_bot_greetings_test-16: ''
-  custom_message_smooch_bot_option_not_available_test-16: ''
+  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_result_changed_test-2: ''
-  custom_message_smooch_bot_message_confirmed_test-2: ''
-  custom_message_smooch_bot_message_type_unsupported_test-2: ''
-  custom_message_smooch_bot_disabled_test-2: ''
+  custom_message_smooch_bot_result_changed_test-2: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_test-2: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_test-2: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_test-2: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
   custom_message_smooch_bot_ask_for_tos_test-2: ''
-  custom_message_smooch_bot_greetings_test-2: ''
-  custom_message_smooch_bot_option_not_available_test-2: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_smooch_bot_greetings_test-2: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_status_factchecked_test-2: ''
   custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
@@ -1094,9 +1360,11 @@ fil:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
-  custom_message_status_undetermined_watching-western-sahara: ''
-  custom_message_status_in_progress_watching-western-sahara: ''
-  custom_message_status_inconclusive_watching-western-sahara: ''
-  custom_message_status_false_watching-western-sahara: ''
-  custom_message_status_verified_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: Hindi pa nasisimulan
+  custom_message_status_in_progress_watching-western-sahara: Kasalukuyang Ginagawa
+  custom_message_status_inconclusive_watching-western-sahara: Hindi konklusibo
+  custom_message_status_false_watching-western-sahara: Mali
+  custom_message_status_verified_watching-western-sahara: Beripikado
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''

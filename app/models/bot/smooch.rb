@@ -721,6 +721,7 @@ class Bot::Smooch < BotUser
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
       e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
       self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
+      nil
     end
   end
 
@@ -935,12 +936,14 @@ class Bot::Smooch < BotUser
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
-      workflow = self.get_workflow(lang)
-      message = workflow['smooch_message_smooch_bot_result_changed']
-      self.send_message_to_user(uid, message)
-      sleep 1
-      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    if subscribed_at.to_i < last_published_at.to_i
+      if ['publish', 'republish_and_resend'].include?(action)
+        workflow = self.get_workflow(lang)
+        message = workflow['smooch_message_smooch_bot_result_changed']
+        self.send_message_to_user(uid, message)
+        sleep 1
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+      end
     # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
@@ -970,7 +973,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
-    return if response.nil? || fallback_template.nil?
+    return false if response.nil? || fallback_template.nil?
     id = response&.message&.id
     Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end

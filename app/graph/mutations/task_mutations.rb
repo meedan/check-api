@@ -21,5 +21,5 @@ module TaskMutations
     reject_suggestion: 'int'
   }.merge(fields)
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'first_response_version'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('task', create_fields, update_fields, ['project_media', 'source', 'project', 'version'])
 end
