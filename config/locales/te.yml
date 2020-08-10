@@ -40,6 +40,9 @@ te:
         label: అప్రయోజనం
       unstarted:
         label: మొదలవలేదు
+    source:
+      undetermined:
+        label: మొదలవలేదు
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -71,12 +74,12 @@ te:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
-  custom_message_status_undetermined_afp-fact-check: ''
+  custom_message_status_undetermined_afp-fact-check: మొదలవలేదు
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
-  custom_message_status_false_afp-fact-check: ''
+  custom_message_status_false_afp-fact-check: తప్పు
   custom_message_status_verified_afp-fact-check: ''
-  custom_message_status_misleading_afp-fact-check: ''
+  custom_message_status_misleading_afp-fact-check: తప్పుదొవ పట్టించడం
   custom_message_status_report-misleading_afp-fact-check: ''
   custom_message_status_report-correct_afp-fact-check: ''
   custom_message_status_report-false_afp-fact-check: ''
@@ -88,7 +91,8 @@ te:
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: మీరు నిజ నిర్ధారణ కోసం పంపిన అయిటం
+    ఆధారముగా మేము ఈ మేఎం తయారు చేసాము. మరింత సమాచారం కొరకు %{url}
   custom_message_smooch_bot_window_closing_afp-fact-check: ''
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
@@ -100,8 +104,8 @@ te:
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
-  custom_message_status_undetermined_africa-infodemic: ''
-  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_undetermined_africa-infodemic: మొదలవలేదు
+  custom_message_status_in_progress_africa-infodemic: ప్రక్రియలొ ఉన్నది
   custom_message_status_priority_unassigned_africa-infodemic: ''
   custom_message_status_priority_assigned_africa-infodemic: ''
   custom_message_status_rated_true_africa-infodemic: ''
@@ -109,15 +113,15 @@ te:
   custom_message_status_rated_misleading_africa-infodemic: ''
   custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
-  custom_message_status_false_boom-factcheck: ''
-  custom_message_status_not_applicable_boom-factcheck: ''
-  custom_message_status_misleading_boom-factcheck: ''
+  custom_message_status_false_boom-factcheck: తప్పు
+  custom_message_status_not_applicable_boom-factcheck: నిర్ధారింపలేనిది
+  custom_message_status_misleading_boom-factcheck: తప్పుదొవ పట్టించడం
   custom_message_status_partly-true_boom-factcheck: ''
-  custom_message_status_undetermined_boom-factcheck: ''
+  custom_message_status_undetermined_boom-factcheck: మొదలవలేదు
   custom_message_status_in_progress_boom-factcheck: ''
   custom_message_status_out_of_scope_boom-factcheck: ''
   custom_message_status_in_the_news_boom-factcheck: ''
-  custom_message_status_junk_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: అప్రయోజనం
   custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
   custom_message_smooch_bot_result_changed_boom-factcheck: ''
@@ -134,21 +138,11 @@ te:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
-  custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_unstarted_check-bot-garden: మొదలవలేదు
   custom_message_smooch_bot_result_changed_caio: ''
   custom_message_smooch_bot_message_confirmed_caio: ''
   custom_message_smooch_bot_message_type_unsupported_caio: ''
@@ -159,13 +153,23 @@ te:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_status_undetermined_check-message-demo: ''
-  custom_message_status_in_progress_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_test-1: ''
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_status_undetermined_check-message-demo: మొదలవలేదు
+  custom_message_status_in_progress_check-message-demo: ప్రక్రియలొ ఉన్నది
   custom_message_status_inconclusive_check-message-demo: ''
-  custom_message_status_false_check-message-demo: ''
+  custom_message_status_false_check-message-demo: తప్పు
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
-  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-true_check-message-demo: తప్పుదొవ పట్టించడం
   custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: ''
@@ -174,7 +178,8 @@ te:
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
   custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
   custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: మీరు నిజ నిర్ధారణ కోసం పంపిన
+    అయిటం ఆధారముగా మేము ఈ మేఎం తయారు చేసాము. మరింత సమాచారం కొరకు %{url}
   custom_message_smooch_bot_window_closing_check-message-demo: ''
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
@@ -222,12 +227,12 @@ te:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: ''
-  custom_message_status_junk_checkpoint: ''
-  custom_message_status_undetermined_india-today: ''
+  custom_message_status_out_of_scope_checkpoint: పరిధిలొ లేదు
+  custom_message_status_junk_checkpoint: అప్రయోజనం
+  custom_message_status_undetermined_india-today: మొదలవలేదు
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
-  custom_message_status_false_india-today: ''
+  custom_message_status_false_india-today: తప్పు
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
@@ -253,16 +258,16 @@ te:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_status_false_infotagion: ''
-  custom_message_status_misleading_infotagion: ''
+  custom_message_status_false_infotagion: తప్పు
+  custom_message_status_misleading_infotagion: తప్పుదొవ పట్టించడం
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
-  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_undetermined_africa-check: మొదలవలేదు
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
   custom_message_status_verified_africa-check: ''
   custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
+  custom_message_status_misleading_africa-check: తప్పుదొవ పట్టించడం
   custom_message_status_inconclusive_africa-check: ''
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
@@ -279,7 +284,7 @@ te:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
+  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
   custom_message_smooch_bot_message_type_unsupported_lebanon: ''
@@ -293,13 +298,13 @@ te:
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mantis-8305: ''
-  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: ప్రక్రియలొ ఉన్నది
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
   custom_message_status_urgent_mmtan: ''
   custom_message_status_all_items_mmtan: ''
-  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_unstarted_mmtan-2: మొదలవలేదు
   custom_message_status_d-progress_mmtan-2: ''
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
@@ -311,7 +316,7 @@ te:
   custom_message_status_all_items_mtan: ''
   custom_message_status_resources_mtan: ''
   custom_message_status_true_mtan: ''
-  custom_message_status_false_mtan: ''
+  custom_message_status_false_mtan: తప్పు
   custom_message_smooch_bot_result_changed_mtan: ''
   custom_message_smooch_bot_message_confirmed_mtan: ''
   custom_message_smooch_bot_message_type_unsupported_mtan: ''
@@ -411,9 +416,11 @@ te:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
-  custom_message_status_undetermined_watching-western-sahara: ''
-  custom_message_status_in_progress_watching-western-sahara: ''
-  custom_message_status_inconclusive_watching-western-sahara: ''
-  custom_message_status_false_watching-western-sahara: ''
-  custom_message_status_verified_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: మొదలవలేదు
+  custom_message_status_in_progress_watching-western-sahara: ప్రక్రియలొ ఉన్నది
+  custom_message_status_inconclusive_watching-western-sahara: నిర్ధారింపలేనిది
+  custom_message_status_false_watching-western-sahara: తప్పు
+  custom_message_status_verified_watching-western-sahara: వెరిఫై చేయబడినది
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''

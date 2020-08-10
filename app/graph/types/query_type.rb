@@ -21,6 +21,8 @@ QueryType = GraphQL::ObjectType.define do
         upload_extensions: ImageUploader.upload_extensions.join(', '),
         video_max_size: UploadedVideo.max_size_readable,
         video_extensions: VideoUploader.upload_extensions.join(', '),
+        audio_max_size: UploadedAudio.max_size_readable,
+        audio_extensions: AudioUploader.upload_extensions.join(', '),
         upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
         upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json,

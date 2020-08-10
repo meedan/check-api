@@ -17,6 +17,7 @@ ro:
     media:
       undetermined:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
       not_applicable:
         label: Neconcludent
         description: Nu este posibil de formulat concluzii în baza dovezilor disponibile
@@ -31,6 +32,7 @@ ro:
         description: 'Concluzia: conținutul elementului a fost verificat'
       pending:
         label: În așteptare
+        description: Implicit, abia adăugat, nu s-a început lucrul
       translated:
         label: Tradus
         description: Traducerea este gata, așteaptă revizuire
@@ -53,9 +55,11 @@ ro:
         label: Nedorit
       unstarted:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
     source:
       undetermined:
         label: Nedemarat
+        description: Implicit, abia adăugat, nu s-a început lucrul
       credible:
         label: Credibil
         description: 'Concluzia: sursa este credibilă'
@@ -70,19 +74,43 @@ ro:
         description: 'Concluzia: sursa este o clonă'
   errors:
     messages:
+      invalid_password: Parolă nevalidă
+      invalid_qrcode: Cod de validare nevalid
       extension_white_list_error: 'nu poate fi de tip %{extension}, tipuri permise:
         %{allowed_types}'
       invalid_size: trebuie să fie între %{min_width}x%{min_height} și %{max_width}x%{max_height}
         pixeli
+      mini_magick_processing_error: 'Ne pare rău, nu am reușit să prelucrăm imaginea.
+        Eroare: %{e}'
+      annotation_mandatory_fields: Vă rugăm să setați toate câmpurile obligatorii
+      annotation_type_does_not_exist: nu există
+      invalid_attribution: Atribuire nevalidă
+      must_resolve_required_tasks_first: Trebuie rezolvate mai întâi sarcinile necesare
+      image_too_large: Ne pare rău, nu oferim suport pentru imagini mai mari de %{max_size}.
+      video_too_large: Ne pare rău, nu oferim suport pentru videoclipuri mai mari
+        de %{max_size}.
+      audio_too_large: Ne pare rău, nu oferim suport pentru fișiere audio mai mari
+        de %{max_size}.
+      pender_conflict: Acest link este deja analizat sintactic. Vă rugăm să încercați
+        din nou în câteva secunde.
+      pender_url_invalid: Acest link este nevalid.
+      pender_url_unsafe: Acest link este nesigur.
+      pender_could_not_parse: Analiza acestui link a eșuat.
+      invalid_format_for_languages: Format nevalid al limbilor. Se aștepta `['en',
+        'ar', …]`
   activerecord:
     models:
       link: Link
+      claim: Text
       uploaded_file: Fișier
       uploaded_image: Imagine
+      uploaded_video: Video
       task: Sarcină
       comment: Notă
       project_media: Element
       media: Element
+      project: Listă
+      team: Spațiu de lucru
       user: Utilizator
       source: Sursa
       project_source: Sursa
@@ -93,6 +121,10 @@ ro:
         file: Fișier
       uploaded_image:
         file: Imagine
+      uploaded_video:
+        file: Videoclip
+      team:
+        slug: URL spațiu de lucru
       source:
         name: Nume
       contact:
@@ -122,6 +154,7 @@ ro:
   slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
+  invalid_media_item: Ne pare rău, nu este un element valid
   invalid_default_status_for_custom_verification_status: Identificatorul de stare
     implicit nu este valid
   invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
@@ -129,11 +162,15 @@ ro:
   invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
   invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu
     și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
+  invalid_statuses_format_for_custom_verification_status: 'Stările personalizate de
+    verificare trebuie să aibă intrări valide pentru: etichetă, identificator, descriere
+    și stil'
   mail_account_confirmation: Confirmarea contului %{app_name}
   slack:
     fields:
       assigned: Atribuit lui
       unassigned: Transferat de la
+      project: Listă
       source: Sursa
       status: Starea
       status_previous: Starea precedentă
@@ -148,6 +185,7 @@ ro:
       task_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
       task_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
       task_answer_create: "%{user} (%{role} în %{team}) a dat răspuns la o Sarcină"
+      task_answer_edit: "%{user} (%{role} din%{team}) a editat răspunsul la o sarcină"
       task_comment: "%{user} (%{role} în %{team}) a adăugat o notă la o Sarcină"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
@@ -161,18 +199,43 @@ ro:
       project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_source_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_source_update: "%{user} (%{role} în %{team}) a redactat %{type}"
+      project_create: "%{user} (%{role} din %{team}) a creat o listă"
+      project_assign: "%{user} (%{role} din %{team}) a alocat o listă"
+      project_unassign: "%{user} (%{role} din %{team}) a anulat alocarea unei liste"
+      user_member: "%{user} s-a alăturat spațiului de lucru %{team}"
+      user_requested: "%{user} a cerut să se alăture spațiului de lucru %{team}"
+      user_invited: "%{user} a fost invitat(ă) să se alăture spațiului de lucru %{team}"
+      user_banned: "%{user} a fost interzis în spațiul de lucru %{team}"
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa
     de e-mail, făcând click pe următorul link:'
   mail_confirm_button: Confirmă contul meu
+  slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura %{team_name}
+    deoarece este rezervată membrilor spațiilor de lucru din Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
         menu: Trimite instrucțiuni pentru resetarea parolei
+      export_project:
+        menu: Exportă datele
+      export_images:
+        menu: Exportă imaginile
       delete_tasks:
         done: a șters sarcinile
+        are_you_sure_you_want_to_delete_the_tasks_from_team:
+          html: 'Sigur doriți să ștergeți toate sarcinile din spațiul de lucru <strong>%{team}</strong>?
+            Următoarele sarcini vor fi eliminate:'
       duplicate_team:
+        menu: Duplică spațiul de lucru
         done: copiat
+        are_you_sure_you_want_to_copy_team:
+          html: Sigur doriți să copiați spațiul de lucru <strong>%{team}</strong>?
+            Vor fi copiate și toate datele aferente.
+        the_team_is_being_copied: Se copiază spațiul de lucru
+        url_when_ready:
+          html: La final, copia spațiului de lucru va fi disponibilă la <strong>%{copy_url}</strong>
+    flash:
+      delete_team_scheduled: Se șterge spațiul de lucru %{team}
   email_not_found: Adresa de e-mail nu a fost găsită
   slack_channel_format_wrong: Canalul Slack nu este valid
   invalid_token: Cod temporar nevalid
@@ -181,6 +244,14 @@ ro:
       oembed: "%B %d, %Y"
       task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
+  oembed_disclaimer_undetermined: Acest element nu a fost verificat de %{team}
+  oembed_disclaimer_in_progress: Acest element este verificat de %{team} de la %{date}
+  oembed_disclaimer_verified: Acest element a fost determinat ca verificat de %{team}
+    la %{date}
+  oembed_disclaimer_false: Acest element a fost determinat ca fiind fals de %{team}
+    la %{date}
+  oembed_disclaimer_not_applicable: "%{team} nu a putut ajunge la nicio concluzie
+    privind acest element la %{date}"
   oembed_source_date: "%{date} pe %{provider}"
   role_editor: redactor
   role_owner: coordonator
@@ -211,13 +282,19 @@ ro:
   duplicate_source: Sursa există
   geolocation_invalid_value: Locația trebuie să conțină GeoJSON valid (http://geojson.org/)
   datetime_invalid_date: Introduceți o dată validă
+  error_team_archived: Ne pare rău, nu puteți adăuga liste în spații de lucru șterse
+  error_project_archived: Ne pare rău, nu puteți adăuga elemente în liste șterse
+  error_team_archived_for_source: Ne pare rău, nu puteți adăuga surse în spații de
+    lucru șterse
   permission_error: Ne pare rău, nu aveți permisiunea de a efectua această operațiune
+  error_annotated_archived: Ne pare rău, nu puteți adăuga note la elemente șterse
   only_super_admin_can_do_this: Ne pare rău, doar administratorul de sistem poate
     efectua această modificare
   cant_change_custom_statuses: |-
     Ne pare rău, nu puteți modifica definițiile statuturilor pentru că unele statuturi s-ar putea pierde. Acești identificatori de statut: %{statuses} sunt folosiți în elementele ce urmează:
     %{urls} %{others_amount}
   account_exists: Acest cont există deja
+  media_exists: Acest element există deja
   source_exists: Această sursă există deja
   email_exists: a fost deja luat
   banned_user: Ne pare rău, contul Dvs a fost interzis pentru %{app_name}. Contactați
@@ -234,20 +311,37 @@ ro:
         instruction_2: Dacă nu ați făcut această solicitare sau aveți dificultăți
           încercând să vă resetați parola, vă rugăm să ne contactați la %{support_email}.
       invitation_instructions:
+        subject: "%{user} v-a invitat să vă alăturați spațiului de lucru %{team}"
         hello: Salut %{name}
+        someone_invited_you_default:
+          html: "%{name} v-a invitat să vă alăturați spațiului de lucru %{team} în
+            calitate de %{role}."
+        someone_invited_you_custom:
+          html: "%{name} v-a invitat să vă alăturați spațiului de lucru %{team} în
+            calitate de %{role} și a spus:"
         accept: Acceptă invitația
         accept_until: Invitația dată va expira pe %{due_date}.
         ignore: Dacă nu doriți să acceptați invitația, ignorați acest email.
+        app_team: Spațiu de lucru %{app}
     failure:
       unconfirmed: Vă rugăm să vă accesați emailul pentru a verifica contul Dvs.
   user_invitation:
+    invited: Utilizatorul a fost deja invitat în acest spațiu de lucru.
+    member: Utilizatorul este deja membru.
+    team_found: Spațiul de lucru nu a fost găsit.
     invalid: Codul temporar al invitației nu este valid.
+    no_invitation: Nu există nicio invitație pentru spațiul de lucru %{name}
+  error_user_is_not_a_team_member: Ne pare rău, puteți aloca doar membrilor acestui
+    spațiu de lucru.
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt
     utilizator
+  error_login_2fa: Finalizați înregistrarea cu ajutorul codului de autentificare.
+  error_record_not_found: 'Nu a fost găsit %{type} #%{id}'
   mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
     greeting: Salut, %{username},
     greeting_anonymous: Salut!
+    project_view: Afișează lista
     unsubscribe: Anulați abonarea
     unsubscribe_link: "%{unsubscribe} la aceste înștiințări"
     copyright_html: '%{app_name} de la <a href="https://meedan.com">Meedan</a>'
@@ -282,13 +376,29 @@ ro:
         desemnat utilizatorului anonim %{anonymous}  %{id}
       anonymous: anonim
     admin_mailer:
+      team_download_subject: "[%{team}] Instantaneul cu datele spațiului de lucru
+        este gata pentru descărcare"
+      team_dump_title: Datele spațiului de lucru
       types:
         dump: instantaneu de date
         csv: raport
         images: arhiva de imagini
+      team_dump_text: 'Ați solicitat un instantaneu cu datele spațiului de lucru %{team}
+        - acesta este linkul pentru descărcare: %{link}'
+      team_dump_button: Descarcă datele spațiului de lucru
       decompress_text: " %{type} va fi descărcat sub forma unui fișier comprimat,
         criptat. Pentru a decomprima fișierul introduceți parola: %{password}."
       expire_note: Atenție! Acest link va expira peste %{days} zile.
+      project_export_csv_subject: "[%{team} - %{project}] Raportul listei este gata
+        pentru descărcare"
+      project_export_images_subject: "[%{team} - %{project}] Arhiva imaginilor din
+        listă este gata de descărcare"
+      project_export_title: Datele listei
+      project_export_button: Descarcă datele listei
+      project_export_csv_text: 'Ați solicitat un raport pentru lista %{project} -
+        acesta este linkul pentru descărcare: %{link}'
+      project_export_images_text: 'Ați solicitat o arhivă de imagini pentru lista
+        %{project} - acesta este linkul pentru descărcare: %{link}'
       team_import_subject: Importul de date s-a finalizat
       team_import_title: Import de date
       team_import_text: "<p>Activitatea dvs de import de date în %{app_name} s-a finalizat.
@@ -298,8 +408,16 @@ ro:
     task_resolved:
       subject: "[%{team} - %{project}] Sarcină rezolvată"
       header_title: Sarcină rezolvată
+      header_text: " %{author} a răspuns la o sarcină din lista %{project} din %{team}."
+      section_title: Cine sau care este sursa elementului?
       status: Starea
+      media_h: Element
     media_status:
+      label: element
+      subject: "[%{team} - %{project}] O stare a unui element a fost marcată ca %{status}"
+      header_title: Starea elementului a fost actualizată
+      header_text: " %{author} a actualizat starea unui element din lista %{project}
+        din %{team}."
       section_title: Marcat ca fiind %{status}.
       added_to: Adăugat în %{app_name}
       update_h: Ultima actualizare
@@ -308,22 +426,55 @@ ro:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
       unassign_task_subject: "[%{team} - %{project}] O sarcină a fost transferată
         de la Dvs"
+      assign_project_subject: "[%{team} - %{project}] Vi s-a alocat o listă"
+      unassign_project_subject: "[%{team} - %{project}] Vi s-a anulat alocarea unei
+        liste"
+      assign_media_subject: "[%{team} - %{project}] Vi s-a alocat un element"
+      unassign_media_subject: "[%{team} - %{project}] Vi s-a anulat alocarea unui
+        element"
+      assign_project_title: Listă alocată
+      unassign_project_title: Alocare listă anulată
+      assign_project_text: "%{author} a alocat lista %{project} din %{team}."
+      unassign_project_text: "%{author} a anulat alocarea listei %{project} din %{team}."
       assign_task_title: Sarcină desemnată
       unassign_task_title: Sarcină transferată
+      assign_task_text: "%{author} a alocat o sarcină în lista %{project} din %{team}."
+      unassign_task_text: "%{author} a anulat alocarea unei sarcini din lista %{project}
+        din %{team}."
+      assign_media_title: Element alocat
+      unassign_media_title: Alocare element anulată
+      assign_media_text: "%{author} a alocat un element din lista %{project} din %{team}."
+      unassign_media_text: "%{author} a anulat alocarea unui element din lista %{project}
+        din %{team}."
       assign_log: "%{author} a atribuit %{model} lui %{username}"
       unassign_log: "%{author} a transferat %{model} de la %{username}"
       assign_by: Atribuit de
       unassign_by: Transferat de către
+      project_button: Deschide pagina listei
     request_to_join:
+      subject: Cerere pentru a intra în spațiul de lucru %{team}
+      team_page: pagina spațiului de lucru
+      team_button: Mergi la pagina spațiului de lucru
       rejected_subject: Solicitarea Dvs de a se alătura echipei %{team} nu a fost
         aprobată
+      approved_subject: Bun venit în spațiul de lucru %{team}
+      request_title: Cerere pentru a intra în spațiul de lucru %{team}
+      request_text: "%{name} (%{email}) vrea să se alăture spațiului de lucru %{team}
+        de pe %{app_name}. Puteți prelucra această cerere intrând pe %{url}."
+      approved_title: Bun venit în spațiul de lucru %{team}
+      approved_text: Cererea dvs. de a intra în spațiul de lucru %{team} de pe %{app_name}
+        a fost aprobată. Puteți merge acum la %{url} și să începeți să contribuiți.
       rejected_title: Solicitarea respinsă
+      rejected_text: Ne pare rău, cererea dvs. de a intra în spațiul de lucru %{team}
+        de pe %{app_name} nu a fost aprobată.
   mail_security:
     device_subject: 'Avertizare de securitate: Conectare nouă la %{app_name} din %{browser}
       pe %{platform}'
     ip_subject: 'Avertizare de securitate: Conectare nouă sau neobișnuită la %{app_name} '
     failed_subject: 'Avertizare de securitate: Încercări ieșuate de a se conecta la
       %{app_name}'
+    ip: V-ați conectat din %{location}
+    device: V-ați conectat de pe %{browser} pe %{platform}
     devise_name: "%{browser} pe %{platform}"
     failed: Au fost identificate încercări de conectare ieșuate
     password_text: resetează parola imediat.
@@ -346,23 +497,34 @@ ro:
     privace_manage_plain: Gestionează notificările prin email
     privacy_plain: Aflați mai multe despre Politica noastră de confidențialitate
   archive_keep_backup: Video Vault
+  archive_pender_archive: Captură de ecran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
   workflow_status_not_valid: Starea nu este validă
   workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
     această stare
   blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
-    'implicită' pentru stările personalizate ale verificării
+    implicită pentru stările personalizate de verificare
   blank_active_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
-    'activă' pentru stările personalizate ale verificării
+    activă pentru stările personalizate de verificare
+  bot_name_exists_for_this_team: Există deja un robot în acest spațiu de lucru cu
+    denumirea dată
+  bot_team_id_doesnt_exist: Ne pare rău, nu există niciun spațiu de lucru cu identificatorul
+    dat
+  bot_team_id_mandatory_to_create: Ne pare rău, trebuie să alegeți un spațiu de lucru
+    ca să puteți crea un robot
   bot_not_approved_for_installation: Ne pare rău, acest robot nu a fost aprobat, deci
     nu poate fi instalat
+  only_admins_can_approve_bots: Ne pare rău, numai administratorii de sistem pot aproba
+    roboți
+  could_not_save_related_bot_data: Ne pare rău, nu am putut adăuga robotul în acest
+    spațiu de lucru
   bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină
     direct - rugăm să transmiteți o sugestie de răspuns în loc
   bot_cant_add_review_to_task: Ne pare rău, un robot nu poate analiza o sarcină
-  task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu 'suggestion'
-    (sugestie - valoarea, care se copie în răspuns dat la sarcină în caz de accept)
-    și 'comment' (comentariu - afișat pentru utilizatori)
+  task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu atributele
+    „sugestie” (valoarea reală copiată în răspunsul la sarcină la acceptarea ei) și
+    „comentariu” (afișat utilizatorilor)
   tag_text_id_not_found: Ne pare rău, nu există etichete cu identificator introdus
   annotation_type_language_label: Limba
   smooch_bot_message_confirmed: |-
@@ -371,6 +533,10 @@ ro:
     Vom încerca să vă oferim un raport în decurs de 24 de ore, însă, atenționăm că nu putem da răspuns la fiecare solicitare.
   smooch_bot_message_unconfirmed: Deoarece nu ați răspuns cu 1, nu vom procesa mesajul
     dvs în continuare. Mulțumim.
+  smooch_bot_message_type_unsupported: Ne pare rău, nu oferim suport pentru acest
+    tip de mesaj.
+  smooch_bot_message_size_unsupported: Ne pare rău, nu oferim suport pentru fișiere
+    mai mari de %{max_size}.
   smooch_bot_result: |-
     [Verification Report] Mesajul, pe care l-ați partajat cu noi, este marcat *%{status}*.
 
@@ -379,16 +545,26 @@ ro:
     Vă mulțumim pentru că ați transmis această solicitare. Doriți ca noi să verificăm conținutul acesteia?
 
     Pentru a spune da, *vă rugăm să răspundeți cu 1*. Orice alt răspuns va pune sfârșit conversației noastre.
+  smooch_bot_ask_for_tos: |-
+    Vă mulțumim că ați contactat Check Message!
+
+    Puteți folosi acest serviciu pentru a solicita verificări de fapte, investigații de știri și informații. Check Message vă este oferit în baza acestor Termeni de utilizare a serviciului: %{tos}. Prin continuarea utilizării serviciului, *sunteți de acord să vă obligați la acești termeni*. Dacă nu sunteți de acord, trebuie să încetați să mai folosiți Check Message.
   smooch_bot_window_closing: Numărul de solicitări transmise prin acest canal este
     foarte mare și deocamdată nu am reușit să soluționăm solicitarea dvs. Vă mulțumim
     pentru că aveți răbdare.
   smooch_bot_not_final: "[Raport de verificare - CORECTARE] Mesajul transmis de Dvs
     a fost marcat greșit ca fiind *%{status}*. Este încă în coada de așteptare pentru
     verificări ulterioare."
+  smooch_bot_disabled: Vă mulțumim că ați trimis acest mesaj. Nu putem să vă transmitem
+    rapoarte de verificare deoarece acest proiect nu mai este activ.
+  smooch_bot_result_changed: "❗️Raportul de verificare a faptelor pe care vi l-am
+    transmis a fost *actualizat* cu informații noi"
   permissions_info:
     roles:
       owner:
         description: Coordonatorii controlează spațiul de lucru.
+      editor:
+        description: Editorii gestionează spațiul de lucru și listele.
       journalist:
         description: Jurnaliștii verifică informația.
       contributor:
@@ -399,6 +575,13 @@ ro:
           răspunde doar la ele.
     permissions:
       sections:
+        project_management:
+          name: Gestionarea listelor
+          permissions:
+            create: Creează o listă
+            edit: Editează lista
+            delete: Șterge lista
+            add_item: Adaugă un element în listă
         item_page_management:
           name: Gestionare elemente
           permissions:
@@ -417,9 +600,19 @@ ro:
             delete: Ștergere sarcină
             add_response: Adaugă un răspuns
             delete_repsonse: Șterge răspunsul
+            assign_task: Alocă o sarcină sau un element
         team_management:
+          name: gestionarea spațiului de lucru
           permissions:
+            delete: Închide spațiul de lucru
+            edit: Editează informațiile spațiului de lucru
+            set_private: Setează spațiul de lucru ca privat
+            edit_status: Editează stările spațiului de lucru
+            edit_tasks: Creează și editează sarcini în spațiul de lucru
+            roles: Editează rolurile din spațiul de lucru
             third_party: Adaugă integrare a terților
+            invite_owner: Invită, aprobă și elimină coordonatori ai spațiului de lucru
+            invite_members: Invită, aprobă și elimină membri ai spațiului de lucru
   team_import:
     invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic
       nu este valid
@@ -427,12 +620,18 @@ ro:
     cannot_authenticate_with_the_credentials: Nu puteți accesa Google Drive cu acest
       nume de utilizator și parolă. Vă rygăm să contactați echipa de suport pentru
       a-i informa despre acest incident.
+    team_not_present: Spațiul de lucru curent nu a fost găsit la importul de date.
+      Vă rugăm să notificați echipa de suport cu privire la acest incident.
     user_not_present: În timpul importului de date utilizatorul actual nu a fost găsit.
       Vă rugăm să informați echipa de suport despre acest incident.
+    user_not_authorized: Ne pare rău, nu aveți dreptu să importați date în acest spațiu
+      de lucru.
+    invalid_project: Listă nevalidă %{project}
     invalid_user: Autorul %{user} nu este valid
     invalid_status: Starea %{status} nu este validă
     blank_user: Autorul necompletat nu este valid
     blank_annotator: 'Adnotatorul necompletat nu este valid '
+    blank_project: Listă goală nevalidă
     invalid_annotator: Adnotator nevalid %{user}
     invalid_assignee: Destinatar al desemnării nevalid %{user}
   cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune
@@ -448,6 +647,100 @@ ro:
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
   bot_request_url_invalid: URL-ul robotului nu este valid
+  smooch_twitter_success: Succes! Acum, DM-urile primite de acest cont de pe Twitter
+    vor fi gestionate de Smooch Bot.
+  invalid_task_answer: Ne pare rău, formatul răspunsului la această sarcină nu este
+    valid
+  team_rule_name: O denumire unică ce identifică ce face această regulă
+  team_rule_project_ids: Aplică pe listă
+  team_rule_destination: Selectează lista de destinație
+  team_rule_names_invalid: Denumirile regulilor nu pot fi lăsate goale și trebuie
+    să fie unice
+  team_rules: Reguli
+  team_rule_conditions: Dacă
+  team_rule_condition: Dacă
+  team_rule_condition_definition: Selectați condiția
+  team_rule_has_less_than_x_words: Cererea conține mai puține cuvinte decât numărul
+    următor
+  team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
+    regulată
+  team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
+  team_rule_type_is: Tipul de element este
+  team_rule_type_is_claim: Text
+  team_rule_type_is_link: Link
+  team_rule_type_is_uploadedimage: Imagine
+  team_rule_type_is_uploadedvideo: Video
+  team_rule_contains_keyword: Cererea conține unul sau mai multe dintre următoarele
+    cuvinte-cheie
+  team_rule_title_contains_keyword: Titlul elementului conține unul sau mai multe
+    dintre următoarele cuvinte-cheie
+  team_rule_select_type: Selectați tipul
+  team_rule_select_language: Selectați limba
+  team_rule_select_user: Selectați utilizatorul
+  team_rule_tagged_as: Elementul este etichetat drept
+  team_rule_select_tag: Selectați eticheta
+  team_rule_select_status: Selectați starea
+  team_rule_status_is: Starea elementului este
+  team_rule_type_regexp: Scrieți o expresie regulată
+  team_rule_type_number: Introduceți numărul de cuvinte
+  team_rule_value: Scrieți o listă de cuvinte-cheie, separate prin virgulă
+  team_rule_actions: Atunci
+  team_rule_action: Atunci
+  team_rule_action_definition: Selectați acțiunea
+  team_rule_send_to_trash: Trimite la coșul de gunoi
+  team_rule_move_to_project: Mută elementul în listă
+  team_rule_copy_to_project: Adaugă elementul în listă
+  team_rule_ban_submitter: Pune interdicție expeditorului (mesajele viitoare de la
+    el/ea nu vor mai apărea în Check)
+  team_rule_all_items: Toate elementele
+  team_rule_send_message_to_user: Trimite un mesaj utilizatorului
+  team_rule_action_value: Scrieți mesajul aici
+  team_rule_item_titles_are_similar: Titlul elementelor este similar
+  team_rule_item_images_are_similar: Imaginile sunt similare
+  team_rule_relate_similar_items: Asociază elementele
+  team_rule_type_title_threshold: Distanță între titlurile elementelor
+  team_rule_type_image_threshold: Distanță între imagini
+  team_rule_type_flag_threshold: Cu o probabilitate de cel puțin
+  team_rule_select_flag: Selectați marcajul
+  team_rule_flagged_as: Elementul este marcat ca
+  team_rule_report_is_published: Raportul este publicat
+  team_rule_report_is_paused: Raportul este în pauză
+  team_rule_condition_groups: Grupe de condiții
+  team_rule_condition_group: Grupă de condiții
+  team_rule_operator: Operator
+  team_rule_json_schema_validation: Formatul regulilor nu este valid
+  team_rule_updated_at: Actualizat
+  team_rule_item_language_is: Limba elementului este
+  team_rule_item_user_is: Elementul a fost creat de
+  flag_adult: Adult
+  flag_spoof: Înșelătorie
+  flag_medical: Medical
+  flag_violence: Violență
+  flag_racy: Indecent
+  flag_spam: Spam
+  annotation_type_flag_name_label: Marcaj
+  annotation_type_flag_value_label: Marchează probabilitatea
+  flag_likelihood_0: Necunoscut
+  flag_likelihood_1: Foarte improbabil
+  flag_likelihood_2: Improbabil
+  flag_likelihood_3: Posibil
+  flag_likelihood_4: Probabil
+  flag_likelihood_5: Foarte probabil
+  relationship_not_same_team: În același spațiu de lucru trebuie să existe elemente
+    corelate
+  bulk_operation_limit_error: Ne pare rău, numărul maxim de elemente care pot fi prelucrate
+    simultan este de %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Această stare este deja folosită,
+    trebuie să furnizați o stare alternativă dacă doriți să o ștergeți.
+  embed_no_content_yet: Raport în curs de generare. Poate dura câteva minute. Vă rugăm
+    să împrospătați pagina.
+  language_format_invalid: Formatul limbii este nevalid. Trebuie să fie un cod ISO
+    639-1.
+  languages_format_invalid: Formatul limbilor este nevalid. Trebuie să fie o listă
+    de coduri ISO 639-1.
+  cant_change_status_if_item_is_published: Ne pare rău, nu puteți modifica starea
+    cât timp raportul este publicat
+  fetch_bot_service_unsupported: Serviciul nu are suport
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -479,37 +772,44 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
-  custom_message_status_undetermined_afp-fact-check: ''
+  custom_message_status_undetermined_afp-fact-check: Nedemarat
   custom_message_status_in_progress_afp-fact-check: ''
   custom_message_status_inconclusive_afp-fact-check: ''
-  custom_message_status_false_afp-fact-check: ''
+  custom_message_status_false_afp-fact-check: Fals
   custom_message_status_verified_afp-fact-check: ''
-  custom_message_status_misleading_afp-fact-check: ''
+  custom_message_status_misleading_afp-fact-check: Înșelător
   custom_message_status_report-misleading_afp-fact-check: ''
   custom_message_status_report-correct_afp-fact-check: ''
   custom_message_status_report-false_afp-fact-check: ''
   custom_message_status_need-orientation_afp-fact-check: ''
   custom_message_smooch_bot_result_afp-fact-check: ''
-  custom_message_smooch_bot_result_changed_afp-fact-check: ''
+  custom_message_smooch_bot_result_changed_afp-fact-check: "❗️Verificarea de fapte
+    pe care v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
   custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
-  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: ''
+  custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Deoarece nu ați răspuns
+    cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
   custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
-  custom_message_smooch_bot_window_closing_afp-fact-check: ''
+  custom_message_smooch_bot_meme_afp-fact-check: Iată un meme, pe care l-am creat
+    în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe
+    %{url}.
+  custom_message_smooch_bot_window_closing_afp-fact-check: Numărul de solicitări transmise
+    prin acest canal este foarte mare și deocamdată nu am reușit să soluționăm solicitarea
+    dvs. Vă mulțumim pentru că aveți răbdare.
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
   custom_message_smooch_bot_greetings_afp-fact-check: ''
-  custom_message_smooch_bot_option_not_available_afp-fact-check: ''
+  custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Ne pare
+    rău, nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
   custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
-  custom_message_status_undetermined_africa-infodemic: ''
-  custom_message_status_in_progress_africa-infodemic: ''
+  custom_message_status_undetermined_africa-infodemic: Nedemarat
+  custom_message_status_in_progress_africa-infodemic: În lucru
   custom_message_status_priority_unassigned_africa-infodemic: ''
   custom_message_status_priority_assigned_africa-infodemic: ''
   custom_message_status_rated_true_africa-infodemic: ''
@@ -517,18 +817,19 @@ ro:
   custom_message_status_rated_misleading_africa-infodemic: ''
   custom_message_status_rated_unproven_africa-infodemic: ''
   custom_message_status_verified_boom-factcheck: ''
-  custom_message_status_false_boom-factcheck: ''
-  custom_message_status_not_applicable_boom-factcheck: ''
-  custom_message_status_misleading_boom-factcheck: ''
+  custom_message_status_false_boom-factcheck: Fals
+  custom_message_status_not_applicable_boom-factcheck: Neconcludent
+  custom_message_status_misleading_boom-factcheck: Înșelător
   custom_message_status_partly-true_boom-factcheck: ''
-  custom_message_status_undetermined_boom-factcheck: ''
+  custom_message_status_undetermined_boom-factcheck: Nedemarat
   custom_message_status_in_progress_boom-factcheck: ''
   custom_message_status_out_of_scope_boom-factcheck: ''
   custom_message_status_in_the_news_boom-factcheck: ''
-  custom_message_status_junk_boom-factcheck: ''
+  custom_message_status_junk_boom-factcheck: Nedorit
   custom_message_status_bot-resource_boom-factcheck: ''
   custom_message_smooch_bot_result_boom-factcheck: ''
-  custom_message_smooch_bot_result_changed_boom-factcheck: ''
+  custom_message_smooch_bot_result_changed_boom-factcheck: "❗️Verificarea de fapte
+    pe care v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_boom-factcheck: ''
   custom_message_smooch_bot_message_type_unsupported_boom-factcheck: ''
   custom_message_smooch_bot_not_final_boom-factcheck: ''
@@ -537,57 +838,127 @@ ro:
   custom_message_smooch_bot_disabled_boom-factcheck: ''
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: ''
   custom_message_smooch_bot_greetings_boom-factcheck: ''
-  custom_message_smooch_bot_option_not_available_boom-factcheck: ''
+  custom_message_smooch_bot_option_not_available_boom-factcheck: "\U0001F916Ne pare
+    rău, nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
-  custom_message_status_unstarted_check-bot-garden: ''
-  custom_message_smooch_bot_result_changed_test-1: ''
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_result_changed_caio: ''
-  custom_message_smooch_bot_message_confirmed_caio: ''
-  custom_message_smooch_bot_message_type_unsupported_caio: ''
-  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
+  custom_message_status_unstarted_check-bot-garden: Nedemarat
+  custom_message_smooch_bot_result_changed_caio: "❗️Verificarea de fapte pe care v-am
+    transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_caio: "Vă mulțumim! Cererea dvs. a fost
+    recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea întrebărilor
+    dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări frecvente
+    pentru care am efectuat verificări de fapte:* [ Link spre o pagină de verificări
+    de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice text* pentru
+    revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
-  custom_message_status_undetermined_check-message-demo: ''
-  custom_message_status_in_progress_check-message-demo: ''
+  custom_message_smooch_bot_greetings_caio: Salut! Bine ați venit la robotul de verificare
+    a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații, videoclipuri
+    și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
+  custom_message_smooch_bot_result_changed_test-1: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_test-1: "Vă mulțumim! Cererea dvs. a
+    fost recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea
+    întrebărilor dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări
+    frecvente pentru care am efectuat verificări de fapte:* [ Link spre o pagină de
+    verificări de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice
+    text* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
+  custom_message_status_undetermined_check-message-demo: Nedemarat
+  custom_message_status_in_progress_check-message-demo: În lucru
   custom_message_status_inconclusive_check-message-demo: ''
-  custom_message_status_false_check-message-demo: ''
+  custom_message_status_false_check-message-demo: Fals
   custom_message_status_verified_check-message-demo: ''
   custom_message_status_not_applicable_check-message-demo: ''
-  custom_message_status_report-true_check-message-demo: ''
+  custom_message_status_report-true_check-message-demo: Înșelător
   custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
-  custom_message_smooch_bot_result_changed_check-message-demo: ''
+  custom_message_smooch_bot_result_changed_check-message-demo: "❗️Verificarea de fapte
+    pe care v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
-  custom_message_smooch_bot_message_unconfirmed_check-message-demo: ''
+  custom_message_smooch_bot_message_unconfirmed_check-message-demo: Deoarece nu ați
+    răspuns cu 1, nu vom procesa mesajul dvs în continuare. Mulțumim.
   custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
-  custom_message_smooch_bot_window_closing_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: Iată un meme, pe care l-am creat
+    în baza elementului, pentru care ați solicitat verificarea. Aflați mai multe pe
+    %{url}.
+  custom_message_smooch_bot_window_closing_check-message-demo: Numărul de solicitări
+    transmise prin acest canal este foarte mare și deocamdată nu am reușit să soluționăm
+    solicitarea dvs. Vă mulțumim pentru că aveți răbdare.
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
-  custom_message_smooch_bot_option_not_available_check-message-demo: ''
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Ne
+    pare rău, nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
@@ -632,12 +1003,12 @@ ro:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: ''
-  custom_message_status_junk_checkpoint: ''
-  custom_message_status_undetermined_india-today: ''
+  custom_message_status_out_of_scope_checkpoint: În afara domeniului
+  custom_message_status_junk_checkpoint: Nedorit
+  custom_message_status_undetermined_india-today: Nedemarat
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
-  custom_message_status_false_india-today: ''
+  custom_message_status_false_india-today: Fals
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
@@ -647,7 +1018,8 @@ ro:
   custom_message_status_report-inconclusive_india-today: ''
   custom_message_status_report_half_true_india-today: ''
   custom_message_smooch_bot_result_india-today: ''
-  custom_message_smooch_bot_result_changed_india-today: ''
+  custom_message_smooch_bot_result_changed_india-today: "❗️Verificarea de fapte pe
+    care v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_india-today: ''
   custom_message_smooch_bot_message_type_unsupported_india-today: ''
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
@@ -657,28 +1029,30 @@ ro:
   custom_message_smooch_bot_disabled_india-today: ''
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: ''
+  custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Ne pare rău,
+    nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
   custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
-  custom_message_status_false_infotagion: ''
-  custom_message_status_misleading_infotagion: ''
+  custom_message_status_false_infotagion: Fals
+  custom_message_status_misleading_infotagion: Înșelător
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
-  custom_message_status_undetermined_africa-check: ''
+  custom_message_status_undetermined_africa-check: Nedemarat
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
   custom_message_status_verified_africa-check: ''
   custom_message_status_mostly-correct_africa-check: ''
-  custom_message_status_misleading_africa-check: ''
+  custom_message_status_misleading_africa-check: Înșelător
   custom_message_status_inconclusive_africa-check: ''
   custom_message_status_more-information_africa-check: ''
   custom_message_status_out-of-scope_africa-check: ''
   custom_message_status_more-about-africa-check_africa-check: ''
   custom_message_status_report_more_information_africa-check: ''
-  custom_message_smooch_bot_result_changed_africa-check: ''
+  custom_message_smooch_bot_result_changed_africa-check: "❗️Verificarea de fapte pe
+    care v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_africa-check: ''
   custom_message_smooch_bot_message_type_unsupported_africa-check: ''
   custom_message_smooch_bot_disabled_africa-check: ''
@@ -689,27 +1063,58 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
   custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_de7a6fb7ef70e6808ff4caae606d5300_africa-check: ''
-  custom_message_smooch_bot_result_changed_lebanon: ''
-  custom_message_smooch_bot_message_confirmed_lebanon: ''
-  custom_message_smooch_bot_message_type_unsupported_lebanon: ''
-  custom_message_smooch_bot_disabled_lebanon: ''
+  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_smooch_bot_result_changed_lebanon: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_lebanon: "Vă mulțumim! Cererea dvs.
+    a fost recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea
+    întrebărilor dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări
+    frecvente pentru care am efectuat verificări de fapte:* [ Link spre o pagină de
+    verificări de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice
+    text* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_lebanon: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_lebanon: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_lebanon: ''
-  custom_message_smooch_bot_greetings_lebanon: ''
-  custom_message_smooch_bot_option_not_available_lebanon: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: ''
+  custom_message_smooch_bot_greetings_lebanon: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916Ne pare rău,
+    nu am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_lebanon: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_lebanon: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
   custom_message_status_start_mantis-8135: ''
   custom_message_status_pause_mantis-8135: ''
   custom_message_status_undetermined_mantis-8305: ''
-  custom_message_status_in_progress_mantis-8305: ''
+  custom_message_status_in_progress_mantis-8305: În lucru
   custom_message_status_undetermined_mmtan: ''
   custom_message_status_standard_mmtan: ''
   custom_message_status_moderate_mmtan: ''
   custom_message_status_urgent_mmtan: ''
-  custom_message_status_all_items_mmtan: ''
-  custom_message_status_unstarted_mmtan-2: ''
+  custom_message_status_all_items_mmtan: Toate elementele
+  custom_message_status_unstarted_mmtan-2: Nedemarat
   custom_message_status_d-progress_mmtan-2: ''
   custom_message_status_d-archive_mmtan-2: ''
   custom_message_status_f-progress_mmtan-2: ''
@@ -718,17 +1123,19 @@ ro:
   custom_message_status_standard_mtan: ''
   custom_message_status_moderate_mtan: ''
   custom_message_status_urgent_mtan: ''
-  custom_message_status_all_items_mtan: ''
+  custom_message_status_all_items_mtan: Toate elementele
   custom_message_status_resources_mtan: ''
   custom_message_status_true_mtan: ''
-  custom_message_status_false_mtan: ''
-  custom_message_smooch_bot_result_changed_mtan: ''
+  custom_message_status_false_mtan: Fals
+  custom_message_smooch_bot_result_changed_mtan: "❗️Verificarea de fapte pe care v-am
+    transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_mtan: ''
   custom_message_smooch_bot_message_type_unsupported_mtan: ''
   custom_message_smooch_bot_disabled_mtan: ''
   custom_message_smooch_bot_ask_for_tos_mtan: ''
   custom_message_smooch_bot_greetings_mtan: ''
-  custom_message_smooch_bot_option_not_available_mtan: ''
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
@@ -744,70 +1151,197 @@ ro:
   custom_message_smooch_bot_meme_reverso: ''
   custom_message_smooch_bot_window_closing_reverso: ''
   custom_message_smooch_bot_ask_for_tos_reverso: ''
-  custom_message_smooch_bot_result_changed_sawy: ''
-  custom_message_smooch_bot_message_confirmed_sawy: ''
-  custom_message_smooch_bot_message_type_unsupported_sawy: ''
-  custom_message_smooch_bot_disabled_sawy: ''
+  custom_message_smooch_bot_result_changed_sawy: "❗️Verificarea de fapte pe care v-am
+    transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_sawy: "Vă mulțumim! Cererea dvs. a fost
+    recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea întrebărilor
+    dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări frecvente
+    pentru care am efectuat verificări de fapte:* [ Link spre o pagină de verificări
+    de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice text* pentru
+    revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_sawy: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_sawy: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_sawy: ''
-  custom_message_smooch_bot_greetings_sawy: ''
-  custom_message_smooch_bot_option_not_available_sawy: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
+  custom_message_smooch_bot_greetings_sawy: Salut! Bine ați venit la robotul de verificare
+    a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații, videoclipuri
+    și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
-  custom_message_smooch_bot_result_changed_team-1: ''
-  custom_message_smooch_bot_message_confirmed_team-1: ''
-  custom_message_smooch_bot_message_type_unsupported_team-1: ''
-  custom_message_smooch_bot_disabled_team-1: ''
+  custom_message_smooch_bot_result_changed_team-1: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_team-1: "Vă mulțumim! Cererea dvs. a
+    fost recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea
+    întrebărilor dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări
+    frecvente pentru care am efectuat verificări de fapte:* [ Link spre o pagină de
+    verificări de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice
+    text* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_team-1: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_team-1: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_team-1: ''
   custom_message_smooch_bot_greetings_team-1: ''
   custom_message_smooch_bot_option_not_available_team-1: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_team-1: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test: ''
-  custom_message_smooch_bot_message_confirmed_test: ''
-  custom_message_smooch_bot_message_type_unsupported_test: ''
-  custom_message_smooch_bot_disabled_test: ''
+  custom_message_smooch_bot_result_changed_test: "❗️Verificarea de fapte pe care v-am
+    transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_test: "Vă mulțumim! Cererea dvs. a fost
+    recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea întrebărilor
+    dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări frecvente
+    pentru care am efectuat verificări de fapte:* [ Link spre o pagină de verificări
+    de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice text* pentru
+    revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_test: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_test: ''
-  custom_message_smooch_bot_greetings_test: ''
-  custom_message_smooch_bot_option_not_available_test: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: ''
+  custom_message_smooch_bot_greetings_test: Salut! Bine ați venit la robotul de verificare
+    a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații, videoclipuri
+    și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test-3: ''
   custom_message_smooch_bot_message_type_unsupported_test-3: ''
   custom_message_smooch_bot_disabled_test-3: ''
   custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: ''
-  custom_message_smooch_bot_option_not_available_test-3: ''
-  custom_message_smooch_bot_result_changed_test-16: ''
+  custom_message_smooch_bot_greetings_test-3: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_result_changed_test-16: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
   custom_message_smooch_bot_message_type_unsupported_test-16: ''
   custom_message_smooch_bot_disabled_test-16: ''
   custom_message_smooch_bot_ask_for_tos_test-16: ''
   custom_message_smooch_bot_greetings_test-16: ''
-  custom_message_smooch_bot_option_not_available_test-16: ''
+  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916Ne pare rău,
+    nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: ''
-  custom_message_smooch_bot_result_changed_test-2: ''
-  custom_message_smooch_bot_message_confirmed_test-2: ''
-  custom_message_smooch_bot_message_type_unsupported_test-2: ''
-  custom_message_smooch_bot_disabled_test-2: ''
+  custom_message_smooch_bot_result_changed_test-2: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_test-2: "Vă mulțumim! Cererea dvs. a
+    fost recepționată. Răspunsurile sunt cumulate și sortate și lucrăm la verificarea
+    întrebărilor dvs.\n\n✔️*Urmați acest link pentru o listă actualizată cu întrebări
+    frecvente pentru care am efectuat verificări de fapte:* [ Link spre o pagină de
+    verificări de fapte de pe site-ul dvs. web ]\n\n\U0001F449*Răspundeți cu orice
+    text* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-2: |-
+    ❌Ne pare rău, momentan nu putem accepta acest tip de mesaje pentru verificări.
+
+    Acceptăm majoritatea imaginilor, videoclipurilor, linkurilor, mesajelor text și mesajelor partajate de pe WhatsApp.
+  custom_message_smooch_bot_disabled_test-2: |-
+    ❌Vă mulțumim pentru mesaj. Serviciul nostru de verificare a faptelor este momentan *inactiv.*
+
+    Contactați-ne la *[adresă de e-mail sau alte date de contact]* pentru alte întrebări.
   custom_message_smooch_bot_ask_for_tos_test-2: ''
-  custom_message_smooch_bot_greetings_test-2: ''
-  custom_message_smooch_bot_option_not_available_test-2: ''
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: ''
+  custom_message_smooch_bot_greetings_test-2: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: "\U0001F4CC*Meniu
+    principal*\n\n*Răspundeți cu 1* (sau \U0001F50D) pentru transmiterea unei cereri
+    de verificare a unui articol, videoclip, a unei imagini sau a altui tip de conținut.\n*Răspundeți
+    cu 2* (sau \U0001F9A0) pentru a obține cele mai noi informații despre coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-2: "*Informații
+    despre coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Răspundeți cu oricare
+    dintre următoarele numere (sau emoji) pentru a obține informații despre subiectul
+    respectiv:*\n\n*1:* Cum mă protejez pe mine/Cum îmi protejez familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    Cred că m-am îmbolnăvit \U0001F912\n*3:* Cum pot gestiona stresul legat de COVID-19?
+    ❤️\n*4:* Informații despre cazuri și pacienți recuperați la nivel mondial \U0001F4CA\n*5:*
+    Cele mai recente actualizări de la Organizația Mondială a Sănătății \U0001F310\n\n*Răspundeți
+    cu 0* pentru revenire în *meniul principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: "*Vă rugăm
+    să introduceți întrebarea, linkul, imaginea sau videoclipul pe care vreți să îl/o
+    verificăm,* urmat(ă) de orice context sau informații suplimentare legate de elementul
+    respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
+    secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
+    pentru revenire în *meniul principal*"
   custom_message_status_factchecked_test-2: ''
   custom_message_status_undetermined_test-2: ''
   custom_message_status_undetermined_test-custom-status: ''
@@ -821,9 +1355,11 @@ ro:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
+  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
-  custom_message_status_undetermined_watching-western-sahara: ''
-  custom_message_status_in_progress_watching-western-sahara: ''
-  custom_message_status_inconclusive_watching-western-sahara: ''
-  custom_message_status_false_watching-western-sahara: ''
-  custom_message_status_verified_watching-western-sahara: ''
+  custom_message_status_undetermined_watching-western-sahara: Nedemarat
+  custom_message_status_in_progress_watching-western-sahara: În lucru
+  custom_message_status_inconclusive_watching-western-sahara: Neconcludent
+  custom_message_status_false_watching-western-sahara: Fals
+  custom_message_status_verified_watching-western-sahara: Verificat
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''

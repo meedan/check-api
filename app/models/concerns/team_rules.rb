@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused', 'item_language_is']
+           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -102,6 +102,14 @@ module TeamRules
     def item_language_is(pm, value, _rule_id)
       pm.get_dynamic_annotation('language')&.get_field_value('language') == value
     end
+
+    def item_user_is(pm, value, _rule_id)
+      pm.user_id == value.to_i
+    end
+
+    def item_is_read(pm, _value, _rule_id)
+      pm.read
+    end
   end
 
   module Actions
@@ -120,7 +128,7 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        ProjectMediaProject.where(project_media_id: pm.id).delete_all
+        ProjectMediaProject.where(project_media_id: pm.id).destroy_all
         ProjectMediaProject.create!(project: project, project_media: pm, skip_check_ability: true)
       end
     end
@@ -193,7 +201,8 @@ module TeamRules
              .reject{ |f| f == 'spam' } # We are currently hiding the SPAM flag, as per #8220
              .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
       likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
-      languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } }
+      languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
+      users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } }
     })
     ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end

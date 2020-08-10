@@ -83,7 +83,6 @@ class GraphqlController3Test < ActionController::TestCase
     pm1b.disable_es_callbacks = false ; pm1b.updated_at = Time.now ; pm1b.save! ; sleep 1
     pm1a.disable_es_callbacks = false ; pm1a.updated_at = Time.now ; pm1a.save! ; sleep 1
     pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: true ; sleep 1
-    pm1d = create_project_media project: p1a, disable_es_callbacks: false, inactive: true ; sleep 1
     t2 = create_team
     p2 = create_project team: t2
     pm2 = []
@@ -1029,7 +1028,6 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
     post :create, query: query
     assert_response :success
-    puts @response.body
     assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
 
     query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
@@ -1077,10 +1075,31 @@ class GraphqlController3Test < ActionController::TestCase
     assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
   end
 
+  test "should destroy project media project without an id" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_not_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
+
+    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
+    assert_difference 'ProjectMediaProject.count', -1 do
+      post :create, query: query, team: t
+      assert_response :success
+    end
+
+    assert_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
+  end
+
   test "should define team languages settings" do
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team
+    t.set_language nil
+    t.set_languages nil
+    t.save!
 
     assert_nil t.reload.get_language
     assert_nil t.reload.get_languages
@@ -1125,5 +1144,202 @@ class GraphqlController3Test < ActionController::TestCase
     data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
     assert_match /items_count/, data['verification_statuses_with_counters'].to_json
     assert_no_match /items_count/, data['verification_statuses'].to_json
+  end
+
+  test "should filter by user in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t, quote: 'This is a test', media: nil, user: u, disable_es_callbacks: false
+    create_project_media team: t, user: u, disable_es_callbacks: false
+    create_project_media team: t, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should filter by user in PostgreSQL" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t, user: u
+    create_project_media team: t
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should get project using API key" do
+    t = create_team
+    a = create_api_key
+    b = create_bot_user api_key_id: a.id, team: t
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query = 'query { me { dbid } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal b.id, JSON.parse(@response.body)['data']['me']['dbid']
+
+    query = 'query { project(id: "' + p.id.to_s + '") { dbid } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
+  end
+
+  test "should mark item as read" do
+    pm = create_project_media
+    assert !pm.reload.read
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    assert_difference 'ProjectMediaUser.count' do
+      query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
+      post :create, query: query, team: pm.team.slug
+      assert_response :success
+      assert pm.reload.read
+
+      query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
+      post :create, query: query, team: pm.team.slug
+      assert_response 400
+    end
+  end
+
+  test "should return if item is read" do
+    u = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    ProjectMediaUser.create! user: u, project_media: pm1, read: true
+    pm2 = create_project_media project: p
+    ProjectMediaUser.create! user: create_user, project_media: pm2, read: true
+    pm3 = create_project_media project: p
+    authenticate_with_user(u)
+
+    {
+      pm1.id => [true, true],
+      pm2.id => [true, false],
+      pm3.id => [false, false]
+    }.each do |id, values|
+      ids = [id, p.id, t.id].join(',')
+      query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['project_media']
+      assert_equal values[0], data['read_by_someone']
+      assert_equal values[1], data['read_by_me']
+    end
+  end
+
+  test "should filter by read in ElasticSearch" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, quote: 'This is a test', media: nil, read: true, disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'This is another test', media: nil, disable_es_callbacks: false
+    pm3 = create_project_media quote: 'This is another test', media: nil, disable_es_callbacks: false
+    sleep 1
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+  end
+
+  test "should filter by read in PostgreSQL" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t
+    pm1 = create_project_media team: t, read: true
+    pm2 = create_project_media team: t
+    pm3 = create_project_media
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+  end
+
+  test "should return version when updating dynamic" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t
+    json_schema = {
+      type: 'object',
+      properties: {
+        test: { type: 'string' }
+      }
+    }
+    create_annotation_type_and_fields('Test', {}, json_schema)
+    pm = create_project_media team: t
+    d = nil
+    with_current_user_and_team(u, t) do
+      d = create_dynamic_annotation annotated: pm, annotation_type: 'test', set_fields: { test: random_string }.to_json
+    end
+    authenticate_with_user(u)
+
+    assert_difference 'Version.count' do
+      query = 'mutation { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", locked: true }) { version { dbid, object_changes_json, event_type }, versionEdge { node { dbid, object_changes_json, event_type } } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['updateDynamic']
+      vo = data['version']
+      ve = data['versionEdge']['node']
+      [vo, ve].each do |v|
+        assert_equal Version.last.id, v['dbid']
+        assert_equal 'update_dynamic', v['event_type']
+        assert_equal({ 'locked' => [false, true] }, JSON.parse(v['object_changes_json']))
+      end
+    end
+  end
+
+  test "should return version when answering task" do
+    u = create_user is_admin: true
+    t = create_team
+    pm = create_project_media team: t
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    tk = create_task annotated: pm
+    authenticate_with_user(u)
+
+    assert_difference 'Version.count', 2 do
+      query = 'mutation { updateTask(input: { clientMutationId: "1", response: "{\"annotation_type\":\"task_response\",\"set_fields\":\"{\\\"response_test\\\":\\\"test\\\"}\"}", id: "' + tk.graphql_id + '" }) { version { event_type }, versionEdge { node { event_type } } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['updateTask']
+      assert_equal 'create_dynamicannotationfield', data['version']['event_type']
+      assert_equal 'create_dynamicannotationfield', data['versionEdge']['node']['event_type']
+    end
   end
 end

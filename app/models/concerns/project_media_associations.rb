@@ -15,6 +15,7 @@ module ProjectMediaAssociations
     has_many :targets, through: :source_relationships, source: :target
     has_many :project_media_projects, dependent: :destroy
     has_many :projects, through: :project_media_projects
+    has_many :project_media_users, dependent: :destroy
     has_annotations
   end
 end

@@ -5,3 +5,6 @@ GraphiQL::Rails.config.headers ||= {}
 GraphiQL::Rails.config.headers[CONFIG['authorization_header']] = -> (context) {
   context.params[:api_key].blank? ? nil : context.params[:api_key]
 }
+GraphiQL::Rails.config.headers['X-Check-Team'] = -> (context) {
+  context.params[:team_slug].blank? ? nil : context.params[:team_slug]
+}

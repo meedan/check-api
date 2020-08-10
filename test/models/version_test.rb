@@ -220,4 +220,53 @@ class VersionTest < ActiveSupport::TestCase
       assert_equal url, v.smooch_user_slack_channel_url
     end
   end
+
+  test "should return version from action" do
+    ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection # Use the same database connection for all threads
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t
+    pm = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      c = nil
+      assert_difference 'Version.count' do
+        c = Comment.new annotated: pm, annotator: u, text: random_string
+        c.save_with_version!
+      end
+      v = c.version_object
+      assert_equal 'create_comment', v.event_type
+      c = Comment.find(c.id)
+      assert_nil c.version_object
+      c.text = random_string
+      assert_difference 'Version.count' do
+        c.save_with_version!
+      end
+      v = c.version_object
+      assert_equal 'update_comment', v.event_type
+
+      # Concurrency
+      10.times do
+        threads = []
+        @v1 = nil
+        @v2 = nil
+        @c = c
+        threads << Thread.start do
+          User.current = create_user(is_admin: true)
+          c1 = Comment.find(@c.id)
+          c1.text = random_string
+          c1.save_with_version!
+          @v1 = c1.version_object
+        end
+        threads << Thread.start do
+          User.current = create_user(is_admin: true)
+          c2 = Comment.find(@c.id)
+          c2.text = random_string
+          c2.save_with_version!
+          @v2 = c2.version_object
+        end
+        threads.map(&:join)
+        assert_not_equal @v1.id, @v2.id
+      end
+    end
+  end
 end

@@ -19,6 +19,7 @@ class User < ActiveRecord::Base
   has_many :project_medias
   has_many :sources
   has_many :login_activities
+  has_many :project_media_users, dependent: :destroy
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
