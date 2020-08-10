@@ -25,4 +25,11 @@ class UploadedAudioTest < ActiveSupport::TestCase
     # verify file path
     assert_not_nil pm.reload.media.file_path
   end
+
+  test "should get thumbnail path" do
+    a = create_uploaded_audio file: 'with_cover.mp3'
+    assert_not_empty a.thumbnail_path
+    a = create_uploaded_audio
+    assert_nil a.thumbnail_path
+  end
 end
