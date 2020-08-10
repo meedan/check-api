@@ -53,7 +53,35 @@ class Bot::Smooch < BotUser
         end
       end
     end
-    after_save :change_smooch_user_state, if: proc { |d| d.annotation_type == 'smooch_user' }
+    after_save do
+      if self.annotation_type == 'smooch_user'
+        id = self.get_field_value('smooch_user_id')
+        unless id.blank?
+          sm = CheckStateMachine.new(id)
+          case self.action
+          when 'deactivate'
+            sm.enter_human_mode
+          when 'reactivate'
+            sm.leave_human_mode
+          when 'refresh_timeout'
+            Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
+          else
+            app_id = self.get_field_value('smooch_user_app_id')
+            message = self.action.to_s.match(/^send (.*)$/)
+            unless message.nil?
+              Bot::Smooch.get_installation('smooch_app_id', app_id)
+              payload = {
+                '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
+                authorId: id,
+                type: 'text',
+                text: message[1]
+              }.with_indifferent_access
+              Bot::Smooch.save_message_later(payload, app_id)
+            end
+          end
+        end
+      end
+    end
     before_destroy :delete_smooch_cache_keys, if: proc { |d| d.annotation_type == 'smooch_user' }, prepend: true
 
     scope :smooch_user, -> { where(annotation_type: 'smooch_user').joins(:fields).where('dynamic_annotation_fields.field_name' => 'smooch_user_data') }
@@ -67,34 +95,6 @@ class Bot::Smooch < BotUser
         Rails.cache.delete_matched("smooch:request:#{uid}:*")
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
-      end
-    end
-
-    def change_smooch_user_state
-      id = self.get_field_value('smooch_user_id')
-      unless id.blank?
-        sm = CheckStateMachine.new(id)
-        case self.action
-        when 'deactivate'
-          sm.enter_human_mode
-        when 'reactivate'
-          sm.leave_human_mode
-        when 'refresh_timeout'
-          Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
-        else
-          app_id = self.get_field_value('smooch_user_app_id')
-          message = self.action.to_s.match(/^send (.*)$/)
-          unless message.nil?
-            Bot::Smooch.get_installation('smooch_app_id', app_id)
-            payload = {
-              '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
-              authorId: id,
-              type: 'text',
-              text: message[1]
-            }.with_indifferent_access
-            Bot::Smooch.save_message_later(payload, app_id)
-          end
-        end
       end
     end
   end
@@ -669,7 +669,7 @@ class Bot::Smooch < BotUser
     type = message['type']
     if type == 'file'
       message['mediaType'] = self.detect_media_type(message) if message['mediaType'].blank?
-      m = message['mediaType'].to_s.match(/^(image|video)\//)
+      m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
       type = m[1] unless m.nil?
     end
     message['mediaSize'] ||= 0
@@ -683,6 +683,8 @@ class Bot::Smooch < BotUser
       ret[:size] = message['mediaSize'] <= UploadedImage.max_size
     when 'video'
       ret[:size] = message['mediaSize'] <= UploadedVideo.max_size
+    when 'audio'
+      ret[:size] = message['mediaSize'] <= UploadedAudio.max_size
     else
       ret = { type: false, size: false }
     end
@@ -690,7 +692,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_error_message(message, is_supported)
-    max_size = is_supported[:m_type] == 'video' ? UploadedVideo.max_size_readable : UploadedImage.max_size_readable
+    max_size = "Uploaded#{is_supported[:m_type].camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)
@@ -719,6 +721,7 @@ class Bot::Smooch < BotUser
       Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
       e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
       self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
+      nil
     end
   end
 
@@ -735,21 +738,7 @@ class Bot::Smooch < BotUser
     self.get_installation('smooch_app_id', app_id)
     Team.current = Team.where(id: self.config['team_id']).last
     message['project_id'] = self.get_project_id(message)
-
-    pm = case message['type']
-         when 'text'
-           self.save_text_message(message)
-         when 'image'
-           self.save_media_message(message)
-         when 'video'
-           self.save_media_message(message, 'video')
-         when 'file'
-           message['mediaType'] = self.detect_media_type(message)
-           m = message['mediaType'].to_s.match(/^(image|video)\//)
-           m.nil? ? return : self.save_media_message(message, m[1])
-         else
-           return
-         end
+    pm = self.create_project_media_from_message(message)
 
     return if pm.nil?
 
@@ -764,6 +753,16 @@ class Bot::Smooch < BotUser
 
     # If item is published (or parent item), send a report right away
     self.send_report_to_user(message['authorId'], message, pm, message['language'])
+  end
+
+  def self.create_project_media_from_message(message)
+    pm =
+      if message['type'] == 'text'
+        self.save_text_message(message)
+      else
+        self.save_media_message(message)
+      end
+    pm
   end
 
   def self.create_smooch_request(pm, message, app_id, author)
@@ -867,8 +866,13 @@ class Bot::Smooch < BotUser
   def self.detect_media_type(message)
     type = nil
     begin
-      m_type = MimeMagic.by_magic(open(message['mediaUrl']))
-      type = m_type.type
+      headers = {}
+      url = URI(message['mediaUrl'])
+      Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+        headers = http.head(url.path).to_hash
+      end
+      m_type = headers['content-type'].first
+      type = m_type.split(';').first
       unless type.nil? || type == message['mediaType']
         Rails.logger.warn "[Smooch Bot] saved file #{message['mediaUrl']} as #{type} instead of #{message['mediaType']}"
       end
@@ -878,15 +882,23 @@ class Bot::Smooch < BotUser
     type || message['mediaType']
   end
 
-  def self.save_media_message(message, type = 'image')
+  def self.save_media_message(message)
+    if message['type'] == 'file'
+      message['mediaType'] = self.detect_media_type(message)
+      m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
+      message['type'] = m[1] unless  m.nil?
+    end
+    allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }
+    return unless allowed_types.keys.include?(message['type'])
+
     open(message['mediaUrl']) do |f|
       text = message['text']
 
       data = f.read
       hash = Digest::MD5.hexdigest(data)
-      filename = type == 'image' ? "#{hash}.jpeg" : "#{hash}.mp4"
+      filename = "#{hash}.#{allowed_types[message['type']]}"
       filepath = File.join(Rails.root, 'tmp', filename)
-      media_type = type == 'image' ? 'UploadedImage' : 'UploadedVideo'
+      media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
       pm = ProjectMedia.joins(:media).joins(:project_media_projects).where('medias.type' => media_type, 'medias.file' => filename, 'project_media_projects.project_id' => message['project_id']).last
       if pm.nil?
@@ -924,12 +936,14 @@ class Bot::Smooch < BotUser
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i && action == 'republish_and_resend'
-      workflow = self.get_workflow(lang)
-      message = workflow['smooch_message_smooch_bot_result_changed']
-      self.send_message_to_user(uid, message)
-      sleep 1
-      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+    if subscribed_at.to_i < last_published_at.to_i
+      if ['publish', 'republish_and_resend'].include?(action)
+        workflow = self.get_workflow(lang)
+        message = workflow['smooch_message_smooch_bot_result_changed']
+        self.send_message_to_user(uid, message)
+        sleep 1
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
+      end
     # First report
     else
       self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
@@ -959,7 +973,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
-    return if response.nil? || fallback_template.nil?
+    return false if response.nil? || fallback_template.nil?
     id = response&.message&.id
     Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end

@@ -50,7 +50,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         authorId: id2,
         type: 'audio',
         text: random_string,
-        mediaUrl: random_url
+        mediaUrl: @audio_url
       },
       {
         '_id': random_string,
@@ -182,14 +182,22 @@ class Bot::SmoochTest < ActiveSupport::TestCase
         text: random_string,
         mediaUrl: @video_url,
         mediaType: 'video/mp4'
+      },
+      {
+        '_id': random_string,
+        authorId: id3,
+        type: 'file',
+        text: random_string,
+        mediaUrl: @audio_url,
+        mediaType: 'audio/mpeg'
       }
     ]
 
     create_tag_text text: 'teamtag', team_id: @team.id
     create_tag_text text: 'montag', team_id: @team.id
 
-    assert_difference 'ProjectMedia.count', 6 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 13 do
+    assert_difference 'ProjectMedia.count', 7 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 15 do
         assert_no_difference 'Comment.length' do
           messages.each do |message|
             uid = message[:authorId]

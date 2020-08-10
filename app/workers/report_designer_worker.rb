@@ -28,6 +28,9 @@ class ReportDesignerWorker
     ::Bot::Smooch.send_report_to_users(pm, action) unless pm.nil?
     d = Dynamic.where(id: id).last
     data = d.data.with_indifferent_access
+    data[:options].each_with_index do |option, i|
+      data[:options][i][:previous_published_status_label] = option[:status_label]
+    end
     data[:last_published] = Time.now.to_i.to_s
     d.data = data
     d.save!

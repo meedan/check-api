@@ -15,7 +15,7 @@ class CheckSearch
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
   end
 
-  MEDIA_TYPES = %w[claims links images videos]
+  MEDIA_TYPES = %w[claims links images videos audios]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count'
@@ -138,10 +138,11 @@ class CheckSearch
     filters = {}
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
+    filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
     filters = filters.merge({
       archived: archived,
-      inactive: false,
       sources_count: 0
     })
     build_search_range_filter(:pg, filters)
@@ -157,10 +158,10 @@ class CheckSearch
     if associated_type == 'ProjectMedia'
       archived = @options['archived'].to_i
       conditions << { term: { archived: archived } }
-      conditions << { term: { inactive: 0 } }
+      conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
-      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user && user.role?(:annotator)
+      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
       conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
@@ -287,18 +288,19 @@ class CheckSearch
         'claims' => ['Claim'],
         'links' => 'Link',
         'images' => 'UploadedImage',
-        'videos' => 'UploadedVideo'
+        'videos' => 'UploadedVideo',
+        'audios' => 'UploadedAudio'
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten
       doc_c << { terms: { 'associated_type': types } }
     end
 
-    fields = { 'project_id' => 'projects' }
+    fields = { 'project_id' => 'projects', 'user_id' => 'users' }
     status_search_fields.each do |field|
       fields[field] = field
     end
     fields.each do |k, v|
-      doc_c << { terms: { "#{k}": @options[v] } } unless @options[v].blank?
+      doc_c << { terms: { "#{k}": @options[v] } } if @options.has_key?(v)
     end
     doc_c
   end

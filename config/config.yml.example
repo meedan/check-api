@@ -76,6 +76,14 @@ development: &default
   #
   narcissus_url: 'http://narcissus:8687'
   narcissus_token: 'dev'
+  
+  # Fact-checks service URL
+  #
+  # OPTIONAL
+  # Use values below for local development
+  #
+  fetch_url: http://fetch:9292
+  fetch_token: 'dev'
 
   # Short URLs URL
   #
