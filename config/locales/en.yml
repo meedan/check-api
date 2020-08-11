@@ -137,7 +137,7 @@ en:
         text: Note
       user:
         reset_password_token: Reset password token
-        email: E-mail
+        email: Email
     errors:
       models:
         tag:
@@ -233,7 +233,7 @@ en:
           html: When ready, the workspace duplicate will be available at <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: Workspace %{team} is being deleted
-  email_not_found: E-mail not found
+  email_not_found: Email not found
   slack_channel_format_wrong: Invalid Slack channel
   invalid_token: Invalid token
   time:
@@ -338,7 +338,7 @@ en:
       header_text: |-
         You have successfully signed up to %{app_name}!
         <br>
-        To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
+        To login to the site, just follow this link: %{url}. Enter this email address and this password: %{password}
       login_button: Login to %{app_name}
       footer_text: Thanks for joining and have a great day!
     duplicated:
