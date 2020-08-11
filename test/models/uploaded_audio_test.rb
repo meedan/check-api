@@ -27,9 +27,16 @@ class UploadedAudioTest < ActiveSupport::TestCase
   end
 
   test "should get thumbnail path" do
-    a = create_uploaded_audio file: 'with_cover.mp3'
-    assert_not_empty a.thumbnail_path
     a = create_uploaded_audio
     assert_nil a.thumbnail_path
+    # mp3 file
+    a = create_uploaded_audio file: 'with_cover.mp3'
+    assert_not_empty a.thumbnail_path
+    # wav file
+    a = create_uploaded_audio file: 'with_cover.wav'
+    assert_not_empty a.thumbnail_path
+    # ogg file
+    # a = create_uploaded_audio file: 'with_cover.ogg'
+    # assert_not_empty a.thumbnail_path
   end
 end
