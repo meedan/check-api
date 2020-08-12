@@ -174,7 +174,7 @@ GEM
       mime-types (>= 1.16)
     carrierwave-video-thumbnailer (0.1.4)
       carrierwave
-    chartkick (3.3.0)
+    chartkick (3.4.0)
     chronic_duration (0.10.6)
       numerizer (~> 0.1.1)
     chunky_png (1.3.11)
