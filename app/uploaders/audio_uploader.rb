@@ -23,21 +23,35 @@ class AudioUploader < FileUploader
     extname = File.extname(current_path).delete('.')
     klass = if extname == 'wav'
               TagLib::RIFF::WAV
+            elsif extname == 'ogg'
+              TagLib::Ogg::Vorbis
             else
               TagLib::MPEG
             end
     klass::File.open(current_path) do |file|
       tag = extname == 'mp3' ? file.id3v2_tag : file.tag
-      save_audio_cover(tag) unless tag.nil?
+      if extname == 'ogg'
+        fields = tag.field_list_map
+        data = fields['METADATA_BLOCK_PICTURE']
+        unless data.nil?
+          decoded = Base64.decode64(data.first)
+          # skip header length https://xiph.org/flac/format.html#metadata_block_picture
+          cover = decoded[58..-1]
+          save_audio_cover(cover, extname)
+        end
+      else
+        cover = tag.frame_list('APIC').first unless tag.nil?
+        save_audio_cover(cover, extname)
+      end
     end
   end
 
-  def save_audio_cover(tag)
-    cover = tag.frame_list('APIC').first
+  def save_audio_cover(cover, extname)
     unless cover.nil?
-      ext = cover.mime_type.rpartition('/')[2]
+      ext = extname == 'ogg' ? 'png' : cover.mime_type.rpartition('/')[2]
+      cover = cover.picture unless extname == 'ogg'
       tmp_path = File.join( File.dirname(current_path), "tmpfile.#{ext}" )
-      File.open(tmp_path, "wb") { |f| f.write(cover.picture) }
+      File.open(tmp_path, "wb") { |f| f.write(cover) }
       # convert to `jpg` extension
       if ext != 'jpg'
         image = MiniMagick::Image.new(tmp_path)
