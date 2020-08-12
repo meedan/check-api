@@ -10,7 +10,7 @@ before_install:
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
 - sudo apt-get update
-- sudo apt-get install -y wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer libtag1-dev golang-go golang-glide
+- sudo apt-get install -y wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer golang-go golang-glide
 - mkdir -p /tmp/downloads &&
   cd /tmp/downloads &&
   (ls elasticsearch-6.8.9.deb || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.9.deb) &&
