@@ -31,14 +31,15 @@ class AudioUploader < FileUploader
     klass::File.open(current_path) do |file|
       tag = extname == 'mp3' ? file.id3v2_tag : file.tag
       if extname == 'ogg'
+        cover = nil
         fields = tag.field_list_map
         data = fields['METADATA_BLOCK_PICTURE']
         unless data.nil?
           decoded = Base64.decode64(data.first)
           # skip header length https://xiph.org/flac/format.html#metadata_block_picture
           cover = decoded[58..-1]
-          save_audio_cover(cover, extname)
         end
+        save_audio_cover(cover, extname)
       else
         cover = tag.frame_list('APIC').first unless tag.nil?
         save_audio_cover(cover, extname)
