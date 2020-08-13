@@ -3,8 +3,9 @@ class TeamTask < ActiveRecord::Base
 
   attr_accessor :keep_completed_tasks
 
-  validates_presence_of :label, :team_id
+  validates_presence_of :label, :team_id, :fieldset
   validates :task_type, included: { values: Task.task_types }
+  validate :fieldset_exists_in_team
 
   serialize :options, Array
   serialize :project_ids, Array
@@ -198,5 +199,9 @@ class TeamTask < ActiveRecord::Base
   def self.destory_project_media_task(t)
     t.skip_check_ability = true
     t.destroy
+  end
+
+  def fieldset_exists_in_team
+    errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
   end
 end

@@ -22,6 +22,7 @@ module ProjectMediaCreators
       t.annotator = User.current
       t.annotated = self
       t.order = task.order
+      t.fieldset = task.fieldset
       t.skip_check_ability = true
       t.skip_notifications = true
       t.save!

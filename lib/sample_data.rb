@@ -731,6 +731,7 @@ module SampleData
       options: ['10', '20', '30'],
       status: 'unresolved',
       annotator: options[:user] || create_user,
+      fieldset: 'tasks',
       disable_es_callbacks: true,
     }.merge(options)
     unless options.has_key?(:annotated)
@@ -843,7 +844,7 @@ module SampleData
 
   def create_team_task(options = {})
     tt = TeamTask.new
-    options = { label: random_string, team_id: create_team.id, task_type: 'free_text' }.merge(options)
+    options = { label: random_string, team_id: create_team.id, task_type: 'free_text', fieldset: 'tasks' }.merge(options)
     options.each do |key, value|
       tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
     end

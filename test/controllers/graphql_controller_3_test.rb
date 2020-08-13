@@ -1342,4 +1342,52 @@ class GraphqlController3Test < ActionController::TestCase
       assert_equal 'create_dynamicannotationfield', data['versionEdge']['node']['event_type']
     end
   end
+
+  test "should get team fieldsets" do
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    t = create_team
+    query = 'query { team { get_fieldsets } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_kind_of Array, JSON.parse(@response.body)['data']['team']['get_fieldsets']
+  end
+
+  test "should get item tasks by fieldset" do
+    u = create_user is_admin: true
+    t = create_team
+    pm = create_project_media team: t
+    t1 = create_task annotated: pm, fieldset: 'tasks'
+    t2 = create_task annotated: pm, fieldset: 'metadata'
+    ids = [pm.id, nil, t.id].join(',')
+    authenticate_with_user(u)
+    
+    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal t1.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
+
+    query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal t2.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
+  end
+
+  test "should get team tasks by fieldset" do
+    u = create_user is_admin: true
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    t2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    authenticate_with_user(u)
+    
+    query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal t1.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
+
+    query = 'query { team { team_tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
+  end
 end

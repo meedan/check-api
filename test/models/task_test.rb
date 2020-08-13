@@ -562,4 +562,40 @@ class TaskTest < ActiveSupport::TestCase
       d.save!
     end
   end
+
+  test "should not create task with invalid fieldset" do
+    assert_difference 'Task.length', 2 do
+      create_task fieldset: 'tasks'
+      create_task fieldset: 'metadata'
+    end
+    assert_no_difference 'Task.length' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: 'invalid'
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: ''
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: nil
+      end
+    end
+  end
+
+  test "should get tasks by fieldset" do
+    t1 = create_task fieldset: 'tasks'
+    t2 = create_task fieldset: 'tasks'
+    t3 = create_task fieldset: 'metadata'
+    t4 = create_task fieldset: 'metadata'
+    assert_equal [t1, t2].sort, Task.from_fieldset('tasks').sort
+    assert_equal [t3, t4].sort, Task.from_fieldset('metadata').sort
+  end
+
+  test "should create tasks with fieldset from team task" do
+    t = create_team
+    tt1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    tt2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    pm = create_project_media team: t
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('metadata').count
+  end
 end

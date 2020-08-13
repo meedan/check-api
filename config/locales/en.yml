@@ -710,6 +710,8 @@ en:
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   fetch_bot_service_unsupported: Service unsupported
+  task_options_must_be_array: Task options must be a list
+  fieldset_not_defined_by_team: Fieldset should be supported by the team
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP

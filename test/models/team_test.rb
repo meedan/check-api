@@ -3101,4 +3101,27 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end
+
+  test "should create default fieldsets when team is created" do
+    t = create_team
+    assert_not_nil t.reload.get_fieldsets
+  end
+
+  test "should validate fieldsets" do
+    t = create_team
+    [
+      { foo: 'bar' },
+      'foo',
+      [{ identifier: 'foo' }],
+      [{ identifier: 'foo', singular: 'foo' }],
+      [{ identifier: 'foo', plural: 'foos' }],
+      [{ singular: 'foo', plural: 'foos' }],
+      [{ singular: 'foo', plural: 'foos', identifier: 'Foo Bar' }]
+    ].each do |fieldsets|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_fieldsets fieldsets
+        t.save!
+      end
+    end
+  end
 end

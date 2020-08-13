@@ -18,6 +18,10 @@ class Task < ActiveRecord::Base
   end
   validates :type, included: { values: self.task_types }
 
+  field :fieldset
+  validates_presence_of :fieldset
+  validate :fieldset_exists_in_team
+
   field :description
 
   field :options
@@ -29,8 +33,9 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
   field :order, Integer
-
   field :json_schema
+
+  scope :from_fieldset, ->(fieldset) { where('task_fieldset(annotations.annotation_type, annotations.data) = ?', fieldset) }
 
   def json_schema_enabled?
     true
@@ -261,13 +266,16 @@ class Task < ActiveRecord::Base
   private
 
   def task_options_is_array
-    errors.add(:options, 'must be an array') if !self.options.nil? && !self.options.is_a?(Array)
+    errors.add(:base, I18n.t(:task_options_must_be_array)) if !self.options.nil? && !self.options.is_a?(Array)
   end
 
   def set_slug
     self.slug = Task.slug(self.label)
   end
 
+  def fieldset_exists_in_team
+    errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.annotated&.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
 end
 
 Comment.class_eval do
