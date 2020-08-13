@@ -1907,7 +1907,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get languages" do
     t = create_team
     assert_equal ['en'], t.get_languages
-    t.settings = {:languages => ['ar', 'en']}; t.save!
+    t.settings = { languages: ['ar', 'en'], fieldsets: [{ identifier: 'foo', singular: 'foo', plural: 'foos' }] }
+    t.save!
     assert_equal ['ar', 'en'], t.get_languages
   end
 

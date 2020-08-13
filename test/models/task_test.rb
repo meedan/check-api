@@ -264,7 +264,7 @@ class TaskTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk = Task.find(tk.id)
-      tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
+      tk.data = { label: 'Foo', type: 'free_text', fieldset: 'tasks' }.with_indifferent_access
       tk.save!
     end
   end
