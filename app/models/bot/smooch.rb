@@ -337,7 +337,7 @@ class Bot::Smooch < BotUser
     Rails.cache.fetch("smooch:user_language:#{uid}") do
       team = Team.find(self.config['team_id'])
       language = team.get_language || 'en'
-      language = self.get_language(message) if state == 'waiting_for_message'
+      language = self.get_language(message, language) if state == 'waiting_for_message'
       language
     end
   end
@@ -540,10 +540,10 @@ class Bot::Smooch < BotUser
     false
   end
 
-  def self.get_language(message)
+  def self.get_language(message, fallback_language = 'en')
     text = message['text'].to_s
     lang = text.blank? ? nil : Bot::Alegre.get_language_from_alegre(text)
-    lang = 'en' if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
+    lang = fallback_language if lang == 'und' || lang.blank? || !I18n.available_locales.include?(lang.to_sym)
     lang
   end
 
