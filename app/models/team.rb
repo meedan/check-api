@@ -30,8 +30,6 @@ class Team < ActiveRecord::Base
   before_destroy :destroy_versions
   after_destroy :reset_current_team
 
-  validate :languages_format, unless: proc { |t| t.settings.nil? }
-
   check_settings
 
   def logo_callback(value, _mapping_ids = nil)
