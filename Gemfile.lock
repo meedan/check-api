@@ -684,6 +684,7 @@ GEM
     swagger-docs (0.1.9)
       activesupport (>= 3, < 5)
       rails (>= 3, < 5)
+    taglib-ruby (1.0.1)
     temple (0.8.0)
     test_after_commit (1.1.0)
       activerecord (>= 3.2)
@@ -856,6 +857,7 @@ DEPENDENCIES
   sprockets (= 3.7.2)
   sqlite3
   swagger-docs (= 0.1.9)
+  taglib-ruby
   test_after_commit
   therubyracer
   thin
