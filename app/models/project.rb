@@ -263,7 +263,7 @@ class Project < ActiveRecord::Base
 
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    v = self.versions.from_partition(self.team_id).last
+    v = Version.from_partition(self.team_id).where(item_id: self.id, item_type: self.class.name).last
     unless v.nil? || v.changeset['team_id'].blank?
       keys = %w(team_id)
       data = {'team_id' => self.team_id}
