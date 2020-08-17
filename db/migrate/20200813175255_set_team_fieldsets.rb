@@ -2,6 +2,7 @@ class SetTeamFieldsets < ActiveRecord::Migration
   def change
     started = Time.now.to_i
     RequestStore.store[:skip_notifications] = true
+    RequestStore.store[:skip_rules] = true
     fieldsets = [
       {
         identifier: 'tasks',
@@ -16,12 +17,15 @@ class SetTeamFieldsets < ActiveRecord::Migration
     ]
     # Set fieldsets setting to be the default for all teams
     Team.find_each do |t|
+      print '.'
       settings = t.settings || {}
       settings[:fieldsets] = fieldsets
       t.update_column(:settings, settings)
     end
+    puts 'Updated Teams settings'
     # Set fieldset = "tasks" for all TeamTasks
     TeamTask.update_all(fieldset: 'tasks')
+    puts 'Updated TeamTasks'
     # Set fieldset: "tasks" for all Tasks
     count = Task.where(annotation_type: 'task').count
     if count > 0
@@ -39,7 +43,9 @@ class SetTeamFieldsets < ActiveRecord::Migration
         # Delete existing task before import new tasks
         Task.where(id: tasks.map(&:id)).delete_all
         # Import new tasks with old ids to keep versions
-        Task.import(new_tasks, recursive: false, validate: false)
+        imported = Task.import(new_tasks, recursive: false, validate: false)
+        # verify that all tasks imported successfully
+        raise "Counld not import all tasks #{imported.failed_instances.inspect}" unless imported.failed_instances.blank?
       end
       # re-add annotation indexes
       add_index :annotations, :annotation_type
@@ -47,6 +53,7 @@ class SetTeamFieldsets < ActiveRecord::Migration
       add_index :annotations, :annotation_type, name: 'index_annotation_type_order', order: { name: :varchar_pattern_ops }
     end
     RequestStore.store[:skip_notifications] = false
+    RequestStore.store[:skip_rules] = false
     minutes = ((Time.now.to_i - started) / 60).to_i
     puts "[#{Time.now}] Done. set Fieldset for #{count} tasks in #{minutes} minutes."
   end
