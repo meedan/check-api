@@ -94,8 +94,6 @@ ru:
       pender_url_invalid: Некорректная ссылка.
       pender_url_unsafe: Небезопасная ссылка.
       pender_could_not_parse: Не удалось обработать ссылку.
-      invalid_format_for_languages: 'Неверный формат для указания языков. Пример:
-        `[''en'', ''ar'', …]` '
   activerecord:
     models:
       link: Ссылка
@@ -150,9 +148,7 @@ ru:
           few: 'не подходит по длине (минимум: %{count} символов)'
           many: 'не подходит по длине (минимум: %{count} символов)'
           other: 'не подходит по длине (минимум: %{count} символов)'
-  slack_webhook_format_wrong: 'Неверный адрес webhook: он должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
-  invalid_media_item: Извините, этот формат не поддерживается
   invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса
     по умолчанию
   invalid_active_status_for_custom_verification_status: Неверный идентификатор активного
@@ -160,8 +156,6 @@ ru:
   invalid_label_for_custom_verification_status: Название статуса обязательно
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
     может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
-  invalid_statuses_format_for_custom_verification_status: Дополнительные статусы должны
-    иметь название, идентификатор, описание и стиль
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
@@ -214,36 +208,16 @@ ru:
     членам воркспейса %{teams} в Slack.
   admin:
     actions:
-      send_reset_password_email:
-        menu: Отправить инструкции по восстановлению пароля
       export_project:
         menu: Экспорт данных
       export_images:
         menu: Экспорт изображений
-      delete_tasks:
-        done: вопросы удалены
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Вы уверены, что хотите удалить все вопросы в проекте <strong>%{team}</strong>?
-            Будут удалены следующие вопросы:'
       duplicate_team:
         menu: Клонировать проект
-        done: скопировано
-        are_you_sure_you_want_to_copy_team:
-          html: Вы уверены, что хотите скопировать проект <strong>%{team}</strong>?
-            Вместе с группой будут скопированы все связанные данные.
-        the_team_is_being_copied: Проект копируется
-        url_when_ready:
-          html: 'Когда копия проекта будет готова, она станет доступна по ссылке:
-            <strong>%{copy_url}</strong>'
-    flash:
-      delete_team_scheduled: Проект %{team} удаляется
-  email_not_found: E-mail не найден
   slack_channel_format_wrong: Неверный канал Slack
-  invalid_token: Неверный токен
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y в %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Материал ещё не был проверен (%{team})
   oembed_disclaimer_in_progress: Проверка достоверности начата %{date} (%{team})
@@ -281,9 +255,6 @@ ru:
     many: 'Вопросов с ответами: %{count}'
     other: 'Вопросов с ответами: %{count}'
   oembed_notes: Заметки
-  duplicate_source: Источник уже существует
-  geolocation_invalid_value: Местонахождение должно содержать корректный GeoJSON (http://geojson.org/)
-  datetime_invalid_date: Пожалуйста, укажите верную дату
   error_team_archived: Нельзя добавить список задач в проект, который находится в
     корзине
   error_project_archived: Нельзя добавить материал к списку, который находится в корзине
@@ -306,7 +277,6 @@ ru:
   devise:
     mailer:
       reset_password_instructions:
-        subject: Инструкции по сбросу пароля %{app_name}
         header_title: Запрос сброса пароля
         header_text: Мы получили ваш запрос на сброс пароля для %{app_name}.
         action: Сбросить пароль
@@ -332,14 +302,11 @@ ru:
     invited: Пользователь уже был приглашен в этот проект.
     member: Пользователь уже является участником проекта.
     team_found: Проект не найден.
-    invalid: Некорректный токен приглашения.
     no_invitation: Вы не приглашены в проект %{name}
   error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам
     этого проекта
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
-  error_login_2fa: Для завершения входа введите, пожалуйста, код аутентификации.
   error_record_not_found: 'Не найдено: %{type} #%{id}'
-  mail_see_it: 'Задачу можно посмотреть по ссылке:'
   mails_notifications:
     greeting: Здравствуйте, %{username}!
     greeting_anonymous: Здравствуйте!
@@ -349,10 +316,6 @@ ru:
     copyright_html: '%{app_name} от <a href="https://meedan.com">Meedan</a>'
     register:
       subject: Новый аккаунт в %{app_name}
-      header_text: |-
-        Вы успешно зарегистрировались в %{app_name}!
-        <br>
-        Чтобы начать работу, нажмите на ссылку: %{url}. Введите ваш e-mail и этот пароль: %{password}
       login_button: Войти в %{app_name}
       footer_text: Спасибо, что присоединились к нам, и добро пожаловать!
     duplicated:
@@ -520,10 +483,6 @@ ru:
   bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
     этого можно предложить ответ
   bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
-  task_suggestion_invalid_value: Предлагаемый ответ должен быть представлен в виде
-    объекта JSON с ключами `suggestion` (ответ на вопрос, публикуемый при принятии
-    предложения) и `comment` (показывается пользователям)
-  tag_text_id_not_found: Извините, тэга с таким идентификатором не существует
   annotation_type_language_label: Язык
   smooch_bot_message_confirmed: |-
     Спасибо. Ваш запрос был добавлен в очередь на верификацию.
@@ -599,7 +558,6 @@ ru:
             delete_repsonse: Удаление ответов
             assign_task: Назначать задачи и материалы
         team_management:
-          name: Управление проектом
           permissions:
             delete: Закрывать проект
             edit: Редактировать информацию о проекте
@@ -623,9 +581,6 @@ ru:
     invalid_project: Неверный список %{project}
     invalid_user: Неверный пользователь %{user}
     invalid_status: Неверный статус %{status}
-    blank_user: Не указан автор
-    blank_annotator: Не указан аннотатор
-    blank_project: Не указан список задач
     invalid_annotator: Неверный аннотатор %{user}
     invalid_assignee: Неверный пользователь %{user}
   cant_mutate_inactive_object: Этот материал находится в обработке и не может быть
@@ -640,15 +595,11 @@ ru:
   smooch_requests: Запросы
   smooch_requests_asc: Наименее запрашиваемые
   smooch_requests_desc: Самые запрашиваемые
-  bot_request_url_invalid: Неверный URL бота
   smooch_twitter_success: Ура! Теперь личные сообщения, присылаемые в этот аккаунт
     Twitter, будет обрабатывать бот Smooch.
-  invalid_task_answer: Извините, формат этого ответа неверен
   team_rule_name: Уникальное название для правила
   team_rule_project_ids: Применить к списку
   team_rule_destination: Выберите список задач
-  team_rule_names_invalid: Названия правил должны быть уникальными и не могут быть
-    пустыми
   team_rules: Правила
   team_rule_conditions: Если
   team_rule_condition: Если
@@ -699,7 +650,6 @@ ru:
   team_rule_condition_groups: Группы условий
   team_rule_condition_group: Группа условий
   team_rule_operator: Оператор
-  team_rule_json_schema_validation: Неверный формат правила
   team_rule_updated_at: Изменено
   team_rule_item_language_is: Язык материала совпадает с указанным
   team_rule_item_user_is: Материал был создан данным автором
@@ -724,10 +674,6 @@ ru:
     поэтому, если вы хотите удалить его, нужно указать альтернативный вариант
   embed_no_content_yet: Отчёт находится в процессе создания. Это может занять несколько
     минут. Пожалуйста, обновите страницу чуть позже.
-  language_format_invalid: Неверное обозначение языка. Язык должен быть указан кодом
-    ISO 639-1.
-  languages_format_invalid: Неверные обозначения языков. Языки должны указываться
-    кодами ISO 639-1.
   cant_change_status_if_item_is_published: Извините, вы не можете изменить статус,
     когда отчёт уже опубликован
   fetch_bot_service_unsupported: Сервис не поддерживается
@@ -1043,8 +989,8 @@ ru:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has
