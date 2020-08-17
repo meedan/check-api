@@ -100,8 +100,8 @@ en:
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
       pender_could_not_parse: Could not parse this link.
-      invalid_format_for_languages: Invalid languages format. Expecting `['en', 'ar',
-        …]`
+      invalid_format_for_languages: Invalid language format. Expecting the format
+        `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -137,7 +137,7 @@ en:
         text: Note
       user:
         reset_password_token: Reset password token
-        email: E-mail
+        email: Email
     errors:
       models:
         tag:
@@ -154,10 +154,9 @@ en:
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
-  slack_webhook_format_wrong: Slack webhook is invalid, it should have the format
-    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Invalid Slack webhook. Expecting the format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
-  invalid_media_item: Sorry, this is not a valid item
+  invalid_media_item: The item is invalid
   invalid_default_status_for_custom_verification_status: The default status identifier
     is invalid
   invalid_active_status_for_custom_verification_status: The active status identifier
@@ -165,8 +164,8 @@ en:
   invalid_label_for_custom_verification_status: The status label is mandatory
   invalid_id_for_custom_verification_status: The status identifier is mandatory and
     must contain only lowercase letters, numbers, hyphens and underscores
-  invalid_statuses_format_for_custom_verification_status: 'Custom verification statuses
-    should have valid entries for: label, identifier, description and style'
+  invalid_statuses_format_for_custom_verification_status: 'Invalid custom verification
+    statuses. Expecting valid entries for: label, identifier, description and style.'
   mail_account_confirmation: "%{app_name} account confirmation"
   slack:
     fields:
@@ -217,34 +216,29 @@ en:
   admin:
     actions:
       send_reset_password_email:
-        menu: Send reset password instructions
+        menu: Send password reset instructions
       export_project:
         menu: Export data
       export_images:
         menu: Export images
-      delete_tasks:
-        done: deleted the tasks
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Are you sure you want to delete all tasks in workspace <strong>%{team}</strong>?
-            The following tasks will be removed:'
       duplicate_team:
         menu: Duplicate workspace
-        done: copied
+        done: duplicated
         are_you_sure_you_want_to_copy_team:
-          html: Are you sure you want to copy the workspace <strong>%{team}</strong>?
+          html: Are you sure you want to duplicate the workspace <strong>%{team}</strong>?
             All the related data will also be copied.
-        the_team_is_being_copied: The workspace is being copied
+        the_team_is_being_copied: Workspace duplication in progress
         url_when_ready:
-          html: When ready, the workspace copy will be available at <strong>%{copy_url}</strong>
+          html: When ready, the workspace duplicate will be available at <strong>%{copy_url}</strong>
     flash:
-      delete_team_scheduled: The workspace %{team} is being deleted
-  email_not_found: E-mail not found
+      delete_team_scheduled: Workspace %{team} is being deleted
+  email_not_found: Email not found
   slack_channel_format_wrong: Invalid Slack channel
-  invalid_token: Invalid Token
+  invalid_token: Invalid token
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      task: "%B %d, %Y at %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: This item has not been verified by %{team}
   oembed_disclaimer_in_progress: This item is being verified by %{team} as of %{date}
@@ -278,9 +272,10 @@ en:
     one: One resolved task
     other: "%{count} resolved tasks"
   oembed_notes: Notes
-  duplicate_source: Source exists
-  geolocation_invalid_value: Location must contain a valid GeoJSON (http://geojson.org/)
-  datetime_invalid_date: Please provide a valid date
+  duplicate_source: Source already exists
+  geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure
+    (http://geojson.org/)
+  datetime_invalid_date: Invalid date
   error_team_archived: Sorry, you can't add a list to a trashed workspace
   error_project_archived: Sorry, you can't add an item to a trashed list
   error_team_archived_for_source: Sorry, you can't add a source to a trashed workspace
@@ -299,7 +294,7 @@ en:
   devise:
     mailer:
       reset_password_instructions:
-        subject: "%{app_name} reset password instructions"
+        subject: "%{app_name} password reset instructions"
         header_title: Password reset request
         header_text: We've received your request to reset your %{app_name} password.
         action: Reset your password
@@ -324,14 +319,13 @@ en:
     invited: This user was already invited to this workspace.
     member: This user is already a member.
     team_found: Workspace not found.
-    invalid: Invitation token is invalid.
+    invalid: Invalid invitation code.
     no_invitation: No invitation exists for workspace %{name}
   error_user_is_not_a_team_member: Sorry, you can only assign to members of this workspace
   error_login_with_exists_account: Sorry, there is another user who is already using
     this account
-  error_login_2fa: Please complete your sign-in by supplying an authentication code.
+  error_login_2fa: Please complete your sign in by supplying an authentication code.
   error_record_not_found: "%{type} #%{id} not found"
-  mail_see_it: 'You can see it at: '
   mails_notifications:
     greeting: Hello %{username},
     greeting_anonymous: Hello!
@@ -344,7 +338,7 @@ en:
       header_text: |-
         You have successfully signed up to %{app_name}!
         <br>
-        To login to the site, just follow this link: %{url}. Enter this e-mail address and this password: %{password}
+        To login to the site, just follow this link: %{url}. Enter this email address and this password: %{password}
       login_button: Login to %{app_name}
       footer_text: Thanks for joining and have a great day!
     duplicated:
@@ -507,10 +501,10 @@ en:
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
-  task_suggestion_invalid_value: A suggestion must be a JSON hash with attributes
-    `suggestion` (the actual value that is copied to the task answer when accepted)
-    and `comment` (displayed to users)
-  tag_text_id_not_found: Sorry, there is no tag with the provided identifier
+  task_suggestion_invalid_value: Invalid task suggestion. Expecting a JSON object
+    with attributes `suggestion` (the actual value that is copied to the task answer
+    when accepted) and `comment` (displayed to users).
+  tag_text_id_not_found: Tag not found
   annotation_type_language_label: Language
   smooch_bot_message_confirmed: |-
     Thank you. Your request has been added to our verification queue.
@@ -585,7 +579,7 @@ en:
             delete_repsonse: Delete response
             assign_task: Assign task or item
         team_management:
-          name: workspace management
+          name: Workspace management
           permissions:
             delete: Close workspace
             edit: Edit workspace information
@@ -610,9 +604,9 @@ en:
     invalid_project: Invalid list %{project}
     invalid_user: Invalid author %{user}
     invalid_status: Invalid status %{status}
-    blank_user: Invalid blank author
-    blank_annotator: Invalid blank annotator
-    blank_project: Invalid blank list
+    blank_user: Invalid blank author field
+    blank_annotator: Invalid blank annotator field
+    blank_project: Invalid blank list field
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
   cant_mutate_inactive_object: Sorry, there is an operation pending for this item,
@@ -627,14 +621,14 @@ en:
   smooch_requests: Requests
   smooch_requests_asc: Least requested
   smooch_requests_desc: Most requested
-  bot_request_url_invalid: The bot URL is invalid
+  bot_request_url_invalid: Invalid bot URL
   smooch_twitter_success: Success! Now the DMs received by this Twitter account will
     be handled by the Smooch Bot.
-  invalid_task_answer: Sorry, the format of this task answer is not valid
+  invalid_task_answer: Invalid task answer format
   team_rule_name: A unique name that identifies what this rule does
   team_rule_project_ids: Apply to list
   team_rule_destination: Select destination list
-  team_rule_names_invalid: Rules names can't be blank and must be unique
+  team_rule_names_invalid: Rule names can't be blank and must be unique
   team_rules: Rules
   team_rule_conditions: If
   team_rule_condition: If
@@ -684,7 +678,7 @@ en:
   team_rule_condition_groups: Condition groups
   team_rule_condition_group: Condition group
   team_rule_operator: Operator
-  team_rule_json_schema_validation: Rules format is not valid
+  team_rule_json_schema_validation: Invalid rule format
   team_rule_updated_at: Updated
   team_rule_item_language_is: Item language is
   team_rule_item_user_is: Item was created by
@@ -710,9 +704,9 @@ en:
     you must provide a fallback status if you want to delete it
   embed_no_content_yet: The report is being generated. This process can take a few
     minutes. Please refresh this page.
-  language_format_invalid: Language format is invalid. It should be a ISO 639-1 code.
-  languages_format_invalid: Languages format is invalid. It should be a list of ISO
-    639-1 codes.
+  language_format_invalid: Invalid language format. Expecting a ISO 639-1 code.
+  languages_format_invalid: Invalid language format. Expecting a list of ISO 639-1
+    codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   fetch_bot_service_unsupported: Service unsupported
@@ -1285,15 +1279,18 @@ en:
     you are looking for more information about COVID-19  type *COVID* (or \U0001F9A0)
     to get the latest facts about the novel coronavirus disease (COVID-19\n\nReply
     *menu* to go back to the *Main Menu*\""
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: "❌
-    We are sorry, we can't assist with your query.\n\nPlease view our submission guidelines
-    here:\n\nafricacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F637
-    If you would like more information on COVID-19 you can find our current reports,
-    factsheets and fact-checks by clicking here: \n\nafricacheck.org/reports/live-guide-all-our-coronavirus-fact-checks-in-one-place/"
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: "\U0001F97A
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: "❌
+    \ We are sorry, we can't assist with your query. \n\n\U0001F30D Africa Check focuses
+    on claims relating to Africa, and which are presented as 'facts'. We do not fact-check
+    people's opinions, and usually do not cover topics that have already been covered
+    extensively before or by other media. We also cannot check claims made about the
+    future. \n\n\U0001F4C4 Please view our submission guidelines here: africacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F9D0
+    For tips and advice on how you can fact-check information, read our guides here:
+    africacheck.org/content-block/how-you-can-fact-check/ \n\n"
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: "\U0001F97A
     \ We're sorry, we weren't able to understand your submission or query. If you
     want something fact-checked, please follow the instructions from Kweli and re-submit
-    your text, photo, link or video when asked."
+    your text, photo, link or video when prompted."
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has

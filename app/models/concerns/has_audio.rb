@@ -15,4 +15,8 @@ module HasAudio
     mount_uploader :file, AudioUploader
     validates :file, file_size: { less_than: UploadedAudio.max_size, message: :audio_too_large, max_size: UploadedAudio.max_size_readable }, allow_blank: true
   end
+
+  def thumbnail_path
+    self.image_path('thumbnail') if self.file.thumbnail.file.exists?
+  end
 end

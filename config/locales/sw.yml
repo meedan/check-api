@@ -146,10 +146,7 @@ sw:
         too_short:
           one: ni fupi sana (kiwango chini ya 1%{hesabu} wahusika)
           other: ni fupi mno (kiwango cha chini ni vibambo %{count})
-  slack_webhook_format_wrong: Matinifora ya itifaki ya uhamishaji ya Slack ni batili,
-    yapaswa kuwa na muundo wa `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Imetengewa
-  invalid_media_item: Samahani, hiki sio kitu halali
   invalid_default_status_for_custom_verification_status: Hali msingi ya kutambulisha
     ni batili
   invalid_active_status_for_custom_verification_status: Utambulisho wa hali ya shughuli
@@ -157,8 +154,6 @@ sw:
   invalid_label_for_custom_verification_status: Lebo ya hali ni lazima
   invalid_id_for_custom_verification_status: Utambulisho wa halii ni lazima na unapaswa
     kuwa na herufi ndogo pekee, nambari, deshi, na vistari chini
-  invalid_statuses_format_for_custom_verification_status: 'Uthibitisho kaida wa hali
-    unapaswa kuwa na miingizo halali ya: Lebo, utambulisho, maelezo na mtindo'
   mail_account_confirmation: "%{app_name} uthibitisho wa akaunti"
   slack:
     fields:
@@ -209,36 +204,16 @@ sw:
     sababu limezuiliwa kwa wanachama wa ulingo wa kazi wa Slack %{teams}. '
   admin:
     actions:
-      send_reset_password_email:
-        menu: Tuma maelezo ya kuseti nenosiri upya
       export_project:
         menu: Hamisha data
       export_images:
         menu: Hamisha picha
-      delete_tasks:
-        done: Kazi zilizofutwa
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Una uhakika unataka kufuta kazi zote kwenye ulingo wa kazi <strong>%{team}</strong>?
-            Kazi zifuatazo zitatolewa: '
       duplicate_team:
         menu: Ulingo wa kazi uliorudiwa
-        done: Imenakiliwa
-        are_you_sure_you_want_to_copy_team:
-          html: Una uhakika unataka kunakili kazi zote kwenye ulingo wa kazi <strong>%{team}</strong>?
-            Dada zote zinazohusiana zitanakiliwa.
-        the_team_is_being_copied: Ulingo wa kazi unanakiliwa
-        url_when_ready:
-          html: Uwapo tayari, ulingo wa kazi utapatikana kwa <strong>1%{nakili_KISARA}
-            </strong>
-    flash:
-      delete_team_scheduled: Ulingo wa kazi %{team} unafutwa
-  email_not_found: Barua pepe haijapatikana
   slack_channel_format_wrong: Mkondo batili wa Slack
-  invalid_token: Ishara batili
   time:
     formats:
       oembed: "%B %d , %Y"
-      task: "%B %d, %Y katika %H:%M [TZ] (%z GMT)"
       email: "%B %d, %Y %I:%M  %p %Z"
   oembed_disclaimer_undetermined: Kitu hiki hakijathibitishwa na%{timu}
   oembed_disclaimer_in_progress: Kitu hiki kinathibitishwa na %{timu} kutokea%{siku}
@@ -271,9 +246,6 @@ sw:
     one: 1%{hesabu} kazi zilizomalizwa
     other: Kazi %{count}zilizokamilishwa
   oembed_notes: Maelezo
-  duplicate_source: Chanzo kinapatikana
-  geolocation_invalid_value: Eneo lazima liwe na GeoJSON halali. (http://geojson.org/)
-  datetime_invalid_date: Tafadhali ingiza tarehe halali
   error_team_archived: Samahani, hauwezi kuongeza orodha kwenye ulingo wa kazi taka
   error_project_archived: Samahani, huwezi kuongeza kitu kwenye orodha taka
   error_team_archived_for_source: Samahani,  huwezi kuongeza chanzo kwenye ulingo
@@ -294,7 +266,6 @@ sw:
   devise:
     mailer:
       reset_password_instructions:
-        subject: "%{app_name}seti upya maelezo ya nenosiri"
         header_title: Ombi la kubadilisha nenosiri
         header_text: Tumepokea ombi lako la kubadilisha nenosiri lako la %{app_name}
         action: Badilisha nenosiri
@@ -319,15 +290,12 @@ sw:
     invited: Mtumiaji huyu tayari amealikwa kwenye ulingo huu wa kazi
     member: Mtumiaji tayari ni mwanachama.
     team_found: Ulingo wa kazi haupatikani.
-    invalid: Ishara ya mwaliko ni batili.
     no_invitation: Hakuna mialiko iliyopo kwenye ulingo huu wa kazi %{name}
   error_user_is_not_a_team_member: Samahani, unaweza kupangia tu wanachama wa ulingo
     huu wa kazi
   error_login_with_exists_account: Samahani, kuna mtumiaji mwingine anayetumia akaunti
     hii
-  error_login_2fa: Tafadhali kamilisha kuingia kwako kwa kutoa nambari za kuthibitisha.
   error_record_not_found: "%{type} # %{id} haijapatikana"
-  mail_see_it: 'Unaweza kuiangalia kwa: '
   mails_notifications:
     greeting: Habari %{username},
     greeting_anonymous: Habari!
@@ -337,10 +305,6 @@ sw:
     copyright_html: '%{app_name} na <a href="https://meedan.com">Meedan</a>'
     register:
       subject: Akaunti yako mpya kwa %{app_name}
-      header_text: |-
-        Umefanikiwa kujisajili kwa %{app_name}
-        <br>
-        Kuingia kwenye tovuti, fuata kiungo hiki: %{url} . Ingiza barua pepe hii na nenosiri hili: %{password}
       login_button: Ingia kwa %{app_name}
       footer_text: Asante sana kwa kujiunga, kuwa na siku njema
     duplicated:
@@ -500,7 +464,6 @@ sw:
   bot_cant_add_response_to_task: Samahani, boti haiwezi kujibu kazi moja kwa moja-tafadhali
     tuma pendekezo la jibu badala yake.
   bot_cant_add_review_to_task: Samahani, boti haiwezi kuhakiki kazi
-  tag_text_id_not_found: Samahani, hakuna tagi yenye utambulisho uliowasilishwa.
   annotation_type_language_label: Lugha
   smooch_bot_message_confirmed: |-
     Asante. Ombi lako limeongezwa kwenye foleni yetu ya uthibitishaji.
@@ -575,7 +538,6 @@ sw:
             delete_repsonse: Futa jibu
             assign_task: Pangia kazi au kitu
         team_management:
-          name: Usimamazi wa ulingo wa kazi
           permissions:
             delete: Funga ulingo wa kazi
             edit: Hariri maelezo ya ulingo wa kazi
@@ -600,9 +562,6 @@ sw:
     invalid_project: Orodha batili %{project}
     invalid_user: Mwandishi batili %{user}
     invalid_status: Hali batili %{status}
-    blank_user: mwandishi tupu batili
-    blank_annotator: Mfafanuzi tupu batili
-    blank_project: Orodha tupu batili
     invalid_annotator: Mfafanuzi batili %{user}
     invalid_assignee: Mpangiwaji batili %{user}
   cant_mutate_inactive_object: Samahani, kuna operecheni inayosubiria kwa kitu hiki,
@@ -617,15 +576,11 @@ sw:
   smooch_requests: Maombi
   smooch_requests_asc: Isiyoombwa sana
   smooch_requests_desc: Inayoombwa sana
-  bot_request_url_invalid: KISARA cha boti ni batili
   smooch_twitter_success: 'Fanikio! Sasa jumbe za kibinafsi zilizopokelewa na akaunti
     ya Twitter zitashugulikiwa na Boti ya Smooch. '
-  invalid_task_answer: Samahani, muundo wa jibu hili la kazi ni batili
   team_rule_name: Jina la kipekee linalotambua kile sharti hili hufanya
   team_rule_project_ids: Tekeleza kwa orodha
   team_rule_destination: Chagua kunakoelekezwa orodha
-  team_rule_names_invalid: Majina ya masharti hayawezi kuachwa tupu na lazima yawe
-    ya kipekee
   team_rules: Masharti
   team_rule_conditions: Iwapo
   team_rule_condition: Iwapo
@@ -674,7 +629,6 @@ sw:
   team_rule_condition_groups: Zoesha vikundi
   team_rule_condition_group: Zoesha kikundi
   team_rule_operator: Muendesha
-  team_rule_json_schema_validation: Muundo wa masharti ni batili
   team_rule_updated_at: Sasisha
   team_rule_item_language_is: Lugha ya kitu ni
   flag_adult: 'Mtu  mzima '
@@ -699,9 +653,6 @@ sw:
     itakulazimu kutoa hali ya kurejelea iwapo unataka kuifuta.
   embed_no_content_yet: Ripoti inatolewa. Mchakato huu unaweza kuchukua dakika chache.
     Tafadhali pakia tena ukurasa huu.
-  language_format_invalid: Muundo wa lugha ni batili. Unapaswa kuwa nambari ya ISO-639-1.
-  languages_format_invalid: Muundo wa lugha ni batili. Unapaswa kuwa wa orodha ya
-    nambari za ISO-639-1.
   cant_change_status_if_item_is_published: Samahani, hauwezi kubadilisha hali wakati
     ripoti inachapishwa.
   custom_message_status_undetermined_afp-checamos: ''
@@ -994,8 +945,8 @@ sw:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️Mathibitisho tuliyokutumia
     *yamesasishwa* na taarifa mpya: "
   custom_message_smooch_bot_message_confirmed_lebanon: "Asante! Ombi lako limepokelewa.

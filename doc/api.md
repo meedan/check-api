@@ -71,9 +71,9 @@ Use this method in order to send queries to the GraphQL server
   "extensions": {
     "tracing": {
       "version": 1,
-      "startTime": "2020-05-29T22:59:33.202Z",
-      "endTime": "2020-05-29T22:59:33.927Z",
-      "duration": 725089311,
+      "startTime": "2020-08-13T18:51:25.685Z",
+      "endTime": "2020-08-13T18:51:29.874Z",
+      "duration": 4189505100,
       "execution": {
         "resolvers": [
           {
@@ -83,8 +83,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "Query",
             "fieldName": "about",
             "returnType": "About",
-            "startOffset": 2929210,
-            "duration": 721795082
+            "startOffset": 2713203,
+            "duration": 4185518980
           },
           {
             "path": [
@@ -94,8 +94,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "About",
             "fieldName": "name",
             "returnType": "String",
-            "startOffset": 724894762,
-            "duration": 29563
+            "startOffset": 4188745260,
+            "duration": 85353
           },
           {
             "path": [
@@ -105,8 +105,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "About",
             "fieldName": "version",
             "returnType": "String",
-            "startOffset": 724985122,
-            "duration": 11444
+            "startOffset": 4189048051,
+            "duration": 146389
           }
         ]
       }
@@ -127,9 +127,9 @@ Use this method in order to send queries to the GraphQL server
   "extensions": {
     "tracing": {
       "version": 1,
-      "startTime": "2020-05-29T22:59:34.002Z",
-      "endTime": "2020-05-29T22:59:34.510Z",
-      "duration": 508029222,
+      "startTime": "2020-08-13T18:51:29.967Z",
+      "endTime": "2020-08-13T18:51:33.563Z",
+      "duration": 3596071958,
       "execution": {
         "resolvers": [
           {
@@ -139,8 +139,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "Query",
             "fieldName": "about",
             "returnType": "About",
-            "startOffset": 1633167,
-            "duration": 506082534
+            "startOffset": 2356767,
+            "duration": 3592782258
           },
           {
             "path": [
@@ -150,8 +150,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "About",
             "fieldName": "name",
             "returnType": "String",
-            "startOffset": 507859468,
-            "duration": 28848
+            "startOffset": 3595492124,
+            "duration": 98228
           },
           {
             "path": [
@@ -161,8 +161,8 @@ Use this method in order to send queries to the GraphQL server
             "parentType": "About",
             "fieldName": "version",
             "returnType": "String",
-            "startOffset": 507938623,
-            "duration": 16212
+            "startOffset": 3595772027,
+            "duration": 52928
           }
         ]
       }
@@ -188,7 +188,7 @@ Use this method in order to sign in
 {
   "errors": [
     {
-      "message": "Invalid E-mail or password.",
+      "message": "Invalid Email or password.",
       "code": 1,
       "data": {
       }
@@ -202,7 +202,7 @@ Use this method in order to sign in
 {
   "errors": [
     {
-      "message": "Invalid E-mail or password.",
+      "message": "Invalid Email or password.",
       "code": 1,
       "data": {
       }
@@ -238,16 +238,88 @@ Use this method in order to create a new user account
 **Response**
 
 200: Account created
+```json
+{
+  "errors": [
+    {
+      "message": "Please check your email to verify your account.",
+      "code": 1,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 400: Password is too short
+```json
+{
+  "errors": [
+    {
+      "message": "has already been taken",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 400: Passwords do not match
+```json
+{
+  "errors": [
+    {
+      "message": "has already been taken",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 400: E-mail missing
+```json
+{
+  "errors": [
+    {
+      "message": "has already been taken",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 400: Password is missing
+```json
+{
+  "errors": [
+    {
+      "message": "has already been taken",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 400: Name is missing
+```json
+{
+  "errors": [
+    {
+      "message": "has already been taken",
+      "code": 4,
+      "data": {
+      }
+    }
+  ]
+}
+```
 
 
 #### PATCH /api/users
