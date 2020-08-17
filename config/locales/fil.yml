@@ -99,7 +99,7 @@ fil:
       pender_url_invalid: Hindi wasto ang link na ito.
       pender_url_unsafe: Hindi ligtas ang link na ito.
       pender_could_not_parse: Hindi ma-parse ang link na ito.
-      invalid_format_for_languages: Hindi wasto ang format ng mga wika. Ang inaasahan
+      invalid_format_for_languages: Hindi wasto ang format ng wika. Ang inaasahan
         ay `['en', 'ar', …]`
   activerecord:
     models:
@@ -136,7 +136,7 @@ fil:
         text: Note
       user:
         reset_password_token: I-reset ang password token
-        email: E-mail
+        email: Email
     errors:
       models:
         tag:
@@ -153,19 +153,20 @@ fil:
         too_short:
           one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
           other: ay masyadong maikli (hindi bababa sa %{count} karakter)
-  slack_webhook_format_wrong: Hindi wasto ang Slack webhook, ang format dapat ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Hindi wasto ang Slack webhook. Ang format na inaasahan
+    ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: ay nakareserba na
-  invalid_media_item: Paumanhin, hindi ito wastong item
+  invalid_media_item: Hindi wasto ang item
   invalid_default_status_for_custom_verification_status: Hindi wasto ang default na
     status identifier
-  invalid_active_status_for_custom_verification_status: Hindi wasto ang active status
+  invalid_active_status_for_custom_verification_status: Hindi wasto ang aktibong status
     identifier
   invalid_label_for_custom_verification_status: Kinakailangan ang label ng status
   invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at
     ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
-  invalid_statuses_format_for_custom_verification_status: 'Ang mga custom verification
-    status ay kailangang may mga wastong entry para sa: label, identifier, pagkakalarawan,
-    at istilo'
+  invalid_statuses_format_for_custom_verification_status: 'Hindi wasto ang mga custom
+    verification status. Ang inaasahan ay mga wastong entry para sa: label, identifier,
+    pagkakalarawan, at istilo.'
   mail_account_confirmation: Pagkumpirma ng account sa %{app_name}
   slack:
     fields:
@@ -227,11 +228,6 @@ fil:
         menu: I-export ang datos
       export_images:
         menu: I-export ang mga larawan
-      delete_tasks:
-        done: binura ang mga gawain
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Sigurado ka bang gusto mong burahin ang lahat ng gawain sa workspace
-            na <strong>%{team}</strong>? Tatanggalin ang sumusunod na mga gawain:'
       duplicate_team:
         menu: I-duplicate ang workspace
         done: kinopya
@@ -243,13 +239,13 @@ fil:
           html: Kapag handa na, makikita ang kopya ng workspace sa <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: Kasalukuyang binubura ang workspace na %{team}
-  email_not_found: Hindi matagpuan ang e-mail
+  email_not_found: Hindi matagpuan ang email
   slack_channel_format_wrong: Hindi wastong Slack channel
-  invalid_token: Hindi Wastong Token
+  invalid_token: Hindi wastong token
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      task: "%B %d, %Y at %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Hindi pa nabeberipika ng %{team} ang item na ito
   oembed_disclaimer_in_progress: Ang item na ito ay bineberipika ng %{team} nitong
@@ -284,9 +280,10 @@ fil:
     one: Isang gawaing naresolba
     other: "%{count} nalutas na gawain"
   oembed_notes: Mga note
-  duplicate_source: Dati na ang source na ito
-  geolocation_invalid_value: Ang lokasyon ay dapat magkaroon ng wastong GeoJSON (http://geojson.org/)
-  datetime_invalid_date: Mangyaring magbigay ng wastong petsa
+  duplicate_source: Dati na ang source
+  geolocation_invalid_value: Hindi wasto ang lokasyon. Ang inaasahan ay wastong GeoJSON
+    structure (http://geojson.org/)
+  datetime_invalid_date: Hindi wastong petsa
   error_team_archived: Paumanhin, hindi pwede magdagdag ng listahan sa binasurang
     workspace
   error_project_archived: Paumanhin, hindi pwede magdagdag ng item sa binasurang listahan
@@ -338,16 +335,15 @@ fil:
     invited: Naanyayahan na ang user sa workspace na ito.
     member: Miyembro na ang user na ito.
     team_found: Hindi matagpuan ang workspace.
-    invalid: Hindi wastong token ng paanyaya.
+    invalid: Hindi wasto ang code ng paanyaya.
     no_invitation: Wala pang paanyaya para sa workspace na %{name}
   error_user_is_not_a_team_member: Paumanhin, pwede ka lang magtalaga sa mga miyembro
     nitong workspace
   error_login_with_exists_account: Paumanhin, may ibang user nang gumagamit ng account
     na ito
-  error_login_2fa: Mangyaring kumpletuhin ang iyong sign-in sa pagbibigay ng authentication
+  error_login_2fa: Mangyaring kumpletuhin ang iyong sign in sa pagbibigay ng authentication
     code.
   error_record_not_found: 'Hindi matagpuan ang %{type} #%{id}'
-  mail_see_it: 'Maaari mo itong matagpuan sa:'
   mails_notifications:
     greeting: Kumusta, %{username}?
     greeting_anonymous: Kumusta?
@@ -522,9 +518,8 @@ fil:
     status na ito.
   blank_default_status_for_custom_verification_status: Mangyaring magbigay ng default
     na value para sa mga custom verification status
-  blank_active_status_for_custom_verification_status: |-
-    98%match
-    Mangyaring magbigay ng active na value para sa mga custom verification status
+  blank_active_status_for_custom_verification_status: Mangyaring magbigay ng aktibong
+    value para sa mga custom verification status
   bot_name_exists_for_this_team: Meron nang bot sa pangalang binigay sa loob ng workspace
     na ito
   bot_team_id_doesnt_exist: Paumanhin, walang workspace sa binigay na identifier
@@ -539,10 +534,10 @@ fil:
   bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
     ang isang bot - mangyaring magpadala na lamang ng mungkahing sagot
   bot_cant_add_review_to_task: Paumanhin, hindi nakasusuri ng gawain ang isang bot
-  task_suggestion_invalid_value: Ang isang mungkahi ay dapat JSON hash na may mga
-    attribute na `mungkahi` (ang akwtal na value na ikinokopya sa sagot sa gawain
-    kapag tinanggap) at `komento` (ipinakikita sa mga user)
-  tag_text_id_not_found: Paumanhin, walang tag sa binigay na identifier
+  task_suggestion_invalid_value: Hindi wastong mungkahing gawain. Ang inaasahan ay
+    JSON object na may mga attribute na `mungkahi` (ang akwtal na value na ikinokopya
+    sa sagot sa gawain kapag tinanggap) at `komento` (ipinakikita sa mga user).
+  tag_text_id_not_found: Hindi matagpuan ang tag
   annotation_type_language_label: Wika
   smooch_bot_message_confirmed: |-
     Salamat. Naipadala na ang iyong kahilingan sa aming pila pamberipikasyon.
@@ -619,7 +614,7 @@ fil:
             delete_repsonse: Burahin ang tugon
             assign_task: Magtalaga ng gawain o item
         team_management:
-          name: pamamahala ng workspace
+          name: Pamamahala ng workspace
           permissions:
             delete: Isara ang workspace
             edit: I-edit ang impormasyon ng workspace
@@ -647,9 +642,9 @@ fil:
     invalid_project: Hindi wastong listahan %{project}
     invalid_user: Hindi wastong may-akda %{user}
     invalid_status: Hindi wastong status %{status}
-    blank_user: Hindi wastong blangkong may-akda
-    blank_annotator: Hindi wastong blangkong anotador
-    blank_project: Hindi wastong blangkong listahan
+    blank_user: Hindi maaaring blangko ang patlang para sa may-akda
+    blank_annotator: Hindi maaaring blangko ang patlang para sa anotador
+    blank_project: Hindi maaaring blangko ang patlang para sa listahan
     invalid_annotator: Hindi wastong anotador %{user}
     invalid_assignee: Hindi wastong assignee %{user}
   cant_mutate_inactive_object: 'Paumanhin, may nakabinbin na operasyon para sa item
@@ -664,15 +659,15 @@ fil:
   smooch_requests: Mga kahilingan
   smooch_requests_asc: Pinakabihirang hilingin
   smooch_requests_desc: Pinakamadalas hilingin
-  bot_request_url_invalid: Hindi wasto ang URL ng bot
+  bot_request_url_invalid: Hindi wasto ang bot URL
   smooch_twitter_success: 'Tagumpay! Ang Smooch Bot ang hahawak sa mga matatanggap
     na DM ng Twitter account na ito. '
-  invalid_task_answer: Paumanhin, hindi wasto ang format ng sagot sa gawain na ito
+  invalid_task_answer: Hindi wastong format para sa sagot sa gawaing ito
   team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
   team_rule_project_ids: I-apply sa listahan
   team_rule_destination: Mamili ng listahang patutunguhan
-  team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko
-    at dapat kakaiba
+  team_rule_names_invalid: Ang pangalan ng mga panuntunan ay hindi maaaring blangko
+    at dapat magkakaiba
   team_rules: Mga panuntunan
   team_rule_conditions: Kung
   team_rule_condition: Kung
@@ -726,10 +721,11 @@ fil:
   team_rule_condition_groups: Mga grupong pangkundisyon
   team_rule_condition_group: Grupong pangkundisyon
   team_rule_operator: Operator
-  team_rule_json_schema_validation: Hindi wasto ang format ng mga panuntunan
+  team_rule_json_schema_validation: Hindi wastong format ng panuntunan
   team_rule_updated_at: In-update
   team_rule_item_language_is: Ang wika ng item ay
   team_rule_item_user_is: Ginawa ang item ni
+  team_rule_item_is_read: Nabasa na ang item
   flag_adult: Hindi angkop sa bata
   flag_spoof: Katatawanan
   flag_medical: Pang-medikal
@@ -751,8 +747,9 @@ fil:
     kaya kailangan mong magbigay ng fallback status kung gusto mo itong burahin
   embed_no_content_yet: Binubuo ang ulat. Aabutin ng ilang minuto ang prosesong ito.
     Mangyaring i-refresh ang pahinang ito.
-  language_format_invalid: Invalid ang format ng wika. ISO 639-1 code dapat ito.
-  languages_format_invalid: Hindi wasto ang format ng mga wika. Listahan dapat ito
+  language_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay ISO 639-1
+    code.
+  languages_format_invalid: Hindi wastong format ng wika. Ang inaasahan ay listahan
     ng mga ISO 639-1 code.
   cant_change_status_if_item_is_published: Paumanhin, hindi mo pwedeng palitan ang
     status habang nakalathala ang ulat
@@ -1057,8 +1054,8 @@ fil:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Salamat! Naitala na ang iyong

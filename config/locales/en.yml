@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out Of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -100,8 +100,8 @@ en:
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
       pender_could_not_parse: Could not parse this link.
-      invalid_format_for_languages: Invalid language format. Expecting the format `['en', 'ar',
-        …]`
+      invalid_format_for_languages: Invalid language format. Expecting the format
+        `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -154,8 +154,7 @@ en:
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
-  slack_webhook_format_wrong: Invalid Slack webhook. Expecting the format
-    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Invalid Slack webhook. Expecting the format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
   invalid_media_item: The item is invalid
   invalid_default_status_for_custom_verification_status: The default status identifier
@@ -165,8 +164,8 @@ en:
   invalid_label_for_custom_verification_status: The status label is mandatory
   invalid_id_for_custom_verification_status: The status identifier is mandatory and
     must contain only lowercase letters, numbers, hyphens and underscores
-  invalid_statuses_format_for_custom_verification_status: 'Invalid custom verification statuses.
-    Expecting valid entries for: label, identifier, description and style.'
+  invalid_statuses_format_for_custom_verification_status: 'Invalid custom verification
+    statuses. Expecting valid entries for: label, identifier, description and style.'
   mail_account_confirmation: "%{app_name} account confirmation"
   slack:
     fields:
@@ -274,7 +273,8 @@ en:
     other: "%{count} resolved tasks"
   oembed_notes: Notes
   duplicate_source: Source already exists
-  geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure (http://geojson.org/)
+  geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure
+    (http://geojson.org/)
   datetime_invalid_date: Invalid date
   error_team_archived: Sorry, you can't add a list to a trashed workspace
   error_project_archived: Sorry, you can't add an item to a trashed list
@@ -501,9 +501,9 @@ en:
   bot_cant_add_response_to_task: Sorry, a bot can't answer a task directly - please
     send an answer suggestion instead
   bot_cant_add_review_to_task: Sorry, a bot can't review a task
-  task_suggestion_invalid_value: Invalid task suggestion. Expecting a JSON object with attributes
-    `suggestion` (the actual value that is copied to the task answer when accepted)
-    and `comment` (displayed to users).
+  task_suggestion_invalid_value: Invalid task suggestion. Expecting a JSON object
+    with attributes `suggestion` (the actual value that is copied to the task answer
+    when accepted) and `comment` (displayed to users).
   tag_text_id_not_found: Tag not found
   annotation_type_language_label: Language
   smooch_bot_message_confirmed: |-
@@ -705,8 +705,8 @@ en:
   embed_no_content_yet: The report is being generated. This process can take a few
     minutes. Please refresh this page.
   language_format_invalid: Invalid language format. Expecting a ISO 639-1 code.
-  languages_format_invalid: Invalid language format. Expecting a list of ISO
-    639-1 codes.
+  languages_format_invalid: Invalid language format. Expecting a list of ISO 639-1
+    codes.
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   fetch_bot_service_unsupported: Service unsupported
@@ -1279,15 +1279,18 @@ en:
     you are looking for more information about COVID-19  type *COVID* (or \U0001F9A0)
     to get the latest facts about the novel coronavirus disease (COVID-19\n\nReply
     *menu* to go back to the *Main Menu*\""
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: "❌
-    We are sorry, we can't assist with your query.\n\nPlease view our submission guidelines
-    here:\n\nafricacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F637
-    If you would like more information on COVID-19 you can find our current reports,
-    factsheets and fact-checks by clicking here: \n\nafricacheck.org/reports/live-guide-all-our-coronavirus-fact-checks-in-one-place/"
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: "\U0001F97A
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: "❌
+    \ We are sorry, we can't assist with your query. \n\n\U0001F30D Africa Check focuses
+    on claims relating to Africa, and which are presented as 'facts'. We do not fact-check
+    people's opinions, and usually do not cover topics that have already been covered
+    extensively before or by other media. We also cannot check claims made about the
+    future. \n\n\U0001F4C4 Please view our submission guidelines here: africacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F9D0
+    For tips and advice on how you can fact-check information, read our guides here:
+    africacheck.org/content-block/how-you-can-fact-check/ \n\n"
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: "\U0001F97A
     \ We're sorry, we weren't able to understand your submission or query. If you
     want something fact-checked, please follow the instructions from Kweli and re-submit
-    your text, photo, link or video when asked."
+    your text, photo, link or video when prompted."
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has

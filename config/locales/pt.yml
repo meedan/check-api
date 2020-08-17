@@ -89,11 +89,14 @@ pt:
         primeiro
       image_too_large: Desculpe, não suportamos imagens maiores que %{max_size}.
       video_too_large: Desculpe, não suportamos vídeos maiores que %{max_size}.
+      audio_too_large: Desculpe, não suportamos áudios maiores que %{max_size}.
       pender_conflict: Este link já está sendo processado. Por favor tente novamente
         em alguns segundos.
       pender_url_invalid: Esse link é inválido.
       pender_url_unsafe: Este link é inseguro.
       pender_could_not_parse: Não foi possível analisar esse link
+      invalid_format_for_languages: Formato de idioma inválido. O formato esperado
+        é `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -129,7 +132,7 @@ pt:
         text: Nota
       user:
         reset_password_token: Redefinir o token da senha
-        email: E-mail
+        email: Email
     errors:
       models:
         tag:
@@ -146,10 +149,9 @@ pt:
         too_short:
           one: é muito curto (mínimo de 1 caractere)
           other: É muito curto (mínimo de %{count} caracteres)
-  slack_webhook_format_wrong: O Webhook do Slack é inválido, ele deve ter o formato
-    `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Webhook do Slack inválido. O formato esperado é `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
-  invalid_media_item: Desculpe, este não é um item válido
+  invalid_media_item: Este item é inválido
   invalid_default_status_for_custom_verification_status: Identificador de status padrão
     inválido
   invalid_active_status_for_custom_verification_status: Identificador de status ativo
@@ -157,8 +159,9 @@ pt:
   invalid_label_for_custom_verification_status: Título de status é obrigatório
   invalid_id_for_custom_verification_status: Identificador de status é obrigatório
     e aceita apenas letras, números, hífens e underscores
-  invalid_statuses_format_for_custom_verification_status: Os status de verificação
-    personalizados devem ter válidos título, identificador, descrição e estilo
+  invalid_statuses_format_for_custom_verification_status: 'Status de verificação personalizada
+    inválida. Esperando entradas válidas para: etiqueta, identificador, descrição
+    e estilo.'
   mail_account_confirmation: 'Confirmação da conta do %{app_name} '
   slack:
     fields:
@@ -212,35 +215,29 @@ pt:
   admin:
     actions:
       send_reset_password_email:
-        menu: Enviar instruções para redefinir a senha
+        menu: Enviar instruções para redefinir senha
       export_project:
         menu: Exportar dados
       export_images:
         menu: Exportar imagens
-      delete_tasks:
-        done: tarefas excluídas
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Tem certeza que deseja excluir todas as tarefas na área de trabalho
-            <strong>%{team}</strong>? Estas tarefas serão removidas:'
       duplicate_team:
         menu: Área de trabalho duplicada
-        done: copiada
+        done: Duplicado
         are_you_sure_you_want_to_copy_team:
           html: Tem certeza que deseja duplicar a área de trabalho <strong>%{team}</strong>?
             Todos os dados relacionados também serão copiados.
-        the_team_is_being_copied: A área de trabalho está sendo copiada
+        the_team_is_being_copied: Duplicação da área de trabalho em andamento
         url_when_ready:
-          html: Quando estiver pronto, a cópia da área de trabalho estará disponível
-            em <strong>%{copy_url}</strong>
+          html: Quando pronta, a área de trabalho duplicada estará disponível em <strong>%{copy_url}</strong>
     flash:
-      delete_team_scheduled: A área de trabalho %{team} está sendo excluída
-  email_not_found: E-mail não encontrado
+      delete_team_scheduled: Área de trabalho %{team} está sendo excluída
+  email_not_found: Email não encontrado
   slack_channel_format_wrong: Canal do Slack inválido
   invalid_token: Token inválido
   time:
     formats:
       oembed: "%d de %B de %Y"
-      task: "%d de %B de %Y às %H:%M [TZ] (%z GMT)"
+      task: "%d de %B de %Y ás %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Esse item ainda não foi verificado por %{team}
   oembed_disclaimer_in_progress: Esse item está sendo verificado por %{team} desde
@@ -274,9 +271,10 @@ pt:
     one: Uma tarefa resolvida
     other: "%{count} tarefas resolvidas"
   oembed_notes: Notas
-  duplicate_source: Fonte existe
-  geolocation_invalid_value: Localização deve conter um GeoJSON válido (http://geojson.org/)
-  datetime_invalid_date: Por favor forneça uma data válida
+  duplicate_source: Esta fonte já existe
+  geolocation_invalid_value: Localização inválida. Esperando uma estrutura GeoJSON
+    válida (http://geojson.org/)
+  datetime_invalid_date: Data inválida
   error_team_archived: 'Desculpe, não é possível adicionar uma lista em uma área de
     trabalho que esteja na lixeira '
   error_project_archived: Desculpe, não é possível adicionar um item a uma lista na
@@ -300,7 +298,7 @@ pt:
   devise:
     mailer:
       reset_password_instructions:
-        subject: "%{app_name} instruções para redefinição de senha"
+        subject: "%{app_name} instruções para redefinir senha"
         header_title: Solicitação de redefinição de senha
         header_text: Recebemos sua solicitação de redefinição de senha no %{app_name}.
         action: Redefinir sua senha
@@ -333,9 +331,8 @@ pt:
     membros dessa área de trabalho
   error_login_with_exists_account: Desculpe, existe outro usuário que já está usando
     esta conta
-  error_login_2fa: Por favor complete o processo utilizando o código de autenticação.
+  error_login_2fa: Por favor, complete seu login fornecendo um código de autenticação.
   error_record_not_found: "%{type} #%{id} não encontrado(a)."
-  mail_see_it: 'Você pode o ver aqui: '
   mails_notifications:
     greeting: Olá %{username},
     greeting_anonymous: Olá!
@@ -348,7 +345,7 @@ pt:
       header_text: |-
         Você se inscreveu com sucesso no %{app_name}!
         <br>
-        Para fazer login no site, siga esse link: %{url}. Insira esse endereço de e-mail e senha: %{password}
+        Para fazer login no site, siga este link: %{url}. Insira este endereço de email e esta senha: %{password}
       login_button: Login no %{app_name}
       footer_text: Obrigado por se registrar e tenha um ótimo dia!
     duplicated:
@@ -501,6 +498,10 @@ pt:
   workflow_status_not_valid: Status inválido
   workflow_status_permission_error: Desculpe, você não tem permissão para mudar este
     status.
+  blank_default_status_for_custom_verification_status: Por favor, forneça um valor
+    padrão para os status de verificação personalizada
+  blank_active_status_for_custom_verification_status: Por favor, forneça um valor
+    ativo para os status de verificação personalizada
   bot_name_exists_for_this_team: Já existe um bot com o nome fornecido nessa área
     de trabalho
   bot_team_id_doesnt_exist: Desculpe, não há área de trabalho com o identificador
@@ -516,7 +517,10 @@ pt:
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder uma tarefa diretamente
     - por favor adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma sugestão de resposta
-  tag_text_id_not_found: Desculpe, não há tag com o identificador fornecido
+  task_suggestion_invalid_value: Sugestão de tarefa inválida. Esperando um objeto
+    JSON com atributos `sugestão` (o valor real que é copiado para a resposta de tarefa
+    quando aceita) e `comentário` (exibido aos usuários).
+  tag_text_id_not_found: Tag não encontrada
   annotation_type_language_label: Idioma
   smooch_bot_message_confirmed: Obrigado. Sua mensagem foi adicionada à nossa fila
     de verificação. Vamos tentar enviar um relatório dentro de 24 horas, mas por favor
@@ -591,7 +595,7 @@ pt:
             delete_repsonse: Excluir resposta
             assign_task: Atribuir tarefa ou item
         team_management:
-          name: gerenciamento de área de trabalho
+          name: Gerenciamento de área de trabalho
           permissions:
             delete: Fechar área de trabalho
             edit: Editar informações da área de trabalho
@@ -617,9 +621,9 @@ pt:
     invalid_project: Lista inválida %{project}
     invalid_user: Usuário inválido %{user}
     invalid_status: Status inválido %{status}
-    blank_user: Autor não pode ficar em branco
-    blank_annotator: Anotador não pode ficar em branco
-    blank_project: Lista não pode ficar em branco
+    blank_user: O campo autor não pode ficar em branco
+    blank_annotator: O campo anotador não pode ficar em branco
+    blank_project: O campo lista não pode ficar em branco
     invalid_annotator: Anotador inválido %{user}
     invalid_assignee: Atribuição inválida %{user}
   cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item,
@@ -634,15 +638,14 @@ pt:
   smooch_requests: Solicitações
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
-  bot_request_url_invalid: URL do bot inválido
+  bot_request_url_invalid: URL do bot inválida
   smooch_twitter_success: Sucesso! Agora todas as mensagens diretas recebidas por
     essa conta de Twitter serão tratados pelo bot Smooch.
-  invalid_task_answer: Desculpe, o formato da resposta dessa tarefa é inválido
+  invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
   team_rule_project_ids: Aplicar para a lista
   team_rule_destination: Selecione lista de destino
-  team_rule_names_invalid: Os nomes das regras não podem ficar em branco e devem ser
-    exclusivos
+  team_rule_names_invalid: Nomes de regras não podem ficar em branco e devem ser únicos
   team_rules: Regras
   team_rule_conditions: Se
   team_rule_condition: Se
@@ -659,6 +662,7 @@ pt:
   team_rule_title_contains_keyword: O titulo do item contém uma ou mais destas palavras-chave
   team_rule_select_type: Selecione o tipo
   team_rule_select_language: Selecione idioma
+  team_rule_select_user: Selecionar usuário
   team_rule_tagged_as: O item está marcado como
   team_rule_select_tag: Selecione tag
   team_rule_select_status: Selecione status
@@ -690,9 +694,11 @@ pt:
   team_rule_condition_groups: Grupos de condições
   team_rule_condition_group: Grupo de condições
   team_rule_operator: Operador
-  team_rule_json_schema_validation: O formato das regras não é válido
+  team_rule_json_schema_validation: Formato de regras inválido
   team_rule_updated_at: Atualizada
   team_rule_item_language_is: O idioma do item é
+  team_rule_item_user_is: Item criado por
+  team_rule_item_is_read: Item lido
   flag_adult: Adulto
   flag_spoof: Falsificação
   flag_medical: Médico
@@ -714,12 +720,13 @@ pt:
     portanto, você deve fornecer um status de fallback se desejar excluí-lo
   embed_no_content_yet: O relato está sendo gerado. Esse processo pode demorar alguns
     minutos. Atualize esta página.
-  language_format_invalid: O formato do idioma é inválido. Deve ser um código ISO
-    639-1.
-  languages_format_invalid: O formato dos idiomas é inválido. Deve ser uma lista de
-    códigos ISO 639-1.
+  language_format_invalid: Formato de idioma inválido. O formato esperado é um código
+    ISO 639-1.
+  languages_format_invalid: Formato de idiomas inválido. O formato esperado é uma
+    lista de códigos ISO 639-1.
   cant_change_status_if_item_is_published: Desculpe, você não pode alterar o status
     enquanto o relato é publicado
+  fetch_bot_service_unsupported: Serviço sem suporte
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1038,8 +1045,8 @@ pt:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️ A checagem que te enviamos
     foi *atualizada* com nova informação:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Obrigado! Sua solicitação

@@ -87,11 +87,13 @@ ar:
       must_resolve_required_tasks_first: يجب حل المهمات المطلوبة أولا
       image_too_large: عذراً ، لا ندعم صور أكبر من %{max_size}.
       video_too_large: عذراً ، لا ندعم فيديوهات أكبر من %{max_size}.
+      audio_too_large: عذراً ، لا ندعم صوتيات أكبر من %{max_size}.
       pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع
         ثوانٍ.
       pender_url_invalid: هذا الرابط غير صالح.
       pender_url_unsafe: هذا الرابط غير آمن.
       pender_could_not_parse: لا يمكن معالجة هذا الرابط.
+      invalid_format_for_languages: صيغة اللغة غير صالحة. المتوقع `['en', 'ar', …]`
   activerecord:
     models:
       link: رابط
@@ -148,9 +150,9 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
-  slack_webhook_format_wrong: صيغة Slack webhook غير صالحة  - الصيغة المطلوبة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: صيغة Slack webhook غير صالحة. الصيغة المتوقعة هي `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: مأخوذ
-  invalid_media_item: " عذراً ، هذا العنصر غير صحيح"
+  invalid_media_item: العنصر غير صالح
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح
   invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة
@@ -158,8 +160,8 @@ ar:
   invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
   invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف
     والأرقام و'-' و '_' فقط
-  invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة يجب
-    أن تحتوي على صيغات صحيحة لكل من : عنوان ، مُعَرِّف ، وصف ، أسلوب'
+  invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة غير
+    صالحة. المتوقع هو صيغات صحيحة لكل من: عنوان ، مُعَرِّف ، وصف ، أسلوب.'
   mail_account_confirmation: تأكيد حساب %{app_name}
   slack:
     fields:
@@ -215,20 +217,15 @@ ar:
         menu: تصدير البيانات
       export_images:
         menu: تصدير الصور
-      delete_tasks:
-        done: تم حذف المهام
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'هل أنت متأكد أنك تود حذف جميع المهام في مساحة العمل <strong>%{team}</strong>؟
-            سوف يتم حذف المهام اﻵتية:'
       duplicate_team:
         menu: نسخ مساحة العمل
-        done: تم النسخ
+        done: تم التكرار
         are_you_sure_you_want_to_copy_team:
-          html: هل أنت متأكد أنك تود نسخ مساحة العمل <strong>%{team}</strong>؟ سوف
+          html: هل أنت متأكد أنك تود تكرار مساحة العمل <strong>%{team}</strong>؟ سوف
             يتم أيضًا نسخ جميع البيانات المرتبطة.
-        the_team_is_being_copied: يتم نسخ مساحة العمل
+        the_team_is_being_copied: تكرار مساحة العمل قيد التقدم
         url_when_ready:
-          html: بمجرد أن تصبح جاهزة ، سوف تكون نسخة مساحة العمل متاحة في <strong>%{copy_url}</strong>
+          html: بمجرد أن تصبح جاهزة ، سوف تكون مساحة العمل المكررة متاحة في <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: يتم حذف مساحة العمل %{team}
   email_not_found: هذا البريد الإلكتروني غير موجود
@@ -237,7 +234,7 @@ ar:
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y في %H:%M [TZ] (%z GMT)"
+      task: "%d %B %Y في %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: لم يقم %{team} بالتحقق من دقة هذا العنصر بعد
   oembed_disclaimer_in_progress: بدأ %{team} بالتحقق من دقة هذا العنصر في %{date}
@@ -280,9 +277,10 @@ ar:
     many: "%{count} مهمة مكتملة"
     other: "%{count} مهمة مكتملة"
   oembed_notes: ملحوظات
-  duplicate_source: المصدر موجود بالفعل
-  geolocation_invalid_value: صيغة الموقع لابد أن تطابق (/GeoJSON (http://geojson.org
-  datetime_invalid_date: من فضلك أدخل تاريخاً صحيحاً.
+  duplicate_source: هذا المصدر موجود بالفعل
+  geolocation_invalid_value: الموقع غير صالح. المتوقع صيغة صالحة من نوع (/GeoJSON
+    (http://geojson.org
+  datetime_invalid_date: التاريخ غير صالح
   error_team_archived: عذراً ، لا يمكن إضافة قائمة لمساحة عمل في سلة المهملات
   error_project_archived: عذراً ، لا يمكن إضافة عنصر لقائمة  في سلة المهملات
   error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لمساحة عمل في سلة المهملات
@@ -327,14 +325,13 @@ ar:
     invited: تمت دعوة هذا المستخدم بالفعل لمساحة العمل هذه.
     member: هذا المستخدم عضو بالفعل.
     team_found: مساحة العمل غير موجودة.
-    invalid: رمز الدعوة غير صالح
+    invalid: رمز الدعوة غير صالح.
     no_invitation: لا توجد دعوة لمساحة العمل %{name}
   error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذه مساحة
     العمل
   error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
   error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   error_record_not_found: 'لم يتم العثور على %{type} #%{id} '
-  mail_see_it: 'تستطيع أن تراه هنا : '
   mails_notifications:
     greeting: مرحباً %{username}
     greeting_anonymous: مرحباً
@@ -493,6 +490,10 @@ ar:
   archive_archive_org: Archive.org
   workflow_status_not_valid: حالة غير صالحة
   workflow_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
+  blank_default_status_for_custom_verification_status: من فضلك أضف قيمة إفتراضية لحالات
+    التحقق الخاصة
+  blank_active_status_for_custom_verification_status: من فضلك أضف قيمة نشطة لحالات
+    التحقق الخاصة
   bot_name_exists_for_this_team: هناك بوت آخر بنفس الاسم في مساحة العمل هذه
   bot_team_id_doesnt_exist: عذراً ، لا توجد مساحة عمل بهذا المُعَرِّف
   bot_team_id_mandatory_to_create: عذراً ، يجب اختيار مساحة العمل لكي تضيف البوت
@@ -502,7 +503,10 @@ ar:
   could_not_save_related_bot_data: عذراً ، لا يمكن إضافة البوت لمساحة العمل هذه
   bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
   bot_cant_add_review_to_task: عذراً ، البوت لا يمكنه مراجعة المهام
-  tag_text_id_not_found: عذراً ، لا توجد علامة بهذا المُعَرِّف
+  task_suggestion_invalid_value: اقتراح المهمة غير صالح. المتوقع JSON hash متضمنا
+    `suggestion` (سيتم نسخ قيمته الفعلية حين يتم قبوله إلى إجابة المهمة) و `comment`
+    (يتم إظهاره للمستخدمين)
+  tag_text_id_not_found: العلامة غير موجودة
   annotation_type_language_label: اللغة
   smooch_bot_message_confirmed: |-
     شكرا لك. تمت إضافة طلبك إلى قائمة انتظار التحقق.
@@ -599,9 +603,9 @@ ar:
     invalid_project: قائمة غير صالحة %{project}
     invalid_user: مؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
-    blank_user: مؤلف فارغ غير صالح
-    blank_annotator: مُعلِّق فارغ غير صالح
-    blank_project: قائمة فارغة غير صالحة
+    blank_user: حقل المؤلف فارغ غير صالح
+    blank_annotator: حقل المُفَسِّر فارغ غير صالح
+    blank_project: حقل القائمة فارغ غير صالح
     invalid_annotator: مُعلِّق غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
   cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك
@@ -616,10 +620,10 @@ ar:
   smooch_requests: الطلبات
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
-  bot_request_url_invalid: عنوان URL البوت غير صالح
+  bot_request_url_invalid: رابط البوت غير صالح
   smooch_twitter_success: تم بنجاح ! الآن سيتم التعامل مع الرسائل المباشرة التي تلقاها
     حساب تويتر هذا بواسطة بوت Smooch.
-  invalid_task_answer: " عذراً ، تنسيق هذه الاجابة غير صحيح"
+  invalid_task_answer: تنسيق إجابة المهمة غير صالح
   team_rule_name: اسم فريد يصف القاعدة
   team_rule_project_ids: تطبيق على القائمة
   team_rule_destination: تحديد القائمة المقصودة
@@ -642,6 +646,7 @@ ar:
     الكلمات الأساسية اﻵتية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
+  team_rule_select_user: تحديد المستخدم
   team_rule_tagged_as: العنصر معلّم بأنه
   team_rule_select_tag: تحديد العلامة
   team_rule_select_status: تحديد الحالة
@@ -672,10 +677,13 @@ ar:
   team_rule_condition_groups: تصنيفات الشرط
   team_rule_condition_group: تصنيف الشرط
   team_rule_operator: المشغّل
-  team_rule_json_schema_validation: صيغة الشروط غير صالحة
+  team_rule_json_schema_validation: صيغة القاعدة غير صالحة
   team_rule_updated_at: آخر تحديث
   team_rule_item_language_is: لغة العنصر هي
+  team_rule_item_user_is: تم إنشاء العنصر من قبل
+  team_rule_item_is_read: 'تمت قراءة العنصر '
   flag_adult: Adult
+  flag_spoof: متلاعب بها
   flag_medical: Medical
   flag_violence: Violence
   flag_racy: Racy
@@ -699,6 +707,7 @@ ar:
   languages_format_invalid: تنسيق اللغات غير صالح. يجب أن تكون قائمة بصيغ ISO 639-1
   cant_change_status_if_item_is_published: عذراً ، لا يمكن تغيير الحالة بينما التقرير
     منشور
+  fetch_bot_service_unsupported: الخدمة غير مدعومة
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1009,8 +1018,8 @@ ar:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Thank you! Your request has
