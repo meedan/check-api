@@ -148,9 +148,9 @@ es:
         too_short:
           one: es demasiado corta (es mínimo 1 caracter)
           other: es demasiado corta (son mínimo %{count} caracteres)
-  slack_webhook_format_wrong: El Slack webhook es inválido, debería tener este formato  `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slack_webhook_format_wrong: Webhook de Slack no válido. Se espera el formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
-  invalid_media_item: 'Lo sentimos, este ítem no es válido '
+  invalid_media_item: El ítem no es válido
   invalid_default_status_for_custom_verification_status: El identificador de estado
     predeterminado es inválido
   invalid_active_status_for_custom_verification_status: El identificador de estado
@@ -159,8 +159,8 @@ es:
   invalid_id_for_custom_verification_status: El identificador de estado e obligatorio
     e acepta solo letras, números, guiones y underscores
   invalid_statuses_format_for_custom_verification_status: 'Los estados de verificación
-    personalizados deben tener entradas válidas para: etiqueta, identificador, descripción
-    y estilo'
+    personalizados son inválidos. Deben tener entradas válidas para: etiqueta, identificador,
+    descripción y estilo.'
   mail_account_confirmation: "%{app_name} confirmación de cuenta"
   slack:
     fields:
@@ -217,30 +217,25 @@ es:
         menu: Exportar datos
       export_images:
         menu: Exportar imágenes
-      delete_tasks:
-        done: eliminó las tareas
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: "¿Estás seguro(a) que quieres eliminar todas las tareas del área de
-            trabajo <strong>%{team}</strong>? Las siguientes tareas se eliminarán:"
       duplicate_team:
         menu: Duplicar área de trabajo
-        done: 'copiado '
+        done: duplicado
         are_you_sure_you_want_to_copy_team:
-          html: "¿Estás seguro(a) que quieres copiar el área de trabajo <strong>%{team}</strong>?
+          html: "¿Estás seguro(a) que quieres duplicar el área de trabajo <strong>%{team}</strong>?
             Todos los datos relacionados también serán copiados."
-        the_team_is_being_copied: El área de trabajo está siendo copiado
+        the_team_is_being_copied: El área de trabajo está siendo duplicada
         url_when_ready:
-          html: Cuando esté listo(a), la copia del área de trabajo estará disponible
+          html: Cuando esté listo, el duplicado del área de trabajo estará disponible
             en <strong>%{copy_url}</strong>
     flash:
-      delete_team_scheduled: El área de trabajo %{team} está siendo eliminado
+      delete_team_scheduled: El área de trabajo %{team} está siendo eliminada
   email_not_found: 'Correo electrónico no encontrado '
   slack_channel_format_wrong: Canal de Slack inválido
   invalid_token: Token inválido
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y a las %H:%M [TZ] (%z GMT)"
+      task: "%B %d, %Y a las %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Este item no ha sido verificado por el equipo de
     %{team}
@@ -276,9 +271,10 @@ es:
     one: 'Una tarea resuelta '
     other: "%{count} tareas resueltas"
   oembed_notes: Notas
-  duplicate_source: Fuente existente
-  geolocation_invalid_value: 'La localización debe tener un GeoJSON válido (http://geojson.org/) '
-  datetime_invalid_date: 'Por favor proporciona una fecha válida '
+  duplicate_source: La fuente ya existe
+  geolocation_invalid_value: Ubicación inválida. Se espera una estructura GeoJSON
+    válida (http://geojson.org/)
+  datetime_invalid_date: Fecha inválida
   error_team_archived: Lo sentimos, no puedes añadir una lista a una área de trabajo
     eliminada
   error_project_archived: Lo sentimos, no puedes añadir un ítem a una lista eliminada
@@ -327,7 +323,7 @@ es:
     invited: Este usuario ya ha sido invitado a esta área de trabajo.
     member: Este usuario ya es miembro.
     team_found: Área de trabajo no encontrada.
-    invalid: Símbolo (token) de invitación es inválido.
+    invalid: Código de invitación inválido.
     no_invitation: No existe invitación para el área de trabajo %{name}
   error_user_is_not_a_team_member: Lo sentimos, solo puedes asignar a los miembros
     de esta área de trabajo
@@ -336,7 +332,6 @@ es:
   error_login_2fa: 'Por favor completa tu inicio de sesión proporcionando un código
     de autenticación. '
   error_record_not_found: "%{type} #%{id} no encontrado(a)"
-  mail_see_it: 'Puedes verlo en:'
   mails_notifications:
     greeting: Hola %{username},
     greeting_anonymous: "¡Hola!"
@@ -347,13 +342,9 @@ es:
     register:
       subject: Nueva cuenta para ti en  %{app_name}
       header_text: |-
-        ¡Te has registrado con éxito en %{app_name}!
+        !Te has registrado con éxito en %{app_name}!
         <br>
-        Para iniciar sesión, sigue estos sencillos pasos:
-        1. Has click en este link: %{url}
-        2. Completa los campos
-        -Escribe esta dirección de correo electrónico
-        - Escribe esta contraseña %{password}
+        Para iniciar sesión, sigue este enlace:%{url}. Ingresa este correo electrónico y esta contraseña.%{password}
       login_button: Iniciar sesión en %{app_name}
       footer_text: "¡Gracias por unirte y esperamos que tengas un día increíble! "
     duplicated:
@@ -504,6 +495,10 @@ es:
   workflow_status_not_valid: Estado inválido
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar
     este estado.
+  blank_default_status_for_custom_verification_status: Por favor proporciona un valor
+    predeterminado para los estados de verificación personalizados
+  blank_active_status_for_custom_verification_status: Por favor proporciona un valor
+    predeterminado para los estados de verificación personalizados
   bot_name_exists_for_this_team: Ya existe un bot con ese nombre en esta área de trabajo
   bot_team_id_doesnt_exist: Lo sentimos, no hay ninguna área de trabajo con el identificador
     proporcionado
@@ -518,11 +513,10 @@ es:
   bot_cant_add_response_to_task: Lo sentimos, un bot no puede responder una tarea
     directamente- por favor, envía una sugerencia de respuesta .
   bot_cant_add_review_to_task: Lo sentimos, un bot no puede revisar una tarea.
-  task_suggestion_invalid_value: Una sugerencia debe ser un hash JSON con los atributos
-    `sugerencia` (el valor real que se copia en la respuesta de la tarea cuando se
-    acepta) y` comentario` (se muestra a los usuarios)
-  tag_text_id_not_found: Lo sentimos, no hay ninguna etiqueta con el identificador
-    proporcionado
+  task_suggestion_invalid_value: Sugerencia de tarea no válida. Se espera un objeto
+    JSON con atributos `suggestion` (el valor actual que se copia en la respuesta
+    de la tarea cuando se acepta) y `comment` (mostrado a los usuarios).
+  tag_text_id_not_found: Etiqueta no encontrada
   annotation_type_language_label: Idioma
   smooch_bot_message_confirmed: |-
     ¡Gracias! tu solicitud se ha agregado a nuestra cola de verificación.
@@ -598,7 +592,7 @@ es:
             delete_repsonse: Eliminar respuesta
             assign_task: Asignar tarea o ítem
         team_management:
-          name: gestión del área de trabajo
+          name: Gestión del área de trabajo
           permissions:
             delete: Cerrar área de trabajo
             edit: Editar información del área de trabajo
@@ -626,8 +620,8 @@ es:
     invalid_project: Lista inválida %{project}
     invalid_user: Autor inválido %{user}
     invalid_status: Estado inválido %{status}
-    blank_user: Autor en blanco inválido
-    blank_annotator: Anotación en blanco inválida
+    blank_user: El campo Autor no puede estar en blanco
+    blank_annotator: El campo de anotación no puede estar en blanco
     blank_project: Lista en blanco inválida
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
@@ -647,8 +641,7 @@ es:
   bot_request_url_invalid: El URL del bot es inválido
   smooch_twitter_success: "¡Listo! De ahora en adelante todos los mensajes que recibirás
     en esta cuenta de Twitter serán manejados por el Bot de Smooch."
-  invalid_task_answer: 'Lo sentimos, por el momento las respuestas a las tareas no
-    soportan este tipo de formato '
+  invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
   team_rule_project_ids: Aplicar a la lista
   team_rule_destination: Seleccionar lista de destino
@@ -705,10 +698,11 @@ es:
   team_rule_condition_groups: Grupos de condiciones
   team_rule_condition_group: Grupo de condiciones
   team_rule_operator: Operador
-  team_rule_json_schema_validation: El formato de las reglas no es válido
+  team_rule_json_schema_validation: Formato de regla inválido
   team_rule_updated_at: Actualizada
   team_rule_item_language_is: El idioma de ítem es
   team_rule_item_user_is: El ítem fue creado por
+  team_rule_item_is_read: Ítem leído
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -733,7 +727,7 @@ es:
     minutos. Por favor actualice esta página.
   language_format_invalid: El formato del idioma no es válido. Debe ser un código
     ISO 639-1.
-  languages_format_invalid: El formato de idiomas no es válido. Debe ser una lista
+  languages_format_invalid: El formato de idiomas no es válido. Se espera una lista
     de códigos ISO 639-1.
   cant_change_status_if_item_is_published: Lo sentimos, no puede cambiar el estado
     mientras se publica el informe
@@ -878,7 +872,7 @@ es:
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
     ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    al COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
     \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
     \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Por favor
@@ -892,7 +886,7 @@ es:
   custom_message_smooch_bot_message_confirmed_test-1: "¡Gracias! Su solicitud ha sido
     recibida. Las respuestas se están agregando y ordenando, y estamos trabajando
     para verificar sus preguntas.\n\n✔️*Siga este enlace para obtener una lista actualizada
-    de preguntas comunes que hemos verificado:* [ Enlace a una página de verificación
+    de preguntas frecuentes que hemos verificado:* [ Enlace a una página de verificación
     de hechos en su sitio web ]\n\n\U0001F449*Responda con cualquier texto* para volver
     al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_test-1: |-
@@ -902,10 +896,10 @@ es:
   custom_message_smooch_bot_disabled_test-1: |-
     ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
 
-    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_test-1: 'Este servicio se proporciona bajo
     los siguientes Términos de Servicio: %{tos}'
-  custom_message_smooch_bot_greetings_test-1: "¡Hola! Bienvenido al bot de verificación
+  custom_message_smooch_bot_greetings_test-1: "¡Hola! Bienvenido(a) al bot de verificación
     de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
     relacionadas con temas como política, salud, finanzas y tecnología."
   custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Lo siento, no
@@ -913,22 +907,22 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Menú
     Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
     de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
-    \U0001F9A0) para obtener la información más reciente sobre la enfermedad por coronavirus
+    \U0001F9A0) para obtener la información más reciente sobre la enfermedad del coronavirus
     (COVID-19)"
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Información
-    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    sobre la enfermedad del Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
-    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo(a) y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
-    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
-    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+    al COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones globales \U0001F4CA\n*5:*
+    Últimas actualizaciones de la Organización Mundial de la Salud \U0001F310\n\n*Responda
+    0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Por favor
     ingrese la pregunta, el enlace, la imagen o el video que desea verificar*, seguido
     de cualquier contexto o preguntas adicionales relacionadas con ese ítem. Su solicitud
-    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
-    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
-    al *Menú Principal*"
+    se enviará a los verificadores de hechos cerca de 30 segundos después de que haya
+    enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver al *Menú
+    Principal*"
   custom_message_status_undetermined_check-message-demo: Sin iniciar
   custom_message_status_in_progress_check-message-demo: En progreso
   custom_message_status_inconclusive_check-message-demo: ''
@@ -1016,7 +1010,7 @@ es:
   custom_message_status_disputed_checkpoint: ''
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
-  custom_message_status_out_of_scope_checkpoint: Fuera de ámbito
+  custom_message_status_out_of_scope_checkpoint: Fuera de alcance
   custom_message_status_junk_checkpoint: Basura
   custom_message_status_undetermined_india-today: Sin iniciar
   custom_message_status_in_progress_india-today: ''
@@ -1078,8 +1072,8 @@ es:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️La verificación de datos que
     le enviamos se ha *actualizado* con nueva información:"
   custom_message_smooch_bot_message_confirmed_lebanon: "¡Gracias! Su solicitud ha
@@ -1151,21 +1145,21 @@ es:
   custom_message_smooch_bot_disabled_mtan: |-
     ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
 
-    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
+    Contáctate con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_mtan: 'Este servicio se proporciona bajo los
     siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_mtan: ''
   custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Lo siento, no entendí
-    tu mensaje ¡Inténtalo de nuevo!"
+    tu mensaje ¡Por favor inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: "*Información
-    sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
+    sobre la enfermedad del Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
-    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / oa mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo(a) y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
-    \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
-    \U0001F310\n\n*Responda 0* para volver al *menú principal* \U0001F4CC"
+    al COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones globales \U0001F4CA\n*5:*
+    Últimas actualizaciones de la Organización Mundial de la Salud \U0001F310\n\n*Responda
+    0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_mtan: ''
   custom_message_status_verified_newtestteam02: ''
   custom_message_status_false_newtestteam02: ''
@@ -1386,14 +1380,14 @@ es:
   custom_message_smooch_bot_disabled_test-2: |-
     ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
 
-    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+    Contactate con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_test-2: 'Este servicio se proporciona bajo
     los siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_test-2: "¡Hola! Bienvenido al bot de verificación
     de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
     relacionadas con temas como política, salud, finanzas y tecnología."
   custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Lo siento, no
-    entendí tu mensaje ¡Inténtalo de nuevo!"
+    entendí tu mensaje ¡Por favor inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: "\U0001F4CC*Menú
     Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
     de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
@@ -1404,7 +1398,7 @@ es:
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
     ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    al COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
     \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
     \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-2: "*Por favor

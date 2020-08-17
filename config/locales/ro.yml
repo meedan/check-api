@@ -96,8 +96,8 @@ ro:
       pender_url_invalid: Acest link este nevalid.
       pender_url_unsafe: Acest link este nesigur.
       pender_could_not_parse: Analiza acestui link a eșuat.
-      invalid_format_for_languages: Format nevalid al limbilor. Se aștepta `['en',
-        'ar', …]`
+      invalid_format_for_languages: Format nevalid al limbilor. Se aștepta formatul
+        `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -151,10 +151,10 @@ ro:
           one: este prea scurt (minimul este de 1 caracter)
           few: este prea scurt (minimul este de %{count} caractere)
           other: este prea scurt (minimul este de %{count} de caractere)
-  slack_webhook_format_wrong: Webhook Slack nu este valid, formatul trebuie să fie
+  slack_webhook_format_wrong: Webhookul Slack nu este valid, formatul trebuie să fie
     `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
-  invalid_media_item: Ne pare rău, nu este un element valid
+  invalid_media_item: Elementul este nevalid
   invalid_default_status_for_custom_verification_status: Identificatorul de stare
     implicit nu este valid
   invalid_active_status_for_custom_verification_status: Identificatorul de stare activ
@@ -162,9 +162,9 @@ ro:
   invalid_label_for_custom_verification_status: Eticheta privind starea este obligatorie
   invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu
     și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
-  invalid_statuses_format_for_custom_verification_status: 'Stările personalizate de
-    verificare trebuie să aibă intrări valide pentru: etichetă, identificator, descriere
-    și stil'
+  invalid_statuses_format_for_custom_verification_status: 'Stări nevalide de verificare
+    personalizată. Se așteaptă intrări valide pentru: etichetă, identificator, descriere
+    și stil.'
   mail_account_confirmation: Confirmarea contului %{app_name}
   slack:
     fields:
@@ -215,34 +215,29 @@ ro:
   admin:
     actions:
       send_reset_password_email:
-        menu: Trimite instrucțiuni pentru resetarea parolei
+        menu: Trimite instrucțiunile pentru resetarea parolei
       export_project:
         menu: Exportă datele
       export_images:
         menu: Exportă imaginile
-      delete_tasks:
-        done: a șters sarcinile
-        are_you_sure_you_want_to_delete_the_tasks_from_team:
-          html: 'Sigur doriți să ștergeți toate sarcinile din spațiul de lucru <strong>%{team}</strong>?
-            Următoarele sarcini vor fi eliminate:'
       duplicate_team:
         menu: Duplică spațiul de lucru
-        done: copiat
+        done: duplicat
         are_you_sure_you_want_to_copy_team:
-          html: Sigur doriți să copiați spațiul de lucru <strong>%{team}</strong>?
-            Vor fi copiate și toate datele aferente.
-        the_team_is_being_copied: Se copiază spațiul de lucru
+          html: Sigur doriți să duplicați spațiul de lucru <strong>%{team}</strong>?
+            Vor fi copiate toate datele aferente.
+        the_team_is_being_copied: Duplicare spațiu de lucru în curs
         url_when_ready:
-          html: La final, copia spațiului de lucru va fi disponibilă la <strong>%{copy_url}</strong>
+          html: Când va fi gata, spațiul de lucru duplicat va fi disponibil la <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: Se șterge spațiul de lucru %{team}
-  email_not_found: Adresa de e-mail nu a fost găsită
+  email_not_found: Adresă de e-mail negăsită
   slack_channel_format_wrong: Canalul Slack nu este valid
-  invalid_token: Cod temporar nevalid
+  invalid_token: Jeton nevalid
   time:
     formats:
       oembed: "%B %d, %Y"
-      task: "%B %d, %Y at %H:%M [TZ] (%z GMT)"
+      task: "%B %d, %Y at %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Acest element nu a fost verificat de %{team}
   oembed_disclaimer_in_progress: Acest element este verificat de %{team} de la %{date}
@@ -279,9 +274,10 @@ ro:
     few: "%{count} sarcini rezolvate"
     other: "%{count} de sarcini rezolvate"
   oembed_notes: Note
-  duplicate_source: Sursa există
-  geolocation_invalid_value: Locația trebuie să conțină GeoJSON valid (http://geojson.org/)
-  datetime_invalid_date: Introduceți o dată validă
+  duplicate_source: Sursă deja existentă
+  geolocation_invalid_value: Locație nevalidă. Se așteaptă o structură GeoJSON validă
+    (http://geojson.org/)
+  datetime_invalid_date: Dată nevalidă
   error_team_archived: Ne pare rău, nu puteți adăuga liste în spații de lucru șterse
   error_project_archived: Ne pare rău, nu puteți adăuga elemente în liste șterse
   error_team_archived_for_source: Ne pare rău, nu puteți adăuga surse în spații de
@@ -302,7 +298,7 @@ ro:
   devise:
     mailer:
       reset_password_instructions:
-        subject: "%{app_name} instrucțiuni pentru resetarea parolei"
+        subject: 'Instrucțiuni de resetare a parolei pentru %{app_name} '
         header_title: Solicitarea de resetare a parolei
         header_text: Am recepționat solicitarea dvs de a vă reseta parola pentru %{app_name}.
         action: Resetați parola
@@ -329,15 +325,15 @@ ro:
     invited: Utilizatorul a fost deja invitat în acest spațiu de lucru.
     member: Utilizatorul este deja membru.
     team_found: Spațiul de lucru nu a fost găsit.
-    invalid: Codul temporar al invitației nu este valid.
+    invalid: Cod de invitare nevalid.
     no_invitation: Nu există nicio invitație pentru spațiul de lucru %{name}
   error_user_is_not_a_team_member: Ne pare rău, puteți aloca doar membrilor acestui
     spațiu de lucru.
   error_login_with_exists_account: Ne pare rău, acest cont este deja folosit de alt
     utilizator
-  error_login_2fa: Finalizați înregistrarea cu ajutorul codului de autentificare.
+  error_login_2fa: Vă rugăm să finalizați autentificarea prin introducerea codului
+    de autentificare.
   error_record_not_found: 'Nu a fost găsit %{type} #%{id}'
-  mail_see_it: 'Puteți vedea aceasta pe:'
   mails_notifications:
     greeting: Salut, %{username},
     greeting_anonymous: Salut!
@@ -350,7 +346,7 @@ ro:
       header_text: |-
         V-ați înregistrat cu succes pe %{app_name}!
         <br>
-        Pentru a vă conecta pe site este suficient doar să accesați acest link: %{url}. Introduceți această adresă email și această parolă: %{password}
+        Pentru autentificare pe site, urmați acest link: %{url}. Introduceți această adresă de e-mail și această parolă: %{password}
       login_button: Conectare la %{app_name}
       footer_text: Vă mulțumim pentru că v-ați alăturăt și vă urăm o zi reușită!
     duplicated:
@@ -522,10 +518,10 @@ ro:
   bot_cant_add_response_to_task: Ne pare rău, un robot nu poate răspunde la o sarcină
     direct - rugăm să transmiteți o sugestie de răspuns în loc
   bot_cant_add_review_to_task: Ne pare rău, un robot nu poate analiza o sarcină
-  task_suggestion_invalid_value: Sugestia trebuie să fie un hash JSON cu atributele
-    „sugestie” (valoarea reală copiată în răspunsul la sarcină la acceptarea ei) și
-    „comentariu” (afișat utilizatorilor)
-  tag_text_id_not_found: Ne pare rău, nu există etichete cu identificator introdus
+  task_suggestion_invalid_value: Sugestie nevalidă de sarcină. Se așteaptă un obiect
+    JSON cu atributele `suggestion` (valoarea reală copiată în răspunsul sarcinii
+    la acceptare) și `comment` (afișat utilizatorilor).
+  tag_text_id_not_found: Etichetă negăsită
   annotation_type_language_label: Limba
   smooch_bot_message_confirmed: |-
     Vă mulțumim. Solicitarea Dvs a fost adăugată în rândul nostru pentru verificare.
@@ -602,7 +598,7 @@ ro:
             delete_repsonse: Șterge răspunsul
             assign_task: Alocă o sarcină sau un element
         team_management:
-          name: gestionarea spațiului de lucru
+          name: Gestionarea spațiului de lucru
           permissions:
             delete: Închide spațiul de lucru
             edit: Editează informațiile spațiului de lucru
@@ -629,9 +625,9 @@ ro:
     invalid_project: Listă nevalidă %{project}
     invalid_user: Autorul %{user} nu este valid
     invalid_status: Starea %{status} nu este validă
-    blank_user: Autorul necompletat nu este valid
-    blank_annotator: 'Adnotatorul necompletat nu este valid '
-    blank_project: Listă goală nevalidă
+    blank_user: Câmp gol de autor nevalid
+    blank_annotator: Câmp gol de adnotator nevalid
+    blank_project: Câmp gol de listă nevalid
     invalid_annotator: Adnotator nevalid %{user}
     invalid_assignee: Destinatar al desemnării nevalid %{user}
   cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune
@@ -646,16 +642,15 @@ ro:
   smooch_requests: Solicitări
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
-  bot_request_url_invalid: URL-ul robotului nu este valid
+  bot_request_url_invalid: URL robot nevalid
   smooch_twitter_success: Succes! Acum, DM-urile primite de acest cont de pe Twitter
     vor fi gestionate de Smooch Bot.
-  invalid_task_answer: Ne pare rău, formatul răspunsului la această sarcină nu este
-    valid
+  invalid_task_answer: Format nevalid de răspuns la sarcină
   team_rule_name: O denumire unică ce identifică ce face această regulă
   team_rule_project_ids: Aplică pe listă
   team_rule_destination: Selectează lista de destinație
-  team_rule_names_invalid: Denumirile regulilor nu pot fi lăsate goale și trebuie
-    să fie unice
+  team_rule_names_invalid: Denumirile regulilor nu pot fi goale și trebuie să fie
+    unice
   team_rules: Reguli
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
@@ -708,10 +703,11 @@ ro:
   team_rule_condition_groups: Grupe de condiții
   team_rule_condition_group: Grupă de condiții
   team_rule_operator: Operator
-  team_rule_json_schema_validation: Formatul regulilor nu este valid
+  team_rule_json_schema_validation: Format nevalid de regulă
   team_rule_updated_at: Actualizat
   team_rule_item_language_is: Limba elementului este
   team_rule_item_user_is: Elementul a fost creat de
+  team_rule_item_is_read: Elementul este citit
   flag_adult: Adult
   flag_spoof: Înșelătorie
   flag_medical: Medical
@@ -734,10 +730,9 @@ ro:
     trebuie să furnizați o stare alternativă dacă doriți să o ștergeți.
   embed_no_content_yet: Raport în curs de generare. Poate dura câteva minute. Vă rugăm
     să împrospătați pagina.
-  language_format_invalid: Formatul limbii este nevalid. Trebuie să fie un cod ISO
-    639-1.
-  languages_format_invalid: Formatul limbilor este nevalid. Trebuie să fie o listă
-    de coduri ISO 639-1.
+  language_format_invalid: Format nevalid al limbii. Se așteaptă un cod ISO 639-1.
+  languages_format_invalid: Format nevalid al limbilor. Se așteaptă o listă de coduri
+    ISO 639-1.
   cant_change_status_if_item_is_published: Ne pare rău, nu puteți modifica starea
     cât timp raportul este publicat
   fetch_bot_service_unsupported: Serviciul nu are suport
@@ -1062,8 +1057,8 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_2266d0edcc528ca386843a17e32885c4_africa-check: ''
-  custom_message_rule_action_send_message_8d52936fdfa583a1cfe171322ebfeecd_africa-check: ''
+  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️Verificarea de fapte pe care
     v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_lebanon: "Vă mulțumim! Cererea dvs.

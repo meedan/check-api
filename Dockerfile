@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     graphicsmagick \
     inotify-tools \
     libpq-dev \
+    libtag1-dev \
     libsqlite3-dev \
     lz4 \
     nodejs \

@@ -1,6 +1,10 @@
 require_relative '../test_helper'
 
 class TeamUserMailerTest < ActionMailer::TestCase
+  def setup
+    super
+    Bounce.delete_all
+  end
 
   test "should send request to join email" do
     t = create_team
