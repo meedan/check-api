@@ -172,6 +172,31 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should skip check permission for background tasks" do
+    t =  create_team
+    u = create_user
+    u2 = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u2, team: t
+    Sidekiq::Testing.inline! do
+      tt = nil
+      with_current_user_and_team(u, t) do
+        p = create_project team: t
+        tt = create_team_task team_id: t.id, project_ids: [p.id], description: 'Foo', options: [{ label: 'Foo' }]
+        pm = create_project_media project: p
+        pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+        assert_not_nil pm_tt
+      end
+      with_current_user_and_team(u2, t) do
+        tt.label = 'update label'
+        tt.skip_check_ability = true
+        assert_nothing_raised RuntimeError do
+          tt.save!
+        end
+      end
+    end
+  end
+
   test "should update teamwide tasks with zero answers" do
     t =  create_team
     p = create_project team: t

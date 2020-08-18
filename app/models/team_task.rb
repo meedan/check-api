@@ -147,12 +147,14 @@ class TeamTask < ActiveRecord::Base
 
   def update_tasks_with_zero_answer(columns)
     TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
+      t.skip_check_ability = true
       t.update(columns)
     end
   end
 
   def update_tasks_with_answer(columns)
     get_teamwide_tasks_with_answers.find_each do |t|
+      t.skip_check_ability = true
       t.update(columns)
     end
   end
