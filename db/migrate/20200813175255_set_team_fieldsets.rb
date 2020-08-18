@@ -28,7 +28,7 @@ class SetTeamFieldsets < ActiveRecord::Migration
     puts 'Updated TeamTasks'
     # Set fieldset: "tasks" for all Tasks
     failed_tasks = []
-    Task.where(annotation_type: 'task').find_in_batches(:batch_size => 10000) do |tasks|
+    Task.where(annotation_type: 'task').find_in_batches(:batch_size => 5000) do |tasks|
       new_tasks = []
       tasks.each do |t|
         print "."
