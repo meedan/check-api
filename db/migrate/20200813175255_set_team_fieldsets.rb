@@ -27,34 +27,23 @@ class SetTeamFieldsets < ActiveRecord::Migration
     TeamTask.update_all(fieldset: 'tasks')
     puts 'Updated TeamTasks'
     # Set fieldset: "tasks" for all Tasks
-    count = Task.where(annotation_type: 'task').count
-    if count > 0
-      # remove annotation indexes (to make migration faster)
-      remove_index :annotations, name: "index_annotations_on_annotation_type"
-      remove_index :annotations, name: "index_annotations_on_annotated_type_and_annotated_id"
-      remove_index :annotations, name: "index_annotation_type_order"
-      Task.where(annotation_type: 'task').find_in_batches(:batch_size => 10000) do |tasks|
-        new_tasks = []
-        tasks.each do |t|
-          print "."
-          t.data["fieldset"] = 'tasks'
-          new_tasks <<  t
-        end
-        # Delete existing task before import new tasks
-        Task.where(id: tasks.map(&:id)).delete_all
-        # Import new tasks with old ids to keep versions
-        imported = Task.import(new_tasks, recursive: false, validate: false)
-        # verify that all tasks imported successfully
-        raise "Counld not import all tasks #{imported.failed_instances.inspect}" unless imported.failed_instances.blank?
+    failed_tasks = []
+    Task.where(annotation_type: 'task').find_in_batches(:batch_size => 10000) do |tasks|
+      new_tasks = []
+      tasks.each do |t|
+        print "."
+        t.data["fieldset"] = 'tasks'
+        new_tasks <<  t
       end
-      # re-add annotation indexes
-      add_index :annotations, :annotation_type
-      add_index :annotations, [:annotated_type, :annotated_id]
-      add_index :annotations, :annotation_type, name: 'index_annotation_type_order', order: { name: :varchar_pattern_ops }
+      # Import new tasks with old ids to keep versions
+      imported = Task.import(new_tasks, recursive: false, validate: false, on_duplicate_key_update: [:data])
+      # log failed instances
+      failed_tasks.concat imported.failed_instances unless imported.failed_instances.blank?
     end
     RequestStore.store[:skip_notifications] = false
     RequestStore.store[:skip_rules] = false
+    puts "Failed to update #{failed_tasks.count} tasks #{failed_tasks.inspect}" unless failed_tasks.blank?
     minutes = ((Time.now.to_i - started) / 60).to_i
-    puts "[#{Time.now}] Done. set Fieldset for #{count} tasks in #{minutes} minutes."
+    puts "[#{Time.now}] Done. set Fieldset for tasks in #{minutes} minutes."
   end
 end
