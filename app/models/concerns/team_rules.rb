@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read']
+           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'field_value_is']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -110,6 +110,10 @@ module TeamRules
     def item_is_read(pm, _value, _rule_id)
       pm.read
     end
+
+    def field_value_is(pm, value, _rule_id)
+      pm.get_annotations('task').count > 0 && pm.selected_value_for_task?(value['team_task_id'].to_i, value['value'].to_s)
+    end
   end
 
   module Actions
@@ -192,6 +196,7 @@ module TeamRules
   def rules_json_schema
     pm = ProjectMedia.new(team_id: self.id)
     statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
+    field_objs = self.team_tasks.where("task_type LIKE '%_choice'").to_a
     namespace = OpenStruct.new({
       projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },
@@ -202,7 +207,9 @@ module TeamRules
              .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
       likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
-      users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } }
+      users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
+      fields: field_objs.collect{ |tt| { key: tt.id, value: tt.label } },
+      field_values: field_objs.collect{ |v| v.options.collect{ |o| o.with_indifferent_access['label'] } }.flatten.collect{ |v| { key: v, value: v } }
     })
     ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end
@@ -263,7 +270,7 @@ module TeamRules
           matched_rules_ids << rule_id
         end
       end
-      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm)
+      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm) unless matched_rules_ids.blank?
     rescue StandardError => e
       Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
       Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"

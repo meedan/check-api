@@ -15,5 +15,6 @@ module TeamValidations
     validate :slack_channel_format
     validate :language_format
     validate :languages_format
+    validate :fieldsets_format
   end
 end
