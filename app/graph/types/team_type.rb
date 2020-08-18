@@ -37,6 +37,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_languages, types.String
   field :get_language, types.String
   field :get_report, JsonStringType
+  field :get_fieldsets, JsonStringType
 
   field :public_team do
     type PublicTeamType
@@ -111,8 +112,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :team_tasks, -> { TeamTaskType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.team_tasks.order(order: :asc)
+    argument :fieldset, types.String
+
+    resolve ->(team, args, _ctx) {
+      tasks = team.team_tasks.order(order: :asc)
+      tasks = tasks.where(fieldset: args['fieldset']) unless args['fieldset'].blank?
+      tasks
     }
   end
 end

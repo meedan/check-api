@@ -426,4 +426,16 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
   end
+
+  test "should have valid fieldset" do
+    assert_difference 'TeamTask.count', 2 do
+      create_team_task fieldset: 'tasks'
+      create_team_task fieldset: 'metadata'
+    end
+    [nil, '', 'invalid'].each do |fieldset|
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team_task fieldset: fieldset
+      end
+    end
+  end
 end

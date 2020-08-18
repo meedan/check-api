@@ -18,6 +18,7 @@ class Team < ActiveRecord::Base
 
   before_validation :normalize_slug, on: :create
   before_validation :set_default_language, on: :create
+  before_validation :set_default_fieldsets, on: :create
 
   after_find do |team|
     if User.current
@@ -28,8 +29,6 @@ class Team < ActiveRecord::Base
   after_update :archive_or_restore_projects_if_needed
   before_destroy :destroy_versions
   after_destroy :reset_current_team
-
-  validate :languages_format, unless: proc { |t| t.settings.nil? }
 
   check_settings
 
@@ -138,7 +137,7 @@ class Team < ActiveRecord::Base
 
   def auto_tasks(add_to_project_id, only_selected = false)
     tasks = []
-    self.team_tasks.order('id ASC').each do |task|
+    self.team_tasks.order(order: :asc, id: :asc).each do |task|
       if only_selected
         tasks << task if task.project_ids.include?(add_to_project_id)
       else

@@ -264,7 +264,7 @@ class TaskTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk = Task.find(tk.id)
-      tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
+      tk.data = { label: 'Foo', type: 'free_text', fieldset: 'tasks' }.with_indifferent_access
       tk.save!
     end
   end
@@ -561,5 +561,86 @@ class TaskTest < ActiveSupport::TestCase
       d.set_fields = { response_free_text: 'Foo Bar' }.to_json
       d.save!
     end
+  end
+
+  test "should not create task with invalid fieldset" do
+    assert_difference 'Task.length', 2 do
+      create_task fieldset: 'tasks'
+      create_task fieldset: 'metadata'
+    end
+    assert_no_difference 'Task.length' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: 'invalid'
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: ''
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: nil
+      end
+    end
+  end
+
+  test "should get tasks by fieldset" do
+    t1 = create_task fieldset: 'tasks'
+    t2 = create_task fieldset: 'tasks'
+    t3 = create_task fieldset: 'metadata'
+    t4 = create_task fieldset: 'metadata'
+    assert_equal [t1, t2].sort, Task.from_fieldset('tasks').sort
+    assert_equal [t3, t4].sort, Task.from_fieldset('metadata').sort
+  end
+
+  test "should create tasks with fieldset from team task" do
+    t = create_team
+    tt1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    tt2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    pm = create_project_media team: t
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('metadata').count
+  end
+
+  test "should return task answers" do
+    create_task_stuff
+    t = create_team
+    tt1a = create_team_task team_id: t.id 
+    tt1b = create_team_task team_id: t.id 
+    tt2a = create_team_task team_id: t.id 
+    tt2b = create_team_task team_id: t.id 
+    
+    pm1 = create_project_media team: t
+
+    t1a = create_task annotated: pm1, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt1a.id
+    t1a.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
+    t1a.save!
+
+    t1b = create_task annotated: pm1, type: 'single_choice', options: ['The Beatles', 'Iron Maiden', 'Helloween'], label: 'Best band', team_task_id: tt1b.id
+    t1b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'The Beatles', other: nil }.to_json }.to_json }.to_json
+    t1b.save!
+
+    assert_equal ['Apple', 'Orange', 'The Beatles'], pm1.reload.task_answer_selected_values.sort
+    assert pm1.selected_value_for_task?(tt1a.id, 'Apple')
+    assert pm1.selected_value_for_task?(tt1a.id, 'Orange')
+    assert !pm1.selected_value_for_task?(tt1a.id, 'Banana')
+    assert pm1.selected_value_for_task?(tt1b.id, 'The Beatles')
+    assert !pm1.selected_value_for_task?(tt1b.id, 'Iron Maiden')
+    assert !pm1.selected_value_for_task?(tt1b.id, 'Helloween')
+    
+    pm2 = create_project_media team: t
+
+    t2a = create_task annotated: pm2, type: 'multiple_choice', options: ['Brazil', 'Canada', 'Egypt'], label: 'Places to visit', team_task_id: tt2a.id
+    t2a.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Brazil', 'Egypt'], other: nil }.to_json }.to_json }.to_json
+    t2a.save!
+
+    t2b = create_task annotated: pm2, type: 'single_choice', options: ['January', 'February', 'March'], label: 'Month you were born', team_task_id: tt2b.id
+    t2b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'January' }.to_json }.to_json
+    t2b.save!
+
+    assert_equal ['Brazil', 'Egypt', 'January'], pm2.reload.task_answer_selected_values.sort
+    assert pm2.selected_value_for_task?(tt2a.id, 'Brazil')
+    assert pm2.selected_value_for_task?(tt2a.id, 'Egypt')
+    assert !pm2.selected_value_for_task?(tt2a.id, 'Canada')
+    assert pm2.selected_value_for_task?(tt2b.id, 'January')
+    assert !pm2.selected_value_for_task?(tt2b.id, 'February')
+    assert !pm2.selected_value_for_task?(tt2b.id, 'March')
   end
 end

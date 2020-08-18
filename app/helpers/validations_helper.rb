@@ -36,4 +36,23 @@ module ValidationsHelper
       errors.add(:base, I18n.t(:languages_format_invalid)) if !languages.is_a?(Array) || !languages.reject{ |l| l =~ /^[a-z]{2}(_[A-Z]{2})?$/ }.empty?
     end
   end
+
+  def fieldsets_format
+    schema = {
+      type: 'array',
+      title: 'Fieldsets',
+      items: {
+        type: 'object',
+        title: 'Fieldset',
+        required: ['identifier', 'singular', 'plural'],
+        properties: {
+          identifier: { type: 'string', title: 'Identifier', pattern: '^[0-9a-z_]+$' },
+          singular: { type: 'string', title: 'Singular' },
+          plural: { type: 'string', title: 'Plural' }
+        }
+      }
+    }
+    fieldsets = self.get_fieldsets
+    errors.add(:settings, JSON::Validator.fully_validate(schema, fieldsets)) if !JSON::Validator.validate(schema, fieldsets)
+  end
 end

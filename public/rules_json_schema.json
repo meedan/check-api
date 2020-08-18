@@ -67,6 +67,10 @@
                                 "value": "<%= I18n.t(:team_rule_flagged_as) %>"
                               },
                               {
+                                "key": "field_value_is",
+                                "value": "<%= I18n.t(:team_rule_field_value_is) %>"
+                              },
+                              {
                                 "key": "status_is",
                                 "value": "<%= I18n.t(:team_rule_status_is) %>"
                               },
@@ -140,6 +144,26 @@
                                     },
                                     "threshold": {
                                       "title": "<%= I18n.t(:team_rule_type_flag_threshold) %>", "type": "string", "enum": <%= likelihoods.to_json %>
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "field_value_is" } }
+                            },
+                            "then": {
+                              "properties": {
+                                "rule_value": {
+                                  "type": "object",
+                                  "properties": {
+                                    "team_task_id": {
+                                      "title": "<%= I18n.t(:team_rule_select_field) %>", "type": "string", "enum": <%= fields.to_json %>
+                                    },
+                                    "value": {
+                                      "title": "<%= I18n.t(:team_rule_select_field_value) %>", "type": "string", "enum": <%= field_values.to_json %>
                                     }
                                   }
                                 }

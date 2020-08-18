@@ -18,6 +18,10 @@ class Task < ActiveRecord::Base
   end
   validates :type, included: { values: self.task_types }
 
+  field :fieldset
+  validates_presence_of :fieldset
+  validate :fieldset_exists_in_team
+
   field :description
 
   field :options
@@ -29,8 +33,9 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
   field :order, Integer
-
   field :json_schema
+
+  scope :from_fieldset, ->(fieldset) { where('task_fieldset(annotations.annotation_type, annotations.data) = ?', fieldset) }
 
   def json_schema_enabled?
     true
@@ -261,13 +266,16 @@ class Task < ActiveRecord::Base
   private
 
   def task_options_is_array
-    errors.add(:options, 'must be an array') if !self.options.nil? && !self.options.is_a?(Array)
+    errors.add(:base, I18n.t(:task_options_must_be_array)) if !self.options.nil? && !self.options.is_a?(Array)
   end
 
   def set_slug
     self.slug = Task.slug(self.label)
   end
 
+  def fieldset_exists_in_team
+    errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.annotated&.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
 end
 
 Comment.class_eval do
@@ -320,5 +328,35 @@ Version.class_eval do
       task.skip_check_ability = true
       task.save!
     end
+  end
+end
+
+DynamicAnnotation::Field.class_eval do
+  def selected_values_from_task_answer
+    if ['response_single_choice', 'response_multiple_choice'].include?(self.field_name)
+      begin
+        [JSON.parse(self.value)['selected']].flatten
+      rescue
+        [value]
+      end
+    end
+  end
+end
+
+ProjectMedia.class_eval do
+  def task_answers(filters = {})
+    DynamicAnnotation::Field
+    .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN annotations a2 ON a2.id = a.annotated_id")
+    .where("field_name LIKE 'response_%'")
+    .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => self.id)
+    .where(filters)
+  end
+
+  def task_answer_selected_values(filters = {})
+    self.task_answers(filters).select{ |a| a.field_name =~ /choice/ }.collect{ |a| a.selected_values_from_task_answer }.flatten
+  end
+
+  def selected_value_for_task?(team_task_id, value)
+    self.task_answer_selected_values(['task_team_task_id(a2.annotation_type, a2.data) = ?', team_task_id]).include?(value)
   end
 end
