@@ -315,7 +315,7 @@ ActiveRecord::Schema.define(version: 20200813175255) do
     t.datetime "updated_at",                  null: false
     t.string   "json_schema"
     t.integer  "order",       default: 0
-    t.string   "fieldset",                    null: false
+    t.string   "fieldset",    default: "",    null: false
   end
 
   add_index "team_tasks", ["fieldset"], name: "index_team_tasks_on_fieldset", using: :btree
