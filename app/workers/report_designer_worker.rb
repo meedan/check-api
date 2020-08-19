@@ -32,6 +32,8 @@ class ReportDesignerWorker
       data[:options][i][:previous_published_status_label] = option[:status_label]
     end
     data[:last_published] = Time.now.to_i.to_s
+    data[:published_count] = data[:published_count].to_i + 1
+    puts "Setting data to #{data.inspect}"
     d.data = data
     d.save!
     pm.clear_caches
