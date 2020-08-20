@@ -682,4 +682,30 @@ class TaskTest < ActiveSupport::TestCase
     m3.move_down
     [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
+
+  test "should reorder when task is created" do
+    pm = create_project_media
+    t1 = create_task annotated: pm ; sleep 1
+    t2 = create_task annotated: pm ; sleep 1
+    t3 = create_task annotated: pm ; sleep 1
+    [t1, t2, t3].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3], pm.ordered_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t4 = create_task annotated: pm
+    assert_equal [t1, t2, t3, t4], pm.ordered_tasks('tasks')
+    [t1, t2, t3, t4].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when task is destroyed" do
+    pm = create_project_media
+    t1 = create_task annotated: pm ; sleep 1
+    t2 = create_task annotated: pm ; sleep 1
+    t3 = create_task annotated: pm ; sleep 1
+    [t1, t2, t3].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3], pm.ordered_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t2.destroy!
+    assert_equal [t1, t3], pm.ordered_tasks('tasks')
+    [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
 end

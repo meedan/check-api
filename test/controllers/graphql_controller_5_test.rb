@@ -10,20 +10,22 @@ class GraphqlController5Test < ActionController::TestCase
     User.current = nil
     Team.current = nil
     @t = create_team private: true
-    @tt1 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1 ; @tt1.order = nil ; @tt1.save!
-    @tt2 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1 ; @tt2.order = nil ; @tt2.save!
-    @tt3 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1 ; @tt3.order = nil ; @tt3.save!
-    @tm1 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1 ; @tm1.order = nil ; @tm1.save!
-    @tm2 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1 ; @tm2.order = nil ; @tm2.save!
-    @tm3 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1 ; @tm3.order = nil ; @tm3.save!
+    @tt1 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1
+    @tt2 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1
+    @tt3 = create_team_task team_id: @t.id, fieldset: 'tasks' ; sleep 1
+    @tm1 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1
+    @tm2 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1
+    @tm3 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1
+    TeamTask.update_all(order: nil)
     @pm = create_project_media team: @t
     Task.delete_all
-    @t1 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t1.order = nil ; @t1.save!
-    @t2 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t2.order = nil ; @t2.save!
-    @t3 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t3.order = nil ; @t3.save!
-    @m1 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1 ; @m1.order = nil ; @m1.save!
-    @m2 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1 ; @m2.order = nil ; @m2.save!
-    @m3 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1 ; @m3.order = nil ; @m3.save!
+    @t1 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1
+    @t2 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1
+    @t3 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1
+    @m1 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1
+    @m2 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1
+    @m3 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1
+    [@t1, @t2, @t3, @m1, @m2, @m3].each { |t| t.order = nil ; t.save! }
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'owner'
     authenticate_with_user(@u)
