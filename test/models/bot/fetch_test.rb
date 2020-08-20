@@ -67,13 +67,6 @@ class Bot::FetchTest < ActiveSupport::TestCase
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
   end
 
-  # test "should install bot" do
-  #   t = create_team
-  #   assert_difference 'TeamBotInstallation.count' do
-  #     create_team_bot_installation user_id: @bot.id, team_id: t.id, settings: {}
-  #   end
-  # end
-
   test "should not install bot if service is not supported" do
     assert_raises ActiveRecord::RecordInvalid do
       @installation.set_fetch_service_name 'bar'

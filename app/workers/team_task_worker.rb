@@ -2,6 +2,8 @@ class TeamTaskWorker
   include Sidekiq::Worker
 
   def perform(action, id, author, options = YAML::dump({}), projects = YAML::dump({}), keep_completed_tasks = false)
+    user_current = User.current
+    team_current = Team.current
     options = YAML::load(options)
     projects = YAML::load(projects)
     author = YAML::load(author)
@@ -20,7 +22,8 @@ class TeamTaskWorker
       TeamTask.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
       RequestStore.store[:skip_check_ability] = true
     end
-    Team.current = User.current = nil
+    Team.current = team_current
+    User.current = user_current
   end
 
   private
