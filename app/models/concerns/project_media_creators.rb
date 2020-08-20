@@ -36,7 +36,7 @@ module ProjectMediaCreators
   private
 
   def create_auto_tasks_for_team_item
-    TeamTaskWorker.perform_in(1.second, 'add_or_move', nil, YAML::dump(User.current), YAML::dump({ model: self }))
+    self.create_auto_tasks
   end
 
   def create_annotation
