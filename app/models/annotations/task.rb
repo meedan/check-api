@@ -7,6 +7,7 @@ class Task < ActiveRecord::Base
   has_annotations
 
   before_validation :set_slug, on: :create
+  before_validation :set_order, on: :create
   after_save :send_slack_notification
 
   field :label
@@ -238,29 +239,38 @@ class Task < ActiveRecord::Base
     self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
-  def self.slug(label)
-    label.to_s.parameterize.tr('-', '_')
+  def move_up
+    self.move(-1)
   end
 
-  def self.order_tasks(tasks)
-    errors = []
-    tasks.each do |item|
-      item = item.symbolize_keys
-      begin
-        task = Task.where(annotation_type: 'task', id: item[:id]).last
-        if task.nil?
-          errors << {id: item[:id], error: I18n.t(:error_record_not_found, { type: 'Task', id: item[:id] })}
-        else
-          task.paper_trail.without_versioning do
-            task.order = item[:order].to_i
-            task.save!
-          end
-        end
-      rescue StandardError => e
-        errors << {id: item[:id], error: e.message}
-      end
+  def move_down
+    self.move(1)
+  end
+
+  def move(direction)
+    index = nil
+    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks.each_with_index do |task, i|
+      task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0
+      task.order ||= i + 1
+      index = i if task.id == self.id
     end
-    errors
+    return if index.nil?
+    swap_with_index = index + direction
+    swap_with = tasks[swap_with_index] if swap_with_index >= 0
+    self.order = Task.swap_order(tasks[index], swap_with) unless swap_with.nil?
+  end
+
+  def self.swap_order(task1, task2)
+    task1_order = task1.order
+    task2_order = task2.order
+    task1.update_column(:data, task1.data.merge(order: task2_order))
+    task2.update_column(:data, task2.data.merge(order: task1_order))
+    task2_order
+  end
+
+  def self.slug(label)
+    label.to_s.parameterize.tr('-', '_')
   end
 
   private
@@ -271,6 +281,12 @@ class Task < ActiveRecord::Base
 
   def set_slug
     self.slug = Task.slug(self.label)
+  end
+
+  def set_order
+    return if self.order.to_i > 0
+    last = Task.where(annotation_type: 'task', annotated_type: self.annotated_type, annotated_id: self.annotated_id).select{ |t| t.fieldset == self.fieldset }.sort_by{ |t| t.order.to_i }.last
+    self.order = last ? last.order.to_i + 1 : 1
   end
 
   def fieldset_exists_in_team
@@ -358,5 +374,9 @@ ProjectMedia.class_eval do
 
   def selected_value_for_task?(team_task_id, value)
     self.task_answer_selected_values(['task_team_task_id(a2.annotation_type, a2.data) = ?', team_task_id]).include?(value)
+  end
+
+  def ordered_tasks(fieldset)
+    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
   end
 end

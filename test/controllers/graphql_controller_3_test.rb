@@ -998,27 +998,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal({ 't' => [10, 20] }, clips[0]['node']['parsed_fragment'])
   end
 
-  test "should re-order tasks" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    pm = create_project_media project: p
-    t1 = create_task annotated: pm
-    t2 = create_task
-    authenticate_with_user(u)
-    tasks = '[{\"id\":' + "#{t1.id}" + ',\"order\":3},{\"id\":' + "#{t2.id}" + ',\"order\":2}, {\"id\":99999,\"order\":2}]'
-    query = "mutation tasksOrder { tasksOrder(input: { clientMutationId: \"1\", tasks: \"#{tasks}\" }) { success, errors } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal 3, t1.reload.order
-    assert_equal 2, JSON.parse(@response.body)['data']['tasksOrder']['errors'].size
-    query = "query GetById { task(id: \"#{t1.id}\") { dbid, order } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert 3, JSON.parse(@response.body)['data']['task']['order']
-  end
-
   test "should get team user from user" do
     u = create_user
     t = create_team

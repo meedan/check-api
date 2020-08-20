@@ -17,25 +17,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_not_nil t.content
   end
 
-  test "should order tasks" do
-    team = create_team
-    u = create_user
-    create_team_user team: team, user: u, role: 'owner'
-    p = create_project team: team
-    pm = create_project_media project: p
-    with_current_user_and_team(u, team) do
-      t1 = create_task annotated: pm
-      t1.label = 'new title'
-      t1.save!
-      v_count = t1.annotation_versions.count
-      Task.order_tasks([{id: t1.id, order: 5}])
-      t1 = t1.reload
-      assert_equal 5, t1.order
-      assert_equal v_count, t1.annotation_versions.count
-      assert JSON.parse(t1.content).keys.include?('order')
-    end
-  end
-
   test "should not create task with blank label" do
     assert_no_difference 'Task.length' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -642,5 +623,63 @@ class TaskTest < ActiveSupport::TestCase
     assert pm2.selected_value_for_task?(tt2b.id, 'January')
     assert !pm2.selected_value_for_task?(tt2b.id, 'February')
     assert !pm2.selected_value_for_task?(tt2b.id, 'March')
+  end
+
+  test "should set order when task is created" do
+    pm = create_project_media
+    t1 = create_task annotated: pm, fieldset: 'tasks'
+    m1 = create_task annotated: pm, fieldset: 'metadata'
+    assert_equal 1, t1.reload.order
+    assert_equal 1, m1.reload.order
+    t2 = create_task annotated: pm, fieldset: 'tasks'
+    m2 = create_task annotated: pm, fieldset: 'metadata'
+    assert_equal 2, t2.reload.order
+    assert_equal 2, m2.reload.order
+    Task.swap_order(t1, t2)
+    assert_equal 1, t2.reload.order
+    assert_equal 2, t1.reload.order
+    Task.swap_order(m1, m2)
+    assert_equal 1, m2.reload.order
+    assert_equal 2, m1.reload.order
+  end
+
+  test "should move tasks up and down" do
+    pm = create_project_media
+    t1 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m1 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t2 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m2 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t3 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m3 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t4 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m4 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t5 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m5 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), pm.ordered_tasks('tasks').map(&:id)
+    [t1, t2, t3, t4, t5].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), pm.ordered_tasks('tasks').map(&:id)
+    t4.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t1.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t5.move_down
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t2.move_up
+    [t2, t1, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t3.move_down
+    [t2, t1, t4, t5, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), pm.ordered_tasks('metadata').map(&:id)
+    [m1, m2, m3, m4, m5].each { |t| t.order = nil ; t.save! }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), pm.ordered_tasks('metadata').map(&:id)
+    m4.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m1.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m5.move_down
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m2.move_up
+    [m2, m1, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m3.move_down
+    [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
 end

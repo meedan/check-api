@@ -115,7 +115,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
     argument :fieldset, types.String
 
     resolve ->(team, args, _ctx) {
-      tasks = team.team_tasks.order(order: :asc)
+      tasks = team.team_tasks.order(order: :asc, id: :asc)
       tasks = tasks.where(fieldset: args['fieldset']) unless args['fieldset'].blank?
       tasks
     }
