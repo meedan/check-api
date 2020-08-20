@@ -9,6 +9,7 @@ class Task < ActiveRecord::Base
   before_validation :set_slug, on: :create
   before_validation :set_order, on: :create
   after_save :send_slack_notification
+  after_destroy :reorder
 
   field :label
   validates_presence_of :label
@@ -284,9 +285,16 @@ class Task < ActiveRecord::Base
   end
 
   def set_order
-    return if self.order.to_i > 0
-    last = Task.where(annotation_type: 'task', annotated_type: self.annotated_type, annotated_id: self.annotated_id).select{ |t| t.fieldset == self.fieldset }.sort_by{ |t| t.order.to_i }.last
+    return if self.order.to_i > 0 || self.annotated_type != 'ProjectMedia'
+    tasks = self.send(:reorder)
+    last = tasks.last
     self.order = last ? last.order.to_i + 1 : 1
+  end
+
+  def reorder
+    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks.each_with_index { |task, i| task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0 }
+    tasks
   end
 
   def fieldset_exists_in_team

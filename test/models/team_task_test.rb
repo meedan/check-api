@@ -496,4 +496,30 @@ class TeamTaskTest < ActiveSupport::TestCase
     m3.move_down
     [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
+
+  test "should reorder when team task is created" do
+    t = create_team
+    t1 = create_team_task team_id: t.id
+    t2 = create_team_task team_id: t.id
+    t3 = create_team_task team_id: t.id
+    TeamTask.update_all(order: nil)
+    assert_equal [t1, t2, t3], t.ordered_team_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t4 = create_team_task team_id: t.id
+    assert_equal [t1, t2, t3, t4], t.ordered_team_tasks('tasks')
+    [t1, t2, t3, t4].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when team task is destroyed" do
+    t = create_team
+    t1 = create_team_task team_id: t.id
+    t2 = create_team_task team_id: t.id
+    t3 = create_team_task team_id: t.id
+    TeamTask.update_all(order: nil)
+    assert_equal [t1, t2, t3], t.ordered_team_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t2.destroy!
+    assert_equal [t1, t3], t.ordered_team_tasks('tasks')
+    [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
 end

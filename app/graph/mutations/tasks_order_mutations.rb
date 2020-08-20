@@ -2,7 +2,7 @@ module TasksOrderMutations
   class Generator
     def self.define_move_mutation(object_name, parent_name, direction)
       GraphQL::Relay::Mutation.define do
-        name "Move#{object_name.capitalize}#{direction.capitalize}"
+        name "Move#{object_name.to_s.camelize}#{direction.capitalize}"
 
         input_field :id, !types.ID
 

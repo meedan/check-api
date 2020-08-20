@@ -18,6 +18,7 @@ class TeamTask < ActiveRecord::Base
   after_create :add_teamwide_tasks
   after_update :update_teamwide_tasks
   after_commit :delete_teamwide_tasks, on: :destroy
+  after_destroy :reorder
 
   def as_json(_options = {})
     super.merge({
@@ -240,9 +241,15 @@ class TeamTask < ActiveRecord::Base
   end
 
   def set_order
-    return if self.order.to_i > 0
-    last = TeamTask.where(team_id: self.team_id, fieldset: self.fieldset).maximum(:order).to_i
-    self.order = last + 1
+    return if self.order.to_i > 0 || !self.team_id
+    tasks = self.send(:reorder)
+    self.order = tasks.last&.order.to_i + 1
+  end
+
+  def reorder
+    tasks = self.team.ordered_team_tasks(self.fieldset)
+    tasks.each_with_index { |task, i| task.update_column(:order, i + 1) if task.order.to_i == 0 }
+    tasks
   end
 end
 
