@@ -438,4 +438,62 @@ class TeamTaskTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should set order when team task is created" do
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    m1 = create_team_task team_id: t.id, fieldset: 'metadata'
+    assert_equal 1, t1.reload.order
+    assert_equal 1, m1.reload.order
+    t2 = create_team_task team_id: t.id, fieldset: 'tasks'
+    m2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    assert_equal 2, t2.reload.order
+    assert_equal 2, m2.reload.order
+    TeamTask.swap_order(t1, t2)
+    assert_equal 1, t2.reload.order
+    assert_equal 2, t1.reload.order
+    TeamTask.swap_order(m1, m2)
+    assert_equal 1, m2.reload.order
+    assert_equal 2, m1.reload.order
+  end
+
+  test "should move team tasks up and down" do
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m1 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t2 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m2 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t3 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m3 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t4 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m4 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t5 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m5 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), t.ordered_team_tasks('tasks').map(&:id)
+    [t1, t2, t3, t4, t5].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), t.ordered_team_tasks('tasks').map(&:id)
+    t4.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t1.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t5.move_down
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t2.move_up
+    [t2, t1, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t3.move_down
+    [t2, t1, t4, t5, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), t.ordered_team_tasks('metadata').map(&:id)
+    [m1, m2, m3, m4, m5].each { |t| t.order = nil ; t.save! }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), t.ordered_team_tasks('metadata').map(&:id)
+    m4.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m1.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m5.move_down
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m2.move_up
+    [m2, m1, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m3.move_down
+    [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
 end

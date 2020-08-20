@@ -3,6 +3,8 @@ class TeamTask < ActiveRecord::Base
 
   attr_accessor :keep_completed_tasks
 
+  before_validation :set_order, on: :create
+
   validates_presence_of :label, :team_id, :fieldset
   validates :task_type, included: { values: Task.task_types }
   validate :fieldset_exists_in_team
@@ -86,6 +88,36 @@ class TeamTask < ActiveRecord::Base
         self.destory_project_media_task(t)
       end
     end
+  end
+
+  def move_up
+    self.move(-1)
+  end
+
+  def move_down
+    self.move(1)
+  end
+
+  def move(direction)
+    index = nil
+    tasks = self.team.ordered_team_tasks(self.fieldset)
+    tasks.each_with_index do |task, i|
+      task.update_column(:order, i + 1) if task.order.to_i == 0
+      task.order ||= i + 1
+      index = i if task.id == self.id
+    end
+    return if index.nil?
+    swap_with_index = index + direction
+    swap_with = tasks[swap_with_index] if swap_with_index >= 0
+    self.order = TeamTask.swap_order(tasks[index], swap_with) unless swap_with.nil?
+  end
+
+  def self.swap_order(task1, task2)
+    task1_order = task1.order
+    task2_order = task2.order
+    task1.update_column(:order, task2_order)
+    task2.update_column(:order, task1_order)
+    task2_order
   end
 
   private
@@ -205,5 +237,17 @@ class TeamTask < ActiveRecord::Base
 
   def fieldset_exists_in_team
     errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
+
+  def set_order
+    return if self.order.to_i > 0
+    last = TeamTask.where(team_id: self.team_id, fieldset: self.fieldset).maximum(:order).to_i
+    self.order = last + 1
+  end
+end
+
+Team.class_eval do
+  def ordered_team_tasks(fieldset)
+    TeamTask.where(team_id: self.id, fieldset: fieldset).order(order: :asc, id: :asc)
   end
 end
