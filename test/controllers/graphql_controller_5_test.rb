@@ -17,6 +17,7 @@ class GraphqlController5Test < ActionController::TestCase
     @tm2 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1 ; @tm2.order = nil ; @tm2.save!
     @tm3 = create_team_task team_id: @t.id, fieldset: 'metadata' ; sleep 1 ; @tm3.order = nil ; @tm3.save!
     @pm = create_project_media team: @t
+    Task.delete_all
     @t1 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t1.order = nil ; @t1.save!
     @t2 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t2.order = nil ; @t2.save!
     @t3 = create_task annotated: @pm, fieldset: 'tasks' ; sleep 1 ; @t3.order = nil ; @t3.save!
