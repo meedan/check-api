@@ -187,13 +187,10 @@ class ProjectMediaProject < ActiveRecord::Base
   end
 
   def add_remove_team_tasks
-    existing_items = ProjectMediaProject.where(project_media_id: self.project_media_id).count
-    options = {
-      model: self.project_media,
-      only_selected: existing_items > 1,
-      set_tasks_responses: self.set_tasks_responses
-    }
-    TeamTaskWorker.perform_in(1.second, 'add_or_move', self.project_id, YAML::dump(User.current), YAML::dump(options))
+    only_selected = ProjectMediaProject.where(project_media_id: self.project_media_id).count > 1
+    project_media = self.project_media
+    project_media.set_tasks_responses = self.set_tasks_responses
+    project_media.add_destination_team_tasks(self.project, only_selected)
   end
 
   def remove_related_team_tasks
