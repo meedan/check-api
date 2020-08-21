@@ -209,7 +209,7 @@ module TeamRules
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
       users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
       fields: field_objs.collect{ |tt| { key: tt.id, value: tt.label } },
-      field_values: field_objs.collect{ |v| v.options.collect{ |o| o.with_indifferent_access['label'] } }.flatten.collect{ |v| { key: v, value: v } }
+      field_values: field_objs.collect{ |tt| [tt.id, tt.options.collect{ |o| o.with_indifferent_access['label'] }.collect{ |l| { key: l, value: l } }] }.to_h
     })
     ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end
