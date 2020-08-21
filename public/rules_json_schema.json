@@ -161,11 +161,20 @@
                                   "properties": {
                                     "team_task_id": {
                                       "title": "<%= I18n.t(:team_rule_select_field) %>", "type": "string", "enum": <%= fields.to_json %>
-                                    },
-                                    "value": {
-                                      "title": "<%= I18n.t(:team_rule_select_field_value) %>", "type": "string", "enum": <%= field_values.to_json %>
                                     }
-                                  }
+                                  },
+                                  "allOf": [
+                                    <% fields.each_with_index do |field, i| %>
+                                    {
+                                      "if": {
+                                        "properties": { "team_task_id": { "const": <%= field[:key] %> } }
+                                      },
+                                      "then": {
+                                        "properties": { "value": { "title": "<%= I18n.t(:team_rule_select_field_value) %>", "type": "string", "enum": <%= field_values[field[:key]].to_json %> } }
+                                      }
+                                    }<%= ',' if i + 1 < fields.size %>
+                                    <% end %>
+                                  ]
                                 }
                               }
                             }
