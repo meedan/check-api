@@ -3149,7 +3149,7 @@ class TeamTest < ActiveSupport::TestCase
             "operator": "and",
             "conditions": [
               {
-                "rule_definition": "field_value_is",
+                "rule_definition": "field_from_fieldset_tasks_value_is",
                 "rule_value": { team_task_id: tt.id, value: 'Foo' }
               }
             ]

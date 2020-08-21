@@ -683,9 +683,12 @@ en:
   team_rule_item_language_is: Item language is
   team_rule_item_user_is: Item was created by
   team_rule_item_is_read: Item is read
-  team_rule_field_value_is: Custom field has specific value
-  team_rule_select_field: Select custom field
-  team_rule_select_field_value: Select value
+  team_rule_field_from_fieldset_tasks_value_is: Task has specific answer
+  team_rule_field_from_fieldset_metadata_value_is: Metadata has specific value
+  team_rule_select_field_metadata: Select metadata
+  team_rule_select_field_value_metadata: Select value
+  team_rule_select_field_tasks: Select task
+  team_rule_select_field_value_tasks: Select answer
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
