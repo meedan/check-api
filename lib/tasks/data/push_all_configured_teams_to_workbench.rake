@@ -54,7 +54,7 @@ namespace :check do
       raise "Must set WORKBENCH_INTEGRATION_S3_BUCKET environment variable" if s3_bucket.nil?
       raise "Must set WORKBENCH_INTEGRATION_S3_KEY environment variable" if s3_key.nil?
 
-      load_rows_from_s3_csv.each do |values|
+      load_rows_from_s3_csv(s3_bucket, s3_key).each do |values|
         upload_one(**values)
       end
     end
