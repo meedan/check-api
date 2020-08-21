@@ -251,7 +251,7 @@ class Dynamic < ActiveRecord::Base
   def rule_ids_for_task_response
     self.annotated.annotated.team.get_rules_that_match_condition do |condition, value|
       response = self.annotation_type == 'task_response_single_choice' ? self.get_field('response_single_choice') : self.get_field('response_multiple_choice')
-      condition == 'field_value_is' && response.selected_values_from_task_answer.include?(value['value'])
+      condition == "field_from_fieldset_#{self.annotated.fieldset}_value_is" && response.selected_values_from_task_answer.include?(value['value'])
     end
   end
 end
