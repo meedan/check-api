@@ -1380,6 +1380,9 @@ class TeamTest < ActiveSupport::TestCase
     create_project team: t
     create_tag_text team: t
     2.times { create_team_user team: t }
+    create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo' }, { 'label' => 'Bar' }], label: 'Team Task 1'
+    create_team_task team_id: t.id, task_type: 'multiple_choice', options: [{ label: 'Test' }], label: 'Team Task 2'
+    create_team_task
     assert_not_nil t.rules_json_schema
   end
 
@@ -1907,7 +1910,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get languages" do
     t = create_team
     assert_equal ['en'], t.get_languages
-    t.settings = {:languages => ['ar', 'en']}; t.save!
+    t.settings = { languages: ['ar', 'en'], fieldsets: [{ identifier: 'foo', singular: 'foo', plural: 'foos' }] }
+    t.save!
     assert_equal ['ar', 'en'], t.get_languages
   end
 
@@ -3098,6 +3102,77 @@ class TeamTest < ActiveSupport::TestCase
     assert !pm1.reload.archived
     assert !pm2.reload.archived
     assert !pm3.reload.archived
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
+  end
+
+  test "should create default fieldsets when team is created" do
+    t = create_team
+    assert_not_nil t.reload.get_fieldsets
+  end
+
+  test "should validate fieldsets" do
+    t = create_team
+    [
+      { foo: 'bar' },
+      'foo',
+      [{ identifier: 'foo' }],
+      [{ identifier: 'foo', singular: 'foo' }],
+      [{ identifier: 'foo', plural: 'foos' }],
+      [{ singular: 'foo', plural: 'foos' }],
+      [{ singular: 'foo', plural: 'foos', identifier: 'Foo Bar' }]
+    ].each do |fieldsets|
+      assert_raises ActiveRecord::RecordInvalid do
+        t.set_fieldsets fieldsets
+        t.save!
+      end
+    end
+  end
+
+  test "should match rule by task answer" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_task_stuff
+    t = create_team
+    tt = create_team_task team_id: t.id, task_type: 'single_choice'
+    p = create_project team: t
+    pm = create_project_media team: t
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "field_from_fieldset_tasks_value_is",
+                "rule_value": { team_task_id: tt.id, value: 'Foo' }
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    tk = pm.get_annotations('task').first.load
+    tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
+    tk.save!
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
+    tk.save!
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end

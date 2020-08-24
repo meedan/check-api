@@ -59,6 +59,8 @@ MutationType = GraphQL::ObjectType.define do
   field :createTask, field: TaskMutations::Create.field
   field :updateTask, field: TaskMutations::Update.field
   field :destroyTask, field: TaskMutations::Destroy.field
+  field :moveTaskUp, field: TasksOrderMutations::MoveTaskUp.field
+  field :moveTaskDown, field: TasksOrderMutations::MoveTaskDown.field
 
   field :resetPassword, field: ResetPasswordMutation.field
   field :changePassword, field: ChangePasswordMutation.field
@@ -69,7 +71,6 @@ MutationType = GraphQL::ObjectType.define do
   field :userDisconnectLoginAccount, field: UserDisconnectLoginAccountMutation.field
   field :userTwoFactorAuthentication, field: UserTwoFactorAuthenticationMutation.field
   field :generateTwoFactorBackupCodes, field: GenerateTwoFactorBackupCodesMutation.field
-  field :tasksOrder, field: TasksOrderMutation.field
 
   field :createTeamBotInstallation, field: TeamBotInstallationMutations::Create.field
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
@@ -84,6 +85,8 @@ MutationType = GraphQL::ObjectType.define do
   field :createTeamTask, field: TeamTaskMutations::Create.field
   field :updateTeamTask, field: TeamTaskMutations::Update.field
   field :destroyTeamTask, field: TeamTaskMutations::Destroy.field
+  field :moveTeamTaskUp, field: TasksOrderMutations::MoveTeamTaskUp.field
+  field :moveTeamTaskDown, field: TasksOrderMutations::MoveTeamTaskDown.field
 
   field :createRelationship, field: RelationshipMutations::Create.field
   field :updateRelationship, field: RelationshipMutations::Update.field

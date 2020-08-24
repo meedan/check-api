@@ -800,7 +800,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create task" do
     p = create_project team: @team
     pm = create_project_media project: p
-    assert_graphql_create('task', { label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
+    assert_graphql_create('task', { fieldset: 'tasks', label: 'test', type: 'yes_no', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
   test "should destroy task" do
@@ -1012,7 +1012,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     assert_equal ['A'], t.team_tasks.map(&:label)
-    task = '{\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
+    task = '{\"fieldset\":\"tasks\",\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -1041,7 +1041,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
-    tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
+    tasks = '[{\"fieldset\":\"tasks\",\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"fieldset\":\"tasks\",\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", report: "{}" }) { team { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success

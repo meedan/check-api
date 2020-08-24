@@ -7,7 +7,9 @@ class Task < ActiveRecord::Base
   has_annotations
 
   before_validation :set_slug, on: :create
+  before_validation :set_order, on: :create
   after_save :send_slack_notification
+  after_destroy :reorder
 
   field :label
   validates_presence_of :label
@@ -17,6 +19,10 @@ class Task < ActiveRecord::Base
     ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'image_upload']
   end
   validates :type, included: { values: self.task_types }
+
+  field :fieldset
+  validates_presence_of :fieldset
+  validate :fieldset_exists_in_team
 
   field :description
 
@@ -29,8 +35,9 @@ class Task < ActiveRecord::Base
   field :pending_suggestions_count, Integer
   field :team_task_id, Integer
   field :order, Integer
-
   field :json_schema
+
+  scope :from_fieldset, ->(fieldset) { where('task_fieldset(annotations.annotation_type, annotations.data) = ?', fieldset) }
 
   def json_schema_enabled?
     true
@@ -233,41 +240,66 @@ class Task < ActiveRecord::Base
     self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
-  def self.slug(label)
-    label.to_s.parameterize.tr('-', '_')
+  def move_up
+    self.move(-1)
   end
 
-  def self.order_tasks(tasks)
-    errors = []
-    tasks.each do |item|
-      item = item.symbolize_keys
-      begin
-        task = Task.where(annotation_type: 'task', id: item[:id]).last
-        if task.nil?
-          errors << {id: item[:id], error: I18n.t(:error_record_not_found, { type: 'Task', id: item[:id] })}
-        else
-          task.paper_trail.without_versioning do
-            task.order = item[:order].to_i
-            task.save!
-          end
-        end
-      rescue StandardError => e
-        errors << {id: item[:id], error: e.message}
-      end
+  def move_down
+    self.move(1)
+  end
+
+  def move(direction)
+    index = nil
+    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks.each_with_index do |task, i|
+      task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0
+      task.order ||= i + 1
+      index = i if task.id == self.id
     end
-    errors
+    return if index.nil?
+    swap_with_index = index + direction
+    swap_with = tasks[swap_with_index] if swap_with_index >= 0
+    self.order = Task.swap_order(tasks[index], swap_with) unless swap_with.nil?
+  end
+
+  def self.swap_order(task1, task2)
+    task1_order = task1.order
+    task2_order = task2.order
+    task1.update_column(:data, task1.data.merge(order: task2_order))
+    task2.update_column(:data, task2.data.merge(order: task1_order))
+    task2_order
+  end
+
+  def self.slug(label)
+    label.to_s.parameterize.tr('-', '_')
   end
 
   private
 
   def task_options_is_array
-    errors.add(:options, 'must be an array') if !self.options.nil? && !self.options.is_a?(Array)
+    errors.add(:base, I18n.t(:task_options_must_be_array)) if !self.options.nil? && !self.options.is_a?(Array)
   end
 
   def set_slug
     self.slug = Task.slug(self.label)
   end
 
+  def set_order
+    return if self.order.to_i > 0 || self.annotated_type != 'ProjectMedia'
+    tasks = self.send(:reorder)
+    last = tasks.last
+    self.order = last ? last.order.to_i + 1 : 1
+  end
+
+  def reorder
+    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks.each_with_index { |task, i| task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0 }
+    tasks
+  end
+
+  def fieldset_exists_in_team
+    errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.annotated&.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
 end
 
 Comment.class_eval do
@@ -320,5 +352,39 @@ Version.class_eval do
       task.skip_check_ability = true
       task.save!
     end
+  end
+end
+
+DynamicAnnotation::Field.class_eval do
+  def selected_values_from_task_answer
+    if ['response_single_choice', 'response_multiple_choice'].include?(self.field_name)
+      begin
+        [JSON.parse(self.value)['selected']].flatten
+      rescue
+        [value]
+      end
+    end
+  end
+end
+
+ProjectMedia.class_eval do
+  def task_answers(filters = {})
+    DynamicAnnotation::Field
+    .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN annotations a2 ON a2.id = a.annotated_id")
+    .where("field_name LIKE 'response_%'")
+    .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => self.id)
+    .where(filters)
+  end
+
+  def task_answer_selected_values(filters = {})
+    self.task_answers(filters).select{ |a| a.field_name =~ /choice/ }.collect{ |a| a.selected_values_from_task_answer }.flatten
+  end
+
+  def selected_value_for_task?(team_task_id, value)
+    self.task_answer_selected_values(['task_team_task_id(a2.annotation_type, a2.data) = ?', team_task_id]).include?(value)
+  end
+
+  def ordered_tasks(fieldset)
+    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
   end
 end

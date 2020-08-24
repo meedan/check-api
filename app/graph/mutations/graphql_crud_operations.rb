@@ -126,6 +126,13 @@ class GraphqlCrudOperations
     obj
   end
 
+  def self.object_from_id_if_can(graphql_id, ability)
+    type, id = CheckGraphql.decode_id(graphql_id)
+    obj = type.constantize.find_if_can(id, ability)
+    obj = obj.load if obj.respond_to?(:load)
+    obj
+  end
+
   def self.load_project_media_project_without_id(type, inputs)
     ProjectMediaProject.where(project_id: inputs[:previous_project_id] || inputs[:project_id], project_media_id: inputs[:project_media_id]).last if type.to_s == 'project_media_project'
   end

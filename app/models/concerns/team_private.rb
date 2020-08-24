@@ -59,4 +59,20 @@ module TeamPrivate
     self.set_language 'en'
     self.set_languages ['en']
   end
+
+  def set_default_fieldsets
+    fieldsets = [
+      {
+        identifier: 'tasks',
+        singular: 'task',
+        plural: 'tasks'
+      }.with_indifferent_access,
+      {
+        identifier: 'metadata',
+        singular: 'metadata',
+        plural: 'metadata'
+      }.with_indifferent_access
+    ]
+    self.set_fieldsets fieldsets
+  end
 end

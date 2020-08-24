@@ -17,25 +17,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_not_nil t.content
   end
 
-  test "should order tasks" do
-    team = create_team
-    u = create_user
-    create_team_user team: team, user: u, role: 'owner'
-    p = create_project team: team
-    pm = create_project_media project: p
-    with_current_user_and_team(u, team) do
-      t1 = create_task annotated: pm
-      t1.label = 'new title'
-      t1.save!
-      v_count = t1.annotation_versions.count
-      Task.order_tasks([{id: t1.id, order: 5}])
-      t1 = t1.reload
-      assert_equal 5, t1.order
-      assert_equal v_count, t1.annotation_versions.count
-      assert JSON.parse(t1.content).keys.include?('order')
-    end
-  end
-
   test "should not create task with blank label" do
     assert_no_difference 'Task.length' do
       assert_raises ActiveRecord::RecordInvalid do
@@ -264,7 +245,7 @@ class TaskTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk = Task.find(tk.id)
-      tk.data = { label: 'Foo', type: 'free_text' }.with_indifferent_access
+      tk.data = { label: 'Foo', type: 'free_text', fieldset: 'tasks' }.with_indifferent_access
       tk.save!
     end
   end
@@ -561,5 +542,170 @@ class TaskTest < ActiveSupport::TestCase
       d.set_fields = { response_free_text: 'Foo Bar' }.to_json
       d.save!
     end
+  end
+
+  test "should not create task with invalid fieldset" do
+    assert_difference 'Task.length', 2 do
+      create_task fieldset: 'tasks'
+      create_task fieldset: 'metadata'
+    end
+    assert_no_difference 'Task.length' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: 'invalid'
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: ''
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_task fieldset: nil
+      end
+    end
+  end
+
+  test "should get tasks by fieldset" do
+    t1 = create_task fieldset: 'tasks'
+    t2 = create_task fieldset: 'tasks'
+    t3 = create_task fieldset: 'metadata'
+    t4 = create_task fieldset: 'metadata'
+    assert_equal [t1, t2].sort, Task.from_fieldset('tasks').sort
+    assert_equal [t3, t4].sort, Task.from_fieldset('metadata').sort
+  end
+
+  test "should create tasks with fieldset from team task" do
+    t = create_team
+    tt1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    tt2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    pm = create_project_media team: t
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
+    assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('metadata').count
+  end
+
+  test "should return task answers" do
+    create_task_stuff
+    t = create_team
+    tt1a = create_team_task team_id: t.id 
+    tt1b = create_team_task team_id: t.id 
+    tt2a = create_team_task team_id: t.id 
+    tt2b = create_team_task team_id: t.id 
+    
+    pm1 = create_project_media team: t
+
+    t1a = create_task annotated: pm1, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt1a.id
+    t1a.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
+    t1a.save!
+
+    t1b = create_task annotated: pm1, type: 'single_choice', options: ['The Beatles', 'Iron Maiden', 'Helloween'], label: 'Best band', team_task_id: tt1b.id
+    t1b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'The Beatles', other: nil }.to_json }.to_json }.to_json
+    t1b.save!
+
+    assert_equal ['Apple', 'Orange', 'The Beatles'], pm1.reload.task_answer_selected_values.sort
+    assert pm1.selected_value_for_task?(tt1a.id, 'Apple')
+    assert pm1.selected_value_for_task?(tt1a.id, 'Orange')
+    assert !pm1.selected_value_for_task?(tt1a.id, 'Banana')
+    assert pm1.selected_value_for_task?(tt1b.id, 'The Beatles')
+    assert !pm1.selected_value_for_task?(tt1b.id, 'Iron Maiden')
+    assert !pm1.selected_value_for_task?(tt1b.id, 'Helloween')
+    
+    pm2 = create_project_media team: t
+
+    t2a = create_task annotated: pm2, type: 'multiple_choice', options: ['Brazil', 'Canada', 'Egypt'], label: 'Places to visit', team_task_id: tt2a.id
+    t2a.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Brazil', 'Egypt'], other: nil }.to_json }.to_json }.to_json
+    t2a.save!
+
+    t2b = create_task annotated: pm2, type: 'single_choice', options: ['January', 'February', 'March'], label: 'Month you were born', team_task_id: tt2b.id
+    t2b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'January' }.to_json }.to_json
+    t2b.save!
+
+    assert_equal ['Brazil', 'Egypt', 'January'], pm2.reload.task_answer_selected_values.sort
+    assert pm2.selected_value_for_task?(tt2a.id, 'Brazil')
+    assert pm2.selected_value_for_task?(tt2a.id, 'Egypt')
+    assert !pm2.selected_value_for_task?(tt2a.id, 'Canada')
+    assert pm2.selected_value_for_task?(tt2b.id, 'January')
+    assert !pm2.selected_value_for_task?(tt2b.id, 'February')
+    assert !pm2.selected_value_for_task?(tt2b.id, 'March')
+  end
+
+  test "should set order when task is created" do
+    pm = create_project_media
+    t1 = create_task annotated: pm, fieldset: 'tasks'
+    m1 = create_task annotated: pm, fieldset: 'metadata'
+    assert_equal 1, t1.reload.order
+    assert_equal 1, m1.reload.order
+    t2 = create_task annotated: pm, fieldset: 'tasks'
+    m2 = create_task annotated: pm, fieldset: 'metadata'
+    assert_equal 2, t2.reload.order
+    assert_equal 2, m2.reload.order
+    Task.swap_order(t1, t2)
+    assert_equal 1, t2.reload.order
+    assert_equal 2, t1.reload.order
+    Task.swap_order(m1, m2)
+    assert_equal 1, m2.reload.order
+    assert_equal 2, m1.reload.order
+  end
+
+  test "should move tasks up and down" do
+    pm = create_project_media
+    t1 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m1 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t2 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m2 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t3 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m3 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t4 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m4 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    t5 = create_task annotated: pm, fieldset: 'tasks'; sleep 1
+    m5 = create_task annotated: pm, fieldset: 'metadata'; sleep 1
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), pm.ordered_tasks('tasks').map(&:id)
+    [t1, t2, t3, t4, t5].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), pm.ordered_tasks('tasks').map(&:id)
+    t4.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t1.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t5.move_down
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t2.move_up
+    [t2, t1, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t3.move_down
+    [t2, t1, t4, t5, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), pm.ordered_tasks('metadata').map(&:id)
+    [m1, m2, m3, m4, m5].each { |t| t.order = nil ; t.save! }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), pm.ordered_tasks('metadata').map(&:id)
+    m4.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m1.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m5.move_down
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m2.move_up
+    [m2, m1, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m3.move_down
+    [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when task is created" do
+    pm = create_project_media
+    t1 = create_task annotated: pm ; sleep 1
+    t2 = create_task annotated: pm ; sleep 1
+    t3 = create_task annotated: pm ; sleep 1
+    [t1, t2, t3].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3], pm.ordered_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t4 = create_task annotated: pm
+    assert_equal [t1, t2, t3, t4], pm.ordered_tasks('tasks')
+    [t1, t2, t3, t4].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when task is destroyed" do
+    pm = create_project_media
+    t1 = create_task annotated: pm ; sleep 1
+    t2 = create_task annotated: pm ; sleep 1
+    t3 = create_task annotated: pm ; sleep 1
+    [t1, t2, t3].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3], pm.ordered_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t2.destroy!
+    assert_equal [t1, t3], pm.ordered_tasks('tasks')
+    [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
 end

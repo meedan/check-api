@@ -363,17 +363,17 @@ class Bot::Smooch < BotUser
         self.parse_message_based_on_state(message, app_id)
       end
     when 'main', 'secondary'
-      if !self.process_menu_option(message, state)
+      if !self.process_menu_option(message, state, app_id)
         no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], workflow.dig("smooch_state_#{state}", 'smooch_menu_message')].join("\n\n")
         self.send_message_to_user(uid, no_option_message)
       end
     when 'query'
-      (self.process_menu_option(message, state) && self.clear_user_bundled_messages(uid)) ||
+      (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
         self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
-  def self.process_menu_option(message, state)
+  def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
     language = self.get_user_language(message, state)
@@ -382,6 +382,8 @@ class Bot::Smooch < BotUser
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
+          self.bundle_message(message.merge({ 'text' => '' })) # We don't want to store a menu option
+          self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, workflow.dig("smooch_state_#{new_state}", 'smooch_menu_message'))
         elsif option['smooch_menu_option_value'] == 'resource'
@@ -629,7 +631,8 @@ class Bot::Smooch < BotUser
     last = Rails.cache.read("smooch:last_accepted_terms:#{uid}").to_i
     if last < User.terms_last_updated_at_by_page('tos_smooch') || last < Time.now.yesterday.to_i
       workflow = self.get_workflow(lang)
-      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_ask_for_tos'].gsub('%{tos}', CheckConfig.get('tos_smooch_url')))
+      message = workflow['smooch_message_smooch_bot_ask_for_tos'].to_s.gsub('%{tos}', CheckConfig.get('tos_smooch_url'))
+      self.send_message_to_user(uid, message)
       Rails.cache.write("smooch:last_accepted_terms:#{uid}", Time.now.to_i)
     end
   end
@@ -927,20 +930,20 @@ class Bot::Smooch < BotUser
       pm2.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
         self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
-        self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action) unless self.config['smooch_disabled']
+        self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
       end
     end
   end
 
-  def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action)
+  def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action, published_count = 0)
     uid = data['authorId']
     lang = data['language']
     # User received a report before
-    if subscribed_at.to_i < last_published_at.to_i
+    if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
         message = workflow['smooch_message_smooch_bot_result_changed']
-        self.send_message_to_user(uid, message)
+        self.send_message_to_user(uid, message) unless message.blank?
         sleep 1
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
       end

@@ -267,16 +267,15 @@ class ProjectMedia < ActiveRecord::Base
     self.projects.map(&:id)
   end
 
-  def add_destination_team_tasks_bg(project, only_selected)
+  def add_destination_team_tasks(project, only_selected)
     tasks = project.team.auto_tasks(project.id, only_selected)
-    tasks.each do |task|
-      # check if task exists
-      tt_exists = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
-      .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', task.id).count
-      if tt_exists == 0
-        self.create_auto_tasks(project.id, [task])
-      end
-    end unless tasks.nil?
+    existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
+      .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id)) unless tasks.blank?
+    unless existing_tasks.blank?
+      tt_ids = existing_tasks.collect{|i| i.data['team_task_id']}
+      tasks.delete_if {|t| tt_ids.include?(t.id)}
+    end
+    self.create_auto_tasks(project.id, tasks) unless tasks.blank?
   end
 
   protected

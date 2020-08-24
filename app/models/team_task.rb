@@ -3,8 +3,11 @@ class TeamTask < ActiveRecord::Base
 
   attr_accessor :keep_completed_tasks
 
-  validates_presence_of :label, :team_id
+  before_validation :set_order, on: :create
+
+  validates_presence_of :label, :team_id, :fieldset
   validates :task_type, included: { values: Task.task_types }
+  validate :fieldset_exists_in_team
 
   serialize :options, Array
   serialize :project_ids, Array
@@ -15,6 +18,7 @@ class TeamTask < ActiveRecord::Base
   after_create :add_teamwide_tasks
   after_update :update_teamwide_tasks
   after_commit :delete_teamwide_tasks, on: :destroy
+  after_destroy :reorder
 
   def as_json(_options = {})
     super.merge({
@@ -87,6 +91,36 @@ class TeamTask < ActiveRecord::Base
     end
   end
 
+  def move_up
+    self.move(-1)
+  end
+
+  def move_down
+    self.move(1)
+  end
+
+  def move(direction)
+    index = nil
+    tasks = self.team.ordered_team_tasks(self.fieldset)
+    tasks.each_with_index do |task, i|
+      task.update_column(:order, i + 1) if task.order.to_i == 0
+      task.order ||= i + 1
+      index = i if task.id == self.id
+    end
+    return if index.nil?
+    swap_with_index = index + direction
+    swap_with = tasks[swap_with_index] if swap_with_index >= 0
+    self.order = TeamTask.swap_order(tasks[index], swap_with) unless swap_with.nil?
+  end
+
+  def self.swap_order(task1, task2)
+    task1_order = task1.order
+    task2_order = task2.order
+    task1.update_column(:order, task2_order)
+    task2.update_column(:order, task1_order)
+    task2_order
+  end
+
   private
 
   def add_teamwide_tasks
@@ -147,12 +181,14 @@ class TeamTask < ActiveRecord::Base
 
   def update_tasks_with_zero_answer(columns)
     TeamTask.get_teamwide_tasks_zero_answers(self.id).find_each do |t|
+      t.skip_check_ability = true
       t.update(columns)
     end
   end
 
   def update_tasks_with_answer(columns)
     get_teamwide_tasks_with_answers.find_each do |t|
+      t.skip_check_ability = true
       t.update(columns)
     end
   end
@@ -166,7 +202,7 @@ class TeamTask < ActiveRecord::Base
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
-    .where("a.id" => nil).find_each do |pm|
+    .where("a.id" => nil).uniq.find_each do |pm|
       begin
         pm.create_auto_tasks(nil, [self])
       rescue StandardError => e
@@ -198,5 +234,27 @@ class TeamTask < ActiveRecord::Base
   def self.destory_project_media_task(t)
     t.skip_check_ability = true
     t.destroy
+  end
+
+  def fieldset_exists_in_team
+    errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
+
+  def set_order
+    return if self.order.to_i > 0 || !self.team_id
+    tasks = self.send(:reorder)
+    self.order = tasks.last&.order.to_i + 1
+  end
+
+  def reorder
+    tasks = self.team.ordered_team_tasks(self.fieldset)
+    tasks.each_with_index { |task, i| task.update_column(:order, i + 1) if task.order.to_i == 0 }
+    tasks
+  end
+end
+
+Team.class_eval do
+  def ordered_team_tasks(fieldset)
+    TeamTask.where(team_id: self.id, fieldset: fieldset).order(order: :asc, id: :asc)
   end
 end

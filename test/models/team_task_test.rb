@@ -112,6 +112,24 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should add teamwide task to item in multiple list" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p
+      create_project_media_project project: p2, project_media: pm
+      tt = nil
+      assert_difference 'Task.length', 1 do
+        tt = create_team_task team_id: t.id, project_ids: [], order: 1, description: 'Foo', options: [{ label: 'Foo' }]
+      end
+      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
+      assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
+    end
+    Team.unstub(:current)
+  end
+
   test "should bypass trashed items" do
     t =  create_team
     u = create_user
@@ -170,6 +188,31 @@ class TeamTaskTest < ActiveSupport::TestCase
       end
     end
     Team.unstub(:current)
+  end
+
+  test "should skip check permission for background tasks" do
+    t =  create_team
+    u = create_user
+    u2 = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u2, team: t
+    Sidekiq::Testing.inline! do
+      tt = nil
+      with_current_user_and_team(u, t) do
+        p = create_project team: t
+        tt = create_team_task team_id: t.id, project_ids: [p.id], description: 'Foo', options: [{ label: 'Foo' }]
+        pm = create_project_media project: p
+        pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+        assert_not_nil pm_tt
+      end
+      with_current_user_and_team(u2, t) do
+        tt.label = 'update label'
+        tt.skip_check_ability = true
+        assert_nothing_raised RuntimeError do
+          tt.save!
+        end
+      end
+    end
   end
 
   test "should update teamwide tasks with zero answers" do
@@ -400,5 +443,101 @@ class TeamTaskTest < ActiveSupport::TestCase
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
     tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
+  end
+
+  test "should have valid fieldset" do
+    assert_difference 'TeamTask.count', 2 do
+      create_team_task fieldset: 'tasks'
+      create_team_task fieldset: 'metadata'
+    end
+    [nil, '', 'invalid'].each do |fieldset|
+      assert_raises ActiveRecord::RecordInvalid do
+        create_team_task fieldset: fieldset
+      end
+    end
+  end
+
+  test "should set order when team task is created" do
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'
+    m1 = create_team_task team_id: t.id, fieldset: 'metadata'
+    assert_equal 1, t1.reload.order
+    assert_equal 1, m1.reload.order
+    t2 = create_team_task team_id: t.id, fieldset: 'tasks'
+    m2 = create_team_task team_id: t.id, fieldset: 'metadata'
+    assert_equal 2, t2.reload.order
+    assert_equal 2, m2.reload.order
+    TeamTask.swap_order(t1, t2)
+    assert_equal 1, t2.reload.order
+    assert_equal 2, t1.reload.order
+    TeamTask.swap_order(m1, m2)
+    assert_equal 1, m2.reload.order
+    assert_equal 2, m1.reload.order
+  end
+
+  test "should move team tasks up and down" do
+    t = create_team
+    t1 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m1 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t2 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m2 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t3 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m3 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t4 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m4 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    t5 = create_team_task team_id: t.id, fieldset: 'tasks'; sleep 1
+    m5 = create_team_task team_id: t.id, fieldset: 'metadata'; sleep 1
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), t.ordered_team_tasks('tasks').map(&:id)
+    [t1, t2, t3, t4, t5].each { |t| t.order = nil ; t.save! }
+    assert_equal [t1, t2, t3, t4, t5].map(&:id), t.ordered_team_tasks('tasks').map(&:id)
+    t4.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t1.move_up
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t5.move_down
+    [t1, t2, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t2.move_up
+    [t2, t1, t4, t3, t5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    t3.move_down
+    [t2, t1, t4, t5, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), t.ordered_team_tasks('metadata').map(&:id)
+    [m1, m2, m3, m4, m5].each { |t| t.order = nil ; t.save! }
+    assert_equal [m1, m2, m3, m4, m5].map(&:id), t.ordered_team_tasks('metadata').map(&:id)
+    m4.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m1.move_up
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m5.move_down
+    [m1, m2, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m2.move_up
+    [m2, m1, m4, m3, m5].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+    m3.move_down
+    [m2, m1, m4, m5, m3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when team task is created" do
+    t = create_team
+    t1 = create_team_task team_id: t.id
+    t2 = create_team_task team_id: t.id
+    t3 = create_team_task team_id: t.id
+    TeamTask.update_all(order: nil)
+    assert_equal [t1, t2, t3], t.ordered_team_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t4 = create_team_task team_id: t.id
+    assert_equal [t1, t2, t3, t4], t.ordered_team_tasks('tasks')
+    [t1, t2, t3, t4].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should reorder when team task is destroyed" do
+    t = create_team
+    t1 = create_team_task team_id: t.id
+    t2 = create_team_task team_id: t.id
+    t3 = create_team_task team_id: t.id
+    TeamTask.update_all(order: nil)
+    assert_equal [t1, t2, t3], t.ordered_team_tasks('tasks')
+    [t1, t2, t3].each { |t| assert_nil t.reload.order }
+    t2.destroy!
+    assert_equal [t1, t3], t.ordered_team_tasks('tasks')
+    [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
 end

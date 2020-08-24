@@ -224,6 +224,18 @@ module SampleData
     create_field_instance annotation_type_object: at, name: 'task_status_status', label: 'Task Status', default_value: 'unresolved', field_type_object: ft1, optional: true
   end
 
+  def create_task_stuff(delete_existing = true)
+    if delete_existing
+      [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
+      create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    end
+    sel = create_field_type field_type: 'select', label: 'Select'
+    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task Response Single Choice'
+    create_field_instance annotation_type_object: at, name: 'response_single_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: false }
+    at = create_annotation_type annotation_type: 'task_response_multiple_choice', label: 'Task Response Multiple Choice'
+    create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
+  end
+
   # Verification status
   def create_status(options = {})
     create_verification_status_stuff if User.current.nil?
@@ -731,6 +743,7 @@ module SampleData
       options: ['10', '20', '30'],
       status: 'unresolved',
       annotator: options[:user] || create_user,
+      fieldset: 'tasks',
       disable_es_callbacks: true,
     }.merge(options)
     unless options.has_key?(:annotated)
@@ -843,7 +856,7 @@ module SampleData
 
   def create_team_task(options = {})
     tt = TeamTask.new
-    options = { label: random_string, team_id: create_team.id, task_type: 'free_text' }.merge(options)
+    options = { label: random_string, team_id: create_team.id, task_type: 'free_text', fieldset: 'tasks' }.merge(options)
     options.each do |key, value|
       tt.send("#{key}=", value) if tt.respond_to?("#{key}=")
     end

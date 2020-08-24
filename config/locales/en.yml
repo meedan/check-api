@@ -683,6 +683,12 @@ en:
   team_rule_item_language_is: Item language is
   team_rule_item_user_is: Item was created by
   team_rule_item_is_read: Item is read
+  team_rule_field_from_fieldset_tasks_value_is: Task has specific answer
+  team_rule_field_from_fieldset_metadata_value_is: Metadata has specific value
+  team_rule_select_field_metadata: Select metadata
+  team_rule_select_field_value_metadata: Select value
+  team_rule_select_field_tasks: Select task
+  team_rule_select_field_value_tasks: Select answer
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -710,6 +716,8 @@ en:
   cant_change_status_if_item_is_published: Sorry, you can't change the status while
     the report is published
   fetch_bot_service_unsupported: Service unsupported
+  task_options_must_be_array: Task options must be a list
+  fieldset_not_defined_by_team: Fieldset should be supported by the team
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
