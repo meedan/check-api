@@ -25,9 +25,9 @@ end
 #     my-team,1412,step-234fDdf,my-api-token
 #     ...
 def load_rows_from_s3_csv(bucket, key)
-  s3 = AWS::S3.new
-  csv_bytes = s3.buckets[bucket].objects[key].read
-  CSV.parse(csv_bytes, headers: true)
+  s3 = Aws::S3::Resource.new
+  csv_io = s3.bucket(bucket).object(key).get.body
+  CSV.parse(csv_io, headers: true)
     .map do |row|
       team_slug, workflow_id, step_id, api_token = row.fields(*%w(team_slug workflow_id step_id api_token))
       if team_slug.nil? || workflow_id.nil? || step_id.nil? || api_token.nil?
