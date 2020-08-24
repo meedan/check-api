@@ -943,7 +943,7 @@ class Bot::Smooch < BotUser
       if ['publish', 'republish_and_resend'].include?(action)
         workflow = self.get_workflow(lang)
         message = workflow['smooch_message_smooch_bot_result_changed']
-        self.send_message_to_user(uid, message)
+        self.send_message_to_user(uid, message) unless message.blank?
         sleep 1
         self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated')
       end
