@@ -342,9 +342,9 @@ es:
     register:
       subject: Nueva cuenta para ti en  %{app_name}
       header_text: |-
-        !Te has registrado con éxito en %{app_name}!
-        <br>
-        Para iniciar sesión, sigue este enlace:%{url}. Ingresa este correo electrónico y esta contraseña.%{password}
+        ¡Te has registrado con éxito en %{app_name}!
+
+        Para iniciar sesión en el sitio, sigue este enlace:%{url}. Ingresa este correo electrónico y esta contraseña.%{password}
       login_button: Iniciar sesión en %{app_name}
       footer_text: "¡Gracias por unirte y esperamos que tengas un día increíble! "
     duplicated:
@@ -941,33 +941,33 @@ es:
 
     Podemos aceptar la mayoría de las imágenes, videos, enlaces, mensajes de texto y mensajes compartidos de WhatsApp.
   custom_message_smooch_bot_message_unconfirmed_check-message-demo: 'Como no respondiste
-    a la pregunta tecleando el número 1,  no procesaremos más tu solicitud. ¡Gracias! '
+    tecleando el número 1,  no continuaremos procesando tu solicitud ¡Gracias! '
   custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: Hicimos este meme gracias a la
-    pregunta que nos enviaste para que verificáramos, ¡compártelo! Mira más en %{url}.
+  custom_message_smooch_bot_meme_check-message-demo: Aquí está un meme que creamos
+    basado en el ítem que solicitaste verificar. Aprende más en %{url}.
   custom_message_smooch_bot_window_closing_check-message-demo: "El volumen de solicitudes
-    que hemos recibido en este canal es bastante alto y aún no hemos podido resolver
-    tu solicitud. \nGracias por tu paciencia."
+    en este canal es muy alto y aún no hemos podido resolver tu solicitud. \nGracias
+    por tu paciencia."
   custom_message_smooch_bot_disabled_check-message-demo: ''
   custom_message_smooch_bot_ask_for_tos_check-message-demo: ''
   custom_message_smooch_bot_greetings_check-message-demo: ''
   custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Lo
-    siento, no entendí tu mensaje ¡Inténtalo de nuevo!"
+    siento, no entendí tu mensaje ¡Por favor, inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: "*Información
     sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
-    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / oa mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo(a) y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    al COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
     \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
-    \U0001F310\n\n*Responda 0* para volver al *menú principal* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: "*Ingrese
-    la pregunta, el enlace, la imagen o el video que desea verificar*, seguido de
-    cualquier contexto o preguntas adicionales relacionadas con ese elemento. Su solicitud
-    se enviará a los verificadores de hechos aproximadamente 30 segundos después de
-    que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
-    al *menú principal*"
+    \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: "*Por
+    favor ingrese la pregunta, el enlace, la imagen o el video que desea verificar*,
+    seguido de cualquier contexto o preguntas adicionales relacionadas con ese elemento.
+    Su solicitud se enviará a los verificadores de hechos aproximadamente 30 segundos
+    después de que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)*
+    para volver al *Menú Principal*"
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1037,7 +1037,7 @@ es:
   custom_message_smooch_bot_ask_for_tos_india-today: ''
   custom_message_smooch_bot_greetings_india-today: ''
   custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Lo siento,
-    no entendí tu mensaje ¡Inténtalo de nuevo!"
+    no entendí tu mensaje ¡Por favor, inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
@@ -1188,14 +1188,14 @@ es:
   custom_message_smooch_bot_disabled_sawy: |-
     ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
 
-    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_sawy: 'Este servicio se proporciona bajo los
     siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_sawy: "¡Hola! Bienvenido al bot de verificación
     de datos de [nombre de su organización]. Verificamos reclamaciones, videos e imágenes
     relacionadas con temas como política, salud, finanzas y tecnología."
   custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Lo siento, no entendí
-    tu mensaje ¡Inténtalo de nuevo!"
+    tu mensaje ¡Por favor, inténtalo de nuevo!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: "\U0001F4CC*Menú
     Principal*\n\n*Responda 1* (o \U0001F50D) para enviar una solicitud de verificación
     de hechos sobre un artículo, video, imagen u otro contenido.\n*Responda 2* (o
@@ -1204,9 +1204,9 @@ es:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: "*Información
     sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
-    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo(a) y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    a COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
     \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
     \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: "*Por favor
@@ -1233,7 +1233,7 @@ es:
   custom_message_smooch_bot_disabled_team-1: |-
     ❌Gracias por tu mensaje. Nuestro servicio de verificación de hechos está actualmente *inactivo*.
 
-    Póngase en contacto con nosotros en *[correo electrónico o otro contacto]* para consultas adicionales.
+    Póngase en contacto con nosotros en *[correo electrónico u otro contacto]* para consultas adicionales.
   custom_message_smooch_bot_ask_for_tos_team-1: 'Este servicio se proporciona bajo
     los siguientes Términos de Servicio: %{tos}'
   custom_message_smooch_bot_greetings_team-1: ''
@@ -1246,9 +1246,9 @@ es:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_team-1: "*Información
     sobre la enfermedad por Coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Responda
     con cualquiera de los siguientes números (o emoji) para obtener información sobre
-    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    ese tema:*\n\n*1:* ¿Cómo me protejo a mí mismo(a) y / o a mi familia? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
     Creo que me estoy enfermando \U0001F912\n*3:* ¿Cómo puedo manejar el estrés asociado
-    con COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
+    a COVID-19? ❤️\n*4:* Información sobre casos y recuperaciones a nivel mundial
     \U0001F4CA\n*5:* Últimas actualizaciones de la Organización Mundial de la Salud
     \U0001F310\n\n*Responda 0* para volver al *Menú Principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_team-1: "*Por favor

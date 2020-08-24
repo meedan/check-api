@@ -535,10 +535,10 @@ class GraphqlController2Test < ActionController::TestCase
 
     assert_response :success
     data = JSON.parse(@response.body)['data']['team']
-    assert_equal 0, data['team_tasks']['edges'][0]['node']['order']
-    assert_equal tt3.id, data['team_tasks']['edges'][0]['node']['dbid']
-    assert_equal tt.id, data['team_tasks']['edges'][1]['node']['dbid']
-    assert_equal tt2.id, data['team_tasks']['edges'][2]['node']['dbid']
+    assert_equal 3, data['team_tasks']['edges'][0]['node']['order']
+    assert_equal tt.id, data['team_tasks']['edges'][0]['node']['dbid']
+    assert_equal tt2.id, data['team_tasks']['edges'][1]['node']['dbid']
+    assert_equal tt3.id, data['team_tasks']['edges'][2]['node']['dbid']
   end
 
   test "should not import spreadsheet if URL is not present" do

@@ -3,7 +3,8 @@ module TaskMutations
     description: 'str',
     assigned_to_ids: 'str',
     json_schema: 'str',
-    order: 'int'
+    order: 'int',
+    fieldset: 'str'
   }
 
   create_fields = {

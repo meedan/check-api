@@ -99,8 +99,8 @@ fil:
       pender_url_invalid: Hindi wasto ang link na ito.
       pender_url_unsafe: Hindi ligtas ang link na ito.
       pender_could_not_parse: Hindi ma-parse ang link na ito.
-      invalid_format_for_languages: Hindi wasto ang format ng wika. Ang inaasahan
-        ay `['en', 'ar', …]`
+      invalid_format_for_languages: Hindi wastong format ng wika. Ang inaasahan ay
+        `['en', 'ar', …]`
   activerecord:
     models:
       link: Link
@@ -153,7 +153,7 @@ fil:
         too_short:
           one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
           other: ay masyadong maikli (hindi bababa sa %{count} karakter)
-  slack_webhook_format_wrong: Hindi wasto ang Slack webhook. Ang format na inaasahan
+  slack_webhook_format_wrong: Hindi wastong Slack webhook. Ang format na inaasahan
     ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: ay nakareserba na
   invalid_media_item: Hindi wasto ang item
@@ -164,7 +164,7 @@ fil:
   invalid_label_for_custom_verification_status: Kinakailangan ang label ng status
   invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at
     ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
-  invalid_statuses_format_for_custom_verification_status: 'Hindi wasto ang mga custom
+  invalid_statuses_format_for_custom_verification_status: 'Hindi wastong mga custom
     verification status. Ang inaasahan ay mga wastong entry para sa: label, identifier,
     pagkakalarawan, at istilo.'
   mail_account_confirmation: Pagkumpirma ng account sa %{app_name}
@@ -281,7 +281,7 @@ fil:
     other: "%{count} nalutas na gawain"
   oembed_notes: Mga note
   duplicate_source: Dati na ang source
-  geolocation_invalid_value: Hindi wasto ang lokasyon. Ang inaasahan ay wastong GeoJSON
+  geolocation_invalid_value: Hindi wastong lokasyon. Ang inaasahan ay wastong GeoJSON
     structure (http://geojson.org/)
   datetime_invalid_date: Hindi wastong petsa
   error_team_archived: Paumanhin, hindi pwede magdagdag ng listahan sa binasurang
@@ -335,7 +335,7 @@ fil:
     invited: Naanyayahan na ang user sa workspace na ito.
     member: Miyembro na ang user na ito.
     team_found: Hindi matagpuan ang workspace.
-    invalid: Hindi wasto ang code ng paanyaya.
+    invalid: Hindi wastong code ng paanyaya.
     no_invitation: Wala pang paanyaya para sa workspace na %{name}
   error_user_is_not_a_team_member: Paumanhin, pwede ka lang magtalaga sa mga miyembro
     nitong workspace
@@ -659,7 +659,7 @@ fil:
   smooch_requests: Mga kahilingan
   smooch_requests_asc: Pinakabihirang hilingin
   smooch_requests_desc: Pinakamadalas hilingin
-  bot_request_url_invalid: Hindi wasto ang bot URL
+  bot_request_url_invalid: Hindi wastong bot URL
   smooch_twitter_success: 'Tagumpay! Ang Smooch Bot ang hahawak sa mga matatanggap
     na DM ng Twitter account na ito. '
   invalid_task_answer: Hindi wastong format para sa sagot sa gawaing ito

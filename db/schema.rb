@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200804202431) do
+ActiveRecord::Schema.define(version: 20200813175255) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -315,7 +315,10 @@ ActiveRecord::Schema.define(version: 20200804202431) do
     t.datetime "updated_at",                  null: false
     t.string   "json_schema"
     t.integer  "order",       default: 0
+    t.string   "fieldset",    default: "",    null: false
   end
+
+  add_index "team_tasks", ["fieldset"], name: "index_team_tasks_on_fieldset", using: :btree
 
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
