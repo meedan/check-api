@@ -112,6 +112,24 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should add teamwide task to item in multiple list" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p
+      create_project_media_project project: p2, project_media: pm
+      tt = nil
+      assert_difference 'Task.length', 1 do
+        tt = create_team_task team_id: t.id, project_ids: [], order: 1, description: 'Foo', options: [{ label: 'Foo' }]
+      end
+      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
+      assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
+    end
+    Team.unstub(:current)
+  end
+
   test "should bypass trashed items" do
     t =  create_team
     u = create_user
