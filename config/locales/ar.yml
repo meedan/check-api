@@ -536,20 +536,19 @@ ar:
     ما زال العنصر في قائمة اﻹنتظار للمزيد من التحقق.
   smooch_bot_disabled: شكرا لإرسال هذه الرسالة. لا نستطيع إرسال أي من تقارير التحقيق
     ، حيث أن هذا المشروع لم يعد نشطاً.
-  smooch_bot_result_changed: "❗️تم *تحديث* التحقق من الحقائق الذي أرسلناه لك بمعلومات
-    جديدة"
+  smooch_bot_result_changed: "❗️تم *تحديث* تقصي الحقائق الذي أرسلناه لك بمعلومات جديدة"
   permissions_info:
     roles:
       owner:
-        description: المديرون يديرون مساحة العمل.
+        description: المديرات يدرن مساحة العمل.
       editor:
-        description: المحررون يديرون مساحة العمل و القوائم.
+        description: المحررات يدرن مساحة العمل و القوائم.
       journalist:
-        description: الصحفيون يتحققون من المعلومات.
+        description: الصحفيات يتحققن من المعلومات.
       contributor:
-        description: المشاركون يضيفون عناصر جديدة للتحقق. هم في الغالب أعضاء من الجمهور.
+        description: المشاركات يضفن عناصر جديدة للتحقق. هم في الغالب أعضاء من الجمهور.
       annotator:
-        description: المفسرون يمكنهم فقط عرض وإجابة المهام المكلفون بها.
+        description: المفسرات يمكنهم فقط عرض وإجابة المهام المكلفات بها.
     permissions:
       sections:
         project_management:
@@ -629,8 +628,8 @@ ar:
   team_rule_destination: تحديد القائمة المقصودة
   team_rule_names_invalid: أسماء القواعد لا يمكن أن تكون فارغة و يجب أن تكون فريدة
   team_rules: القواعد
-  team_rule_conditions: If
-  team_rule_condition: If
+  team_rule_conditions: إذا
+  team_rule_condition: إذا
   team_rule_condition_definition: تحديد الشرط
   team_rule_has_less_than_x_words: الطلب يحتوي على عدد من الكلمات أقل من اﻵتي
   team_rule_title_matches_regexp: عنوان العنصر يوافق التعبير القياسي الآتي
@@ -654,8 +653,8 @@ ar:
   team_rule_type_regexp: اكتبوا التعبير القياسي
   team_rule_type_number: أدخلوا عدد الكلمات
   team_rule_value: اكتبوا قائمة الكلمات الأساسية مفصولة بفواصل
-  team_rule_actions: Then
-  team_rule_action: Then
+  team_rule_actions: حينئذ
+  team_rule_action: حينئذ
   team_rule_action_definition: تحديد الإجراء
   team_rule_send_to_trash: ارسال إلى سلة المهملات
   team_rule_move_to_project: نقل العنصر إلى قائمة
@@ -682,20 +681,20 @@ ar:
   team_rule_item_language_is: لغة العنصر هي
   team_rule_item_user_is: تم إنشاء العنصر من قبل
   team_rule_item_is_read: 'تمت قراءة العنصر '
-  flag_adult: Adult
+  flag_adult: إباحية
   flag_spoof: متلاعب بها
-  flag_medical: Medical
-  flag_violence: Violence
-  flag_racy: Racy
-  flag_spam: Spam
+  flag_medical: طبية
+  flag_violence: عنف
+  flag_racy: عنصرية
+  flag_spam: إعلانية مؤذية
   annotation_type_flag_name_label: الراية
   annotation_type_flag_value_label: احتمالية الراية
-  flag_likelihood_0: Unknown
-  flag_likelihood_1: Very unlikely
-  flag_likelihood_2: Unlikely
-  flag_likelihood_3: Possible
-  flag_likelihood_4: Likely
-  flag_likelihood_5: Very likely
+  flag_likelihood_0: غير معلومة
+  flag_likelihood_1: مُستبعدة جدا
+  flag_likelihood_2: مُستبعدة
+  flag_likelihood_3: ممكنة
+  flag_likelihood_4: محتملة
+  flag_likelihood_5: محتملة جدا
   relationship_not_same_team: العناصر ذات الصلة يجب أن تكون في نفس مساحة العمل
   bulk_operation_limit_error: عذراً ، الحد الأقصى للعناصر التى يتم التعامل معها في
     المرة الواحدة هو %{limit}
@@ -1296,7 +1295,7 @@ ar:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: ''
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
-  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: ''
+  custom_message_rule_action_send_message_f9450047e2c282b7756a3b1da14cc891_vishvas-news: ''
   custom_message_status_video_as_evidence_watching-western-sahara: ''
   custom_message_status_undetermined_watching-western-sahara: لم يبدأ بعد
   custom_message_status_in_progress_watching-western-sahara: قيد التقدم
