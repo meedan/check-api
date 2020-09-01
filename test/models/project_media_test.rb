@@ -852,6 +852,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         use_visual_card: false,
         use_text_message: true,
         use_disclaimer: false,
+        disclaimer: '',
         text: '*This* _is_ a ~test~!'
       })
       PenderClient::Request.unstub(:get_medias)
