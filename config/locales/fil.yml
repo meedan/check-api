@@ -83,7 +83,7 @@ fil:
       mini_magick_processing_error: 'Paumanhin, hindi namin ma-proseso ang larawan.
         Ito ang error: %{e}'
       annotation_mandatory_fields: 'Mangyaring itakda ang lahat ng kinakailangan na
-        field. '
+        patlang. '
       annotation_type_does_not_exist: hindi umiiral
       invalid_attribution: Hindi wastong atribusyon
       must_resolve_required_tasks_first: Dapat munang malutas ang mga kinakailangang
@@ -230,13 +230,13 @@ fil:
         menu: I-export ang mga larawan
       duplicate_team:
         menu: I-duplicate ang workspace
-        done: kinopya
+        done: na-duplicate
         are_you_sure_you_want_to_copy_team:
-          html: Sigurado ka bang nais mong kopyahin ang workspace na <strong>%{team}</strong>?
+          html: Sigurado ka bang nais mong i-duplicate ang workspace na <strong>%{team}</strong>?
             Kokopyahin din ang lahat ng kaugnay na datos.
-        the_team_is_being_copied: Kasalukuyan nang kinokopya ang workspace
+        the_team_is_being_copied: Kasalukuyang nagaganap ang duplication ng workspace
         url_when_ready:
-          html: Kapag handa na, makikita ang kopya ng workspace sa <strong>%{copy_url}</strong>
+          html: Kapag handa na, makikita ang duplicate ng workspace sa <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: Kasalukuyang binubura ang workspace na %{team}
   email_not_found: Hindi matagpuan ang email
@@ -534,9 +534,9 @@ fil:
   bot_cant_add_response_to_task: Paumanhin, hindi direktang nakasasagot ng gawain
     ang isang bot - mangyaring magpadala na lamang ng mungkahing sagot
   bot_cant_add_review_to_task: Paumanhin, hindi nakasusuri ng gawain ang isang bot
-  task_suggestion_invalid_value: Hindi wastong mungkahing gawain. Ang inaasahan ay
-    JSON object na may mga attribute na `mungkahi` (ang akwtal na value na ikinokopya
-    sa sagot sa gawain kapag tinanggap) at `komento` (ipinakikita sa mga user).
+  task_suggestion_invalid_value: Hindi wasto ang mungkahing gawain. Ang inaasahan
+    ay JSON object na may mga attribute na `suggestion` (ang akwtal na value na ikinokopya
+    sa sagot sa gawain kapag tinanggap) at `comment` (ipinakikita sa mga user).
   tag_text_id_not_found: Hindi matagpuan ang tag
   annotation_type_language_label: Wika
   smooch_bot_message_confirmed: |-
@@ -666,8 +666,8 @@ fil:
   team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
   team_rule_project_ids: I-apply sa listahan
   team_rule_destination: Mamili ng listahang patutunguhan
-  team_rule_names_invalid: Ang pangalan ng mga panuntunan ay hindi maaaring blangko
-    at dapat magkakaiba
+  team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko
+    at dapat kakaiba
   team_rules: Mga panuntunan
   team_rule_conditions: Kung
   team_rule_condition: Kung
@@ -726,6 +726,12 @@ fil:
   team_rule_item_language_is: Ang wika ng item ay
   team_rule_item_user_is: Ginawa ang item ni
   team_rule_item_is_read: Nabasa na ang item
+  team_rule_field_from_fieldset_tasks_value_is: May tiyak na sagot ang gawain
+  team_rule_field_from_fieldset_metadata_value_is: May tiyak na value ang metadata
+  team_rule_select_field_metadata: Mamili ng metadata
+  team_rule_select_field_value_metadata: Mamili ng value
+  team_rule_select_field_tasks: Mamili ng gawain
+  team_rule_select_field_value_tasks: Mamili ng sagot
   flag_adult: Hindi angkop sa bata
   flag_spoof: Katatawanan
   flag_medical: Pang-medikal
@@ -754,6 +760,8 @@ fil:
   cant_change_status_if_item_is_published: Paumanhin, hindi mo pwedeng palitan ang
     status habang nakalathala ang ulat
   fetch_bot_service_unsupported: Hindi suportado ang serbisyo
+  task_options_must_be_array: Dapat listahan ang mga gawaing pagpipilian
+  fieldset_not_defined_by_team: Sinusuportahan dapat ng team ang fieldset
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -860,49 +868,6 @@ fil:
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Hindi pa nasisimulan
-  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
-    sa iyo ay *in-update* ng bagong impormasyon:"
-  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
-    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
-    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
-    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
-    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
-    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
-  custom_message_smooch_bot_message_type_unsupported_caio: |-
-    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
-
-    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
-  custom_message_smooch_bot_disabled_caio: |-
-    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
-
-    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
-    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
-    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
-    at teknolohiya.
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
-    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
-    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
-    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
-    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
-    disease (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
-    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
-    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
-    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
-    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
-    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
-    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
-    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
-    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
-    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
-    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
-    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
-    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
-    Talaan*"
   custom_message_smooch_bot_result_changed_test-1: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-1: "Salamat! Naitala na ang iyong
@@ -941,6 +906,49 @@ fil:
     Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
     ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
+  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
     ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
     ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
     kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
@@ -1027,7 +1035,7 @@ fil:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Mali
   custom_message_status_misleading_infotagion: Mapanlinlang
   custom_message_status_true_infotagion: ''
@@ -1188,6 +1196,7 @@ fil:
     kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
     ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
     Talaan*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
