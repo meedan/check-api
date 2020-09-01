@@ -15,8 +15,11 @@ Dynamic.class_eval do
   def report_design_text(language)
     if self.annotation_type == 'report_design'
       text = []
+      title = self.report_design_field_value('title', language)
+      text << "*#{title}*" unless title.blank?
       text << self.report_design_field_value('text', language)
-      text << self.report_design_field_value('disclaimer', language) if self.report_design_field_value('use_disclaimer', language)
+      disclaimer = self.report_design_field_value('disclaimer', language)
+      text << "_#{disclaimer}_" unless disclaimer.blank?
       text.join("\n\n")
     end
   end
@@ -71,7 +74,8 @@ Dynamic.class_eval do
         el = doc.at_css('#' + key.to_s)
         value.blank? ? el.remove : (el.content = value)
       end
-      doc.at_css('#date').content = self.report_design_date(self.updated_at.to_date, language)
+      date = self.report_design_field_value('date', language)
+      doc.at_css('#date').content = date || self.report_design_date(self.updated_at.to_date, language)
       avatar = self.adjust_report_design_image_url(team.avatar)
       image = self.adjust_report_design_image_url(self.report_design_field_value('image', language))
       temp_name = 'temp-' + self.id.to_s + '-' + language + '.html'

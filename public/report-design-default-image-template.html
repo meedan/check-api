@@ -5,6 +5,7 @@
     <style>
       @import url(https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css);
       @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@700&family=Hind:wght@700');
+      @import url('https://fonts.googleapis.com/css2?family=Gurajada&display=swap');
 
       body, html {
         font-family: 'Hind', sans-serif;
@@ -18,6 +19,10 @@
 
       body.bn {
         font-family: 'Hind Siliguri', sans-serif;
+      }
+
+      body.te {
+        font-family: 'Gurajada', serif;
       }
 
       div {
@@ -96,30 +101,30 @@
         overflow: hidden;
       }
 
-      #date {
-        font-size: 18px;
+      #url {
+        font-size: 16px;
         margin-top: 5px;
       }
 
-      #url-and-description {
+      #date {
+        font-weight: lighter;
+        font-size: 14px;
+      }
+
+      #url.translucid, #date.translucid {
+        padding: 5px 10px;
+      }
+
+      #description {
         display: block;
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
         z-index: 1;
-      }
-
-      #description {
         font-size: 18px;
         padding: 10px 20px;
-        display: block;
         margin: 0;
-      }
-
-      #url {
-        font-size: 18px;
-        margin: 0 20px;
       }
 
       .light .translucid {
@@ -157,15 +162,13 @@
           <div id="status" class="translucid"></div>
         </div>
         <div>
+          <div id="url" class="translucid"></div>
+        </div>
+        <div>
           <div id="date" class="translucid"></div>
         </div>
       </div>
-      <div id="url-and-description">
-        <div>
-          <div id="url" class="translucid"></div>
-        </div>
-        <div id="description" class="translucid"></div>
-      </div>
+      <div id="description" class="translucid"></div>
     </div>
   </body>
 </html>

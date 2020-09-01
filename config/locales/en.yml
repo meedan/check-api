@@ -1676,8 +1676,10 @@ en:
   custom_message_smooch_bot_message_type_unsupported_test-govtech-pap: dasdsa
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: erwet3t
   custom_message_smooch_bot_not_final_test-govtech-pap: dsvcbcnbcbxvzsdfghjh
-  custom_message_rule_action_send_message_b1baf2b3c19af8d75e5219ae57d0cbe8_vishvas-news: "unfortunately
-    \ we cannot do this please read our work \nhttps://www.vishvasnews.com/latest-fact-checks/"
+  custom_message_rule_action_send_message_f9450047e2c282b7756a3b1da14cc891_vishvas-news: "हमें
+    खेद है! हम आपके आग्रह का फैक्ट चेक नहीं कर पाए. हमारी दूसरी फैक्ट चेक स्टोरी पढ़ने
+    के लिए लिंक पर क्लिक करें:  https://www.vishvasnews.com\n\n\U0001F449*मुख्य मेन्यू*
+    \U0001F4CC में वापस जाने के लिए *0 (जीरो) टाइप करें*"
   custom_message_status_video_as_evidence_watching-western-sahara: 'Video as Evidence '
   custom_message_status_undetermined_watching-western-sahara: Unstarted
   custom_message_status_in_progress_watching-western-sahara: In Progress
