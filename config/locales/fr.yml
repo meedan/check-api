@@ -720,6 +720,13 @@ fr:
   team_rule_item_language_is: La langue de l’élément est
   team_rule_item_user_is: L’élément a été créé par
   team_rule_item_is_read: L’élément a été lu
+  team_rule_field_from_fieldset_tasks_value_is: La tâche à une réponse précise
+  team_rule_field_from_fieldset_metadata_value_is: Les métadonnées ont une valeur
+    précise
+  team_rule_select_field_metadata: Sélectionner les métadonnées
+  team_rule_select_field_value_metadata: Sélectionner la valeur
+  team_rule_select_field_tasks: Sélectionner la tâche
+  team_rule_select_field_value_tasks: Sélectionner la réponse
   flag_adult: Adulte
   flag_spoof: Pastiche
   flag_medical: Médical
@@ -749,6 +756,9 @@ fr:
   cant_change_status_if_item_is_published: Désolé, vous ne pouvez pas changer l’état
     alors que le rapport est publié
   fetch_bot_service_unsupported: Le service n’est pas pris en charge
+  task_options_must_be_array: Les options de la tâche doivent être une liste
+  fieldset_not_defined_by_team: L’ensemble de champs n’est pas pris en charge par
+    l’équipe
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -797,22 +807,22 @@ fr:
   custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
   custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Comme vous n’avez
-    pas répondu par 1, nous ne traiterons plus votre demande. Merci.
+    pas répondu par 1, nous ne poursuivrons pas le traitement de votre demande. Merci.
   custom_message_smooch_bot_not_final_afp-fact-check: ''
   custom_message_smooch_bot_meme_afp-fact-check: Voici un mème que nous avons créé
     d’après l’élément que vous nous avez demandé de vérifier. Apprenez-en davantage
     sur %{url}.
-  custom_message_smooch_bot_window_closing_afp-fact-check: Dû à l’important volume
-    des demandes reçues, nous n’avons pas encore été en mesure de vérifier votre demande.
-    Merci pour votre patience.
+  custom_message_smooch_bot_window_closing_afp-fact-check: Le volume de demandes est
+    très important sur cette chaîne et nous n’avons pas encore été en mesure de résoudre
+    votre demande. Nous vous remercions de votre patience.
   custom_message_smooch_bot_disabled_afp-fact-check: ''
   custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'Ce service est offert en
     vertu des Conditions générales d’utilisation suivantes %{tos}
 
 '
   custom_message_smooch_bot_greetings_afp-fact-check: ''
-  custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Désolé,
-    je n’ai pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Je suis
+    désolé, je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
@@ -850,8 +860,8 @@ fr:
   custom_message_smooch_bot_ask_for_tos_boom-factcheck: 'Ce service est offert en
     vertu des Conditions générales d’utilisation suivantes : %{tos}.'
   custom_message_smooch_bot_greetings_boom-factcheck: ''
-  custom_message_smooch_bot_option_not_available_boom-factcheck: "\U0001F916Désolé,
-    je n’ai pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_boom-factcheck: "\U0001F916Je suis
+    désolé, je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
@@ -861,50 +871,6 @@ fr:
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: Faits vérifiés
   custom_message_status_unstarted_check-bot-garden: Non commencé
-  custom_message_smooch_bot_result_changed_caio: "❗️La vérification de faits que nous
-    vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
-  custom_message_smooch_bot_message_confirmed_caio: "Merci. Votre demande a été reçue.
-    Les réponses sont en cours d’agrégation, de tri et nous vérifions les faits de
-    vos questions.\n\n✔️*Suivez ce lien pour une liste mise à jour des questions courantes
-    dont nous avons vérifié les faits :* [Lien vers une page de vérifications sur
-    votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu principal*
-    \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_caio: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
-
-    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
-  custom_message_smooch_bot_disabled_caio: |-
-    ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
-
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
-  custom_message_smooch_bot_ask_for_tos_caio: 'Ce service est offert en vertu des
-    Conditions générales d’utilisation suivantes : %{tos}'
-  custom_message_smooch_bot_greetings_caio: Bonjour ! Bienvenue sur le robot de vérification
-    de faits de [nom de votre organisation]. Nous vérifions les faits d’affirmations,
-    de vidéos et d’images relatives à des sujets tels que la politique, la santé,
-    les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Menu
-    principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
-    des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
-    2* (ou \U0001F9A0) pour obtenir les derniers renseignements sur la maladie à coronavirus
-    (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Renseignements
-    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Répondez avec
-    l’un des numéros suivants (ou émoji) pour obtenir des renseignements sur ce sujet :
-    *\n\n*1 : * Comment puis-je me protéger ou protéger ma famille ? \U0001F468‍\U0001F469‍\U0001F467\n*2 :
-    * Je pense que je tombe peut-être malade \U0001F912\n*3 : * Comment puis-je gérer
-    le stress associé à COVID-19 ? ❤️\n*4 : * Renseignements sur les cas et les guérisons
-    à l’échelle planétaire \U0001F4CA\n*5 : * Dernières mises à jour de l’Organisation
-    mondiale de la santé \U0001F310\n\n*Répondez par 0* pour revenir au *menu principal*
-    \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Veuillez
-    saisir la question, le lien, l’image ou la vidéo dont vous souhaitez que les faits
-    soient vérifiés,* suivis de tout contexte ou questions supplémentaires liés à
-    cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
-    après envoi de votre dernier message.\n\n*Répondez par 0 (ou \U0001F4CC)* pour
-    revenir au *menu principal*"
   custom_message_smooch_bot_result_changed_test-1: "❗️La vérification de faits que
     nous vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
   custom_message_smooch_bot_message_confirmed_test-1: "Merci. Votre demande a été
@@ -914,21 +880,21 @@ fr:
     sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu
     principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_test-1: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_test-1: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_test-1: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_test-1: Bonjour ! Bienvenue sur le robot de
     vérification de faits de [nom de votre organisation]. Nous vérifions les faits
     d’affirmations, de vidéos et d’images relatives à des sujets tels que la politique,
     la santé, les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Menu
     principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
     des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
@@ -949,6 +915,50 @@ fr:
     cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
     après envoi de votre dernier message.\n\n*Répondez par 0 (ou \U0001F4CC)* pour
     revenir au *menu principal*"
+  custom_message_smooch_bot_result_changed_caio: "❗️La vérification de faits que nous
+    vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
+  custom_message_smooch_bot_message_confirmed_caio: "Merci. Votre demande a été reçue.
+    Les réponses sont en cours d’agrégation, de tri et nous vérifions les faits de
+    vos questions.\n\n✔️*Suivez ce lien pour une liste mise à jour des questions courantes
+    dont nous avons vérifié les faits :* [Lien vers une page de vérifications sur
+    votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu principal*
+    \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
+
+    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
+
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
+  custom_message_smooch_bot_ask_for_tos_caio: 'Ce service est offert en vertu des
+    Conditions générales d’utilisation suivantes : %{tos}'
+  custom_message_smooch_bot_greetings_caio: Bonjour ! Bienvenue sur le robot de vérification
+    de faits de [nom de votre organisation]. Nous vérifions les faits d’affirmations,
+    de vidéos et d’images relatives à des sujets tels que la politique, la santé,
+    les finances et la technologie.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Menu
+    principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
+    des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
+    2* (ou \U0001F9A0) pour obtenir les derniers renseignements sur la maladie à coronavirus
+    (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Renseignements
+    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n\n\U0001F449*Répondez avec
+    l’un des numéros suivants (ou émoji) pour obtenir des renseignements sur ce sujet :
+    *\n\n*1 : * Comment puis-je me protéger ou protéger ma famille ? \U0001F468‍\U0001F469‍\U0001F467\n*2 :
+    * Je pense que je tombe peut-être malade \U0001F912\n*3 : * Comment puis-je gérer
+    le stress associé à COVID-19 ? ❤️\n*4 : * Renseignements sur les cas et les guérisons
+    à l’échelle planétaire \U0001F4CA\n*5 : * Dernières mises à jour de l’Organisation
+    mondiale de la santé \U0001F310\n\n*Répondez par 0* pour revenir au *menu principal*
+    \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Veuillez
+    saisir la question, le lien, l’image ou la vidéo dont vous souhaitez que les faits
+    soient vérifiés,* suivis de tout contexte ou questions supplémentaires liés à
+    cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
+    après envoi de votre dernier message.\n\n*Répondez par 0 (ou \U0001F4CC)* pour
+    revenir au *menu principal*"
   custom_message_status_undetermined_check-message-demo: Non commencé
   custom_message_status_in_progress_check-message-demo: En cours
   custom_message_status_inconclusive_check-message-demo: ''
@@ -962,36 +972,40 @@ fr:
     de faits que nous vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
   custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
-  custom_message_smooch_bot_message_type_unsupported_check-message-demo: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
-
-    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
+  custom_message_smooch_bot_message_type_unsupported_check-message-demo: "❌Désolé,
+    nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit
+    vérifié.\n      \nNous acceptons la plupart des images, vidéos, liens, messages
+    texte et messages WhatsApp partagés."
   custom_message_smooch_bot_message_unconfirmed_check-message-demo: Comme vous n’avez
-    pas répondu par 1, nous ne traiterons plus votre demande. Merci.
+    pas répondu par 1, nous ne poursuivrons pas le traitement de votre demande. Merci.
   custom_message_smooch_bot_not_final_check-message-demo: ''
   custom_message_smooch_bot_meme_check-message-demo: Voici un mème que nous avons
     créé d’après l’élément que vous nous avez demandé de vérifier. Apprenez-en davantage
     sur %{url}.
-  custom_message_smooch_bot_window_closing_check-message-demo: Dû à l’important volume
-    des demandes reçues, nous n’avons pas encore été en mesure de vérifier votre demande.
-    Merci pour votre patience.
+  custom_message_smooch_bot_window_closing_check-message-demo: Le volume de demandes
+    sur ce canal est très élevé et nous n’avons pas encore pu résoudre votre demande.
+    Nous vous remercions de votre patience.
   custom_message_smooch_bot_disabled_check-message-demo: Nous vous remercions d’avoir
     envoyé ce message. Nous ne pouvons plus envoyer de rapport de vérification, car
     ce projet n’est plus actif.
   custom_message_smooch_bot_ask_for_tos_check-message-demo: 'Check Message vous est
     offert en vertu de ces Conditions générales d’utilisation suivantes : %{tos}.'
-  custom_message_smooch_bot_greetings_check-message-demo: ''
-  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Désolé,
-    je n’ai pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_greetings_check-message-demo: Bonjour ! Bienvenue sur
+    le robot de vérification de faits de Meedan. Nous vérifions les faits d’affirmations,
+    de vidéos et d’images relatives à des sujets tels que la politique, la santé,
+    les finances et la technologie.
+  custom_message_smooch_bot_option_not_available_check-message-demo: "\U0001F916Je
+    suis désolé, je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: "*Informations
-    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n    \n\U0001F449*Répondez
-    avec l’un des numéros suivants (ou émoji) pour obtenir des informations sur ce
-    sujet :*\n  \n*1:* Comment puis-je me protéger ou protéger ma famille? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
-    Je pense que je tombe malade \U0001F912\n*3:* Comment puis-je gérer le stress
-    associé à COVID-19? ❤️\n*4:* Informations sur les cas et les recouvrements dans
-    le monde \U0001F4CA\n*5:* Dernières mises à jour de l’Organisation Mondiale de
-    la Santé \U0001F310\n\n*Répondez par 0* pour revenir au *menu principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: "*Renseignements
+    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n    \n\U0001F449*Répondez
+    avec l’un des numéros suivants (ou émoji) pour obtenir des renseignements sur
+    ce sujet : *\n  \n*1 : * Comment puis-je me protéger ou protéger ma famille ?
+    \U0001F468‍\U0001F469‍\U0001F467\n*2 : * Je pense que je tombe peut-être malade
+    \U0001F912\n*3 : * Comment puis-je gérer le stress associé à COVID-19 ? ❤️\n*4 :
+    * Renseignements sur les cas et les guérisons à l’échelle planétaire \U0001F4CA\n*5 :
+    * Dernières mises à jour de l’Organisation mondiale de la santé \U0001F310\n\n*Répondez
+    par 0* pour revenir au *menu principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: "*Veuillez
     saisir la question, le lien, l’image ou la vidéo dont vous souhaitez que les faits
     soient vérifiés,* suivis de tout contexte ou questions supplémentaires liés à
@@ -1068,13 +1082,13 @@ fr:
   custom_message_smooch_bot_ask_for_tos_india-today: 'Ce service est offert en vertu
     des Conditions générales d’utilisation suivantes : %{tos}.'
   custom_message_smooch_bot_greetings_india-today: ''
-  custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Désolé, je
-    n’ai pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_india-today: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Faux
   custom_message_status_misleading_infotagion: Trompeur
   custom_message_status_true_infotagion: ''
@@ -1093,10 +1107,10 @@ fr:
   custom_message_smooch_bot_result_changed_africa-check: "❗️La vérification de faits
     que nous vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
   custom_message_smooch_bot_message_confirmed_africa-check: ''
-  custom_message_smooch_bot_message_type_unsupported_africa-check: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
-
-    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
+  custom_message_smooch_bot_message_type_unsupported_africa-check: "❌Désolé, nous
+    ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.\n
+    \     \nNous acceptons la plupart des images, vidéos, liens, messages texte et
+    messages WhatsApp partagés."
   custom_message_smooch_bot_disabled_africa-check: ''
   custom_message_smooch_bot_ask_for_tos_africa-check: |+
     Le logiciel qui propulse cette ligne de signalement, Check Message, vous est offert en vertu de ces Conditions générales d’utilisation : %{tos}.
@@ -1119,21 +1133,21 @@ fr:
     sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu
     principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_lebanon: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_lebanon: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_lebanon: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_lebanon: Bonjour ! Bienvenue sur le robot de
     vérification de faits de [nom de votre organisation]. Nous vérifions les faits
     d’affirmations, de vidéos et d’images relatives à des sujets tels que la politique,
     la santé, les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_lebanon: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_lebanon: "\U0001F4CC*Menu
     principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
     des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
@@ -1183,12 +1197,12 @@ fr:
   custom_message_smooch_bot_disabled_mtan: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_mtan: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_mtan: ''
-  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_mtan: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_mtan: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_mtan: "*Informations
     sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n    \n\U0001F449*Répondez
@@ -1220,21 +1234,21 @@ fr:
     votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu principal*
     \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_sawy: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_sawy: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_sawy: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_sawy: Bonjour ! Bienvenue sur le robot de vérification
     de faits de [nom de votre organisation]. Nous vérifions les faits d’affirmations,
     de vidéos et d’images relatives à des sujets tels que la politique, la santé,
     les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_sawy: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: "\U0001F4CC*Menu
     principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
     des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
@@ -1255,6 +1269,7 @@ fr:
     cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
     après envoi de votre dernier message.\n\n*Répondez par 0 (ou \U0001F4CC)* pour
     revenir au *menu principal*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -1267,13 +1282,13 @@ fr:
     sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu
     principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_team-1: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_team-1: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_team-1: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_team-1: ''
@@ -1309,21 +1324,21 @@ fr:
     sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu
     principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_test: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_test: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_test: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_test: Bonjour ! Bienvenue sur le robot de vérification
     de faits de [nom de votre organisation]. Nous vérifions les faits d’affirmations,
     de vidéos et d’images relatives à des sujets tels que la politique, la santé,
     les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_test: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_test: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test: "\U0001F4CC*Menu
     principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
     des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
@@ -1354,22 +1369,22 @@ fr:
     courantes dont nous avons vérifié les faits :* [Lien vers une page de vérifications
     de faits sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir
     au *menu principal* \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-3: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
-
-    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
+  custom_message_smooch_bot_message_type_unsupported_test-3: "❌Désolé, nous ne pouvons
+    pour le moment pas accepter ce genre de message pour qu’il soit vérifié.\n      \nNous
+    acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp
+    partagés."
   custom_message_smooch_bot_disabled_test-3: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_test-3: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes :'
   custom_message_smooch_bot_greetings_test-3: Bonjour ! Bienvenue sur le robot de
     vérification de faits de [nom de votre organisation]. Nous vérifions les faits
     d’affirmations, de vidéos et d’images relatives à des sujets tels que la politique,
     la santé, les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_result_changed_test-16: "❗️La vérification de faits que
     nous vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"
   custom_message_smooch_bot_message_confirmed_test-16: "Merci. Votre demande a été
@@ -1378,32 +1393,36 @@ fr:
     courantes dont nous avons vérifié les faits :* [Lien vers une page de vérifications
     de faits sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir
     au *menu principal* \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-16: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
-
-    Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
+  custom_message_smooch_bot_message_type_unsupported_test-16: "❌Désolé, nous ne pouvons
+    pour le moment pas accepter ce genre de message pour qu’il soit vérifié.\n      \nNous
+    acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp
+    partagés."
   custom_message_smooch_bot_disabled_test-16: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_test-16: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
-  custom_message_smooch_bot_greetings_test-16: ''
-  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_greetings_test-16: Bonjour ! Bienvenue sur le robot de
+    vérification de faits de Test 16. Nous vérifions les faits d’affirmations, de
+    vidéos et d’images relatives à des sujets tels que la politique, la santé, les
+    finances et la technologie.
+  custom_message_smooch_bot_option_not_available_test-16: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-16: "\U0001F4CC*Menu
     principal*\n      \n*Répondez par 1* (ou \U0001F50D) pour envoyer une demande
     de vérification des faits d’un article, d’une vidéo, d’une image ou de tout autre
     contenu.\n*Répondez par 2* (ou \U0001F9A0) pour obtenir les renseignements les
     plus récents sur la maladie à coronavirus (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: "*Informations
-    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n    \n\U0001F449*Répondez
-    avec l’un des numéros suivants (ou émoji) pour obtenir des informations sur ce
-    sujet :*\n  \n*1:* Comment puis-je me protéger ou protéger ma famille? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
-    Je pense que je tombe malade \U0001F912\n*3:* Comment puis-je gérer le stress
-    associé à COVID-19? ❤️\n*4:* Informations sur les cas et les recouvrements dans
-    le monde \U0001F4CA\n*5:* Dernières mises à jour de l’Organisation Mondiale de
-    la Santé \U0001F310\n\n*Répondez par 0* pour revenir au *menu principal* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-16: "*Renseignements
+    sur la maladie à coronavirus (COVID-19)* \U0001F9A0\n    \n\U0001F449*Répondez
+    avec l’un des numéros suivants (ou émoji) pour obtenir des renseignements sur
+    ce sujet : *\n  \n*1 : * Comment puis-je me protéger ou protéger ma famille ?
+    \U0001F468‍\U0001F469‍\U0001F467\n*2 : * Je pense que je tombe peut-être malade
+    \U0001F912\n*3 : * Comment puis-je gérer le stress associé à COVID-19 ? ❤️\n*4 :
+    * Renseignements sur les cas et les guérisons à l’échelle planétaire \U0001F4CA\n*5 :
+    * Dernières mises à jour de l’Organisation mondiale de la santé \U0001F310\n\n*Répondez
+    par 0* pour revenir au *menu principal* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-16: "*Veuillez
     saisir la question, le lien, l’image ou la vidéo dont vous souhaitez que les faits
     soient vérifiés,* suivis de tout contexte ou questions supplémentaires liés à
@@ -1419,21 +1438,21 @@ fr:
     sur votre site Web]\n\n\U0001F449*Répondez n’importe quoi* pour revenir au *menu
     principal* \U0001F4CC"
   custom_message_smooch_bot_message_type_unsupported_test-2: |-
-    ❌Désolé, nous ne prenons pas en charge ce type de message pour vérification pour le moment.
+    ❌Désolé, nous ne pouvons pour le moment pas accepter ce genre de message pour qu’il soit vérifié.
 
     Nous acceptons la plupart des images, vidéos, liens, messages texte et messages WhatsApp partagés.
   custom_message_smooch_bot_disabled_test-2: |-
     ❌Nous vous remercions de votre message. Notre service de vérification des faits est actuellement *inactif*.
 
-    Contactez-nous à *[email or other contact]* pour toute autre demande.
+    Contactez-nous à *[adresse courriel ou autre contact]* pour toute autre demande.
   custom_message_smooch_bot_ask_for_tos_test-2: 'Ce service est offert en vertu des
     Conditions générales d’utilisation suivantes : %{tos}'
   custom_message_smooch_bot_greetings_test-2: Bonjour ! Bienvenue sur le robot de
     vérification de faits de [nom de votre organisation]. Nous vérifions les faits
     d’affirmations, de vidéos et d’images relatives à des sujets tels que la politique,
     la santé, les finances et la technologie.
-  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Désolé, je n’ai
-    pas compris votre message. Veuillez réessayer !"
+  custom_message_smooch_bot_option_not_available_test-2: "\U0001F916Je suis désolé,
+    je n’ai pas compris votre message. Veuillez réessayer."
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-2: "\U0001F4CC*Menu
     principal*\n\n*Répondez 1* (ou \U0001F50D) pour envoyer une demande de vérification
     des faits relatifs à un article, une vidéo, une image ou à tout autre contenu.\n*Répondez
@@ -1474,4 +1493,7 @@ fr:
   custom_message_status_inconclusive_watching-western-sahara: Non concluant
   custom_message_status_false_watching-western-sahara: Faux
   custom_message_status_verified_watching-western-sahara: Vérifié
-  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: 'Nous
+    vous remercions de nous avoir contactés. Nous ne serons pas à même de vérifier
+    votre message pour l’instant. Consultez ici nos histoires dont les faits ont été
+    vérifiés : www.thequint.com/news/webqoof (site en anglais)'
