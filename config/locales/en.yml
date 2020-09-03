@@ -689,6 +689,7 @@ en:
   team_rule_select_field_value_metadata: Select value
   team_rule_select_field_tasks: Select task
   team_rule_select_field_value_tasks: Select answer
+  team_rule_item_is_assigned_to_user: Item is assigned to
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical

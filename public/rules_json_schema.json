@@ -89,6 +89,10 @@
                                 "value": "<%= I18n.t(:team_rule_item_user_is) %>"
                               },
                               {
+                                "key": "item_is_assigned_to_user",
+                                "value": "<%= I18n.t(:team_rule_item_is_assigned_to_user) %>"
+                              },
+                              {
                                 "key": "item_is_read",
                                 "value": "<%= I18n.t(:team_rule_item_is_read) %>"
                               },
@@ -226,6 +230,14 @@
                           {
                             "if": {
                               "properties": { "rule_definition": { "const": "item_user_is" } }
+                            },
+                            "then": {
+                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_user) %>", "type": "string", "enum": <%= users.to_json %> } }
+                            }
+                          },
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "item_is_assigned_to_user" } }
                             },
                             "then": {
                               "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_select_user) %>", "type": "string", "enum": <%= users.to_json %> } }
