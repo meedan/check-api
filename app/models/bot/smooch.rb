@@ -312,7 +312,7 @@ class Bot::Smooch < BotUser
       self.refresh_smooch_slack_timeout(uid)
       return
     end
-    self.refresh_smooch_menu_timeout(uid)
+    self.refresh_smooch_menu_timeout(message, app_id)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
@@ -382,7 +382,6 @@ class Bot::Smooch < BotUser
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
-          self.bundle_message(message.merge({ 'text' => '' })) # We don't want to store a menu option
           self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, workflow.dig("smooch_state_#{new_state}", 'smooch_menu_message'))
@@ -390,8 +389,7 @@ class Bot::Smooch < BotUser
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
           self.send_report_to_user(uid, {}, pm, language)
-          sm.reset
-          self.clear_user_bundled_messages(uid)
+          self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'menu_options_requests', pm)
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
@@ -416,13 +414,13 @@ class Bot::Smooch < BotUser
     Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
   end
 
-  def self.bundle_messages(uid, id, app_id)
+  def self.bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil)
     redis = Redis.new(REDIS_CONFIG)
     key = "smooch:bundle:#{uid}"
     list = redis.lrange(key, 0, redis.llen(key))
     unless list.empty?
       last = JSON.parse(list.last)
-      if last['_id'] == id
+      if last['_id'] == id || type == 'menu_options_requests'
         self.get_installation('smooch_app_id', app_id) if self.config.blank?
         bundle = last.clone
         text = []
@@ -439,11 +437,19 @@ class Bot::Smooch < BotUser
           text << message['text'].to_s
         end
         bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-        self.discard_or_process_message(bundle, app_id)
+        self.handle_bundle_messages(type, bundle, app_id, annotated)
         redis.del(key)
         sm = CheckStateMachine.new(uid)
         sm.reset
       end
+    end
+  end
+
+  def self.handle_bundle_messages(type, bundle, app_id, annotated)
+    if type == 'default_requests'
+      self.discard_or_process_message(bundle, app_id)
+    elsif type == 'timeout_requests' || type == 'menu_options_requests'
+      self.process_user_requests(bundle, app_id, type, annotated)
     end
   end
 
@@ -656,6 +662,11 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.process_user_requests(message, app_id, type, annotated)
+    return unless Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
+    self.save_message_later(message, app_id, type, annotated)
+  end
+
   def self.save_message_later_and_reply_to_user(message, app_id)
     self.save_message_later(message, app_id)
     workflow = self.get_workflow(message['language'])
@@ -728,34 +739,41 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.save_message_later(message, app_id)
+  def self.save_message_later(message, app_id, request_type = 'default_requests', annotated = nil)
     mapping = { 'siege' => 'siege' }
     queue = RequestStore.store[:smooch_bot_queue].to_s
     queue = queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
     type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-    SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id)
+    SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id, request_type, annotated)
   end
 
-  def self.save_message(message_json, app_id, author = nil)
+  def self.save_message(message_json, app_id, author = nil, request_type = 'default_requests', annotated_obj = nil)
     message = JSON.parse(message_json)
     self.get_installation('smooch_app_id', app_id)
     Team.current = Team.where(id: self.config['team_id']).last
-    message['project_id'] = self.get_project_id(message)
-    pm = self.create_project_media_from_message(message)
+    annotated = nil
+    if request_type == 'default_requests'
+      message['project_id'] = self.get_project_id(message)
+      annotated = self.create_project_media_from_message(message)
+    elsif request_type == 'timeout_requests'
+      annotated = Team.current
+    elsif request_type == 'menu_options_requests'
+      annotated = annotated_obj
+    end
 
-    return if pm.nil?
+    return if annotated.nil?
 
     # Remember that we received this message.
     hash = self.message_hash(message)
-    Rails.cache.write("smooch:message:#{hash}", pm.id)
+    Rails.cache.write("smooch:message:#{hash}", annotated.id)
 
     # Only save the annotation for the same requester once.
-    key = 'smooch:request:' + message['authorId'] + ':' + pm.id.to_s
-    self.create_smooch_request(pm, message, app_id, author) if !Rails.cache.read(key)
+    key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
+    self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key)
     Rails.cache.write(key, hash)
 
     # If item is published (or parent item), send a report right away
-    self.send_report_to_user(message['authorId'], message, pm, message['language'])
+    self.send_report_to_user(message['authorId'], message, annotated, message['language']) if request_type == 'default_requests'
   end
 
   def self.create_project_media_from_message(message)
@@ -768,18 +786,20 @@ class Bot::Smooch < BotUser
     pm
   end
 
-  def self.create_smooch_request(pm, message, app_id, author)
+  def self.create_smooch_request(annotated, message, app_id, author, request_type)
     # TODO: By Sawy - Should handle User.current value
     # In this case User.current was reset by SlackNotificationWorker worker
-    # Quick fix - assigning it again using pm object and reset its value at the end of creation
+    # Quick fix - assigning it again using annotated object and reset its value at the end of creation
     current_user = User.current
-    User.current = author || pm.user
+    User.current = author
+    User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
+    RequestStore.store[:skip_cached_field_update] = true if request_type == 'timeout_requests'
     a = Dynamic.new
     a.skip_check_ability = true
     a.skip_notifications = true
     a.disable_es_callbacks = Rails.env.to_s == 'test'
     a.annotation_type = 'smooch'
-    a.annotated = pm
+    a.annotated = annotated
     a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
     a.save!
     User.current = current_user
@@ -1033,19 +1053,20 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.refresh_smooch_menu_timeout(uid)
+  def self.refresh_smooch_menu_timeout(message, app_id)
+    uid = message['authorId']
     time = Time.now.to_i
     Rails.cache.write("smooch:last_message_from_user:#{uid}", time)
-    self.delay_for(15.minutes).timeout_smooch_menu(uid, time)
+    self.delay_for(15.minutes).timeout_smooch_menu(time, message, app_id)
   end
 
-  def self.timeout_smooch_menu(uid, time)
+  def self.timeout_smooch_menu(time, message, app_id)
+    uid = message['authorId']
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
     unless sm.state.value == 'human_mode'
-      sm.reset
-      self.clear_user_bundled_messages(uid) unless Rails.env.test?
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
   end
 end
