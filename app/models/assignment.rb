@@ -7,7 +7,7 @@ class Assignment < ActiveRecord::Base
 
   before_validation :set_annotation_assigned_type, :set_assigner
   before_update { raise ActiveRecord::ReadOnlyRecord }
-  after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments
+  after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments, :apply_rules_and_actions
   after_destroy :send_email_notification_on_destroy, :decrease_assignments_count, :propagate_unassignments
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
@@ -116,5 +116,14 @@ class Assignment < ActiveRecord::Base
 
   def set_assigner
     self.assigner = User.current if self.assigner.nil? && !User.current.nil?
+  end
+
+  def apply_rules_and_actions
+    return unless self.assigned_type == 'Annotation'
+    target = self.assigned&.annotated
+    if target.is_a?(ProjectMedia)
+      rule_ids = target.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_assigned_to_user' }
+      target.team.apply_rules_and_actions(target, rule_ids)
+    end
   end
 end

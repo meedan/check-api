@@ -3176,4 +3176,46 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end
+
+  test "should match rule by assignment" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm = create_project_media team: t
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "item_is_assigned_to_user",
+                "rule_value": u.id.to_s
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
+  end
 end
