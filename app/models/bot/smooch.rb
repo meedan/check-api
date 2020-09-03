@@ -389,6 +389,7 @@ class Bot::Smooch < BotUser
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
           self.send_report_to_user(uid, {}, pm, language)
+          sm.reset
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'menu_options_requests', pm)
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
