@@ -149,7 +149,7 @@ en:
             slug:
               slug_format: accepts only letters, numbers and hyphens
       messages:
-        record_invalid: 'Validation failed: %{errors}'
+        record_invalid: '%{errors}'
         improbable_phone: is an invalid number
         too_short:
           one: is too short (minimum is 1 character)
