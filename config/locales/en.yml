@@ -647,7 +647,7 @@ en:
     keywords
   team_rule_select_type: Select type
   team_rule_select_language: Select language
-  team_rule_select_user: Select user
+  team_rule_select_user: Choose a collaborator
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
