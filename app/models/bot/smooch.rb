@@ -795,7 +795,9 @@ class Bot::Smooch < BotUser
     begin
       urls = Twitter::Extractor.extract_urls(text)
       return nil if urls.blank?
-      url = urls.first
+      urls_to_ignore = self.config['smooch_urls_to_ignore'].to_s.split(' ')
+      url = urls.reject{ |u| urls_to_ignore.include?(u) }.first
+      return nil if url.blank?
       url = 'https://' + url unless url =~ /^https?:\/\//
       URI.parse(url)
       m = Link.new url: url
