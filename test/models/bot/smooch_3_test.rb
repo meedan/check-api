@@ -785,6 +785,36 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
+  test "should create smooch annotation for user requests" do
+    setup_smooch_bot(true)
+    Sidekiq::Testing.fake! do
+      now = Time.now
+      uid = random_string
+      sm = CheckStateMachine.new(uid)
+      send_message_to_smooch_bot(random_string, uid)
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      conditions = {
+        annotation_type: 'smooch',
+        annotated_type: @pm_for_menu_option.class.name,
+        annotated_id: @pm_for_menu_option.id
+      }
+      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+        Sidekiq::Worker.drain_all
+      end
+      send_message_to_smooch_bot(random_string, uid)
+      send_message_to_smooch_bot(random_string, uid)
+      Time.stubs(:now).returns(now + 30.minutes)
+      conditions[:annotated_type] = @team.class.name
+      conditions[:annotated_id] = @team.id
+      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+        Sidekiq::Worker.drain_all
+      end
+    end
+    Time.unstub(:now)
+  end
+
   test "should resend report after window" do
     msgid = random_string
     pm = create_project_media

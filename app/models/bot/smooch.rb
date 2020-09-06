@@ -129,30 +129,21 @@ class Bot::Smooch < BotUser
         key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
         slack_channel_url = Rails.cache.read(key)
         if slack_channel_url.blank?
-          slack_channel_url = get_slack_channel_url(obj, data)
+          pid = nil
+          bot = BotUser.where(login: 'smooch').last
+          tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
+          pid =  tbi.get_smooch_project_id unless tbi.nil?
+          pid ||= obj.project_id
+          smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
+          .where("value_json ->> 'id' = ?", data['authorId'])
+          .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
+          .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
+          unless smooch_user_data.nil?
+            field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
+            slack_channel_url = field_value.value unless field_value.nil?
+          end
           Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
         end
-      end
-      slack_channel_url
-    end
-
-    private
-
-    def get_slack_channel_url(obj, data)
-      slack_channel_url = nil
-      # Fetch project from Smooch Bot and fallback to obj.project_id
-      pid = nil
-      bot = BotUser.where(login: 'smooch').last
-      tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
-      pid =  tbi.get_smooch_project_id unless tbi.nil?
-      pid ||= obj.project_id
-      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
-      .where("value_json ->> 'id' = ?", data['authorId'])
-      .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
-      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
-      unless smooch_user_data.nil?
-        field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
-        slack_channel_url = field_value.value unless field_value.nil?
       end
       slack_channel_url
     end
@@ -450,9 +441,11 @@ class Bot::Smooch < BotUser
     if type == 'default_requests'
       self.discard_or_process_message(bundle, app_id)
     elsif type == 'timeout_requests' || type == 'menu_options_requests'
-      self.process_user_requests(bundle, app_id, type, annotated)
+      key = "smooch:banned:#{bundle['authorId']}"
+      self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
     end
   end
+
 
   def self.resend_message(message)
     code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
@@ -663,11 +656,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.process_user_requests(message, app_id, type, annotated)
-    return unless Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
-    self.save_message_later(message, app_id, type, annotated)
-  end
-
   def self.save_message_later_and_reply_to_user(message, app_id)
     self.save_message_later(message, app_id)
     workflow = self.get_workflow(message['language'])
@@ -745,7 +733,7 @@ class Bot::Smooch < BotUser
     queue = RequestStore.store[:smooch_bot_queue].to_s
     queue = queue.blank? ? 'smooch' : (mapping[queue] || 'smooch')
     type = (message['type'] == 'text' && !message['text'][/https?:\/\/[^\s]+/, 0].blank?) ? 'link' : message['type']
-    SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id, request_type, annotated)
+    SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id, request_type, YAML.dump(annotated))
   end
 
   def self.save_message(message_json, app_id, author = nil, request_type = 'default_requests', annotated_obj = nil)
