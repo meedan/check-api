@@ -275,7 +275,7 @@ class MediaTest < ActiveSupport::TestCase
           create_media(url: m.url, account: a, user: u)
         end
       end
-      assert_equal "Validation failed: Media with this URL exists and has id #{m.id}", exception.message
+      assert_equal "Media with this URL exists and has id #{m.id}", exception.message
     end
   end
 
