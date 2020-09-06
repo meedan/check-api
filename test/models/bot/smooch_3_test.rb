@@ -275,7 +275,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         language: 'en'
       }.to_json
       assert_difference 'ProjectMedia.count' do
-        SmoochWorker.perform_async(json_message, 'image', @app_id, 'default_requests', nil)
+        SmoochWorker.perform_async(json_message, 'image', @app_id, 'default_requests', YAML.dump({}))
       end
     end
   end
