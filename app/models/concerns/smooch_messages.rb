@@ -126,7 +126,7 @@ module SmoochMessages
 
       # Only save the annotation for the same requester once.
       key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
-      self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key)
+      self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key) || request_type != 'default_requests'
       Rails.cache.write(key, hash)
 
       # If item is published (or parent item), send a report right away
