@@ -903,7 +903,7 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     if sm.state.value != 'human_mode'
       sm.enter_human_mode
-      text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <https://intercom.help/meedan/en/articles/3365307-slack-integration|Learn about more features of the Slack integration here.>'
+      text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <http://help.checkmedia.org/en/articles/3336466-one-on-one-conversation-with-users-on-check-message|Learn about more features of the Slack integration here.>'
       Bot::Slack.delay_for(1.second).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
     end
     self.delay_for(15.minutes).timeout_smooch_slack_human_conversation(uid, time)
