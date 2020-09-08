@@ -183,23 +183,11 @@ bn:
     পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
     পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
     দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: শুরু করা যায়নি
-  custom_message_smooch_bot_result_changed_test-1: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
-    তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
-  custom_message_smooch_bot_message_confirmed_test-1: ''
-  custom_message_smooch_bot_message_type_unsupported_test-1: ''
-  custom_message_smooch_bot_disabled_test-1: ''
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: ''
-  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916আমি দুঃখিত, আমি
-    আপনার বার্তাটি বুঝতে পারছিনা। পুনরায় চেষ্টা করুন!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_result_changed_caio: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
     তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
   custom_message_smooch_bot_message_confirmed_caio: ''
@@ -212,6 +200,18 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_result_changed_test-1: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
+    তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
+  custom_message_smooch_bot_message_confirmed_test-1: ''
+  custom_message_smooch_bot_message_type_unsupported_test-1: ''
+  custom_message_smooch_bot_disabled_test-1: ''
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: ''
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916আমি দুঃখিত, আমি
+    আপনার বার্তাটি বুঝতে পারছিনা। পুনরায় চেষ্টা করুন!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
   custom_message_status_undetermined_check-message-demo: শুরু করা যায়নি
   custom_message_status_in_progress_check-message-demo: চলমান
   custom_message_status_inconclusive_check-message-demo: কর্ম পরিধির বাইরে
@@ -290,6 +290,7 @@ bn:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: কোন সুযোগ নেই
   custom_message_status_junk_checkpoint: আবর্জনা
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: শুরু করা যায়নি
   custom_message_status_in_progress_india-today: প্রক্রিয়া চলছে
   custom_message_status_inconclusive_india-today: কর্ম পরিধির বাইরে
@@ -507,3 +508,4 @@ bn:
   custom_message_status_false_watching-western-sahara: মিথ্যা
   custom_message_status_verified_watching-western-sahara: যাচাই করা হয়েছে
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''
