@@ -5,7 +5,7 @@ module TeamRules
 
   RULES = ['contains_keyword', 'has_less_than_x_words', 'title_matches_regexp', 'request_matches_regexp', 'type_is', 'tagged_as',
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
-           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read']
+           'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
 
   ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
 
@@ -113,6 +113,11 @@ module TeamRules
 
     def field_value_is(pm, value, _rule_id)
       pm.get_annotations('task').count > 0 && pm.selected_value_for_task?(value['team_task_id'].to_i, value['value'].to_s)
+    end
+
+    def item_is_assigned_to_user(pm, value, _rule_id)
+      status = pm.last_status_obj
+      status && Assignment.exists?(assigned_type: 'Annotation', assigned_id: status.id, user_id: value.to_i)
     end
   end
 

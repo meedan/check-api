@@ -149,7 +149,7 @@ en:
             slug:
               slug_format: accepts only letters, numbers and hyphens
       messages:
-        record_invalid: 'Validation failed: %{errors}'
+        record_invalid: "%{errors}"
         improbable_phone: is an invalid number
         too_short:
           one: is too short (minimum is 1 character)
@@ -647,7 +647,7 @@ en:
     keywords
   team_rule_select_type: Select type
   team_rule_select_language: Select language
-  team_rule_select_user: Select user
+  team_rule_select_user: Choose a collaborator
   team_rule_tagged_as: Item is tagged as
   team_rule_select_tag: Select tag
   team_rule_select_status: Select status
@@ -689,6 +689,7 @@ en:
   team_rule_select_field_value_metadata: Select value
   team_rule_select_field_tasks: Select task
   team_rule_select_field_value_tasks: Select answer
+  team_rule_item_is_assigned_to_user: Item is assigned to
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -955,10 +956,10 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
-  custom_message_status_undetermined_boom-test: Undetermined
-  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_undetermined_boom: Undetermined
   custom_message_status_factchecked_boom: Fact-Checked
+  custom_message_status_undetermined_boom-test: Undetermined
+  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -1150,6 +1151,9 @@ en:
   custom_message_status_error_checkpoint: Error ⛔️
   custom_message_status_out_of_scope_checkpoint: Out Of Scope
   custom_message_status_junk_checkpoint: Junk
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: |-
+    The information you sent with your request is not clear. Please resend the complete information or follow this link for our latest fact-checks
+    https://factly.in/category/fake-news/
   custom_message_status_undetermined_india-today: Unstarted
   custom_message_status_in_progress_india-today: In progress
   custom_message_status_inconclusive_india-today: Out of scope
@@ -1225,8 +1229,8 @@ en:
     again for reaching out to India Today Fact Check.  Our team is currently working
     on your request and we will get back to you. Meanwhile, you can read our latest
     fact check stories here. https://www.indiatoday.in/fact-check
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: Sorry,
-    we're are not able to verify your request currenly. It is not possible to fact-check
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: Sorry,
+    we're are not able to verify your request currently. It is not possible to fact-check
     everything. Moreover, opinion, satire or vague claims are out of scope.
   custom_message_status_false_infotagion: 'False'
   custom_message_status_misleading_infotagion: Misleading
@@ -1476,6 +1480,9 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: "Thank
+    you so much but this is not the type of claim that... \nplease look at our guideline
+    at guidelines.com"
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: Your
     request is in progress!
   custom_message_smooch_bot_disabled_smooch: Disabled :(
@@ -1689,3 +1696,7 @@ en:
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: "Thank
     you for reaching out to us. \nBut we won't be able to verify your message at the
     moment. Read all our fact-checked stories here: www.thequint.com/news/webqoof"
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: "Hello,
+    \n\nThank you for reaching out to us. Please send us more details pertaining to
+    the claim so that we can fact-check it for you. \nYou can read all our fact-checks
+    here: https://www.thequint.com/news/webqoof"

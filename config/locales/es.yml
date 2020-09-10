@@ -143,7 +143,6 @@ es:
             slug:
               slug_format: acepta solo letras, números y guiones
       messages:
-        record_invalid: 'Error de validación: %{errors}'
         improbable_phone: 'es un número inválido '
         too_short:
           one: es demasiado corta (es mínimo 1 caracter)
@@ -666,7 +665,6 @@ es:
     palabras clave
   team_rule_select_type: Seleccionar tipo
   team_rule_select_language: 'Selecciona el idioma '
-  team_rule_select_user: Seleccionar usuario
   team_rule_tagged_as: Ítem etiquetado como
   team_rule_select_tag: Seleccionar etiqueta
   team_rule_select_status: Seleccionar estado
@@ -834,10 +832,10 @@ es:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Sin iniciar
   custom_message_smooch_bot_result_changed_caio: "❗️La verificación de datos que le
     enviamos se ha *actualizado* con nueva información:"
@@ -1012,6 +1010,7 @@ es:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: Fuera de alcance
   custom_message_status_junk_checkpoint: Basura
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: Sin iniciar
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
@@ -1042,7 +1041,7 @@ es:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Falso
   custom_message_status_misleading_infotagion: Engañoso
   custom_message_status_true_infotagion: ''
@@ -1215,6 +1214,7 @@ es:
     se enviará a los verificadores de hechos aproximadamente 30 segundos después de
     que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)* para volver
     al *Menú Principal*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -1428,3 +1428,4 @@ es:
   custom_message_status_false_watching-western-sahara: Falso
   custom_message_status_verified_watching-western-sahara: Verificado
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''

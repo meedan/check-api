@@ -141,7 +141,6 @@ ar:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
-        record_invalid: 'خطأ في صحة الإدخال : %{errors}'
         improbable_phone: رقم غير صالح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
@@ -645,7 +644,6 @@ ar:
     الكلمات الأساسية اﻵتية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
-  team_rule_select_user: تحديد المستخدم
   team_rule_tagged_as: العنصر معلّم بأنه
   team_rule_select_tag: تحديد العلامة
   team_rule_select_status: تحديد الحالة
@@ -669,7 +667,7 @@ ar:
   team_rule_type_title_threshold: المسافة بين عناوين العناصر
   team_rule_type_image_threshold: المسافة بين الصور
   team_rule_type_flag_threshold: مع احتمالية حدوث على الأقل
-  team_rule_select_flag: حدد الراية
+  team_rule_select_flag: تحديد الراية
   team_rule_flagged_as: العنصر عليه راية
   team_rule_report_is_published: التقرير منشور
   team_rule_report_is_paused: التقرير موقوف مؤقتا
@@ -681,6 +679,12 @@ ar:
   team_rule_item_language_is: لغة العنصر هي
   team_rule_item_user_is: تم إنشاء العنصر من قبل
   team_rule_item_is_read: 'تمت قراءة العنصر '
+  team_rule_field_from_fieldset_tasks_value_is: المهمة لها إجابة محددة
+  team_rule_field_from_fieldset_metadata_value_is: بيانات التعريف لها قيمة محددة
+  team_rule_select_field_metadata: تحديد بيانات التعريف
+  team_rule_select_field_value_metadata: تحديد القيمة
+  team_rule_select_field_tasks: تحديد المهمة
+  team_rule_select_field_value_tasks: تحديد الإجابة
   flag_adult: إباحية
   flag_spoof: متلاعب بها
   flag_medical: طبية
@@ -707,6 +711,8 @@ ar:
   cant_change_status_if_item_is_published: عذراً ، لا يمكن تغيير الحالة بينما التقرير
     منشور
   fetch_bot_service_unsupported: الخدمة غير مدعومة
+  task_options_must_be_array: خيارات المهمة يجب أن تكون قائمة
+  fieldset_not_defined_by_team: مجموعة الحقول يجب أن تكون معتمدة من الفريق
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -808,10 +814,10 @@ ar:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: لم يبدأ بعد
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -960,6 +966,7 @@ ar:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: خارج النطاق
   custom_message_status_junk_checkpoint: سخام
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: لم يبدأ بعد
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
@@ -990,7 +997,7 @@ ar:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: مزيف
   custom_message_status_misleading_infotagion: مُضَلِّل
   custom_message_status_true_infotagion: ''
@@ -1141,6 +1148,7 @@ ar:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -1303,3 +1311,4 @@ ar:
   custom_message_status_false_watching-western-sahara: مزيف
   custom_message_status_verified_watching-western-sahara: صحيح
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''
