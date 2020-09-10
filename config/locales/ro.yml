@@ -145,7 +145,6 @@ ro:
             slug:
               slug_format: acceptă doar litere, numere și cratime
       messages:
-        record_invalid: 'Validarea a eșuat: %{errors}'
         improbable_phone: este un număr nevalid
         too_short:
           one: este prea scurt (minimul este de 1 caracter)
@@ -671,7 +670,6 @@ ro:
     dintre următoarele cuvinte-cheie
   team_rule_select_type: Selectați tipul
   team_rule_select_language: Selectați limba
-  team_rule_select_user: Selectați utilizatorul
   team_rule_tagged_as: Elementul este etichetat drept
   team_rule_select_tag: Selectați eticheta
   team_rule_select_status: Selectați starea
@@ -708,6 +706,12 @@ ro:
   team_rule_item_language_is: Limba elementului este
   team_rule_item_user_is: Elementul a fost creat de
   team_rule_item_is_read: Elementul este citit
+  team_rule_field_from_fieldset_tasks_value_is: Sarcina are un răspuns specific
+  team_rule_field_from_fieldset_metadata_value_is: Metadatele au o valoare specifică
+  team_rule_select_field_metadata: Selectează metadatele
+  team_rule_select_field_value_metadata: Selectează valoarea
+  team_rule_select_field_tasks: Selectează sarcina
+  team_rule_select_field_value_tasks: Selectează răspunsul
   flag_adult: Adult
   flag_spoof: Înșelătorie
   flag_medical: Medical
@@ -736,6 +740,8 @@ ro:
   cant_change_status_if_item_is_published: Ne pare rău, nu puteți modifica starea
     cât timp raportul este publicat
   fetch_bot_service_unsupported: Serviciul nu are suport
+  task_options_must_be_array: Opțiunile sarcinii trebuie să fie într-o listă
+  fieldset_not_defined_by_team: Echipa trebuie să ofere suport pentru setul de câmpuri
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -839,10 +845,10 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Nedemarat
   custom_message_smooch_bot_result_changed_caio: "❗️Verificarea de fapte pe care v-am
     transmis-o a fost *actualizată* cu informații noi:"
@@ -1000,6 +1006,7 @@ ro:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: În afara domeniului
   custom_message_status_junk_checkpoint: Nedorit
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: Nedemarat
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
@@ -1030,7 +1037,7 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Fals
   custom_message_status_misleading_infotagion: Înșelător
   custom_message_status_true_infotagion: ''
@@ -1187,6 +1194,7 @@ ro:
     respectiv. Cererea dvs. va fi transmisă verificatorilor de fapte în circa 30 de
     secunde după ce transmiteți ultimul mesaj.\n\n*Răspundeți cu 0 (sau \U0001F4CC)*
     pentru revenire în *meniul principal*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -1358,3 +1366,4 @@ ro:
   custom_message_status_false_watching-western-sahara: Fals
   custom_message_status_verified_watching-western-sahara: Verificat
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''

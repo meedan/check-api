@@ -851,6 +851,7 @@ class ActiveSupport::TestCase
       }
     ]
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    @pm_for_menu_option = create_project_media(project: @project)
     @settings = {
       'smooch_project_id' => @project.id,
       'smooch_webhook_secret' => 'test',
@@ -883,7 +884,7 @@ class ActiveSupport::TestCase
             {
               'smooch_menu_option_keyword' => ' 1, one',
               'smooch_menu_option_value' => 'resource',
-              'smooch_menu_project_media_id' => create_project_media(project: @project).id
+              'smooch_menu_project_media_id' => @pm_for_menu_option.id
             },
             {
               'smooch_menu_option_keyword' => '2, two ',

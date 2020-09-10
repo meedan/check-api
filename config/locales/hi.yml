@@ -242,10 +242,10 @@ hi:
     आइटम आपने भेजा है वो हमारे दायरे में नहीं है| आप हमें तस्वीर/लिखित सन्देश/वीडियो
     भेज सकते हैं जो आपको भ्रामक लगते हैं| \nहमारी वेबसाइट www.boomlive पर जाएं और
     हमारे फ़ैक्ट चेक पढ़ें|"
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: 'शुरू नहीं किया है '
   custom_message_smooch_bot_result_changed_caio: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
     उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
@@ -359,6 +359,7 @@ hi:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: दायरे से बाहर
   custom_message_status_junk_checkpoint: 'स्वीकार नहीं '
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: 'शुरू नहीं किया है '
   custom_message_status_in_progress_india-today: 'काम जारी है '
   custom_message_status_inconclusive_india-today: 'दायरे से बाहर '
@@ -446,10 +447,7 @@ hi:
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: हम
     से संपर्क करने के लिए धन्यवाद. आपने जो मैसेज हमें भेजा है हम उसकी जांच करने में
     लगे हैं. रिपोर्ट तैयार होते ही आपको भेज दी जाएगी.
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: 'माफ
-    कीजिए - लेकिन आपके भेजे मैसेज की जांच कर पाना संभव नहीं है. हर मैसेज का फैक्ट-चेक
-    नहीं हो सकता. जैसे हम किसी के विचार या फिर मज़ाक की जांच नहीं कर सकते. फैक्ट-चेक
-    की ताजा स्टोरी आप यहां पढ़ सकते हैं. https://aajtak.intoday.in/fact-check.html '
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: 'ग़लत '
   custom_message_status_misleading_infotagion: 'भ्रामक '
   custom_message_status_true_infotagion: 'सही '
@@ -552,6 +550,7 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_sawy: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_sawy: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_sawy: ''
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -636,3 +635,4 @@ hi:
   custom_message_status_false_watching-western-sahara: 'ग़लत '
   custom_message_status_verified_watching-western-sahara: सत्यापित
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''

@@ -144,7 +144,6 @@ pt:
             slug:
               slug_format: aceita apenas letras, números e hífens
       messages:
-        record_invalid: 'A validação falhou: %{errors}'
         improbable_phone: é um número inválido
         too_short:
           one: é muito curto (mínimo de 1 caractere)
@@ -644,12 +643,12 @@ pt:
   invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
   team_rule_project_ids: Aplicar para a lista
-  team_rule_destination: Selecione lista de destino
+  team_rule_destination: Selecionar lista de destino
   team_rule_names_invalid: Nomes de regras não podem ficar em branco e devem ser únicos
   team_rules: Regras
   team_rule_conditions: Se
   team_rule_condition: Se
-  team_rule_condition_definition: Selecione condição
+  team_rule_condition_definition: Selecionar condição
   team_rule_has_less_than_x_words: A solicitação contém menos que este número de palavras
   team_rule_title_matches_regexp: O título do item corresponde a esta expressão regular
   team_rule_request_matches_regexp: A solicitação corresponde a esta expressão regular
@@ -660,19 +659,18 @@ pt:
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
   team_rule_title_contains_keyword: O titulo do item contém uma ou mais destas palavras-chave
-  team_rule_select_type: Selecione o tipo
-  team_rule_select_language: Selecione idioma
-  team_rule_select_user: Selecionar usuário
+  team_rule_select_type: Selecionar tipo
+  team_rule_select_language: Selecionar idioma
   team_rule_tagged_as: O item está marcado como
-  team_rule_select_tag: Selecione tag
-  team_rule_select_status: Selecione status
+  team_rule_select_tag: Selecionar tag
+  team_rule_select_status: Selecionar status
   team_rule_status_is: O status do item é
   team_rule_type_regexp: Digite uma expressão regular
   team_rule_type_number: Digite o número de palavras
   team_rule_value: Digite uma lista de palavras-chaves separadas por vírgulas
   team_rule_actions: Então
   team_rule_action: Então
-  team_rule_action_definition: Selecione ação
+  team_rule_action_definition: Selecionar ação
   team_rule_send_to_trash: Enviar para lixeira
   team_rule_move_to_project: Mover item para lista
   team_rule_copy_to_project: Adicionar item à lista
@@ -687,7 +685,7 @@ pt:
   team_rule_type_title_threshold: Distância entre títulos de itens
   team_rule_type_image_threshold: Distância entre imagens
   team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
-  team_rule_select_flag: Selecione indicador
+  team_rule_select_flag: Selecionar indicador
   team_rule_flagged_as: O item está sinalizado como
   team_rule_report_is_published: Relato está publicado
   team_rule_report_is_paused: Relato está em pausa
@@ -699,6 +697,12 @@ pt:
   team_rule_item_language_is: O idioma do item é
   team_rule_item_user_is: Item criado por
   team_rule_item_is_read: Item lido
+  team_rule_field_from_fieldset_tasks_value_is: A tarefa tem uma resposta específica
+  team_rule_field_from_fieldset_metadata_value_is: Os metadados têm um valor específico
+  team_rule_select_field_metadata: Selecionar metadados
+  team_rule_select_field_value_metadata: Selecionar valor
+  team_rule_select_field_tasks: Selecionar tarefa
+  team_rule_select_field_value_tasks: Selecionar resposta
   flag_adult: Adulto
   flag_spoof: Falsificação
   flag_medical: Médico
@@ -727,6 +731,8 @@ pt:
   cant_change_status_if_item_is_published: Desculpe, você não pode alterar o status
     enquanto o relato é publicado
   fetch_bot_service_unsupported: Serviço sem suporte
+  task_options_must_be_array: As opções de tarefas devem ser uma lista
+  fieldset_not_defined_by_team: O conjunto de campos deve ser apoiado pela equipe
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -829,10 +835,10 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Não Iniciado
   custom_message_smooch_bot_result_changed_caio: "❗️ A checagem que te enviamos foi
     *atualizada* com nova informação:"
@@ -987,6 +993,7 @@ pt:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: Fora do escopo
   custom_message_status_junk_checkpoint: Lixo
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: Não Iniciado
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: Fora da Linha de Atuação
@@ -1017,7 +1024,7 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Não É Verdade
   custom_message_status_misleading_infotagion: Enganoso
   custom_message_status_true_infotagion: Verdadeiro
@@ -1176,6 +1183,7 @@ pt:
     contexto ou perguntas adicionais relacionadas a esse item. Sua solicitação será
     enviada aos verificadores cerca de 30 segundos após o envio da última mensagem.\n\n*Responda
     0 (ou \U0001F4CC)* para voltar ao *Menu Principal*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: Sua
     solicitação está em andamento!
   custom_message_smooch_bot_disabled_smooch: Desabilitado :(
@@ -1369,3 +1377,4 @@ pt:
   custom_message_status_false_watching-western-sahara: Não É Verdade
   custom_message_status_verified_watching-western-sahara: Verificado
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''

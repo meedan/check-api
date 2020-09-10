@@ -89,11 +89,14 @@ sw:
         kwanza
       image_too_large: Samahani, hatuhimili picha kubwa zaidi ya %{max_size}.
       video_too_large: Samahani, hatuhimili video kubwa zaidi ya %{max_size}.
+      audio_too_large: Samahani, hatuungi mkono sauti kubwa kuliko 1%{kiwangochajuu_saizi}
       pender_conflict: Kiungo hiki tayari kinachambuliwa. Tafadhali jaribu tena ndani
         ya sekunde chache
       pender_url_invalid: Kiungo hiki ni batili.
       pender_url_unsafe: Kiungo hiki sio salama.
       pender_could_not_parse: Haikuweza kuchambua kiungo hiki.
+      invalid_format_for_languages: 'Fomati batili ya lugha. Kutarajia muundo ''["en'',
+        ''ar'',.....]'' '
   activerecord:
     models:
       link: Kiungo
@@ -141,12 +144,13 @@ sw:
             slug:
               slug_format: Inakubali herufi, nambari na deshi
       messages:
-        record_invalid: 'Uhalalishaji umefeli: %{errors}'
         improbable_phone: ni nambari batili
         too_short:
           one: ni fupi sana (kiwango chini ya 1%{hesabu} wahusika)
           other: ni fupi mno (kiwango cha chini ni vibambo %{count})
+  slack_webhook_format_wrong: Mtandao wa Slack batili. Kutarajia muundo 'https://hooks.slack.com/services/XXXXX/XXXXXXXXXX'
   slug_is_reserved: Imetengewa
+  invalid_media_item: Kitu hicho sio sahihi
   invalid_default_status_for_custom_verification_status: Hali msingi ya kutambulisha
     ni batili
   invalid_active_status_for_custom_verification_status: Utambulisho wa hali ya shughuli
@@ -154,6 +158,8 @@ sw:
   invalid_label_for_custom_verification_status: Lebo ya hali ni lazima
   invalid_id_for_custom_verification_status: Utambulisho wa halii ni lazima na unapaswa
     kuwa na herufi ndogo pekee, nambari, deshi, na vistari chini
+  invalid_statuses_format_for_custom_verification_status: 'Idadi batili za uthibitisho
+    wa kawaida. Kutarajia maingizo halali kwa: lebo, kitambulisho, maelezo na mtindo.'
   mail_account_confirmation: "%{app_name} uthibitisho wa akaunti"
   slack:
     fields:
@@ -204,16 +210,31 @@ sw:
     sababu limezuiliwa kwa wanachama wa ulingo wa kazi wa Slack %{teams}. '
   admin:
     actions:
+      send_reset_password_email:
+        menu: Tuma maagizo ya kuweka upya nywila
       export_project:
         menu: Hamisha data
       export_images:
         menu: Hamisha picha
       duplicate_team:
         menu: Ulingo wa kazi uliorudiwa
+        done: marudio
+        are_you_sure_you_want_to_copy_team:
+          html: Je! Una uhakika unataka kurudisha ulingo<strong>1%{timu} </strong>?
+            Takwimu zote zinazohusiana pia zitakiliwa.
+        the_team_is_being_copied: Kurudia ulingo inaendelea
+        url_when_ready:
+          html: Wakati iko tayari, nakala ya ulingo itapatikana huko <strong>1%{nakala_kisara}
+            </strong>
+    flash:
+      delete_team_scheduled: Ulingo 1%{timu} inafutwa
+  email_not_found: Barua pepe haipatikani
   slack_channel_format_wrong: Mkondo batili wa Slack
+  invalid_token: Ishara batili
   time:
     formats:
       oembed: "%B %d , %Y"
+      task: "%B  %d, %Y at %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M  %p %Z"
   oembed_disclaimer_undetermined: Kitu hiki hakijathibitishwa na%{timu}
   oembed_disclaimer_in_progress: Kitu hiki kinathibitishwa na %{timu} kutokea%{siku}
@@ -246,6 +267,9 @@ sw:
     one: 1%{hesabu} kazi zilizomalizwa
     other: Kazi %{count}zilizokamilishwa
   oembed_notes: Maelezo
+  duplicate_source: Chanzo tayari kipo
+  geolocation_invalid_value: Mahali batili. Kutarajia muundo halali wa GeoJSON (http://geojson.org/)
+  datetime_invalid_date: Tarehe batili
   error_team_archived: Samahani, hauwezi kuongeza orodha kwenye ulingo wa kazi taka
   error_project_archived: Samahani, huwezi kuongeza kitu kwenye orodha taka
   error_team_archived_for_source: Samahani,  huwezi kuongeza chanzo kwenye ulingo
@@ -266,6 +290,7 @@ sw:
   devise:
     mailer:
       reset_password_instructions:
+        subject: 1%{programutumizi_jina} maagizo ya kuweka upya nywila
         header_title: Ombi la kubadilisha nenosiri
         header_text: Tumepokea ombi lako la kubadilisha nenosiri lako la %{app_name}
         action: Badilisha nenosiri
@@ -290,11 +315,13 @@ sw:
     invited: Mtumiaji huyu tayari amealikwa kwenye ulingo huu wa kazi
     member: Mtumiaji tayari ni mwanachama.
     team_found: Ulingo wa kazi haupatikani.
+    invalid: Nambari ya mwaliko sio sahihi.
     no_invitation: Hakuna mialiko iliyopo kwenye ulingo huu wa kazi %{name}
   error_user_is_not_a_team_member: Samahani, unaweza kupangia tu wanachama wa ulingo
     huu wa kazi
   error_login_with_exists_account: Samahani, kuna mtumiaji mwingine anayetumia akaunti
     hii
+  error_login_2fa: Tafadhali kamilisha kuingia kwako kwa kusambaza nambari ya uthibitisho.
   error_record_not_found: "%{type} # %{id} haijapatikana"
   mails_notifications:
     greeting: Habari %{username},
@@ -305,6 +332,10 @@ sw:
     copyright_html: '%{app_name} na <a href="https://meedan.com">Meedan</a>'
     register:
       subject: Akaunti yako mpya kwa %{app_name}
+      header_text: |-
+        Umejisajili hadi 1%{programutumizi_jina} !
+        <br>
+        Ili kuingia kwenye wavuti, fuata kiunga hiki tu: 2%{kisara} . Ingiza anwani hii ya barua pepe na nenosiri hili 3&{nywila}
       login_button: Ingia kwa %{app_name}
       footer_text: Asante sana kwa kujiunga, kuwa na siku njema
     duplicated:
@@ -450,6 +481,10 @@ sw:
   archive_archive_org: Archive.org
   workflow_status_not_valid: Hali batili
   workflow_status_permission_error: Samahani, hauruhusiwi kubadilisha hali hii.
+  blank_default_status_for_custom_verification_status: Tafadhali toa dhamana ya msingi
+    wa takwimu za uthibitisho maalum
+  blank_active_status_for_custom_verification_status: Tafadhali toa dhamana ya kazi
+    ya takwimu za kiuthibitisho maalum
   bot_name_exists_for_this_team: Tayari kuna boti yenye jina lililotolewa kwenye ulingo
     huu wa kazi
   bot_team_id_doesnt_exist: 'Samahani, hakuna ulingo wa kazi wenye utambulisho uliotolewa. '
@@ -464,6 +499,10 @@ sw:
   bot_cant_add_response_to_task: Samahani, boti haiwezi kujibu kazi moja kwa moja-tafadhali
     tuma pendekezo la jibu badala yake.
   bot_cant_add_review_to_task: Samahani, boti haiwezi kuhakiki kazi
+  task_suggestion_invalid_value: Pendekezo la kazi batili. Kutarajia kitu cha JSON
+    kilicho na sifa `maoni` (Thamani halisi inayonakiliwa kwa jibu la kazi wakati
+    inakubaliwa) na `maoni` (iliyoonyeshwa kwa watumiaji).
+  tag_text_id_not_found: Tagi haijapatikana
   annotation_type_language_label: Lugha
   smooch_bot_message_confirmed: |-
     Asante. Ombi lako limeongezwa kwenye foleni yetu ya uthibitishaji.
@@ -538,6 +577,7 @@ sw:
             delete_repsonse: Futa jibu
             assign_task: Pangia kazi au kitu
         team_management:
+          name: Usimamizi wa ulingo
           permissions:
             delete: Funga ulingo wa kazi
             edit: Hariri maelezo ya ulingo wa kazi
@@ -562,6 +602,9 @@ sw:
     invalid_project: Orodha batili %{project}
     invalid_user: Mwandishi batili %{user}
     invalid_status: Hali batili %{status}
+    blank_user: Sehemu ya mwandishi tupu
+    blank_annotator: Shamba batili la mtangazaji tupu
+    blank_project: Sehemu ya orodha tupu
     invalid_annotator: Mfafanuzi batili %{user}
     invalid_assignee: Mpangiwaji batili %{user}
   cant_mutate_inactive_object: Samahani, kuna operecheni inayosubiria kwa kitu hiki,
@@ -576,11 +619,14 @@ sw:
   smooch_requests: Maombi
   smooch_requests_asc: Isiyoombwa sana
   smooch_requests_desc: Inayoombwa sana
+  bot_request_url_invalid: 'Kisara la boti batili '
   smooch_twitter_success: 'Fanikio! Sasa jumbe za kibinafsi zilizopokelewa na akaunti
     ya Twitter zitashugulikiwa na Boti ya Smooch. '
+  invalid_task_answer: Fomati batili ya kazi
   team_rule_name: Jina la kipekee linalotambua kile sharti hili hufanya
   team_rule_project_ids: Tekeleza kwa orodha
   team_rule_destination: Chagua kunakoelekezwa orodha
+  team_rule_names_invalid: Majina ya sheria hayawezi kuwa tupu na lazima yawe ya kipekee
   team_rules: Masharti
   team_rule_conditions: Iwapo
   team_rule_condition: Iwapo
@@ -629,8 +675,17 @@ sw:
   team_rule_condition_groups: Zoesha vikundi
   team_rule_condition_group: Zoesha kikundi
   team_rule_operator: Muendesha
+  team_rule_json_schema_validation: 'Fomati batili ya sheria '
   team_rule_updated_at: Sasisha
   team_rule_item_language_is: Lugha ya kitu ni
+  team_rule_item_user_is: Bidhaa iliundwa na
+  team_rule_item_is_read: Jambo limesomwa
+  team_rule_field_from_fieldset_tasks_value_is: Kazi ina jibu fulani
+  team_rule_field_from_fieldset_metadata_value_is: Metadata ina thamani maalum
+  team_rule_select_field_metadata: Chagua metadata
+  team_rule_select_field_value_metadata: Chagua thamani
+  team_rule_select_field_tasks: Chagua kazi
+  team_rule_select_field_value_tasks: Chagua jibu
   flag_adult: 'Mtu  mzima '
   flag_spoof: Hadaa
   flag_medical: Matibabu
@@ -653,8 +708,14 @@ sw:
     itakulazimu kutoa hali ya kurejelea iwapo unataka kuifuta.
   embed_no_content_yet: Ripoti inatolewa. Mchakato huu unaweza kuchukua dakika chache.
     Tafadhali pakia tena ukurasa huu.
+  language_format_invalid: Fomati batili ya lugha. Kutarajia nambari ya ISO 639-1.
+  languages_format_invalid: Fomati batili ya lugha. Kutarajia orodha ya nambari za
+    ISO 639-1.
   cant_change_status_if_item_is_published: Samahani, hauwezi kubadilisha hali wakati
     ripoti inachapishwa.
+  fetch_bot_service_unsupported: Huduma haijakamilika
+  task_options_must_be_array: Chaguzi za kazi lazima ziwe orodha
+  fieldset_not_defined_by_team: Sehemu ya uwanja inapaswa kuungwa mkono na timu
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -687,39 +748,91 @@ sw:
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
   custom_message_status_undetermined_afp-fact-check: Haijaanzwa
-  custom_message_status_in_progress_afp-fact-check: ''
-  custom_message_status_inconclusive_afp-fact-check: ''
+  custom_message_status_in_progress_afp-fact-check: Inaendelea
+  custom_message_status_inconclusive_afp-fact-check: Nje ya wigo
   custom_message_status_false_afp-fact-check: Uongo
-  custom_message_status_verified_afp-fact-check: ''
+  custom_message_status_verified_afp-fact-check: Sahihi
   custom_message_status_misleading_afp-fact-check: Kupotosha
-  custom_message_status_report-misleading_afp-fact-check: ''
-  custom_message_status_report-correct_afp-fact-check: ''
-  custom_message_status_report-false_afp-fact-check: ''
-  custom_message_status_need-orientation_afp-fact-check: ''
-  custom_message_smooch_bot_result_afp-fact-check: ''
+  custom_message_status_report-misleading_afp-fact-check: 'Ripoti: Kupotosha'
+  custom_message_status_report-correct_afp-fact-check: 'Ripoti: Sahihi'
+  custom_message_status_report-false_afp-fact-check: 'Ripoti: Uongo'
+  custom_message_status_need-orientation_afp-fact-check: Je! Uhakiki wa ukweli wa
+    AFP ni nini?
+  custom_message_smooch_bot_result_afp-fact-check: |
+    [Ripoti ya Uhakiki]
+
+    Kipengee ulichoshiriki nasi kimewekwa alama 1%{hali}.
+
+    Hapa kuna hatua tulizochukua kuamua hii: 2%{kisara}
   custom_message_smooch_bot_result_changed_afp-fact-check: "❗️Mathibitisho tuliyokutumia
     *yamesasishwa* na taarifa mpya: "
-  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: ''
-  custom_message_smooch_bot_message_confirmed_afp-fact-check: ''
-  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: ''
+  custom_message_smooch_bot_ask_for_confirmation_afp-fact-check: "Asante kwa kutuma
+    ombi hili. Je! Unataka tuthibitishe yaliyomo? \n\nIli kusema ndiyo, * tafadhali
+    jibu na 1 *. Jibu lingine lolote litamaliza mazungumzo yetu\n"
+  custom_message_smooch_bot_message_confirmed_afp-fact-check: "Asante! Ombi lako limepokelewa.
+    Tunafanya kazi ya kuangalia ukweli wa maswali yako.\n\n✔️*Fuata kiunga hiki kwa
+    orodha iliyosasishwa ya maswali ya kawaida ambayo tumechunguza ukweli: * factcheck.afp.com/afp-indi\n\U0001F449*
+    Jibu kwa maandishi yoyote * ili urudi kwenye * Menyu kuu *\U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_afp-fact-check: "❌Samahani, hatuwezi
+    kukubali aina hii ya ujumbe kwa uthibitishaji kwa wakati huu. \n\nTunaweza kukubali
+    picha nyingi, video, viungo, ujumbe wa maandishi, na ujumbe wa WhatsApp ulioshirikiwa."
   custom_message_smooch_bot_message_unconfirmed_afp-fact-check: Kwa vile haukujibu
     na 1, hatutaweza kulishughulikia ombi lako. Asante.
-  custom_message_smooch_bot_not_final_afp-fact-check: ''
-  custom_message_smooch_bot_meme_afp-fact-check: ''
+  custom_message_smooch_bot_not_final_afp-fact-check: "[Ripoti ya Uthibitishaji -
+    USAHILI]\n\nUjumbe ulioshiriki nasi umewekwa alama mbaya kama 1%{hali}. \n\nBado
+    iko kwenye foleni yetu kwa uhakiki zaidi.\n"
+  custom_message_smooch_bot_meme_afp-fact-check: 'Hapa kuna meme ambayo tumeunda kulingana
+    na kipengee ambacho umeomba ambacho tunathibitisha. Jifunze zaidi katika 1%{kisara}. '
   custom_message_smooch_bot_window_closing_afp-fact-check: Kimo cha maombi kwenye
     mkondo huu kipo juu, na bado hatujaweza kulisuluhisha ombi lako. Asante kwa uvumilivu
     wako.
-  custom_message_smooch_bot_disabled_afp-fact-check: ''
-  custom_message_smooch_bot_ask_for_tos_afp-fact-check: ''
-  custom_message_smooch_bot_greetings_afp-fact-check: ''
+  custom_message_smooch_bot_disabled_afp-fact-check: |-
+    ❌ Asante kwa ujumbe wako. Huduma yetu ya kuangalia ukweli kwa sasa * haitumiki. *
+
+    Wasiliana nasi kwa * factcheck.afp.com / wasiliana * kwa maswali zaidi.
+  custom_message_smooch_bot_ask_for_tos_afp-fact-check: 'Huduma hii hutolewa chini
+    ya Sheria na Masharti yafuatayo 1%{tos}
+
+'
+  custom_message_smooch_bot_greetings_afp-fact-check: |-
+    Halo! Karibu kwenye ukaguzi wa ukweli wa AFP.
+    Tunakagua ukweli wa maandishi, video na picha zinazohusiana na afya, siasa, uhalifu na mazingira. Umepata kitu cha kutiliwa shaka kwenye WhatsApp kuhusiana na mada hizi? Tuma njia yetu.
   custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916 Samahani,
     sikuelewa ujumbe wako. Tafadhali jaribu tena!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
-  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
-  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
-  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: ''
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: "Menu
+    * Menyu kuu *\n\n* Jibu 1 * (au \U0001F50D) kuwasilisha ombi la kuangalia ukweli
+    juu ya nakala, video, picha, au yaliyomo.\n\n* Au fuata kiunga hiki * kupata ukweli
+    wetu wa hivi karibuni juu ya ugonjwa wa coronavirus (COVID-19)\nfactcheck.afp.com/busting-coronavirus-
+    hadithi"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: haifanyi
+    kazi
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: "*
+    Tafadhali weka swali, kiunga, picha, au video ambayo unataka ichunguzwe ukweli
+    sasa.\nYaliyotumwa kabla ya ujumbe huu hayatashughulikiwa.\n\nTutumie habari yoyote
+    ya ziada au maswali yanayohusiana na ombi lako. Ombi lako litatumwa kwa wachunguzi
+    wetu wa ukweli karibu sekunde 30 baada ya ujumbe wako wa mwisho. Tutajaribu kukupatia
+    jibu, lakini tafadhali kumbuka kuwa hatuwezi kujibu kila ombi.\n\n* Bonyeza 0
+    (au \U0001F4CC) * kurudi kwenye * Menyu kuu *"
+  custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: Asante
+    tena kwa kuwasilisha ukaguzi wa ukweli wa AFP. Timu yetu kwa sasa inachunguza
+    madai na itajibu hivi karibuni.
+  custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: Asante
+    kwa kuuliza juu ya Ukaguzi wa Ukweli wa AFP. Timu yetu ya waandishi wa habari
+    hutumia zana za uthibitishaji wa dijiti na ustadi wa kuripoti wa jadi kusuluhisha
+    yaliyopotosha au ujumbe bandia mkondoni. Mifano ni pamoja na picha zilizopangwa,
+    video zilizohaririwa na madai ya uwongo yakishirikiwa kama ukweli. Haturipoti
+    juu ya uvumi, nadharia za kula njama, maoni, kejeli au madai ya kubahatisha. AFP
+    Fact Check ni sehemu ya shirika la habari la kimataifa Agence France-Presse, ambalo
+    lina ofisi 201 katika nchi 151 ulimwenguni. Ripoti yetu nchini India inaweza kupatikana
+    kwa https://factcheck.afp.com/afp-india Tafadhali tutumie yaliyopotoka yanayoshirikiwa
+    kwenye media ya kijamii na utusaidie kupigana na habari bandia.
+  custom_message_rule_action_send_message_50e1e883aca71a0de60d9fd5ca58bc16_afp-fact-check: Asante
+    kwa kuwasilisha yaliyomo kwenye Ukaguzi wa Ukweli wa AFP. Kwa bahati mbaya, timu
+    yetu haiwezi kuchunguza nyenzo hii. Tafadhali kumbuka kuwa AFP haina ukweli wa
+    kuangalia uvumi, nadharia za kula njama, kejeli, maoni au madai ya kubahatisha.
+    Walakini, tunakualika uwasilishe yaliyomo ambayo yanaweza kudanganywa kwa dijiti
+    au inashiriki madai ya kutiliwa shaka kama ukweli. Ripoti yetu ya zamani nchini
+    India inaweza kupatikana kwa https://factcheck.afp.com/afp-india
   custom_message_status_undetermined_africa-infodemic: Haijaanzwa
   custom_message_status_in_progress_africa-infodemic: Inaendelea
   custom_message_status_priority_unassigned_africa-infodemic: ''
@@ -734,8 +847,8 @@ sw:
   custom_message_status_misleading_boom-factcheck: Kupotosha
   custom_message_status_partly-true_boom-factcheck: ''
   custom_message_status_undetermined_boom-factcheck: Haijaanzwa
-  custom_message_status_in_progress_boom-factcheck: ''
-  custom_message_status_out_of_scope_boom-factcheck: ''
+  custom_message_status_in_progress_boom-factcheck: Inaendelea
+  custom_message_status_out_of_scope_boom-factcheck: Nje ya wigo
   custom_message_status_in_the_news_boom-factcheck: ''
   custom_message_status_junk_boom-factcheck: Taka
   custom_message_status_bot-resource_boom-factcheck: ''
@@ -756,10 +869,10 @@ sw:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Haijaanzwa
   custom_message_smooch_bot_result_changed_caio: "❗️Mathibitisho tuliyokutumia *yamesasishwa*
     na taarifa mpya: "
@@ -839,22 +952,26 @@ sw:
     kurudi hadi *Menyu kuu*"
   custom_message_status_undetermined_check-message-demo: Haijaanzwa
   custom_message_status_in_progress_check-message-demo: Inaendelea
-  custom_message_status_inconclusive_check-message-demo: ''
+  custom_message_status_inconclusive_check-message-demo: Nje ya wigo
   custom_message_status_false_check-message-demo: Uongo
   custom_message_status_verified_check-message-demo: ''
-  custom_message_status_not_applicable_check-message-demo: ''
+  custom_message_status_not_applicable_check-message-demo: Nje ya wigo
   custom_message_status_report-true_check-message-demo: Kupotosha
   custom_message_status_report-false_check-message-demo: ''
   custom_message_smooch_bot_result_check-message-demo: ''
   custom_message_smooch_bot_result_changed_check-message-demo: "❗️Mathibitisho tuliyokutumia
     *yamesasishwa* na taarifa mpya: "
-  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: ''
+  custom_message_smooch_bot_ask_for_confirmation_check-message-demo: "Asante kwa kutuma
+    ombi hili. Je! Unataka tuthibitishe yaliyomo? \n\nIli kusema ndiyo, * tafadhali
+    jibu na 1 *. Jibu lingine lolote litamaliza mazungumzo yetu\n"
   custom_message_smooch_bot_message_confirmed_check-message-demo: ''
   custom_message_smooch_bot_message_type_unsupported_check-message-demo: ''
   custom_message_smooch_bot_message_unconfirmed_check-message-demo: Kwa vile haukujibu
     na 1, hatutaweza kulishughulikia ombi lako. Asante.
   custom_message_smooch_bot_not_final_check-message-demo: ''
-  custom_message_smooch_bot_meme_check-message-demo: ''
+  custom_message_smooch_bot_meme_check-message-demo: 'Hapa kuna meme ambayo tumeunda
+    kulingana na kipengee ambacho umeomba ambacho tunathibitisha. Jifunze zaidi katika
+    1%{kisara}. '
   custom_message_smooch_bot_window_closing_check-message-demo: Kimo cha maombi kwenye
     mkondo huu kipo juu, na bado hatujaweza kulisuluhisha ombi lako. Asante kwa uvumilivu
     wako.
@@ -873,7 +990,8 @@ sw:
   custom_message_smooch_bot_message_unconfirmed_checkpoint: ''
   custom_message_smooch_bot_disabled_checkpoint: ''
   custom_message_smooch_bot_message_type_unsupported_checkpoint: ''
-  custom_message_smooch_bot_meme_checkpoint: ''
+  custom_message_smooch_bot_meme_checkpoint: 'Hapa kuna meme ambayo tumeunda kulingana
+    na kipengee ambacho umeomba ambacho tunathibitisha. Jifunze zaidi katika 1%{kisara}. '
   custom_message_smooch_bot_result_checkpoint: ''
   custom_message_smooch_bot_result_changed_checkpoint: ''
   custom_message_smooch_bot_not_final_checkpoint: ''
@@ -888,14 +1006,15 @@ sw:
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: Nje ya wigo
   custom_message_status_junk_checkpoint: Taka
+  custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: Haijaanzwa
-  custom_message_status_in_progress_india-today: ''
-  custom_message_status_inconclusive_india-today: ''
+  custom_message_status_in_progress_india-today: Inaendelea
+  custom_message_status_inconclusive_india-today: Nje ya wigo
   custom_message_status_false_india-today: Uongo
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
-  custom_message_status_report-false_india-today: ''
+  custom_message_status_report-false_india-today: 'Ripoti: Uongo'
   custom_message_status_report-true_india-today: ''
   custom_message_status_report_misleading_india-today: ''
   custom_message_status_report-inconclusive_india-today: ''
@@ -904,7 +1023,9 @@ sw:
   custom_message_smooch_bot_result_changed_india-today: "❗️Mathibitisho tuliyokutumia
     *yamesasishwa* na taarifa mpya: "
   custom_message_smooch_bot_message_confirmed_india-today: ''
-  custom_message_smooch_bot_message_type_unsupported_india-today: ''
+  custom_message_smooch_bot_message_type_unsupported_india-today: "❌Samahani, hatuwezi
+    kukubali aina hii ya ujumbe kwa uthibitishaji kwa wakati huu. \n\nTunaweza kukubali
+    picha nyingi, video, viungo, ujumbe wa maandishi, na ujumbe wa WhatsApp ulioshirikiwa."
   custom_message_smooch_bot_message_unconfirmed_india-today: ''
   custom_message_smooch_bot_not_final_india-today: ''
   custom_message_smooch_bot_meme_india-today: ''
@@ -918,15 +1039,15 @@ sw:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_8b220e665e318caf91c1e5a44d6092cf_india-today: ''
+  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
   custom_message_status_false_infotagion: Uongo
   custom_message_status_misleading_infotagion: Kupotosha
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
   custom_message_status_undetermined_africa-check: Haijaanzwa
-  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_in_progress_africa-check: Inaendelea
   custom_message_status_false_africa-check: ''
-  custom_message_status_verified_africa-check: ''
+  custom_message_status_verified_africa-check: Sahihi
   custom_message_status_mostly-correct_africa-check: ''
   custom_message_status_misleading_africa-check: Kupotosha
   custom_message_status_inconclusive_africa-check: ''
@@ -1069,6 +1190,7 @@ sw:
     au maswali ya ziada yanayohusiana na kitu hicho. Ombi lako litatumwa kwa wathibitishaji
     sekunde 30 baada ya kutuma ujumbe wako wa mwisho.\n\n*Jibu 0 (au  \U0001F4CC)*
     kurudi hadi *Menyu kuu*"
+  custom_message_rule_action_send_message_3fa5d5234f811ed4710c360d165ba7ae_simply-secure: ''
   custom_message_rule_action_send_message_e50898ab3206c2817a4c651440eae75c_smooch: ''
   custom_message_smooch_bot_disabled_smooch: ''
   custom_message_rule_action_send_message_6f75aa05d340afc46078be5554d6b84a_taiwan-fact-check-centre: ''
@@ -1231,3 +1353,4 @@ sw:
   custom_message_status_false_watching-western-sahara: Uongo
   custom_message_status_verified_watching-western-sahara: Imethibitishwa
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''
