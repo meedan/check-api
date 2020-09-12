@@ -65,13 +65,15 @@ class TeamUserMailerTest < ActionMailer::TestCase
     assert_match "not approved", email.body.parts.first.to_s
   end
 
-  test "should not send request to join email if bounced" do
+  test "should not send request to join email if bounced or banned" do
     t = create_team
     o1 = create_user email: 'owner1@mail.com'
     o2 = create_user email: 'owner2@mail.com'
+    o3 = create_user email: 'owner3@mail.com'
     u = create_user email: 'user@mail.com'
     create_team_user team: t, user: o1, role: 'owner'
     create_team_user team: t, user: o2, role: 'owner'
+    create_team_user team: t, user: o3, role: 'owner', status: 'banned'
     create_team_user team: t, user: u, role: 'contributor'
     r = create_user
     create_bounce email: o1.email
