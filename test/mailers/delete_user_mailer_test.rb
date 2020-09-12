@@ -13,7 +13,7 @@ class DeleteUserMailerTest < ActionMailer::TestCase
 
     stub_configs({ 'privacy_email' => 'privacy_email@local.com' }) do
       emails = DeleteUserMailer.send_notification(u, [t])
-      assert_equal ['owner1@mail.com', 'owner2@mail.com', 'privacy_email@local.com'].sort, emails.sort
+      assert_equal ['owner11@mail.com', 'owner22@mail.com', 'privacy_email@local.com'].sort, emails.sort
     end
 
     email = DeleteUserMailer.notify(o1.email, u, t)
