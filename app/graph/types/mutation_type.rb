@@ -33,6 +33,7 @@ MutationType = GraphQL::ObjectType.define do
   field :updateProjectMedia, field: ProjectMediaMutations::Update.field
   field :updateProjectMedias, field: ProjectMediaMutations::BulkUpdate.field
   field :destroyProjectMedia, field: ProjectMediaMutations::Destroy.field
+  field :replaceProjectMedia, field: ProjectMediaMutations::Replace.field
 
   field :createUser, field: UserMutations::Create.field
   field :updateUser, field: UserMutations::Update.field

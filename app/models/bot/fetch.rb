@@ -45,7 +45,7 @@ class Bot::Fetch < BotUser
       User.current = installation.user
       Team.current = installation.team
       status_mapping = JSON.parse(installation.get_status_mapping, { quirks_mode: true })
-      Bot::Fetch::Import.delay(retry: 0).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping)
+      Bot::Fetch::Import.delay(retry: 3).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping)
       true
     rescue StandardError => e
       Rails.logger.error("[Fetch Bot] Exception: #{e.message}")
@@ -181,8 +181,7 @@ class Bot::Fetch < BotUser
     end
 
     def self.create_project_media(team, user)
-      m = Media.new({ quote: 'No claim', type: 'Claim' })
-      ProjectMedia.create!(media: m, team: team, user: user)
+      ProjectMedia.create!(media: Blank.create!, team: team, user: user)
     end
 
     def self.create_fetch_annotation(claim_review, pm, user)
@@ -213,7 +212,7 @@ class Bot::Fetch < BotUser
       tmp = nil
       unless image_url.blank?
         tmp = File.join(Rails.root, 'tmp', "image-#{SecureRandom.hex}")
-        open(image_url) do |i|
+        open(URI.escape(image_url)) do |i|
           File.open(tmp, 'wb') do |f|
             f.write(i.read)
           end

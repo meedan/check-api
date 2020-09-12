@@ -889,4 +889,8 @@ module SampleData
     pmp.save!
     pmp.reload
   end
+
+  def create_blank_media
+    Blank.create!
+  end
 end
