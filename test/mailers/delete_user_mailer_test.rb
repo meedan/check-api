@@ -4,8 +4,8 @@ class DeleteUserMailerTest < ActionMailer::TestCase
 
 	test "should notify owner(s) and privacy with deleted user" do
   	t = create_team
-    o1 = create_user email: 'owner1@mail.com'
-    o2 = create_user email: 'owner2@mail.com'
+    o1 = create_user email: 'owner11@mail.com'
+    o2 = create_user email: 'owner22@mail.com'
     u = create_user email: 'user@mail.com'
     create_team_user team: t, user: o1, role: 'owner'
     create_team_user team: t, user: o2, role: 'owner'
