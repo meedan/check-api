@@ -278,6 +278,27 @@ class ProjectMedia < ActiveRecord::Base
     self.create_auto_tasks(project.id, tasks) unless tasks.blank?
   end
 
+  def replace_by(new_project_media)
+    if self.team_id != new_project_media.team_id
+      raise I18n.t(:replace_by_media_in_the_same_team)
+    elsif self.media.media_type != 'blank'
+      raise I18n.t(:replace_blank_media_only)
+    else
+      id = new_project_media.id
+      ProjectMedia.transaction do
+        # Remove any status and report from the new item
+        Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_project_media.id).destroy_all
+        # All annotations from the old item should point to the new item
+        Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
+        # Destroy the old item
+        self.destroy!
+        # Save the new item
+        new_project_media.updated_at = Time.now
+        new_project_media.save!
+      end
+    end
+  end
+
   protected
 
   def initiate_metadata_annotation(info)

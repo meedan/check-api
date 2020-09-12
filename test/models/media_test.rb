@@ -597,4 +597,26 @@ class MediaTest < ActiveSupport::TestCase
       assert_equal url, l.reload.url
     end
   end
+
+  test "should create blank media" do
+    assert_difference 'Blank.count', 2 do
+      2.times do
+        m = create_blank_media
+        assert_equal 'blank', m.media_type
+        assert_equal 'Blank', m.class_name
+      end
+    end
+  end
+
+  test "should not create blank media if there is content" do
+    assert_raises ActiveRecord::RecordInvalid do
+      Blank.create! quote: random_string
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      Blank.create! url: random_url
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      Blank.create! file: random_string
+    end
+  end
 end

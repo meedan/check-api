@@ -1,5 +1,4 @@
 class Claim < Media
-
   attr_accessor :quote_attributions
 
   before_validation :remove_null_bytes

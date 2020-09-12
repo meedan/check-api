@@ -1990,4 +1990,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should not replace one project media by another if not from the same team" do
+    old = create_project_media team: create_team, media: Blank.create!
+    new = create_project_media team: create_team
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should not replace one project media by another if media is not blank" do
+    t = create_team
+    old = create_project_media team: t
+    new = create_project_media team: t
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should replace a blank project media by another project media" do
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      old = create_project_media team: t, media: Blank.create!
+      old_r = publish_report(old)
+      old_s = old.last_status_obj
+      new = create_project_media team: t
+      new_r = publish_report(new)
+      new_s = new.last_status_obj
+      old.replace_by(new)
+      assert_nil ProjectMedia.find_by_id(old.id)
+      assert_nil Annotation.find_by_id(new_s.id)
+      assert_nil Annotation.find_by_id(new_r.id)
+      assert_equal old_r, new.get_dynamic_annotation('report_design')
+      assert_equal old_s, new.get_dynamic_annotation('verification_status')
+    end
+  end
 end
