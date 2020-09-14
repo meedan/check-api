@@ -16,6 +16,7 @@ class ProjectMediaProject < ActiveRecord::Base
   after_commit :update_index_in_elasticsearch, :add_remove_team_tasks, on: [:create, :update]
   after_destroy :update_index_in_elasticsearch
   after_commit :remove_related_team_tasks, on: :destroy
+  after_save :send_slack_notification
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -178,6 +179,17 @@ class ProjectMediaProject < ActiveRecord::Base
     project_was&.notify_pusher_channel
 
     { team: team, project: project, project_was: project_was, check_search_project_was: project_was&.check_search_project, ids: pm_graphql_ids }
+  end
+
+  def slack_channel
+    # assume event is `item_added`
+    slack_events = self.project.setting(:slack_events)
+    event = slack_events.select{|i| i[:event] == 'item_added' }.last unless slack_events.nil?
+    event.nil? ? nil : event[:slack_channel]
+  end
+
+  def slack_notification_message
+    self.project_media.slack_notification_message
   end
 
   private

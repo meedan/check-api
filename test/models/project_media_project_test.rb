@@ -145,4 +145,33 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     pmp = create_project_media_project
     assert_kind_of CheckSearch, pmp.check_search_project
   end
+
+  test "should get slack channel" do
+    t = create_team
+    p = create_project team: t
+    pmp = create_project_media_project project: p
+    assert_nil pmp.slack_channel
+    p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
+    p.save!
+    assert_equal '#test', pmp.reload.slack_channel
+  end
+
+  test "should notify Slack when project media project is created" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    p = create_project team: t
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      pmp = create_project_media_project project: p, project_media: pm
+      assert pmp.sent_to_slack
+      assert_match I18n.t("slack.messages.project_media_create", pmp.project_media.slack_params), pmp.slack_notification_message[:pretext]
+      p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
+      p.save!
+      pmp_2 = create_project_media_project project: p, project_media: pm2
+      assert pmp_2.sent_to_slack
+    end
+  end
 end
