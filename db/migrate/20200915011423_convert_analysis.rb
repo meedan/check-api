@@ -13,8 +13,6 @@ class ConvertAnalysis < ActiveRecord::Migration
     i = 0
     q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
     result = execute(q).to_a
-    annotations_to_delete = []
-    fields_to_delete = []
     while !result.empty? do
       new_fields = []
       result.each do |field|
@@ -45,28 +43,32 @@ class ConvertAnalysis < ActiveRecord::Migration
               new_fields << field_data.clone.merge({ value: value['title'], field_name: 'title' }) unless value['title'].blank?
               new_fields << field_data.clone.merge({ value: value['description'], field_name: 'content' }) if !value['description'].blank? && !Annotation.where(annotation_type: 'analysis', annotated_type: 'ProjectMedia', annotated_id: pm.id).exists?
             end
-            fields_to_delete << field['id'].to_i
-            annotations_to_delete << field['annotation_id'].to_i
           end
         end
       end
       DynamicAnnotation::Field.import new_fields, validate: false, recursive: false, timestamps: false
       i += 1
-      puts "[#{Time.now}] Importing #{SIZE * i}/#{n} project media metadata fields..."
+      puts "[#{Time.now}] Imported #{SIZE * i}/#{n} project media metadata fields..."
       q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
       result = execute(q).to_a
     end
+
     i = 0
-    fields_to_delete.each_slice(SIZE) do |slice|
+    q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
+    result = execute(q).to_a
+    while !result.empty? do
+      annotation_ids = []
+      field_ids = []
+      result.each do |field|
+        annotation_ids << field['annotation_id']
+        field_ids << field['id']
+      end
+      Annotation.where(id: annotation_ids).delete_all
+      DynamicAnnotation::Field.where(id: field_ids).delete_all
       i += 1
-      puts "[#{Time.now}] Deleting #{SIZE * i}/#{n} project media metadata fields..."
-      DynamicAnnotation::Field.where(id: slice).delete_all
-    end
-    i = 0
-    annotations_to_delete.each_slice(SIZE) do |slice|
-      i += 1
-      puts "[#{Time.now}] Deleting #{SIZE * i}/#{n} project media metadata annotations..."
-      Annotation.where(id: slice).delete_all
+      puts "[#{Time.now}] Deleted #{SIZE * i}/#{n} project media metadata annotations and fields..."
+      q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
+      result = execute(q).to_a
     end
 
     # ProjectMedia "analysis" annotations
@@ -76,8 +78,6 @@ class ConvertAnalysis < ActiveRecord::Migration
     i = 0
     q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
     result = execute(q).to_a
-    annotations_to_delete = []
-    fields_to_delete = []
     while !result.empty? do
       new_fields = []
       result.each do |field|
@@ -97,28 +97,32 @@ class ConvertAnalysis < ActiveRecord::Migration
               value: value
             }
             new_fields << field_data unless value.blank?
-            fields_to_delete << field['id'].to_i
-            annotations_to_delete << field['annotation_id'].to_i
           end
         end
       end
       DynamicAnnotation::Field.import new_fields, validate: false, recursive: false, timestamps: false
       i += 1
-      puts "[#{Time.now}] Importing #{SIZE * i}/#{n} analysis fields..."
-      q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
+      puts "[#{Time.now}] Imported #{SIZE * i}/#{n} analysis fields..."
+      q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
       result = execute(q).to_a
     end
+
     i = 0
-    fields_to_delete.each_slice(SIZE) do |slice|
+    q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
+    result = execute(q).to_a
+    while !result.empty? do
+      annotation_ids = []
+      field_ids = []
+      result.each do |field|
+        annotation_ids << field['annotation_id']
+        field_ids << field['id']
+      end
+      Annotation.where(id: annotation_ids).delete_all
+      DynamicAnnotation::Field.where(id: field_ids).delete_all
       i += 1
-      puts "[#{Time.now}] Deleting #{SIZE * i}/#{n} analysis fields..."
-      DynamicAnnotation::Field.where(id: slice).delete_all
-    end
-    i = 0
-    annotations_to_delete.each_slice(SIZE) do |slice|
-      i += 1
-      puts "[#{Time.now}] Deleting #{SIZE * i}/#{n} analysis annotations..."
-      Annotation.where(id: slice).delete_all
+      puts "[#{Time.now}] Deleted #{SIZE * i}/#{n} analysis annotations and fields..."
+      q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
+      result = execute(q).to_a
     end
 
     DynamicAnnotation::AnnotationType.where(annotation_type: 'analysis').destroy_all
@@ -129,6 +133,8 @@ class ConvertAnalysis < ActiveRecord::Migration
     puts "- #{DynamicAnnotation::Field.where(field_name: 'analysis_text').count} analysis fields"
     puts "- #{Annotation.where(annotation_type: 'metadata', annotated_type: 'ProjectMedia').count} project media metadata annotations"
     puts "- #{DynamicAnnotation::Field.joins(:annotation).where(field_name: 'metadata_value', 'annotations.annotated_type' => 'ProjectMedia').count} project media metadata fields"
+    puts "- #{DynamicAnnotation::Field.joins(:annotation).where(field_name: 'title', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotation_type' => 'verification_status').count} verification status title fields"
+    puts "- #{DynamicAnnotation::Field.joins(:annotation).where(field_name: 'content', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotation_type' => 'verification_status').count} verification status content fields"
 
     ActiveRecord::Base.logger = old_logger
   end
