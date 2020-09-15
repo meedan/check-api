@@ -1,5 +1,5 @@
 class ConvertAnalysis < ActiveRecord::Migration
-  SIZE = 5000
+  SIZE = 2500
 
   def change
     old_logger = ActiveRecord::Base.logger
