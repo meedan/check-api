@@ -183,8 +183,10 @@ class ProjectMediaProject < ActiveRecord::Base
 
   def slack_channel(event)
     slack_events = self.project.setting(:slack_events)
-    selected_event = slack_events.select{|i| i[:event] == event }.last unless slack_events.nil?
-    selected_event.blank? ? nil : selected_event[:slack_channel]
+    slack_events ||= []
+    slack_events.map!(&:with_indifferent_access)
+    selected_event = slack_events.select{|i| i['event'] == event }.last
+    selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
   def slack_notification_message
