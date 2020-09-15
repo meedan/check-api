@@ -21,6 +21,7 @@ class ProjectMedia < ActiveRecord::Base
   after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
   after_commit :apply_rules_and_actions_on_create, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
+  after_commit :set_quote_metadata, on: [:create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
@@ -119,44 +120,28 @@ class ProjectMedia < ActiveRecord::Base
     self.annotations.where(annotation_type: type)
   end
 
-  def metadata
-    self.original_metadata.merge(self.custom_metadata)
-  end
-
-  def original_metadata
-    begin JSON.parse(self.media.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
-  end
-
-  def custom_metadata
-    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
-  end
-
-  def overridden
-    data = {}
-    self.overridden_metadata_attributes.each{ |k| data[k] = false }
-    if self.media.type == 'Link'
-      cm = self.custom_metadata
-      om = self.original_metadata
-      data.each do |k, _v|
-        data[k] = true if cm[k] != om[k] and !cm[k].blank?
+  def analysis
+    begin
+      data = {}.with_indifferent_access
+      self.get_annotations('verification_status').last.get_fields.each do |f|
+        data[f.field_name] = f.value
       end
+      data
+    rescue
+      {}
     end
-    data
   end
 
-  def overridden_metadata_attributes
-    %W(title description username)
-  end
-
-  def metadata=(info)
-    info = info.blank? ? {} : JSON.parse(info)
+  def analysis=(info)
     unless info.blank?
-      m = self.get_annotations('metadata').last
+      m = self.get_annotations('verification_status').last
       m = m.load unless m.nil?
-      m = initiate_metadata_annotation(info) if m.nil?
+      return if m.nil?
       m.disable_es_callbacks = Rails.env.to_s == 'test'
       m.client_mutation_id = self.client_mutation_id
-      self.override_metadata_data(m, info)
+      m.skip_check_ability = true
+      m.set_fields = info.to_json
+      m.save!
     end
   end
 
@@ -301,29 +286,12 @@ class ProjectMedia < ActiveRecord::Base
 
   protected
 
-  def initiate_metadata_annotation(info)
-    m = Dynamic.new
-    m.annotation_type = 'metadata'
-    m.set_fields = { metadata_value: info.to_json }.to_json
-    m.annotated = self
-    m.annotator = User.current unless User.current.nil?
-    m
-  end
-
-  def override_metadata_data(m, info)
-    current_info = self.custom_metadata
-    info.each{ |k, v| current_info[k] = v }
-    m.skip_notifications = true if self.is_being_created
-    m.set_fields = { metadata_value: current_info.to_json }.to_json
-    m.save!
-  end
-
   def set_es_account_data
     data = {}
     a = self.media.account
     metadata = a.metadata
-    self.overridden_metadata_attributes.each{ |k| sk = k.to_s; data[sk] = metadata[sk] unless metadata[sk].nil? } unless metadata.nil?
-    data["id"] = a.id unless data.blank?
+    ['title', 'description'].each{ |k| data[k] = metadata[k] unless metadata[k].blank? } unless metadata.nil?
+    data['id'] = a.id unless data.blank?
     [data]
   end
 
@@ -332,12 +300,10 @@ class ProjectMedia < ActiveRecord::Base
     unless m.nil?
       ms.associated_type = m.type
       ms.accounts = self.set_es_account_data unless m.account.nil?
-      data = self.metadata
-      unless data.nil?
-        ms.title = data['title']
-        ms.description = data['description']
-        ms.quote = m.quote
-      end
+      data = self.analysis || {}
+      ms.title = data['title'].blank? ? self.media.metadata['title'] : data['title']
+      ms.description = data['content'].blank? ? self.media.metadata['description'] : data['content']
+      ms.quote = m.quote
     end
     ms.verification_status = self.last_status
     # set fields with integer value

@@ -61,7 +61,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm.save!
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -418,6 +418,7 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should retrieve information for grid" do
     RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -430,12 +431,12 @@ class GraphqlController3Test < ActionController::TestCase
 
     m = create_uploaded_image
     pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
-    info = { title: random_string, description: random_string }.to_json; pm.metadata = info; pm.save!
+    info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
-    info = { title: 'Title Test', description: 'Description Test' }.to_json; pm.metadata = info; pm.save!
+    info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
 
     sleep 10
 
