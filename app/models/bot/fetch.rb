@@ -1,6 +1,10 @@
 # How to set a service for a Fetch bot installation using Rails console:
 # > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping (reviewRating.ratingValue => Check status identifier))
+
 class Bot::Fetch < BotUser
+
+  class Error < ::StandardError
+  end
 
   # Class extensions
 
@@ -153,47 +157,51 @@ class Bot::Fetch < BotUser
             total += 1
           end
         end
-        raise "[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})" if total != service_info['count']
+        Airbrake.notify(Bot::Fetch::Error.new("[Fetch] The number of imported claim reviews (#{total}) is different from the expected (#{service_info['count']})")) if Airbrake.configured? && total != service_info['count']
       end
     end
 
     def self.import_claim_review(claim_review, team_id, user_id, status_fallback, status_mapping)
-      user = User.find(user_id)
-      team = Team.find(team_id)
-      unless self.already_imported?(claim_review, team)
-        ActiveRecord::Base.transaction do
-          pm = self.create_project_media(team, user)
-          self.create_fetch_annotation(claim_review, pm, user)
-          self.set_status(claim_review, pm, status_fallback, status_mapping)
-          self.create_published_report(claim_review, pm, team, user)
+      begin
+        user = User.find(user_id)
+        team = Team.find(team_id)
+        unless self.already_imported?(claim_review, team)
+          ActiveRecord::Base.transaction do
+            pm = self.create_project_media(team, user)
+            self.set_status(claim_review, pm, status_fallback, status_mapping)
+            self.set_analysis(claim_review, pm)
+            self.create_report(claim_review, pm, team, user)
+          end
         end
+      rescue StandardError => e
+        Airbrake.notify(e, { context: 'Fetch Bot', claim_review: claim_review, team_id: team_id }) if Airbrake.configured?
       end
     end
 
     def self.already_imported?(claim_review, team)
-      Dynamic
-        .joins("INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
-        .where(annotation_type: 'fetch')
-        .where("data LIKE ?", "%id: #{claim_review['identifier']}%")
-        .where('project_medias.team_id' => team.id)
-        .last
-        .present?
+      DynamicAnnotation::Field
+        .joins("INNER JOIN annotations ON annotations.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
+        .where('project_medias.team_id' => team.id, 'value' => claim_review['identifier'], 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').last.present?
     end
 
     def self.create_project_media(team, user)
       ProjectMedia.create!(media: Blank.create!, team: team, user: user)
     end
 
-    def self.create_fetch_annotation(claim_review, pm, user)
-      a = Dynamic.new
-      a.skip_check_ability = true
-      a.skip_notifications = true
-      a.disable_es_callbacks = Rails.env.to_s == 'test'
-      a.annotation_type = 'fetch'
-      a.annotated = pm
-      a.annotator = user
-      a.set_fields = { id: claim_review['identifier'] }.to_json
-      a.save!
+    def self.set_analysis(claim_review, pm)
+      s = pm.last_status_obj
+      s.skip_check_ability = true
+      s.skip_notifications = true
+      s.disable_es_callbacks = Rails.env.to_s == 'test'
+      s.set_fields = {
+        title: claim_review['claimReviewed'].to_s,
+        content: claim_review['text'].to_s,
+        published_article_url: claim_review['url'].to_s,
+        date_published: claim_review['datePublished'].blank? ? '' : Time.parse(claim_review['datePublished']).to_i,
+        external_id: claim_review['identifier'],
+        raw: claim_review.to_json
+      }.to_json
+      s.save!
     end
 
     def self.set_status(claim_review, pm, status_fallback, status_mapping)
@@ -221,7 +229,7 @@ class Bot::Fetch < BotUser
       tmp
     end
 
-    def self.create_published_report(claim_review, pm, team, user)
+    def self.create_report(claim_review, pm, team, user)
       report = Dynamic.new
       report.annotation_type = 'report_design'
       report.annotated = pm
@@ -232,30 +240,33 @@ class Bot::Fetch < BotUser
           report.file = [f]
         end
       end
+      date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
+      language = team.get_language || 'en'
       fields = {
         state: 'paused',
         options: [{
-          language: team.get_language || 'en',
+          language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
           description: claim_review['text'].to_s.truncate(240),
+          title: claim_review['claimReviewed'].to_s.truncate(85),
           headline: claim_review['claimReviewed'].to_s.truncate(85),
           use_visual_card: true,
           image: '',
           use_introduction: false,
           introduction: '',
           theme_color: pm.reload.last_status_color,
-          url: claim_review['url'].to_s.truncate(40),
+          url: '',
           use_text_message: true,
           text: [claim_review['text'], claim_review['url']].join("\n\n"),
           use_disclaimer: false,
-          disclaimer: ''
+          disclaimer: '',
+          date: report.report_design_date(date.to_date, language)
         }]
       }
       report.set_fields = fields.to_json
       report.action = 'save'
       report.save!
       FileUtils.rm_f(tmp_file_path) if tmp_file_path
-      date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
       report.updated_at = date
       report.report_image_generate_png(0)
     end

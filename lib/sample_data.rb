@@ -203,15 +203,23 @@ module SampleData
       [DynamicAnnotation::FieldType, DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldInstance].each { |klass| klass.delete_all }
       create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
-    ft1 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
+    ft1 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
+    ft2 = DynamicAnnotation::FieldType.where(field_type: 'select').last || create_field_type(field_type: 'select', label: 'Select')
     at = create_annotation_type annotation_type: 'verification_status', label: 'Verification Status'
-    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft1, optional: false
+    create_field_instance annotation_type_object: at, name: 'verification_status_status', label: 'Verification Status', default_value: 'undetermined', field_type_object: ft2, optional: false
+    create_field_instance annotation_type_object: at, name: 'title', label: 'Title', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'content', label: 'Content', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'published_article_url', label: 'Published Article URL', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'date_published', label: 'Date Published', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'raw', label: 'Raw', field_type_object: ft1, optional: true
+    create_field_instance annotation_type_object: at, name: 'external_id', label: 'External ID', field_type_object: ft1, optional: true
   end
 
   def create_metadata_stuff
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'metadata').last || create_annotation_type(annotation_type: 'metadata', label: 'Metadata')
     ft = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
     DynamicAnnotation::FieldInstance.where(name: 'metadata_value').last || create_field_instance(annotation_type_object: at, name: 'metadata_value', label: 'Metadata Value', field_type_object: ft, optional: false, settings: {})
+    create_verification_status_stuff(false) unless DynamicAnnotation::AnnotationType.where(annotation_type: 'verification_status').exists?
   end
 
   def create_task_status_stuff(delete_existing = true)
@@ -351,7 +359,7 @@ module SampleData
   def create_metadata(options = {})
     annotator = options[:annotator] || create_user
     options = { annotator: annotator, disable_es_callbacks: true }.merge(options)
-    options[:annotated] = create_project_media unless options.has_key?(:annotated)
+    options[:annotated] = create_media unless options.has_key?(:annotated)
     m = Dynamic.new
     m.annotation_type = 'metadata'
     data = {}
