@@ -98,7 +98,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1a.id, pm1b.id], results
+    assert_equal [pm1b.id, pm1a.id], results
 
     # Another sort criteria and default order: recent activity, descending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\"}") {medias(first:20){edges{node{dbid}}}}}'
@@ -112,7 +112,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1b.id, pm1a.id], results
+    assert_equal [pm1a.id, pm1b.id], results
 
     # Another search criteria and another order: recent activity, ascending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
@@ -1340,7 +1340,7 @@ class GraphqlController3Test < ActionController::TestCase
     t2 = create_task annotated: pm, fieldset: 'metadata'
     ids = [pm.id, nil, t.id].join(',')
     authenticate_with_user(u)
-    
+
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -1358,7 +1358,7 @@ class GraphqlController3Test < ActionController::TestCase
     t1 = create_team_task team_id: t.id, fieldset: 'tasks'
     t2 = create_team_task team_id: t.id, fieldset: 'metadata'
     authenticate_with_user(u)
-    
+
     query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
