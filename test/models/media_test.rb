@@ -389,7 +389,7 @@ class MediaTest < ActiveSupport::TestCase
     p = create_project team: create_team
     m = create_claim_media quote: 'media quote'
     pm = create_project_media project: p, media: m
-    assert_equal 'media quote', pm.metadata['title']
+    assert_equal 'media quote', pm.title
   end
 
   test "should get class from input" do

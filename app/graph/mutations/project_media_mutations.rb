@@ -18,7 +18,6 @@ module ProjectMediaMutations
     refresh_media: 'int',
     archived: 'int',
     previous_project_id: 'int',
-    metadata: 'str',
     read: 'bool'
   })
 

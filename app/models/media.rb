@@ -45,7 +45,7 @@ class Media < ActiveRecord::Base
   end
 
   def metadata
-    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
+    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')).with_indifferent_access rescue {} end
   end
 
   def media_url

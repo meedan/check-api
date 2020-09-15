@@ -156,13 +156,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        info = { title: 'Foo', content: 'Bar' }
+        pm.analysis = info
         pm.save!
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 6, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -176,13 +176,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        info = { title: 'Foo', content: 'Bar' }
+        pm.analysis = info
         pm.save!
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 1, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 

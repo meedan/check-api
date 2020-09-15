@@ -33,6 +33,4 @@ AccountType = GraphqlCrudOperations.define_default_type do
       account.metadata
     }
   end
-
-# End of fields
 end

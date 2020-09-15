@@ -9,21 +9,29 @@ module ProjectMediaCachedFields
   end
 
   module ClassMethods
-    def metadata_update(field)
-      {
-        model: DynamicAnnotation::Field,
-        if: proc { |f| f.field_name == 'metadata_value' },
-        affected_ids: proc { |f|
-          if f.annotation.annotated_type == 'ProjectMedia'
-            [f.annotation.annotated_id]
-          elsif ['Media', 'Link'].include?(f.annotation.annotated_type)
-            ProjectMedia.where(media_id: f.annotation.annotated_id).map(&:id)
-          end
+    def analysis_update(field)
+      [
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == field && f.annotation.annotation_type == 'verification_status' && !f.value.blank? },
+          affected_ids: proc { |f| [f.annotation.annotated_id] },
+          events: {
+            save: proc { |_pm, f| f.value }
+          }
         },
-        events: {
-          save: proc { |_pm, f| begin JSON.parse(f.value)[field] rescue nil end }
+        {
+          model: DynamicAnnotation::Field,
+          if: proc { |f| f.field_name == 'metadata_value' },
+          affected_ids: proc { |f|
+            if ['Media', 'Link'].include?(f.annotation.annotated_type)
+              ProjectMedia.where(media_id: f.annotation.annotated_id).map(&:id)
+            end
+          },
+          events: {
+            save: :recalculate
+          }
         }
-      }
+      ]
     end
   end
 
@@ -109,12 +117,12 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| pm.metadata.dig('description') || (pm.media.type == 'Claim' ? nil : pm.text) },
-      update_on: [metadata_update('description')]
+      recalculate: proc { |pm| !pm.analysis.dig('content').blank? ? pm.analysis.dig('content') : (pm.media&.metadata&.dig('description') || (pm.media.type == 'Claim' ? nil : pm.text)) },
+      update_on: analysis_update('content')
 
     cached_field :title,
-      recalculate: proc { |pm| pm.metadata.dig('title') || pm.media.quote },
-      update_on: [metadata_update('title')]
+      recalculate: proc { |pm| !pm.analysis.dig('title').blank? ? pm.analysis.dig('title') : (pm.media&.metadata&.dig('title') || pm.media.quote) },
+      update_on: analysis_update('title')
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
