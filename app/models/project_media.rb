@@ -17,8 +17,8 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :send_slack_notification, :notify_team_bots_create
-  after_create :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
+  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create
+  after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
   after_commit :apply_rules_and_actions_on_create, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
   after_commit :set_quote_metadata, on: [:create]

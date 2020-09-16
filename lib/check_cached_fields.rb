@@ -51,6 +51,7 @@ module CheckCachedFields
         Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)
         target.updated_at = Time.now
         target.skip_check_ability = true
+        target.skip_notifications = true
         ActiveRecord::Base.connection_pool.with_connection { target.save! }
         # update es index
         if update_index
