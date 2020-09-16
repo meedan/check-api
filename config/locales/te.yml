@@ -190,6 +190,7 @@ te:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ఈ సందేశము పంపినందుకు
     ధన్యవాదములు. మీరు దీన్ని 2019 ఎన్నికలకు సంబంధించిన తప్పు వార్త అనుకుంటున్నారా?
     ఔను అయితే 1 అని జవాబు ఇవ్వగలరు. వేరొక జవాబు ఏదైనా ఈ సంభాషనను అంతం చేయును.
@@ -258,7 +259,8 @@ te:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
+  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: ''
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: తప్పు
   custom_message_status_misleading_infotagion: తప్పుదొవ పట్టించడం
   custom_message_status_true_infotagion: ''
@@ -284,7 +286,7 @@ te:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: ''
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: ''
   custom_message_smooch_bot_message_confirmed_lebanon: ''
