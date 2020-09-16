@@ -38,8 +38,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       assert pm.sent_to_slack
     end
   end
@@ -205,9 +204,8 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pmp = create_project_media project: p
-      pmc = create_project_media project: p, related_to_id: pmp.id
+      pmp = create_project_media team: t
+      pmc = create_project_media team: t, related_to_id: pmp.id
       assert pmc.sent_to_slack
     end
   end
