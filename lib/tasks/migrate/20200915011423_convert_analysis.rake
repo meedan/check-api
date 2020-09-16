@@ -17,11 +17,15 @@ namespace :check do
       n = DynamicAnnotation::Field.joins(:annotation).where(field_name: 'metadata_value', 'annotations.annotation_type' => 'metadata', 'annotations.annotated_type' => 'ProjectMedia').count
       puts "[#{Time.now}] Converting and deleting #{n} project media metadata annotations and fields..."
       i = 0
-      q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
+      q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
       result = ActiveRecord::Base.connection.execute(q).to_a
       while !result.empty? do
         new_fields = []
+        fields_to_delete = []
+        annotations_to_delete = []
         result.each do |field|
+          fields_to_delete << field['id']
+          annotations_to_delete << field['annotation_id']
           pm = ProjectMedia.find_by_id(field['annotated_id'].to_i)
           unless pm.nil?
             s = pm.last_status_obj
@@ -53,9 +57,11 @@ namespace :check do
           end
         end
         DynamicAnnotation::Field.import new_fields, validate: false, recursive: false, timestamps: false
+        Annotation.where(id: annotations_to_delete).delete_all
+        DynamicAnnotation::Field.where(id: fields_to_delete).delete_all
         i += 1
-        puts "[#{Time.now}] Imported #{SIZE * i}/#{n} project media metadata fields..."
-        q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
+        puts "[#{Time.now}] Converted #{SIZE * i}/#{n} project media metadata fields..."
+        q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
         result = ActiveRecord::Base.connection.execute(q).to_a
       end
 
@@ -69,8 +75,7 @@ namespace :check do
           annotation_ids << field['annotation_id']
           field_ids << field['id']
         end
-        Annotation.where(id: annotation_ids).delete_all
-        DynamicAnnotation::Field.where(id: field_ids).delete_all
+
         i += 1
         puts "[#{Time.now}] Deleted #{SIZE * i}/#{n} project media metadata annotations and fields..."
         q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
