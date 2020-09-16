@@ -1,5 +1,5 @@
 # How to set a service for a Fetch bot installation using Rails console:
-# > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping (reviewRating.ratingValue => Check status identifier))
+# > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping ({ reviewRating.(ratingValue|alternameName) => Check status identifier }, as a JSON string))
 
 class Bot::Fetch < BotUser
 

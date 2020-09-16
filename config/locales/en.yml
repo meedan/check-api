@@ -483,7 +483,7 @@ en:
   archive_pender_archive: Screenshot
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: Invalid status
+  workflow_status_is_not_valid: "Invalid status: '%{status}' (should be one of %{valid})"
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
   blank_default_status_for_custom_verification_status: Please provide a default value
     for the custom verification statuses
