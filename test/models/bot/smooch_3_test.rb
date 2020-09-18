@@ -1018,6 +1018,12 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:notify_error)
   end
 
+  test "should send message with URL preview" do
+    assert_nothing_raised do
+      Bot::Smooch.send_message_to_user(random_string, "foo #{random_url} bar")
+    end
+  end
+
   protected
 
   def run_concurrent_requests
