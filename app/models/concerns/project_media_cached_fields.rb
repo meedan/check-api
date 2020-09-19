@@ -45,8 +45,8 @@ module ProjectMediaCachedFields
           model: Relationship,
           affected_ids: proc { |r| [r.source_id, r.target_id] },
           events: {
-            create: proc { |pm, _r| pm.linked_items_count + 1 },
-            destroy: proc { |pm, _r| pm.linked_items_count - 1 }
+            create: :recalculate,
+            destroy: :recalculate
           }
         }
       ]
