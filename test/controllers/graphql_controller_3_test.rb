@@ -33,7 +33,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (16) do
+    assert_queries (18) do
       post :create, query: query, team: 'team'
     end
 
@@ -61,7 +61,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm.save!
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     # Make sure we only run queries for the 20 first items
     assert_queries 320, '<=' do
@@ -98,7 +98,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1a.id, pm1b.id], results
+    assert_equal [pm1b.id, pm1a.id], results
 
     # Another sort criteria and default order: recent activity, descending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\"}") {medias(first:20){edges{node{dbid}}}}}'
@@ -112,7 +112,7 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t1.slug
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1b.id, pm1a.id], results
+    assert_equal [pm1a.id, pm1b.id], results
 
     # Another search criteria and another order: recent activity, ascending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
@@ -418,6 +418,7 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should retrieve information for grid" do
     RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -430,12 +431,12 @@ class GraphqlController3Test < ActionController::TestCase
 
     m = create_uploaded_image
     pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
-    info = { title: random_string, description: random_string }.to_json; pm.metadata = info; pm.save!
+    info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
     r = create_relationship source_id: pm.id, target_id: pm2.id
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
-    info = { title: 'Title Test', description: 'Description Test' }.to_json; pm.metadata = info; pm.save!
+    info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
 
     sleep 10
 
@@ -464,7 +465,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 18, '=' do
+    assert_queries 20, '=' do
       post :create, query: query, team: 'team'
     end
 
@@ -1340,7 +1341,7 @@ class GraphqlController3Test < ActionController::TestCase
     t2 = create_task annotated: pm, fieldset: 'metadata'
     ids = [pm.id, nil, t.id].join(',')
     authenticate_with_user(u)
-    
+
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -1358,7 +1359,7 @@ class GraphqlController3Test < ActionController::TestCase
     t1 = create_team_task team_id: t.id, fieldset: 'tasks'
     t2 = create_team_task team_id: t.id, fieldset: 'metadata'
     authenticate_with_user(u)
-    
+
     query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -1368,5 +1369,24 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
+  end
+
+  test "should replace blank project media by another" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    old = create_project_media team: t, media: Blank.create!
+    r = publish_report(old)
+    new = create_project_media team: t
+    authenticate_with_user(u)
+
+    query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['replaceProjectMedia']
+    assert_equal old.graphql_id, data['old_project_media_deleted_id']
+    assert_equal new.id, data['new_project_media']['dbid']
+    assert_nil ProjectMedia.find_by_id(old.id)
+    assert_equal r, new.get_dynamic_annotation('report_design')
   end
 end

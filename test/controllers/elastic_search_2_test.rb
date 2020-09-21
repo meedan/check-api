@@ -86,6 +86,7 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should update elasticsearch after refresh pender data" do
+    create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = random_url
@@ -101,15 +102,15 @@ class ElasticSearch2Test < ActionController::TestCase
     sleep 1
     ms = MediaSearch.find(get_es_id(pm))
     assert_equal 'org_title', pm.title
-    assert_equal ms.title, 'org_title'
+    assert_equal 'org_title', ms.title
     ms2 = MediaSearch.find(get_es_id(pm2))
-    assert_equal 'org_title', pm2.title
+    assert_equal pm2.title, 'org_title'
     assert_equal ms2.title, 'org_title'
     Sidekiq::Testing.inline! do
       # Update title
       pm2.reload; pm2.disable_es_callbacks = false
-      info = {title: 'override_title'}.to_json
-      pm2.metadata = info
+      info = { title: 'overridden_title' }
+      pm2.analysis = info
       pm.reload; pm.disable_es_callbacks = false
       pm.refresh_media = true
       pm.save!
@@ -119,7 +120,7 @@ class ElasticSearch2Test < ActionController::TestCase
     end
     sleep 10
     ms2 = MediaSearch.find(get_es_id(pm2))
-    assert_equal ms2.title.sort, ["org_title", "override_title"].sort
+    assert_equal 'overridden_title', ms2.title
     ms = MediaSearch.find(get_es_id(pm))
     assert_equal 'new_title', pm.title
     assert_equal 'new_title', ms.title
@@ -145,7 +146,7 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
     ms = MediaSearch.find(get_es_id(pm))
-    assert_equal ms['accounts'][0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar", "username"=>"username"}.sort
+    assert_equal ms['accounts'][0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar"}.sort
   end
 
   test "should update or destroy media search in background" do
@@ -160,7 +161,7 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     # update title or description
     ElasticSearchWorker.clear
-    pm.metadata = { title: 'title', description: 'description' }.to_json
+    pm.analysis = { title: 'title', content: 'description' }
     assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear

@@ -1,5 +1,5 @@
 Dynamic.class_eval do
-  after_commit :update_elasticsearch_metadata, on: [:create, :update], if: proc { |d| d.annotation_type == 'metadata' }
+  after_commit :update_elasticsearch_metadata, on: [:create, :update], if: proc { |d| ['metadata', 'verification_status'].include?(d.annotation_type) }
 
   def title=(title)
     self.set_metadata_field('title', title)
@@ -50,11 +50,7 @@ Dynamic.class_eval do
 
   def update_es_metadata_pm_annotation(keys)
     data = {}
-    media_metadata = self.annotated.original_metadata
-    overridden = self.annotated.custom_metadata
-    keys.each do |k|
-      data[k] = [media_metadata[k], self.send(k)] if overridden[k]
-    end
+    keys.each { |k| data[k] = self.send(k) }
     self.update_elasticsearch_doc(keys, data)
   end
 

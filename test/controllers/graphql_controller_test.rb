@@ -205,58 +205,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
   end
 
-  test "should read project media metadata" do
-    authenticate_with_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm1 = create_project_media project: p, media: m
-    pm2 = create_project_media project: p2
-    # Update media title and description with context p
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm1.metadata = info
-    # Update media title and description with context p2
-    info = {title: 'Title B', description: 'Desc B'}.to_json
-    pm2.metadata = info
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata, media { metadata} } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    metadata = JSON.parse(@response.body)['data']['project_media']
-    assert_equal 'Title A', metadata['metadata']['title']
-    # original metadata
-    assert_equal 'test media', metadata['media']['metadata']['title']
-    query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_media']['metadata']
-    assert_equal 'Title B', data['title']
-  end
-
-  test "should read project media overridden" do
-    authenticate_with_user
-    p = create_project team: @team
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m
-    # Update media title and description
-    info = {title: 'Title A', description: 'Desc A'}.to_json
-    pm.metadata = info
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    overridden = JSON.parse(@response.body)['data']['project_media']['overridden']
-    assert overridden['title']
-    assert overridden['description']
-    assert_not overridden['username']
-  end
-
   test "should read project media versions to find previous project" do
     authenticate_with_user
     p = create_project team: @team
@@ -314,11 +262,10 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source team: @team, user: u
     create_comment annotated: s
     create_tag annotated: s
-    query = "query GetById { source(id: \"#{s.id}\") { overridden, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Annotation { dbid } } } }, annotations_count(annotation_type: \"comment,tag\")} }"
+    query = "query GetById { source(id: \"#{s.id}\") {  annotations(annotation_type: \"comment,tag\") { edges { node { ... on Annotation { dbid } } } }, annotations_count(annotation_type: \"comment,tag\")} }"
     post :create, query: query, team: @team.slug
     assert_response :success
     data = JSON.parse(@response.body)['data']['source']
-    assert_equal 3, data['overridden'].size
     assert_equal 2, data['annotations_count']
     assert_equal 2, data['annotations']['edges'].size
   end
@@ -1072,7 +1019,7 @@ class GraphqlControllerTest < ActionController::TestCase
       sleep 1
     end
 
-    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 
@@ -1089,7 +1036,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     sleep 1
 
-    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,overridden,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, query: query, team: 'team'
 

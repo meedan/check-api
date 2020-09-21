@@ -41,14 +41,6 @@ class Bot::FetchTest < ActiveSupport::TestCase
     
     create_verification_status_stuff
     create_report_design_annotation_type
-    json_schema = {
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'string' }
-      }
-    }
-    create_annotation_type_and_fields('Fetch', {}, json_schema)   
     @team = create_team slug: 'fetch'
     settings = [
       { name: 'fetch_service_name', label: 'Fetch Service Name', type: 'readonly', default: '' },
@@ -151,7 +143,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews.json?end_time=2017-08-10&per_page=10000&service=foo&start_time=2017-08-09').to_return(body: [cr1, cr1, cr2, cr3].to_json)
     assert_difference "ProjectMedia.where(team_id: #{@team.id}).count", 3 do
       assert_difference 'Dynamic.where(annotation_type: "report_design").count', 3 do
-        assert_difference 'Dynamic.where(annotation_type: "fetch").count', 3 do
+        assert_difference 'DynamicAnnotation::Field.where(field_name: "external_id").count', 3 do
           @installation.set_fetch_service_name 'foo'
           @installation.save!
         end
@@ -159,11 +151,17 @@ class Bot::FetchTest < ActiveSupport::TestCase
     end
     statuses = ['false', 'verified', 'in_progress']
     ['first', 'second', 'third'].each_with_index do |id, i|
-      d = Dynamic.where(annotation_type: 'fetch').where('data LIKE ?', "%id: #{id}%").last
+      d = DynamicAnnotation::Field.where(field_name: 'external_id', value: id).last
       assert_not_nil d
-      assert_equal @bot.id, d.annotated.user_id
-      assert_equal @bot, d.annotator
-      assert_equal statuses[i], d.annotated.last_status
+      assert_equal statuses[i], d.annotation.annotated.last_status
     end
+  end
+
+  test "should notify Airbrake if can't import a claim review" do
+    Airbrake.stubs(:configured?).returns(true)
+    Airbrake.expects(:notify).once
+    Bot::Fetch::Import.import_claim_review({}, 0, 0, random_string, {})
+    Airbrake.unstub(:configured?)
+    Airbrake.unstub(:notify)
   end
 end

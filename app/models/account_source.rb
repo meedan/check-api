@@ -39,5 +39,4 @@ class AccountSource < ActiveRecord::Base
     a = self.source.accounts.first
     self.source.cache_source_overridden if !a.nil? && a.id == self.account_id
   end
-
 end

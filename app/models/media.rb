@@ -12,7 +12,7 @@ class Media < ActiveRecord::Base
   before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
 
   def self.types
-    %w(Link Claim UploadedFile UploadedImage UploadedVideo UploadedAudio)
+    %w(Link Claim UploadedFile UploadedImage UploadedVideo UploadedAudio Blank)
   end
 
   validates_inclusion_of :type, in: Media.types
@@ -45,7 +45,7 @@ class Media < ActiveRecord::Base
   end
 
   def metadata
-    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')) rescue {} end
+    begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')).with_indifferent_access rescue {} end
   end
 
   def media_url

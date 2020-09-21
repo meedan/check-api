@@ -483,7 +483,7 @@ en:
   archive_pender_archive: Screenshot
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: Invalid status
+  workflow_status_is_not_valid: "Invalid status: '%{status}' (should be one of %{valid})"
   workflow_status_permission_error: Sorry, you are not allowed to change this status.
   blank_default_status_for_custom_verification_status: Please provide a default value
     for the custom verification statuses
@@ -718,7 +718,10 @@ en:
     the report is published
   fetch_bot_service_unsupported: Service unsupported
   task_options_must_be_array: Task options must be a list
-  fieldset_not_defined_by_team: Fieldset should be supported by the team
+  fieldset_not_defined_by_team: Fieldset should be supported by the workspace
+  replace_by_media_in_the_same_team: Sorry, you can only replace this item by another
+    item from the same workspace
+  replace_blank_media_only: Sorry, but for now you can only replace blank items
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
@@ -1111,6 +1114,8 @@ en:
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
     we could not verify your query. Learn more about the type of content we can verify
     at meedan.com
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: This
+    message is misleading
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
@@ -1229,9 +1234,14 @@ en:
     again for reaching out to India Today Fact Check.  Our team is currently working
     on your request and we will get back to you. Meanwhile, you can read our latest
     fact check stories here. https://www.indiatoday.in/fact-check
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: Sorry,
-    we're are not able to verify your request currently. It is not possible to fact-check
-    everything. Moreover, opinion, satire or vague claims are out of scope.
+  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: 'Sorry,
+    we''re are not able to verify your request currently. It is not possible to fact-check
+    everything. Moreover, opinion, satire or vague claims are out of scope. Please
+    visit our website to read our latest fact-checks: https://www.indiatoday.in/fact-check'
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: Thank
+    you for your message. We'd like some more information from you. Please share additional
+    images, urls, videos and any other information related to your question. That
+    will help us respond to you better.
   custom_message_status_false_infotagion: 'False'
   custom_message_status_misleading_infotagion: Misleading
   custom_message_status_true_infotagion: 'True'
@@ -1291,13 +1301,13 @@ en:
     you are looking for more information about COVID-19  type *COVID* (or \U0001F9A0)
     to get the latest facts about the novel coronavirus disease (COVID-19\n\nReply
     *menu* to go back to the *Main Menu*\""
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: "❌
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: "❌
     \ We are sorry, we can't assist with your query. \n\n\U0001F30D Africa Check focuses
     on claims relating to Africa, and which are presented as 'facts'. We do not fact-check
     people's opinions, and usually do not cover topics that have already been covered
     extensively before or by other media. We also cannot check claims made about the
     future. \n\n\U0001F4C4 Please view our submission guidelines here: africacheck.org/how-to-fact-check/submit-a-claim-to-check/\n\n\U0001F9D0
-    For tips and advice on how you can fact-check information, read our guides here:
+    \ For tips and advice on how you can fact-check information, read our guides here:
     africacheck.org/content-block/how-you-can-fact-check/ \n\n"
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: "\U0001F97A
     \ We're sorry, we weren't able to understand your submission or query. If you

@@ -630,6 +630,22 @@ class Bot::Smooch < BotUser
     api_instance = SmoochApi::ConversationApi.new(api_client)
     app_id = self.config['smooch_app_id']
     params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
+    # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
+    if text.to_s.match(/https?:\/\//)
+      params.merge!({
+        override: {
+          whatsapp: {
+            payload: {
+              preview_url: true,
+              type: 'text',
+              text: {
+                body: text
+              }
+            }
+          }
+        }
+      })
+    end
     message_post_body = SmoochApi::MessagePost.new(params)
     begin
       api_instance.post_message(app_id, uid, message_post_body)

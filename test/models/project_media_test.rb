@@ -180,6 +180,30 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not duplicate slack notification for custom slack list settings" do
+    Rails.stubs(:env).returns(:production)
+    t = create_team slug: 'test'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    u = create_user
+    p = create_project team: t
+    Sidekiq::Testing.fake! do
+      with_current_user_and_team(u, t) do
+        create_team_user team: t, user: u, role: 'owner'
+        SlackNotificationWorker.drain
+        assert_equal 0, SlackNotificationWorker.jobs.size
+        create_project_media team: t
+        assert_equal 1, SlackNotificationWorker.jobs.size
+        p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
+        p.save!
+        SlackNotificationWorker.drain
+        assert_equal 0, SlackNotificationWorker.jobs.size
+        create_project_media project: p.reload
+        assert_equal 1, SlackNotificationWorker.jobs.size
+        Rails.unstub(:env)
+      end
+    end
+  end
+
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher
@@ -212,6 +236,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should update project media embed data" do
+    create_verification_status_stuff
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
@@ -222,27 +247,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p1, media: m
     pm2 = create_project_media project: p2, media: m
     # fetch data (without overridden)
-    data = pm1.metadata
+    data = pm1.media.metadata
     assert_equal 'test media', data['title']
     assert_equal 'add desc', data['description']
     # Update media title and description for pm1
-    info = { title: 'Title A', description: 'Desc A' }.to_json
-    pm1.metadata = info
-    info = { title: 'Title AA', description: 'Desc AA' }.to_json
-    pm1.metadata = info
+    info = { title: 'Title A', content: 'Desc A' }
+    pm1.analysis = info
+    info = { title: 'Title AA', content: 'Desc AA' }
+    pm1.analysis = info
     # Update media title and description for pm2
-    info = { title: 'Title B', description: 'Desc B' }.to_json
-    pm2.metadata = info
-    info = { title: 'Title BB', description: 'Desc BB' }.to_json
-    pm2.metadata = info
+    info = { title: 'Title B', content: 'Desc B' }
+    pm2.analysis = info
+    info = { title: 'Title BB', content: 'Desc BB' }
+    pm2.analysis = info
     # fetch data for pm1
-    data = pm1.metadata
+    data = pm1.analysis
     assert_equal 'Title AA', data['title']
-    assert_equal 'Desc AA', data['description']
+    assert_equal 'Desc AA', data['content']
     # fetch data for pm2
-    data = pm2.metadata
+    data = pm2.analysis
     assert_equal 'Title BB', data['title']
-    assert_equal 'Desc BB', data['description']
+    assert_equal 'Desc BB', data['content']
   end
 
   test "should have annotations" do
@@ -290,13 +315,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     create_bot name: 'Check Bot'
+    create_verification_status_stuff
     pm = ProjectMedia.new
     pm.team_id = create_team.id
     pm.file = File.new(File.join(Rails.root, 'test', 'data', 'rails.png'))
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal 'rails', pm.metadata['title']
+    assert_equal 'rails', pm.analysis['title']
   end
 
   test "should set automatic title for images videos and audios" do
@@ -308,16 +334,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     team = create_team slug: 'workspace-slug'
     create_team_user team: team, user: bot, role: 'owner'
     create_team_user team: team, user: u, role: 'owner'
+    create_verification_status_stuff
     # test with smooch user
     with_current_user_and_team(bot, team) do
       pm = create_project_media team: team, media: m
       count = Media.where(type: 'UploadedImage').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
-      assert_equal pm.title, "image-#{team.slug}-#{count}"
+      assert_equal "image-#{team.slug}-#{count}", pm.title
       pm2 = create_project_media team: team, media: v
       count = Media.where(type: 'UploadedVideo').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
-      assert_equal pm2.title, "video-#{team.slug}-#{count}"
+      assert_equal "video-#{team.slug}-#{count}", pm2.title
       pm3 = create_project_media team: team, media: a
       count = Media.where(type: 'UploadedAudio').joins("INNER JOIN project_medias pm ON medias.id = pm.media_id")
       .where("pm.team_id = ?", team&.id).count
@@ -342,35 +369,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectMedia.create(params)
     end
-  end
-
-  test "should flag overridden attributes" do
-    t = create_team
-    p = create_project team: t
-    url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item", "title": "org_title", "description":"org_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm = create_project_media url: url, project: p
-    attributes = pm.overridden_metadata_attributes
-    attributes.each{|k| assert_not pm.overridden[k]}
-    pm.metadata = { title: 'title' }.to_json
-    assert pm.overridden['title']
-    attributes = pm.overridden_metadata_attributes
-    attributes.delete('title')
-    attributes.each{ |k| assert_not pm.overridden[k] }
-    pm.metadata = { description: 'description' }.to_json
-    assert pm.overridden['description']
-    attributes.delete('description')
-    attributes.each{ |k| assert_not pm.overridden[k] }
-    pm.metadata = { username: 'username' }.to_json
-    assert pm.overridden['username']
-    attributes.delete('username')
-    attributes.each{ |k| assert_not pm.overridden[k] }
-    # Claim media
-    pm = create_project_media quote: 'Claim', project: p
-    pm.metadata = { title: 'title', description: 'description', username: 'username' }.to_json
-    pm.overridden_metadata_attributes.each{ |k| assert_not pm.overridden[k] }
   end
 
   test "should create auto tasks" do
@@ -495,7 +493,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     create_team_user user: u, team: t, role: 'owner'
     at = create_annotation_type annotation_type: 'response'
-    ft2 = create_field_type field_type: 'text'
+    ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text')
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'note'
 
@@ -506,9 +504,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       f = create_flag annotated: pm
       s = pm.annotations.where(annotation_type: 'verification_status').last.load
       s.status = 'In Progress'; s.save!
-      e = create_metadata annotated: pm, title: 'Test'
-      info = { title: 'Foo' }.to_json; pm.metadata = info; pm.save!
-      info = { title: 'Bar' }.to_json; pm.metadata = info; pm.save!
+      info = { title: 'Foo' }; pm.analysis = info; pm.save!
+      info = { title: 'Bar' }; pm.analysis = info; pm.save!
       create_project_media_project project: p2, project_media: pm
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
@@ -516,14 +513,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
       r = DynamicAnnotation::Field.where(field_name: 'response').last; r.value = 'Test 2'; r.save!
       r = DynamicAnnotation::Field.where(field_name: 'note').last; r.value = 'Test 2'; r.save!
 
-      assert_equal ["create_dynamic", "create_dynamic", "create_comment", "create_tag", "create_dynamic", "create_dynamic", "create_projectmediaproject", "create_projectmediaproject", "update_dynamicannotationfield", "update_dynamicannotationfield", "create_task", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "update_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield"].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal ["create_comment", "create_dynamic", "create_dynamic", "create_dynamic", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_dynamicannotationfield", "create_projectmediaproject", "create_projectmediaproject", "create_tag", "create_task", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"].sort, pm.get_versions_log.map(&:event_type).sort
+      assert_equal 14, pm.get_versions_log_count
       c.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
       tg.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
       f.destroy
-      assert_equal 15, pm.get_versions_log_count
+      assert_equal 14, pm.get_versions_log_count
     end
   end
 
@@ -1054,31 +1051,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u1, t) do
       pm = create_project_media team: t, user: u1
       pm = ProjectMedia.find(pm.id)
-      info = { title: 'Title' }.to_json
-      pm.metadata = info
+      info = { title: 'Title' }
+      pm.analysis = info
       pm.save!
     end
 
     with_current_user_and_team(u2, t) do
       pm = ProjectMedia.find(pm.id)
-      info = { title: 'Title' }.to_json
-      pm.metadata = info
+      info = { title: 'Title' }
+      pm.analysis = info
       pm.save!
-    end
-
-    assert_nothing_raised do
-      metadata = pm.get_annotations('metadata').last.load
-      metadata.title_is_overridden?
     end
   end
 
   test "should get claim description only if it has been set" do
     RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
     assert_nil pm.reload.description
-    info = { description: 'Test 2' }.to_json
-    pm.metadata = info
+    info = { content: 'Test 2' }
+    pm.analysis = info
     pm.save!
     assert_equal 'Test 2', pm.reload.description
   end
@@ -1455,6 +1448,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should get metadata" do
+    create_verification_status_stuff
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'title' => 'Media Title', 'description' => 'Media Description' } }.to_json
@@ -1463,18 +1457,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media media: l
     assert_equal 'Media Title', l.metadata['title']
     assert_equal 'Media Description', l.metadata['description']
-    assert_equal 'Media Title', pm.metadata['title']
-    assert_equal 'Media Description', pm.metadata['description']
-    assert_difference "Dynamic.where(annotation_type: 'metadata').count" do
-      pm.metadata = { title: 'Project Media Title', description: 'Project Media Description' }.to_json
-      pm.save!
-    end
+    assert_equal 'Media Title', pm.media.metadata['title']
+    assert_equal 'Media Description', pm.media.metadata['description']
+    pm.analysis = { title: 'Project Media Title', content: 'Project Media Description' }
+    pm.save!
     l = Media.find(l.id)
     pm = ProjectMedia.find(pm.id)
     assert_equal 'Media Title', l.metadata['title']
     assert_equal 'Media Description', l.metadata['description']
-    assert_equal 'Project Media Title', pm.metadata['title']
-    assert_equal 'Project Media Description', pm.metadata['description']
+    assert_equal 'Project Media Title', pm.analysis['title']
+    assert_equal 'Project Media Description', pm.analysis['content']
   end
 
   test "should cache and sort by demand" do
@@ -1608,16 +1600,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache title" do
+    create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
-    pm.metadata = { title: 'Title 1' }.to_json
+    pm.analysis = { title: 'Title 1' }
     pm.save!
     assert pm.respond_to?(:title)
     assert_queries 0, '=' do
       assert_equal 'Title 1', pm.title
     end
     pm = create_project_media
-    pm.metadata = { title: 'Title 2' }.to_json
+    pm.analysis = { title: 'Title 2' }
     pm.save!
     assert_queries 0, '=' do
       assert_equal 'Title 2', pm.title
@@ -1628,16 +1621,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should cache description" do
+    create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media
-    pm.metadata = { description: 'Description 1' }.to_json
+    pm.analysis = { content: 'Description 1' }
     pm.save!
     assert pm.respond_to?(:description)
     assert_queries 0, '=' do
       assert_equal 'Description 1', pm.description
     end
     pm = create_project_media
-    pm.metadata = { description: 'Description 2' }.to_json
+    pm.analysis = { content: 'Description 2' }
     pm.save!
     assert_queries 0, '=' do
       assert_equal 'Description 2', pm.description
@@ -1990,4 +1984,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should not replace one project media by another if not from the same team" do
+    old = create_project_media team: create_team, media: Blank.create!
+    new = create_project_media team: create_team
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should not replace one project media by another if media is not blank" do
+    t = create_team
+    old = create_project_media team: t
+    new = create_project_media team: t
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should replace a blank project media by another project media" do
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      old = create_project_media team: t, media: Blank.create!
+      old_r = publish_report(old)
+      old_s = old.last_status_obj
+      new = create_project_media team: t
+      new_r = publish_report(new)
+      new_s = new.last_status_obj
+      old.replace_by(new)
+      assert_nil ProjectMedia.find_by_id(old.id)
+      assert_nil Annotation.find_by_id(new_s.id)
+      assert_nil Annotation.find_by_id(new_r.id)
+      assert_equal old_r, new.get_dynamic_annotation('report_design')
+      assert_equal old_s, new.get_dynamic_annotation('verification_status')
+    end
+  end
 end
