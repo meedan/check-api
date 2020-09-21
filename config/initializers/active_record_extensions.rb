@@ -93,10 +93,10 @@ module ActiveRecordExtensions
     Base64.encode64("#{self.class_name}/#{self.id}")
   end
 
-  def send_slack_notification
+  def send_slack_notification(event = nil)
     return if (self.respond_to?(:is_being_copied) && self.is_being_copied) || RequestStore.store[:skip_notifications]
     bot = Bot::Slack.default
-    bot.notify_slack(self) unless bot.nil?
+    bot.notify_slack(self, event) unless bot.nil?
   end
 
   def destroy_es_items(es_type, type='destroy_doc_nested', obj=nil)

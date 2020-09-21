@@ -16,6 +16,7 @@ class ProjectMediaProject < ActiveRecord::Base
   after_commit :update_index_in_elasticsearch, :add_remove_team_tasks, on: [:create, :update]
   after_destroy :update_index_in_elasticsearch
   after_commit :remove_related_team_tasks, on: :destroy
+  after_save :send_pmp_slack_notification
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
@@ -180,6 +181,18 @@ class ProjectMediaProject < ActiveRecord::Base
     { team: team, project: project, project_was: project_was, check_search_project_was: project_was&.check_search_project, ids: pm_graphql_ids }
   end
 
+  def slack_channel(event)
+    slack_events = self.project.setting(:slack_events)
+    slack_events ||= []
+    slack_events.map!(&:with_indifferent_access)
+    selected_event = slack_events.select{|i| i['event'] == event }.last
+    selected_event.blank? ? nil : selected_event['slack_channel']
+  end
+
+  def slack_notification_message
+    self.project_media.slack_notification_message
+  end
+
   private
 
   def project_is_not_archived
@@ -216,5 +229,9 @@ class ProjectMediaProject < ActiveRecord::Base
   def update_index_in_elasticsearch
     return if self.disable_es_callbacks
     self.update_elasticsearch_doc(['project_id'], { 'project_id' => self.project_media.projects.map(&:id) }, self.project_media)
+  end
+
+  def send_pmp_slack_notification
+    self.send_slack_notification('item_added')
   end
 end

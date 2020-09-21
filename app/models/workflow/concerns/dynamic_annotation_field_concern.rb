@@ -87,9 +87,10 @@ module Workflow
         def workflow_status_is_valid
           if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
             options = self.workflow_options_and_roles
-            value = self.value.to_sym
+            value = self.value.to_s
+            valid = options.keys.map(&:to_s)
 
-            errors.add(:base, I18n.t(:workflow_status_not_valid)) unless options.keys.map(&:to_sym).include?(value)
+            errors.add(:base, I18n.t(:workflow_status_is_not_valid, { status: value, valid: valid.join(', ') })) unless valid.include?(value)
           end
         end
 

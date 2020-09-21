@@ -53,7 +53,7 @@ module ProjectMediaCreators
   end
 
   def set_quote_metadata
-    self.metadata = ({ title: self.media.quote }.to_json) unless self.media.quote.blank?
+    self.analysis = { title: self.media.quote } unless self.media.quote.blank?
     set_title_for_files unless self.media.file.blank?
   end
 
@@ -67,7 +67,7 @@ module ProjectMediaCreators
       file_path = self.media.file.path
       title = File.basename(file_path, File.extname(file_path))
     end
-    self.metadata = ({ title: title }.to_json)
+    self.analysis = { title: title }
   end
 
   protected
@@ -117,7 +117,7 @@ module ProjectMediaCreators
   end
 
   def set_jsonld_response(task)
-    jsonld = self.metadata['raw']['json+ld'] if self.metadata.has_key?('raw')
+    jsonld = self.media.metadata['raw']['json+ld'] if self.media.metadata.has_key?('raw')
     unless jsonld.nil?
       value = self.get_response_value(jsonld, task)
       self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?

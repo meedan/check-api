@@ -66,17 +66,17 @@ class ElasticSearchTest < ActionController::TestCase
       m_ids << id["node"]["dbid"]
     end
     assert_equal [pm.id, pm2.id], m_ids.sort
-    pm2.metadata = {description: 'new_description'}.to_json
+    pm2.analysis = { content: 'new_description' }
     sleep 10
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, metadata } } } } }'
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
     post :create, query: query
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["dbid"]] = id["node"]["metadata"]
+      result[id["node"]["dbid"]] = id["node"]["description"]
     end
-    assert_equal 'new_description', result[pm2.id]["description"]
-    assert_equal 'search_desc', result[pm.id]["description"]
+    assert_equal 'new_description', result[pm2.id]
+    assert_equal 'search_desc', result[pm.id]
   end
 
   test "should search by dynamic annotation" do
@@ -168,7 +168,7 @@ class ElasticSearchTest < ActionController::TestCase
     result = CheckSearch.new({keyword: "search_title"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # overide title then search
-    pm.metadata = {title: 'search_title_a'}.to_json
+    pm.analysis = { title: 'search_title_a' }
     sleep 1
     result = CheckSearch.new({keyword: "search_title_a"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -177,10 +177,6 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm.id], result.medias.map(&:id)
     # search in description
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # search in account info
-    # Search with account name
-    result = CheckSearch.new({keyword: "username"}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # Search with account title
     result = CheckSearch.new({keyword: "Foo"}.to_json)
@@ -197,9 +193,6 @@ class ElasticSearchTest < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "search_desc"}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    # Search with account name
-    result = CheckSearch.new({keyword: "username"}.to_json)
     assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
     # search in quote (with and operator)
     m = create_claim_media quote: 'keyworda and keywordb'

@@ -14,6 +14,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
   field :lock_version, types.Int
   field :medias_count, types.Int
   field :accounts_count, types.Int
+  field :overridden, JsonStringType
 
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {
@@ -36,14 +37,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
   connection :collaborators, -> { UserType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.collaborators
-    }
-  end
-
-  field :overridden do
-    type JsonStringType
-
-    resolve ->(source, _args, _ctx) {
-      source.overridden
     }
   end
 

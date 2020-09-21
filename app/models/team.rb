@@ -106,7 +106,7 @@ class Team < ActiveRecord::Base
   end
 
   def recipients(requestor, role='owner')
-    owners = self.owners(role)
+    owners = self.owners(role, ['member'])
     recipients = []
     if !owners.empty? && !owners.include?(requestor)
       recipients = owners.map(&:email).reject{ |m| m.blank? }

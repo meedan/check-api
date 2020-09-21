@@ -21,7 +21,7 @@ class StatusTest < ActiveSupport::TestCase
   test "should have status" do
     create_verification_status_stuff
     assert_no_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
-      assert_raises NoMethodError do
+      assert_raises ActiveRecord::RecordInvalid do
         create_status(status: nil)
         create_status(status: '')
       end

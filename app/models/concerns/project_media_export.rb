@@ -4,7 +4,7 @@ module ProjectMediaExport
   extend ActiveSupport::Concern
 
   def media_content
-    self.media.quote || self.metadata['description']
+    self.media.quote || self.description
   end
 
   def tags_list
