@@ -496,7 +496,6 @@ ro:
   archive_pender_archive: Captură de ecran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: Starea nu este validă
   workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
     această stare
   blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
@@ -744,6 +743,11 @@ ro:
     cât timp raportul este publicat
   fetch_bot_service_unsupported: Serviciul nu are suport
   task_options_must_be_array: Opțiunile sarcinii trebuie să fie într-o listă
+  fieldset_not_defined_by_team: Setul de câmpuri trebuie să aibă suport în spațiul
+    de lucru
+  replace_by_media_in_the_same_team: Ne pare rău, puteți înlocui acest element numai
+    cu altul din același spațiu de lucru
+  replace_blank_media_only: Ne pare rău, dar puteți înlocui numai elemente goale deocamdată
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1040,7 +1044,7 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
   custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: Fals
   custom_message_status_misleading_infotagion: Înșelător
