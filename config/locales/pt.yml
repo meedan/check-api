@@ -495,7 +495,6 @@ pt:
   archive_pender_archive: Captura de tela
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: Status inválido
   workflow_status_permission_error: Desculpe, você não tem permissão para mudar este
     status.
   blank_default_status_for_custom_verification_status: Por favor, forneça um valor
@@ -1027,7 +1026,7 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
   custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: Não É Verdade
   custom_message_status_misleading_infotagion: Enganoso
