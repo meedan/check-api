@@ -12,7 +12,7 @@ namespace :check do
       n = ProjectMedia.count
 
       puts "[#{Time.now}] Starting removal of fields `recent_activity` and `recent_added`: #{n} project medias"
-      client = MediaSearch.gateway.client
+      client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
 

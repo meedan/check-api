@@ -61,7 +61,7 @@ class CheckSearch
     return @medias if @medias
     if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query
-      @ids = medias_get_search_result(query).map(&:annotated_id).uniq
+      @ids = medias_get_search_result(query).collect{|i| i['annotated_id']}.uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
     else
@@ -80,7 +80,7 @@ class CheckSearch
 
   def number_of_items(collection, associated_type)
     return collection.size if collection.is_a?(Array)
-    return MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
+    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
     user = User.current
     collection = collection.unscope(where: :id)
     collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
@@ -128,7 +128,7 @@ class CheckSearch
       conditions << { range: { sort_key => { sort_operator => sort_value } } }
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
-      MediaSearch.gateway.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: query })['count'].to_i
+      $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: query })['count'].to_i
     else
       condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
       get_pg_results_for_media.where(condition, pm.send(sort_key)).count
@@ -178,13 +178,13 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    @options['id'] ? [MediaSearch.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : MediaSearch.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['id'] ? [$repository.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
 
   def index_exists?
-    client = MediaSearch.gateway.client
+    client = $repository.client
     client.indices.exists? index: CheckElasticSearchModel.get_index_alias
   end
 

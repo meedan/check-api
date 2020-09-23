@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
     task migrate_custom_statuses: :environment do
-      client = MediaSearch.gateway.client
+      client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_alias,
         type: 'media_search',

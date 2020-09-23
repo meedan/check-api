@@ -1,7 +1,7 @@
 class MigrateElasticSearchForInactiveField < ActiveRecord::Migration
   def change
   	ids = ProjectMedia.where(inactive: true).map(&:id)
-  	client = MediaSearch.gateway.client
+  	client = $repository.client
     options = {
       index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',

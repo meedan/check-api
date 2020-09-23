@@ -2,11 +2,11 @@ module CheckElasticSearchModel
   extend ActiveSupport::Concern
 
   included do
-    include ActiveModel::Validations
-    include ActiveModel::Validations::Callbacks
-    include Elasticsearch::Persistence::Model
+    include Elasticsearch::Persistence::Repository
+    include Elasticsearch::Persistence::Repository::DSL
 
     index_name CheckElasticSearchModel.get_index_alias
+    document_type 'media_search'
 
     settings analysis: {
       char_filter: {
@@ -32,18 +32,15 @@ module CheckElasticSearchModel
         }
       }
     }
-
-    attribute :annotation_type, String, mapping: { type: 'text' }
-    before_validation :set_type
   end
 
-  def save!(options = {})
-    raise 'Sorry, this is not valid' unless self.save(options)
-    self.class.gateway.refresh_index! if CONFIG['elasticsearch_sync']
-  end
+  # def save!(options = {})
+  #   raise 'Sorry, this is not valid' unless self.save(options)
+  #   self.class.gateway.refresh_index! if CONFIG['elasticsearch_sync']
+  # end
 
   def self.get_index_name
-    client = MediaSearch.gateway.client
+    client = $repository.client
     index_name = self.get_index_name_prefix
     index_alias = self.get_index_alias
     if client.indices.exists_alias? name: index_alias
@@ -62,7 +59,7 @@ module CheckElasticSearchModel
   end
 
   def self.reindex_es_data
-    client = MediaSearch.gateway.client
+    client = $repository.client
     source_index = self.get_index_name
     target_index = "#{self.get_index_name_prefix}_#{Time.now.to_i}"
     index_alias = self.get_index_alias
@@ -84,16 +81,10 @@ module CheckElasticSearchModel
     end
   end
 
-  private
-
-  def set_type
-    self.annotation_type ||= self.class.name.parameterize
-  end
-
   module ClassMethods
     def create_index(index_name = nil, c_alias = true)
       index_name = "#{CheckElasticSearchModel.get_index_name_prefix}_#{Time.now.to_i}" if index_name.nil?
-      client = self.gateway.client
+      client = $repository.client
       settings = []
       mappings = []
       [MediaSearch].each do |klass|
@@ -102,17 +93,17 @@ module CheckElasticSearchModel
       end
       settings = settings.reduce(:merge)
       mappings = mappings.reduce(:merge)
-      client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
+      client.indices.create index: index_name, include_type_name: true, body: { settings: settings.to_hash, mappings: mappings.to_hash }
       client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 
     def delete_index(index_name = CheckElasticSearchModel.get_index_name)
-      client = self.gateway.client
+      client = $repository.client
       client.indices.delete index: index_name if client.indices.exists? index: index_name
     end
 
     def migrate_es_data(source_index, target_index)
-      client = self.gateway.client
+      client = $repository.client
       MediaSearch.delete_index target_index
       MediaSearch.create_index(target_index, false)
       client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
@@ -121,15 +112,11 @@ module CheckElasticSearchModel
     def all_sorted(order = 'asc', field = 'created_at')
       type = self.name.parameterize
       query = type === 'annotation' ? { match_all: {} } : { bool: { must: [{ match: { annotation_type: type } }] } }
-      self.search(query: query, sort: [{ field => { order: order }}, '_score'], size: 10000).results
+      $repository.search(query: query, sort: [{ field => { order: order }}, '_score'], size: 10000).results
     end
 
     def length
-      client = MediaSearch.gateway.client
-      type = self.name.parameterize
-      result = client.count index: CheckElasticSearchModel.get_index_alias, type: 'media_search',
-                      body: { query: { bool: { must: [{ match: { annotation_type: type } }] } } }
-      result['count']
+      $repository.count
     end
   end
 end

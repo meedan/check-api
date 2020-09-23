@@ -127,7 +127,7 @@ class Project < ActiveRecord::Base
   end
 
   def update_elasticsearch_doc_team_bg(_options)
-    client = MediaSearch.gateway.client
+    client = $repository.client
     options = {
       index: CheckElasticSearchModel.get_index_alias,
       type: 'media_search',

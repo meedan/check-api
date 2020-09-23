@@ -298,17 +298,17 @@ class ProjectMedia < ActiveRecord::Base
   def add_extra_elasticsearch_data(ms)
     m = self.media
     unless m.nil?
-      ms.associated_type = m.type
-      ms.accounts = self.set_es_account_data unless m.account.nil?
+      ms.attributes[:associated_type] = m.type
+      ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
       data = self.analysis || {}
-      ms.title = data['title'].blank? ? self.media.metadata['title'] : data['title']
-      ms.description = data['content'].blank? ? self.media.metadata['description'] : data['content']
-      ms.quote = m.quote
+      ms.attributes[:title] = data['title'].blank? ? self.media.metadata['title'] : data['title']
+      ms.attributes[:description] = data['content'].blank? ? self.media.metadata['description'] : data['content']
+      ms.attributes[:quote] = m.quote
     end
-    ms.verification_status = self.last_status
+    ms.attributes[:verification_status] = self.last_status
     # set fields with integer value
     fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']
-    fields_i.each{ |f| ms.send("#{f}=", self.send(f).to_i) }
+    fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
   end
 
   # private
