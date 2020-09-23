@@ -658,13 +658,18 @@ module SampleData
   end
 
   def create_media_search(options = {})
-    m = MediaSearch.new
-    { annotated: create_valid_media, context: create_project }.merge(options).each do |key, value|
-      m.send("#{key}=", value) if m.respond_to?("#{key}=")
+    ms = ElasticItem.new
+    pm = options[:project_media] || create_project_media
+    options[:id] = get_es_id(pm)
+    options[:annotated_id] = pm.id
+    options[:annotated_type] = pm.class.name
+    ms = ElasticItem.new
+    options.each do |key, value|
+      ms.attributes[key] = value
     end
-    m.save!
+    $repository.save(ms)
     sleep 1
-    m
+    $repository.find(options[:id])
   end
 
   def create_annotation_type(options = {})

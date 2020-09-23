@@ -1260,7 +1260,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new_account = m.reload.account
       assert_not_equal a, new_account
       assert_nil Account.where(id: a.id).last
-      result = MediaSearch.find(get_es_id(pm)).accounts
+      result = $repository.find(get_es_id(pm)).accounts
       assert_equal 1, result.size
       assert_equal result.first['id'], new_account.id
     end
@@ -1486,10 +1486,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
     assert_queries(0, '=') { assert_equal(2, pm2.demand) }
     # test sorting
-    result = MediaSearch.find(ms_pm)
-    assert_equal result.demand, 1
-    result = MediaSearch.find(ms_pm2)
-    assert_equal result.demand, 2
+    result = $repository.find(ms_pm)
+    assert_equal result['demand'], 1
+    result = $repository.find(ms_pm2)
+    assert_equal result['demand'], 2
     result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json)
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
     result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json)
@@ -1650,34 +1650,34 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: team
     pm = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal 0, result.linked_items_count
-    assert_equal pm.created_at.to_i, result.last_seen
+    result = $repository.find(get_es_id(pm))
+    assert_equal 0, result['linked_items_count']
+    assert_equal pm.created_at.to_i, result['last_seen']
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal t, result.last_seen
+    result = $repository.find(get_es_id(pm))
+    assert_equal t, result['last_seen']
 
     pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
     r = create_relationship source_id: pm.id, target_id: pm2.id
     t = pm2.created_at.to_i
-    result = MediaSearch.find(get_es_id(pm))
-    result2 = MediaSearch.find(get_es_id(pm2))
-    assert_equal 1, result.linked_items_count
-    assert_equal 1, result2.linked_items_count
-    assert_equal t, result.last_seen
+    result = $repository.find(get_es_id(pm))
+    result2 = $repository.find(get_es_id(pm2))
+    assert_equal 1, result['linked_items_count']
+    assert_equal 1, result2['linked_items_count']
+    assert_equal t, result['last_seen']
 
     t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal t, result.last_seen
+    result = $repository.find(get_es_id(pm))
+    assert_equal t, result['last_seen']
 
     r.destroy!
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal t0, result.last_seen
-    result = MediaSearch.find(get_es_id(pm))
-    result2 = MediaSearch.find(get_es_id(pm2))
-    assert_equal 0, result.linked_items_count
-    assert_equal 0, result2.linked_items_count
+    result = $repository.find(get_es_id(pm))
+    assert_equal t0, result['last_seen']
+    result = $repository.find(get_es_id(pm))
+    result2 = $repository.find(get_es_id(pm2))
+    assert_equal 0, result['linked_items_count']
+    assert_equal 0, result2['linked_items_count']
   end
 
   test "should get team" do

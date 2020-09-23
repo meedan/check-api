@@ -319,7 +319,7 @@ class GraphqlController4Test < ActionController::TestCase
 
   def search_results(filters)
     sleep 1
-    MediaSearch.search(query: { bool: { must: [{ term: filters }, { term: { team_id: @t.id } }] } }).results.map(&:annotated_id).sort
+    $repository.search(query: { bool: { must: [{ term: filters }, { term: { team_id: @t.id } }] } }).results.collect{|i| i['annotated_id']}.sort
   end
 
   def assert_search_finds_all(filters)

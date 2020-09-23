@@ -15,6 +15,8 @@ module CheckElasticSearch
     ms.attributes[:annotated_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
+    # Intial nested objects with []
+    ['accounts', 'comments', 'tags', 'dynamics'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -33,16 +35,13 @@ module CheckElasticSearch
     data = get_elasticsearch_data(options[:data])
     fields = { 'updated_at' => Time.now.utc }
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
-    # client = $repository.client
-    # client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
-    fields['id'] = options[:doc_id]
-    $repository.update fields
+    client = $repository.client
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
   end
 
   def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    # ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
-    ElasticSearchWorker.new.perform(YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
   end
 
   def create_update_nested_obj_bg(options)
@@ -62,12 +61,9 @@ module CheckElasticSearch
       source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
-    # script = { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } }
-    # fields = { id: options[:doc_id], script: script }
-    $repository.update fields
-    # client = $repository.client
-    # client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-    #         body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
+    client = $repository.client
+    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
+            body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
