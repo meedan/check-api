@@ -11,7 +11,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_difference 'MediaSearch.length' do
       m = create_media_search
     end
-    assert_equal 'mediasearch', m.annotation_type
   end
 
   test "should search for parent items only" do
@@ -39,17 +38,16 @@ class ElasticSearch5Test < ActionController::TestCase
     MediaSearch.create_index(target_index, false)
     m = create_media_search
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
-    repository = Elasticsearch::Persistence::Repository.new url: url
-    repository.type = 'media_search'
-    repository.index = source_index
+    client = Elasticsearch::Client.new(url: url)
+    repository = MediaSearch.new(client: client, index_name: source_index, type: 'media_search')
     results = repository.search(query: { match_all: { } }, size: 10000)
     assert_equal 1, results.size
-    repository.index = target_index
-    results = repository.search(query: { match_all: { } }, size: 10000)
+    repository2 = MediaSearch.new(client: client, index_name: target_index, type: 'media_search')
+    results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 0, results.size
     MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
-    results = repository.search(query: { match_all: { } }, size: 10000)
+    results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 1, results.size
     # test re-index
     CheckElasticSearchModel.reindex_es_data

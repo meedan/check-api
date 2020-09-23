@@ -1260,7 +1260,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new_account = m.reload.account
       assert_not_equal a, new_account
       assert_nil Account.where(id: a.id).last
-      result = $repository.find(get_es_id(pm)).accounts
+      result = $repository.find(get_es_id(pm))['accounts']
       assert_equal 1, result.size
       assert_equal result.first['id'], new_account.id
     end
