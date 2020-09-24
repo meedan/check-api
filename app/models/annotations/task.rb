@@ -240,6 +240,10 @@ class Task < ActiveRecord::Base
     self.pending_suggestions_count -= 1 if self.pending_suggestions_count.to_i > 0
   end
 
+  def show_in_browser_extension
+    self.team_task_id && !!TeamTask.find_by_id(self.team_task_id.to_i)&.show_in_browser_extension
+  end
+
   def move_up
     self.move(-1)
   end
