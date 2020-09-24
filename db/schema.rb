@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200915011421) do
+ActiveRecord::Schema.define(version: 20200923180915) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -303,19 +303,20 @@ ActiveRecord::Schema.define(version: 20200915011421) do
   add_index "tag_texts", ["text", "team_id"], name: "index_tag_texts_on_text_and_team_id", unique: true, using: :btree
 
   create_table "team_tasks", force: :cascade do |t|
-    t.string   "label",                       null: false
-    t.string   "task_type",                   null: false
+    t.string   "label",                                     null: false
+    t.string   "task_type",                                 null: false
     t.text     "description"
     t.text     "options"
     t.text     "project_ids"
     t.text     "mapping"
-    t.boolean  "required",    default: false
-    t.integer  "team_id",                     null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.boolean  "required",                  default: false
+    t.integer  "team_id",                                   null: false
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
     t.string   "json_schema"
-    t.integer  "order",       default: 0
-    t.string   "fieldset",    default: "",    null: false
+    t.integer  "order",                     default: 0
+    t.string   "fieldset",                  default: "",    null: false
+    t.boolean  "show_in_browser_extension", default: true,  null: false
   end
 
   add_index "team_tasks", ["fieldset"], name: "index_team_tasks_on_fieldset", using: :btree
