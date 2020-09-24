@@ -487,7 +487,6 @@ ar:
   archive_pender_archive: لقطة للشاشة
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: حالة غير صالحة
   workflow_status_permission_error: عذراً ، لا يمكنكم تغيير هذه الحالة.
   blank_default_status_for_custom_verification_status: يرجى إضافة قيمة افتراضية لحالات
     التحقق الخاصة
@@ -715,6 +714,10 @@ ar:
     منشور
   fetch_bot_service_unsupported: الخدمة غير مدعومة
   task_options_must_be_array: خيارات المهمة يجب أن تكون على شكل قائمة
+  fieldset_not_defined_by_team: مجموعة الحقول يجب أن تكون مدعومة من قبل مساحة العمل
+  replace_by_media_in_the_same_team: عذراً ، لا يمكنك استبدال هذا العنصر إلا بعنصر
+    آخر من نفس مساحة العمل
+  replace_blank_media_only: عذراً ، يمكنك استبدال العناصر الخالية فقط في الوقت الحالي
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1000,7 +1003,7 @@ ar:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
   custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: مزيف
   custom_message_status_misleading_infotagion: مُضَلِّل
