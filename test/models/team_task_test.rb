@@ -540,4 +540,13 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal [t1, t3], t.ordered_team_tasks('tasks')
     [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
   end
+
+  test "should show or hide in browser extension" do
+    tt = create_team_task show_in_browser_extension: true
+    t = create_task team_task_id: tt.id
+    assert t.show_in_browser_extension
+    tt = create_team_task show_in_browser_extension: false
+    t = create_task team_task_id: tt.id
+    assert !t.show_in_browser_extension
+  end
 end

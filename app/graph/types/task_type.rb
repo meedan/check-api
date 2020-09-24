@@ -58,9 +58,12 @@ TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', 
   end
 
   field :suggestions_count, types.Int
+
   field :pending_suggestions_count, types.Int
 
   field :fieldset, types.String
+
+  field :show_in_browser_extension, types.Boolean
 
   connection :log, -> { VersionType.connection_type } do
     resolve ->(task, _args, _ctx) {

@@ -508,7 +508,6 @@ fr:
   archive_pender_archive: Capture d’écran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: L’état est invalide
   workflow_status_permission_error: Désolé, vous n’êtes pas autorisé à modifier cet
     état.
   blank_default_status_for_custom_verification_status: Veuillez indiquer une valeur
@@ -758,6 +757,12 @@ fr:
     alors que le rapport est publié
   fetch_bot_service_unsupported: Le service n’est pas pris en charge
   task_options_must_be_array: Les options de la tâche doivent être une liste
+  fieldset_not_defined_by_team: "« Fieldset » devrait être pris en charge par l’espace
+    de travail"
+  replace_by_media_in_the_same_team: Désolé, vous ne pouvez remplacer cet article
+    que par un autre article du même espace de travail
+  replace_blank_media_only: Désolé, mais vous ne pouvez pour l’instant que remplacer
+    que des articles vides
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1089,7 +1094,7 @@ fr:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_ee632aff2a15cbf5974d219b0c7b7280_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
   custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: Faux
   custom_message_status_misleading_infotagion: Trompeur
