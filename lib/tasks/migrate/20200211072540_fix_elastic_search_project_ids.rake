@@ -1,6 +1,7 @@
 namespace :check do
   namespace :migrate do
     task fix_elastic_search_project_ids: :environment do
+      started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
       client = MediaSearch.gateway.client
       pmps_all = []
@@ -36,6 +37,8 @@ namespace :check do
         options[:body] = body
         client.update_by_query options
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
