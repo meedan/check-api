@@ -508,6 +508,8 @@ fr:
   archive_pender_archive: Capture d’écran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
+  workflow_status_is_not_valid: L’état %{status} est invalide (devrait être un de
+    %{valid})
   workflow_status_permission_error: Désolé, vous n’êtes pas autorisé à modifier cet
     état.
   blank_default_status_for_custom_verification_status: Veuillez indiquer une valeur
@@ -637,7 +639,7 @@ fr:
       cet espace de travail.
     invalid_project: La liste est invalide %{project}
     invalid_user: L’auteur auteur est invalide %{user}
-    invalid_status: État invalide %{status}
+    invalid_status: L’état %{status} est invalide
     blank_user: Le champ Auteur ne peut pas être vide
     blank_annotator: Le champ Annotateur ne peut pas être vide
     blank_project: Le champ Liste ne peut pas être vide

@@ -448,8 +448,14 @@ hi:
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: हम
     से संपर्क करने के लिए धन्यवाद. आपने जो मैसेज हमें भेजा है हम उसकी जांच करने में
     लगे हैं. रिपोर्ट तैयार होते ही आपको भेज दी जाएगी.
-  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
-  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: 'यह
+    हेल्पलाइन नंबर फैक्ट-चेक के लिए है। यदि आपको किसी संदेश, चित्र या वीडियो पर कोई
+    संदेह है और उसके पीछे की सच्चाई जानना चाहते हैं, तो हमें इस नंबर पर भेजें। हमारे
+    ताज़ा फैक्ट-चेक पढ़ने के लिए कृपया हमारी वेबसाइट पर जाएँ : https://www.aajtak.in/fact-check '
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: 'आपके
+    संदेश के लिए धन्यवाद। हम आपसे कुछ और जानकारी चाहते हैं। कृपया अपने सवाल से जुड़े
+    हुए और फोटो, यूआरएल, वीडियो एवं इत्यादि जानकारी हमें भेजें। इससे हमे आपको बेहतर
+    जवाब देने में मदद मिलेगी । '
   custom_message_status_false_infotagion: 'ग़लत '
   custom_message_status_misleading_infotagion: 'भ्रामक '
   custom_message_status_true_infotagion: 'सही '

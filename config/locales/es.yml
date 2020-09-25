@@ -143,6 +143,7 @@ es:
             slug:
               slug_format: acepta solo letras, números y guiones
       messages:
+        record_invalid: "%{errors}"
         improbable_phone: 'es un número inválido '
         too_short:
           one: es demasiado corta (es mínimo 1 caracter)
@@ -491,6 +492,8 @@ es:
   archive_pender_archive: Captura de pantalla
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'Estado no válido: ''%{status}'' (debe ser uno de
+    %{valid})'
   workflow_status_permission_error: Lo sentimos, no tienes autorización para cambiar
     este estado.
   blank_default_status_for_custom_verification_status: Por favor proporciona un valor
@@ -664,6 +667,7 @@ es:
     palabras clave
   team_rule_select_type: Seleccionar tipo
   team_rule_select_language: 'Selecciona el idioma '
+  team_rule_select_user: Selecciona un(a) colaborador(a)
   team_rule_tagged_as: Ítem etiquetado como
   team_rule_select_tag: Seleccionar etiqueta
   team_rule_select_status: Seleccionar estado
@@ -700,6 +704,13 @@ es:
   team_rule_item_language_is: El idioma de ítem es
   team_rule_item_user_is: El ítem fue creado por
   team_rule_item_is_read: Ítem leído
+  team_rule_field_from_fieldset_tasks_value_is: La tarea tiene una respuesta específica
+  team_rule_field_from_fieldset_metadata_value_is: El metadato tiene un valor específico
+  team_rule_select_field_metadata: Seleccionar metadato
+  team_rule_select_field_value_metadata: Seleccionar valor
+  team_rule_select_field_tasks: Seleccionar tarea
+  team_rule_select_field_value_tasks: Seleccionar respuesta
+  team_rule_item_is_assigned_to_user: Ítem es asignado a
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -729,6 +740,11 @@ es:
   cant_change_status_if_item_is_published: Lo sentimos, no puede cambiar el estado
     mientras se publica el informe
   fetch_bot_service_unsupported: Servicio no soportado
+  task_options_must_be_array: Las opciones de tareas deben ser una lista
+  replace_by_media_in_the_same_team: Lo sentimos, solo puedes reemplazar este ítem
+    por otro ítem de la misma área de trabajo
+  replace_blank_media_only: Lo sentimos, pero por ahora solo puedes reemplazar ítems
+    en blanco
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
