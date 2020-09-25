@@ -487,6 +487,8 @@ ar:
   archive_pender_archive: لقطة للشاشة
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'حالة غير صالحة: ''%{status}'' (يجب أن تكون واحدة
+    من %{valid})'
   workflow_status_permission_error: عذراً ، لا يمكنكم تغيير هذه الحالة.
   blank_default_status_for_custom_verification_status: يرجى إضافة قيمة افتراضية لحالات
     التحقق الخاصة
@@ -714,10 +716,11 @@ ar:
     منشور
   fetch_bot_service_unsupported: الخدمة غير مدعومة
   task_options_must_be_array: خيارات المهمة يجب أن تكون على شكل قائمة
-  fieldset_not_defined_by_team: مجموعة الحقول يجب أن تكون مدعومة من قبل مساحة العمل
-  replace_by_media_in_the_same_team: عذراً ، لا يمكنك استبدال هذا العنصر إلا بعنصر
-    آخر من نفس مساحة العمل
-  replace_blank_media_only: عذراً ، يمكنك استبدال العناصر الخالية فقط في الوقت الحالي
+  fieldset_not_defined_by_team: يجب أن تكون مجموعة الحقول مدعومة من قبل مساحة العمل
+  replace_by_media_in_the_same_team: عذراً، لا يمكن استبدال هذا العنصر إلا بآخر من
+    نفس مساحة العمل
+  replace_blank_media_only: 'عذراً، في الوقت الحالي لا يمكنكم إلّا استبدال العناصر
+    الخالية  '
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
