@@ -34,11 +34,6 @@ module CheckElasticSearchModel
     }
   end
 
-  # def save!(options = {})
-  #   raise 'Sorry, this is not valid' unless self.save(options)
-  #   self.class.gateway.refresh_index! if CONFIG['elasticsearch_sync']
-  # end
-
   def self.get_index_name
     client = $repository.client
     index_name = self.get_index_name_prefix
