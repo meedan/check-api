@@ -70,5 +70,4 @@ class MediaSearch
 
     indexes :demand, { type: 'long' }
   end
-  
 end
