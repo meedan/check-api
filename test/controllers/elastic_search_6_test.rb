@@ -44,8 +44,8 @@ class ElasticSearch6Test < ActionController::TestCase
         }
       }
       pms = []
-      MediaSearch.search(search).results.each do |r|
-        pms << r.annotated_id if r.annotated_type == 'ProjectMedia'
+      $repository.search(search).results.each do |r|
+        pms << r['annotated_id'] if r['annotated_type'] == 'ProjectMedia'
       end
       assert_equal orders[order.to_sym].map(&:id), pms
     end
@@ -85,12 +85,12 @@ class ElasticSearch6Test < ActionController::TestCase
     s2 = create_dynamic_annotation annotation_type: 'smooch', annotated: pm, disable_es_callbacks: false
     sleep 3
 
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal [2], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
     s1.destroy
     sleep 1
 
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
   end
 

@@ -5,7 +5,7 @@ namespace :check do
       fields = {}
       args.extras.each{ |field| fields[field] = 0 if ProjectMedia.new.respond_to?(field) }
       index_alias = CheckElasticSearchModel.get_index_alias
-      client = MediaSearch.gateway.client
+      client = $repository.client
       ProjectMedia.find_in_batches(:batch_size => 5000) do |pms|
         es_body = []
         pms.each do |pm|
@@ -13,7 +13,7 @@ namespace :check do
           doc_id = pm.get_es_doc_id(pm)
           data = {}
           fields.each{ |k, _v| data[k] = pm.send(k).to_i }
-          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
+          es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
         end
         client.bulk body: es_body unless es_body.blank?
       end

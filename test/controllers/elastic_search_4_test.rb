@@ -139,8 +139,8 @@ class ElasticSearch4Test < ActionController::TestCase
     result = CheckSearch.new({tags: ['iron']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort
     # load all items sorted
-    assert_equal [pm.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
-    assert_equal [pm2.id, pm.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
+    assert_equal [pm.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x['annotated_type'] == 'ProjectMedia'}.collect{|i|i['annotated_id'].to_i}
+    assert_equal [pm2.id, pm.id], MediaSearch.all_sorted('desc').keep_if {|x| x['annotated_type'] == 'ProjectMedia'}.collect{|i|i['annotated_id'].to_i}
   end
 
   test "should search for hashtag" do

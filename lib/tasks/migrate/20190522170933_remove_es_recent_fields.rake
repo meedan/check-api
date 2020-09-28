@@ -12,14 +12,14 @@ namespace :check do
       n = ProjectMedia.count
 
       puts "[#{Time.now}] Starting removal of fields `recent_activity` and `recent_added`: #{n} project medias"
-      client = MediaSearch.gateway.client
+      client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
 
       ProjectMedia.find_each do |pm|
         doc_id = pm.get_es_doc_id
         source = "ctx._source.updated_at=params.updated_at;ctx._source.remove('recent_added');ctx._source.remove('recent_activity')"
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id,
+        es_body << { update: { _index: index_alias, _id: doc_id,
                  data: { script: { source: source, params: { updated_at: Time.now.utc } } } } }
 
         i += 1

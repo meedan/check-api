@@ -1,7 +1,7 @@
 class CreateEmptyIndexForElasticsearch6 < ActiveRecord::Migration
   def change
   	MediaSearch.delete_index
-    client = MediaSearch.gateway.client
+    client = $repository.client
     index_a = CheckElasticSearchModel.get_index_alias
     if client.indices.exists? index: index_a
     	say "You must delete the existing index or alias [#{CheckElasticSearchModel.get_index_alias}] before running a migration."

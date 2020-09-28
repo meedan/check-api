@@ -51,7 +51,7 @@ namespace :check do
     desc "re-index comments for smooch bot medias"
     task reindex_smooch_medias_comments: :environment do
       index_alias = CheckElasticSearchModel.get_index_alias
-      client = MediaSearch.gateway.client
+      client = $repository.client
       smooch_bot = BotUser.where(login: 'smooch').last
       ProjectMedia.where(user_id: smooch_bot.id).find_in_batches(:batch_size => 2500) do |pms|
         es_body = []
@@ -60,7 +60,7 @@ namespace :check do
           comments = pm.annotations('comment')
           doc_id = pm.get_es_doc_id(pm)
           fields = { 'comments' => comments }
-          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end
         client.bulk body: es_body unless es_body.blank?
       end
