@@ -2,14 +2,14 @@
 ar:
   statuses:
     ids:
-      verification_status: التحقق
-      task_status: المهمة
+      verification_status: التحقّق
+      task_status: المهمّة
     task:
       unresolved:
-        label: لم يتم انجازها
-        description: 'افتراضية : لم يتم انجازها بعد'
+        label: لم يتم البت فيها
+        description: الوضع الافتراضي، لم يتم البت بعد
       resolved:
-        label: تم إنجازها
+        label: 'تمّ البت فيها '
         description: تم إنجاز المهمة
       cant_be_resolved:
         label: لا يمكن انجازها
@@ -17,13 +17,13 @@ ar:
     media:
       undetermined:
         label: لم يبدأ بعد
-        description: حالة المصدر الأولية، أُضيف تواً، لم يتم البدء في معالجته
+        description: 'افتراضيّاً، أُضيف تواً، لم يبدأ العمل '
       not_applicable:
         label: غير محسوم
         description: لا يمكن استنتاج الحالة باستخدام الدلائل المتاحة
       in_progress:
         label: قيد التقدم
-        description: بدأ العمل على العنصر ولم تتم الترجمة بعد
+        description: بدأ العمل على العنصر، لكن تتم الترجمة بعد
       not_true:
         label: مزيف
         description: 'النتيجة :  محتوى العنصر غير صحيح'
@@ -32,13 +32,13 @@ ar:
         description: 'النتيجة : محتوى العنصر صحيح'
       pending:
         label: مُعَلَّق
-        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في معالجته
+        description: 'افتراضيّاً، أُضيف تواً، لم يبدأ العمل '
       translated:
         label: مُتَرجَم
         description: تمت الترجمة ولم تبدأ المراجعة بعد
       ready:
         label: جاهز
-        description: تمت المراجعة والعنصر جاهز للنشر
+        description: تمت المراجعة والموافقة على النّشر
       error:
         label: خطأ
       'false':
@@ -52,14 +52,14 @@ ar:
       out_of_scope:
         label: خارج النطاق
       junk:
-        label: سخام
+        label: مهملات
       unstarted:
         label: لم يبدأ بعد
-        description: الحالة الأولية، أُضيف تواً، لم يتم البدء في معالجته
+        description: 'افتراضيّاً، أُضيف تواً، لم يبدأ العمل '
     source:
       undetermined:
         label: لم يبدأ بعد
-        description: حالة المصدر الأولية، أُضيف تواً، لم يتم البدء في معالجته
+        description: 'افتراضيّاً، أُضيف تواً، لم يبدأ العمل '
       credible:
         label: موثوق به
         description: 'النتيجة: هذا المصدر موثوق به'
@@ -74,21 +74,21 @@ ar:
         description: 'النتيجة: هذا مصدر ذو هوية مزيفة على الانترنت'
   errors:
     messages:
-      invalid_password: كلمة المرور غير صالحة
+      invalid_password: كلمة السّر غير صالحة
       invalid_qrcode: رمز التحقق غير صالح
       extension_white_list_error: 'لا يمكن إستخدام امتداد الملف  %{extension} ، الامتدادات
         المسموحة هي: %{allowed_types}'
       invalid_size: لا بد أن تكون الصورة بين %{min_width}x%{min_height} و %{max_width}x%{max_height}
         بكسل
       mini_magick_processing_error: 'عذراً ، لم ننجح في معالجة الصورة. الخطأ هو: %{e}'
-      annotation_mandatory_fields: من فضلك حدد كل الحقول الإجبارية
+      annotation_mandatory_fields: يرجى تحديد جميع الحقول المطلوبة
       annotation_type_does_not_exist: غير موجود
-      invalid_attribution: إسناد غير صالح
+      invalid_attribution: النّسب غير صالح
       must_resolve_required_tasks_first: يجب حل المهمات المطلوبة أولا
       image_too_large: عذراً ، لا ندعم صور أكبر من %{max_size}.
       video_too_large: عذراً ، لا ندعم فيديوهات أكبر من %{max_size}.
-      audio_too_large: عذراً ، لا ندعم صوتيات أكبر من %{max_size}.
-      pender_conflict: هذا الرابط قيد المعالجة بالفعل. من فضلك حاول مجدداً بعد بضع
+      audio_too_large: عذراً ، لا ندعم ملفّات صوتيّة أكبر من %{max_size}.
+      pender_conflict: هذا الرابط قيد المعالجة بالفعل. يرجى المحاولة مجدداً بعد بضع
         ثوانٍ.
       pender_url_invalid: هذا الرابط غير صالح.
       pender_url_unsafe: هذا الرابط غير آمن.
@@ -105,9 +105,9 @@ ar:
       comment: ملحوظة
       project_media: العنصر
       media: عنصر
-      project: القائمة
+      project: قائمة
       team: مساحة العمل
-      user: مستخدم
+      user: المستخدم(ة)
       source: مصدر
       project_source: المصدر
     attributes:
@@ -128,7 +128,7 @@ ar:
       comment:
         text: ملحوظة
       user:
-        reset_password_token: رمز إعادة تعيين كلمة المرور
+        reset_password_token: رمز إعادة تعيين كلمة السّر
         email: البريد الإلكتروني
     errors:
       models:
@@ -141,6 +141,7 @@ ar:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
       messages:
+        record_invalid: "%{errors}"
         improbable_phone: رقم غير صالح
         too_short:
           zero: قصير جداً (الحد الأدنى %{count} حروف)
@@ -154,14 +155,14 @@ ar:
   invalid_media_item: العنصر غير صالح
   invalid_default_status_for_custom_verification_status: المُعَرِّف لحالة التحقق الإفتراضية
     غير صالح
-  invalid_active_status_for_custom_verification_status: المُعَرِّف لحالة التحقق النشطة
-    غير صالح
-  invalid_label_for_custom_verification_status: عنوان حالة التحقق مطلوب
+  invalid_active_status_for_custom_verification_status: مُعَرِّف الحالة الفعّالة غير
+    صالح
+  invalid_label_for_custom_verification_status: علامة الحالة مطلوبة
   invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف
     والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة غير
-    صالحة. المتوقع هو صيغات صحيحة لكل من: عنوان ، مُعَرِّف ، وصف ، أسلوب.'
-  mail_account_confirmation: تأكيد حساب %{app_name}
+    صالحة. المتوقع هو صيغات صحيحة لكل من: العلامة، المُعَرِّف ، الوصف ، والأسلوب.'
+  mail_account_confirmation: تأكيد الحساب %{app_name}
   slack:
     fields:
       assigned: مُكَلَّف إلى
@@ -170,11 +171,11 @@ ar:
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
-      related_to: مرتبط مع
+      related_to: 'ذي صلة مع '
       view_button: عرض %{type} في %{app}
       project_source: المصدر
-      project_media: العنصر
-      attribution: أجابها
+      project_media: 'الإجابة من '
+      attribution: تمّت الإجابة بواسطة
     messages:
       task_create: قام %{user} (%{role} في %{team}) بإنشاء مهمة
       task_edit: قام %{user} (%{role} في %{team}) بتحرير مهمة
@@ -201,30 +202,30 @@ ar:
       user_member: إنضم %{user} الى مساحة العمل %{team}
       user_requested: طلب %{user} الانضمام الى مساحة العمل %{team}
       user_invited: تمت دعوة %{user} الى مساحة العمل %{team}
-      user_banned: تم نبذ %{user} من مساحة العمل %{team}
-  mail_view_welcome: مرحباً بك في %{app_name}
-  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! من فضلك
-    أكد عنوان بريدك الإلكتروني بالضغط على الرابط التالي:'
-  mail_confirm_button: أكِّد الحساب
+      user_banned: تم حظر %{user} من مساحة العمل %{team}
+  mail_view_welcome: مرحباً بكم في %{app_name}
+  mail_view_register: 'أنت على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد
+    بريدك الإلكتروني بالضّغط على الرّابط التالي:'
+  mail_confirm_button: تأكيد الحساب
   slack_restricted_join_to_members: عذراً ، لا يمكنك الانضمام إلى %{team_name} حيث
-    أنه محصور على أعضاء مساحة العمل %{teams} على Slack.
+    أنه محصور على أعضاء مساحات عمل %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:
-        menu: إرسال تعليمات إعادة ضبط كلمة المرور
+        menu: إرسال تعليمات لإعادة ضبط كلمة السّر
       export_project:
         menu: تصدير البيانات
       export_images:
         menu: تصدير الصور
       duplicate_team:
-        menu: نسخ مساحة العمل
-        done: تم التكرار
+        menu: تكرار مساحة العمل
+        done: تم التّكرار
         are_you_sure_you_want_to_copy_team:
-          html: هل أنت متأكد أنك تود تكرار مساحة العمل <strong>%{team}</strong>؟ سوف
-            يتم أيضًا نسخ جميع البيانات المرتبطة.
-        the_team_is_being_copied: تكرار مساحة العمل قيد التقدم
+          html: هل أنت متأكدة من رغبتك في تكرار مساحة العمل <strong>%{team}</strong>؟
+            سيتم نسخ جميع البيانات المرتبطة كذلك.
+        the_team_is_being_copied: تكرار مساحة العمل جارٍ
         url_when_ready:
-          html: بمجرد أن تصبح جاهزة ، سوف تكون مساحة العمل المكررة متاحة في <strong>%{copy_url}</strong>
+          html: فور جاهزيّتها ، ستكون مساحة العمل المُكررة متاحة في <strong>%{copy_url}</strong>
     flash:
       delete_team_scheduled: يتم حذف مساحة العمل %{team}
   email_not_found: هذا البريد الإلكتروني غير موجود
@@ -235,10 +236,10 @@ ar:
       oembed: "%B %d, %Y"
       task: "%d %B %Y في %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
-  oembed_disclaimer_undetermined: لم يقم %{team} بالتحقق من دقة هذا العنصر بعد
-  oembed_disclaimer_in_progress: بدأ %{team} بالتحقق من دقة هذا العنصر في %{date}
-  oembed_disclaimer_verified: تحقق %{team} من دقة هذا العنصر في %{date}
-  oembed_disclaimer_false: نفى %{team} دقة هذا العنصر في %{date}
+  oembed_disclaimer_undetermined: لم تتحقّق أو يتحقّق%{team} من دقة هذا العنصر بعد
+  oembed_disclaimer_in_progress: بدأت %{team} بالتحقق من دقة هذا العنصر في %{date}
+  oembed_disclaimer_verified: تحقّقت %{team} من دقة هذا العنصر في %{date}
+  oembed_disclaimer_false: نفى أو نفت %{team} دقة هذا العنصر في %{date}
   oembed_disclaimer_not_applicable: لم يتمكن %{team} من التحقق من هذا العنصر منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
@@ -248,7 +249,7 @@ ar:
   role_annotator: مُفَسِّر
   role_none: عضو
   role_: مسؤول النظام
-  oembed_credit: تمت الإضافة من %{user} (%{role}) في %{date}
+  oembed_credit: تمت الإضافة بواسطة %{user} (%{role}) في %{date}
   oembed_notes_count:
     zero: لا توجد ملحوظات
     one: ملحوظة واحدة
@@ -274,7 +275,7 @@ ar:
     two: مهمتان مكتملتان
     few: "%{count} مهام مكتملة"
     many: "%{count} مهمة مكتملة"
-    other: "%{count} مهمة مكتملة"
+    other: "%{count} المهمّات المكتملة"
   oembed_notes: ملحوظات
   duplicate_source: هذا المصدر موجود بالفعل
   geolocation_invalid_value: الموقع غير صالح. المتوقع صيغة صالحة من نوع (/GeoJSON
@@ -287,48 +288,48 @@ ar:
   error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
   only_super_admin_can_do_this: عذراً ، هذه العملية متاحة لمسؤولي النظام فقط
   cant_change_custom_statuses: |-
-    عذرًا ، لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصير مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
+    عذرًا ، لا يمكن تعديل تعريفات الحالة لأن بعض الحالات قد تصبح مفقودة. مُعرّفات الحالة اﻵتية : %{statuses} قيد الاستخدام للعناصر التالية :
     %{others_amount} %{urls}
   account_exists: هذا الحساب موجود بالفعل
   media_exists: هذا العنصر موجود بالفعل
   source_exists: هذا المصدر موجود بالفعل
   email_exists: " مستخدم بالفعل"
-  banned_user: عذراً ، لقد تم حظرك من %{app_name}. من فضلك تواصل مع فريق الدعم إن
-    كنت تعتقد ان هناك خطأ ما.
+  banned_user: عذراً ، لقد تم حظرك من %{app_name}. يرجى التواصل مع فريق الدعم إن كان
+    هناك خطأ.
   devise:
     mailer:
       reset_password_instructions:
-        subject: تعليمات إعادة ضبط كلمة المرور لدى %{app_name}
-        header_title: إعادة تعيين كلمة المرور
-        header_text: لقد تلقينا طلبك لإعادة تعيين كلمة المرور الخاصة على%{app_name}
-        action: إعادة تعيين كلمة مرورك
+        subject: تعليمات إعادة ضبط كلمة السّر لِ %{app_name}
+        header_title: إعادة تعيين كلمة السّر
+        header_text: لقد تلقينا طلبك لإعادة تعيين كلمة السّر لِ %{app_name}
+        action: إعادة تعيين كلمة السّر
         expiry: مدة صلاحية الرابط %{expire} ساعات.
-        instruction_1: اضغط هنا لإعادة الطلب.
-        instruction_2: إذا لم تقم إنشاء هذا الطلب ، أو كنت تواجه صعوبة لإعادة تعيين
-          كلمة المرور الخاصة بك ، فيرجى الاتصال بنا على %{support_email}.
+        instruction_1: يرجى الضغط هنا لتقديم طلب جديد.
+        instruction_2: إذا لم تقوموا بهذا الطّلب، أو كنتم تواجهون صعوبة في إعادة تعيين
+          كلمة السّر الخاصّة بكم ، يرجى الاتصال بنا على %{support_email}.
       invitation_instructions:
         subject: لقد دعاك %{user} للانضمام إلى مساحة العمل %{team}
         hello: مرحباً %{name}
         someone_invited_you_default:
-          html: لقد دعاك %{name} للانضمام إلى مساحة العمل %{team}بصفه %{role}.
+          html: لديك دعوة من%{name} للانضمام إلى مساحة العمل %{team}بصفه %{role}.
         someone_invited_you_custom:
-          html: 'لقد دعاك %{name} للانضمام إلى مساحة العمل %{team} بصفه %{role} قائلاً
-            :'
+          html: 'لديك دعوة من %{name} للانضمام إلى مساحة العمل %{team} بصفه %{role}:'
         accept: قبول الدعوة
-        accept_until: هذه الدعوة سوف تنتهي في %{due_date}.
-        ignore: إذا كنت لا تريد قبول الدعوة ، فيمكنك تجاهل هذه الرسالة.
+        accept_until: ستنتهي صلاحيّة هذه الدعوة  في %{due_date}.
+        ignore: لرفض الدعوة ، يُمكنكم تجاهل هذه الرسالة.
         app_team: مساحة العمل %{app}
     failure:
-      unconfirmed: من فضلك راجع بريدك الالكتروني للتحقق من حسابك.
+      unconfirmed: يرجى مراجعة بريدك الالكتروني لتأكيد حسابك.
   user_invitation:
-    invited: تمت دعوة هذا المستخدم بالفعل لمساحة العمل هذه.
+    invited: تمت دعوة هذا المستخدم أو هذه المستخدمة لمساحة العمل هذه من قبل.
     member: هذا المستخدم عضو بالفعل.
     team_found: مساحة العمل غير موجودة.
     invalid: رمز الدعوة غير صالح.
     no_invitation: لا توجد دعوة لمساحة العمل %{name}
-  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء هذه مساحة
-    العمل
-  error_login_with_exists_account: عذرًا ، هناك مستخدم آخر يستخدم هذا الحساب بالفعل
+  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء مساحة العمل
+    هذه
+  error_login_with_exists_account: 'عذرًا ، هذا الحسب هذا مُستخدم من قبل مستخدم أو
+    مستخدمة آخرى  '
   error_login_2fa: " يُرجى إكمال تسجيل الدخول بإضافة رمز المصادقة."
   error_record_not_found: 'لم يتم العثور على %{type} #%{id} '
   mails_notifications:
@@ -343,63 +344,63 @@ ar:
       header_text: |-
         تم التسجيل بنجاح على %{app_name}
         <br>
-        للدخول على الموقع يجب اتباع هذا الرابط : %{url}. قم بإدخال بريدك الإلكتروني وكلمة السر: %{password}
+        للدخول على الموقع يجب اتباع هذا الرابط : %{url}. و إدخال الإيميل وكلمة السر: %{password}
       login_button: الدخول إلى %{app_name}
-      footer_text: شكراً على انضمامك ونتمنى لك يوما جيدا
+      footer_text: شكراً على انضمامكم ونتمنى لكم يوما جيداً!
     duplicated:
-      subject: كيفية تسجيل الدخول على %{app_name} الخاصة بك
+      subject: 'كيفية تسجيل دخولك على %{app_name} '
       header_title: حساب مُكَرَّر
       one_email: |-
-        <p>نود أن نذكرك بطريقة تسجيل حسابك الحالية على %{app_name}.</p>
-        <p>ما الذي حدث؟ لقد حاولت التسجيل على %{app_name} باستخدام حساب على %{user_provider} المربوط بالبريد الإلكتروني %{user_email}.
-        ولكن هذا البريد الإلكتروني مسجل بالفعل على %{app_name} مرتبطاً بحساب اخر على %{duplicate_provider}.</p>
-        <p>ما الذي يمكنك فعله الآن؟ قم بتسجيل الدخول باستخدام  %{duplicate_provider}.</p>
-        <p>للدخول نفس الطريقة المستخدمة سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p>
+        <p> نود أن نذكركم ونساعدكم في تسجيل الدخول على %{app_name}.</p>
+        <p>ما الذي جرى؟ لقد حاولتم تسجيل الدّخول على %{app_name} باستخدام  %{user_provider} المرتبط بِ %{user_email}.
+        ولكن البريد الإلكتروني مرتبط أيضاً بحساب آخر على %{duplicate_provider} في %{app_name}.</p>
+        <p>ما الذي يمكنكم فعله الآن؟ قوموا بتسجيل الدخول باستخدام  %{duplicate_provider}.</p>
+        <p> بذلك، سيتم تسجيل دخولكم بذات الحساب الذي كنتم تستخدمونه من قبل. للمساعدة راسلونا على %{support_email}.</p>
       both_emails: |-
-        <p>نود أن نساعدك لتسجيل الدخول على %{app_name}.</p>
-        <p>ما الذي حدث؟ لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجل بالفعل.</p>
-        <p>حاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p>
-        <p>بذلك ستدخل باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة ارسل لنا على البريد الإلكتروني %{support_email}.</p>
+        <p>نود تذكيركم ومساعدتكم  في تسجيل الدخول على %{app_name}.</p>
+        <p> لقد حاولت تسجيل حساب جديد على %{app_name} باستخدام بريد إلكتروني مسجّل مُسبقاً.</p>
+        <p>حاولوا تسجيل الدّخول باستخدام البريد الإلكتروني وكلمة المرور بدلاً من إنشاء حساب جديد.</p>
+        <p>بذلك سيتم الدّخول باستخدام نفس الحساب المسجل سابقاً. للمزيد من المساعدة راسلونا على %{support_email}.</p>
       email: البريد الإلكتروني
     invitation:
       title: دعوة جديدة
     delete_user:
       subject: "[%{team}] تم حذف مستخدم"
-      header_title: حذف مستخدم
-      header_text: تم حذف حساب مستخدم ونقل المحتوى الخاص به لمستخدم %{anonymous} معرّفه
-        %{id}
-      anonymous: مجهول
+      header_title: تم حذف المستخدم/ة
+      header_text: تم حذف حساب مستخدم ونقل محتواه الخاص إلى المستخدم %{anonymous}
+        ومعرّفه %{id}
+      anonymous: مجهول/ة
     admin_mailer:
       team_download_subject: "[%{team}] لقطة بيانات مساحة العمل جاهزة للتحميل"
       team_dump_title: بيانات مساحة العمل
       types:
-        dump: لقطة البيانات
+        dump: لقطة للبيانات
         csv: تقرير
         images: أرشيف الصور
-      team_dump_text: 'لقد طلبت لقطة البيانات لمساحة العمل %{team} - يمكنك استخدام
-        هذا الرابط للتحميل: %{link}'
+      team_dump_text: 'لقد طلبت لقطة للبيانات في مساحة العمل %{team} - لتحميلها يمكنكم
+        استخدام الرابط : %{link}'
       team_dump_button: تحميل بيانات مساحة العمل
-      decompress_text: سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط الرجاء استخدام
-        كلمة السر %{password}
-      expire_note: يرجى الملاحظة أن مدة صلاحية الرابط %{days} أيام.
+      decompress_text: سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط ، الرجاء
+        استخدام كلمة السّر %{password}
+      expire_note: ستنتهي صلاحية هذا الرابط بعد %{days} أيام.
       project_export_csv_subject: "[%{team} - %{project}] تقرير القائمة جاهز للتحميل"
-      project_export_images_subject: "[%{team} - %{project}] أرشيف صور القائمة جاهز
+      project_export_images_subject: "[%{team} - %{project}] أرشيف صور القائمة جاهزة
         للتحميل"
       project_export_title: بيانات القائمة
       project_export_button: تحميل بيانات القائمة
-      project_export_csv_text: 'لقد طلبت تقريراً للقائمة %{project} - يمكنك استخدام
-        هذا الرابط للتحميل: %{link}'
-      project_export_images_text: 'لقد طلبت أرشيف الصور للقائمة %{project} - يمكنك
+      project_export_csv_text: 'لقد طلبتم تقريراً للقائمة %{project} - يمكنكم استخدام
+        هذا الرابط لتحميله: %{link}'
+      project_export_images_text: 'لقد طلبتم أرشيف للصور في القائمة %{project} - يمكنكم
         استخدام هذا الرابط للتحميل: %{link}'
       team_import_subject: تمت عملية استيراد البيانات
       team_import_title: استيراد البيانات
-      team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. افتح %{worksheet_url}
-        لمراجعة نتيجة الاستيراد لكل عنصر.</p><p>يمكنك إعادة  تشغيل الاستيراد بعد تصحيح
-        اﻷخطاء المعلنة - لن يتم تكرار العناصر التي سبق استيرادها.</p>"
+      team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. يمكنكم فحص
+        %{worksheet_url} لمراجعة الحالة لكل عنصر قبل استيراده.</p><p>يمكنكم إعادة
+        الاستيراد بعد تصحيح أي أخطاء موجودة هنا - لن يتم تكرار العناصر التي سبق استيرادها.</p>"
     task_resolved:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
-      header_title: تمت اجابة مهمة
-      header_text: قام(ت) %{author} باجابة مهمة في قائمة %{project} التابع إلى %{team}.
+      header_title: تمت الإجابة عن المهمّة
+      header_text: قام(ت) %{author} بإجابة مهمة في قائمة %{project} التابع إلى %{team}.
       section_title: من أو ما هو مصدر العنصر؟
       status: الحالة
       media_h: العنصر
@@ -412,7 +413,7 @@ ar:
       section_title: تم التصنيف أنه %{status}.
       added_to: تمت الإضافة الى %{app_name}
       update_h: آخر تحديث
-      tasks_h: تم اكتمال بعض المهام
+      tasks_h: المهام المكتلمة
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
@@ -420,8 +421,8 @@ ar:
       unassign_project_subject: "[%{team} - %{project}] تم إلغاء تكليف قائمة عنك"
       assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
       unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف عنصر عنك"
-      assign_project_title: تكليف قائمة
-      unassign_project_title: إلغاء تكليف قائمة
+      assign_project_title: 'تمّ تكليف القائمة '
+      unassign_project_title: تمّ  إلغاء تكليف قائمة
       assign_project_text: قام(ت) %{author} بتكليف قائمة %{project} التابع الى %{team}.
       unassign_project_text: قام(ت) %{author} بالغاء تكليف قائمة %{project} التابع
         الى %{team}.
@@ -431,8 +432,8 @@ ar:
         %{team}.
       unassign_task_text: قام(ت) %{author} بالغاء تكليف مهمة في قائمة %{project} التابع
         الى %{team}.
-      assign_media_title: تكليف عنصر
-      unassign_media_title: إلغاء تكليف عنصر
+      assign_media_title: تمّ تكليف العنصر
+      unassign_media_title: تمّ إلغاء تكليف العنصر
       assign_media_text: قام(ت) %{author} بتكليف عنصر في قائمة %{project} التابع الى
         %{team}.
       unassign_media_text: قام(ت) %{author} بالغاء تكليف عنصر في قائمة %{project}
@@ -441,113 +442,111 @@ ar:
       unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
       assign_by: تكليف من
       unassign_by: قام(ت) بإلغاء التكليف
-      project_button: اذهب إلى صفحة القائمة
+      project_button: إلى صفحة القائمة
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
       team_page: صفحة مساحة العمل
-      team_button: اذهب إلى صفحة مساحة العمل
+      team_button: إلى صفحة مساحة العمل
       rejected_subject: لم تتم الموافقة على طلبك للإنضمام إلى %{team}
       approved_subject: مرحباً بك في مساحة العمل %{team}
       request_title: طلب انضمام إلى مساحة العمل %{team}
-      request_text: "%{name} (%{email}) يريد الإنضمام إلى مساحة العمل %{team} على
-        %{app_name}. يمكنك معالجة هذا الطلب بالضغط على الرابط %{url}."
+      request_text: "%{name} (%{email}) يريدون الإنضمام إلى مساحة العمل %{team} عبر
+        %{app_name}. يمكنكم معالجة هذا الطلب بالضغط على الرابط %{url}."
       approved_title: مرحبًا بك في مساحة العمل %{team}
-      approved_text: تم الموافقة على طلب انضمامك إلى مساحة العمل %{team}على%{app_name}
-        . يمكنك الآن الذهاب إلى %{url} وبدء المشاركة!
+      approved_text: تمت الموافقة على طلب انضمامكم إلى مساحة عمل %{team} على%{app_name}.
+        يمكنكم الآن الذهاب إلى %{url} والبدء في المساهمة!
       rejected_title: تم رفض الطلب
       rejected_text: عذراً ، لم تتم الموافقة على طلبك للإنضمام إلى مساحة العمل %{team}على
         %{app_name} .
   mail_security:
-    device_subject: 'تنبيه الأمان : تسجيل دخول جديد على %{app_name} من %{browser}
-      على %{platform}'
-    ip_subject: 'تنبيه الأمان : تسجيل دخول جديد أو غير معهود على %{app_name}'
-    failed_subject: 'تنبيه الأمان : محاولات فاشلة لتسجيل الدخول على %{app_name}'
+    device_subject: 'تنبيه: تسجيل دخول جديد على %{app_name} عبر %{browser} على %{platform}'
+    ip_subject: 'تنبيه: هناك تسجيل دخول جديد أو غير اعتيادي على %{app_name}'
+    failed_subject: 'تنبيه: محاولات فاشلة لتسجيل الدخول على %{app_name}'
     ip: لقد قمت بتسجيل الدخول من %{location}
     device: لقد قمت بتسجيل الدخول من %{browser} على %{platform}
     devise_name: "%{browser} على %{platform}"
     failed: تم اكتشاف محاولات فاشلة لتسجيل الدخول
-    password_text: إعادة تعيين كلمة المرور الخاصة بك حالاً
+    password_text: 'يرجى إعادة تعيين كلمة السّر الخاصة بكم فوراً '
     device_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من جهاز جديد.
-      إذا لم يكن أنت ، فمن اﻷفضل %{change_password}
-    ip_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من موقع جديد. إذا
-      لم يكن أنت ، فمن اﻷفضل %{change_password}
-    failed_text: يبدو أنه قد أجريت محاولات متعددة لتسجيل الدخول إلى حسابك على %{app_name}.
-      إذا كان أنت ، يمكنك تجاهل هذه الرسالة. إذا لم يكن أنت ، فمن اﻷفضل %{change_password}
+      إن لم يكن كذلك، مِن اﻷفضل %{change_password}
+    ip_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من موقع جديد. إن
+      لم يكن كذلك، مِن اﻷفضل  %{change_password}
+    failed_text: يبدو أنّكم أجريتم محاولات متعددة لتسجيل الدخول إلى %{app_name}. إذا
+      كنت أنت ، تجاهلي الرسالة. لست أنت؟ ننصحكم بتغيير كلمة السِّر. %{change_password}
     time_h: الوقت
-    device_h: جهاز
+    device_h: الجهاز
     location_h: الموقع
     location_disclaimer: "* الموقع تقريبي بناءً على عنوان IP الذي نشأ منه."
     ip_h: عنوان IP
-    privacy: "%{manage} تنبيهات للبريد الإلكتروني الخاصة بك • معرفة المزيد عن %{privacy}"
+    privacy: "%{manage} التنبيهات في بريدك الإلكتروني • المزيد في %{privacy}"
     privacy_text: سياسة الخصوصية
     manage_text: إدارة
-    privace_manage_plain: إدارة تنبيهات للبريد الإلكتروني الخاصة بك
-    privacy_plain: معرفة المزيد عن سياسة الخصوصية
-  archive_keep_backup: Video Vault
-  archive_pender_archive: لقطة الشاشة
+    privace_manage_plain: 'إدارة تنبيهات لبريدك الإلكتروني '
+    privacy_plain: المزيد عن سياسة الخصوصية
+  archive_keep_backup: خزنة الفيديوهات
+  archive_pender_archive: لقطة للشاشة
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: حالة غير صالحة
-  workflow_status_permission_error: عذراً ، ليس مسموح لك تغيير هذه الحالة.
-  blank_default_status_for_custom_verification_status: من فضلك أضف قيمة إفتراضية لحالات
+  workflow_status_permission_error: عذراً ، لا يمكنكم تغيير هذه الحالة.
+  blank_default_status_for_custom_verification_status: يرجى إضافة قيمة افتراضية لحالات
     التحقق الخاصة
-  blank_active_status_for_custom_verification_status: من فضلك أضف قيمة نشطة لحالات
+  blank_active_status_for_custom_verification_status: يرجى أضافة قيمة فعّالة لحالات
     التحقق الخاصة
   bot_name_exists_for_this_team: هناك بوت آخر بنفس الاسم في مساحة العمل هذه
   bot_team_id_doesnt_exist: عذراً ، لا توجد مساحة عمل بهذا المُعَرِّف
-  bot_team_id_mandatory_to_create: عذراً ، يجب اختيار مساحة العمل لكي تضيف البوت
+  bot_team_id_mandatory_to_create: عذراً ، يجب اختيار مساحة العمل قبل إضافة بوت
   bot_not_approved_for_installation: عذراً ، لا يمكن تثبيت هذا البوت ﻷنه لم تتم الموافقة
     عليه
   only_admins_can_approve_bots: عذراً ، الموافقة على البوت متاحة لمسؤولي النظام فقط
-  could_not_save_related_bot_data: عذراً ، لا يمكن إضافة البوت لمساحة العمل هذه
-  bot_cant_add_response_to_task: عذراً ، البوت يمكنه فقط تقديم اقتراحاً ﻹجابة المهمة
-  bot_cant_add_review_to_task: عذراً ، البوت لا يمكنه مراجعة المهام
-  task_suggestion_invalid_value: اقتراح المهمة غير صالح. المتوقع JSON hash متضمنا
-    `suggestion` (سيتم نسخ قيمته الفعلية حين يتم قبوله إلى إجابة المهمة) و `comment`
-    (يتم إظهاره للمستخدمين)
+  could_not_save_related_bot_data: عذراً ، لم نتمكّن من إضافة البوت لمساحة العمل هذه
+  bot_cant_add_response_to_task: 'عذراً، لا يمكن للبوت الإجابة عن مهمّة بشكل مباشر
+    - ولكن، يمكن إرسال اقتراح ﻹجابة '
+  bot_cant_add_review_to_task: عذراً ، لا يمكن البوت مراجعة أي مهام
+  task_suggestion_invalid_value: اقتراح المهمة غير صالح. المتوقع JSON  متضمنا `suggestion`
+    (سيتم نسخ القيمه الفعلية إلى إجابة المهمّة حين يتم القبول) و `comment` (يتم إظهاره
+    للمستخدمين)
   tag_text_id_not_found: العلامة غير موجودة
   annotation_type_language_label: اللغة
   smooch_bot_message_confirmed: |-
-    شكرا لك. تمت إضافة طلبك إلى قائمة انتظار التحقق.
+    شكراً. لقد أضيف طلبك إلى قائمة انتظار التحقق.
 
-    سنحاول ارسال تقرير إليك خلال 24 ساعة ، لكن يرجى ملاحظة أننا لا نستطيع الرد على كل طلب.
-  smooch_bot_message_unconfirmed: نظراً لأنك لم ترد  بـ 1 ، فلن نقوم بمعالجة طلبك
-    وشكراً.
+    سنحاول إرسال تقرير إليك خلال 24 ساعة، لكن أعذرونا لأننا لا نستطيع الرّد على كل طلب.
+  smooch_bot_message_unconfirmed: نظراً لعدم ردّكم  بـ 1 ، لن نقوم بمعالجة طلبك. شكراً.
   smooch_bot_message_type_unsupported: عذرًا ، لا ندعم هذا النوع من الرسائل.
   smooch_bot_message_size_unsupported: عذراً ، لا ندعم ملفات أكبر من %{max_size}.
   smooch_bot_result: |-
-    [تقرير التحقيق] لقد تم  تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
+    [تقرير التحقّق] تمّ تصنيف العنصر الذي أرسلته لنا أنه *%{status}*.
 
     فيما يلي الخطوات التي اتخذناها لتحديد ذلك : %{url}
   smooch_bot_ask_for_confirmation: |-
-    شكراً لإرسال هذا الطلب. هل تود أننا نتحقق من صحة محتواه ؟
+    شكراً لإرسالكم هذا الطلب. هل تودون منّا التحقق من صحة محتواه ؟
 
-    للاجابة نعم ، * الرجاء الرد بـ 1 *. أي رد آخر سينهي المحادثة.
+    للاجابة بِ نعم ، * الرّجاء الرّد بـ 1 *. أي رد آخر سينهي المحادثة.
   smooch_bot_ask_for_tos: |-
-    شكرا للتواصل مع Check Message !
+    شكرا لتواصلكم مع Check Message !
 
-    يمكنك استخدام هذه الخدمة لطلب التحقق من الأخبار والمعلومات.Check Message متوفر لك بموجب شروط الخدمة : %{tos}. من خلال الاستمرار في استخدام هذه الخدمة ، *أنت توافق على الالتزام بهذه الشروط*. عليك التوقف عن استخدامك لـ Check Message إذا كنت لا توافق على ذلك.
+    يمكنكم استخدام هذه الخدمة لطلب التحقق من الأخبار والمعلومات. Check Message متوفر لكم بموجب شروط الخدمة التالية: %{tos}. استمراركم باستخدام هذه الخدمة ، *يعني موافقتكم على الالتزام بهذه الشروط*. إذا لم توافقوا على ذلك، بإمكانكم التوقف عن استخدام Check Message.
   smooch_bot_window_closing: إن حجم الطلبات مرتفع للغاية ، ولم نتمكن من معالجة طلبك
     بعد. شكراً على الانتظار.
   smooch_bot_not_final: |-
-    [تقرير التحقيق - تصحيح] لقد حدث خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*.
+    [تقرير التحقق - تصحيح] لقد حدث خطأ في تصنيف العنصر الذي أرسلته لنا على أنه *%{status}*.
 
     ما زال العنصر في قائمة اﻹنتظار للمزيد من التحقق.
-  smooch_bot_disabled: شكرا لإرسال هذه الرسالة. لا نستطيع إرسال أي من تقارير التحقيق
+  smooch_bot_disabled: شكرا على هذه الرسالة. لا نستطيع الرّد بأي من تقارير التحقق
     ، حيث أن هذا المشروع لم يعد نشطاً.
   smooch_bot_result_changed: "❗️تم *تحديث* تقصي الحقائق الذي أرسلناه لك بمعلومات جديدة"
   permissions_info:
     roles:
       owner:
-        description: المديرات يدرن مساحة العمل.
+        description: يسيطر المالكون على مساحة العمل.
       editor:
-        description: المحررات يدرن مساحة العمل و القوائم.
+        description: يدير المحرّرون مساحة العمل والقوائم.
       journalist:
-        description: الصحفيات يتحققن من المعلومات.
+        description: يتحقّق الصحفيون من المعلومات.
       contributor:
-        description: المشاركات يضفن عناصر جديدة للتحقق. هم في الغالب أعضاء من الجمهور.
+        description: بإمكان المشاركين إضافة عناصر جديدة للتحقق. وهم في الغالب من الجمهور.
       annotator:
-        description: المفسرات يمكنهم فقط عرض وإجابة المهام المكلفات بها.
+        description: بإمكان المُعقّبون عرض وإجابة المهام التي تم تكليفهم بها فقط.
     permissions:
       sections:
         project_management:
@@ -561,20 +560,20 @@ ar:
           name: إدارة العناصر
           permissions:
             edit: تحرير العناصر
-            move: نقل العناصر
-            change_status: تغيير حالة العناصر
-            lock_unlock_status: تأمين وإلغاء تأمين حالة العناصر
-            add_remove_tag: إضافة وحذف العلامات
-            send_to_trash: ارسال العناصر إلى سلة المهملات
+            move: نقل العنصر
+            change_status: تغيير حالة العنصر
+            lock_unlock_status: 'إقفال/إلغاء إقفال الحالة '
+            add_remove_tag: إضافة/حذف العلامات
+            send_to_trash: ارسال العنصر أو المصدر إلى سلة المهملات
             empty_trash: إفراغ سلة المهملات
         task_management:
           name: إدارة المهام
           permissions:
-            create: إضافة المهام
-            edit: تحرير المهام
-            delete: حذف المهام
-            add_response: إضافة اﻹجابات
-            delete_repsonse: حذف اﻹجابات
+            create: إضافة مهمة
+            edit: تحرير المهمة
+            delete: حذف مهمة
+            add_response: إضافة إجابة
+            delete_repsonse: حذف اﻹجابة
             assign_task: تكليف مهمة أو عنصر
         team_management:
           name: إدارة مساحة العمل
@@ -585,36 +584,36 @@ ar:
             edit_status: تحرير حالات مساحة العمل
             edit_tasks: إنشاء وتحرير مهام مساحة العمل
             roles: تحرير الأدوار فى مساحة العمل
-            third_party: تكامل التطبيقات الخارجية
-            invite_owner: دعوة مديري مساحة العمل والموافقة عليهم وإزالتهم
-            invite_members: دعوة أعضاء مساحة العمل والموافقة عليهم وإزالتهم
+            third_party: إضافة التكامل مع أطراف ثالثة
+            invite_owner: دعوة مُلّاك مساحة العمل، الموافقة عليهم، أو إزالتهم
+            invite_members: دعوة أعضاء مساحة العمل، الموافقة عليهم، أو إزالتهم
   team_import:
-    invalid_google_spreadsheet_url: عنوان جدول بيانات غير صالح %{spreadsheet_url}
-    not_found_google_spreadsheet_url: عنوان جدول بيانات غير صحيح %{spreadsheet_url}
+    invalid_google_spreadsheet_url: رابط جدول البيانات غير صالح %{spreadsheet_url}
+    not_found_google_spreadsheet_url: جدول بيانات غير موجود في %{spreadsheet_url}
     cannot_authenticate_with_the_credentials: لا يمكن المصادقة على Google Drive بييانات
-      المرور الحالية. من فضلك أخبر فريق الدعم عن هذه الحادثة.
+      المرور الحالية. يرجى تبليغ فريق الدعم عن هذه الحادثة.
     team_not_present: لم يتم العثور على مساحة العمل الحالية أثناء استيراد البيانات.
-      من فضلك أخبر فريق الدعم عن هذه الحادثة.
-    user_not_present: لم يتم العثور على المستخدم الحالى أثناء استيراد البيانات. من
-      فضلك أخبر فريق الدعم عن هذه الحادثة.
+      يرجى تبليغ فريق الدعم عن هذه الحادثة.
+    user_not_present: لم يتم العثور على المستخدم(ة) الحالي(ة) أثناء استيراد البيانات.
+      يرجى تبليغ فريق الدعم عن هذه الحادثة.
     user_not_authorized: عذراً ، ليس مسموح لك استيراد البيانات لمساحة العمل هذه.
     invalid_project: قائمة غير صالحة %{project}
-    invalid_user: مؤلف غير صالح %{user}
+    invalid_user: المؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
-    blank_user: حقل المؤلف فارغ غير صالح
-    blank_annotator: حقل المُفَسِّر فارغ غير صالح
-    blank_project: حقل القائمة فارغ غير صالح
-    invalid_annotator: مُعلِّق غير صالح %{user}
+    blank_user: حقل المؤلف(ة) الفارغ غير صالح
+    blank_annotator: حقل المُعقِّب(ة) الفارغ غير صالح
+    blank_project: حقل القائمة الفارغ غير صالح
+    invalid_annotator: المُعقِّب غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
-  cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنك
-    تغييره الآن. الرجاء إعادة المحاولة في وقت لاحق.
+  cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنكم
+    تغييره الآن. الرجاء إعادة المحاولة لاحقاً.
   embed_expand_all: توسيع الكل
   embed_collapse_all: طيّ الكل
   embed_tasks: المهام
   embed_description: الوصف
-  other_language: آخر
+  other_language: غير ذلك
   unidentified_language: غير معرّف
-  relationship_item_has_parent: هذا العنصر تابع لعنصر آخر بالفعل.
+  relationship_item_has_parent: هذا العنصر تابع لعنصر آخر.
   smooch_requests: الطلبات
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
@@ -622,15 +621,15 @@ ar:
   smooch_twitter_success: تم بنجاح ! الآن سيتم التعامل مع الرسائل المباشرة التي تلقاها
     حساب تويتر هذا بواسطة بوت Smooch.
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
-  team_rule_name: اسم فريد يصف القاعدة
+  team_rule_name: اسم فريد يصف ما تفعله القاعدة
   team_rule_project_ids: تطبيق على القائمة
   team_rule_destination: تحديد القائمة المقصودة
-  team_rule_names_invalid: أسماء القواعد لا يمكن أن تكون فارغة و يجب أن تكون فريدة
+  team_rule_names_invalid: أسماء القواعد لا يمكن أن تكون فارغة ويجب أن تكون فريدة
   team_rules: القواعد
   team_rule_conditions: إذا
   team_rule_condition: إذا
   team_rule_condition_definition: تحديد الشرط
-  team_rule_has_less_than_x_words: الطلب يحتوي على عدد من الكلمات أقل من اﻵتي
+  team_rule_has_less_than_x_words: يحتوي الطلب على عدد من الكلمات أقل من اﻵتي
   team_rule_title_matches_regexp: عنوان العنصر يوافق التعبير القياسي الآتي
   team_rule_request_matches_regexp: الطلب يوافق التعبير القياسي الآتي
   team_rule_type_is: نوع العنصر هو
@@ -638,41 +637,42 @@ ar:
   team_rule_type_is_link: رابط
   team_rule_type_is_uploadedimage: صورة
   team_rule_type_is_uploadedvideo: فيديو
-  team_rule_contains_keyword: الطلب يحتوي على كلمة واحدة على الأقل من الكلمات الأساسية
+  team_rule_contains_keyword: الطلب يحتوي على كلمة واحدة على الأقل من الكلمات المفتاحيّة
     اﻵتية
-  team_rule_title_contains_keyword: عنوان العنصر يحتوي على كلمة واحدة على الأقل من
-    الكلمات الأساسية اﻵتية
+  team_rule_title_contains_keyword: يحتوي عنوان العنصر على كلمة أو أكثر من الكلمات
+    المفتاحية التالية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
+  team_rule_select_user: اختيار شريك(ة)
   team_rule_tagged_as: العنصر معلّم بأنه
   team_rule_select_tag: تحديد العلامة
   team_rule_select_status: تحديد الحالة
   team_rule_status_is: حالة العنصر هي
-  team_rule_type_regexp: اكتبوا التعبير القياسي
+  team_rule_type_regexp: يرجى طباعة التعبير القياسي
   team_rule_type_number: أدخلوا عدد الكلمات
-  team_rule_value: اكتبوا قائمة الكلمات الأساسية مفصولة بفواصل
+  team_rule_value: يرجى طباعة قائمة بالكلمات المفتاحية مفصولة بفواصل
   team_rule_actions: حينئذ
   team_rule_action: حينئذ
   team_rule_action_definition: تحديد الإجراء
   team_rule_send_to_trash: ارسال إلى سلة المهملات
   team_rule_move_to_project: نقل العنصر إلى قائمة
   team_rule_copy_to_project: إضافة العنصر إلى قائمة
-  team_rule_ban_submitter: حظر المقدم (لن تظهر رسائلهم المستقبلية فى Check)
-  team_rule_all_items: كل العناصر
-  team_rule_send_message_to_user: إرسال رسالة إلى المستخدم
-  team_rule_action_value: اكتبوا الرسالة هنا
+  team_rule_ban_submitter: حظر المُقدم (لن تظهر رسائلهم المستقبلية فى Check)
+  team_rule_all_items: جميع العناصر
+  team_rule_send_message_to_user: إرسال رسالة إلى المستخدم(ة)
+  team_rule_action_value: يرجى طباعة الرسالة هنا
   team_rule_item_titles_are_similar: عناوين العنصر متماثلة
   team_rule_item_images_are_similar: الصور متماثلة
   team_rule_relate_similar_items: ربط العناصر
   team_rule_type_title_threshold: المسافة بين عناوين العناصر
   team_rule_type_image_threshold: المسافة بين الصور
-  team_rule_type_flag_threshold: مع احتمالية حدوث على الأقل
-  team_rule_select_flag: تحديد الراية
-  team_rule_flagged_as: العنصر عليه راية
+  team_rule_type_flag_threshold: احتمالية الوقوع على الأقل
+  team_rule_select_flag: اختيار مؤشّر
+  team_rule_flagged_as: العنصر عليه إشارة
   team_rule_report_is_published: التقرير منشور
   team_rule_report_is_paused: التقرير موقوف مؤقتا
-  team_rule_condition_groups: تصنيفات الشرط
-  team_rule_condition_group: تصنيف الشرط
+  team_rule_condition_groups: مجموعات الشرط
+  team_rule_condition_group: مجموعة الشرط
   team_rule_operator: المشغّل
   team_rule_json_schema_validation: صيغة القاعدة غير صالحة
   team_rule_updated_at: آخر تحديث
@@ -680,39 +680,44 @@ ar:
   team_rule_item_user_is: تم إنشاء العنصر من قبل
   team_rule_item_is_read: 'تمت قراءة العنصر '
   team_rule_field_from_fieldset_tasks_value_is: المهمة لها إجابة محددة
-  team_rule_field_from_fieldset_metadata_value_is: بيانات التعريف لها قيمة محددة
-  team_rule_select_field_metadata: تحديد بيانات التعريف
+  team_rule_field_from_fieldset_metadata_value_is: البيانات الوصفية لها قيمة محددة
+  team_rule_select_field_metadata: تحديد البيانات الوصفيّة
   team_rule_select_field_value_metadata: تحديد القيمة
-  team_rule_select_field_tasks: تحديد المهمة
-  team_rule_select_field_value_tasks: تحديد الإجابة
-  flag_adult: إباحية
+  team_rule_select_field_tasks: اختيار مهمة
+  team_rule_select_field_value_tasks: اختيار إجابة
+  team_rule_item_is_assigned_to_user: العنصر مُكَلَّف إلى
+  flag_adult: إباحي
   flag_spoof: متلاعب بها
-  flag_medical: طبية
+  flag_medical: طبي
   flag_violence: عنف
-  flag_racy: عنصرية
+  flag_racy: جنسي
   flag_spam: إعلانية مؤذية
-  annotation_type_flag_name_label: الراية
-  annotation_type_flag_value_label: احتمالية الراية
-  flag_likelihood_0: غير معلومة
-  flag_likelihood_1: مُستبعدة جدا
-  flag_likelihood_2: مُستبعدة
-  flag_likelihood_3: ممكنة
-  flag_likelihood_4: محتملة
-  flag_likelihood_5: محتملة جدا
-  relationship_not_same_team: العناصر ذات الصلة يجب أن تكون في نفس مساحة العمل
-  bulk_operation_limit_error: عذراً ، الحد الأقصى للعناصر التى يتم التعامل معها في
-    المرة الواحدة هو %{limit}
-  must_provide_fallback_when_deleting_status_in_use: هذه الحالة مستخدمة، اذا أردت
-    حذفها فيجب عليك تقديم حالة بديلة
-  embed_no_content_yet: جاري إنشاء التقرير. هذه العملية قد تأخذ دقائق قليلة. من فضلك
-    قم بإعادة تحميل الصفحة.
-  language_format_invalid: تنسيق اللغة غير صالح. يجب أن تكون بصيغة ISO 639-1.
-  languages_format_invalid: تنسيق اللغات غير صالح. يجب أن تكون قائمة بصيغ ISO 639-1
+  annotation_type_flag_name_label: المؤشّر
+  annotation_type_flag_value_label: احتمالية المؤشّر
+  flag_likelihood_0: غير معروف
+  flag_likelihood_1: مُستبعد جدا
+  flag_likelihood_2: مُستبعد
+  flag_likelihood_3: ممكن
+  flag_likelihood_4: محتمل
+  flag_likelihood_5: محتمل جدا
+  relationship_not_same_team: يجب أن تكون العناصر ذات الصلة  في مساحة العمل ذاتها
+  bulk_operation_limit_error: عذراً، الحد الأقصى لعدد العناصر التى يمكن معالجتها في
+    آنِ واحد هو %{limit}
+  must_provide_fallback_when_deleting_status_in_use: هذه الحالة مستخدمة حاليّاً، لِحذفها،
+    يرجى تقديم حالة احتياطية
+  embed_no_content_yet: إنشاء التقرير جار. قد تستغرق هذه العملية بضع دقائق. يرجى إعادة
+    تحميل الصفحة.
+  language_format_invalid: تنسيق اللغة غير صالح. يجب أن تكون بصيغة كود ISO 639-1.
+  languages_format_invalid: تنسيق اللغات غير صالح. يجب أن تكون على شكل قائمة بكود
+    ISO 639-1
   cant_change_status_if_item_is_published: عذراً ، لا يمكن تغيير الحالة بينما التقرير
     منشور
   fetch_bot_service_unsupported: الخدمة غير مدعومة
-  task_options_must_be_array: خيارات المهمة يجب أن تكون قائمة
-  fieldset_not_defined_by_team: مجموعة الحقول يجب أن تكون معتمدة من الفريق
+  task_options_must_be_array: خيارات المهمة يجب أن تكون على شكل قائمة
+  fieldset_not_defined_by_team: مجموعة الحقول يجب أن تكون مدعومة من قبل مساحة العمل
+  replace_by_media_in_the_same_team: عذراً ، لا يمكنك استبدال هذا العنصر إلا بعنصر
+    آخر من نفس مساحة العمل
+  replace_blank_media_only: عذراً ، يمكنك استبدال العناصر الخالية فقط في الوقت الحالي
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -926,6 +931,7 @@ ar:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     شكرا لإرسال هذه الرسالة.
 
@@ -997,7 +1003,8 @@ ar:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: مزيف
   custom_message_status_misleading_infotagion: مُضَلِّل
   custom_message_status_true_infotagion: ''
@@ -1024,7 +1031,7 @@ ar:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: ''
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️The fact-check that we sent
     to you has been *updated* with new information:"

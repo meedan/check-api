@@ -11,7 +11,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_difference 'MediaSearch.length' do
       m = create_media_search
     end
-    assert_equal 'mediasearch', m.annotation_type
   end
 
   test "should search for parent items only" do
@@ -39,17 +38,16 @@ class ElasticSearch5Test < ActionController::TestCase
     MediaSearch.create_index(target_index, false)
     m = create_media_search
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
-    repository = Elasticsearch::Persistence::Repository.new url: url
-    repository.type = 'media_search'
-    repository.index = source_index
+    client = Elasticsearch::Client.new(url: url)
+    repository = MediaSearch.new(client: client, index_name: source_index, type: 'media_search')
     results = repository.search(query: { match_all: { } }, size: 10000)
     assert_equal 1, results.size
-    repository.index = target_index
-    results = repository.search(query: { match_all: { } }, size: 10000)
+    repository2 = MediaSearch.new(client: client, index_name: target_index, type: 'media_search')
+    results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 0, results.size
     MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
-    results = repository.search(query: { match_all: { } }, size: 10000)
+    results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 1, results.size
     # test re-index
     CheckElasticSearchModel.reindex_es_data
@@ -65,7 +63,7 @@ class ElasticSearch5Test < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       c = create_comment annotated: pm, disable_es_callbacks: false
       sleep 1
-      result = MediaSearch.find(get_es_id(pm))
+      result = $repository.find(get_es_id(pm))
       assert_equal 1, result['comments'].count
       id = pm.id
       m.destroy
@@ -73,7 +71,7 @@ class ElasticSearch5Test < ActionController::TestCase
       assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       sleep 1
       assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        MediaSearch.find(get_es_id(pm))
+        $repository.find(get_es_id(pm))
       end
     end
   end
@@ -87,7 +85,7 @@ class ElasticSearch5Test < ActionController::TestCase
       pm = create_project_media project: p, disable_es_callbacks: false
       c = create_comment annotated: pm, disable_es_callbacks: false
       sleep 1
-      result = MediaSearch.find(get_es_id(pm))
+      result = $repository.find(get_es_id(pm))
       p.destroy
       assert_equal 0, ProjectMediaProject.where(project_id: id).count
       assert_equal 1, ProjectMedia.where(id: pm.id).count
@@ -104,17 +102,17 @@ class ElasticSearch5Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal [c.id], result['comments'].collect{|i| i["id"]}
     # update es comment
     c.text = 'test-mod'; c.save!
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal ['test-mod'], result['comments'].collect{|i| i["text"]}
     # destroy es comment
     c.destroy
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_empty result['comments']
   end
 
@@ -124,17 +122,17 @@ class ElasticSearch5Test < ActionController::TestCase
     pm = create_project_media project: p, disable_es_callbacks: false
     t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal [t.id], result['tags'].collect{|i| i["id"]}
     # update tag
     t.tag = 'sports-news'; t.save!
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_equal ['sports-news'], result['tags'].collect{|i| i["tag"]}
     # destroy tag
     t.destroy
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_empty result['tags']
   end
 
@@ -143,15 +141,15 @@ class ElasticSearch5Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, disable_es_callbacks: false
       sleep 5
-      ms = MediaSearch.find(get_es_id(pm))
-      assert_equal 'undetermined', ms.verification_status
+      ms = $repository.find(get_es_id(pm))
+      assert_equal 'undetermined', ms['verification_status']
       # update status
       s = pm.get_annotations('verification_status').last.load
       s.status = 'verified'
       s.save!
       sleep 5
-      ms = MediaSearch.find(get_es_id(pm))
-      assert_equal 'verified', ms.verification_status
+      ms = $repository.find(get_es_id(pm))
+      assert_equal 'verified', ms['verification_status']
     end
   end
 
@@ -161,7 +159,7 @@ class ElasticSearch5Test < ActionController::TestCase
     pm = create_project_media project: p
     c = create_comment annotated: pm, disable_es_callbacks: false
     sleep 1
-    result = MediaSearch.find(get_es_id(pm))
+    result = $repository.find(get_es_id(pm))
     assert_not_nil result
   end
 

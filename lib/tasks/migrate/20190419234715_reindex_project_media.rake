@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
     task reindex_project_media: :environment do
-      client = MediaSearch.gateway.client
+      client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
 
       puts "[#{Time.now}] Re-indexing project medias and project sources"

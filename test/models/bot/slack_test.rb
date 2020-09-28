@@ -38,8 +38,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       assert pm.sent_to_slack
     end
   end
@@ -156,13 +155,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        info = { title: 'Foo', content: 'Bar' }
+        pm.analysis = info
         pm.save!
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 6, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -176,13 +175,13 @@ class Bot::SlackTest < ActiveSupport::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'slack_message', set_fields: { slack_message_id: '12.34', slack_message_attachments: a, slack_message_channel: 'C0123Y' }.to_json
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        info = { title: 'Foo', description: 'Bar' }.to_json
-        pm.metadata = info
+        info = { title: 'Foo', content: 'Bar' }
+        pm.analysis = info
         pm.save!
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 1, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -205,9 +204,8 @@ class Bot::SlackTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pmp = create_project_media project: p
-      pmc = create_project_media project: p, related_to_id: pmp.id
+      pmp = create_project_media team: t
+      pmc = create_project_media team: t, related_to_id: pmp.id
       assert pmc.sent_to_slack
     end
   end

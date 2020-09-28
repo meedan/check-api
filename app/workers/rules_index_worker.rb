@@ -18,7 +18,7 @@ class RulesIndexWorker
         es_bodies << { update: { _index: index, _type: 'media_search', _id: pm.get_es_doc_id, data: { doc: { rules: matched_rules_ids } } } }
       end
       es_bodies.each_slice(10000) do |es_body|
-        MediaSearch.gateway.client.bulk(body: es_body) unless es_body.empty?
+        $repository.client.bulk(body: es_body) unless es_body.empty?
       end
     rescue StandardError => e
       Team.notify_error(e, { team_id: team_id }, RequestStore[:request])

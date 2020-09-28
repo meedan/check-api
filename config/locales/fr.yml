@@ -147,6 +147,7 @@ fr:
             slug:
               slug_format: n’accepte que les lettres, les chiffres et les tirets
       messages:
+        record_invalid: "%{errors}"
         improbable_phone: est un numéro invalide
         too_short:
           one: est trop court (au moins 1 caractère)
@@ -507,7 +508,6 @@ fr:
   archive_pender_archive: Capture d’écran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: L’état est invalide
   workflow_status_permission_error: Désolé, vous n’êtes pas autorisé à modifier cet
     état.
   blank_default_status_for_custom_verification_status: Veuillez indiquer une valeur
@@ -682,6 +682,7 @@ fr:
     des mots-clés suivants
   team_rule_select_type: Sélectionner un type
   team_rule_select_language: Sélectionner la langue
+  team_rule_select_user: Sélectionner un collaborateur
   team_rule_tagged_as: L’élément est balisé
   team_rule_select_tag: Sélectionner une balise
   team_rule_select_status: Sélectionner l’état
@@ -725,6 +726,7 @@ fr:
   team_rule_select_field_value_metadata: Sélectionner la valeur
   team_rule_select_field_tasks: Sélectionner la tâche
   team_rule_select_field_value_tasks: Sélectionner la réponse
+  team_rule_item_is_assigned_to_user: L’élément est attribué à
   flag_adult: Adulte
   flag_spoof: Pastiche
   flag_medical: Médical
@@ -755,8 +757,12 @@ fr:
     alors que le rapport est publié
   fetch_bot_service_unsupported: Le service n’est pas pris en charge
   task_options_must_be_array: Les options de la tâche doivent être une liste
-  fieldset_not_defined_by_team: L’ensemble de champs n’est pas pris en charge par
-    l’équipe
+  fieldset_not_defined_by_team: "« Fieldset » devrait être pris en charge par l’espace
+    de travail"
+  replace_by_media_in_the_same_team: Désolé, vous ne pouvez remplacer cet article
+    que par un autre article du même espace de travail
+  replace_blank_media_only: Désolé, mais vous ne pouvez pour l’instant que remplacer
+    que des articles vides
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1012,6 +1018,7 @@ fr:
     pour revenir au *menu principal*"
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Nous vous remercions de nous avoir envoyé ce message.
 
@@ -1087,7 +1094,8 @@ fr:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: Faux
   custom_message_status_misleading_infotagion: Trompeur
   custom_message_status_true_infotagion: ''
@@ -1121,7 +1129,7 @@ fr:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: ''
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️La vérification de faits que
     nous vous avons envoyée a été *mise à jour* avec de nouveaux renseignements :"

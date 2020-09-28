@@ -321,6 +321,7 @@ hi:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
     लिए धन्यवाद। क्या आपको संदेह है कि यह भारतीय आम चुनाव 2019 से संबंधित गलत सूचना
     है? अगर आप हां करते हैं तो 1 लिखें। कुछ और लिखेंगे तो हम संपर्क जारी नहीं रख सकेंगे।
@@ -447,7 +448,8 @@ hi:
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: हम
     से संपर्क करने के लिए धन्यवाद. आपने जो मैसेज हमें भेजा है हम उसकी जांच करने में
     लगे हैं. रिपोर्ट तैयार होते ही आपको भेज दी जाएगी.
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: 'ग़लत '
   custom_message_status_misleading_infotagion: 'भ्रामक '
   custom_message_status_true_infotagion: 'सही '
@@ -478,7 +480,7 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: ''
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
     था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"

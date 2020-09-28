@@ -145,6 +145,7 @@ ro:
             slug:
               slug_format: acceptă doar litere, numere și cratime
       messages:
+        record_invalid: "%{errors}"
         improbable_phone: este un număr nevalid
         too_short:
           one: este prea scurt (minimul este de 1 caracter)
@@ -273,7 +274,7 @@ ro:
     few: "%{count} sarcini rezolvate"
     other: "%{count} de sarcini rezolvate"
   oembed_notes: Note
-  duplicate_source: Sursă deja existentă
+  duplicate_source: Sursa există deja
   geolocation_invalid_value: Locație nevalidă. Se așteaptă o structură GeoJSON validă
     (http://geojson.org/)
   datetime_invalid_date: Dată nevalidă
@@ -495,7 +496,6 @@ ro:
   archive_pender_archive: Captură de ecran
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
-  workflow_status_not_valid: Starea nu este validă
   workflow_status_permission_error: Ne pare rău, nu aveți permisiunea de a modifica
     această stare
   blank_default_status_for_custom_verification_status: Vă rugăm să introduceți o valoare
@@ -670,6 +670,7 @@ ro:
     dintre următoarele cuvinte-cheie
   team_rule_select_type: Selectați tipul
   team_rule_select_language: Selectați limba
+  team_rule_select_user: Alegeți un colaborator
   team_rule_tagged_as: Elementul este etichetat drept
   team_rule_select_tag: Selectați eticheta
   team_rule_select_status: Selectați starea
@@ -712,6 +713,7 @@ ro:
   team_rule_select_field_value_metadata: Selectează valoarea
   team_rule_select_field_tasks: Selectează sarcina
   team_rule_select_field_value_tasks: Selectează răspunsul
+  team_rule_item_is_assigned_to_user: Elementul este alocat lui
   flag_adult: Adult
   flag_spoof: Înșelătorie
   flag_medical: Medical
@@ -741,7 +743,11 @@ ro:
     cât timp raportul este publicat
   fetch_bot_service_unsupported: Serviciul nu are suport
   task_options_must_be_array: Opțiunile sarcinii trebuie să fie într-o listă
-  fieldset_not_defined_by_team: Echipa trebuie să ofere suport pentru setul de câmpuri
+  fieldset_not_defined_by_team: Setul de câmpuri trebuie să aibă suport în spațiul
+    de lucru
+  replace_by_media_in_the_same_team: Ne pare rău, puteți înlocui acest element numai
+    cu altul din același spațiu de lucru
+  replace_blank_media_only: Ne pare rău, dar puteți înlocui numai elemente goale deocamdată
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -773,16 +779,16 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-checamos: ''
   custom_message_rule_action_send_message_9ad5edc7c0e9461e7c94e777e11c2142_afp-checamos: ''
   custom_message_rule_action_send_message_19c0c9bd3484a77dfc4a0112184846e3_afp-checamos: ''
-  custom_message_status_undetermined_afp-fact-check: Nedemarat
-  custom_message_status_in_progress_afp-fact-check: ''
+  custom_message_status_undetermined_afp-fact-check: Nepornit
+  custom_message_status_in_progress_afp-fact-check: În curs
   custom_message_status_inconclusive_afp-fact-check: ''
   custom_message_status_false_afp-fact-check: Fals
-  custom_message_status_verified_afp-fact-check: ''
+  custom_message_status_verified_afp-fact-check: Corect
   custom_message_status_misleading_afp-fact-check: Înșelător
-  custom_message_status_report-misleading_afp-fact-check: ''
-  custom_message_status_report-correct_afp-fact-check: ''
-  custom_message_status_report-false_afp-fact-check: ''
-  custom_message_status_need-orientation_afp-fact-check: ''
+  custom_message_status_report-misleading_afp-fact-check: 'Raportează: înșelător'
+  custom_message_status_report-correct_afp-fact-check: 'Raportează: corect'
+  custom_message_status_report-false_afp-fact-check: 'Raportează: fals'
+  custom_message_status_need-orientation_afp-fact-check: Ce este AFP Fact Check?
   custom_message_smooch_bot_result_afp-fact-check: ''
   custom_message_smooch_bot_result_changed_afp-fact-check: "❗️Verificarea de fapte
     pe care v-am transmis-o a fost *actualizată* cu informații noi:"
@@ -804,7 +810,7 @@ ro:
   custom_message_smooch_bot_option_not_available_afp-fact-check: "\U0001F916Ne pare
     rău, nu am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_afp-fact-check: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_afp-fact-check: inactiv
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_afp-fact-check: ''
   custom_message_rule_action_send_message_ae92a717011407e5971dbbee11b86a8d_afp-fact-check: ''
   custom_message_rule_action_send_message_73d2278db60e817b58833622b070997f_afp-fact-check: ''
@@ -823,7 +829,7 @@ ro:
   custom_message_status_misleading_boom-factcheck: Înșelător
   custom_message_status_partly-true_boom-factcheck: ''
   custom_message_status_undetermined_boom-factcheck: Nedemarat
-  custom_message_status_in_progress_boom-factcheck: ''
+  custom_message_status_in_progress_boom-factcheck: În curs
   custom_message_status_out_of_scope_boom-factcheck: ''
   custom_message_status_in_the_news_boom-factcheck: ''
   custom_message_status_junk_boom-factcheck: Nedorit
@@ -965,6 +971,7 @@ ro:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
+  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Vă mulțumim pentru că ați transmis acest mesaj.
 
@@ -1008,13 +1015,13 @@ ro:
   custom_message_status_junk_checkpoint: Nedorit
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_status_undetermined_india-today: Nedemarat
-  custom_message_status_in_progress_india-today: ''
+  custom_message_status_in_progress_india-today: În curs
   custom_message_status_inconclusive_india-today: ''
   custom_message_status_false_india-today: Fals
   custom_message_status_verified_india-today: ''
   custom_message_status_half_true_india-today: ''
   custom_message_status_misleading_india-today: ''
-  custom_message_status_report-false_india-today: ''
+  custom_message_status_report-false_india-today: 'Raportează: fals'
   custom_message_status_report-true_india-today: ''
   custom_message_status_report_misleading_india-today: ''
   custom_message_status_report-inconclusive_india-today: ''
@@ -1037,15 +1044,16 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_india-today: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_india-today: ''
   custom_message_rule_action_send_message_291ef9cd2f447b39c33a891fa084eb4f_india-today: ''
-  custom_message_rule_action_send_message_81287a2c0d10b545f133c230c35224c5_india-today: ''
+  custom_message_rule_action_send_message_4ca161f8946d80a30be887df3d4a2d17_india-today: ''
+  custom_message_rule_action_send_message_ff968555dae991a14a71b8d62d782adc_india-today: ''
   custom_message_status_false_infotagion: Fals
   custom_message_status_misleading_infotagion: Înșelător
   custom_message_status_true_infotagion: ''
   custom_message_status_unconfirmed_infotagion: ''
   custom_message_status_undetermined_africa-check: Nedemarat
-  custom_message_status_in_progress_africa-check: ''
+  custom_message_status_in_progress_africa-check: În curs
   custom_message_status_false_africa-check: ''
-  custom_message_status_verified_africa-check: ''
+  custom_message_status_verified_africa-check: Corect
   custom_message_status_mostly-correct_africa-check: ''
   custom_message_status_misleading_africa-check: Înșelător
   custom_message_status_inconclusive_africa-check: ''
@@ -1064,7 +1072,7 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_africa-check: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_africa-check: ''
-  custom_message_rule_action_send_message_b590119ce1c34480c22b4ec9a7ffe41f_africa-check: ''
+  custom_message_rule_action_send_message_6f7838a0c0ed2f35bd6d77c1350204fc_africa-check: ''
   custom_message_rule_action_send_message_34f85a533b7b7ce04eed722b96857c64_africa-check: ''
   custom_message_smooch_bot_result_changed_lebanon: "❗️Verificarea de fapte pe care
     v-am transmis-o a fost *actualizată* cu informații noi:"

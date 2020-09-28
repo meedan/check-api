@@ -10,7 +10,7 @@ namespace :check do
       n = items.size
 
       puts "[#{Time.now}] Starting Smooch annotations indexing: #{n} project medias"
-      client = MediaSearch.gateway.client
+      client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       mapping = {}

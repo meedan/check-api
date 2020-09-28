@@ -10,13 +10,13 @@ class ElasticSearch4Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     p2 = create_project team: t
-    info = {title: 'report_title'}.to_json
+    info = { title: 'report_title' }
     m = create_valid_media
     m2 = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.metadata = info
+    pm.analysis = info
     pm2 = create_project_media project: p2, media: m2, disable_es_callbacks: false
-    pm2.metadata = info
+    pm2.analysis = info
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
@@ -24,7 +24,7 @@ class ElasticSearch4Test < ActionController::TestCase
     # keyword & tags
     Team.current = t
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
-    assert_equal [pm.id, pm2.id], result.medias.map(&:id)
+    assert_equal [pm2.id, pm.id], result.medias.map(&:id)
     # keyword & context
     result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -74,7 +74,7 @@ class ElasticSearch4Test < ActionController::TestCase
     # sort with keywords
     Team.current = t
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
-    assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
+    assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
     # sort with keywords and tags
@@ -96,7 +96,7 @@ class ElasticSearch4Test < ActionController::TestCase
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], verification_status: ["verified"], projects: [p.id], sort: 'recent_activity'}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], verification_status: ["verified"], projects: [p.id]}.to_json)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id)
+    assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
     # sort asc and desc by created_date
     result = CheckSearch.new({keyword: 'search_sort', tags: ["sorts"], projects: [p.id], sort: 'recent_added'}.to_json)
     assert_equal [pm3.id, pm2.id], result.medias.map(&:id)
@@ -139,22 +139,22 @@ class ElasticSearch4Test < ActionController::TestCase
     result = CheckSearch.new({tags: ['iron']}.to_json)
     assert_equal [pm2.id, pm.id].sort, result.medias.map(&:id).sort
     # load all items sorted
-    assert_equal [pm.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
-    assert_equal [pm2.id, pm.id], MediaSearch.all_sorted('desc').keep_if {|x| x.annotated_type == 'ProjectMedia'}.map(&:annotated_id).map(&:to_i)
+    assert_equal [pm.id, pm2.id], MediaSearch.all_sorted().keep_if {|x| x['annotated_type'] == 'ProjectMedia'}.collect{|i|i['annotated_id'].to_i}
+    assert_equal [pm2.id, pm.id], MediaSearch.all_sorted('desc').keep_if {|x| x['annotated_type'] == 'ProjectMedia'}.collect{|i|i['annotated_id'].to_i}
   end
 
   test "should search for hashtag" do
     t = create_team
     p = create_project team: t
-    info = {title: 'report title'}.to_json
+    info = { title: 'report title' }
     m = create_valid_media
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm.metadata = info
+    pm.analysis = info
     create_tag tag: '#monkey', annotated: pm, disable_es_callbacks: false
-    info2 = {title: 'report #title'}.to_json
+    info2 = { title: 'report #title' }
     m2 = create_valid_media
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    pm2.metadata = info2
+    pm2.analysis = info2
     create_tag tag: 'monkey', annotated: pm2, disable_es_callbacks: false
     sleep 10
     Team.current = t

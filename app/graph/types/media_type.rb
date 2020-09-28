@@ -15,20 +15,13 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :picture, types.String
   field :type, types.String
   field :file_path, types.String
+  field :metadata, JsonStringType
 
   field :account do
     type -> { AccountType }
 
     resolve -> (media, _args, _ctx) {
       media.account
-    }
-  end
-
-  field :metadata do
-    type JsonStringType
-
-    resolve ->(media, _args, _ctx) {
-      media.metadata
     }
   end
 end

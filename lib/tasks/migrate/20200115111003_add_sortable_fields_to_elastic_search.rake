@@ -5,7 +5,7 @@ namespace :check do
       fields = {}
       args.extras.each{ |field| fields[field] = 0 if ProjectMedia.new.respond_to?(field) }
       index_alias = CheckElasticSearchModel.get_index_alias
-      client = MediaSearch.gateway.client
+      client = $repository.client
       ProjectMedia.find_in_batches(:batch_size => 5000) do |pms|
         es_body = []
         pms.each do |pm|

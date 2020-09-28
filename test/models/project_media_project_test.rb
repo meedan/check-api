@@ -128,21 +128,53 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     p1 = create_project
     pm = create_project_media project: p1, disable_es_callbacks: false
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id], result.project_id
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id], result['project_id']
     p2 = create_project
     pmp = create_project_media_project project_media: pm, project: p2, disable_es_callbacks: false
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id, p2.id].sort, result.project_id.sort
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id, p2.id].sort, result['project_id'].sort
     pmp.destroy!
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id], result.project_id
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id], result['project_id']
   end
 
   test "should get search object" do
     pmp = create_project_media_project
     assert_kind_of CheckSearch, pmp.check_search_project
+  end
+
+  test "should get slack channel" do
+    t = create_team
+    p = create_project team: t
+    pmp = create_project_media_project project: p
+    assert_nil pmp.slack_channel('item_added')
+    p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}, {event: 'item_deleted', slack_channel: '#test2'}]
+    p.save!
+    pmp = pmp.reload
+    assert_equal '#test', pmp.slack_channel('item_added')
+    assert_equal '#test2', pmp.slack_channel('item_deleted')
+    assert_nil pmp.slack_channel('non_exist_event')
+  end
+
+  test "should notify Slack when project media project is created" do
+    t = create_team slug: 'test'
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'owner'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    p = create_project team: t
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      pmp = create_project_media_project project: p, project_media: pm
+      assert pmp.sent_to_slack
+      assert_match I18n.t("slack.messages.project_media_create", pmp.project_media.slack_params), pmp.slack_notification_message[:pretext]
+      p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
+      p.save!
+      pmp_2 = create_project_media_project project: p, project_media: pm2
+      assert pmp_2.sent_to_slack
+    end
   end
 end

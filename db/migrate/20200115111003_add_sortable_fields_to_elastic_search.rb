@@ -1,7 +1,7 @@
 class AddSortableFieldsToElasticSearch < ActiveRecord::Migration
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
-    client = MediaSearch.gateway.client
+    client = $repository.client
     options = {
       index: index_alias,
       type: 'media_search',

@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
     task remove_project_source: :environment do
-      client = MediaSearch.gateway.client
+      client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_name,
         type: 'media_search',
