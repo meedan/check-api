@@ -663,7 +663,6 @@ module SampleData
     options[:id] = get_es_id(pm)
     options[:annotated_id] = pm.id
     options[:annotated_type] = pm.class.name
-    ms = ElasticItem.new
     options.each do |key, value|
       ms.attributes[key] = value
     end
