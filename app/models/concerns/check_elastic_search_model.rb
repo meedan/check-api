@@ -6,7 +6,6 @@ module CheckElasticSearchModel
     include Elasticsearch::Persistence::Repository::DSL
 
     index_name CheckElasticSearchModel.get_index_alias
-    document_type 'media_search'
 
     settings analysis: {
       char_filter: {
@@ -88,7 +87,7 @@ module CheckElasticSearchModel
       end
       settings = settings.reduce(:merge)
       mappings = mappings.reduce(:merge)
-      client.indices.create index: index_name, include_type_name: true, body: { settings: settings.to_hash, mappings: mappings.to_hash }
+      client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash }
       client.indices.put_alias index: index_name, name: CheckElasticSearchModel.get_index_alias if c_alias
     end
 

@@ -4,14 +4,11 @@ class AddSortableFieldsToElasticSearch < ActiveRecord::Migration
     client = $repository.client
     options = {
       index: index_alias,
-      type: 'media_search',
       body: {
-        media_search: {
           properties: {
             linked_items_count: { type: 'long' },
             last_seen: { type: 'long' }
           }
-        }
       }
     }
     client.indices.put_mapping options

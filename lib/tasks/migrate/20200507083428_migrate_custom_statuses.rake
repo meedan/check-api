@@ -4,7 +4,6 @@ namespace :check do
       client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_alias,
-        type: 'media_search',
       }
       statuses = []
       # India Today Group Fact Check team

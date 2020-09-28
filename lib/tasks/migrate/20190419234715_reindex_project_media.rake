@@ -11,14 +11,14 @@ namespace :check do
       ProjectMedia.find_each do |model|
         i += 1
         print '.'
-        model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: model.get_es_doc_id)
+        model.create_elasticsearch_doc_bg(nil) unless $repository.exists?(model.get_es_doc_id)
       end
       n = ProjectSource.count
       i = 0
       ProjectSource.find_each do |model|
         i += 1
         print '.'
-        model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: model.get_es_doc_id)
+        model.create_elasticsearch_doc_bg(nil) unless $repository.exists?(model.get_es_doc_id)
       end
 
       sleep 60
@@ -42,7 +42,7 @@ namespace :check do
         options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model) }
         fields = { 'updated_at' => model.updated_at.utc }
         options[:keys].each{ |k| fields[k] = data[k] if !data[k].blank? }
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id], data: { doc: fields } } }
+        es_body << { update: { _index: index_alias, _id: options[:doc_id], data: { doc: fields } } }
       end
 
       puts "[#{Time.now}] Calling ElasticSearch..."
@@ -67,7 +67,7 @@ namespace :check do
         options = { keys: keys, data: data, parent: model, obj: model, doc_id: model.get_es_doc_id(model) }
         fields = { 'updated_at' => model.updated_at.utc }
         options[:keys].each{ |k| fields[k] = data[k] if !data[k].blank? }
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id], data: { doc: fields } } }
+        es_body << { update: { _index: index_alias, _id: options[:doc_id], data: { doc: fields } } }
       end
 
       puts "[#{Time.now}] Calling ElasticSearch..."

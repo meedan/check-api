@@ -4,7 +4,6 @@ class MigrateElasticSearchForInactiveField < ActiveRecord::Migration
   	client = $repository.client
     options = {
       index: CheckElasticSearchModel.get_index_alias,
-      type: 'media_search',
       conflicts: 'proceed'
     }
     # reset items with inactive = 1 and not exists in ids 

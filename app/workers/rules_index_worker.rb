@@ -15,7 +15,7 @@ class RulesIndexWorker
         team.apply_rules(pm) do |rules_and_actions|
           matched_rules_ids << Team.rule_id(rules_and_actions)
         end
-        es_bodies << { update: { _index: index, _type: 'media_search', _id: pm.get_es_doc_id, data: { doc: { rules: matched_rules_ids } } } }
+        es_bodies << { update: { _index: index, _id: pm.get_es_doc_id, data: { doc: { rules: matched_rules_ids } } } }
       end
       es_bodies.each_slice(10000) do |es_body|
         $repository.client.bulk(body: es_body) unless es_body.empty?
