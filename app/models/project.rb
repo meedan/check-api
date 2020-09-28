@@ -130,7 +130,6 @@ class Project < ActiveRecord::Base
     client = $repository.client
     options = {
       index: CheckElasticSearchModel.get_index_alias,
-      type: 'media_search',
       body: {
         script: { source: "ctx._source.team_id = params.team_id", params: { team_id: self.team_id } },
         query: { term: { project_id: { value: self.id } } }

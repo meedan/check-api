@@ -1733,7 +1733,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       def perform(id)
         begin
           client = $repository.client
-          client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id, retry_on_conflict: 0, body: { doc: { updated_at: Time.now + rand(50).to_i } }
+          client.update index: CheckElasticSearchModel.get_index_alias, id: id, retry_on_conflict: 0, body: { doc: { updated_at: Time.now + rand(50).to_i } }
         rescue Exception => e
           retry_count = retry_count.to_i + 1
           if retry_count < 5

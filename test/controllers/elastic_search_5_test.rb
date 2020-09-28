@@ -39,10 +39,10 @@ class ElasticSearch5Test < ActionController::TestCase
     m = create_media_search
     url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
     client = Elasticsearch::Client.new(url: url)
-    repository = MediaSearch.new(client: client, index_name: source_index, type: 'media_search')
+    repository = MediaSearch.new(client: client, index_name: source_index)
     results = repository.search(query: { match_all: { } }, size: 10000)
     assert_equal 1, results.size
-    repository2 = MediaSearch.new(client: client, index_name: target_index, type: 'media_search')
+    repository2 = MediaSearch.new(client: client, index_name: target_index)
     results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 0, results.size
     MediaSearch.migrate_es_data(source_index, target_index)

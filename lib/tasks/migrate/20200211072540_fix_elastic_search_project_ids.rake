@@ -16,14 +16,13 @@ namespace :check do
         	print "."
           doc_id =  pmp.keys.first
           fields = { 'project_id' => pmp[doc_id] }
-          es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
+          es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         end
         client.bulk body: es_body unless es_body.blank?
       end
       # catch items with no project
       options = {
         index: CheckElasticSearchModel.get_index_alias,
-        type: 'media_search',
       }
       ProjectMedia.joins("LEFT JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
       .where('pmp.id is NULL').find_in_batches(:batch_size => 2500) do |pms|

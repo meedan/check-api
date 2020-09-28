@@ -32,7 +32,7 @@ namespace :check do
                      "ctx._source.#{key}[i].#{field_name} = params.value.#{field_name};s = 1;break;}}"+
                  "if (s == 0) {ctx._source.#{key}.add(params.value)}"
         values = smooch.store_elasticsearch_data(options[:keys], options[:data])
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: options[:doc_id],
+        es_body << { update: { _index: index_alias, _id: options[:doc_id],
                  data: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } } } }
 
         i += 1

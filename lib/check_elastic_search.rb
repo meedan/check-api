@@ -36,7 +36,7 @@ module CheckElasticSearch
     fields = { 'updated_at' => Time.now.utc }
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
     client = $repository.client
-    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
   end
 
   def add_update_nested_obj(options)
@@ -62,7 +62,7 @@ module CheckElasticSearch
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
-    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
+    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
             body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
   end
 
@@ -118,7 +118,7 @@ module CheckElasticSearch
       else
         source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       end
-      client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
+      client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     rescue
       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"

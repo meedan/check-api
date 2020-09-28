@@ -41,7 +41,7 @@ module ProjectMediaBulk
         model = ProjectMedia.new(id: id)
         doc_id = model.get_es_doc_id(model)
         model.create_elasticsearch_doc_bg(nil) unless $repository.exists?(doc_id)
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: updates } } }
+        es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: updates } } }
       end
       client.bulk body: es_body
     end
