@@ -78,20 +78,20 @@ class ElasticSearch7Test < ActionController::TestCase
     sleep 10
     
     query = { bool: { must: { term: { rules: rule1 } } } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm1.id, pm3.id].sort, results.map(&:annotated_id).sort
+    results = $repository.search(query: query).results
+    assert_equal [pm1.id, pm3.id].sort, results.collect{|i| i['annotated_id']}.sort
     results = CheckSearch.new({ rules: [rule1] }.to_json)
     assert_equal [pm1, pm3].sort, results.medias.sort
     
     query = { bool: { must: { term: { rules: rule2 } } } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm2.id, pm3.id].sort, results.map(&:annotated_id).sort
+    results = $repository.search(query: query).results
+    assert_equal [pm2.id, pm3.id].sort, results.collect{|i| i['annotated_id']}.sort
     results = CheckSearch.new({ rules: [rule2] }.to_json)
     assert_equal [pm2, pm3].sort, results.medias.sort
     
     query = { bool: { must: [{ term: { rules: rule1 } }, { term: { rules: rule2 } }] } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm3.id].sort, results.map(&:annotated_id).sort
+    results = $repository.search(query: query).results
+    assert_equal [pm3.id].sort, results.collect{|i| i['annotated_id']}.sort
     results = CheckSearch.new({ rules: [rule1, rule2] }.to_json)
     assert_equal [pm1, pm2, pm3].sort, results.medias.sort
 
@@ -189,20 +189,20 @@ class ElasticSearch7Test < ActionController::TestCase
     sleep 10
 
     query = { bool: { must: { term: { rules: rule1 } } } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm2.id], results.map(&:annotated_id)
+    results = $repository.search(query: query).results
+    assert_equal [pm2.id], results.collect{|i| i['annotated_id']}
     results = CheckSearch.new({ rules: [rule1] }.to_json)
     assert_equal [pm2], results.medias
     
     query = { bool: { must: { term: { rules: rule2 } } } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm1.id], results.map(&:annotated_id)
+    results = $repository.search(query: query).results
+    assert_equal [pm1.id], results.collect{|i| i['annotated_id']}
     results = CheckSearch.new({ rules: [rule2] }.to_json)
     assert_equal [pm1], results.medias
 
     query = { bool: { must: { term: { rules: rule3 } } } }
-    results = MediaSearch.search(query: query).results
-    assert_equal [pm3.id], results.map(&:annotated_id)
+    results = $repository.search(query: query).results
+    assert_equal [pm3.id], results.collect{|i| i['annotated_id']}
     results = CheckSearch.new({ rules: [rule3] }.to_json)
     assert_equal [pm3], results.medias
   end
