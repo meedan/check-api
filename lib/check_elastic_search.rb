@@ -30,13 +30,15 @@ module CheckElasticSearch
   end
 
   def update_elasticsearch_doc_bg(options)
-    create_doc_if_not_exists(options)
-    sleep 1
     data = get_elasticsearch_data(options[:data])
     fields = { 'updated_at' => Time.now.utc }
     options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
-    client = $repository.client
-    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+    if fields.count > 1
+      create_doc_if_not_exists(options)
+      sleep 1
+      client = $repository.client
+      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+    end
   end
 
   def add_update_nested_obj(options)
