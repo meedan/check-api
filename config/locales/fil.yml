@@ -513,6 +513,8 @@ fil:
   archive_pender_archive: Screenshot
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'Hindi wastong status: ''%{status}'' (dapat kabilang
+    sa %{valid})'
   workflow_status_permission_error: Paumahin, hindi ka pinahihintulutang baguhin ang
     status na ito.
   blank_default_status_for_custom_verification_status: Mangyaring magbigay ng default
@@ -989,7 +991,6 @@ fil:
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
   custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
-  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ''
   custom_message_smooch_bot_message_confirmed_checkpoint: ''
   custom_message_smooch_bot_message_unconfirmed_checkpoint: ''

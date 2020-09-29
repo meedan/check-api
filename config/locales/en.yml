@@ -1114,8 +1114,6 @@ en:
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
     we could not verify your query. Learn more about the type of content we can verify
     at meedan.com
-  custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: This
-    message is misleading
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
     Thank you for sending this message.
     Do you suspect it to be misinformation related to the Indian General Elections 2019?
