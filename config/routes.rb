@@ -69,4 +69,5 @@ Rails.application.routes.draw do
   match '/test/archive_project' => 'test#archive_project', via: :get
   match '/test/dynamic_annotation' => 'test#new_dynamic_annotation', via: :get
   match '/test/cache_key' => 'test#new_cache_key', via: :get
+  match '/test/team_data_field' => 'test#new_team_data_field', via: :get
 end

@@ -118,6 +118,13 @@ class TestController < ApplicationController
     render_success 'task', t
   end
 
+  def new_team_data_field
+    Team.current = Team.find(params[:team_id])
+    team_data_field = "Team-#{params[:fieldset]}-#{Time.now}"
+    tt = create_team_task({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params))
+    render_success 'team_task', tt
+  end
+
   def new_api_key
     if params[:access_token]
       a = ApiKey.where(access_token: params[:access_token]).last

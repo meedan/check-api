@@ -399,4 +399,26 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create team task and metadata if in test mode" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    get :new_team_data_field, {team_id: t.id, fieldset: 'tasks'}
+    assert_response :success
+    get :new_team_data_field,{ team_id: t.id, fieldset: 'metadata'}
+    assert_response :success
+  end
+
+  test "should not create team task and metadata if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    get :new_team_data_field, {team_id: t.id, fieldset: 'tasks'}
+    assert_response 400
+    get :new_team_data_field,{ team_id: t.id, fieldset: 'metadata'}
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end
