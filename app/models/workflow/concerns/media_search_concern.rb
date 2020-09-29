@@ -3,7 +3,9 @@ module Workflow
     module MediaSearchConcern
       MediaSearch.class_eval do
         ::Workflow::Workflow.workflow_ids.each do |id|
-          attribute id.to_sym, String, mapping: { type: 'keyword' }
+          mapping do
+            indexes id.to_sym, { type: 'keyword' }
+          end
         end
       end
     end

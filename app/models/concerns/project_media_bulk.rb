@@ -34,14 +34,14 @@ module ProjectMediaBulk
 
     def bulk_reindex(ids_json, updates)
       ids = JSON.parse(ids_json)
-      client = MediaSearch.gateway.client
+      client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       ids.each do |id|
         model = ProjectMedia.new(id: id)
         doc_id = model.get_es_doc_id(model)
-        model.create_elasticsearch_doc_bg(nil) unless client.exists?(index: index_alias, type: 'media_search', id: doc_id)
-        es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, data: { doc: updates } } }
+        model.create_elasticsearch_doc_bg(nil) unless $repository.exists?(doc_id)
+        es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: updates } } }
       end
       client.bulk body: es_body
     end
