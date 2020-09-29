@@ -29,14 +29,14 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
       pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
       sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
+      results = $repository.search(query: { match: { team_id: t.id } }).results
+      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
       p.team_id = t2.id; p.save!
       sleep 5
-      results = MediaSearch.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.map(&:annotated_id)
-      results = MediaSearch.search(query: { match: { team_id: t2.id } }).results
-      assert_equal pids.sort, results.map(&:annotated_id).sort
+      results = $repository.search(query: { match: { team_id: t.id } }).results
+      assert_equal [], results.collect{|i| i['annotated_id']}
+      results = $repository.search(query: { match: { team_id: t2.id } }).results
+      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
     end
   end
 
@@ -53,19 +53,19 @@ class ElasticSearch2Test < ActionController::TestCase
     create_tag annotated: pm
     sleep 1
     id = get_es_id(pm)
-    ms = MediaSearch.find(id)
-    assert_equal 1, ms.project_id.size
-    assert_equal ms.project_id.last.to_i, p.id
-    assert_equal ms.team_id.to_i, t.id
+    ms = $repository.find(id)
+    assert_equal 1, ms['project_id'].size
+    assert_equal ms['project_id'].last.to_i, p.id
+    assert_equal ms['team_id'].to_i, t.id
     pm = ProjectMedia.find pm.id
     pmp = pm.project_media_projects.last
     pmp.project_id = p2.id; pmp.save!
     # confirm annotations log
     sleep 1
-    ms = MediaSearch.find(id)
-    assert_equal 1, ms.project_id.size
-    assert_equal ms.project_id.last.to_i, p2.id
-    assert_equal ms.team_id.to_i, t.id
+    ms = $repository.find(id)
+    assert_equal 1, ms['project_id'].size
+    assert_equal ms['project_id'].last.to_i, p2.id
+    assert_equal ms['team_id'].to_i, t.id
   end
 
   test "should destroy elasticseach project media" do
@@ -75,12 +75,12 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
     id = get_es_id(pm)
-    assert_not_nil MediaSearch.find(id)
+    assert_not_nil $repository.find(id)
     Sidekiq::Testing.inline! do
       pm.destroy
       sleep 1
       assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        result = MediaSearch.find(id)
+        result = $repository.find(id)
       end
     end
   end
@@ -100,12 +100,12 @@ class ElasticSearch2Test < ActionController::TestCase
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
     sleep 1
-    ms = MediaSearch.find(get_es_id(pm))
+    ms = $repository.find(get_es_id(pm))
     assert_equal 'org_title', pm.title
-    assert_equal 'org_title', ms.title
-    ms2 = MediaSearch.find(get_es_id(pm2))
+    assert_equal 'org_title', ms['title']
+    ms2 = $repository.find(get_es_id(pm2))
     assert_equal pm2.title, 'org_title'
-    assert_equal ms2.title, 'org_title'
+    assert_equal ms2['title'], 'org_title'
     Sidekiq::Testing.inline! do
       # Update title
       pm2.reload; pm2.disable_es_callbacks = false
@@ -119,11 +119,11 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2.save!
     end
     sleep 10
-    ms2 = MediaSearch.find(get_es_id(pm2))
-    assert_equal 'overridden_title', ms2.title
-    ms = MediaSearch.find(get_es_id(pm))
+    ms2 = $repository.find(get_es_id(pm2))
+    assert_equal 'overridden_title', ms2['title']
+    ms = $repository.find(get_es_id(pm))
     assert_equal 'new_title', pm.title
-    assert_equal 'new_title', ms.title
+    assert_equal 'new_title', ms['title']
   end
 
   test "should set elasticsearch data for media account" do
@@ -145,7 +145,7 @@ class ElasticSearch2Test < ActionController::TestCase
     m = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
     sleep 1
-    ms = MediaSearch.find(get_es_id(pm))
+    ms = $repository.find(get_es_id(pm))
     assert_equal ms['accounts'][0].sort, {"id"=> m.account.id, "title"=>"Foo", "description"=>"Bar"}.sort
   end
 
@@ -247,7 +247,7 @@ class ElasticSearch2Test < ActionController::TestCase
 
     sleep 3
 
-    assert_equal 1, MediaSearch.search(search).results.size
+    assert_equal 1, $repository.search(search).results.size
   end
 
   test "should index and search by datetime" do
@@ -281,7 +281,7 @@ class ElasticSearch2Test < ActionController::TestCase
 
     sleep 5
 
-    assert_equal 1, MediaSearch.search(search).results.size
+    assert_equal 1, $repository.search(search).results.size
   end
 
   test "should index and search by language" do
@@ -315,9 +315,9 @@ class ElasticSearch2Test < ActionController::TestCase
         }
       }
 
-      results = MediaSearch.search(search).results
+      results = $repository.search(search).results
       assert_equal 1, results.size
-      assert_equal ids[code], results.first.annotated_id
+      assert_equal ids[code], results.first['annotated_id']
     end
   end
 

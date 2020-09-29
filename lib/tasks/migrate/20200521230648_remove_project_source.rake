@@ -1,10 +1,9 @@
 namespace :check do
   namespace :migrate do
     task remove_project_source: :environment do
-      client = MediaSearch.gateway.client
+      client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_name,
-        type: 'media_search',
         conflicts: 'proceed'
       }
       Annotation.where(annotated_type: 'ProjectSource').find_in_batches(:batch_size => 2500) do |data|
