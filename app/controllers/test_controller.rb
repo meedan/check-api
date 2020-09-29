@@ -118,11 +118,11 @@ class TestController < ApplicationController
     render_success 'task', t
   end
 
-  def new_team_data_field()
+  def new_team_data_field
     Team.current = Team.find(params[:team_id])
-    team_data_field = "Team-#{params[:fieldset]}"+Time.now.to_s
-    tt = create_team_task({label:team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params))
-    render_success 'task', tt
+    team_data_field = "Team-#{params[:fieldset]}-#{Time.now}"
+    tt = create_team_task({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params))
+    render_success 'team_task', tt
   end
 
   def new_api_key
