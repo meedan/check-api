@@ -58,7 +58,7 @@ module CheckElasticSearch
     unless obj.nil?
       callback = data['method']
       value = obj.send(callback) if !callback.blank? && obj.respond_to?(callback)
-      value.to_i if data['type'] == 'int'
+      value = value.to_i if data['type'] == 'int'
     end
     value
   end
