@@ -17,7 +17,7 @@ module Workflow
         end
 
         def index_on_es
-          self.update_elasticsearch_doc([self.annotation_type], { self.annotation_type => self.value }, self.annotation.annotated)
+          self.update_elasticsearch_doc([self.annotation_type], { self.annotation_type => { method: 'value', klass: self.class.name, id: self.id } }, self.annotation.annotated)
         end
 
         ::Workflow::Workflow.workflow_ids.each do |id|

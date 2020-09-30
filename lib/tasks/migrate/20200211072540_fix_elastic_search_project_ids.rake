@@ -14,7 +14,7 @@ namespace :check do
       pmps_all.each_slice(2500).each do |pmps|
         es_body = []
         pmps.each do |pmp|
-        	print "."
+          print "."
           doc_id =  pmp.keys.first
           fields = { 'project_id' => pmp[doc_id] }
           es_body << { update: { _index: index_alias, _type: 'media_search', _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
@@ -32,6 +32,28 @@ namespace :check do
         ids = pms.map(&:id)
         body = {
           script: { source: "ctx._source.project_id = params.ids", params: { ids: [] } },
+          query: { terms: { annotated_id: ids } }
+        }
+        options[:body] = body
+        client.update_by_query options
+      end
+      sleep 10
+      # Fix archived field
+      ProjectMedia.where(archived: true).find_in_batches(:batch_size => 2500) do |pms|
+        print "."
+        ids = pms.map(&:id)
+        body = {
+          script: { source: "ctx._source.archived = params.archived", params: { archived: 1 } },
+          query: { terms: { annotated_id: ids } }
+        }
+        options[:body] = body
+        client.update_by_query options
+      end
+      ProjectMedia.where(archived: false).find_in_batches(:batch_size => 2500) do |pms|
+        print "."
+        ids = pms.map(&:id)
+        body = {
+          script: { source: "ctx._source.archived = params.archived", params: { archived: 0 } },
           query: { terms: { annotated_id: ids } }
         }
         options[:body] = body

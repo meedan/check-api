@@ -52,6 +52,7 @@ module CheckCachedFields
         target.updated_at = Time.now
         target.skip_check_ability = true
         target.skip_notifications = true
+        target.disable_es_callbacks = true
         ActiveRecord::Base.connection_pool.with_connection { target.save! }
         # update es index
         if update_index
