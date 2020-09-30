@@ -92,7 +92,7 @@ module ProjectAssociation
       obj = self.reload
       data = {
         'team_id' => obj.team_id,
-        'archived' => obj.archived.to_i,
+        'archived' => { method: 'archived', klass: obj.class.name, id: obj.id, type: 'int' },
         'sources_count' => obj.sources_count,
         'user_id' => obj.user_id,
         'read' => obj.read.to_i
