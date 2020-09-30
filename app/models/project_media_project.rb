@@ -145,7 +145,7 @@ class ProjectMediaProject < ActiveRecord::Base
     pairs = JSON.parse(pairs_json)
     ids.each do |id|
       pm = ProjectMedia.find(id)
-      pm.update_elasticsearch_doc(['project_id'], { 'project_id' => pm.projects.map(&:id) }, pm)
+      pm.update_elasticsearch_doc(['project_id'], { 'project_id' => { method: 'project_ids', klass: 'ProjectMedia', id: pm.id } }, pm)
     end
     pairs.each { |pair| self.remove_related_team_tasks_bg(pair['project_id'], pair['project_media_id']) }
   end
@@ -228,7 +228,7 @@ class ProjectMediaProject < ActiveRecord::Base
 
   def update_index_in_elasticsearch
     return if self.disable_es_callbacks
-    self.update_elasticsearch_doc(['project_id'], { 'project_id' => self.project_media.projects.map(&:id) }, self.project_media)
+    self.update_elasticsearch_doc(['project_id'], { 'project_id' => { method: 'project_ids', klass: 'ProjectMedia', id: self.project_media_id } }, self.project_media)
   end
 
   def send_pmp_slack_notification
