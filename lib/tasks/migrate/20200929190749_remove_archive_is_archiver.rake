@@ -35,9 +35,9 @@ namespace :check do
       result = ActiveRecord::Base.connection.execute(query).to_a
       while !result.empty? do
         fields_to_delete = result.map { |r| r['id'] }
-        DynamicAnnotation::Field.where(id: fields_to_delete).delete_all
-        i += 1
-        puts "[#{Time.now}] Deleted #{fields_to_delete.size * i}/#{n} #{field_name} fields..."
+        DynamicAnnotation::Field.where(id: fields_to_delete).destroy_all
+        i += fields_to_delete.size
+        puts "[#{Time.now}] Deleted #{i}/#{n} #{field_name} fields..."
         query = "SELECT f.id FROM dynamic_annotation_fields f WHERE f.field_name = '#{field_name}' ORDER BY f.id ASC LIMIT #{SIZE}"
         result = ActiveRecord::Base.connection.execute(query).to_a
       end
