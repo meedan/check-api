@@ -30,13 +30,37 @@ module CheckElasticSearch
   end
 
   def update_elasticsearch_doc_bg(options)
-    create_doc_if_not_exists(options)
-    sleep 1
     data = get_elasticsearch_data(options[:data])
     fields = { 'updated_at' => Time.now.utc }
-    options[:keys].each{|k| fields[k] = data[k] if !data[k].blank? }
-    client = $repository.client
-    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+    options[:keys].each do |k|
+      unless data[k].blank?
+        if data[k].class.to_s == 'Hash'
+          value = get_fresh_value(data[k].with_indifferent_access)
+          fields[k] = value unless value.nil?
+        else
+          fields[k] = data[k]
+        end
+      end
+    end
+    if fields.count > 1
+      create_doc_if_not_exists(options)
+      sleep 1
+      client = $repository.client
+      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+    end
+  end
+
+  # Get a fresh data based on data(Hash)
+  def get_fresh_value(data)
+    value = nil
+    klass = data['klass']
+    obj = klass.constantize.find_by_id data['id'] unless klass.blank?
+    unless obj.nil?
+      callback = data['method']
+      value = obj.send(callback) if !callback.blank? && obj.respond_to?(callback)
+      value = value.to_i if data['type'] == 'int'
+    end
+    value
   end
 
   def add_update_nested_obj(options)
