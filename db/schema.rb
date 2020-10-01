@@ -79,6 +79,7 @@ ActiveRecord::Schema.define(version: 20200929190749) do
     t.datetime "updated_at",    null: false
     t.string   "assigned_type"
     t.integer  "assigner_id"
+    t.text     "message"
   end
 
   add_index "assignments", ["assigned_id", "assigned_type", "user_id"], name: "index_assignments_on_assigned_id_and_assigned_type_and_user_id", unique: true, using: :btree
