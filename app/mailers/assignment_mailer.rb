@@ -1,7 +1,7 @@
 class AssignmentMailer < ApplicationMailer
   layout nil
 
-  def notify(event, author, recipient, assigned)
+  def notify(event, author, recipient, assigned, message = nil)
     return unless should_notify?(recipient, assigned)
 
     if assigned.is_a?(Annotation)
@@ -63,6 +63,7 @@ class AssignmentMailer < ApplicationMailer
       }),
       project_url: project&.url&.to_s,
       description: description,
+      message: message
     }
 
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
