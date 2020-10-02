@@ -1,6 +1,9 @@
 namespace :check do
   namespace :migrate do
     task remove_archive_is_archiver: :environment do
+      old_logger = ActiveRecord::Base.logger
+      ActiveRecord::Base.logger = nil
+
       started = Time.now.to_i
       RequestStore.store[:skip_notifications] = true
       RequestStore.store[:skip_clear_cache] = true
@@ -31,14 +34,18 @@ namespace :check do
       n = DynamicAnnotation::Field.where(field_name: field_name).count
       puts "[#{Time.now}] Deleting #{n} #{field_name} fields..."
 
-      query = "SELECT f.id FROM dynamic_annotation_fields f WHERE f.field_name = '#{field_name}' ORDER BY f.id ASC LIMIT #{SIZE}"
+      query = "SELECT f.id, pm.team_id FROM dynamic_annotation_fields f LEFT OUTER JOIN annotations a ON a.id = f.annotation_id LEFT OUTER JOIN project_medias pm ON pm.id = a.annotated_id WHERE f.field_name = '#{field_name}' AND a.annotation_type = 'archiver' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id LIMIT #{SIZE}"
       result = ActiveRecord::Base.connection.execute(query).to_a
       while !result.empty? do
-        fields_to_delete = result.map { |r| r['id'] }
-        DynamicAnnotation::Field.where(id: fields_to_delete).destroy_all
+        fields_to_delete = []
+        result.group_by { |r| r['team_id'] }.each do |team_id, fields|
+          fields_to_delete += fields.map { |f| f['id'] }
+          Version.from_partition(team_id.to_i).where(item_id: fields_to_delete).delete_all
+        end
         i += fields_to_delete.size
+        DynamicAnnotation::Field.where(id: fields_to_delete).delete_all
         puts "[#{Time.now}] Deleted #{i}/#{n} #{field_name} fields..."
-        query = "SELECT f.id FROM dynamic_annotation_fields f WHERE f.field_name = '#{field_name}' ORDER BY f.id ASC LIMIT #{SIZE}"
+        query = "SELECT f.id, pm.team_id FROM dynamic_annotation_fields f LEFT OUTER JOIN annotations a ON a.id = f.annotation_id LEFT OUTER JOIN project_medias pm ON pm.id = a.annotated_id WHERE f.field_name = '#{field_name}' AND a.annotation_type = 'archiver' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id LIMIT #{SIZE}"
         result = ActiveRecord::Base.connection.execute(query).to_a
       end
 
@@ -50,6 +57,7 @@ namespace :check do
       RequestStore.store[:skip_notifications] = false
       RequestStore.store[:skip_clear_cache] = false
       RequestStore.store[:skip_rules] = false
+      ActiveRecord::Base.logger = old_logger
     end
   end
 end
