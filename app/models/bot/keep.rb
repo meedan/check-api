@@ -16,7 +16,6 @@ class Bot::Keep < BotUser
     [
       'keep_backup',    # VideoVault
       'pender_archive', # Screenshot
-      'archive_is',     # Archive.is
       'archive_org',    # Archive.org
       'perma_cc'       # Perma.cc
     ]
