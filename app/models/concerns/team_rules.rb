@@ -152,7 +152,7 @@ module TeamRules
     end
 
     def relate_similar_items(pm, _value, rule_id)
-      Team.delay_for(1.second).relate_similar_items(pm.id, pm.alegre_similarity_thresholds[rule_id].to_json)
+      Team.delay_for(1.second).relate_similar_items(pm.id, pm.alegre_similarity_thresholds[rule_id].to_json) unless pm.alegre_similarity_thresholds.blank?
     end
   end
 

@@ -138,6 +138,23 @@ class Bot::Smooch < BotUser
       slack_channel_url
     end
 
+    def smooch_user_external_identifier
+      object_after = JSON.parse(self.object_after)
+      return '' unless object_after['field_name'] == 'smooch_data'
+      data = JSON.parse(object_after['value'])
+      field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: data['authorId']).last
+      return '' if field.nil?
+      user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
+      case user[:platform]
+      when 'whatsapp'
+        user[:displayName]
+      when 'twitter'
+        '@' + user[:raw][:screen_name]
+      else
+        ''
+      end
+    end
+
     private
 
     def get_slack_channel_url(obj, data)
@@ -407,9 +424,8 @@ class Bot::Smooch < BotUser
         media = message['mediaUrl']
         bundle['type'] = message['type']
         bundle['mediaUrl'] = media
-      else
-        text << message['mediaUrl'].to_s
       end
+      text << message['mediaUrl'].to_s
       text << message['text'].to_s
     end
     bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
