@@ -238,10 +238,13 @@ module SampleData
       create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
     sel = create_field_type field_type: 'select', label: 'Select'
+    text = create_field_type field_type: 'text', label: 'Text'
     at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task Response Single Choice'
     create_field_instance annotation_type_object: at, name: 'response_single_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: false }
     at = create_annotation_type annotation_type: 'task_response_multiple_choice', label: 'Task Response Multiple Choice'
     create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
   end
 
   # Verification status
