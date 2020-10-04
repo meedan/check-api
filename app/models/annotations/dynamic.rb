@@ -258,6 +258,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def rule_ids_for_text_task_response
+    return [] unless self.annotated_type == 'Task'
     self.annotated.annotated.team.get_rules_that_match_condition do |condition, value|
       condition == "field_from_fieldset_#{self.annotated.fieldset}_value_contains_keyword" && self.annotated.annotated.team.text_contains_keyword(self.get_field_value('response_free_text'), value['value'])
     end
