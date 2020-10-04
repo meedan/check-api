@@ -119,6 +119,14 @@ module TeamRules
       status = pm.last_status_obj
       status && Assignment.exists?(assigned_type: 'Annotation', assigned_id: status.id, user_id: value.to_i)
     end
+
+    def field_contains_keyword(pm, value, _rule_id)
+      field_value_that_contains_keyword = pm.get_annotations('task').find do |annotation|
+        task = annotation.becomes(Task)
+        task.type == 'free_text' && task.task.team_task_id.to_i == value['team_task_id'].to_i && text_contains_keyword(task.first_response, value['value'].to_s)
+      end
+      !field_value_that_contains_keyword.nil?
+    end
   end
 
   module Actions
@@ -201,7 +209,8 @@ module TeamRules
   def rules_json_schema
     pm = ProjectMedia.new(team_id: self.id)
     statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
-    field_objs = self.team_tasks.where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    choice_field_objs = self.team_tasks.where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    text_field_objs = self.team_tasks.where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
     namespace = OpenStruct.new({
       projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },
@@ -213,21 +222,31 @@ module TeamRules
       likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
       users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
-      fields: field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
-      field_values: field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| [tt[:id], tt[:options].collect{ |o| o.with_indifferent_access['label'] }.collect{ |l| { key: l, value: l } }] } },
-      fieldsets: self.get_fieldsets.to_a.collect{ |f| f[:identifier] }.reject{ |f| !field_objs.keys.include?(f) }
+      choice_fields: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
+      choice_field_values: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| [tt[:id], tt[:options].collect{ |o| o.with_indifferent_access['label'] }.collect{ |l| { key: l, value: l } }] } },
+      text_fields: text_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
+      choice_fieldsets: self.get_fieldsets.to_a.collect{ |f| f[:identifier] }.reject{ |f| !choice_field_objs.keys.include?(f) },
+      text_fieldsets: self.get_fieldsets.to_a.collect{ |f| f[:identifier] }.reject{ |f| !text_field_objs.keys.include?(f) }
     })
     ERB.new(RULES_JSON_SCHEMA).result(namespace.instance_eval { binding })
   end
 
   def rules_conditions
     rules = ::TeamRules::RULES.clone
-    # Generate one rule for each fieldset, dynamically
+    # Generate rules for each fieldset, dynamically
     self.get_fieldsets.to_a.each do |fieldset|
+      # Selected value
       name = "field_from_fieldset_#{fieldset[:identifier]}_value_is"
       rules << name
       self.class.send(:define_method, name) do |pm, value, rule_id|
         self.field_value_is(pm, value, rule_id)
+      end
+
+      # Text contains keyword
+      name = "field_from_fieldset_#{fieldset[:identifier]}_value_contains_keyword"
+      rules << name
+      self.class.send(:define_method, name) do |pm, value, rule_id|
+        self.field_contains_keyword(pm, value, rule_id)
       end
     end
     rules
