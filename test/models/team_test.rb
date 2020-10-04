@@ -1382,6 +1382,7 @@ class TeamTest < ActiveSupport::TestCase
     2.times { create_team_user team: t }
     create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo' }, { 'label' => 'Bar' }], label: 'Team Task 1'
     create_team_task team_id: t.id, task_type: 'multiple_choice', options: [{ label: 'Test' }], label: 'Team Task 2'
+    create_team_task team_id: t.id, task_type: 'free_text', options: [{ label: 'Test' }], label: 'Team Task 3'
     create_team_task
     assert_not_nil t.rules_json_schema
   end
