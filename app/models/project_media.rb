@@ -137,7 +137,6 @@ class ProjectMedia < ActiveRecord::Base
       m = self.get_annotations('verification_status').last
       m = m.load unless m.nil?
       return if m.nil?
-      # m.disable_es_callbacks = Rails.env.to_s == 'test'
       m.client_mutation_id = self.client_mutation_id
       m.skip_check_ability = true
       m.set_fields = info.to_json
