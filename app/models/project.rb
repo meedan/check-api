@@ -238,6 +238,11 @@ class Project < ActiveRecord::Base
     team.inactive
   end
 
+  def slack_events=(events_json)
+    self.skip_notifications = true
+    self.set_slack_events = JSON.parse(events_json)
+  end
+
   def self.bulk_update_medias_count(pids)
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
     ProjectMediaProject
