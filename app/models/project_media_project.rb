@@ -79,7 +79,7 @@ class ProjectMediaProject < ActiveRecord::Base
     Project.bulk_update_medias_count(pids)
 
     # Other callbacks to run in background
-    ProjectMediaProject.delay.run_bulk_save_callbacks(result.ids.map(&:to_i).to_json)
+    ProjectMediaProject.delay.run_bulk_save_callbacks(result.ids.map(&:to_i).to_json, User.current&.id)
 
     # Notify Pusher
     team.notify_pusher_channel
@@ -91,12 +91,15 @@ class ProjectMediaProject < ActiveRecord::Base
     { team: team, project: first_project }
   end
 
-  def self.run_bulk_save_callbacks(ids_json)
+  def self.run_bulk_save_callbacks(ids_json, user_id)
+    current_user = User.current
+    User.current = User.find_by_id(user_id.to_i)
     ids = JSON.parse(ids_json)
     ids.each do |id|
       pmp = ProjectMediaProject.find(id)
-      [:update_index_in_elasticsearch, :add_remove_team_tasks].each { |callback| pmp.send(callback) }
+      [:send_pmp_slack_notification, :update_index_in_elasticsearch, :add_remove_team_tasks].each { |callback| pmp.send(callback) }
     end
+    User.current = current_user
   end
 
   def self.filter_ids_by_team(input_ids, team)
@@ -169,7 +172,7 @@ class ProjectMediaProject < ActiveRecord::Base
     Project.bulk_update_medias_count(pids.concat([updates[:project_id]]))
 
     # Other callbacks to run in background
-    ProjectMediaProject.delay.run_bulk_save_callbacks(ids.to_json)
+    ProjectMediaProject.delay.run_bulk_save_callbacks(ids.to_json, User.current&.id)
 
     project_was = Project.where(id: updates[:previous_project_id], team_id: team.id).last unless updates[:previous_project_id].blank?
 
