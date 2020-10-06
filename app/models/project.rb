@@ -239,6 +239,7 @@ class Project < ActiveRecord::Base
   end
 
   def slack_events=(events_json)
+    self.skip_notifications = true
     self.set_slack_events = JSON.parse(events_json)
   end
 
