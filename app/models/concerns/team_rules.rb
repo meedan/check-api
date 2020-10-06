@@ -28,13 +28,13 @@ module TeamRules
     end
 
     def text_contains_keyword(text, value)
-      words = text.to_s.scan(/\w+/).to_a.map(&:downcase)
-      keywords = value.to_s.split(',').map(&:strip).map(&:downcase)
+      words = text.to_s.scan(/\w+/).to_a.map(&:downcase).reject{ |w| w.blank? }
+      keywords = value.to_s.split(',').map(&:strip).map(&:downcase).reject{ |w| w.blank? }
       contains = !(words & keywords).empty?
       # Special case to match keywords with spaces
       unless contains
         keywords.each do |keyword|
-          contains = !text.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.match(' ')
+          contains = !text.to_s.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.to_s.match(' ')
         end
       end
       contains
