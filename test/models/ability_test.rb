@@ -1950,8 +1950,8 @@ class AbilityTest < ActiveSupport::TestCase
     c2.assign_user(u2.id)
     a2 = c2.assignments.last
 
-    # Owner and editor: can only assign/unassign annotations of same team
-    ['owner', 'editor'].each do |role|
+    # Owner, journalist and editor: can only assign/unassign annotations of same team
+    ['owner', 'editor', 'journalist'].each do |role|
       u = create_user
       create_team_user team_id: t.id, user_id: u.id, role: role
       with_current_user_and_team(u, t) do
@@ -1963,22 +1963,20 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    # Journalist and contributor: can only assign/unassign own annotations
-    ['journalist', 'contributor'].each do |role|
-      u = create_user
-      create_team_user team_id: t.id, user_id: u.id, role: role
-      c3 = create_comment annotated: pm, annotator: u
-      c3.assign_user(u.id)
-      a3 = c3.assignments.last
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.cannot?(:destroy, a)
-        assert ability.cannot?(:create, a)
-        assert ability.cannot?(:destroy, a2)
-        assert ability.cannot?(:create, a2)
-        assert ability.can?(:destroy, a3)
-        assert ability.can?(:create, a3)
-      end
+    # Contributor: can only assign/unassign own annotations
+    u = create_user
+    create_team_user team_id: t.id, user_id: u.id, role: 'contributor'
+    c3 = create_comment annotated: pm, annotator: u
+    c3.assign_user(u.id)
+    a3 = c3.assignments.last
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:destroy, a)
+      assert ability.cannot?(:create, a)
+      assert ability.cannot?(:destroy, a2)
+      assert ability.cannot?(:create, a2)
+      assert ability.can?(:destroy, a3)
+      assert ability.can?(:create, a3)
     end
   end
 

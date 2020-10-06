@@ -66,10 +66,16 @@
                                 "key": "flagged_as",
                                 "value": "<%= I18n.t(:team_rule_flagged_as) %>"
                               },
-                              <% fieldsets.each do |fieldset| %> 
+                              <% choice_fieldsets.each do |fieldset| %> 
                                 {
                                   "key": "field_from_fieldset_<%= fieldset %>_value_is",
                                   "value": "<%= I18n.t("team_rule_field_from_fieldset_#{fieldset}_value_is") %>"
+                                },
+                              <% end %>
+                              <% text_fieldsets.each do |fieldset| %> 
+                                {
+                                  "key": "field_from_fieldset_<%= fieldset %>_value_contains_keyword",
+                                  "value": "<%= I18n.t("team_rule_field_from_fieldset_#{fieldset}_value_contains_keyword") %>"
                                 },
                               <% end %>
                               {
@@ -156,7 +162,7 @@
                               }
                             }
                           },
-                          <% fieldsets.each do |fieldset| %>
+                          <% choice_fieldsets.each do |fieldset| %>
                           {
                             "if": {
                               "properties": { "rule_definition": { "const": "field_from_fieldset_<%= fieldset %>_value_is" } }
@@ -167,21 +173,43 @@
                                   "type": "object",
                                   "properties": {
                                     "team_task_id": {
-                                      "title": "<%= I18n.t("team_rule_select_field_#{fieldset}") %>", "type": "string", "enum": <%= fields[fieldset].to_json %>
+                                      "title": "<%= I18n.t("team_rule_select_field_#{fieldset}") %>", "type": "string", "enum": <%= choice_fields[fieldset].to_json %>
                                     }
                                   },
                                   "allOf": [
-                                    <% fields[fieldset].to_a.each_with_index do |field, i| %>
+                                    <% choice_fields[fieldset].to_a.each_with_index do |field, i| %>
                                     {
                                       "if": {
                                         "properties": { "team_task_id": { "const": <%= field[:key] %> } }
                                       },
                                       "then": {
-                                        "properties": { "value": { "title": "<%= I18n.t("team_rule_select_field_value_#{fieldset}") %>", "type": "string", "enum": <%= field_values[fieldset].to_h[field[:key]].to_json %> } }
+                                        "properties": { "value": { "title": "<%= I18n.t("team_rule_select_field_value_#{fieldset}") %>", "type": "string", "enum": <%= choice_field_values[fieldset].to_h[field[:key]].to_json %> } }
                                       }
-                                    }<%= ',' if i + 1 < fields[fieldset].size %>
+                                    }<%= ',' if i + 1 < choice_fields[fieldset].size %>
                                     <% end %>
                                   ]
+                                }
+                              }
+                            }
+                          },
+                          <% end %>
+                          <% text_fieldsets.each do |fieldset| %>
+                          {
+                            "if": {
+                              "properties": { "rule_definition": { "const": "field_from_fieldset_<%= fieldset %>_value_contains_keyword" } }
+                            },
+                            "then": {
+                              "properties": {
+                                "rule_value": {
+                                  "type": "object",
+                                  "properties": {
+                                    "team_task_id": {
+                                      "title": "<%= I18n.t("team_rule_select_field_#{fieldset}") %>", "type": "string", "enum": <%= text_fields[fieldset].to_json %>
+                                    },
+                                    "value": {
+                                      "title": "<%= I18n.t("team_rule_value") %>", "type": "string"
+                                    }
+                                  }
                                 }
                               }
                             }

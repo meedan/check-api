@@ -23,7 +23,7 @@ module AssignmentConcern
         Assignment.where(assigned_type: klass, assigned_id: self.id, user_id: id).last.destroy!
       end
       to_create.each do |id|
-        Assignment.create!(assigned_type: klass, assigned_id: self.id, user_id: id)
+        Assignment.create!(assigned_type: klass, assigned_id: self.id, user_id: id, message: self.assignment_message)
       end
       # Save the assignment details to send them as Slack notifications
       self.instance_variable_set("@assignment", { to_create: to_create, to_delete: to_delete }) unless to_delete.blank? and to_create.blank?
@@ -80,7 +80,7 @@ module AssignmentConcern
   end
 
   included do
-    attr_accessor :assigned_to_ids
+    attr_accessor :assigned_to_ids, :assignment_message
 
     after_save :save_assignments
 

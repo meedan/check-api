@@ -1024,6 +1024,87 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     end
   end
 
+  test "should get external identifier for user" do
+    create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'Data' => ['JSON', false] })
+    whatsapp_uid = random_string
+    whatsapp_data = {
+      '_id' => random_string,
+      'givenName' => 'Foo',
+      'surname' => 'Bar',
+      'signedUpAt' => '2019-01-30T03:47:33.740Z',
+      'properties' => {},
+      'conversationStarted' => true,
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-01T15:41:20.877Z',
+        'platform' => 'whatsapp',
+        'displayName' => '+55 12 3456-7890',
+        'raw' => { 'from' => '551234567890', 'profile' => { 'name' => 'Foo Bar' } }
+      }],
+      'pendingClients' => []
+    }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: whatsapp_uid, smooch_user_data: { raw: whatsapp_data }.to_json }.to_json
+    facebook_uid = random_string
+    facebook_data = {
+      '_id' => random_string,
+      'givenName' => 'Foo',
+      'surname' => 'Bar',
+      'signedUpAt' => '2019-09-07T14:54:39.429Z',
+      'properties' => {},
+      'conversationStarted' => true,
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-02T16:37:13.721Z',
+        'platform' => 'messenger',
+        'displayName' => 'Foo Bar',
+        'info' => {
+          'avatarUrl' => random_url
+        },
+        'raw' => {
+          'first_name' => 'Foo',
+          'last_name' => 'Bar',
+          'profile_pic' => random_url,
+          'id' => random_string
+        }
+      }],
+      'pendingClients' => []
+    }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: facebook_uid, smooch_user_data: { raw: facebook_data }.to_json }.to_json
+    twitter_uid = random_string
+    twitter_data = {
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-02T16:55:59.211Z',
+        'platform' => 'twitter',
+        'displayName' => 'Foo Bar',
+        'info' => {
+          'avatarUrl' => random_url
+        },
+        'raw' => {
+          'location' => random_string,
+          'screen_name' => 'foobar',
+          'name' => 'Foo Bar',
+          'id_str' => random_string,
+          'id' => random_string
+        }
+      }]
+    }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
+    u = create_user is_admin: true
+    t = create_team
+    with_current_user_and_team(u, t) do
+      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => whatsapp_uid }.to_json }.to_json
+      assert_equal '+55 12 3456-7890', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => twitter_uid }.to_json }.to_json
+      assert_equal '@foobar', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
+      assert_equal '', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+    end
+  end
+
   protected
 
   def run_concurrent_requests

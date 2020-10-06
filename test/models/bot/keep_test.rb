@@ -129,8 +129,8 @@ class Bot::KeepTest < ActiveSupport::TestCase
     assert_equal({ 'facebook' => { 'share_count' => 123 } }, data)
     assert_equal 123, pm.reload.share_count
     es_id = get_es_id(pm)
-    result = MediaSearch.find(es_id)
-    assert_equal 123, result.share_count
+    result = $repository.find(es_id)
+    assert_equal 123, result['share_count']
     payload = { type: 'metrics', url: url, metrics: { facebook: { share_count: 321, comments_count: 456 }, twitter: { retweet_count: 789 } } }.to_json
     request = OpenStruct.new(raw_post: nil)
     request.raw_post = payload
@@ -140,8 +140,8 @@ class Bot::KeepTest < ActiveSupport::TestCase
     data = JSON.parse(pm.reload.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     assert_equal({ 'facebook' => { 'share_count' => 321, 'comments_count' => 456 }, 'twitter' => { 'retweet_count' => 789 } }, data)
     assert_equal 321, pm.reload.share_count
-    result = MediaSearch.find(es_id)
-    assert_equal 321, result.share_count
+    result = $repository.find(es_id)
+    assert_equal 321, result['share_count']
   end
 
   test "should return archivers enabled on a bot installation" do

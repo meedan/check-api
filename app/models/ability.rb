@@ -146,11 +146,6 @@ class Ability
         obj.team&.id == @context_team.id && !obj.annotated_is_archived?
       end
     end
-    can [:destroy, :create], Assignment do |obj|
-      type = obj.assigned_type
-      obj = obj.assigned
-      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
-    end
     can :destroy, DynamicAnnotation::Field do |obj|
       annotated_type = obj.annotation&.annotated_type
       annotated_type == 'Task' && obj.annotation.team&.id == @context_team.id
@@ -186,7 +181,7 @@ class Ability
         obj.annotation_type == 'comment' && obj.user_id == @user.id && obj.team&.id == @context_team.id && !obj.annotated_is_archived? && !obj.locked?
       end
     end
-    can :create, Task, ['annotation_type = ?', 'task'] do |task|
+    can [:create, :update], Task, ['annotation_type = ?', 'task'] do |task|
       task.team&.id == @context_team.id && !task.annotated_is_archived?
     end
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
@@ -194,6 +189,11 @@ class Ability
     end
     can [:bulk_create, :bulk_update, :bulk_destroy], ProjectMediaProject do |obj|
       obj.team == @context_team
+    end
+    can [:destroy, :create], Assignment do |obj|
+      type = obj.assigned_type
+      obj = obj.assigned
+      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
     end
   end
 

@@ -90,7 +90,7 @@ class Relationship < ActiveRecord::Base
       filters['projects'] ||= project_media.project_ids
       search = CheckSearch.new(filters.merge({ include_related_items: true }).to_json)
       query = search.medias_build_search_query
-      ids = search.medias_get_search_result(query).map(&:annotated_id).map(&:to_i)
+      ids = search.medias_get_search_result(query).collect{|i| i['annotated_id'].to_i}
     end
     relationships_mapping = {}
     project_media.source_relationships.includes(:target).limit(limit).each do |relationship|

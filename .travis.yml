@@ -9,20 +9,12 @@ before_install:
 - export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
 - sudo rm -f /etc/apt/sources.list.d/mongodb*
 - docker run -d -p 9000:9000 -e "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" -e "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" minio/minio server /data
+- docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+- docker exec elasticsearch elasticsearch-plugin install analysis-icu
+- docker restart elasticsearch
 - sudo apt-get update
 - sudo apt-get install -y wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer libtag1-dev golang-go golang-glide
-- mkdir -p /tmp/downloads &&
-  cd /tmp/downloads &&
-  (ls elasticsearch-6.8.9.deb || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.9.deb) &&
-  (ls elasticsearch-6.8.9.deb.sha512 || wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.9.deb.sha512) &&
-  shasum -a 512 -c elasticsearch-6.8.9.deb.sha512 &&
-  sudo dpkg -i --force-confnew elasticsearch-6.8.9.deb &&
-  cd -
-- sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
-- sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
-- sudo service elasticsearch restart
 - wget -q --waitretry=5 --retry-connrefused -t 20 -T 10 -O - http://127.0.0.1:9200
-- sudo service elasticsearch status
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/

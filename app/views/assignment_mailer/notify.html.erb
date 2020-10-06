@@ -56,6 +56,9 @@
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= I18n.t("mails_notifications.assignment.#{@info[:event_key ]}_text", author: @info[:author], project: "<strong>#{@info[:project]}</strong>", team: @info[:team]).html_safe %>
                         </div>
+                        <div class="p" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          <%= @info[:message].blank? ? '' : "\"#{@info[:message]}\"" %>
+                        </div>
                       </div>
                     </div>
                     <!--————————————————————————————-->

@@ -37,7 +37,7 @@ class Assignment < ActiveRecord::Base
     user = self.user
     return if [author, assigned, user].select{ |x| x.nil? }.any?
     type = assigned.is_a?(Annotation) ? assigned.annotation_type : self.assigned_type.downcase
-    AssignmentMailer.delay_for(1.second).notify("#{action}_#{type}", author, user.email, assigned)
+    AssignmentMailer.delay_for(1.second).notify("#{action}_#{type}", author, user.email, assigned, self.message)
   end
 
   def change_assignments_count(value)

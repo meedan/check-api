@@ -12,7 +12,7 @@ class Dynamic < ActiveRecord::Base
   before_validation :update_attribution, :update_timestamp, :set_data
   after_create :create_fields
   after_update :update_fields
-  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice'].include?(d.annotation_type) }
+  after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text'].include?(d.annotation_type) }
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
@@ -224,7 +224,9 @@ class Dynamic < ActiveRecord::Base
                when 'language'
                  self.send(:rule_ids_for_language)
                when 'task_response_single_choice', 'task_response_multiple_choice'
-                 self.send(:rule_ids_for_task_response)
+                 self.send(:rule_ids_for_choice_task_response)
+               when 'task_response_free_text'
+                 self.send(:rule_ids_for_text_task_response)
                end
     pm = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
     team.apply_rules_and_actions(pm, rule_ids || [])
@@ -248,10 +250,17 @@ class Dynamic < ActiveRecord::Base
     end
   end
 
-  def rule_ids_for_task_response
+  def rule_ids_for_choice_task_response
     self.annotated.annotated.team.get_rules_that_match_condition do |condition, value|
       response = self.annotation_type == 'task_response_single_choice' ? self.get_field('response_single_choice') : self.get_field('response_multiple_choice')
       condition == "field_from_fieldset_#{self.annotated.fieldset}_value_is" && response.selected_values_from_task_answer.include?(value['value'])
+    end
+  end
+
+  def rule_ids_for_text_task_response
+    return [] unless self.annotated_type == 'Task'
+    self.annotated.annotated.team.get_rules_that_match_condition do |condition, value|
+      condition == "field_from_fieldset_#{self.annotated.fieldset}_value_contains_keyword" && self.annotated.annotated.team.text_contains_keyword(self.get_field_value('response_free_text'), value['value'])
     end
   end
 end
