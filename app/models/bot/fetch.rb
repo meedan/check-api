@@ -61,7 +61,7 @@ class Bot::Fetch < BotUser
   # Custom methods start here
 
   def self.subscriptions(service)
-    self.call_fetch_api(:get, 'subscribe.json', { service: service })
+    self.call_fetch_api(:get, 'subscribe', { service: service })
   end
 
   def self.get_installation_for_team(team_slug)
@@ -85,11 +85,11 @@ class Bot::Fetch < BotUser
   def self.setup_service(installation, previous_service, new_service)
     team = installation.team
     if !new_service.blank? && self.is_service_supported?(new_service)
-      self.call_fetch_api(:post, 'subscribe.json', { service: new_service, url: self.webhook_url(team) })
+      self.call_fetch_api(:post, 'subscribe', { service: new_service, url: self.webhook_url(team) })
       Bot::Fetch::Import.delay(retry: 0).import_claim_reviews(installation.id)
     end
     unless previous_service.blank?
-      self.call_fetch_api(:delete, 'subscribe.json', { service: previous_service, url: self.webhook_url(team) })
+      self.call_fetch_api(:delete, 'subscribe', { service: previous_service, url: self.webhook_url(team) })
     end
   end
 
@@ -152,7 +152,7 @@ class Bot::Fetch < BotUser
           from2 = Time.at(current_timestamp)
           to2 = from2 + step.days
           params = { service: service_name, start_time: from2.strftime('%Y-%m-%d'), end_time: to2.strftime('%Y-%m-%d'), per_page: 10000 }
-          Bot::Fetch.call_fetch_api(:get, 'claim_reviews.json', params).each do |claim_review|
+          Bot::Fetch.call_fetch_api(:get, 'claim_reviews', params).each do |claim_review|
             self.import_claim_review(claim_review, team.id, user.id, status_fallback, status_mapping)
             total += 1
           end

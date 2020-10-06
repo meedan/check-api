@@ -1382,6 +1382,7 @@ class TeamTest < ActiveSupport::TestCase
     2.times { create_team_user team: t }
     create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo' }, { 'label' => 'Bar' }], label: 'Team Task 1'
     create_team_task team_id: t.id, task_type: 'multiple_choice', options: [{ label: 'Test' }], label: 'Team Task 2'
+    create_team_task team_id: t.id, task_type: 'free_text', options: [{ label: 'Test' }], label: 'Team Task 3'
     create_team_task
     assert_not_nil t.rules_json_schema
   end
@@ -1437,8 +1438,8 @@ class TeamTest < ActiveSupport::TestCase
     s.status = 'in_progress'
     s.save!
     sleep 5
-    result = MediaSearch.find(get_es_id(pm1))
-    assert_equal [p1.id], result.project_id
+    result = $repository.find(get_es_id(pm1))
+    assert_equal [p1.id], result['project_id']
     assert_equal 0, p0.reload.medias_count
     assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
@@ -3217,5 +3218,72 @@ class TeamTest < ActiveSupport::TestCase
     Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
+  end
+
+  test "should match rule by text task answer" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_task_stuff
+    t = create_team
+    tt = create_team_task team_id: t.id, task_type: 'free_text'
+    p = create_project team: t
+    pm = create_project_media team: t
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "field_from_fieldset_tasks_value_contains_keyword",
+                "rule_value": { team_task_id: tt.id, value: 'foo,bar' }
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    tk = pm.get_annotations('task').first.load
+    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
+    tk.save!
+    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.medias_count
+    tk = Task.find(tk.id)
+    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
+    tk.save!
+    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.medias_count
+  end
+
+  test "should match keyword with spaces with rule" do
+    t = create_team
+    p = create_project team: t
+    text = 'foo fake news bar'
+    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    assert t.contains_keyword(pm, 'fake news', nil)
+    assert t.contains_keyword(pm, 'foo', nil)
+    assert t.contains_keyword(pm, 'bar', nil)
+    assert !t.contains_keyword(pm, 'ba', nil)
+    assert !t.contains_keyword(pm, 'fak', nil)
+    assert !t.contains_keyword(pm, 'new', nil)
+    assert !t.contains_keyword(pm, 'oo', nil)
+    assert !t.contains_keyword(pm, 'ake new', nil)
+    text = 'fake news'
+    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    assert t.contains_keyword(pm, 'fake news', nil)
+    assert !t.contains_keyword(pm, 'ake new', nil)
   end
 end

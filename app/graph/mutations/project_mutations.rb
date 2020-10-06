@@ -12,7 +12,9 @@ module ProjectMutations
     title: 'str',
     set_slack_channel: 'str',
     information: 'str',
-    assigned_to_ids: 'str'
+    assigned_to_ids: 'str',
+    assignment_message: 'str',
+    slack_events: 'str'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields, ['team', 'check_search_team'])

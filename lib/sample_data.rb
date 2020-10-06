@@ -238,10 +238,13 @@ module SampleData
       create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
     end
     sel = create_field_type field_type: 'select', label: 'Select'
+    text = create_field_type field_type: 'text', label: 'Text'
     at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task Response Single Choice'
     create_field_instance annotation_type_object: at, name: 'response_single_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: false }
     at = create_annotation_type annotation_type: 'task_response_multiple_choice', label: 'Task Response Multiple Choice'
     create_field_instance annotation_type_object: at, name: 'response_multiple_choice', label: 'Response', field_type_object: sel, optional: false, settings: { multiple: true }
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: text, optional: false
   end
 
   # Verification status
@@ -658,13 +661,17 @@ module SampleData
   end
 
   def create_media_search(options = {})
-    m = MediaSearch.new
-    { annotated: create_valid_media, context: create_project }.merge(options).each do |key, value|
-      m.send("#{key}=", value) if m.respond_to?("#{key}=")
+    ms = ElasticItem.new
+    pm = options[:project_media] || create_project_media
+    options[:id] = get_es_id(pm)
+    options[:annotated_id] = pm.id
+    options[:annotated_type] = pm.class.name
+    options.each do |key, value|
+      ms.attributes[key] = value
     end
-    m.save!
+    $repository.save(ms)
     sleep 1
-    m
+    $repository.find(options[:id])
   end
 
   def create_annotation_type(options = {})

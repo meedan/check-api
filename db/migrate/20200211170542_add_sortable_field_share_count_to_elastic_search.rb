@@ -1,15 +1,12 @@
 class AddSortableFieldShareCountToElasticSearch < ActiveRecord::Migration
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
-    client = MediaSearch.gateway.client
+    client = $repository.client
     options = {
       index: index_alias,
-      type: 'media_search',
       body: {
-        media_search: {
-          properties: {
-            share_count: { type: 'long' }
-          }
+        properties: {
+          share_count: { type: 'long' }
         }
       }
     }

@@ -3,15 +3,23 @@ module CheckElasticSearch
   def create_elasticsearch_doc_bg(_options)
     doc_id = Base64.encode64("#{self.class.name}/#{self.id}")
     return if doc_exists?(doc_id)
-    ms = MediaSearch.new
-    ms.id = doc_id
-    ms.team_id = self.team_id
-    ms.project_id = self.project_ids
+    ms = ElasticItem.new
+    ms.attributes[:id] = doc_id
+    # TODO: Sawy remove annotation_type field
+    ms.attributes[:annotation_type] = 'mediasearch'
+    ms.attributes[:team_id] = self.team_id
+    ms.attributes[:project_id] = self.project_ids
     rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
-    ms.relationship_sources = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
-    ms.set_es_annotated(self)
+    ms.attributes[:relationship_sources] = [Digest::MD5.hexdigest(Relationship.default_type.to_json) + '_' + rtid.to_s] unless rtid.blank?
+    ms.attributes[:annotated_type] = self.class.name
+    ms.attributes[:annotated_id] = self.id
+    ms.attributes[:created_at] = self.created_at.utc
+    ms.attributes[:updated_at] = self.updated_at.utc
+    # Intial nested objects with []
+    ['accounts', 'comments', 'tags', 'dynamics'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
-    ms.save!
+    $repository.save(ms)
+    $repository.refresh_index! if CONFIG['elasticsearch_sync']
   end
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)
@@ -23,7 +31,6 @@ module CheckElasticSearch
 
   def update_elasticsearch_doc_bg(options)
     data = get_elasticsearch_data(options[:data])
-    # data.merge!(add_missing_fields(options))
     fields = { 'updated_at' => Time.now.utc }
     options[:keys].each do |k|
       unless data[k].blank?
@@ -38,8 +45,8 @@ module CheckElasticSearch
     if fields.count > 1
       create_doc_if_not_exists(options)
       sleep 1
-      client = MediaSearch.gateway.client
-      client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
+      client = $repository.client
+      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3, body: { doc: fields }
     end
   end
 
@@ -56,28 +63,6 @@ module CheckElasticSearch
     value
   end
 
-  # Keep this method until verify search feature.
-  # def add_missing_fields(options)
-  #   data = {}
-  #   obj = options[:obj]
-  #   return data unless ['ProjectMedia', 'ProjectSource'].include?(obj.class.name)
-  #   unless options[:keys].include?('project_id')
-  #     options[:keys] += ['team_id', 'project_id']
-  #     data.merge!({project_id: obj.project_id, team_id: obj.project.team_id})
-  #   end
-  #   if obj.class.name == 'ProjectMedia'
-  #     unless options[:keys].include?('verification_status')
-  #       options[:keys] << 'verification_status'
-  #       data.merge!({verification_status: obj.last_status})
-  #     end
-  #     unless options[:keys].include?('title')
-  #       options[:keys] += ['title', 'description']
-  #       data.merge!({title: obj.title, description: obj.description})
-  #     end
-  #   end
-  #   data
-  # end
-
   def add_update_nested_obj(options)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self), YAML::dump(options), 'create_update_doc_nested')
@@ -86,7 +71,6 @@ module CheckElasticSearch
   def create_update_nested_obj_bg(options)
     return if options[:doc_id].blank?
     create_doc_if_not_exists(options)
-    client = MediaSearch.gateway.client
     key = options[:nested_key]
     if options[:op] == 'create_or_update'
       field_name = 'smooch'
@@ -101,8 +85,9 @@ module CheckElasticSearch
       source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{key}.size(); i++) { if(ctx._source.#{key}[i].id == params.id){ctx._source.#{key}[i] = params.value;}}"
     end
     values = store_elasticsearch_data(options[:keys], options[:data])
-    client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: options[:doc_id], retry_on_conflict: 3,
-             body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
+    client = $repository.client
+    client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
+            body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
@@ -125,8 +110,7 @@ module CheckElasticSearch
 
   def doc_exists?(id)
     sleep 1
-    client = MediaSearch.gateway.client
-    client.exists? index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: id
+    $repository.exists?(id)
   end
 
   def create_doc_if_not_exists(options)
@@ -140,8 +124,7 @@ module CheckElasticSearch
 
   def destroy_elasticsearch_doc(data)
     begin
-      client = MediaSearch.gateway.client
-      client.delete index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id]
+      $repository.delete(data[:doc_id])
     rescue
       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"
     end
@@ -150,7 +133,7 @@ module CheckElasticSearch
   def destroy_elasticsearch_doc_nested(data)
     nested_type = data[:es_type]
     begin
-      client = MediaSearch.gateway.client
+      client = $repository.client
       source = ''
       if self.respond_to?(:annotation_type) && self.annotation_type == 'smooch'
         field_name = 'smooch'
@@ -159,7 +142,7 @@ module CheckElasticSearch
       else
         source = "ctx._source.updated_at=params.updated_at;for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
       end
-      client.update index: CheckElasticSearchModel.get_index_alias, type: 'media_search', id: data[:doc_id], retry_on_conflict: 3,
+      client.update index: CheckElasticSearchModel.get_index_alias, id: data[:doc_id], retry_on_conflict: 3,
                body: { script: { source: source, params: { id: self.id, updated_at: Time.now.utc } } }
     rescue
       Rails.logger.info "[ES destroy] doc with id #{data[:doc_id]} not exists"

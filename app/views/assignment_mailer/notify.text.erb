@@ -17,6 +17,8 @@
         )
   %>
 
+<%= @info[:message].blank? ? '' : "\"#{@info[:message]}\"" %>
+
 <%= @info[:button] %>
 <%= @info[:url] %>
 

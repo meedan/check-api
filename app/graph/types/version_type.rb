@@ -14,6 +14,7 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :object_changes_json, types.String
   field :associated_graphql_id, types.String
   field :smooch_user_slack_channel_url, types.String
+  field :smooch_user_external_identifier, types.String
 
   field :user do
     type -> { UserType }

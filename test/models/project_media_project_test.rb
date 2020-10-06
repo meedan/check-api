@@ -128,17 +128,17 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     p1 = create_project
     pm = create_project_media project: p1, disable_es_callbacks: false
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id], result.project_id
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id], result['project_id']
     p2 = create_project
     pmp = create_project_media_project project_media: pm, project: p2, disable_es_callbacks: false
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id, p2.id].sort, result.project_id.sort
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id, p2.id].sort, result['project_id'].sort
     pmp.destroy!
     sleep 3
-    result = MediaSearch.find(get_es_id(pm))
-    assert_equal [p1.id], result.project_id
+    result = $repository.find(get_es_id(pm))
+    assert_equal [p1.id], result['project_id']
   end
 
   test "should get search object" do
