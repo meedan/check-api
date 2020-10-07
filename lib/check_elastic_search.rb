@@ -16,7 +16,7 @@ module CheckElasticSearch
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'dynamics'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -119,6 +119,15 @@ module CheckElasticSearch
   end
 
   def get_elasticsearch_data(data)
+    if self.class.name == 'DynamicAnnotation::Field'
+      if self.field_name == 'response_multiple_choice'
+        value = JSON.parse(self.value)
+        value = value['selected']
+      else
+        value = self.value
+      end
+      data = { field_name: self.field_name, value: value }.with_indifferent_access
+    end
     (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
 

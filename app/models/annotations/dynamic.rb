@@ -121,14 +121,33 @@ class Dynamic < ActiveRecord::Base
 
   def add_update_elasticsearch_dynamic(op)
     return if self.disable_es_callbacks
+    handle_elasticsearch_response(op) if self.annotation_type =~ /^task_response/
     op = 'create_or_update' if annotation_type == 'smooch'
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})
     add_update_nested_obj(options)
   end
 
+  def handle_elasticsearch_response(op)
+    # add a response for tasks
+    field_name = self.annotation_type
+    field_name.slice!('task_')
+    field = self.get_field(field_name)
+    unless field.nil?
+      pm = self.annotated.annotated
+      if op == 'destroy'
+         field.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
+      else
+        keys = %w(field_name value)
+        field.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+      end
+    end
+  end
+
   def destroy_elasticsearch_dynamic_annotation
     destroy_es_items('dynamics')
+    # destroy task response
+    handle_elasticsearch_response('destroy') if self.annotation_type =~ /^task_response/
   end
 
   def annotation_type_exists

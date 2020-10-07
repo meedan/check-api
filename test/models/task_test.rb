@@ -588,11 +588,17 @@ class TaskTest < ActiveSupport::TestCase
     tt2a = create_team_task team_id: t.id 
     tt2b = create_team_task team_id: t.id 
     
-    pm1 = create_project_media team: t
+    pm1 = create_project_media team: t, disable_es_callbacks: false
 
     t1a = create_task annotated: pm1, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt1a.id
     t1a.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
     t1a.save!
+
+    sleep 1
+
+    result = $repository.find(get_es_id(pm1))['task_responses']
+    assert_equal 1, result.size
+    assert_equal ['Apple', 'Orange'].sort, result.first['value'].sort
 
     t1b = create_task annotated: pm1, type: 'single_choice', options: ['The Beatles', 'Iron Maiden', 'Helloween'], label: 'Best band', team_task_id: tt1b.id
     t1b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'The Beatles', other: nil }.to_json }.to_json }.to_json
@@ -616,7 +622,15 @@ class TaskTest < ActiveSupport::TestCase
     t2b.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'January' }.to_json }.to_json
     t2b.save!
 
+    sleep 1
+
+    result = $repository.find(get_es_id(pm2))['task_responses']
+    assert_equal 2, result.size
+    assert_equal ['Brazil', 'Egypt'].sort, result.first['value'].sort
+    assert_equal 'January', result.last['value']
+
     assert_equal ['Brazil', 'Egypt', 'January'], pm2.reload.task_answer_selected_values.sort
+
     assert pm2.selected_value_for_task?(tt2a.id, 'Brazil')
     assert pm2.selected_value_for_task?(tt2a.id, 'Egypt')
     assert !pm2.selected_value_for_task?(tt2a.id, 'Canada')
