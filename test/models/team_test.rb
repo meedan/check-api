@@ -3267,4 +3267,23 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end
+
+  test "should match keyword with spaces with rule" do
+    t = create_team
+    p = create_project team: t
+    text = 'foo fake news bar'
+    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    assert t.contains_keyword(pm, 'fake news', nil)
+    assert t.contains_keyword(pm, 'foo', nil)
+    assert t.contains_keyword(pm, 'bar', nil)
+    assert !t.contains_keyword(pm, 'ba', nil)
+    assert !t.contains_keyword(pm, 'fak', nil)
+    assert !t.contains_keyword(pm, 'new', nil)
+    assert !t.contains_keyword(pm, 'oo', nil)
+    assert !t.contains_keyword(pm, 'ake new', nil)
+    text = 'fake news'
+    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    assert t.contains_keyword(pm, 'fake news', nil)
+    assert !t.contains_keyword(pm, 'ake new', nil)
+  end
 end
