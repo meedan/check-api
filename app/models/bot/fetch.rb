@@ -257,7 +257,7 @@ class Bot::Fetch < BotUser
           theme_color: pm.reload.last_status_color,
           url: '',
           use_text_message: true,
-          text: [claim_review['text'], claim_review['url']].join("\n\n"),
+          text: [claim_review['text'].to_s.truncate(760 - claim_review['url'].to_s.size), claim_review['url']].join("\n\n"),
           use_disclaimer: false,
           disclaimer: '',
           date: report.report_design_date(date.to_date, language)
