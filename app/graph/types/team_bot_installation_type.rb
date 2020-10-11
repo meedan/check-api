@@ -21,4 +21,23 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
       RecordLoader.for(Team).load(team_bot_installation.team_id)
     }
   end
+
+  # Only for Smooch Bot
+
+  field :smooch_bot_preview_rss_feed do
+    type types.String
+
+    argument :rss_feed_url, !types.String
+    argument :number_of_articles, !types.Int
+
+    resolve -> (obj, args, ctx) do
+      return nil unless obj.bot_user.login == 'smooch'
+      ability = ctx[:ability] || Ability.new
+      if ability.can?(:preview_rss_feed, Team.current)
+        Bot::Smooch.render_articles_from_rss_feed(args[:rss_feed_url], args[:number_of_articles])
+      else
+        I18n.t(:cant_preview_rss_feed)
+      end
+    end
+  end
 end
