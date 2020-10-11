@@ -62,9 +62,10 @@ class Tag < ActiveRecord::Base
 
   def self.run_bulk_create_callbacks(ids_json)
     ids = JSON.parse(ids_json)
+    callbacks = [:add_elasticsearch_tag, :apply_rules_and_actions, :update_tags_count]
     ids.each do |id|
       t = Tag.find_by_id(id)
-      [:add_elasticsearch_tag, :apply_rules_and_actions, :update_tags_count].each do |callback|
+      callbacks.each do |callback|
         t.send(callback)
       end
     end

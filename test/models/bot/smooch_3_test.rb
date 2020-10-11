@@ -681,7 +681,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     setup_smooch_bot(true)
     uid = random_string
     sm = CheckStateMachine.new(uid)
-    rss = '<rss><channel><item><title>x</title><link>x</link></item></channel></rss>'
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
     Sidekiq::Testing.fake! do
       assert_equal 'waiting_for_message', sm.state.value
