@@ -681,36 +681,41 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     setup_smooch_bot(true)
     uid = random_string
     sm = CheckStateMachine.new(uid)
+    rss = '<rss><channel><item><title>x</title><link>x</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
     Sidekiq::Testing.fake! do
-      assert_no_difference 'ProjectMedia.count' do
-        assert_equal 'waiting_for_message', sm.state.value
-        send_message_to_smooch_bot('Hello', uid)
-        assert_equal 'main', sm.state.value
-        send_message_to_smooch_bot('What?', uid)
-        assert_equal 'main', sm.state.value
-        send_message_to_smooch_bot('1', uid)
-        assert_equal 'secondary', sm.state.value
-        send_message_to_smooch_bot('Hum', uid)
-        assert_equal 'secondary', sm.state.value
-        send_message_to_smooch_bot('1', uid)
-        assert_equal 'waiting_for_message', sm.state.value
-        send_message_to_smooch_bot(' ONE', uid)
-        assert_equal 'main', sm.state.value
-        send_message_to_smooch_bot('ONE ', uid)
-        assert_equal 'secondary', sm.state.value
-        send_message_to_smooch_bot('2', uid)
-        assert_equal 'query', sm.state.value
-        send_message_to_smooch_bot('0', uid)
-        assert_equal 'main', sm.state.value
-        send_message_to_smooch_bot('1', uid)
-        assert_equal 'secondary', sm.state.value
-        assert_equal 'en', Bot::Smooch.get_user_language({ 'authorId' => uid })
-        send_message_to_smooch_bot('3', uid)
-        assert_equal 'main', sm.state.value
-        assert_equal 'pt', Bot::Smooch.get_user_language({ 'authorId' => uid })
-        send_message_to_smooch_bot('um', uid)
-        assert_equal 'query', sm.state.value
-      end
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot('Hello', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('What?', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('Hum', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot(' ONE', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('ONE ', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('4', uid)
+      assert_equal 'waiting_for_message', sm.state.value
+      send_message_to_smooch_bot(' ONE', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('ONE ', uid)
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'query', sm.state.value
+      send_message_to_smooch_bot('0', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      assert_equal 'en', Bot::Smooch.get_user_language({ 'authorId' => uid })
+      send_message_to_smooch_bot('3', uid)
+      assert_equal 'main', sm.state.value
+      assert_equal 'pt', Bot::Smooch.get_user_language({ 'authorId' => uid })
+      send_message_to_smooch_bot('um', uid)
+      assert_equal 'query', sm.state.value
     end
     Rails.cache.stubs(:read).returns(nil)
     Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
@@ -1102,6 +1107,50 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal '@foobar', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
       assert_equal '', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+    end
+  end
+
+  test "should load articles from RSS feed" do
+    url = random_url
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>Test</title>
+          <link>http://test.com/rss.xml</link>
+          <description>Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+          </item>
+          <item>
+            <title>Bar</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+          </item>
+        </channel>
+      </rss>
+    }
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    assert_equal output, Bot::Smooch.render_articles_from_rss_feed(url)
+  end
+
+  test "should refresh RSS cache" do
+    setup_smooch_bot(true)
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
+    assert_nothing_raised do
+      Bot::Smooch.refresh_rss_feeds_cache
+    end
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: 'not valid RSS')
+    assert_nothing_raised do
+      Bot::Smooch.refresh_rss_feeds_cache
     end
   end
 

@@ -397,6 +397,11 @@ class Bot::Smooch < BotUser
           sm.reset
           self.bundle_message(message)
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'menu_options_requests', pm)
+        elsif option['smooch_menu_option_value'] == 'custom_resource'
+          sm.reset
+          self.send_resource_to_user(uid, workflow, option)
+          self.bundle_message(message)
+          self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests')
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
@@ -431,7 +436,7 @@ class Bot::Smooch < BotUser
     bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
     if type == 'default_requests'
       self.discard_or_process_message(bundle, app_id)
-    elsif type == 'timeout_requests' || type == 'menu_options_requests'
+    elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
       key = "smooch:banned:#{bundle['authorId']}"
       self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
     end
@@ -690,7 +695,7 @@ class Bot::Smooch < BotUser
     current_user = User.current
     User.current = author
     User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
-    RequestStore.store[:skip_cached_field_update] = true if request_type == 'timeout_requests'
+    RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
     a = Dynamic.new
     a.skip_check_ability = true
     a.skip_notifications = true
@@ -854,6 +859,22 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.send_resource_to_user(uid, workflow, option)
+    message = []
+    resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
+    unless resource.blank?
+      message << "*#{resource['smooch_custom_resource_title']}*"
+      message << resource['smooch_custom_resource_body']
+      unless resource['smooch_custom_resource_feed_url'].blank?
+        message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}") do
+          self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
+        end
+      end
+    end
+    message = message.join("\n\n")
+    self.send_message_to_user(uid, message) unless message.blank?
+  end
+
   def self.send_correction_to_user(data, pm, subscribed_at, last_published_at, action, published_count = 0)
     uid = data['authorId']
     lang = data['language']
@@ -967,5 +988,34 @@ class Bot::Smooch < BotUser
     unless sm.state.value == 'human_mode'
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
+  end
+
+  def self.render_articles_from_rss_feed(url, count = 3)
+    require 'rss'
+    require 'open-uri'
+    output = []
+    open(url) do |rss|
+      feed = RSS::Parser.parse(rss)
+      feed.items.first(count).each do |item|
+        output << item.title + "\n" + item.link
+      end
+    end
+    output.join("\n\n")
+  end
+
+  def self.refresh_rss_feeds_cache
+    bot = BotUser.where(login: 'smooch').last
+    TeamBotInstallation.where(user_id: bot.id).each do |tbi|
+      tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
+        next if resource['smooch_custom_resource_feed_url'].blank?
+        begin
+          content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
+          Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content)
+        rescue StandardError => e
+          self.notify_error(e, { bot: 'Smooch', operation: 'RSS Feed Update', team: tbi.team.slug }.merge(resource))
+        end
+      end
+    end
+    self.delay_for(15.minutes, retry: 0).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop
   end
 end

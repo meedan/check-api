@@ -112,7 +112,7 @@ module SmoochMessages
       if request_type == 'default_requests'
         message['project_id'] = self.get_project_id(message)
         annotated = self.create_project_media_from_message(message)
-      elsif request_type == 'timeout_requests'
+      elsif ['timeout_requests', 'resource_requests'].include?(request_type)
         annotated = Team.current
       elsif request_type == 'menu_options_requests'
         annotated = annotated_obj
