@@ -129,6 +129,7 @@ class Ability
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
     can :import_spreadsheet, Team, :id => @context_team.id
+    can :preview_rss_feed, Team, :id => @context_team.id
   end
 
   def editor_perms
