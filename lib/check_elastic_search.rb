@@ -119,7 +119,7 @@ module CheckElasticSearch
   end
 
   def get_elasticsearch_data(data)
-    if self.class.name == 'DynamicAnnotation::Field'
+    if self.class.name == 'DynamicAnnotation::Field' && self.field_name =~ /^response_/
       if self.field_name == 'response_multiple_choice'
         value = JSON.parse(self.value)
         value = value['selected']

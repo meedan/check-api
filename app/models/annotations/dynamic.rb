@@ -131,8 +131,7 @@ class Dynamic < ActiveRecord::Base
   def handle_elasticsearch_response(op)
     return unless self.annotation_type =~ /^task_response/
     # add a response for tasks
-    field_name = self.annotation_type
-    field_name.slice!('task_')
+    field_name = self.annotation_type.sub(/task_/, '')
     field = self.get_field(field_name)
     included_fields = %w(response_multiple_choice response_single_choice response_free_text)
     if !field.nil? && included_fields.include?(field.field_name)
