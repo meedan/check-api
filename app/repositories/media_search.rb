@@ -63,9 +63,11 @@ class MediaSearch
     indexes :task_responses, {
       type: 'nested',
       properties: {
-        id: { type: 'text'},
+        id: { type: 'integer'},
+        team_task_id: { type: 'integer'},
+        fieldset: { type: 'text' },
         field_name: { type: 'text' },
-        value: { type: 'text', analyzer: 'check'}
+        value: { type: 'text', analyzer: 'keyword'}
       }
     }
 

@@ -264,4 +264,52 @@ class ElasticSearch7Test < ActionController::TestCase
     result = CheckSearch.new({ dynamic: { flag_name: ['adult'], flag_value: ['5'] } }.to_json)
     assert_equal [], result.medias
   end
+
+  test "should search by task responses" do
+    create_task_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    tt2 = create_team_task team_id: t.id, type: 'multiple_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_b' }.to_json }.to_json
+      pm2_tt.save!
+      pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm3_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
+      pm3_tt.save!
+      sleep 2
+      results = CheckSearch.new({ responses: ['ans_a'], team_tasks: [tt.id] }.to_json)
+      assert_equal [pm, pm3], results.medias.sort
+      results = CheckSearch.new({ responses: ['ans_b'], team_tasks: [tt.id] }.to_json)
+      assert_equal [pm2], results.medias
+      results = CheckSearch.new({ responses: ['ans_c'], team_tasks: [tt.id] }.to_json)
+      assert_empty results.medias
+      results = CheckSearch.new({ responses: ['ans_a', 'ans_b'], team_tasks: [tt.id] }.to_json)
+      assert_equal [pm, pm2, pm3], results.medias.sort
+      keyword = 'ans_a'
+      query = 'query Search { search(query: "{\"responses\":[\"ans_a\"],\"team_tasks\":[' + tt.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm.id, pm3.id], ids.sort
+      # test with extra filters (field type, fieldset)
+      # pm4 = create_project_media team: t, disable_es_callbacks: false
+      # pm4_tt = pm4.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      # pm4_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['ans_a', 'ans_c'], other: nil }.to_json }.to_json }.to_json
+      # pm4_tt.save!
+      # results = CheckSearch.new({ responses: ['ans_a'], team_tasks: [tt.id] }.to_json)
+      # assert_equal [pm, pm3, pm4], results.medias.sort
+    end
+  end
 end

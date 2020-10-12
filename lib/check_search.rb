@@ -97,7 +97,7 @@ class CheckSearch
       query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     end
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'responses'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     !(query_all_types && status_blank && filters_blank && ['recent_activity', 'recent_added'].include?(@options['sort']))
@@ -173,6 +173,8 @@ class CheckSearch
     conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
     rules_conditions = build_search_rules_conditions
     conditions.concat(rules_conditions) unless rules_conditions.blank?
+    response_conditions = build_search_responses_conditions
+    conditions.concat(response_conditions) unless response_conditions.blank?
     { bool: { must: conditions } }
   end
 
@@ -244,6 +246,17 @@ class CheckSearch
       conditions << { term: { rules: rule } }
     end
     [{ bool: { should: conditions } }]
+  end
+
+  def build_search_responses_conditions
+    conditions = []
+    return conditions unless @options.has_key?('responses')
+    @options['responses_fields'] ||= %w(response_single_choice response_multiple_choice)
+    conditions << { terms: { "task_responses.field_name": @options['responses_fields'] } }
+    conditions << { terms: { "task_responses.value": @options['responses'] } }
+    conditions << { terms: { "task_responses.team_task_id": @options['team_tasks'] } } if @options.has_key?('team_tasks')
+    conditions << { terms: { "task_responses.fieldset": @options['fieldset'] } } if @options.has_key?('fieldset')
+    [{ nested: { path: 'task_responses', query: { bool: { must: conditions } } } }]
   end
 
   def build_search_sort

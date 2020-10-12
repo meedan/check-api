@@ -139,7 +139,7 @@ class Dynamic < ActiveRecord::Base
       if op == 'destroy'
          field.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
       else
-        keys = %w(field_name value)
+        keys = %w(team_task_id fieldset field_name value)
         field.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
       end
     end

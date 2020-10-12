@@ -126,9 +126,13 @@ module CheckElasticSearch
       else
         value = self.value
       end
-      data = { field_name: self.field_name, value: value }.with_indifferent_access
+      data = { field_name: self.field_name, value: value }
+      task = self.annotation.annotated
+      if !task.nil? && task.annotation_type == 'task'
+        data.merge!({team_task_id: task.team_task_id, fieldset: task.fieldset})
+      end
     end
-    (data.blank? and self.respond_to?(:data)) ? self.data : data
+    (data.blank? and self.respond_to?(:data)) ? self.data : data.with_indifferent_access
   end
 
   def destroy_elasticsearch_doc(data)
