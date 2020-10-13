@@ -508,41 +508,11 @@ class ActiveSupport::TestCase
     settings = [
       {
         "name": "smooch_workflows",
-        "label": '',
+        "label": "Workflows",
         "type": "array",
         "default": [
           {
             "smooch_workflow_language": "en"
-          },
-          {
-            "smooch_message_smooch_bot_result_changed": ""
-          },
-          {
-            "smooch_message_smooch_bot_message_confirmed": ""
-          },
-          {
-            "smooch_message_smooch_bot_message_type_unsupported": ""
-          },
-          {
-            "smooch_message_smooch_bot_disabled": ""
-          },
-          {
-            "smooch_message_smooch_bot_ask_for_tos": ""
-          },
-          {
-            "smooch_message_smooch_bot_greetings": ""
-          },
-          {
-            "smooch_state_main": {}
-          },
-          {
-            "smooch_state_secondary": {}
-          },
-          {
-            "smooch_message_smooch_bot_option_not_available": ""
-          },
-          {
-            "smooch_state_query": {}
           }
         ],
         "items": {
@@ -625,6 +595,10 @@ class ActiveSupport::TestCase
                           {
                             "key": "resource",
                             "value": "Report"
+                          },
+                          {
+                            "key": "custom_resource",
+                            "value": "Custom resource"
                           }
                         ],
                         "default": ""
@@ -640,6 +614,11 @@ class ActiveSupport::TestCase
                           "string",
                           "integer"
                         ],
+                        "default": ""
+                      },
+                      "smooch_menu_custom_resource_id": {
+                        "title": "Custom resource ID",
+                        "type": "string",
                         "default": ""
                       }
                     }
@@ -688,6 +667,10 @@ class ActiveSupport::TestCase
                           {
                             "key": "resource",
                             "value": "Report"
+                          },
+                          {
+                            "key": "custom_resource",
+                            "value": "Custom resource"
                           }
                         ],
                         "default": ""
@@ -704,6 +687,11 @@ class ActiveSupport::TestCase
                           "integer"
                         ],
                         "default": ""
+                      },
+                      "smooch_menu_custom_resource_id": {
+                        "title": "Custom resource ID",
+                        "type": "string",
+                        "default": ""
                       }
                     }
                   }
@@ -714,6 +702,40 @@ class ActiveSupport::TestCase
               "type": "string",
               "title": "Option not available",
               "default": ""
+            },
+            "smooch_custom_resources": {
+              type: 'array',
+              title: 'Custom Resources',
+              items: {
+                type: 'object',
+                properties: {
+                  smooch_custom_resource_id: {
+                    type: 'string',
+                    title: 'ID',
+                    default: '',
+                  },
+                  smooch_custom_resource_title: {
+                    type: 'string',
+                    title: 'Title',
+                    default: '',
+                  },
+                  smooch_custom_resource_body: {
+                    type: 'string',
+                    title: 'Body',
+                    default: '',
+                  },
+                  smooch_custom_resource_feed_url: {
+                    type: 'string',
+                    title: 'Feed URL',
+                    default: '',
+                  },
+                  smooch_custom_resource_number_of_articles: {
+                    type: 'integer',
+                    title: 'Number of articles',
+                    default: 3,
+                  }
+                }
+              }
             },
             "smooch_state_query": {
               "type": "object",
@@ -756,12 +778,21 @@ class ActiveSupport::TestCase
                           {
                             "key": "resource",
                             "value": "Report"
+                          },
+                          {
+                            "key": "custom_resource",
+                            "value": "Custom resource"
                           }
                         ],
                         "default": ""
                       },
                       "smooch_menu_project_media_title": {
                         "title": "Then",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_custom_resource_id": {
+                        "title": "Custom resource ID",
                         "type": "string",
                         "default": ""
                       },
@@ -896,6 +927,11 @@ class ActiveSupport::TestCase
               'smooch_menu_option_value' => 'pt',
               'smooch_menu_project_media_id' => ''
             },
+            {
+              'smooch_menu_option_keyword' => '4',
+              'smooch_menu_option_value' => 'custom_resource',
+              'smooch_menu_custom_resource_id' => 'latest'
+            }
           ]
         },
         'smooch_state_query' => {
@@ -907,7 +943,16 @@ class ActiveSupport::TestCase
               'smooch_menu_project_media_id' => ''
             }
           ]
-        }
+        },
+        'smooch_custom_resources' => [
+          {
+            'smooch_custom_resource_id' => 'latest',
+            'smooch_custom_resource_title' => 'Latest articles',
+            'smooch_custom_resource_body' => 'Take a look at our latest published articles.',
+            'smooch_custom_resource_feed_url' => 'http://test.com/feed.rss',
+            'smooch_custom_resource_number_of_articles' => 3,
+          }
+        ]
       })
       @settings['smooch_workflows'][1] = @settings['smooch_workflows'][0].clone.merge({
         'smooch_workflow_language' => 'pt',
