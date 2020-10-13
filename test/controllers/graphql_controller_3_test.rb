@@ -1401,4 +1401,85 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     assert_equal([{ 'event' => 'item_added', 'slack_channel' => '#list' }], JSON.parse(@response.body)['data']['updateProject']['project']['get_slack_events'])
   end
+
+  test "should get Smooch Bot RSS feed preview if has permissions" do
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>Test</title>
+          <link>http://test.com/rss.xml</link>
+          <description>Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+          </item>
+          <item>
+            <title>Bar</title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+          </item>
+        </channel>
+      </rss>
+    }
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    url = random_url
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, query: query, team: t.slug
+    assert_no_match /Sorry/, @response.body
+    assert_equal output, JSON.parse(@response.body)['data']['node']['smooch_bot_preview_rss_feed']
+  end
+
+  test "should not get Smooch Bot RSS feed preview if not owner" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'editor'
+    authenticate_with_user(u)
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, query: query, team: t.slug
+    assert_match /Sorry/, @response.body
+  end
+
+  test "should not get Smooch Bot RSS feed preview if not member of the team" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(create_user)
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, query: query, team: t.slug
+    assert_match /Sorry/, @response.body
+  end
+
+  test "should not get Smooch Bot RSS feed preview if not logged in" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'owner'
+    url = random_url
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
+    post :create, query: query, team: t.slug
+    assert_match /Sorry/, @response.body
+  end
 end

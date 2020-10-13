@@ -94,6 +94,8 @@ ru:
       pender_url_invalid: Некорректная ссылка.
       pender_url_unsafe: Небезопасная ссылка.
       pender_could_not_parse: Не удалось обработать ссылку.
+      invalid_format_for_languages: 'Неверный формат для указания языков. Пример:
+        `[''en'', ''ar'', …]`'
   activerecord:
     models:
       link: Ссылка
@@ -141,13 +143,17 @@ ru:
             slug:
               slug_format: только буквы, цифры и дефисы
       messages:
+        record_invalid: "%{errors}"
         improbable_phone: "— неправильный номер"
         too_short:
           one: 'не подходит по длине (минимум: 1 символ)'
           few: 'не подходит по длине (минимум: %{count} символов)'
           many: 'не подходит по длине (минимум: %{count} символов)'
           other: 'не подходит по длине (минимум: %{count} символов)'
+  slack_webhook_format_wrong: 'Неверный адрес webhook для Slack: адрес должен иметь
+    формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
+  invalid_media_item: Извините, этот формат не поддерживается
   invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса
     по умолчанию
   invalid_active_status_for_custom_verification_status: Неверный идентификатор активного
@@ -155,6 +161,8 @@ ru:
   invalid_label_for_custom_verification_status: Название статуса обязательно
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он
     может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
+  invalid_statuses_format_for_custom_verification_status: Дополнительные статусы должны
+    иметь название, идентификатор, описание и стиль.
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
   slack:
     fields:
@@ -207,16 +215,31 @@ ru:
     членам воркспейса %{teams} в Slack.
   admin:
     actions:
+      send_reset_password_email:
+        menu: Отправить инструкции по восстановлению пароля
       export_project:
         menu: Экспорт данных
       export_images:
         menu: Экспорт изображений
       duplicate_team:
         menu: Клонировать проект
+        done: скопировано
+        are_you_sure_you_want_to_copy_team:
+          html: Вы уверены, что хотите клонировать проект <strong>%{team}</strong>?
+            Вместе с проектом будут скопированы все связанные данные.
+        the_team_is_being_copied: Идёт клонирование проекта
+        url_when_ready:
+          html: 'Когда копия проекта будет готова, она станет доступна по ссылке:
+            <strong>%{copy_url}</strong>'
+    flash:
+      delete_team_scheduled: Проект %{team} удаляется
+  email_not_found: Email не найден
   slack_channel_format_wrong: Неверный канал Slack
+  invalid_token: Неверный токен
   time:
     formats:
       oembed: "%B %d, %Y"
+      task: "%B %d, %Y в %H:%M [TZ] (%z UTC)"
       email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Материал ещё не был проверен (%{team})
   oembed_disclaimer_in_progress: Проверка достоверности начата %{date} (%{team})
@@ -254,6 +277,10 @@ ru:
     many: 'Вопросов с ответами: %{count}'
     other: 'Вопросов с ответами: %{count}'
   oembed_notes: Заметки
+  duplicate_source: Источник уже существует
+  geolocation_invalid_value: Неверная локация. Локация должна содержать корректный
+    GeoJSON (http://geojson.org/)
+  datetime_invalid_date: Неверная дата
   error_team_archived: Нельзя добавить список задач в проект, который находится в
     корзине
   error_project_archived: Нельзя добавить материал к списку, который находится в корзине
@@ -276,6 +303,7 @@ ru:
   devise:
     mailer:
       reset_password_instructions:
+        subject: Инструкции по сбросу пароля %{app_name}
         header_title: Запрос сброса пароля
         header_text: Мы получили ваш запрос на сброс пароля для %{app_name}.
         action: Сбросить пароль
@@ -301,10 +329,12 @@ ru:
     invited: Пользователь уже был приглашен в этот проект.
     member: Пользователь уже является участником проекта.
     team_found: Проект не найден.
+    invalid: Неверный код приглашения.
     no_invitation: Вы не приглашены в проект %{name}
   error_user_is_not_a_team_member: Извините, вы можете назначать задачи только участникам
     этого проекта
   error_login_with_exists_account: Извините, этот аккаунт уже подключен другим пользователем
+  error_login_2fa: Для завершения входа введите, пожалуйста, код аутентификации.
   error_record_not_found: 'Не найдено: %{type} #%{id}'
   mails_notifications:
     greeting: Здравствуйте, %{username}!
@@ -315,6 +345,10 @@ ru:
     copyright_html: '%{app_name} от <a href="https://meedan.com">Meedan</a>'
     register:
       subject: Новый аккаунт в %{app_name}
+      header_text: |-
+        Вы успешно зарегистрировались в %{app_name}!
+        <br>
+        Чтобы начать работу, нажмите на ссылку: %{url}. Введите ваш email и этот пароль: %{password}
       login_button: Войти в %{app_name}
       footer_text: Спасибо, что присоединились к нам, и добро пожаловать!
     duplicated:
@@ -464,6 +498,8 @@ ru:
   archive_pender_archive: Скриншот
   archive_archive_is: Archive.is
   archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'Неверный статус: ''%{status}'' (должен быть одним
+    из списка: %{valid})'
   workflow_status_permission_error: Извините, вы не можете изменить этот статус.
   blank_default_status_for_custom_verification_status: Пожалуйста, задайте значение
     «по умолчанию» для дополнительных статусов
@@ -481,6 +517,10 @@ ru:
   bot_cant_add_response_to_task: Извините, бот не может отвечать на вопросы — вместо
     этого можно предложить ответ
   bot_cant_add_review_to_task: Извините, бот не может обрабатывать вопросы
+  task_suggestion_invalid_value: Неверный предлагаемый ответ. Корректный формат —
+    объект JSON с ключами `suggestion` (ответ на вопрос, публикуемый при принятии
+    предложения) и `comment` (показывается пользователям)
+  tag_text_id_not_found: Тег не найден
   annotation_type_language_label: Язык
   smooch_bot_message_confirmed: |-
     Спасибо. Ваш запрос был добавлен в очередь на верификацию.
@@ -556,6 +596,7 @@ ru:
             delete_repsonse: Удаление ответов
             assign_task: Назначать задачи и материалы
         team_management:
+          name: Управление проектом
           permissions:
             delete: Закрывать проект
             edit: Редактировать информацию о проекте
@@ -579,6 +620,9 @@ ru:
     invalid_project: Неверный список %{project}
     invalid_user: Неверный пользователь %{user}
     invalid_status: Неверный статус %{status}
+    blank_user: Не указан автор
+    blank_annotator: Не указан аннотатор
+    blank_project: Не указан список задач
     invalid_annotator: Неверный аннотатор %{user}
     invalid_assignee: Неверный пользователь %{user}
   cant_mutate_inactive_object: Этот материал находится в обработке и не может быть
@@ -593,11 +637,15 @@ ru:
   smooch_requests: Запросы
   smooch_requests_asc: Наименее запрашиваемые
   smooch_requests_desc: Самые запрашиваемые
+  bot_request_url_invalid: Неверный URL бота
   smooch_twitter_success: Ура! Теперь личные сообщения, присылаемые в этот аккаунт
     Twitter, будет обрабатывать бот Smooch.
+  invalid_task_answer: Неверный формат ответа на вопрос
   team_rule_name: Уникальное название для правила
   team_rule_project_ids: Применить к списку
   team_rule_destination: Выберите список задач
+  team_rule_names_invalid: Названия правил должны быть уникальными и не могут быть
+    пустыми
   team_rules: Правила
   team_rule_conditions: Если
   team_rule_condition: Если
@@ -616,6 +664,7 @@ ru:
     из данного списка
   team_rule_select_type: Выберите тип
   team_rule_select_language: Выберите язык
+  team_rule_select_user: Укажите соавтора
   team_rule_tagged_as: Материал отмечен данным тегом
   team_rule_select_tag: Выберите тег
   team_rule_select_status: Выберите статус
@@ -647,9 +696,22 @@ ru:
   team_rule_condition_groups: Группы условий
   team_rule_condition_group: Группа условий
   team_rule_operator: Оператор
+  team_rule_json_schema_validation: Неверный формат правила
   team_rule_updated_at: Изменено
   team_rule_item_language_is: Язык материала совпадает с указанным
   team_rule_item_user_is: Материал был создан данным автором
+  team_rule_item_is_read: Материал прочитан
+  team_rule_field_from_fieldset_tasks_value_is: На вопрос есть конкретный ответ
+  team_rule_field_from_fieldset_metadata_value_is: У метаданных есть конкретное значение
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: Ответ содержит ключевое
+    слово
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Метаданные содержат
+    ключевое слово
+  team_rule_select_field_metadata: Выберите метаданные
+  team_rule_select_field_value_metadata: Выберите значение
+  team_rule_select_field_tasks: Выберите вопрос
+  team_rule_select_field_value_tasks: Выберите ответ
+  team_rule_item_is_assigned_to_user: Материал назначен на
   flag_adult: Не для детей
   flag_spoof: Пародия
   flag_medical: Медицинский
@@ -671,9 +733,19 @@ ru:
     поэтому, если вы хотите удалить его, нужно указать альтернативный вариант
   embed_no_content_yet: Отчёт находится в процессе создания. Это может занять несколько
     минут. Пожалуйста, обновите страницу чуть позже.
+  language_format_invalid: Неверное обозначение языка. Язык должен быть указан кодом
+    ISO 639-1.
+  languages_format_invalid: Неверные обозначения языков. Языки должны указываться
+    кодами ISO 639-1.
   cant_change_status_if_item_is_published: Извините, вы не можете изменить статус,
     когда отчёт уже опубликован
   fetch_bot_service_unsupported: Сервис не поддерживается
+  task_options_must_be_array: Параметры вопроса должны быть отформатированы списком
+  fieldset_not_defined_by_team: Набор полей должен поддерживаться проектом
+  replace_by_media_in_the_same_team: Извините, этот материал можно заменять только
+    другими материалами из того же проекта
+  replace_blank_media_only: Извините, в данный момент можно заменять только пустые
+    материалы
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -747,6 +819,7 @@ ru:
   custom_message_status_rated_false_africa-infodemic: ''
   custom_message_status_rated_misleading_africa-infodemic: ''
   custom_message_status_rated_unproven_africa-infodemic: ''
+  custom_message_rule_action_send_message_8e4aab0220d56b4747a32cbc330543ed_blk-sno: ''
   custom_message_status_verified_boom-factcheck: ''
   custom_message_status_false_boom-factcheck: Неправда
   custom_message_status_not_applicable_boom-factcheck: Неясно
@@ -775,49 +848,11 @@ ru:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Добавлено
-  custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
-    to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_test-1: "Thank you! Your request has
-    been received. Responses are being aggregated and sorted, and we're working on
-    fact-checking your questions.\n\n✔️*Follow this link for an updated list of common
-    questions that we have fact-checked:* [ Link to a page of fact-checks on your
-    website ]\n\n\U0001F449*Reply with any text* to get back to the *Main Menu* \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-1: |-
-    ❌Sorry, we can't accept this type of message for verification at this time.
-
-    We can accept most images, videos, links, text messages, and shared WhatsApp messages.
-  custom_message_smooch_bot_disabled_test-1: |-
-    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
-
-    Contact us at *[email or other contact]* for further inquiries.
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: Hi! Welcome to [Name of your organization]’s
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
-  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916I'm sorry, I didn't
-    understand your message. Please try again!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Main
-    Menu*\n\n*Reply 1* (or \U0001F50D) to submit a request for a fact-check about
-    an article, video, image, or other content.\n*Reply 2* (or \U0001F9A0) to get
-    the latest information about coronavirus disease (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Information
-    about Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Reply with any
-    one of the following numbers (or emoji) to get information about that topic:*\n\n*1:*
-    How do I protect myself and/or my family? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
-    I think I might be getting sick \U0001F912\n*3:* How can I handle stress associated
-    with COVID-19? ❤️\n*4:* Information about cases and recoveries globally \U0001F4CA\n*5:*
-    Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
-    back to the *Main Menu* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Please
-    enter the question, link, picture, or video that you want fact-checked,* followed
-    by any context or additional questions related to that item. Your request will
-    be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
-    0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_caio: "Thank you! Your request has been
@@ -852,6 +887,44 @@ ru:
     Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
     back to the *Main Menu* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Please
+    enter the question, link, picture, or video that you want fact-checked,* followed
+    by any context or additional questions related to that item. Your request will
+    be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
+    0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-1: "Thank you! Your request has
+    been received. Responses are being aggregated and sorted, and we're working on
+    fact-checking your questions.\n\n✔️*Follow this link for an updated list of common
+    questions that we have fact-checked:* [ Link to a page of fact-checks on your
+    website ]\n\n\U0001F449*Reply with any text* to get back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Sorry, we can't accept this type of message for verification at this time.
+
+    We can accept most images, videos, links, text messages, and shared WhatsApp messages.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
+
+    Contact us at *[email or other contact]* for further inquiries.
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Main
+    Menu*\n\n*Reply 1* (or \U0001F50D) to submit a request for a fact-check about
+    an article, video, image, or other content.\n*Reply 2* (or \U0001F9A0) to get
+    the latest information about coronavirus disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Information
+    about Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Reply with any
+    one of the following numbers (or emoji) to get information about that topic:*\n\n*1:*
+    How do I protect myself and/or my family? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    I think I might be getting sick \U0001F912\n*3:* How can I handle stress associated
+    with COVID-19? ❤️\n*4:* Information about cases and recoveries globally \U0001F4CA\n*5:*
+    Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
+    back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Please
     enter the question, link, picture, or video that you want fact-checked,* followed
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
@@ -1155,17 +1228,6 @@ ru:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: Спасибо!
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
-    to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
-    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test: "Thank you! Your request has been
@@ -1206,6 +1268,17 @@ ru:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test-16: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
