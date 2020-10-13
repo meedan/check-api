@@ -339,12 +339,15 @@ class Bot::Smooch < BotUser
 
   def self.get_user_language(message, state = nil)
     uid = message['authorId']
-    Rails.cache.fetch("smooch:user_language:#{uid}") do
-      team = Team.find(self.config['team_id'])
-      language = team.get_language || 'en'
+    team = Team.find(self.config['team_id'])
+    default_language = team.get_language || 'en'
+    supported_languages = team.get_languages || ['en']
+    user_language = Rails.cache.fetch("smooch:user_language:#{uid}") do
+      language = default_language
       language = self.get_language(message, language) if state == 'waiting_for_message'
       language
     end
+    supported_languages.include?(user_language) ? user_language : default_language
   end
 
   def self.parse_message_based_on_state(message, app_id)
