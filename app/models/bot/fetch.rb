@@ -207,7 +207,7 @@ class Bot::Fetch < BotUser
     def self.set_status(claim_review, pm, status_fallback, status_mapping)
       status = status_fallback
       if claim_review['reviewRating'] && status_mapping
-        rating_value = claim_review.dig('reviewRating', 'ratingValue') || claim_review.dig('reviewRating', 'alternateName')
+        rating_value = claim_review.dig('reviewRating', 'alternateName') || claim_review.dig('reviewRating', 'ratingValue')
         mapped_status = status_mapping[rating_value.to_s] || status_mapping[rating_value.to_i]
         status = mapped_status unless mapped_status.blank?
       end
