@@ -267,8 +267,6 @@ class Bot::Fetch < BotUser
       report.action = 'save'
       report.save!
       FileUtils.rm_f(tmp_file_path) if tmp_file_path
-      report.updated_at = date
-      report.report_image_generate_png(0)
     end
   end
 end
