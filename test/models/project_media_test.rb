@@ -1763,7 +1763,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should localize status" do
     I18n.locale = :pt
     pm = create_project_media
-    assert_equal 'Pendente', pm.status_i18n(nil, { locale: 'pt' })
+    assert_equal 'Não Iniciado', pm.status_i18n(nil, { locale: 'pt' })
     create_verification_status_stuff(false)
     t = create_team slug: 'test'
     value = {
