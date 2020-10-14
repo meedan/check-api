@@ -998,9 +998,9 @@ class Bot::Smooch < BotUser
     require 'open-uri'
     output = []
     open(url) do |rss|
-      feed = RSS::Parser.parse(rss)
+      feed = RSS::Parser.parse(rss, false)
       feed.items.first(count).each do |item|
-        output << item.title + "\n" + item.link
+        output << item.title.strip + "\n" + item.link.strip
       end
     end
     output.join("\n\n")
