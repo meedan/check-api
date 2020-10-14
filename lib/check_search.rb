@@ -169,12 +169,16 @@ class CheckSearch
     conditions.concat build_search_doc_conditions
     conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
-    conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
+    check_seach_concat_conditions(conditions, dynamic_conditions)
     rules_conditions = build_search_rules_conditions
-    conditions.concat(rules_conditions) unless rules_conditions.blank?
+    check_seach_concat_conditions(conditions, rules_conditions)
     response_conditions = build_search_responses_conditions
-    conditions.concat(response_conditions) unless response_conditions.blank?
+    check_seach_concat_conditions(conditions, response_conditions)
     { bool: { must: conditions } }
+  end
+
+  def check_seach_concat_conditions(base_condition, c)
+    base_condition.concat(c) unless c.blank?
   end
 
   def medias_get_search_result(query)

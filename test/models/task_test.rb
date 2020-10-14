@@ -627,7 +627,7 @@ class TaskTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm2))['task_responses']
     assert_equal 2, result.size
     assert_equal ['Brazil', 'Egypt'].sort, result.first['value'].sort
-    assert_equal 'January', result.last['value']
+    assert_equal ['January'], result.last['value']
 
     assert_equal ['Brazil', 'Egypt', 'January'], pm2.reload.task_answer_selected_values.sort
 
