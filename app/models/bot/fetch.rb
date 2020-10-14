@@ -1,5 +1,5 @@
 # How to set a service for a Fetch bot installation using Rails console:
-# > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping ({ reviewRating.(ratingValue|alternameName) => Check status identifier }, as a JSON string))
+# > Bot::Fetch.set_service(team_slug, service_name, status_fallback, status_mapping ({ reviewRating.(ratingValue|alternameName) => Check status identifier }, as a JSON object))
 
 class Bot::Fetch < BotUser
 
@@ -194,8 +194,8 @@ class Bot::Fetch < BotUser
       s.skip_notifications = true
       s.disable_es_callbacks = Rails.env.to_s == 'test'
       s.set_fields = {
-        title: claim_review['claimReviewed'].to_s,
-        content: claim_review['text'].to_s,
+        title: self.parse_text(claim_review['claimReviewed']),
+        content: self.parse_text(claim_review['text']),
         published_article_url: claim_review['url'].to_s,
         date_published: claim_review['datePublished'].blank? ? '' : Time.parse(claim_review['datePublished']).to_i,
         external_id: claim_review['identifier'],
@@ -229,6 +229,10 @@ class Bot::Fetch < BotUser
       tmp
     end
 
+    def self.parse_text(text)
+      CGI.unescapeHTML(ActionView::Base.full_sanitizer.sanitize(text.to_s))
+    end
+
     def self.create_report(claim_review, pm, team, user)
       report = Dynamic.new
       report.annotation_type = 'report_design'
@@ -247,9 +251,9 @@ class Bot::Fetch < BotUser
         options: [{
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
-          description: claim_review['text'].to_s.truncate(240),
-          title: claim_review['claimReviewed'].to_s.truncate(85),
-          headline: claim_review['claimReviewed'].to_s.truncate(85),
+          description: self.parse_text(claim_review['text']).truncate(240),
+          title: self.parse_text(claim_review['claimReviewed']).truncate(85),
+          headline: self.parse_text(claim_review['claimReviewed']).truncate(85),
           use_visual_card: true,
           image: '',
           use_introduction: false,
@@ -257,7 +261,7 @@ class Bot::Fetch < BotUser
           theme_color: pm.reload.last_status_color,
           url: '',
           use_text_message: true,
-          text: [claim_review['text'].to_s.truncate(760 - claim_review['url'].to_s.size), claim_review['url']].join("\n\n"),
+          text: [self.parse_text(claim_review['text']).truncate(760 - claim_review['url'].to_s.size), claim_review['url']].join("\n\n"),
           use_disclaimer: false,
           disclaimer: '',
           date: report.report_design_date(date.to_date, language)
