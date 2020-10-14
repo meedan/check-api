@@ -66,8 +66,7 @@ class MediaSearch
         id: { type: 'integer'},
         team_task_id: { type: 'integer'},
         fieldset: { type: 'text' },
-        field_name: { type: 'text' },
-        value: { type: 'text', analyzer: 'keyword'}
+        value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } }
       }
     }
 

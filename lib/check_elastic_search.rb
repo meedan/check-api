@@ -120,19 +120,19 @@ module CheckElasticSearch
 
   def get_elasticsearch_data(data)
     if self.class.name == 'DynamicAnnotation::Field' && self.field_name =~ /^response_/
-      if self.field_name == 'response_multiple_choice'
-        value = JSON.parse(self.value)
-        value = value['selected']
+      if self.field_name =~ /choice/
+        value = self.selected_values_from_task_answer
       else
-        value = self.value
+        value = [self.value]
       end
-      data = { field_name: self.field_name, value: value }
+      data = { value: value }
       task = self.annotation.annotated
       if !task.nil? && task.annotation_type == 'task'
         data.merge!({team_task_id: task.team_task_id, fieldset: task.fieldset})
       end
+      data = data.with_indifferent_access
     end
-    (data.blank? and self.respond_to?(:data)) ? self.data : data.with_indifferent_access
+    (data.blank? and self.respond_to?(:data)) ? self.data : data
   end
 
   def destroy_elasticsearch_doc(data)

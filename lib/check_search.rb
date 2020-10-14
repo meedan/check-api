@@ -163,7 +163,6 @@ class CheckSearch
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
-      conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
@@ -251,9 +250,13 @@ class CheckSearch
   def build_search_responses_conditions
     conditions = []
     return conditions unless @options.has_key?('responses')
-    @options['responses_fields'] ||= %w(response_single_choice response_multiple_choice)
-    conditions << { terms: { "task_responses.field_name": @options['responses_fields'] } }
-    conditions << { terms: { "task_responses.value": @options['responses'] } }
+    @options['responses_type'] ||= 'choice'
+    if @options['responses_type'] == 'choice'
+      filter_key = @options['responses'].class.name == 'Array' ? 'terms' : 'term'
+      conditions << { "#{filter_key}": { "task_responses.value.raw": @options['responses'] } }
+    else
+      conditions << { match: { "task_responses.value": @options['responses'] } }
+    end
     conditions << { terms: { "task_responses.team_task_id": @options['team_tasks'] } } if @options.has_key?('team_tasks')
     conditions << { terms: { "task_responses.fieldset": @options['fieldset'] } } if @options.has_key?('fieldset')
     [{ nested: { path: 'task_responses', query: { bool: { must: conditions } } } }]
