@@ -20,8 +20,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
         "name": "The Author",
         "url": nil
       },
-      "claimReviewed": "Earth is not flat",
-      "text": "Scientific evidences show that Earth is round",
+      "claimReviewed": "Earth isn&#39;t flat",
+      "text": "<p>Scientific evidences show that <b>Earth</b> is round</p>",
       "image": "https://external.site/image.png",
       "reviewRating": {
         "@type": "Rating",
@@ -154,7 +154,14 @@ class Bot::FetchTest < ActiveSupport::TestCase
       d = DynamicAnnotation::Field.where(field_name: 'external_id', value: id).last
       assert_not_nil d
       assert_equal statuses[i], d.annotation.annotated.last_status
+      assert_equal "Earth isn't flat", d.annotation.annotated.last_status_obj.get_field_value('title')
+      assert_equal "Scientific evidences show that Earth is round",  d.annotation.annotated.last_status_obj.get_field_value('content')
     end
+    r = Dynamic.where(annotation_type: 'report_design').last
+    assert_equal "Earth isn't flat", r.report_design_field_value('headline', 'en')
+    assert_equal "Scientific evidences show that Earth is round", r.report_design_field_value('description', 'en')
+    assert_equal "Earth isn't flat", r.report_design_field_value('title', 'en')
+    assert_equal "Scientific evidences show that Earth is round\n\nhttps://external.site/claim_review", r.report_design_field_value('text', 'en')
   end
 
   test "should notify Airbrake if can't import a claim review" do
@@ -163,5 +170,10 @@ class Bot::FetchTest < ActiveSupport::TestCase
     Bot::Fetch::Import.import_claim_review({}, 0, 0, random_string, {})
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
+  end
+
+  test "should strip HTML tags and decode HTML entities" do
+    assert_equal "Earth isn't flat", Bot::Fetch::Import.parse_text("Earth isn&#39;t flat")
+    assert_equal "Scientific evidences show that Earth is round, as per link.Please see this image: .", Bot::Fetch::Import.parse_text('<p>Scientific evidences show that <b>Earth</b> is round, as per <a href="http://test.com">link</a>.<br />Please see this image: <img src="http://image/image.jpg" alt="" />.</p>')
   end
 end
