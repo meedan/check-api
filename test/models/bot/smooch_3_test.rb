@@ -1158,6 +1158,45 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     end
   end
 
+  test "should not strictly validate RSS feed" do
+    url = random_url
+    rss = %{
+      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+        <channel>
+          <title>
+            Test
+          </title>
+          <link>http://test.com/rss.xml</link>
+          <description>
+          Test</description>
+          <language>en</language>
+          <lastBuildDate>Fri, 09 Oct 2020 18:00:48 GMT</lastBuildDate>
+          <managingEditor>test@test.com (editors)</managingEditor>
+          <item>
+            <title>Foo
+            </title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 11 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://foo</link>
+            <enclosure>http://foo/foo.jpg</enclosure>
+          </item>
+          <item>
+            <title>
+              Bar
+            </title>
+            <description>This is the description.</description>
+            <pubDate>Wed, 10 Apr 2018 15:25:00 GMT</pubDate>
+            <link>http://bar</link>
+            <enclosure>http://bar/bar.jpg</enclosure>
+          </item>
+        </channel>
+      </rss>
+    }
+    WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
+    output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
+    assert_equal output, Bot::Smooch.render_articles_from_rss_feed(url)
+  end
+
   protected
 
   def run_concurrent_requests
