@@ -100,7 +100,8 @@ class CheckSearch
     ['tags', 'keyword', 'rules', 'dynamic', 'responses'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
-    !(query_all_types && status_blank && filters_blank && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    range_filter = !@options['range'].blank? && @options['range'].keys.include?('last_seen')
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -352,7 +353,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at].each do |name|
+    [:created_at, :updated_at, :last_seen].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?

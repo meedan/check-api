@@ -119,14 +119,16 @@ module CheckElasticSearch
   end
 
   def get_elasticsearch_data(data)
-    if self.class.name == 'DynamicAnnotation::Field' && self.field_name =~ /^response_/
-      if self.field_name =~ /choice/
-        value = self.selected_values_from_task_answer
+    if self.class.name == 'Dynamic' && self.annotation_type =~ /^task_response/
+      field_name = self.annotation_type.sub(/task_/, '')
+      field = self.get_field(field_name)
+      if field.field_name =~ /choice/
+        value = field.selected_values_from_task_answer
       else
-        value = [self.value]
+        value = [field.value]
       end
       data = { value: value }
-      task = self.annotation.annotated
+      task = self.annotated
       if !task.nil? && task.annotation_type == 'task'
         data.merge!({team_task_id: task.team_task_id, fieldset: task.fieldset})
       end

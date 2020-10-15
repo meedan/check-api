@@ -347,14 +347,66 @@ class ElasticSearch7Test < ActionController::TestCase
       # D) search by fieldset (i.e. in all tasks or metadata)
       results = CheckSearch.new({ responses: ['ans_a'], fieldset: ['metadata'] }.to_json)
       assert_empty results.medias
-      # tt4 = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c'], fieldset: 'metadata'
-      # pm7 = create_project_media team: t, disable_es_callbacks: false
-      # pm7_tt = pm.annotations('task').select{|t| t.team_task_id == tt4.id}.last
-      # pm7_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
-      # pm7_tt.save!
-      # sleep 2
-      # results = CheckSearch.new({ responses: ['ans_a'], fieldset: ['metadata'] }.to_json)
-      # assert_equal [pm7], results.medias
+    end
+  end
+
+  test "should update and destroy responses in es" do
+    create_task_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    tt2 = create_team_task team_id: t.id, type: 'multiple_choice', options: ['choice_a', 'choice_b', 'choice_c']
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      es_id = get_es_id(pm)
+      # answer single choice
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
+      pm_tt.save!
+      # answer multiple choice
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      pm_tt2.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['choice_a', 'choice_b'], other: nil }.to_json }.to_json }.to_json
+      pm_tt2.save!
+      sleep 2
+      result = $repository.find(es_id)['task_responses']
+      sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      mc = result.select{|r| r['team_task_id'] == tt2.id}.first
+      assert_equal ['ans_a'], sc['value']
+      assert_equal ['choice_a', 'choice_b'], mc['value']
+      # update answers for single and multiple
+      pm_tt = Task.find(pm_tt.id)
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_b' }.to_json }.to_json
+      pm_tt.save!
+      pm_tt2 = Task.find(pm_tt2.id)
+      pm_tt2.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['choice_c'], other: nil }.to_json }.to_json }.to_json
+      pm_tt2.save!
+      sleep 2
+      result = $repository.find(es_id)['task_responses']
+      sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      mc = result.select{|r| r['team_task_id'] == tt2.id}.first
+      assert_equal ['ans_b'], sc['value']
+      assert_equal ['choice_c'], mc['value']
+      # destroy responses
+      pm_tt = Task.find(pm_tt.id)
+      sc_response = pm_tt.first_response_obj
+      sc_response.destroy
+      sleep 2
+      result = $repository.find(es_id)['task_responses']
+      sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      mc = result.select{|r| r['team_task_id'] == tt2.id}.first
+      assert_nil sc
+      assert_equal ['choice_c'], mc['value']
+      # destroy mmultiple choice answer
+      pm_tt2 = Task.find(pm_tt2.id)
+      mc_response = pm_tt2.first_response_obj
+      mc_response.destroy
+      sleep 2
+      result = $repository.find(es_id)['task_responses']
+      sc = result.select{|r| r['team_task_id'] == tt.id}.first
+      mc = result.select{|r| r['team_task_id'] == tt2.id}.first
+      assert_nil sc
+      assert_nil mc
     end
   end
 end
