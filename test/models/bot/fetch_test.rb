@@ -52,8 +52,8 @@ class Bot::FetchTest < ActiveSupport::TestCase
       'fetch_service_name' => 'test',
       'status_fallback' => 'in_progress',
       'status_mapping' => {
-        '0' => 'false',
-        '1' => 'verified'
+        'False' => 'false',
+        'True' => 'verified'
       }.to_json
     }
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
@@ -132,12 +132,15 @@ class Bot::FetchTest < ActiveSupport::TestCase
   test "should import claim reviews with report and correct status and ignore duplicates" do
     cr1 = @claim_review.deep_dup
     cr1['reviewRating']['ratingValue'] = 0
+    cr1['reviewRating']['alternateName'] = 'False'
     cr1['identifier'] = 'first'
     cr2 = @claim_review.deep_dup
     cr2['reviewRating']['ratingValue'] = 1
+    cr2['reviewRating']['alternateName'] = 'True'
     cr2['identifier'] = 'second'
     cr3 = @claim_review.deep_dup
     cr3['reviewRating']['ratingValue'] = 2
+    cr3['reviewRating']['alternateName'] = 'Not Mapped'
     cr3['identifier'] = 'third'
     WebMock.stub_request(:get, 'http://fetch:8000/services').to_return(body: { services: [{ service: 'foo', count: 4, earliest: '2017-08-09', latest: '2017-08-09' }]}.to_json)
     WebMock.stub_request(:get, 'http://fetch:8000/claim_reviews?end_time=2017-08-10&per_page=10000&service=foo&start_time=2017-08-09').to_return(body: [cr1, cr1, cr2, cr3].to_json)
