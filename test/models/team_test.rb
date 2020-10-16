@@ -3288,8 +3288,8 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should allow default BotUser to be added on creation" do
-    bu = create_bot_user(default: true)
-    bu_non_default = create_bot_user(default: false)
+    bu = create_bot_user(default: true, approved: true)
+    bu_non_default = create_bot_user(default: false, approved: true)
     t = create_team
     assert t.team_bot_installations.include?(bu)
     assert !t.team_bot_installations.include?(bu_non_default)
