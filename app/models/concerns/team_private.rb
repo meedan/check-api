@@ -20,6 +20,12 @@ module TeamPrivate
     end
   end
 
+  def add_default_bots_to_team
+    BotUser.where(default: true).map do |bot_user|
+      bot_user.install_to!(self)
+    end
+  end
+
   def normalize_slug
     return if self.slug.blank?
     self.slug = self.slug.downcase
