@@ -100,7 +100,7 @@ class CheckSearch
     ['tags', 'keyword', 'rules', 'dynamic', 'responses'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
-    range_filter = !@options['range'].blank? && @options['range'].keys.include?('last_seen')
+    range_filter = hit_es_for_range_filter
     !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
@@ -375,5 +375,9 @@ class CheckSearch
     return results if values.empty?
     joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), table])
     results.joins(joins).order('x.order_number')
+  end
+
+  def hit_es_for_range_filter
+    !@options['range'].blank? && @options['range'].keys.include?('last_seen')
   end
 end

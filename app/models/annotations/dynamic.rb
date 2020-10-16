@@ -129,15 +129,17 @@ class Dynamic < ActiveRecord::Base
   end
 
   def handle_elasticsearch_response(op)
-    return unless self.annotation_type =~ /^task_response/
-    allowed_responses = %w(task_response_multiple_choice task_response_single_choice task_response_free_text)
-    if allowed_responses.include?(self.annotation_type)
-      pm = self.annotated.annotated
-      if op == 'destroy'
-        self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
-      else
-        keys = %w(team_task_id fieldset value)
-        self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+    if self.annotation_type =~ /^task_response/ && self.annotated_type == 'Task'
+      allowed_responses = %w(task_response_multiple_choice task_response_single_choice task_response_free_text)
+      if allowed_responses.include?(self.annotation_type)
+        annotated = self.annotated
+        pm = annotated.is_annotation? ? annotated.annotated : annotated
+        if op == 'destroy'
+          self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
+        else
+          keys = %w(team_task_id fieldset value)
+          self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+        end
       end
     end
   end

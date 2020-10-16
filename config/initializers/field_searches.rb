@@ -203,7 +203,7 @@ ProjectMedia.class_eval do
     self.field_search_query_type_range(:updated_at, range, timezone)
   end
 
-  def self.field_search_query_type_range_last_seen(range, timezone, _options = nil)
+  def self.field_search_query_type_range_last_seen(range, _timezone, _options = nil)
     {
       range: {
         last_seen: {
