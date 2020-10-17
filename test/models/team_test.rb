@@ -3291,7 +3291,7 @@ class TeamTest < ActiveSupport::TestCase
     bu = create_bot_user(default: true, approved: true)
     bu_non_default = create_bot_user(default: false, approved: true)
     t = create_team
-    assert t.team_bot_installations.include?(bu)
-    assert !t.team_bot_installations.include?(bu_non_default)
+    assert t.team_bot_installations.collect(&:bot_user).include?(bu)
+    assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
   end
 end
