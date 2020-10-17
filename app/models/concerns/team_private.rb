@@ -22,8 +22,8 @@ module TeamPrivate
 
   def add_default_bots_to_team
     return false unless ActiveRecord::Base.connection.column_exists?(:users, :default)
-    BotUser.where(default: true, approved: true).map do |bot_user|
-      bot_user.install_to!(self)
+    BotUser.where(default: true).map do |bot_user|
+      bot_user.install_to!(self) if bot_user.get_approved
     end
   end
 
