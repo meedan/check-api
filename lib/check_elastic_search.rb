@@ -141,7 +141,7 @@ module CheckElasticSearch
         data = { value: value }
         task = self.annotated
         if !task.nil? && task.annotation_type == 'task'
-          data.merge!({team_task_id: task.team_task_id, fieldset: task.fieldset})
+          data.merge!({ team_task_id: task.team_task_id })
         end
       end
     end

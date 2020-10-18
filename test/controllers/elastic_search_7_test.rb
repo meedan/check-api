@@ -287,11 +287,11 @@ class ElasticSearch7Test < ActionController::TestCase
       pm3_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
       pm3_tt.save!
       sleep 2
-      results = CheckSearch.new({ responses: 'ans_a', team_tasks: [tt.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'ans_a' }]}.to_json)
       assert_equal [pm, pm3], results.medias.sort
-      results = CheckSearch.new({ responses: 'ans_b', team_tasks: [tt.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{ response: 'ans_b', id: tt.id }]}.to_json)
       assert_equal [pm2], results.medias
-      results = CheckSearch.new({ responses: 'ans_c', team_tasks: [tt.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{ response: 'ans_c', id: tt.id }]}.to_json)
       assert_empty results.medias
       # test with multiple choices
       pm4 = create_project_media team: t, disable_es_callbacks: false
@@ -299,7 +299,7 @@ class ElasticSearch7Test < ActionController::TestCase
       pm4_tt.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['ans_a', 'ans_c'], other: nil }.to_json }.to_json }.to_json
       pm4_tt.save!
       sleep 2
-      results = CheckSearch.new({ responses: 'ans_a', team_tasks: [tt2.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{ response: 'ans_a', id: tt2.id }]}.to_json)
       assert_equal [pm4.id], results.medias.map(&:id)
       # test with free text
       pm5 = create_project_media team: t, disable_es_callbacks: false
@@ -311,13 +311,13 @@ class ElasticSearch7Test < ActionController::TestCase
       pm6_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'Bar by Sawy' }.to_json }.to_json
       pm6_tt.save!
       sleep 2
-      results = CheckSearch.new({ responses: 'Foo', responses_type: 'free_text', team_tasks: [tt3.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{response: 'Foo', response_type: 'free_text', id: tt3.id}]}.to_json)
       assert_equal [pm5.id], results.medias.map(&:id)
-      results = CheckSearch.new({ responses: 'Sawy', responses_type: 'free_text', team_tasks: [tt3.id] }.to_json)
+      results = CheckSearch.new({ team_tasks: [{response: 'Sawy', response_type: 'free_text', id: tt3.id}]}.to_json)
       assert_equal [pm5.id, pm6.id], results.medias.map(&:id).sort
       # search with different cases
       # A) test with choice (single/multiple) [exact match]
-      query = 'query Search { search(query: "{\"responses\":\"ans_a\",\"responses_type\":\"choice\",\"team_tasks\":[' + tt.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+      query = 'query Search { search(query: "{\"team_tasks\":[{\"response\":\"ans_a\",\"response_type\":\"choice\",\"id\":' +  tt.id.to_s + '}]}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
       post :create, query: query
       assert_response :success
       ids = []
@@ -326,7 +326,7 @@ class ElasticSearch7Test < ActionController::TestCase
       end
       assert_equal [pm.id, pm3.id], ids.sort
       # B) test with free text (contain match)
-      query = 'query Search { search(query: "{\"responses\":\"sawy\",\"responses_type\":\"free_text\",\"team_tasks\":[' + tt3.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+      query = 'query Search { search(query: "{\"team_tasks\":[{\"response\":\"sawy\",\"response_type\":\"free_text\",\"id\":' +  tt3.id.to_s + '}]}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
       post :create, query: query
       assert_response :success
       ids = []
@@ -334,19 +334,9 @@ class ElasticSearch7Test < ActionController::TestCase
         ids << id["node"]["dbid"]
       end
       assert_equal [pm5.id, pm6.id], ids.sort
-      # Extra features (may be needed in future)
-      # A) search with multiple responses (OR)
-      results = CheckSearch.new({ responses: ['ans_a', 'ans_b'], team_tasks: [tt.id] }.to_json)
-      assert_equal [pm, pm2, pm3], results.medias.sort
-      # B) Search in multiple team tasks
-      results = CheckSearch.new({ responses: ['ans_a'], team_tasks: [tt.id, tt2.id] }.to_json)
+      # Search in multiple team tasks
+      results = CheckSearch.new({team_tasks: [{id: tt.id, response: 'ans_a'}, {id: tt2.id, response: 'ans_a'}]}.to_json)
       assert_equal [pm, pm3, pm4], results.medias.sort
-      # C) search in all team tasks
-      results = CheckSearch.new({ responses: ['ans_a'] }.to_json)
-      assert_equal [pm, pm3, pm4], results.medias.sort
-      # D) search by fieldset (i.e. in all tasks or metadata)
-      results = CheckSearch.new({ responses: ['ans_a'], fieldset: ['metadata'] }.to_json)
-      assert_empty results.medias
     end
   end
 

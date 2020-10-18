@@ -97,7 +97,7 @@ class CheckSearch
       query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     end
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'responses'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -173,8 +173,8 @@ class CheckSearch
     check_seach_concat_conditions(conditions, dynamic_conditions)
     rules_conditions = build_search_rules_conditions
     check_seach_concat_conditions(conditions, rules_conditions)
-    response_conditions = build_search_responses_conditions
-    check_seach_concat_conditions(conditions, response_conditions)
+    team_tasks_conditions = build_search_team_tasks_conditions
+    check_seach_concat_conditions(conditions, team_tasks_conditions)
     { bool: { must: conditions } }
   end
 
@@ -252,19 +252,21 @@ class CheckSearch
     [{ bool: { should: conditions } }]
   end
 
-  def build_search_responses_conditions
+  def build_search_team_tasks_conditions
     conditions = []
-    return conditions unless @options.has_key?('responses')
-    @options['responses_type'] ||= 'choice'
-    if @options['responses_type'] == 'choice'
-      filter_key = @options['responses'].class.name == 'Array' ? 'terms' : 'term'
-      conditions << { "#{filter_key}": { "task_responses.value.raw": @options['responses'] } }
-    else
-      conditions << { match: { "task_responses.value": @options['responses'] } }
+    return conditions unless @options.has_key?('team_tasks')
+    @options['team_tasks'].each do |tt|
+      must_c = []
+      must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
+      response_type = tt['response_type'] ||= 'choice'
+      if response_type == 'choice'
+        must_c << { term: { "task_responses.value.raw": tt['response'] } }
+      else
+        must_c << { match: { "task_responses.value": tt['response'] } }
+      end
+      conditions << { bool: { must: must_c } }
     end
-    conditions << { terms: { "task_responses.team_task_id": @options['team_tasks'] } } if @options.has_key?('team_tasks')
-    conditions << { terms: { "task_responses.fieldset": @options['fieldset'] } } if @options.has_key?('fieldset')
-    [{ nested: { path: 'task_responses', query: { bool: { must: conditions } } } }]
+    [{ nested: { path: 'task_responses', query: { bool: { should: conditions } } } }]
   end
 
   def build_search_sort
