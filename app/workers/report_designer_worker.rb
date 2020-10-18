@@ -31,6 +31,7 @@ class ReportDesignerWorker
     data[:options].each_with_index do |option, i|
       data[:options][i][:previous_published_status_label] = option[:status_label]
     end
+    data[:first_published] ||= Time.now.to_i.to_s
     data[:last_published] = Time.now.to_i.to_s
     data[:published_count] = data[:published_count].to_i + 1
     d.data = data

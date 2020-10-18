@@ -155,6 +155,23 @@ class Bot::Smooch < BotUser
       end
     end
 
+    def smooch_report_received_at
+      begin
+        self.item.annotation.load.get_field_value('smooch_report_received').to_i
+      rescue
+        nil
+      end
+    end
+
+    def smooch_report_update_received_at
+      begin
+        field = self.item.annotation.load.get_field('smooch_report_received')
+        field.created_at != field.updated_at ? field.value.to_i : nil
+      rescue
+        nil
+      end
+    end
+
     private
 
     def get_slack_channel_url(obj, data)
@@ -312,6 +329,9 @@ class Bot::Smooch < BotUser
         true
       when 'message:delivery:failure'
         self.resend_message(json)
+        true
+      when 'message:delivery:user'
+        self.user_received_report(json)
         true
       else
         false
@@ -471,11 +491,27 @@ class Bot::Smooch < BotUser
     output.join('')
   end
 
+  def self.user_received_report(message)
+    self.get_installation('smooch_app_id', message['app']['_id'])
+    original = Rails.cache.read('smooch:original:' + message['message']['_id'])
+    unless original.blank?
+      original = JSON.parse(original)
+      if original['fallback_template'] =~ /report/
+        f = DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => original['project_media_id']).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).first
+        unless f.nil?
+          a = f.annotation.load
+          a.set_fields = { smooch_report_received: Time.now.to_i }.to_json
+          a.save!
+        end
+      end
+    end
+  end
+
   def self.resend_message_after_window(message)
     message = JSON.parse(message)
     self.get_installation('smooch_app_id', message['app']['_id'])
 
-    # Exit after there is no template namespace
+    # Exit if there is no template namespace
     return false if self.config['smooch_template_namespace'].blank?
 
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
@@ -510,8 +546,9 @@ class Bot::Smooch < BotUser
       query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
       text = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
       image = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
-      self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
-      self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
+      last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
+      last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
+      self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
       return true
     end
     false
