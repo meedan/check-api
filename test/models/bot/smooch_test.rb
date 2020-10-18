@@ -462,5 +462,83 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     end
   end
 
+  test "should save when user receives report" do
+    uid = random_string
+
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+
+    assert Bot::Smooch.run(payload)
+
+    pm = ProjectMedia.last
+    v = Version.joins("INNER JOIN dynamic_annotation_fields daf ON daf.id::text = versions.item_id AND versions.item_type = 'DynamicAnnotation::Field' INNER JOIN annotations a ON a.id = daf.annotation_id").where('a.annotated_id' => pm.id).last
+    assert_not_nil v
+    assert_nil Version.first.smooch_report_received_at
+    assert_equal 0, v.reload.smooch_report_received_at
+    assert_nil v.reload.smooch_report_update_received_at
+    r = publish_report(pm)
+    assert_equal 0, r.reload.sent_count
+    msg_id = random_string
+    original = Rails.cache.write("smooch:original:#{msg_id}", {
+      fallback_template: 'fact_check_report',
+      project_media_id: pm.id
+    }.to_json)
+    assert_nil DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
+    
+    payload = {
+      trigger: 'message:delivery:user',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      appUser: {
+        '_id': uid,
+        conversationStarted: true
+      },
+      message: {
+        '_id': msg_id
+      },
+      timestamp: Time.now.to_f
+    }.to_json
+
+    assert Bot::Smooch.run(payload)
+    f1 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
+    assert_not_nil f1
+    t1 = f1.value
+    assert_equal t1, v.reload.smooch_report_received_at
+    assert_nil v.reload.smooch_report_update_received_at
+    assert_equal 1, r.reload.sent_count
+
+    sleep 1
+
+    assert Bot::Smooch.run(payload)
+    f2 = DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
+    assert_equal f1, f2
+    t2 = f2.value
+    assert_equal t2, v.reload.smooch_report_received_at
+    assert_equal t2, v.reload.smooch_report_update_received_at
+    assert_equal 1, r.reload.sent_count
+
+    assert t2 > t1
+  end
+
   # Add tests to test/models/bot/smooch_3_test.rb
 end
