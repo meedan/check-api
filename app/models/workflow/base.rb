@@ -16,7 +16,7 @@ module Workflow
           callback = settings[:on] || :update
           id = Digest::MD5.hexdigest([action.to_s, field_name, callback, settings].join)
           unless @@workflow_callbacks.include?(id)
-            send "after_#{callback}", ->(obj) { obj.call_workflow_action(field_name, params) if obj.respond_to?(:call_workflow_action) }, on: settings[:events]
+            send "after_#{callback}", ->(obj) { obj.call_workflow_action(field_name, params) }, on: settings[:events]
             @@workflow_callbacks << id
           end
         end
