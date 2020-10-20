@@ -1,6 +1,7 @@
 class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
   def change
     started = Time.now.to_i
+    failed_items = []
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
     options = {
@@ -21,6 +22,7 @@ class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
     client.indices.put_mapping options
     # Initial team tasks with []
     ProjectMedia.find_in_batches(:batch_size => 2500) do |pms|
+      print '.'
       ids = pms.map(&:id)
       body = {
         script: { source: "ctx._source.task_responses = params.task_responses", params: { task_responses: [] } },
@@ -42,6 +44,7 @@ class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
             AND responses.annotated_id = annotations.id"
             )
         .find_in_batches(:batch_size => 2500) do |tasks|
+          print '.'
           tasks_ids = tasks.map(&:id)
           pm_task = {}
           tasks.each{ |t| pm_task[t.id] = { pm: t.annotated_id, team_task_id: t.team_task_id } }
@@ -58,12 +61,20 @@ class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
               data = { id: field.annotation_id, value: value , team_task_id: pm_task[field.task_id][:team_task_id] }
               doc_id = Base64.encode64("ProjectMedia/#{pm_task[field.task_id][:pm]}")
               source = "ctx._source.task_responses.add(params.value)"
-              client.update index: index_alias, id: doc_id, retry_on_conflict: 3,
-                      body: { script: { source: source, params: { value: data } } }
+              begin
+                client.update index: index_alias, id: doc_id, retry_on_conflict: 3,
+                        body: { script: { source: source, params: { value: data } } }
+              rescue Exception => e
+                failed_items << {error: e, obj_id: pm_task[field.task_id][:pm], task_id: field.task_id}
+              end
             end
           end
         end
       end
+    end
+    if failed_items.size > 0
+      pp failed_items
+      puts "Failed to index #{failed_items.size} items"
     end
     minutes = ((Time.now.to_i - started) / 60).to_i
     puts "[#{Time.now}] Done in #{minutes} minutes."
