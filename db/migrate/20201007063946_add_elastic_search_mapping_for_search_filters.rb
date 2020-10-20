@@ -19,7 +19,7 @@ class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
       }
     }
     client.indices.put_mapping options
-    # Intial team tasks with []
+    # Initial team tasks with []
     ProjectMedia.find_in_batches(:batch_size => 2500) do |pms|
       ids = pms.map(&:id)
       body = {
