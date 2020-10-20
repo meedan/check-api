@@ -772,6 +772,7 @@ fil:
     ng ibang item na mula sa parehong workspace.
   replace_blank_media_only: Paumanhin, pero sa ngayon, mga blangkong item lang ang
     pwede mong palitan.
+  cant_preview_rss_feed: Paumanhin, wala kang pahintulot para magtingin ng RSS feed.
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
