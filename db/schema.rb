@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201016004453) do
+ActiveRecord::Schema.define(version: 202010161522429) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,6 +88,20 @@ ActiveRecord::Schema.define(version: 20201016004453) do
   add_index "assignments", ["assigned_type"], name: "index_assignments_on_assigned_type", using: :btree
   add_index "assignments", ["assigner_id"], name: "index_assignments_on_assigner_id", using: :btree
   add_index "assignments", ["user_id"], name: "index_assignments_on_user_id", using: :btree
+
+  create_table "bot_resources", force: :cascade do |t|
+    t.string   "uuid",               default: "", null: false
+    t.string   "title",              default: "", null: false
+    t.string   "content",            default: "", null: false
+    t.string   "feed_url"
+    t.integer  "number_of_articles", default: 3
+    t.integer  "team_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "bot_resources", ["team_id"], name: "index_bot_resources_on_team_id", using: :btree
+  add_index "bot_resources", ["uuid"], name: "index_bot_resources_on_uuid", unique: true, using: :btree
 
   create_table "bounces", force: :cascade do |t|
     t.string   "email",      null: false
@@ -406,6 +420,7 @@ ActiveRecord::Schema.define(version: 20201016004453) do
     t.integer  "consumed_timestep"
     t.boolean  "otp_required_for_login"
     t.string   "otp_backup_codes",                                       array: true
+    t.boolean  "default",                   default: false
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

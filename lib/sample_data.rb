@@ -910,4 +910,19 @@ module SampleData
   def create_blank_media
     Blank.create!
   end
+
+  def create_bot_resource(options = {})
+    br = BotResource.new
+    br.title = random_string
+    br.content = random_string
+    br.uuid = random_string
+    br.feed_url = random_url
+    br.number_of_articles = random_number
+    br.team = create_team
+    options.each do |key, value|
+      br.send("#{key}=", value) if br.respond_to?("#{key}=")
+    end
+    br.save!
+    br.reload
+  end
 end
