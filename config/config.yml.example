@@ -84,6 +84,7 @@ development: &default
   #
   fetch_url: http://fetch:9292
   fetch_token: 'dev'
+  fetch_check_webhook_url: 'http://api:3000'
 
   # Short URLs URL
   #
