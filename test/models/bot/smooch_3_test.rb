@@ -1197,6 +1197,68 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_equal output, Bot::Smooch.render_articles_from_rss_feed(url)
   end
 
+  test "should save resources" do
+    BotResource.delete_all
+    @installation = TeamBotInstallation.find(@installation.id)
+    s = @installation.settings.clone
+    s['smooch_workflows'][0] = @settings['smooch_workflows'][0].clone.merge({
+      'smooch_custom_resources' => [
+        {
+          'smooch_custom_resource_id' => 'latest',
+          'smooch_custom_resource_title' => 'Latest articles published in our website',
+          'smooch_custom_resource_body' => 'Take a look at our latest published articles!',
+          'smooch_custom_resource_feed_url' => 'http://test.com/latest.rss',
+          'smooch_custom_resource_number_of_articles' => 5,
+        },
+        {
+          'smooch_custom_resource_id' => 'top',
+          'smooch_custom_resource_title' => 'Top articles',
+          'smooch_custom_resource_body' => 'Take a look at our most read articles!',
+          'smooch_custom_resource_feed_url' => 'http://test.com/top.rss',
+          'smooch_custom_resource_number_of_articles' => 10,
+        }
+      ]
+    })
+    @installation.settings = s
+    assert_difference 'BotResource.count', 2 do
+      @installation.save!
+    end
+    s['smooch_workflows'][0] = s['smooch_workflows'][0].clone.merge({
+      'smooch_custom_resources' => [
+        {
+          'smooch_custom_resource_id' => 'latest',
+          'smooch_custom_resource_title' => 'Latest articles published in our website',
+          'smooch_custom_resource_body' => 'Take a look at our latest published articles!',
+          'smooch_custom_resource_feed_url' => 'http://test.com/latest.rss',
+          'smooch_custom_resource_number_of_articles' => 5,
+        },
+        {
+          'smooch_custom_resource_id' => 'old',
+          'smooch_custom_resource_title' => 'Old articles',
+          'smooch_custom_resource_body' => 'Take a look at our oldest articles!',
+          'smooch_custom_resource_feed_url' => 'http://test.com/old.rss',
+          'smooch_custom_resource_number_of_articles' => 15,
+        }
+      ]
+    })
+    @installation = TeamBotInstallation.find(@installation.id)
+    @installation.settings = s
+    assert_difference 'BotResource.count', 1 do
+      @installation.save!
+    end
+  end
+
+  test "should request resource" do
+    setup_smooch_bot(true)
+    uid = random_string
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
+    send_message_to_smooch_bot('Hello', uid)
+    send_message_to_smooch_bot('1', uid)
+    send_message_to_smooch_bot('4', uid)
+    assert_equal 'BotResource', Dynamic.where(annotation_type: 'smooch').last.annotated_type
+  end
+
   protected
 
   def run_concurrent_requests

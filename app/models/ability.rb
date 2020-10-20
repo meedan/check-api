@@ -156,6 +156,7 @@ class Ability
     end
     can :import_spreadsheet, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
+    can [:create, :update, :destroy], BotResource, :team_id => @context_team.id
   end
 
   def journalist_perms
