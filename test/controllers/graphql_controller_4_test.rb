@@ -329,4 +329,19 @@ class GraphqlController4Test < ActionController::TestCase
   def assert_search_finds_none(filters)
     assert_equal [], search_results(filters)
   end
+          it 'returns a book' do
+          author = create(:author)
+
+          post '/graphql', params: { query: query(author_id: author.id) }
+          json = JSON.parse(response.body)
+          data = json['data']['createBook']
+
+          expect(data).to include(
+            'id'              => be_present,
+            'title'           => 'Tripwire',
+            'publicationDate' => 1999,
+            'genre'           => 'Thriller',
+            'author'          => { 'id' => author.id.to_s }
+          )
+        end
 end
