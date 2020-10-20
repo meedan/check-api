@@ -7,10 +7,10 @@ namespace :check do
     begin
       MediaSearch.delete_index
       MediaSearch.create_index
-      index_pg_data
     rescue Exception => e
       puts "You must delete the existing index or alias [#{CheckElasticSearchModel.get_index_alias}] before running the task."
     end
+    index_pg_data
   end
 
   def index_pg_data
@@ -30,23 +30,21 @@ namespace :check do
     [ProjectMedia].each do |type|
       type.find_each do |obj|
         id = Base64.encode64("#{obj.class.name}/#{obj.id}")
-        doc = MediaSearch.search(query: { match: { _id: id } }).last
-        if doc.nil?
-          failed_items << {error: 'Faild to find doc on ES', obj_id: obj.id, obj_class: obj.class.name}
-        else
+        if $repository.exists?(id)
+          doc = $repository.find(id)
           updated_at = []
           # comments
           comments = obj.annotations('comment')
-          doc.comments = comments.collect{|c| {id: c.id, text: c.text}}
+          doc['comments'] = comments.collect{|c| {id: c.id, text: c.text}}
           # get maximum updated_at for recent_acitivty sort
           max_updated_at = comments.max_by(&:updated_at)
           updated_at << max_updated_at.updated_at unless max_updated_at.nil?
           if obj.class.name == 'ProjectMedia'
             # status
-            doc.verification_status = obj.last_status
+            doc['verification_status'] = obj.last_status
             # tags
             tags = obj.get_annotations('tag').map(&:load)
-            doc.tags = tags.collect{|t| {id: t.id, tag: t.tag_text}}
+            doc['tags'] = tags.collect{|t| {id: t.id, tag: t.tag_text}}
             max_updated_at = tags.max_by(&:updated_at)
             updated_at << max_updated_at.updated_at unless max_updated_at.nil?
             # Dynamics
@@ -57,7 +55,7 @@ namespace :check do
               dynamics << d.store_elasticsearch_data(options[:keys], options[:data])
               updated_at << d.updated_at
             end
-            doc.dynamics = dynamics
+            doc['dynamics'] = dynamics
             # Rules TODO: test
             # matched_rules_ids = []
             # obj.team.apply_rules(obj) do |rules_and_actions|
@@ -65,12 +63,15 @@ namespace :check do
             # end
             # doc.rules = matched_rules_ids
           end
-          doc.updated_at = updated_at.max
+          doc['updated_at'] = updated_at.max
           begin
-            doc.save!
+            $repository.save(doc)
+            # doc.save!
           rescue Exception => e
             failed_items << {error: e, obj_id: obj.id, obj_class: obj.class.name}
           end
+        else
+          failed_items << {error: 'Faild to find doc on ES', obj_id: obj.id, obj_class: obj.class.name}
         end
         print '.'
       end
