@@ -769,6 +769,7 @@ fr:
     que par un autre article du même espace de travail
   replace_blank_media_only: Désolé, mais vous ne pouvez pour l’instant que remplacer
     que des articles vides
+  cant_preview_rss_feed: Désolé, vous n’êtes pas autorisé à voir l’aperçu d’un fil RSS.
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
