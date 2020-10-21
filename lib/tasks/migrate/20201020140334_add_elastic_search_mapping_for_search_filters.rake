@@ -11,11 +11,8 @@ namespace :check do
       progressbar = ProgressBar.create(:total => teams_count)
       Team.where('id > ?', last_team_id).find_each do |team|
         progressbar.increment
-        # Get latest team task id
-        last_team_task_id = Rails.cache.read('check:migrate:migrate_task_responses:team_task_id') || 0
         # get team tasks
         TeamTask.where(team_id: team.id, task_type: ["free_text", "single_choice", "multiple_choice"])
-        .where('id > ?', last_team_task_id)
         .find_in_batches(:batch_size => 2500) do |team_tasks|
           tt_ids = team_tasks.map(&:id)
           Task.where('annotations.annotation_type' => 'task')
@@ -51,8 +48,6 @@ namespace :check do
               end
             end
           end
-          # log last team task id
-          Rails.cache.write('check:migrate:migrate_task_responses:team_task_id', tt_ids.max)
         end
         # log last team id
         Rails.cache.write('check:migrate:migrate_task_responses:team_id', team.id)
