@@ -264,9 +264,9 @@ class CheckSearch
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
-      conditions << { bool: { must: must_c } }
+      conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
-    [{ nested: { path: 'task_responses', query: { bool: { should: conditions } } } }]
+    conditions
   end
 
   def build_search_sort
