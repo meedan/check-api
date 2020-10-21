@@ -172,10 +172,10 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     current_version_count = Version.count
     u = create_user is_admin: true
     t = create_team
+    tb = create_team_bot set_approved: true
     create_team_user team: t, user: u, role: 'owner'
-    t2 = create_team
     with_current_user_and_team(u, t) do
-      BotUser.all.collect{|x| x.install_to!(t)}
+      tb.install_to!(t)
     end
     new_version_count = Version.count
     assert current_version_count < new_version_count
