@@ -1,5 +1,6 @@
 class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
   def change
+    started = Time.now.to_i
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
     options = {
@@ -29,5 +30,7 @@ class AddElasticSearchMappingForSearchFilters < ActiveRecord::Migration
       options[:body] = body
       client.update_by_query options
     end
+    minutes = ((Time.now.to_i - started) / 60).to_i
+    puts "[#{Time.now}] Done in #{minutes} minutes."
   end
 end
