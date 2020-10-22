@@ -169,15 +169,14 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
   end
 
   test "should create a paper trail on changes" do
-    current_version_count = Version.count
     u = create_user is_admin: true
     t = create_team
     tb = create_team_bot set_approved: true
     create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      tb.install_to!(t)
+    assert_difference 'Version.count' do
+      with_current_user_and_team(u, t) do
+        tb.install_to!(t)
+      end
     end
-    new_version_count = Version.count
-    assert current_version_count < new_version_count
   end
 end
