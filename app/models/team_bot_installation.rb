@@ -1,4 +1,6 @@
 class TeamBotInstallation < TeamUser
+  include Versioned
+
   before_validation :apply_default_settings, on: :create
   before_validation :set_role, on: :create
 
