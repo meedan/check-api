@@ -202,4 +202,15 @@ ProjectMedia.class_eval do
   def self.field_search_query_type_range_updated_at(range, timezone, _options = nil)
     self.field_search_query_type_range(:updated_at, range, timezone)
   end
+
+  def self.field_search_query_type_range_last_seen(range, _timezone, _options = nil)
+    {
+      range: {
+        last_seen: {
+          gte: range[0].to_i,
+          lte: range[1].to_i
+        }
+      }
+    }
+  end
 end

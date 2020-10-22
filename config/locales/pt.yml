@@ -247,7 +247,7 @@ pt:
     %{date}
   oembed_disclaimer_verified: Esse item foi marcado como verificado por %{team} em
     %{date}
-  oembed_disclaimer_false: Esse item foi marcado como falso por %{team} em %{date}
+  oembed_disclaimer_false: Esse item foi considerado falso por %{team} em %{date}
   oembed_disclaimer_not_applicable: Nenhuma conclusão foi obtida sobre esse item por
     %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
@@ -370,7 +370,7 @@ pt:
       title: Novo Convite
     delete_user:
       subject: "[%{team}] Um(a) usuário(a) foi excluído(a)"
-      header_title: O usuário(a) foi excluído(a)
+      header_title: O(a) usuário(a) foi excluído(a)
       header_text: Uma conta de usuário foi excluída e seu conteúdo foi reatribuído
         ao/à usuário(a) %{anonymous} %{id}
       anonymous: anônimo(a)
@@ -521,8 +521,8 @@ pt:
     diretamente - por favor, adicione uma sugestão de resposta
   bot_cant_add_review_to_task: Desculpe, um bot não pode avaliar uma tarefa
   task_suggestion_invalid_value: Sugestão de tarefa inválida. Espera-se um objeto
-    JSON com atributos `sugestão` (o valor real que é copiado para a resposta de tarefa
-    quando aceita) e `comentário` (exibido aos usuários).
+    JSON com atributos `suggestion` (o valor real que é copiado para a resposta de
+    tarefa quando aceita) e `comment` (exibido aos(às) usuário(a)s).
   tag_text_id_not_found: Tag não encontrada
   annotation_type_language_label: Idioma
   smooch_bot_message_confirmed: Agradecemos-lhe. Sua solicitação foi adicionada à
@@ -746,11 +746,13 @@ pt:
     durante a publicação do relatório
   fetch_bot_service_unsupported: O serviço não possui suporte
   task_options_must_be_array: As opções de tarefas devem ser uma lista
-  fieldset_not_defined_by_team: Fieldset deve ter suporte no espaço de trabalho
+  fieldset_not_defined_by_team: Fieldset deve ter suporte do espaço de trabalho
   replace_by_media_in_the_same_team: Desculpe, você só pode substituir este item por
     outro do mesmo espaço de trabalho
   replace_blank_media_only: Desculpe, mas, por enquanto, você só pode substituir itens
     em branco
+  cant_preview_rss_feed: Desculpe, você não tem permissão para pré-visualizar um feed
+    RSS.
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''

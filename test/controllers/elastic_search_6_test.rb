@@ -94,7 +94,7 @@ class ElasticSearch6Test < ActionController::TestCase
     assert_equal [1], result['dynamics'].select { |d| d.has_key?('smooch')}.map { |s| s['smooch']}
   end
 
-  [:created_at, :updated_at].each do |field|
+  [:created_at, :updated_at, :last_seen].each do |field|
     test "should filter by #{field} range" do
       p = create_project
 
@@ -155,7 +155,7 @@ class ElasticSearch6Test < ActionController::TestCase
     end
   end
 
-  [:created_at, :updated_at].each do |field|
+  [:created_at, :updated_at, :last_seen].each do |field|
     test "should handle inputs when filter by #{field} range" do
       p = create_project
 

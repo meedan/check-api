@@ -60,6 +60,15 @@ class MediaSearch
       }
     }
 
+    indexes :task_responses, {
+      type: 'nested',
+      properties: {
+        id: { type: 'integer'},
+        team_task_id: { type: 'integer'},
+        value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } }
+      }
+    }
+
     indexes :rules, { type: 'keyword' }
 
     indexes :linked_items_count, { type: 'long' }

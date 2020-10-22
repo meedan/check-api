@@ -16,7 +16,7 @@ module CheckElasticSearch
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'dynamics'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -119,7 +119,33 @@ module CheckElasticSearch
   end
 
   def get_elasticsearch_data(data)
+    responses_data = get_data_for_responses_fields
+    data = responses_data unless responses_data.blank?
     (data.blank? and self.respond_to?(:data)) ? self.data : data
+  end
+
+  def get_data_for_responses_fields
+    # this method to get data for task_responses field
+    data = {}
+    if self.class.name == 'Dynamic' && self.annotation_type =~ /^task_response/
+      # get value for choice and free text fields
+      field_name = self.annotation_type.sub(/task_/, '')
+      field = self.get_field(field_name)
+      included_fields = %w(response_multiple_choice response_single_choice response_free_text)
+      if !field.nil? && included_fields.include?(field.field_name)
+        if field.field_name =~ /choice/
+          value = field.selected_values_from_task_answer
+        else
+          value = [field.value]
+        end
+        data = { value: value }
+        task = self.annotated
+        if !task.nil? && task.annotation_type == 'task'
+          data.merge!({ team_task_id: task.team_task_id })
+        end
+      end
+    end
+    data.with_indifferent_access
   end
 
   def destroy_elasticsearch_doc(data)

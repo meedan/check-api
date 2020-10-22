@@ -97,10 +97,11 @@ class CheckSearch
       query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     end
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
-    !(query_all_types && status_blank && filters_blank && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    range_filter = hit_es_for_range_filter
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added'].include?(@options['sort']))
   end
 
   def media_types_filter
@@ -163,17 +164,22 @@ class CheckSearch
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
-      conditions.concat build_search_range_filter(:es)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_doc_conditions
     conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
-    conditions.concat(dynamic_conditions) unless dynamic_conditions.blank?
+    check_seach_concat_conditions(conditions, dynamic_conditions)
     rules_conditions = build_search_rules_conditions
-    conditions.concat(rules_conditions) unless rules_conditions.blank?
+    check_seach_concat_conditions(conditions, rules_conditions)
+    team_tasks_conditions = build_search_team_tasks_conditions
+    check_seach_concat_conditions(conditions, team_tasks_conditions)
     { bool: { must: conditions } }
+  end
+
+  def check_seach_concat_conditions(base_condition, c)
+    base_condition.concat(c) unless c.blank?
   end
 
   def medias_get_search_result(query)
@@ -244,6 +250,23 @@ class CheckSearch
       conditions << { term: { rules: rule } }
     end
     [{ bool: { should: conditions } }]
+  end
+
+  def build_search_team_tasks_conditions
+    conditions = []
+    return conditions unless @options.has_key?('team_tasks')
+    @options['team_tasks'].each do |tt|
+      must_c = []
+      must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
+      response_type = tt['response_type'] ||= 'choice'
+      if response_type == 'choice'
+        must_c << { term: { "task_responses.value.raw": tt['response'] } }
+      else
+        must_c << { match: { "task_responses.value": tt['response'] } }
+      end
+      conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
+    end
+    conditions
   end
 
   def build_search_sort
@@ -332,7 +355,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at].each do |name|
+    [:created_at, :updated_at, :last_seen].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?
@@ -354,5 +377,9 @@ class CheckSearch
     return results if values.empty?
     joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), table])
     results.joins(joins).order('x.order_number')
+  end
+
+  def hit_es_for_range_filter
+    !@options['range'].blank? && @options['range'].keys.include?('last_seen')
   end
 end
