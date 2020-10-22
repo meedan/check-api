@@ -79,7 +79,7 @@ class Bot::Fetch < BotUser
   end
 
   def self.webhook_url(team)
-    CONFIG['checkdesk_base_url_private'] + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CONFIG['fetch_token']
+    CONFIG['fetch_check_webhook_url'] + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CONFIG['fetch_token']
   end
 
   def self.setup_service(installation, previous_service, new_service)

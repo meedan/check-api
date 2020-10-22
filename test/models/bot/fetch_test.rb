@@ -31,7 +31,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
       }
     }.with_indifferent_access
 
-    stub_configs({ 'fetch_url' => 'http://fetch:8000', 'fetch_token' => 'test', 'checkdesk_base_url_private' => 'http://check:5000' }, false)
+    stub_configs({ 'fetch_url' => 'http://fetch:8000', 'fetch_token' => 'test', 'fetch_check_webhook_url' => 'http://check:5000' }, false)
     WebMock.stub_request(:get, 'https://external.site/image.png').to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
     WebMock.stub_request(:get, 'http://fetch:8000/services').to_return(body: { services: [{ service: 'test', count: 1, earliest: '2017-08-09', latest: '2017-08-09' }, { service: 'foo', count: 0, earliest: nil, latest: nil }]}.to_json)
     WebMock.stub_request(:post, 'http://fetch:8000/subscribe').with(body: { service: 'test', url: 'http://check:5000/api/webhooks/fetch?team=fetch&token=test' }.to_json).to_return(body: '{}')
@@ -47,7 +47,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
       { name: 'status_fallback', label: 'Status Fallback (Check status identifier)', type: 'readonly', default: '' },
       { name: 'status_mapping', label: 'Status Mapping (JSON where key is a reviewRating.ratingValue and value is a Check status identifier)', type: 'readonly', default: '' }
     ]
-    @bot = create_team_bot name: 'Fetch', set_role: 'editor', login: 'fetch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/fetch"
+    @bot = create_team_bot name: 'Fetch', set_role: 'editor', login: 'fetch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['fetch_check_webhook_url']}/api/bots/fetch"
     @settings = {
       'fetch_service_name' => 'test',
       'status_fallback' => 'in_progress',

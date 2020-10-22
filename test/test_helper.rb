@@ -493,7 +493,7 @@ class ActiveSupport::TestCase
     DynamicAnnotation::FieldType.delete_all
     DynamicAnnotation::Field.delete_all
     create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
+    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false], 'Report Received' => ['Timestamp', true] })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/

@@ -3286,4 +3286,12 @@ class TeamTest < ActiveSupport::TestCase
     assert t.contains_keyword(pm, 'fake news', nil)
     assert !t.contains_keyword(pm, 'ake new', nil)
   end
+
+  test "should allow default BotUser to be added on creation" do
+    bu = create_bot_user(default: true, approved: true)
+    bu_non_default = create_bot_user(default: false, approved: true)
+    t = create_team
+    assert t.team_bot_installations.collect(&:bot_user).include?(bu)
+    assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
+  end
 end
