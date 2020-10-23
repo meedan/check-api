@@ -74,12 +74,14 @@ class Bot::FetchTest < ActiveSupport::TestCase
   end
 
   test "should process webhook" do
+    RequestStore.store[:skip_cached_field_update] = false
     claim_review = @claim_review.clone
     claim_review['identifier'] = random_string
-    request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, body: OpenStruct.new(read: claim_review.to_json))
+    request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, body: OpenStruct.new(read: { 'claim_review' => claim_review }))
     assert_difference "ProjectMedia.where(team_id: #{@team.id}).count" do
       assert Bot::Fetch.webhook(request)
     end
+    assert_equal "Earth isn't flat", ProjectMedia.last.title
   end
 
   test "should not process webhook if an exception happens" do
