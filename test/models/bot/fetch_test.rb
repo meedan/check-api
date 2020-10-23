@@ -77,7 +77,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     claim_review = @claim_review.clone
     claim_review['identifier'] = random_string
-    request = OpenStruct.new(query_parameters: { 'team' => 'fetch', 'claim_review' => claim_review })
+    request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, params: { 'claim_review' => claim_review })
     assert_difference "ProjectMedia.where(team_id: #{@team.id}).count" do
       assert Bot::Fetch.webhook(request)
     end
@@ -89,7 +89,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     claim_review['identifier'] = random_string
     @installation.set_status_mapping 'not a JSON'
     @installation.save!
-    request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, body: OpenStruct.new(read: claim_review.to_json))
+    request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, params: { 'claim_review' => claim_review })
     assert_no_difference "ProjectMedia.where(team_id: #{@team.id}).count" do
       assert !Bot::Fetch.webhook(request)
     end
