@@ -40,9 +40,7 @@ class Bot::Fetch < BotUser
 
   def self.webhook(request)
     installation = self.get_installation_for_team(request.query_parameters['team'])
-    body = request.body.read
-    data = body.is_a?(String) ? JSON.parse(body) : body
-    self.run(data['claim_review'], installation)
+    self.run(request.query_parameters['claim_review'], installation)
   end
 
   def self.run(claim_review, installation)
