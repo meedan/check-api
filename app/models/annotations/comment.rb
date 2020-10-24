@@ -32,8 +32,10 @@ class Comment < ActiveRecord::Base
 
   def slack_notification_message
     params = self.slack_params
+    pretext = I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", params)
+    return self.annotated&.slack_notification_message_for_card(pretext) if self.annotated&.should_send_slack_notification_message_for_card?
     {
-      pretext: I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", params),
+      pretext: pretext,
       title: params[:label],
       title_link: params[:url],
       author_name: params[:user],

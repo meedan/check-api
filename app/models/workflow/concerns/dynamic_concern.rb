@@ -38,8 +38,10 @@ module Workflow
               else
                 return nil
               end
+              pretext = I18n.t("slack.messages.project_media_#{event}", params)
+              return self.annotated&.slack_notification_message_for_card(pretext) if self.annotated&.should_send_slack_notification_message_for_card?
               {
-                pretext: I18n.t("slack.messages.project_media_#{event}", params),
+                pretext: pretext,
                 title: params[:title],
                 title_link: params[:url],
                 author_name: params[:user],
