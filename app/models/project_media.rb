@@ -69,12 +69,23 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
+  def should_send_slack_notification_message_for_card?
+    Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
+  end
+
+  def slack_notification_message_for_card(text)
+    Rails.cache.write("slack_card_rendered_for_project_media:#{self.id}", Time.now.to_i)
+    return "<#{self.full_url}|#{text}>"
+  end
+
   def slack_notification_message(update = false)
     params = self.slack_params
     event = update ? "update" : "create"
     related = params[:related_to].blank? ? "" : "_related"
+    pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
+    return self.slack_notification_message_for_card(pretext) if self.should_send_slack_notification_message_for_card?
     {
-      pretext: I18n.t("slack.messages.project_media_#{event}#{related}", params),
+      pretext: pretext,
       title: params[:title],
       title_link: params[:url],
       author_name: params[:user],

@@ -289,7 +289,7 @@ class StatusTest < ActiveSupport::TestCase
     s = Dynamic.find(s.id)
     s.status = 'verified'
     s.save!
-    assert_match /verification status/, s.slack_notification_message[:pretext]
+    assert_match /verification status/, s.slack_notification_message
 
     u1 = create_user
     create_team_user user: u1, team: t

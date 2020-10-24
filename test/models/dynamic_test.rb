@@ -193,6 +193,13 @@ class DynamicTest < ActiveSupport::TestCase
     d.disable_es_callbacks = true
     d.save!
     with_current_user_and_team(u, t) do
+      assert_match /verification status/, d.slack_notification_message
+    end
+    d = Dynamic.find(d.id)
+    d.set_fields = { verification_status_status: 'false' }.to_json
+    d.disable_es_callbacks = true
+    d.save!
+    with_current_user_and_team(u, t) do
       assert_match /verification status/, d.slack_notification_message[:pretext]
     end
   end
