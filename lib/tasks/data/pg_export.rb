@@ -20,6 +20,12 @@ module PgExport
     end
   end
 
+  class PGTextDecoderISO8601Timestamp < PG::SimpleDecoder
+    def decode(value, tuple=nil, field=nil)
+      value.tr(' ', 'T') << 'Z'
+    end
+  end
+
   module TableStrategies
     class Base
       attr_reader(:team_id)
@@ -168,7 +174,7 @@ module PgExport
             {
               'integer': PG::TextDecoder::Integer.new,
               'string': PG::TextDecoder::String.new,
-              'datetime': PG::TextDecoder::String.new,
+              'datetime': PGTextDecoderISO8601Timestamp.new,
               'text': PG::TextDecoder::String.new,
               'boolean': PG::TextDecoder::Boolean.new,
               'float': PG::TextDecoder::Float.new,
