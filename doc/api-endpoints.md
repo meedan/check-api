@@ -1,7 +1,7 @@
 API Endpoints - Thu Aug 13 18:50:24 UTC 2020
        
-     NAME                |  ENDPOINT
-     ------------------- | -------------
+     | NAME                |  ENDPOINT |
+     | :------------------ |: -------- |
        
      1	GET               |  rails_admin /admin,RailsAdmin::Engine
      2	GET               |  sidekiq_web /sidekiq,Sidekiq::Web
