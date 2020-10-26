@@ -1,91 +1,88 @@
-API Endpoints - Thu Aug 13 18:50:24 UTC 2020
-       
-     | NAME                |  ENDPOINT |
-     | :------------------ |: -------- |
-       
-     1	GET               |  rails_admin /admin,RailsAdmin::Engine
-     2	GET               |  sidekiq_web /sidekiq,Sidekiq::Web
-     3	DELETE            |  /api/users
-     4	DELETE            |  /api/users/sign_out
-     5	DELETE            |  /:model_name/:id/delete
-     6	DELETE            |  /:model_name/bulk_delete
-     7	GET               |  /rails_admin/main#dashboard
-     8	GET               |  /:model_name/:id
-     9	GET               |  /:model_name/:id/export_images
-    10	GET               |  /:model_name/:id/export_project
-    11	GET               |  /:model_name/:id/send_reset_password_email
-    12	GET               |  /:id
-    13	GET               |  /api/admin/project/:id/add_publisher/:provider
-    14	GET               |  /api/admin/smooch_bot/:id/authorize/twitter
-    15	GET               |  /api/admin/user/slack
-    16	GET               |  /api/me
-    17	GET               |  /api/ping
-    18	GET               |  /api/project_medias/:id/oembed
-    19	GET               |  /api/users/auth/twitter/setup
-    20	GET               |  /api/users/cancel
-    21	GET               |  /api/users/confirmation
-    22	GET               |  /api/users/confirmation/new
-    23	GET               |  /api/users/edit
-    24	GET               |  /api/users/invitation/accept
-    25	GET               |  /api/users/invitation/new
-    26	GET               |  /api/users/invitation/remove
-    27	GET               |  /api/users/logout
-    28	GET               |  /api/users/password/edit
-    29	GET               |  /api/users/password/new
-    30	GET               |  /api/users/sign_in
-    31	GET               |  /api/users/sign_up
-    32	GET               |  /api/version
-    33	GET               |  /test/archive_project
-    34	GET               |  /test/bot
-    35	GET               |  /test/cache_key
-    36	GET               |  /test/claim
-    37	GET               |  /test/confirm_user
-    38	GET               |  /test/create_team_project_and_two_users
-    39	GET               |  /test/dynamic_annotation
-    40	GET               |  /test/get
-    41	GET               |  /test/link
-    42	GET               |  /test/make_team_public
-    43	GET               |  /test/media_status
-    44	GET               |  /test/new_api_key
-    45	GET               |  /test/new_media_tag
-    46	GET               |  /test/new_task
-    47	GET               |  /test/project
-    48	GET               |  /test/session
-    49	GET               |  /test/source
-    50	GET               |  /test/team
-    51	GET               |  /test/update_tag_texts
-    52	GET               |  /test/user
-    53	GET               |  /graphiql/rails/editors#show
-    54	GET               |  GraphiQL::Rails::Engine {:graphql_path=>"/api/graphql"}
-    56	PATCH             |  /api/users
-    57	PATCH             |  /api/users/invitation
-    58	PATCH             |  /api/users/password
-    59	POST              |  /:model_name/bulk_action
-    60	POST              |  /api/graphql
-    61	POST              |  /api/graphql/batch
-    62	POST              |  /api/log
-    63	POST              |  /api/search
-    64	POST              |  /api/users
-    65	POST              |  /api/users/confirmation
-    66	POST              |  /api/users/invitation
-    67	POST              |  /api/users/password
-    68	POST              |  /api/users/sign_in
-    69	POST              |  /api/webhooks/:name
-    70	POST              |  /:model_name
-    71	POST              |  /:model_name/:id/duplicate_team
-    72	POST              |  /:model_name/export
-    73	POST              |  /:model_name/new
-    74	POST              |  /api/users/auth/facebook
-    75	POST              |  /api/users/auth/facebook/callback
-    76	POST              |  /api/users/auth/google_oauth2
-    77	POST              |  /api/users/auth/google_oauth2/callback
-    78	POST              |  /api/users/auth/slack
-    79	POST              |  /api/users/auth/slack/callback
-    80	POST              |  /api/users/auth/twitter
-    81	POST              |  /api/users/auth/twitter/callback
-    82	PTIONS            |  /api/:pattern
-    83	PTIONS            |  /api/options
-    84	PUT               |  /api/users
-    85	PUT               |  /api/users/invitation
-    86	PUT               |  /api/users/password
-    87	PUT               |  /:model_name/:id/edit
+|NAME              |ENDPOINT   
+|------------------|-----------
+|GET               |  rails_admin /admin,RailsAdmin::Engine
+|GET               |  sidekiq_web /sidekiq,Sidekiq::Web
+|DELETE            |  /api/users
+|DELETE            |  /api/users/sign_out
+|DELETE            |  /:model_name/:id/delete
+|DELETE            |  /:model_name/bulk_delete
+|GET               |  /rails_admin/main#dashboard
+|GET               |  /:model_name/:id
+|GET               |  /:model_name/:id/export_images
+|GET               |  /:model_name/:id/export_project
+|GET               |  /:model_name/:id/send_reset_password_email
+|GET               |  /:id
+|GET               |  /api/admin/project/:id/add_publisher/:provider
+|GET               |  /api/admin/smooch_bot/:id/authorize/twitter
+|GET               |  /api/admin/user/slack
+|GET               |  /api/me
+|GET               |  /api/ping
+|GET               |  /api/project_medias/:id/oembed
+|GET               |  /api/users/auth/twitter/setup
+|GET               |  /api/users/cancel
+|GET               |  /api/users/confirmation
+|GET               |  /api/users/confirmation/new
+|GET               |  /api/users/edit
+|GET               |  /api/users/invitation/accept
+|GET               |  /api/users/invitation/new
+|GET               |  /api/users/invitation/remove
+|GET               |  /api/users/logout
+|GET               |  /api/users/password/edit
+|GET               |  /api/users/password/new
+|GET               |  /api/users/sign_in
+|GET               |  /api/users/sign_up
+|GET               |  /api/version
+|GET               |  /test/archive_project
+|GET               |  /test/bot
+|GET               |  /test/cache_key
+|GET               |  /test/claim
+|GET               |  /test/confirm_user
+|GET               |  /test/create_team_project_and_two_users
+|GET               |  /test/dynamic_annotation
+|GET               |  /test/get
+|GET               |  /test/link
+|GET               |  /test/make_team_public
+|GET               |  /test/media_status
+|GET               |  /test/new_api_key
+|GET               |  /test/new_media_tag
+|GET               |  /test/new_task
+|GET               |  /test/project
+|GET               |  /test/session
+|GET               |  /test/source
+|GET               |  /test/team
+|GET               |  /test/update_tag_texts
+|GET               |  /test/user
+|GET               |  /graphiql/rails/editors#show
+|GET               |  GraphiQL::Rails::Engine {:graphql_path=>"/api/graphql"}
+|PATCH             |  /api/users
+|PATCH             |  /api/users/invitation
+|PATCH             |  /api/users/password
+|POST              |  /:model_name/bulk_action
+|POST              |  /api/graphql
+|POST              |  /api/graphql/batch
+|POST              |  /api/log
+|POST              |  /api/search
+|POST              |  /api/users
+|POST              |  /api/users/confirmation
+|POST              |  /api/users/invitation
+|POST              |  /api/users/password
+|POST              |  /api/users/sign_in
+|POST              |  /api/webhooks/:name
+|POST              |  /:model_name
+|POST              |  /:model_name/:id/duplicate_team
+|POST              |  /:model_name/export
+|POST              |  /:model_name/new
+|POST              |  /api/users/auth/facebook
+|POST              |  /api/users/auth/facebook/callback
+|POST              |  /api/users/auth/google_oauth2
+|POST              |  /api/users/auth/google_oauth2/callback
+|POST              |  /api/users/auth/slack
+|POST              |  /api/users/auth/slack/callback
+|POST              |  /api/users/auth/twitter
+|POST              |  /api/users/auth/twitter/callback
+|PTIONS            |  /api/:pattern
+|PTIONS            |  /api/options
+|PUT               |  /api/users
+|PUT               |  /api/users/invitation
+|PUT               |  /api/users/password
+|PUT               |  /:model_name/|
