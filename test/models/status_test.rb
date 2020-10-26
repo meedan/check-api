@@ -147,6 +147,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should notify Slack when status is updated" do
     create_verification_status_stuff
+    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     if Bot::Slack.default.nil?
       b = Bot::Slack.new
       b.name = 'Slack Bot'
@@ -160,6 +161,7 @@ class StatusTest < ActiveSupport::TestCase
       p = create_project team: t
       m = create_valid_media
       pm = create_project_media project: p, media: m
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
       s = Dynamic.find(s.id)
@@ -168,6 +170,7 @@ class StatusTest < ActiveSupport::TestCase
       # claim report
       m = create_claim_media project_id: p.id
       pm = create_project_media project: p, media: m
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_nil s.sent_to_slack
       s = Dynamic.find(s.id)
