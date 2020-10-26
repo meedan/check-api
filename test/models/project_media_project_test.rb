@@ -170,7 +170,6 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       pmp = create_project_media_project project: p, project_media: pm
       assert pmp.sent_to_slack
-      assert_match I18n.t("slack.messages.project_media_create", pmp.project_media.slack_params), pmp.slack_notification_message[:pretext]
       p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
       p.save!
       pmp_2 = create_project_media_project project: p, project_media: pm2

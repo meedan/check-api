@@ -30,10 +30,6 @@ Dynamic.class_eval do
     data[field.to_s]
   end
 
-  def slack_notification_message_metadata
-    self.annotated.slack_notification_message(true) if self.annotated.respond_to?(:slack_notification_message)
-  end
-
   def update_elasticsearch_metadata
     unless self.annotated.nil?
       keys = %w(title description)

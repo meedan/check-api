@@ -113,30 +113,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, Dynamic.where("annotation_type LIKE 'task_response%'").count
   end
 
-  test "should notify on Slack when task is assigned" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      tk = create_task annotator: u, annotated: pm
-      u1 = create_user
-      create_team_user user: u1, team: t
-      u2 = create_user
-      create_team_user user: u2, team: t
-
-      tk.assigned_to_ids = u2.id
-      tk.save!
-      assert_match /assigned/, tk.slack_notification_message[:pretext]
-
-      tk.assigned_to_ids = ""
-      tk.save!
-      assert_match /unassigned/, tk.slack_notification_message[:pretext]
-    end
-  end
-
   test "should set assigner when task assigned" do
     t = create_team slug: 'test'
     u = create_user
@@ -171,7 +147,7 @@ class TaskTest < ActiveSupport::TestCase
       tk = Task.find(tk.id)
       c = create_comment annotated: tk
       assert_not tk.sent_to_slack
-      assert c.sent_to_slack
+      assert !c.sent_to_slack
     end
   end
 
@@ -185,15 +161,31 @@ class TaskTest < ActiveSupport::TestCase
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
     pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    tk2 = create_task annotator: u, annotated: pm2
+    pm3 = create_project_media project: p
+    tk3 = create_task annotator: u, annotated: pm3
+    tk3.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+    tk3.save!
 
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
+      assert tk.sent_to_slack
       tk.disable_es_callbacks = true
       tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       tk.save!
-      assert tk.response.sent_to_slack
+      assert !tk.response.sent_to_slack
+      tk2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      tk2.save!
+      assert tk2.response.sent_to_slack
 
       d = Dynamic.find(tk.response.id)
+      d.set_fields = { response_task: 'Bar' }.to_json
+      d.disable_es_callbacks = true
+      d.save!
+      assert !d.sent_to_slack
+
+      d = Dynamic.find(tk3.response.id)
       d.set_fields = { response_task: 'Bar' }.to_json
       d.disable_es_callbacks = true
       d.save!
@@ -721,5 +713,20 @@ class TaskTest < ActiveSupport::TestCase
     t2.destroy!
     assert_equal [t1, t3], pm.ordered_tasks('tasks')
     [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
+  end
+
+  test "should notify on Slack thread when task is saved" do
+    create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media team: t
+    create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json
+    with_current_user_and_team(u, t) do
+      pm.updated_at = Time.now
+      pm.save!
+      create_task annotator: u, annotated: pm
+    end
   end
 end

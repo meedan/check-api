@@ -76,58 +76,15 @@ class Task < ActiveRecord::Base
       params = self.slack_params
       if self.data_changed? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
         event = self.annotation_versions.count > 1 ? 'edit' : 'create'
-      elsif !params[:assignment_event].blank?
-        event = params[:assignment_event]
       else
         return nil
       end
     else
       event = params[:event]
     end
-    pretext = I18n.t("slack.messages.task_#{event}", params)
-    return self.annotated&.slack_notification_message_for_card(pretext) if self.annotated&.should_send_slack_notification_message_for_card?
-    {
-      pretext: pretext,
-      title: params[:title],
-      title_link: params[:url],
-      author_name: params[:user],
-      author_icon: params[:user_image],
-      text: params[:description],
-      fields: [
-        {
-          title: I18n.t("slack.fields.assigned"),
-          value: params[:assigned],
-          short: true
-        },
-        {
-          title: I18n.t("slack.fields.unassigned"),
-          value: params[:unassigned],
-          short: true
-        },
-        {
-          title: I18n.t("slack.fields.project"),
-          value: params[:project],
-          short: true
-        },
-        {
-          title: I18n.t("slack.fields.attribution"),
-          value: params[:attribution],
-          short: true
-        },
-        {
-          title: params[:parent_type],
-          value: params[:item],
-          short: false
-        }
-      ],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ]
-    }
+    pretext = I18n.t("slack.messages.#{self.fieldset}_#{event}", params)
+    # Either render a card or add the notification to the thread
+    self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
   end
 
   def content

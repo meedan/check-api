@@ -195,13 +195,6 @@ class DynamicTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       assert_match /verification status/, d.slack_notification_message
     end
-    d = Dynamic.find(d.id)
-    d.set_fields = { verification_status_status: 'false' }.to_json
-    d.disable_es_callbacks = true
-    d.save!
-    with_current_user_and_team(u, t) do
-      assert_match /verification status/, d.slack_notification_message[:pretext]
-    end
   end
 
   test "should store previous verification status" do
@@ -328,6 +321,26 @@ class DynamicTest < ActiveSupport::TestCase
     d.destroy!
     assert_nothing_raised do
       Bot::Smooch.send_report_to_users(pm, 'publish')
+    end
+  end
+
+  test "should notify on Slack thread when task is answered" do
+    create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
+    at = create_annotation_type annotation_type: 'task_response_text'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    pm = create_project_media team: t
+    create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json
+    tk = create_task annotator: u, annotated: pm
+    with_current_user_and_team(u, t) do
+      pm.updated_at = Time.now
+      pm.save!
+      tk = Task.find(tk.id)
+      tk.response = { annotation_type: 'task_response_text', set_fields: { response_test: 'test' }.to_json }.to_json
+      tk.save!
     end
   end
 end

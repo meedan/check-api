@@ -58,7 +58,7 @@ class TeamUser < ActiveRecord::Base
     }
   end
 
-  def slack_notification_message
+  def slack_notification_message(_event = nil)
     # Ignore updates that don't involve the status. The presence of "id" indicates creation.
     return nil if (self.changed & ['id', 'status']).blank?
 

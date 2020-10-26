@@ -4,6 +4,7 @@ require 'sidekiq/testing'
 class Bot::Smooch3Test < ActiveSupport::TestCase
   def setup
     super
+    BotResource.destroy_all
     setup_smooch_bot
   end
 
@@ -1198,7 +1199,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
   end
 
   test "should save resources" do
-    BotResource.delete_all
     @installation = TeamBotInstallation.find(@installation.id)
     s = @installation.settings.clone
     s['smooch_workflows'][0] = @settings['smooch_workflows'][0].clone.merge({
