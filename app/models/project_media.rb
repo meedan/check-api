@@ -70,6 +70,9 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def should_send_slack_notification_message_for_card?(event = nil)
+    # Should always render a card if there is no slack_message annotation
+    return true if Annotation.where(annotation_type: 'slack_message', annotated_type: 'ProjectMedia', annotated_id: self.id).last.nil?
+    # Should always render a card if the item was added/moved to a list that has a specific Slack channel
     return true if event == 'item_added'
     Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
   end
