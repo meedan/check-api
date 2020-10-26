@@ -195,6 +195,12 @@ module PgExport
       end
     end
 
+    class BotResources < Base
+      def where_clause
+        "WHERE team_id = #{team_id}"
+      end
+    end
+
     class DynamicAnnotationFieldInstance < Base
       # No WHERE clause: all teams see all fields
       protected
@@ -438,6 +444,7 @@ module PgExport
             TableStrategies::AccountSource,
             TableStrategies::Annotation,
             TableStrategies::Assignment,
+            TableStrategies::BotResources,
             TableStrategies::Bounce,
             TableStrategies::Contact,
             TableStrategies::DynamicAnnotationAnnotationType,
