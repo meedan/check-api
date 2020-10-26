@@ -153,7 +153,7 @@ class Project < ActiveRecord::Base
     }.merge(self.slack_params_assignment)
   end
 
-  def slack_notification_message
+  def slack_notification_message(event = nil)
     params = self.slack_params
     message = {
       pretext: I18n.t("slack.messages.project_create", params),

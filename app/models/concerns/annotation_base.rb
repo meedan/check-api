@@ -307,7 +307,7 @@ module AnnotationBase
     item = object.title
     item_type = object.media.class.name.underscore
     annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
-    user = User.current or self.annotator
+    user = User.current || self.annotator
     team = object.team
     {
       user: Bot::Slack.to_slack(user.name),

@@ -69,7 +69,8 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
-  def should_send_slack_notification_message_for_card?
+  def should_send_slack_notification_message_for_card?(event = nil)
+    return true if event == 'item_added'
     Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
   end
 
@@ -80,47 +81,11 @@ class ProjectMedia < ActiveRecord::Base
 
   def slack_notification_message(update = false)
     params = self.slack_params
-    event = update ? "update" : "create"
-    related = params[:related_to].blank? ? "" : "_related"
+    event = update ? 'update' : 'create'
+    related = params[:related_to].blank? ? '' : '_related'
     pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
-    return self.slack_notification_message_for_card(pretext) if self.should_send_slack_notification_message_for_card?
-    {
-      pretext: pretext,
-      title: params[:title],
-      title_link: params[:url],
-      author_name: params[:user],
-      author_icon: params[:user_image],
-      text: params[:description],
-      fields: [
-        {
-          title: I18n.t(:'slack.fields.status'),
-          value: params[:status],
-          short: true
-        },
-        {
-          title: I18n.t(:'slack.fields.project'),
-          value: params[:project],
-          short: true
-        },
-        {
-          title: I18n.t(:'slack.fields.source'),
-          value: params[:source],
-          short: true
-        },
-        {
-          title: I18n.t(:'slack.fields.related_to'),
-          value: params[:related_to],
-          short: false
-        }
-      ],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ]
-    }
+    # Either render a card or update an existing one
+    self.should_send_slack_notification_message_for_card?(update) ? self.slack_notification_message_for_card(pretext) : nil
   end
 
   def picture

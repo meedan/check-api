@@ -23,7 +23,7 @@ class Dynamic < ActiveRecord::Base
   validate :attribution_contains_only_team_members
   validate :fields_against_json_schema
 
-  def slack_notification_message
+  def slack_notification_message(_event = nil)
     annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
     method = "slack_notification_message_#{annotation_type}"
     if self.respond_to?(method)
@@ -39,7 +39,8 @@ class Dynamic < ActiveRecord::Base
       description: Bot::Slack.to_slack(response, false),
       attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence,
       task: task,
-      event: event
+      event: event,
+      answer: response
     })
   end
 

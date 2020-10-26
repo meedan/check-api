@@ -258,12 +258,14 @@ class CommentTest < ActiveSupport::TestCase
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
+    pm2 = create_project_media project: p
     with_current_user_and_team(u, t) do
       c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
-      # claim media
       m = create_claim_media project_id: p.id
       c = create_comment annotator: u, annotated: pm
+      assert_nil c.sent_to_slack
+      c = create_comment annotator: u, annotated: pm2
       assert c.sent_to_slack
     end
   end
@@ -456,13 +458,5 @@ class CommentTest < ActiveSupport::TestCase
     t = create_task
     c = create_comment annotated: t
     assert_equal t, c.task
-  end
-
-  test "should have Slack message for task comment" do
-    t = create_task
-    c = create_comment annotated: t
-    User.current = create_user
-    assert_match I18n.t("slack.messages.task_comment", c.slack_params), c.slack_notification_message[:pretext]
-    User.current = nil
   end
 end
