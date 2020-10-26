@@ -152,6 +152,7 @@ class TaskTest < ActiveSupport::TestCase
   end
 
   test "should notify on Slack when task is resolved" do
+    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -171,6 +172,8 @@ class TaskTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       assert tk.sent_to_slack
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
+
       tk.disable_es_callbacks = true
       tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
       tk.save!

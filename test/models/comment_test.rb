@@ -252,6 +252,7 @@ class CommentTest < ActiveSupport::TestCase
   end
 
   test "should notify on Slack when comment is created" do
+    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -262,6 +263,7 @@ class CommentTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       c = create_comment annotator: u, annotated: pm
       assert c.sent_to_slack
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       m = create_claim_media project_id: p.id
       c = create_comment annotator: u, annotated: pm
       assert_nil c.sent_to_slack

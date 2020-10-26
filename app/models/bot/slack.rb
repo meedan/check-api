@@ -159,7 +159,7 @@ class Bot::Slack < BotUser
     end
 
     def set_json_for_message_attachments(attachments, label)
-      json = JSON.parse(attachments)
+      json = attachments ? JSON.parse(attachments) : []
       if json[0]
         json[0]['title'] = "#{label.upcase}: #{self.title.to_s.truncate(140)}"
         json[0]['text'] = self.description.to_s.truncate(500)
