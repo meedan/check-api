@@ -176,13 +176,6 @@ sw:
       project_media: Kitu
       attribution: Imejibiwa na
     messages:
-      task_create: "%{user} (%{role} kwa %{team}) ameongeza Kazi"
-      task_edit: "%{user} (%{role} katika %{team}) amehariri Kazi"
-      task_assign: "%{user} (%{role} kwa %{team}) amepangiwa %{type}"
-      task_unassign: "%{user} (%{role} kwa %{team}) amepangiwa %{type}"
-      task_answer_create: "%{user} (%{role} kwa %{team}) amejibu Kazi"
-      task_answer_edit: "%{user} (%{role} kwa %{team}) amehariri jibu la Kazi"
-      task_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa Kazi"
       project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa
         %{parent_type}"
       project_media_create: "%{user} (%{role} kwa %{team}) %{type} ameongeza "
