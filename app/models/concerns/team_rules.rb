@@ -230,7 +230,7 @@ module TeamRules
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
       users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
       choice_fields: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
-      choice_field_values: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| [tt[:id], tt[:options].collect{ |o| o.with_indifferent_access['label'] }.collect{ |l| { key: l, value: l } }] } },
+      choice_field_values: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| [tt[:id], tt[:options].reject{ |ro| ro['other'] }.collect{ |o| o.with_indifferent_access['label'] }.collect{ |l| { key: l, value: l } }] } },
       text_fields: text_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },
       choice_fieldsets: self.get_fieldsets.to_a.collect{ |f| f[:identifier] }.reject{ |f| !choice_field_objs.keys.include?(f) },
       text_fieldsets: self.get_fieldsets.to_a.collect{ |f| f[:identifier] }.reject{ |f| !text_field_objs.keys.include?(f) }
