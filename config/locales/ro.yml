@@ -180,13 +180,6 @@ ro:
       project_media: Element
       attribution: Răspuns dat de
     messages:
-      task_create: "%{user} (%{role} în %{team}) a adăugat o Sarcină"
-      task_edit: "%{user} (%{role} în %{team}) a redactat o Sarcină"
-      task_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
-      task_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
-      task_answer_create: "%{user} (%{role} în %{team}) a dat răspuns la o Sarcină"
-      task_answer_edit: "%{user} (%{role} din%{team}) a editat răspunsul la o sarcină"
-      task_comment: "%{user} (%{role} în %{team}) a adăugat o notă la o Sarcină"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
