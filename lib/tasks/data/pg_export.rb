@@ -195,7 +195,7 @@ module PgExport
       end
     end
 
-    class BotResources < Base
+    class BotResource < Base
       def where_clause
         "WHERE team_id = #{team_id}"
       end
@@ -352,16 +352,18 @@ module PgExport
     class Annotation < Base
       def where_clause
         project_media_ids_in_team_sql = ProjectMedia.new(team_id).select_ids_in_team
+        bot_resource_ids_in_team_sql = BotResource.new(team_id).select_ids_in_team
         project_ids_in_team_sql = Project.new(team_id).select_ids_in_team
         account_ids_in_team_sql = Account.new(team_id).select_ids_in_team
         source_ids_in_team_sql = Source.new(team_id).select_ids_in_team
         media_ids_in_team_sql = Media.new(team_id).select_ids_in_team
         parts = [
-          "annotated_type = 'ProjectMedia' AND annotated_id IN (#{project_media_ids_in_team_sql})",
-          "annotated_type = 'Project' AND annotated_id IN (#{project_ids_in_team_sql})",
           "annotated_type = 'Account' AND annotated_id IN (#{account_ids_in_team_sql})",
-          "annotated_type = 'Source' AND annotated_id IN (#{source_ids_in_team_sql})",
+          "annotated_type = 'BotResource' AND annotated_id IN (#{bot_resource_ids_in_team_sql})",
           "annotated_type = 'Media' AND annotated_id IN (#{media_ids_in_team_sql})",
+          "annotated_type = 'Project' AND annotated_id IN (#{project_ids_in_team_sql})",
+          "annotated_type = 'ProjectMedia' AND annotated_id IN (#{project_media_ids_in_team_sql})",
+          "annotated_type = 'Source' AND annotated_id IN (#{source_ids_in_team_sql})",
           "annotated_type = 'Task' AND annotated_id IN (SELECT id FROM annotations a2 WHERE annotations.annotated_id = a2.id AND a2.annotated_type = 'ProjectMedia' AND a2.annotated_id IN (#{project_media_ids_in_team_sql}))",
           "annotated_type = 'Team' AND annotated_id = #{team_id}",
         ]
@@ -444,7 +446,7 @@ module PgExport
             TableStrategies::AccountSource,
             TableStrategies::Annotation,
             TableStrategies::Assignment,
-            TableStrategies::BotResources,
+            TableStrategies::BotResource,
             TableStrategies::Bounce,
             TableStrategies::Contact,
             TableStrategies::DynamicAnnotationAnnotationType,
