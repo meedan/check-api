@@ -173,7 +173,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       m = create_valid_media
       pm = create_project_media team: t, media: m
       assert pm.sent_to_slack
-      assert_match I18n.t("slack.messages.project_media_create", pm.slack_params), pm.slack_notification_message[:pretext]
       m = create_claim_media
       pm = create_project_media team: t, media: m
       assert pm.sent_to_slack

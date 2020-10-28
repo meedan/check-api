@@ -178,13 +178,6 @@ ru:
       project_media: Материал
       attribution: Ответ от
     messages:
-      task_create: Добавлен вопрос (%{user}, %{role} группы %{team})
-      task_edit: Отредактирован вопрос (%{user}, %{role} группы %{team})
-      task_assign: Назначен вопрос (%{user}, %{role} группы %{team})
-      task_unassign: Снято назначение вопроса (%{user}, %{role} группы %{team})
-      task_answer_create: Добавлен ответ на вопрос (%{user}, %{role} группы %{team})
-      task_answer_edit: Изменён ответ на вопрос (%{user}, %{role} группы %{team})
-      task_comment: Добавлена заметка к вопросу (%{user}, %{role} группы %{team})
       project_media_comment: Добавлена заметка к материалу (%{user}, %{role} группы
         %{team})
       project_media_create: Добавлен материал (%{user}, %{role} группы %{team})

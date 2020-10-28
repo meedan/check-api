@@ -177,13 +177,6 @@ ar:
       project_media: 'الإجابة من '
       attribution: تمّت الإجابة بواسطة
     messages:
-      task_create: قام %{user} (%{role} في %{team}) بإنشاء مهمة
-      task_edit: قام %{user} (%{role} في %{team}) بتحرير مهمة
-      task_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
-      task_unassign: قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}
-      task_answer_create: قام %{user} (%{role} في %{team}) بإجابة مهمة
-      task_answer_edit: قام %{user} (%{role} في %{team}) بتعديل اجابة مهمة
-      task_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى مهمة
       project_media_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_media_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}

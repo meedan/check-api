@@ -182,13 +182,6 @@ fr:
       project_media: Élément
       attribution: Réponse par
     messages:
-      task_create: "%{user} (%{role} de%{team}) a ajouté une tâche"
-      task_edit: "%{user} (%{role} de %{team}) a modifié une tâche"
-      task_assign: "%{user} (%{role} de %{team}) a attribué un.e %{type}"
-      task_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution d’un.e %{type}"
-      task_answer_create: "%{user} (%{role} de %{team}) a répondu à une tâche"
-      task_answer_edit: "%{user} (%{role} de %{team}) a modifié la réponse d’une tâche"
-      task_comment: "%{user} (%{role} de %{team}) a ajouté une note à une tâche"
       project_media_comment: "%{user} (%{role} de %{team}) a ajouté une note à un.e%{parent_type}"
       project_media_create: "%{user} (%{role} de %{team}) a ajouté un.e %{type}"
       project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un.e %{type}

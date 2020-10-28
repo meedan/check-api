@@ -182,15 +182,6 @@ fil:
       project_media: Item
       attribution: Sinagutan ni
     messages:
-      task_create: Nagdagdag si %{user} (%{role} sa %{team}) ng Gawain
-      task_edit: Nag-edit si %{user} (%{role} sa %{team}) ng gawain
-      task_assign: 'Nagtalaga si %{user} (%{role} sa %{team}) ng %{type} '
-      task_unassign: 'Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga ng
-        %{type} '
-      task_answer_create: Sinagutan ni %{user} (%{role} sa %{team}) ang isang Gawain
-      task_answer_edit: Nag-edit si %{user} (%{role} sa %{team}) ng sagot sa isang
-        Gawain
-      task_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa isang Gawain
       project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
         %{parent_type}
       project_media_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}

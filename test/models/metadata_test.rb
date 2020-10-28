@@ -87,22 +87,6 @@ class MetadataTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Slack when title is updated" do
-    t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    with_current_user_and_team(u, t) do
-      p = create_project team: t
-      m = create_valid_media
-      pm = create_project_media project: p, media: m
-      em = create_metadata title: 'Title A', annotator: u, annotated: pm
-      em.reload
-      em.title = 'Change title'; em.save!
-      assert em.sent_to_slack
-    end
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { annotation_type: 'metadata', annotated: create_project_media }
     params = ActionController::Parameters.new(raw_params)

@@ -32,54 +32,12 @@ module Workflow
               })
               if from_status != to_status && !from_status.blank?
                 event = 'status'
-              elsif !params[:assignment_event].blank?
-                params.delete(:from_status)
-                event = params[:assignment_event]
               else
                 return nil
               end
-              {
-                pretext: I18n.t("slack.messages.project_media_#{event}", params),
-                title: params[:title],
-                title_link: params[:url],
-                author_name: params[:user],
-                author_icon: params[:user_image],
-                text: params[:description],
-                fields: [
-                  {
-                    title: I18n.t(:'slack.fields.status'),
-                    value: params[:to_status],
-                    short: true
-                  },
-                  {
-                    title: I18n.t(:'slack.fields.status_previous'),
-                    value: params[:from_status],
-                    short: true
-                  },
-                  {
-                    title: I18n.t(:'slack.fields.assigned'),
-                    value: params[:assigned],
-                    short: true
-                  },
-                  {
-                    title: I18n.t(:'slack.fields.unassigned'),
-                    value: params[:unassigned],
-                    short: true
-                  },
-                  {
-                    title: params[:parent_type],
-                    value: params[:item],
-                    short: false
-                  }
-                ],
-                actions: [
-                  {
-                    type: "button",
-                    text: params[:button],
-                    url: params[:url]
-                  }
-                ]
-              }
+              pretext = I18n.t("slack.messages.project_media_#{event}", params)
+              # Either render a card or update an existing one
+              self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
             end
           end
         end
