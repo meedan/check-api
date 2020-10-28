@@ -2,7 +2,8 @@
 /log/*.log
 tmp/
 config/database.yml
-config/config.yml
+config/config.yml*
+!config/config.yml.example
 config/sidekiq.yml
 config/sidekiq-test.yml
 config/clean_db.yml

@@ -192,8 +192,9 @@ class ProjectMediaProject < ActiveRecord::Base
     selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
-  def slack_notification_message
-    self.project_media.slack_notification_message
+  def slack_notification_message(event = nil)
+    update = self.slack_channel(event.to_s) ? event : nil
+    self.project_media.slack_notification_message(update)
   end
 
   private

@@ -6,6 +6,12 @@ class Bot::SlackTest < ActiveSupport::TestCase
     super
     @bot = create_slack_bot
     create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
+    User.current = create_user(is_admin: true)
+  end
+
+  def teardown
+    super
+    User.current = nil
   end
 
   test "should notify admin if settings and notifications are enabled" do
@@ -16,10 +22,10 @@ class Bot::SlackTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
+    p = create_project team: t
+    pm = create_project_media project: p
     with_current_user_and_team(u, t) do
-      p = create_project team: t
-      pm = create_project_media project: p
-      @bot.notify_admin(pm, t)
+      @bot.notify_admin(pm, t, 'message')
       assert pm.sent_to_slack
       s = create_source
       @bot.notify_admin(s, t)
@@ -139,7 +145,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 6, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -161,7 +167,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 6, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 12, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -181,7 +187,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
-    assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
+    assert_equal 4, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
     WebMock.allow_net_connect!
   end
 
@@ -214,16 +220,8 @@ class Bot::SlackTest < ActiveSupport::TestCase
     e = create_metadata
     id = e.id
     e.delete
-    assert_nothing_raised do
-      Dynamic.call_slack_api(id, nil, 'message')
+    assert_raises ActiveRecord::RecordNotFound do
+      Dynamic.call_slack_api(id, nil, 'message', create_user.id)
     end
-  end
-
-  test "should have default behavior" do
-    class TestSlackMessage < Annotation
-      include Bot::Slack::SlackMessage
-    end
-    x = TestSlackMessage.new(annotated: create_project_media)
-    assert_kind_of Hash, x.slack_message_parameters(random_string, random_string, [{ foo: 'bar', fields: [{}, {}, {}, {}] }].to_json)
   end
 end

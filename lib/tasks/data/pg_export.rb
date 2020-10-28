@@ -4,15 +4,25 @@ require 'sqlite3'
 require 'tempfile'
 
 module PgExport
-  module Q
-    extend ActiveRecord::ConnectionAdapters::Quoting
+  module InQ
+    extend ActiveRecord::ConnectionAdapters::PostgreSQL::Quoting
+  end
 
-    def self.quote_column_name(column_name)
-      if column_name == "order"
-        '"order"'
-      else
-        column_name
-      end
+  module OutQ
+    # Rails 4: there's no ActiveRecord::ConnectionAdapters::SQLite3::Quoting
+    # so we make it up
+    def self.quote_column_name(name)
+      %Q("#{name.to_s.gsub('"', '""')}")
+    end
+
+    def self.quote_table_name(name)
+      quote_column_name(name)
+    end
+  end
+
+  class PGTextDecoderISO8601Timestamp < PG::SimpleDecoder
+    def decode(value, tuple=nil, field=nil)
+      value.tr(' ', 'T') << 'Z'
     end
   end
 
@@ -28,7 +38,7 @@ module PgExport
       def select_sql
         columns = wanted_active_record_columns.map do |column|
           clause = override_field_select_sql(column)
-          quoted_column_name = Q.quote_column_name(column.name)
+          quoted_column_name = InQ.quote_column_name(column.name)
           if clause.nil?
             quoted_column_name
           else
@@ -36,7 +46,7 @@ module PgExport
           end
         end
 
-        "SELECT #{columns.join(', ')} FROM #{Q.quote_table_name(pg_table_name)} #{where_clause}"
+        "SELECT #{columns.join(', ')} FROM #{InQ.quote_table_name(pg_table_name)} #{where_clause}"
       end
 
       # Returns partial-SQL string. If it isn't empty, it should start with "WHERE"
@@ -98,8 +108,8 @@ module PgExport
 
         db.transaction do
           statement = db.prepare <<-SQL
-            INSERT INTO #{Q.quote_table_name(table_name)}
-              (#{columns.map{ |col| Q.quote_column_name(col.name) }.join(', ')})
+            INSERT INTO #{OutQ.quote_table_name(table_name)}
+              (#{columns.map{ |col| OutQ.quote_column_name(col.name) }.join(', ')})
             VALUES (#{columns.map{'?'}.join(', ')})
           SQL
           pg_conn.copy_data("COPY (#{select_sql}) TO STDOUT", decode) do
@@ -140,7 +150,7 @@ module PgExport
       end
 
       def select_ids_in_team
-        "SELECT id FROM #{Q.quote_table_name(pg_table_name)} #{where_clause}"
+        "SELECT id FROM #{InQ.quote_table_name(pg_table_name)} #{where_clause}"
       end
 
       def define_sqlite3_column(column)
@@ -155,7 +165,7 @@ module PgExport
           jsonb: 'JSONTEXT',
         }[column.type]
         null = if column.null then '' else ' NOT NULL' end
-        "#{Q.quote_column_name(name)} #{type}#{null}"
+        "#{OutQ.quote_column_name(name)} #{type}#{null}"
       end
 
       def build_pg_copy_rows_type_map(columns)
@@ -164,7 +174,7 @@ module PgExport
             {
               'integer': PG::TextDecoder::Integer.new,
               'string': PG::TextDecoder::String.new,
-              'datetime': PG::TextDecoder::String.new,
+              'datetime': PGTextDecoderISO8601Timestamp.new,
               'text': PG::TextDecoder::String.new,
               'boolean': PG::TextDecoder::Boolean.new,
               'float': PG::TextDecoder::Float.new,
@@ -182,6 +192,12 @@ module PgExport
         else
           value
         end
+      end
+    end
+
+    class BotResource < Base
+      def where_clause
+        "WHERE team_id = #{team_id}"
       end
     end
 
@@ -312,7 +328,7 @@ module PgExport
           column.name.start_with?('current_')
         )
           # redact for non-members only, so teams can't export info on non-members
-          "CASE WHEN id IN (#{member_user_ids_sql}) THEN #{Q.quote_column_name(column.name)} ELSE #{redacted} END"
+          "CASE WHEN id IN (#{member_user_ids_sql}) THEN #{InQ.quote_column_name(column.name)} ELSE #{redacted} END"
         else
           nil
         end
@@ -336,16 +352,18 @@ module PgExport
     class Annotation < Base
       def where_clause
         project_media_ids_in_team_sql = ProjectMedia.new(team_id).select_ids_in_team
+        bot_resource_ids_in_team_sql = BotResource.new(team_id).select_ids_in_team
         project_ids_in_team_sql = Project.new(team_id).select_ids_in_team
         account_ids_in_team_sql = Account.new(team_id).select_ids_in_team
         source_ids_in_team_sql = Source.new(team_id).select_ids_in_team
         media_ids_in_team_sql = Media.new(team_id).select_ids_in_team
         parts = [
-          "annotated_type = 'ProjectMedia' AND annotated_id IN (#{project_media_ids_in_team_sql})",
-          "annotated_type = 'Project' AND annotated_id IN (#{project_ids_in_team_sql})",
           "annotated_type = 'Account' AND annotated_id IN (#{account_ids_in_team_sql})",
-          "annotated_type = 'Source' AND annotated_id IN (#{source_ids_in_team_sql})",
+          "annotated_type = 'BotResource' AND annotated_id IN (#{bot_resource_ids_in_team_sql})",
           "annotated_type = 'Media' AND annotated_id IN (#{media_ids_in_team_sql})",
+          "annotated_type = 'Project' AND annotated_id IN (#{project_ids_in_team_sql})",
+          "annotated_type = 'ProjectMedia' AND annotated_id IN (#{project_media_ids_in_team_sql})",
+          "annotated_type = 'Source' AND annotated_id IN (#{source_ids_in_team_sql})",
           "annotated_type = 'Task' AND annotated_id IN (SELECT id FROM annotations a2 WHERE annotations.annotated_id = a2.id AND a2.annotated_type = 'ProjectMedia' AND a2.annotated_id IN (#{project_media_ids_in_team_sql}))",
           "annotated_type = 'Team' AND annotated_id = #{team_id}",
         ]
@@ -428,6 +446,7 @@ module PgExport
             TableStrategies::AccountSource,
             TableStrategies::Annotation,
             TableStrategies::Assignment,
+            TableStrategies::BotResource,
             TableStrategies::Bounce,
             TableStrategies::Contact,
             TableStrategies::DynamicAnnotationAnnotationType,

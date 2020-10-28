@@ -181,13 +181,17 @@ en:
       project_media: Item
       attribution: Answered by
     messages:
-      task_create: "%{user} (%{role} at %{team}) added a Task"
-      task_edit: "%{user} (%{role} at %{team}) edited a Task"
-      task_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
-      task_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
-      task_answer_create: "%{user} (%{role} at %{team}) answered a Task"
-      task_answer_edit: "%{user} (%{role} at %{team}) edited the answer of a Task"
-      task_comment: "%{user} (%{role} at %{team}) added a note to a Task"
+      analysis_verification_status_status_changed: "%{user} changed status to: %{value}"
+      analysis_title_changed: "%{user} changed the analysis title to: %{value}"
+      analysis_content_changed: "%{user} changed the analysis content to: %{value}"
+      tasks_create: "%{user} added a task: %{title}"
+      tasks_edit: "%{user} edited the task %{title}"
+      tasks_answer_create: "%{user} answered task %{title}: %{answer}"
+      tasks_answer_edit: "%{user} edited the answer of task %{title}: %{answer}"
+      metadata_create: "%{user} added a metadata field: %{title}"
+      metadata_edit: "%{user} edited the metadata field %{title}"
+      metadata_answer_create: "%{user} set value of metadata %{title}: %{answer}"
+      metadata_answer_edit: "%{user} edited the value of metadata %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_media_create_related: "%{user} (%{role} at %{team}) added a related

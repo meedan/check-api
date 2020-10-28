@@ -147,6 +147,7 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should notify Slack when status is updated" do
     create_verification_status_stuff
+    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     if Bot::Slack.default.nil?
       b = Bot::Slack.new
       b.name = 'Slack Bot'
@@ -160,19 +161,21 @@ class StatusTest < ActiveSupport::TestCase
       p = create_project team: t
       m = create_valid_media
       pm = create_project_media project: p, media: m
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
       s = Dynamic.find(s.id)
       s.status = 'verified'; s.save!
-      assert s.sent_to_slack
+      assert_nil s.sent_to_slack
       # claim report
       m = create_claim_media project_id: p.id
       pm = create_project_media project: p, media: m
+      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
-      assert_not s.sent_to_slack
+      assert_nil s.sent_to_slack
       s = Dynamic.find(s.id)
       s.status = 'verified'; s.save!
-      assert s.sent_to_slack
+      assert_nil s.sent_to_slack
     end
   end
 
@@ -289,21 +292,13 @@ class StatusTest < ActiveSupport::TestCase
     s = Dynamic.find(s.id)
     s.status = 'verified'
     s.save!
-    assert_match /verification status/, s.slack_notification_message[:pretext]
+    assert_match /verification status/, s.slack_notification_message
 
     u1 = create_user
     create_team_user user: u1, team: t
     u2 = create_user
     create_team_user user: u2, team: t
     s = create_status annotated: pm, annotator: u, status: 'false'
-
-    s.assigned_to_ids = u2.id
-    s.save!
-    assert_match /assigned/, s.slack_notification_message[:pretext]
-
-    s.assigned_to_ids = ""
-    s.save!
-    assert_match /unassigned/, s.slack_notification_message[:pretext]
 
     User.current = nil
   end

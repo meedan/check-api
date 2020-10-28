@@ -177,13 +177,6 @@ pt:
       project_media: Item
       attribution: Respondida por
     messages:
-      task_create: "%{user} (%{role} em %{team}) adicionou uma Tarefa"
-      task_edit: "%{user} (%{role} em %{team}) editou uma Tarefa"
-      task_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
-      task_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de %{type}"
-      task_answer_create: "%{user} (%{role} em %{team}) respondeu a uma tarefa"
-      task_answer_edit: "%{user} (%{role} em %{team}) editou a resposta de uma Tarefa"
-      task_comment: "%{user} (%{role} em %{team}) adicionou uma nota em uma Tarefa"
       project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
         %{parent_type}"
       project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"

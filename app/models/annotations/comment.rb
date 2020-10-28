@@ -30,35 +30,11 @@ class Comment < ActiveRecord::Base
     })
   end
 
-  def slack_notification_message
+  def slack_notification_message(_event = nil)
     params = self.slack_params
-    {
-      pretext: I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", params),
-      title: params[:label],
-      title_link: params[:url],
-      author_name: params[:user],
-      author_icon: params[:user_image],
-      text: params[:comment],
-      fields: [
-        {
-          title: I18n.t("slack.fields.project"),
-          value: params[:project],
-          short: true
-        },
-        {
-          title: params[:parent_type],
-          value: params[:item],
-          short: false
-        }
-      ],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ]
-    }
+    pretext = I18n.t("slack.messages.#{self.annotated_type.underscore}_comment", params)
+    # Either render a card or add a comment to an existing card
+    self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
   end
 
   def file_mandatory?
