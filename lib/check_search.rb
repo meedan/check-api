@@ -195,7 +195,7 @@ class CheckSearch
   end
 
   def build_search_keyword_conditions
-    return [] if @options["keyword"].blank?
+    return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
     # add keyword conditions
     keyword_fields = %w(title description quote)
     keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
@@ -245,7 +245,7 @@ class CheckSearch
 
   def build_search_rules_conditions
     conditions = []
-    return conditions unless @options.has_key?('rules')
+    return conditions unless @options.has_key?('rules') && @options['rules'].class.name == 'Array'
     @options['rules'].each do |rule|
       conditions << { term: { rules: rule } }
     end
@@ -254,7 +254,7 @@ class CheckSearch
 
   def build_search_team_tasks_conditions
     conditions = []
-    return conditions unless @options.has_key?('team_tasks')
+    return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
     @options['team_tasks'].each do |tt|
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
@@ -289,7 +289,7 @@ class CheckSearch
   end
 
   def build_search_tags_conditions
-    return [] if @options["tags"].blank?
+    return [] if @options["tags"].blank? || @options["tags"].class.name != 'Array'
     tags_c = search_tags_query(@options["tags"])
     [tags_c]
   end
