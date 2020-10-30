@@ -33,17 +33,6 @@ class BotResourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create bot resource with empty content" do
-    assert_no_difference 'BotResource.count' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource content: nil
-      end
-      assert_raises ActiveRecord::RecordInvalid do
-        create_bot_resource content: ''
-      end
-    end
-  end
-
   test "should belong to team" do
     t = create_team
     br1 = create_bot_resource team: t
