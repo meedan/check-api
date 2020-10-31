@@ -1,6 +1,8 @@
 namespace :check do
   namespace :migrate do
     task links_published_at: :environment do
+      old_logger = ActiveRecord::Base.logger
+      ActiveRecord::Base.logger = nil
       started = Time.now.to_i
       start_from = 0
       errors = 0
@@ -25,6 +27,7 @@ namespace :check do
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes. Errors: #{errors}"
+      ActiveRecord::Base.logger = old_logger
     end
   end
 end
