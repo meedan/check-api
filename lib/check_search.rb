@@ -1,7 +1,7 @@
 class CheckSearch
   def initialize(options)
     # options include keywords, projects, tags, status
-    options = JSON.parse(options)
+    options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
