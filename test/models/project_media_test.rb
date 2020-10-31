@@ -823,7 +823,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal '25/01/1989', pm.published_at.strftime('%d/%m/%Y')
     c = create_claim_media
     pm = create_project_media media: c
-    assert_equal Time.now.strftime('%d/%m/%Y'), pm.published_at.strftime('%d/%m/%Y')
+    assert_nil pm.published_at
   end
 
   test "should get source author for oEmbed" do
