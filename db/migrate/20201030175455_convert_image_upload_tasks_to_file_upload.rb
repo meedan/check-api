@@ -17,6 +17,7 @@ class ConvertImageUploadTasksToFileUpload < ActiveRecord::Migration
     n = tasks.count
     i = 0
     tasks.find_each do |task|
+      i += 1
       print "#{i}/#{n}) Updating task #{task.id}... "
       if task.type == 'image_upload'
         begin
