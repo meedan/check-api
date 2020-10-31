@@ -498,7 +498,7 @@ module SampleData
     create_media(options.merge({ type: 'UploadedImage' }))
   end
 
-  def create_uploaded_file(options = { file: 'test.txt' })
+  def create_uploaded_file(options = { file: 'test.csv' })
     create_media(options.merge({ type: 'UploadedFile' }))
   end
 

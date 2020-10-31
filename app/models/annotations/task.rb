@@ -16,7 +16,7 @@ class Task < ActiveRecord::Base
 
   field :type
   def self.task_types
-    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'image_upload']
+    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload']
   end
   validates :type, included: { values: self.task_types }
 
@@ -111,7 +111,8 @@ class Task < ActiveRecord::Base
 
   def new_or_existing_response
     response = self.first_response_obj
-    response.nil? ? Dynamic.new : response.load
+    klass = self.task_type == 'file_upload' ? FileUploadTaskResponse : Dynamic
+    response.nil? ? klass.new : response.load.becomes(klass)
   end
 
   def response=(json)

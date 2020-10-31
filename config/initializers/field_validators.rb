@@ -37,7 +37,7 @@ DynamicAnnotation::Field.class_eval do
     end
   end
 
-  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'image_upload'].each do |type|
+  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload'].each do |type|
     define_method "field_validator_name_suggestion_#{type}" do
       errormsg = I18n.t(:task_suggestion_invalid_value)
       begin

@@ -15,7 +15,7 @@ class VideoUploader < FileUploader
   define_version :thumb, (CONFIG['image_thumbnail_size'] || [100, 100])
   define_version :embed, (CONFIG['image_embed_size'] || [800, 600])
 
-  def jpg_name for_file, version_name
+  def jpg_name(for_file, version_name)
     %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.jpg}
   end
 
