@@ -15,6 +15,7 @@ module CheckElasticSearch
     ms.attributes[:annotated_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
+    ms.attributes[:published_at] = self.published_at
     # Intial nested objects with []
     ['accounts', 'comments', 'tags', 'dynamics', 'task_responses'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)

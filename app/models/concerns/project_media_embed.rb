@@ -49,7 +49,7 @@ module ProjectMediaEmbed
 
   def published_at
     p = self.media&.metadata['published_at']
-    p.blank? ? self.created_at : (p.is_a?(Numeric) ? Time.at(p) : DateTime.parse(p))
+    p.blank? ? nil : (p.is_a?(Numeric) ? Time.at(p).utc : DateTime.parse(p).utc)
   end
 
   def source_author

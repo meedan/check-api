@@ -279,8 +279,8 @@ class ProjectMedia < ActiveRecord::Base
       ms.attributes[:associated_type] = m.type
       ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
       data = self.analysis || {}
-      ms.attributes[:title] = data['title'].blank? ? self.media.metadata['title'] : data['title']
-      ms.attributes[:description] = data['content'].blank? ? self.media.metadata['description'] : data['content']
+      ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
+      ms.attributes[:description] = data['content'].blank? ? m.metadata['description'] : data['content']
       ms.attributes[:quote] = m.quote
     end
     ms.attributes[:verification_status] = self.last_status

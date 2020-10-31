@@ -1200,5 +1200,59 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
   end
 
-  # Please add new tests to test/controllers/graphql_controller_3_test.rb
+  test "should filter by link published date" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+
+    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm1 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
+
+    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    url = 'http://test.com/2'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm2 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
+
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{\"range\":{\"published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+
+    query = 'query CheckSearch { search(query: "{\"range\":{\"published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+
+    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    pm1 = ProjectMedia.find(pm1.id) ; pm1.disable_es_callbacks = false ; pm1.refresh_media = true ; pm1.save! ; sleep 1
+
+    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    url = 'http://test.com/2'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    pm2 = ProjectMedia.find(pm2.id) ; pm2.disable_es_callbacks = false ; pm2.refresh_media = true ; pm2.save! ; sleep 1
+
+    query = 'query CheckSearch { search(query: "{\"range\":{\"published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+
+    query = 'query CheckSearch { search(query: "{\"range\":{\"published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+  end
 end

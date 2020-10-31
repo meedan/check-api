@@ -88,7 +88,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id associated_type)
+      keys = %w(team_id archived sources_count read user_id associated_type published_at)
       obj = self.reload
       data = {
         'team_id' => obj.team_id,
@@ -96,7 +96,8 @@ module ProjectAssociation
         'sources_count' => obj.sources_count,
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
-        'associated_type' => obj.media.type
+        'associated_type' => obj.media.type,
+        'published_at' => obj.published_at
       }
       options = { keys: keys, data: data, parent: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
