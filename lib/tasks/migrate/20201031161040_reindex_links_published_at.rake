@@ -14,7 +14,9 @@ namespace :check do
         es_body = []
         pms.each do |pm|
           doc_id = pm.get_es_doc_id(pm)
-          fields = { 'published_at' => pm.published_at }
+          value = begin pm.published_at rescue nil end
+          next if value.nil?
+          fields = { 'published_at' => value }
           es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: fields } } }
           last = pm.id if pm.id > last
         end
