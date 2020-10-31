@@ -10,7 +10,7 @@ class UploadedImageTest < ActiveSupport::TestCase
   test "should not upload a file that is not an image" do
     assert_no_difference 'UploadedImage.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_uploaded_image file: 'not-an-image.txt'
+        create_uploaded_image file: 'not-an-image.csv'
       end
     end
   end

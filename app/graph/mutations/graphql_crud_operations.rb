@@ -461,7 +461,7 @@ class GraphqlCrudOperations
 
       field :project, ProjectType
 
-      field :image_data, JsonStringType
+      field :file_data, JsonStringType
 
       field :data, JsonStringType
 

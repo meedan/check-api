@@ -29,4 +29,8 @@ class UploadedFileTest < ActiveSupport::TestCase
     s =  UploadedFile.get_max_size({env: "1000000"})
     assert_equal Float, s.class
   end
+
+  test "should get whitelist of extensions" do
+    assert_kind_of Array, GenericFileUploader.new.extension_whitelist
+  end
 end
