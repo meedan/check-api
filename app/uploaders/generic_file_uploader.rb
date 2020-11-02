@@ -4,6 +4,6 @@ class GenericFileUploader < FileUploader
   end
 
   def self.upload_extensions
-    %w(pdf xslx csv txt) + AudioUploader.upload_extensions + ImageUploader.upload_extensions + VideoUploader.upload_extensions
+    %w(pdf xlsx csv txt) + AudioUploader.upload_extensions + ImageUploader.upload_extensions + VideoUploader.upload_extensions
   end
 end
