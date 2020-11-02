@@ -138,7 +138,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.relate_project_media_to_similar_items(pm1, {pm2.id => 1})
+    Bot::Alegre.relate_project_media_to_similar_items(pm1)
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
