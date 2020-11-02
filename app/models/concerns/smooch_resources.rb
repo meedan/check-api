@@ -19,7 +19,7 @@ module SmoochResources
       resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
       unless resource.blank?
         message << "*#{resource['smooch_custom_resource_title']}*"
-        message << resource['smooch_custom_resource_body']
+        message << resource['smooch_custom_resource_body'] unless resource['smooch_custom_resource_body'].to_s.strip.blank?
         unless resource['smooch_custom_resource_feed_url'].blank?
           message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}") do
             self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
