@@ -110,6 +110,10 @@ class Relationship < ActiveRecord::Base
     list
   end
 
+  def self.suggested_type
+    { source: 'suggested_sibling', target: 'suggested_sibling' }
+  end
+
   def self.default_type
     { source: 'parent', target: 'child' }
   end

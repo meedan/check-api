@@ -22,6 +22,11 @@ development: &default
   # '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
 
+  # Alegre Similarity Thresholds
+  #
+  image_similarity_threshold: 0.7
+  text_similarity_threshold: 0.7
+
   # Localization
   #
   # OPTIONAL
@@ -226,6 +231,11 @@ test:
     secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
     bucket: 'check-api-test'
     bucket_region: 'us-east-1'
+
+  # Alegre Similarity Thresholds
+  #
+  image_similarity_threshold: 0.7
+  text_similarity_threshold: 0.7
 
   # Facebook social login
   #

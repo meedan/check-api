@@ -138,6 +138,62 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "checks truthfulness of is_claim?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Claim"
+    assert pm.is_claim?, true
+  end
+
+  test "checks truthfulness of is_link?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Link"
+    assert pm.is_link?, true
+  end
+
+  test "checks truthfulness of is_uploaded_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "UploadedImage"
+    assert pm.is_uploaded_image?, true
+  end
+
+  test "checks truthfulness of is_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "UploadedImage"
+    assert pm.is_image?, true
+  end
+
+  test "checks truthfulness of is_text?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Link"
+    assert pm.is_text?, true
+  end
+
+  test "checks falsity of is_text?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "UploadedImage"
+    assert pm.is_text?, false
+  end
+
+  test "checks falsity of is_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Link"
+    assert pm.is_image?, false
+  end
+
   test "non members should not read project media in private team" do
     u = create_user
     t = create_team

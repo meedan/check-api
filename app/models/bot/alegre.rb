@@ -1,5 +1,4 @@
 class Bot::Alegre < BotUser
-
   check_settings
 
   ::ProjectMedia.class_eval do
@@ -20,6 +19,7 @@ class Bot::Alegre < BotUser
         self.send_to_image_similarity_index(pm)
         self.send_to_title_similarity_index(pm)
         self.get_flags(pm)
+        self.relate_project_media_to_similar_items(pm)
         handled = true
       end
     rescue StandardError => e
@@ -27,6 +27,23 @@ class Bot::Alegre < BotUser
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
     end
     handled
+  end
+
+  def self.get_similar_items(pm)
+    if pm.is_text?
+      self.get_items_with_similar_title(pm, CONFIG['text_similarity_threshold'])
+    elsif pm.is_image?
+      self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
+    else
+      {}
+    end
+  end
+
+  def self.relate_project_media_to_similar_items(pm)
+    self.add_relationships(
+      pm,
+      self.get_similar_items(pm)
+    )
   end
 
   def self.get_language(pm)
@@ -127,17 +144,18 @@ class Bot::Alegre < BotUser
     self.get_items_with_similar_text(pm, 'title', threshold, pm.title)
   end
 
-  def self.extract_project_medias_from_context(context)
+  def self.extract_project_medias_from_context(search_result)
     # We currently have two cases of context:
     # - a straight hash with project_media_id
     # - an array of hashes, each with project_media_id
+    context = search_result.dig('_source', 'context')
     pms = []
     if context.kind_of?(Array)
       context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    pms
+    Hash[pms.flatten.collect{|pm| [pm.to_i, search_result.with_indifferent_access.dig('_score')]}]
   end
 
   def self.get_items_with_similar_text(pm, field, threshold, text)
@@ -149,7 +167,7 @@ class Bot::Alegre < BotUser
       },
       threshold: threshold
     })
-    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('_source', 'context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    Hash[*similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r) }].reject{ |id, score| id.blank? || pm.id == id }
   end
 
   def self.get_items_with_similar_image(pm, threshold)
@@ -160,18 +178,18 @@ class Bot::Alegre < BotUser
       },
       threshold: threshold
     })
-    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    Hash[*similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r) }].reject{ |id, score| id.blank? || pm.id == id }
   end
 
-  def self.add_relationships(pm, pm_ids)
-    return if pm_ids.blank? || pm_ids.include?(pm.id)
+  def self.add_relationships(pm, pm_id_scores)
+    return if pm_ids.blank? || pm_id_scores.keys.include?(pm.id)
 
     # Take first match as being the best potential parent.
     # Conditions to check for a valid parent in 2-level hierarchy:
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
-    parent_id = pm_ids[0]
+    parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
     if source_ids.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
@@ -185,7 +203,8 @@ class Bot::Alegre < BotUser
 
     r = Relationship.new
     r.skip_check_ability = true
-    r.relationship_type = { source: 'parent', target: 'child' }
+    r.relationship_type = Relationship.suggested_type
+    r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id
     r.save!

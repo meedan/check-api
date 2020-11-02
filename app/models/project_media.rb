@@ -32,6 +32,30 @@ class ProjectMedia < ActiveRecord::Base
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
+  def relationship_source(relationship_type=Relationship.default_type)
+    Relationship.where(target_id: self.id, relationship_type: relationship_type.to_yaml).last || self
+  end
+
+  def is_claim?
+    self.media_type == "Claim"
+  end
+
+  def is_link?
+    self.media_type == "Link"
+  end
+
+  def is_uploaded_image?
+    self.media_type == "UploadedImage"
+  end
+
+  def is_image?
+    self.is_uploaded_image?
+  end
+
+  def is_text?
+    self.is_claim? || self.is_link?
+  end
+
   def report_type
     self.media.class.name.downcase
   end
