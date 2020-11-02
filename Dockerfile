@@ -7,6 +7,13 @@ ENV RAILS_ENV development
 # https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
 ENV MALLOC_ARENA_MAX 2
 
+# Set the default locale to en_US.UTF8
+# Note that language specific locales may not be supported; then try: C.UTF-8
+#
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
