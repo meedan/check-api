@@ -182,7 +182,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationships(pm, pm_id_scores)
-    return if pm_ids.blank? || pm_id_scores.keys.include?(pm.id)
+    return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
 
     # Take first match as being the best potential parent.
     # Conditions to check for a valid parent in 2-level hierarchy:
