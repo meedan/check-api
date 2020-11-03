@@ -133,12 +133,15 @@ class Dynamic < ActiveRecord::Base
     allowed_responses = %w(task_response_multiple_choice task_response_single_choice task_response_free_text)
     if self.annotated_type == 'Task' && allowed_responses.include?(self.annotation_type)
       annotated = self.annotated
-      pm = annotated.is_annotation? ? annotated.annotated : annotated
-      if op == 'destroy'
-        self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
-      else
-        keys = %w(team_task_id value)
-        self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+      # Index response for team tasks or free text tasks
+      if annotated.team_task_id || self.annotation_type == 'task_response_free_text'
+        pm = annotated.is_annotation? ? annotated.annotated : annotated
+        if op == 'destroy'
+          self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
+        else
+          keys = %w(team_task_id value field_type fieldset)
+          self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
+        end
       end
     end
   end

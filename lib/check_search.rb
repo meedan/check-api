@@ -197,19 +197,53 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    # add keyword conditions
-    keyword_fields = %w(title description quote)
-    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
+    @options['keyword_fields'] ||= []
+    es_fields = []
+    %w(title description quote analysis_title analysis_description).each do |f|
+      es_fields << f if should_include_keyword_field?(f)
+    end
+    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } }]
 
-    [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
-      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }}}}
+    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+      keyword_c << {
+        nested: {
+          path: "#{pair[0]}",
+          query: {
+            simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }
+          }
+        }
+      } if should_include_keyword_field?(pair[0])
     end
 
-    keyword_c << search_tags_query(@options["keyword"].split(' '))
+    keyword_c << search_tags_query(@options["keyword"].split(' ')) if should_include_keyword_field?('tags')
 
-    keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
+    keyword_c << {
+      nested: {
+        path: "accounts",
+        query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}
+      }
+    } if should_include_keyword_field?('accounts')
+
+    # add tasks/metadata answers
+    {'task_answers' => 'tasks', 'metadata_answers' => 'metadata'}.each do |f, v|
+      keyword_c << {
+        nested: {
+          path: "task_responses",
+          query: { bool: { must: [
+              { simple_query_string: { query: @options["keyword"], fields: ["task_responses.value"], default_operator: "AND" } },
+              { term: { "task_responses.fieldset": { value: v } } },
+              { term: { "task_responses.field_type": { value: "text" } } }
+            ]
+          } }
+        }
+      } if should_include_keyword_field?(f)
+    end
 
     [{ bool: { should: keyword_c } }]
+  end
+
+  def should_include_keyword_field?(field)
+    @options['keyword_fields'].blank? || @options['keyword_fields'].include?(field)
   end
 
   def build_search_dynamic_annotation_conditions
