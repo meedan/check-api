@@ -177,6 +177,18 @@ pt:
       project_media: Item
       attribution: Respondida por
     messages:
+      analysis_verification_status_status_changed: "%{user} modificou seu status para:
+        %{value}"
+      analysis_title_changed: "%{user} modificou o título da análise para: %{value}"
+      analysis_content_changed: "%{user} modificou o conteúdo da análise para: %{value}"
+      tasks_create: "%{user} adicionou uma tarefa: %{title}"
+      tasks_edit: "%{user} editou a tarefa %{title}"
+      tasks_answer_create: "%{user} respondeu a tarefa %{title}: %{answer}"
+      tasks_answer_edit: "%{user} editou a resposta da tarefa %{title}: %{answer}"
+      metadata_create: "%{user} adicionou um campo de metadados: %{title}"
+      metadata_edit: "%{user} editou o campo de metadados %{title}"
+      metadata_answer_create: "%{user} definiu valor de metadados %{title}: %{answer}"
+      metadata_answer_edit: "%{user} editou o valor de metadados %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
         %{parent_type}"
       project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
