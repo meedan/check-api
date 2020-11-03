@@ -33,6 +33,12 @@ module ProjectMediaCreators
     self.respond_to_auto_tasks(created)
   end
 
+  def create_metrics_annotation
+    unless self.media.url.blank? || self.media.metadata.dig('metrics').nil?
+      Bot::Keep.update_metrics(self.media, self.media.metadata['metrics'])
+    end
+  end
+
   private
 
   def create_auto_tasks_for_team_item
