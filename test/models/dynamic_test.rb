@@ -343,4 +343,13 @@ class DynamicTest < ActiveSupport::TestCase
       tk.save!
     end
   end
+
+  test "should have dynamic as class name when annotation is a file upload task response" do
+    d = create_dynamic_annotation
+    assert_equal 'Dynamic', FileUploadTaskResponse.find(d.id).class_name
+  end
+
+  test "should get max size for file upload task response" do
+    assert_not_nil FileUploadTaskResponse.max_size
+  end
 end

@@ -176,6 +176,17 @@ sw:
       project_media: Kitu
       attribution: Imejibiwa na
     messages:
+      analysis_verification_status_status_changed: "%{user}ilibadilisha hadhi kuwa:%{value}"
+      analysis_title_changed: "%{user}iliyopita kichwa cha uchambuzi kuwa:%{value}"
+      analysis_content_changed: "%{user}iliyopita maudhui ya uchambuzi kuwa:%{value}"
+      tasks_create: "%{user}aliongeza kazi:%{title}"
+      tasks_edit: "%{user}kuhariri kazi%{title}"
+      tasks_answer_create: "%{user}alijibu kazi%{title}:%{answer}"
+      tasks_answer_edit: "%{user}kuhariri jibu la kazi%{title}:%{answer}"
+      metadata_create: "%{user}iliongeza uwanja wa metadata:%{title}"
+      metadata_edit: "%{user}ilibadilisha uwanja wa metadata%{title}"
+      metadata_answer_create: "%{user}kuweka thamani ya metadata%{title}:%{answer}"
+      metadata_answer_edit: "%{user}ilibadilisha thamani ya metadata%{title}:%{answer}"
       project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa
         %{parent_type}"
       project_media_create: "%{user} (%{role} kwa %{team}) %{type} ameongeza "

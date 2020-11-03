@@ -1,7 +1,7 @@
 class CheckSearch
   def initialize(options)
     # options include keywords, projects, tags, status
-    options = JSON.parse(options)
+    options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
@@ -19,7 +19,8 @@ class CheckSearch
   MEDIA_TYPES = %w[claims links images videos audios blank]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
-    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count'
+    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
+    'published_at' => 'published_at'
   }
 
   def pusher_channel
@@ -195,7 +196,7 @@ class CheckSearch
   end
 
   def build_search_keyword_conditions
-    return [] if @options["keyword"].blank?
+    return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
     # add keyword conditions
     keyword_fields = %w(title description quote)
     keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
@@ -245,7 +246,7 @@ class CheckSearch
 
   def build_search_rules_conditions
     conditions = []
-    return conditions unless @options.has_key?('rules')
+    return conditions unless @options.has_key?('rules') && @options['rules'].class.name == 'Array'
     @options['rules'].each do |rule|
       conditions << { term: { rules: rule } }
     end
@@ -254,7 +255,7 @@ class CheckSearch
 
   def build_search_team_tasks_conditions
     conditions = []
-    return conditions unless @options.has_key?('team_tasks')
+    return conditions unless @options.has_key?('team_tasks') && @options['team_tasks'].class.name == 'Array'
     @options['team_tasks'].each do |tt|
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
@@ -289,7 +290,7 @@ class CheckSearch
   end
 
   def build_search_tags_conditions
-    return [] if @options["tags"].blank?
+    return [] if @options["tags"].blank? || @options["tags"].class.name != 'Array'
     tags_c = search_tags_query(@options["tags"])
     [tags_c]
   end
@@ -355,7 +356,7 @@ class CheckSearch
     conditions = []
     return conditions unless @options.has_key?(:range)
     timezone = @options[:range].delete(:timezone) || @context_timezone
-    [:created_at, :updated_at, :last_seen].each do |name|
+    [:created_at, :updated_at, :last_seen, :published_at].each do |name|
       values = @options['range'].dig(name)
       range = format_times_search_range_filter(values, timezone)
       next if range.nil?
@@ -380,6 +381,6 @@ class CheckSearch
   end
 
   def hit_es_for_range_filter
-    !@options['range'].blank? && @options['range'].keys.include?('last_seen')
+    !@options['range'].blank? && (@options['range'].keys.include?('last_seen') || @options['range'].keys.include?('published_at'))
   end
 end

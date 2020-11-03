@@ -178,6 +178,19 @@ ru:
       project_media: Материал
       attribution: Ответ от
     messages:
+      analysis_verification_status_status_changed: 'Изменён статус: %{value} (%{user})'
+      analysis_title_changed: 'Изменён заголовок анализа: %{value} (%{user})'
+      analysis_content_changed: 'Изменён контент анализа: %{value} (%{user})'
+      tasks_create: 'Добавлен вопрос: %{title} (%{user})'
+      tasks_edit: 'Отредактирован вопрос: %{title} (%{user})'
+      tasks_answer_create: 'На вопрос «%{title}» получен ответ: %{answer} (%{user})'
+      tasks_answer_edit: 'Отредактирован ответ на вопрос «%{title}»: %{answer} (%{user})'
+      metadata_create: 'Добавлено поле для метаданных: %{title} (%{user})'
+      metadata_edit: 'Отредактировано поле для метаданных: %{title} (%{user})'
+      metadata_answer_create: 'Задано значение для метаданных «%{title}»: %{answer}
+        (%{user})'
+      metadata_answer_edit: 'Обновлено значение для метаданных «%{title}»: %{answer}
+        (%{user})'
       project_media_comment: Добавлена заметка к материалу (%{user}, %{role} группы
         %{team})
       project_media_create: Добавлен материал (%{user}, %{role} группы %{team})
@@ -698,8 +711,8 @@ ru:
   team_rule_field_from_fieldset_metadata_value_is: У метаданных есть конкретное значение
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Ответ содержит ключевое
     слово
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Метаданные содержат
-    ключевое слово
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Значение метаданных
+    содержит ключевое слово
   team_rule_select_field_metadata: Выберите метаданные
   team_rule_select_field_value_metadata: Выберите значение
   team_rule_select_field_tasks: Выберите вопрос

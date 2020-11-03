@@ -182,6 +182,20 @@ fil:
       project_media: Item
       attribution: Sinagutan ni
     messages:
+      analysis_verification_status_status_changed: 'Binago ni %{user} ang status sa:
+        %{value}'
+      analysis_title_changed: 'Binago ni %{user} ang pamagat ng panunuri sa: %{value}'
+      analysis_content_changed: 'Binago ni %{user} ang nilalaman ng panunuri sa: %{value}'
+      tasks_create: 'Nagdagdag si %{user} ng gawain: %{title}'
+      tasks_edit: In-edit ni %{user} ang gawaing %{title}
+      tasks_answer_create: 'Sinagutan ni %{user} ang gawaing %{title}: %{answer}'
+      tasks_answer_edit: 'In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}'
+      metadata_create: 'Nagdagdag si %{user} ng metadata field: %{title}'
+      metadata_edit: In-edit ni %{user} ang metadata field na %{title}
+      metadata_answer_create: 'Itinakda ni %{user} ang value ng metadata na %{title}:
+        %{answer}'
+      metadata_answer_edit: 'In-edit ni %{user} ang value ng metadata na %{title}:
+        %{answer}'
       project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
         %{parent_type}
       project_media_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}

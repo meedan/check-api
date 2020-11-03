@@ -252,7 +252,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not upload an image that is not an image" do
     assert_no_difference 'User.count' do
       assert_raises MiniMagick::Invalid do
-        create_user image: 'not-an-image.txt', profile_image: nil
+        create_user image: 'test.csv', profile_image: nil
       end
     end
   end

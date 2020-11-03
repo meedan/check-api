@@ -13,12 +13,16 @@ module CustomLock
       @custom_optimistic_locking_options ||= options
     end
 
+    def custom_optimistic_locking_options
+      @custom_optimistic_locking_options || {}
+    end
+
     def includes_optimistic_locking?(attribute)
-      @custom_optimistic_locking_options[:include_attributes] ? @custom_optimistic_locking_options[:include_attributes].include?(attribute.to_sym) : true
+      custom_optimistic_locking_options[:include_attributes] ? custom_optimistic_locking_options[:include_attributes].include?(attribute.to_sym) : true
     end
 
     def should_do_optimistic_locking?(obj)
-      @custom_optimistic_locking_options[:if] ? @custom_optimistic_locking_options[:if].call(obj) : true
+      custom_optimistic_locking_options[:if] ? custom_optimistic_locking_options[:if].call(obj) : true
     end
   end
 end

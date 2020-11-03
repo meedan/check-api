@@ -182,12 +182,25 @@ fr:
       project_media: Élément
       attribution: Réponse par
     messages:
+      analysis_verification_status_status_changed: "%{user} a changé l’état en : %{value}"
+      analysis_title_changed: "%{user} a changé le titre de l’analyse en : %{value}"
+      analysis_content_changed: "%{user} a changé le contenu de l’analyse en : %{value}"
+      tasks_create: "%{user} a ajouté une tâche : %{title}"
+      tasks_edit: "%{user} a modifié la tâche %{title}"
+      tasks_answer_create: "%{user} a répondu à la tâche %{title} : %{answer}"
+      tasks_answer_edit: "%{user} a modifié la réponse de la tâche %{title} : %{answer}"
+      metadata_create: "%{user} a ajouté un champ de métadonnées : %{title}"
+      metadata_edit: "%{user} a modifié le champ de métadonnées %{title}"
+      metadata_answer_create: "%{user} a défini la valeur des métadonnées %{title} :
+        %{answer}"
+      metadata_answer_edit: "%{user} a modifié la valeur des métadonnées %{title} :
+        %{answer}"
       project_media_comment: "%{user} (%{role} de %{team}) a ajouté une note à un.e%{parent_type}"
       project_media_create: "%{user} (%{role} de %{team}) a ajouté un.e %{type}"
       project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un.e %{type}
         associé.e"
       project_media_update: "%{user} (%{role} de %{team}) a modifié un.e %{type}"
-      project_media_status: "%{user} (%{role} de%{team}) a modifié l’état %{workflow}
+      project_media_status: "%{user} (%{role} de%{team}) a changé l’état %{workflow}
         d’un/d’une %{type}"
       project_media_assign: "%{user} (%{role} de %{team}) a attribué un.e %{type}"
       project_media_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution

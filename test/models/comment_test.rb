@@ -324,7 +324,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should not upload a file that is not an image" do
     assert_no_difference 'Comment.length' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'not-an-image.txt'
+        create_comment file: 'not-an-image.csv'
       end
     end
   end
@@ -426,11 +426,11 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should have image data" do
     c1 = create_comment file: 'rails.png'
-    a1 = Annotation.find(c1.id).image_data
+    a1 = Annotation.find(c1.id).file_data
     assert a1.has_key?(:embed)
     assert a1.has_key?(:thumbnail)
     c2 = create_comment
-    a2 = Annotation.find(c2.id).image_data
+    a2 = Annotation.find(c2.id).file_data
     assert_equal({}, a2)
   end
 

@@ -15,4 +15,6 @@ AboutType = GraphQL::ObjectType.define do
   field :upload_min_dimensions, types.String, 'Minimum image dimensions'
   field :languages_supported, types.String, 'Supported languages'
   field :terms_last_updated_at, types.Int, 'Terms last update date'
+  field :file_max_size, types.String, 'Maximum file upload size'
+  field :file_extensions, types.String, 'Allowed file types'
 end
