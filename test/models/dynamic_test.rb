@@ -348,4 +348,8 @@ class DynamicTest < ActiveSupport::TestCase
     d = create_dynamic_annotation
     assert_equal 'Dynamic', FileUploadTaskResponse.find(d.id).class_name
   end
+
+  test "should get max size for file upload task response" do
+    assert_not_nil FileUploadTaskResponse.max_size
+  end
 end
