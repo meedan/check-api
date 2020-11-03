@@ -176,6 +176,18 @@ es:
       project_media: Ítem
       attribution: 'Respondida por '
     messages:
+      analysis_verification_status_status_changed: "%{user}Cambió estado a: %{value}"
+      analysis_title_changed: "%{user}cambió el título del análisis a: %{value}"
+      analysis_content_changed: "%{user}cambió el contenido del análisis a: %{value}"
+      tasks_create: "%{user}añadió una tarea: %{title}"
+      tasks_edit: "%{user}editó la tarea %{title}"
+      tasks_answer_create: "%{user}repondió la tarea %{title}: %{answer}"
+      tasks_answer_edit: "%{user}editó la respuesta de la tarea %{title}: %{answer}"
+      metadata_create: "%{user}añadió un campo de metadatos: %{title}"
+      metadata_edit: "%{user} editó el campo de metadatos %{title}"
+      metadata_answer_create: "%{user}estaleció el valor de los metadatos %{title}:
+        %{answer}"
+      metadata_answer_edit: "%{user}editó el valor de los metadatos %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
       project_media_create: "%{user} (%{role} at %{team}) añadió un %{type}"
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type}

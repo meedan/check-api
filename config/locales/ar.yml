@@ -177,6 +177,18 @@ ar:
       project_media: 'الإجابة من '
       attribution: تمّت الإجابة بواسطة
     messages:
+      analysis_verification_status_status_changed: 'قام%{user} بتغيير الحالة إلى:
+        %{value}'
+      analysis_title_changed: 'قام %{user} بتغيير عنوان التحليل إلى: %{value}'
+      analysis_content_changed: 'قام %{user} بتغيير محتوى التحليل إلى: %{value}'
+      tasks_create: 'قام %{user} بإضافة مهمة: %{title}'
+      tasks_edit: قام %{user} بتحرير مهمة %{title}
+      tasks_answer_create: 'قام %{user} بإجابة مهمة %{title}: %{answer}'
+      tasks_answer_edit: 'قام %{user} بتحرير إجابة مهمة %{title}: %{answer}'
+      metadata_create: 'قام %{user} بإضافة حقل البيانات الوصفيّة: %{title}'
+      metadata_edit: قام %{user} بتحرير حقل البيانات الوصفيّة %{title}
+      metadata_answer_create: 'قام %{user} بضبط قيمة البيانات الوصفيّة %{title}: %{answer}'
+      metadata_answer_edit: 'قام %{user} بتحرير قيمة البيانات الوصفيّة %{title}: %{answer}'
       project_media_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_media_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}

@@ -213,7 +213,7 @@ module AnnotationBase
   # Overwrite in the annotation type and expose the specific fields of that type
   def content
     fields = self.get_fields
-    fields.empty? ? self.data.merge(self.image_data).to_json : fields.to_json
+    fields.empty? ? self.data.merge(self.file_data).to_json : fields.to_json
   end
 
   def get_fields
@@ -279,7 +279,7 @@ module AnnotationBase
     klass
   end
 
-  def image_data
+  def file_data
     a = Annotation.where(id: self.id).last
     return {} if a.nil?
     a.file.nil? ? {} : (a.load&.file&.is_a?(Array) ? a.load.file.collect{ |f| f.file.public_url } : { embed: a.load&.embed_path, thumbnail: a.load&.thumbnail_path, original: a.load&.image_path })

@@ -111,7 +111,7 @@ class Bot::Slack < BotUser
     module ClassMethods
       def call_slack_api(id, mutation_id, endpoint, uid)
         user = User.where(id: uid.to_i).last
-        obj = self.find(id)
+        obj = self.find_by_id(id)
         annotated = obj.annotated if obj.respond_to?(:annotated)
         annotated = obj.annotated.annotated if obj.is_a?(Dynamic) && obj.annotated_type == 'Task'
         annotated = obj.annotation.annotated if obj.is_a?(DynamicAnnotation::Field)

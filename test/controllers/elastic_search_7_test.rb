@@ -406,4 +406,19 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_nil mc
     end
   end
+
+  test "should parse search options" do
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    sleep 1
+    Team.current = t
+    result = CheckSearch.new({projects: [p.id]}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # pass wrong format should map to all items
+    result = CheckSearch.new({projects: [p.id]})
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+  end
 end

@@ -220,7 +220,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     e = create_metadata
     id = e.id
     e.delete
-    assert_raises ActiveRecord::RecordNotFound do
+    assert_nothing_raised do
       Dynamic.call_slack_api(id, nil, 'message', create_user.id)
     end
   end

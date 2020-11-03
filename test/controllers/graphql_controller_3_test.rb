@@ -1308,13 +1308,13 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user is_admin: true
     t = create_team
     pm = create_project_media team: t
-    at = create_annotation_type annotation_type: 'task_response'
+    at = create_annotation_type annotation_type: 'task_response_test'
     create_field_instance annotation_type_object: at, name: 'response_test'
     tk = create_task annotated: pm
     authenticate_with_user(u)
 
     assert_difference 'Version.count', 2 do
-      query = 'mutation { updateTask(input: { clientMutationId: "1", response: "{\"annotation_type\":\"task_response\",\"set_fields\":\"{\\\"response_test\\\":\\\"test\\\"}\"}", id: "' + tk.graphql_id + '" }) { version { event_type }, versionEdge { node { event_type } } } }'
+      query = 'mutation { updateTask(input: { clientMutationId: "1", response: "{\"annotation_type\":\"task_response_test\",\"set_fields\":\"{\\\"response_test\\\":\\\"test\\\"}\"}", id: "' + tk.graphql_id + '" }) { version { event_type }, versionEdge { node { event_type } } } }'
       post :create, query: query, team: t.slug
       assert_response :success
       data = JSON.parse(@response.body)['data']['updateTask']

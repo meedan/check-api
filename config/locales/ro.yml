@@ -180,6 +180,18 @@ ro:
       project_media: Element
       attribution: Răspuns dat de
     messages:
+      analysis_verification_status_status_changed: "%{user} și-a schimbat starea în:
+        %{value}"
+      analysis_title_changed: "%{user} a schimbat titlul analizei în: %{value}"
+      analysis_content_changed: "%{user} a modificat conținutul analizei în: %{value}"
+      tasks_create: "%{user} a adăugat o sarcină: %{title}"
+      tasks_edit: "%{user} a editat sarcina %{title}"
+      tasks_answer_create: "%{user} a răspuns la sarcina %{title}: %{answer}"
+      tasks_answer_edit: "%{user} a editat răspunsul la sarcina %{title}: %{answer}"
+      metadata_create: "%{user} a adăugat un câmp de metadate: %{title}"
+      metadata_edit: "%{user} a editat câmpul de metadate %{title}"
+      metadata_answer_create: "%{user} a setat valoarea metadatelor %{title}: %{answer}"
+      metadata_answer_edit: "%{user} a editat valoarea metadatelor %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
