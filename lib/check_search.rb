@@ -199,10 +199,11 @@ class CheckSearch
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
     @options['keyword_fields'] ||= []
     es_fields = []
+    keyword_c = []
     %w(title description quote analysis_title analysis_description).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
-    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } }]
+    keyword_c << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?
 
     [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
       keyword_c << {

@@ -1,6 +1,6 @@
 class AddMappingForKeywordSearch < ActiveRecord::Migration
   def change
-  	started = Time.now.to_i
+    started = Time.now.to_i
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
     options = {
@@ -8,20 +8,20 @@ class AddMappingForKeywordSearch < ActiveRecord::Migration
       body: {
         properties: {
           task_responses: {
-          	type: 'nested',
+            type: 'nested',
             properties: {
-            	fieldset: { type: 'text'},
-      				field_type: { type: 'text'}
+              fieldset: { type: 'text'},
+              field_type: { type: 'text'}
             }
           },
-			    task_comments: {
-			      type: 'nested',
-			      properties: {
-			        id: { type: 'text'},
+          task_comments: {
+            type: 'nested',
+            properties: {
+              id: { type: 'text'},
               team_task_id: { type: 'integer'},
-			        text: { type: 'text', analyzer: 'check'}
-			      }
-			    }
+              text: { type: 'text', analyzer: 'check'}
+            }
+          }
         }
       }
     }
