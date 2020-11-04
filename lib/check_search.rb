@@ -197,7 +197,9 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    @options['keyword_fields'] ||= []
+    @options['keyword_fields'] ||= {}
+    @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
+    @options['keyword_fields']['fields'] << 'team_tasks' if @options['keyword_fields'].has_key?('team_tasks')
     es_fields = []
     keyword_c = []
     %w(title description quote analysis_title analysis_description).each do |f|
@@ -240,11 +242,36 @@ class CheckSearch
       } if should_include_keyword_field?(f)
     end
 
+    # add team task/metadata filter (ids)
+    # should search in responses and comments
+    if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
+      keyword_c << {
+        nested: {
+          path: "task_responses",
+          query: { bool: { must: [
+              { terms: { "task_responses.team_task_id": @options['keyword_fields']['team_tasks'] } },
+              { match: { "task_responses.value": @options["keyword"] } }
+            ]
+          } }
+        }
+      }
+      keyword_c << {
+        nested: {
+          path: "task_comments",
+          query: { bool: { must: [
+              { terms: { "task_comments.team_task_id": @options['keyword_fields']['team_tasks'] } },
+              { match: { "task_comments.text": @options["keyword"] } }
+            ]
+          } }
+        }
+      }
+    end
+
     [{ bool: { should: keyword_c } }]
   end
 
   def should_include_keyword_field?(field)
-    @options['keyword_fields'].blank? || @options['keyword_fields'].include?(field)
+    @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
   def build_search_dynamic_annotation_conditions

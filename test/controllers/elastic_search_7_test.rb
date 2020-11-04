@@ -446,19 +446,19 @@ class ElasticSearch7Test < ActionController::TestCase
     sleep 2
     result = CheckSearch.new({keyword: 'search_title'}.to_json)
     assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: ['title']}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['title']}}.to_json)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({keyword: 'search_desc', keyword_fields: ['description']}.to_json)
+    result = CheckSearch.new({keyword: 'search_desc', keyword_fields: {fields: ['description']}}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'override_title', keyword_fields: ['analysis_title']}.to_json)
+    result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['analysis_title']}}.to_json)
     assert_equal [pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: ['analysis_title']}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['analysis_title']}}.to_json)
     assert_empty result.medias
-    result = CheckSearch.new({keyword: 'override_description', keyword_fields: ['analysis_description']}.to_json)
+    result = CheckSearch.new({keyword: 'override_description', keyword_fields: {fields: ['analysis_description']}}.to_json)
     assert_equal [pm2.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'search_title', keyword_fields: ['tags']}.to_json)
+    result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['tags']}}.to_json)
     assert_equal [pm3.id], result.medias.map(&:id)
-    result = CheckSearch.new({keyword: 'another_desc', keyword_fields: ['description', 'tags']}.to_json)
+    result = CheckSearch.new({keyword: 'another_desc', keyword_fields: {fields:['description', 'tags']}}.to_json)
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
   end
 
@@ -494,24 +494,38 @@ class ElasticSearch7Test < ActionController::TestCase
       sleep 2
       result = CheckSearch.new({keyword: 'Sawy'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'Foo', keyword_fields: ['task_answers']}.to_json)
+      result = CheckSearch.new({keyword: 'Foo', keyword_fields: {fields:['task_answers']}}.to_json)
       assert_equal [pm2.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: ['metadata_answers']}.to_json)
+      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['metadata_answers']}}.to_json)
       assert_equal [pm3.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: ['task_answers', 'metadata_answers']}.to_json)
+      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['task_answers', 'metadata_answers']}}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'item', keyword_fields: ['comments']}.to_json)
+      result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'item', keyword_fields: ['task_comments']}.to_json)
+      result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['task_comments']}}.to_json)
       assert_empty result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'task', keyword_fields: ['task_comments']}.to_json)
+      result = CheckSearch.new({keyword: 'task', keyword_fields: {fields: ['task_comments']}}.to_json)
       assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
-      result = CheckSearch.new({keyword: 'notepm', keyword_fields: ['comments', 'task_comments']}.to_json)
+      result = CheckSearch.new({keyword: 'notepm', keyword_fields: {fields: ['comments', 'task_comments']}}.to_json)
       assert_equal [pm.id, pm3.id], result.medias.map(&:id).sort
-    end
-
-    test "should filter keyword by fields group c" do
-      # TODO implement missing tests
+      # tests for group c
+      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
+      assert_equal [pm2.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id, tt3.id]}}.to_json)
+      assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      create_comment annotated: pm_tt2, text: 'comment by Sawy', disable_es_callbacks: false
+      sleep 2
+      result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
+      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+      query = 'query Search { search(query: "{\"keyword\":\"Sawy\",\"keyword_fields\":{\"fields\":[\"task_answers\",\"metadata_answers\"],\"team_tasks\":[' + tt2.id.to_s + ']}}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm.id, pm2.id, pm3.id], ids.sort
     end
   end
 end
