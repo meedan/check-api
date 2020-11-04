@@ -128,17 +128,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Hash[pms.flatten.collect{|pm| [pm.to_i, search_result.with_indifferent_access.dig('_score')]}]
   end
 
-  test "should extract_project_medias_from_context" do
+  test "should extract project medias from context" do
     assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>2}
   end
 
-  test "should relate_project_media_to_similar_items" do
+  test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.relate_project_media_to_similar_items(pm1)
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.relate_project_media_to_similar_items(pm1)
+    end
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
@@ -151,14 +153,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
+    end
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
     assert_equal r.weight, 1
   end
 
-  test "should get_similar_items" do
+  test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
     response = Bot::Alegre.get_similar_items(pm1)

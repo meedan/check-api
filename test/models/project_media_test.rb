@@ -143,7 +143,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "Claim"
-    assert pm.is_claim?, true
+    assert pm.is_claim?
   end
 
   test "checks truthfulness of is_link?" do
@@ -151,7 +151,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "Link"
-    assert pm.is_link?, true
+    assert pm.is_link?
   end
 
   test "checks truthfulness of is_uploaded_image?" do
@@ -159,7 +159,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "UploadedImage"
-    assert pm.is_uploaded_image?, true
+    assert pm.is_uploaded_image?
   end
 
   test "checks truthfulness of is_image?" do
@@ -167,7 +167,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "UploadedImage"
-    assert pm.is_image?, true
+    assert pm.is_image?
   end
 
   test "checks truthfulness of is_text?" do
@@ -175,7 +175,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "Link"
-    assert pm.is_text?, true
+    assert pm.is_text?
   end
 
   test "checks falsity of is_text?" do
@@ -183,7 +183,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "UploadedImage"
-    assert pm.is_text?, false
+    assert !pm.is_text?
   end
 
   test "checks falsity of is_image?" do
@@ -191,7 +191,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     pm.media_type = "Link"
-    assert pm.is_image?, false
+    assert !pm.is_image?
   end
 
   test "non members should not read project media in private team" do
