@@ -4,6 +4,7 @@ class FileUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    "uploads/#{model.class_name.underscore}/#{model.id}"
+    klass = model.is_a?(FileUploadTaskResponse) ? model.class_name : model.class.to_s
+    "uploads/#{klass.underscore}/#{model.id}"
   end
 end
