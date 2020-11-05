@@ -197,19 +197,89 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    # add keyword conditions
-    keyword_fields = %w(title description quote)
-    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
-
-    [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
-      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }}}}
+    set_keyword_fields
+    keyword_c = []
+    field_conditions = build_keyword_conditions_media_fields
+    check_seach_concat_conditions(keyword_c, field_conditions)
+    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+      keyword_c << {
+        nested: {
+          path: "#{pair[0]}",
+          query: {
+            simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }
+          }
+        }
+      } if should_include_keyword_field?(pair[0])
     end
 
-    keyword_c << search_tags_query(@options["keyword"].split(' '))
+    keyword_c << search_tags_query(@options["keyword"].split(' ')) if should_include_keyword_field?('tags')
 
-    keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
+    keyword_c << {
+      nested: {
+        path: "accounts",
+        query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}
+      }
+    } if should_include_keyword_field?('accounts')
+
+    team_tasks_c = build_keyword_conditions_team_tasks
+    check_seach_concat_conditions(keyword_c, team_tasks_c)
 
     [{ bool: { should: keyword_c } }]
+  end
+
+  def set_keyword_fields
+    @options['keyword_fields'] ||= {}
+    @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
+    @options['keyword_fields']['fields'] << 'team_tasks' if @options['keyword_fields'].has_key?('team_tasks')
+  end
+
+  def build_keyword_conditions_media_fields
+    es_fields = []
+    conditions = []
+    %w(title description quote analysis_title analysis_description).each do |f|
+      es_fields << f if should_include_keyword_field?(f)
+    end
+    conditions << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?
+    conditions
+  end
+
+  def build_keyword_conditions_team_tasks
+    conditions = []
+    # add tasks/metadata answers
+    {'task_answers' => 'tasks', 'metadata_answers' => 'metadata'}.each do |f, v|
+      conditions << {
+        nested: {
+          path: "task_responses",
+          query: { bool: { must: [
+              { simple_query_string: { query: @options["keyword"], fields: ["task_responses.value"], default_operator: "AND" } },
+              { term: { "task_responses.fieldset": { value: v } } },
+              { term: { "task_responses.field_type": { value: "text" } } }
+            ]
+          } }
+        }
+      } if should_include_keyword_field?(f)
+    end
+    # add team task/metadata filter (ids)
+    # should search in responses and comments
+    if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
+      [['task_responses', 'value'], ['task_comments', 'text']].each do |pair|
+        conditions << {
+          nested: {
+            path: pair[0],
+            query: { bool: { must: [
+                { terms: { "#{pair[0]}.team_task_id": @options['keyword_fields']['team_tasks'] } },
+                { match: { "#{pair[0]}.#{pair[1]}": @options["keyword"] } }
+              ]
+            } }
+          }
+        }
+      end
+    end
+    conditions
+  end
+
+  def should_include_keyword_field?(field)
+    @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
   def build_search_dynamic_annotation_conditions

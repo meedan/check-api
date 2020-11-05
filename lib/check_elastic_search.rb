@@ -17,7 +17,7 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:published_at] = self.published_at
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -139,10 +139,10 @@ module CheckElasticSearch
         else
           value = [field.value]
         end
-        data = { value: value }
+        data = { value: value, field_type: field.field_type }
         task = self.annotated
         if !task.nil? && task.annotation_type == 'task'
-          data.merge!({ team_task_id: task.team_task_id })
+          data.merge!({ team_task_id: task.team_task_id, fieldset: task.fieldset })
         end
       end
     end

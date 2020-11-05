@@ -12,6 +12,8 @@ class MediaSearch
     indexes :relationship_sources, { type: 'text' }
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
+    indexes :analysis_title, { type: 'text', analyzer: 'check' }
+    indexes :analysis_description, { type: 'text', analyzer: 'check' }
     indexes :quote, { type: 'text', analyzer: 'check' }
     indexes :archived, { type: 'integer' }
     indexes :sources_count, { type: 'integer' }
@@ -33,6 +35,14 @@ class MediaSearch
       type: 'nested',
       properties: {
         id: { type: 'text'},
+        text: { type: 'text', analyzer: 'check'}
+      }
+    }
+    indexes :task_comments, {
+      type: 'nested',
+      properties: {
+        id: { type: 'text'},
+        team_task_id: { type: 'integer'},
         text: { type: 'text', analyzer: 'check'}
       }
     }
@@ -65,6 +75,8 @@ class MediaSearch
       type: 'nested',
       properties: {
         id: { type: 'integer'},
+        fieldset: { type: 'text'},
+        field_type: { type: 'text'},
         team_task_id: { type: 'integer'},
         value: { type: 'text', analyzer: 'check', fields: { raw: { type: 'text', analyzer: 'keyword' } } }
       }
