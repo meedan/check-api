@@ -61,6 +61,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_nil pm1.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
@@ -159,8 +160,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
     r = Relationship.last
-    assert_equal pm1, r.target
-    assert_equal pm3, r.source
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
     assert_equal r.weight, 1
   end
 
@@ -190,8 +191,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
     end
     r = Relationship.last
-    assert_equal pm1, r.target
-    assert_equal pm3, r.source
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
     assert_equal r.weight, 1
   end
 
