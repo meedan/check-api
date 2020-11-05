@@ -88,6 +88,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => 0}
+      Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
       assert_nil pm2.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
@@ -178,30 +179,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal r.weight, 1
   end
 
-  test "should add relationships" do
+  test "should add relationshipz" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    create_relationship source_id: pm2.id, target_id: pm1.id
-    Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "id" => 1,
-          "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-          "phash" => 17399941807326929,
-          "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-          "context" => [{
-            "team_id" => pm1.team.id.to_s,
-            "project_media_id" => pm1.id.to_s
-          }],
-          "score" => 0
-        }
-      ]
-    })
-    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
-      Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
+      response = Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
     end
     r = Relationship.last
     assert_equal pm3, r.target

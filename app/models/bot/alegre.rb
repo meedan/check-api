@@ -220,7 +220,7 @@ class Bot::Alegre < BotUser
     r = Relationship.new
     r.skip_check_ability = true
     r.relationship_type = Relationship.suggested_type
-    r.weight = pm_id_scores[pm.id]
+    # r.weight = pm_id_scores[parent_id] rescue nil
     r.source_id = parent_id
     r.target_id = pm.id
     r.save!
