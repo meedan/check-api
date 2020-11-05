@@ -8,8 +8,11 @@ class Task < ActiveRecord::Base
 
   before_validation :set_slug, on: :create
   before_validation :set_order, on: :create
+
   after_save :send_slack_notification
   after_destroy :reorder
+  after_commit :add_elasticsearch_task, on: :create
+  after_commit :destroy_elasticsearch_task, on: :destroy
 
   field :label
   validates_presence_of :label
@@ -262,6 +265,21 @@ class Task < ActiveRecord::Base
 
   def fieldset_exists_in_team
     errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.annotated&.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
+  end
+
+  def add_elasticsearch_task
+    # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
+    if self.type =~ /choice/ && self.team_task_id
+      pm = self.project_media
+      keys = %w(team_task_id fieldset)
+      data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
+      self.add_update_nested_obj({op: 'create', obj: pm, nested_key: 'task_responses', keys: keys, data: data})
+    end
+  end
+
+  def destroy_elasticsearch_task
+    # Remove task with answer from ES
+    self.destroy_es_items('task_responses', 'destroy_doc_nested', task.project_media)
   end
 end
 

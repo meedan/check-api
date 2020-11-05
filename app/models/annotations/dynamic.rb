@@ -139,7 +139,9 @@ class Dynamic < ActiveRecord::Base
         if op == 'destroy'
           self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
         else
-          keys = %w(team_task_id value field_type fieldset)
+          # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
+          op = self.annotation_type =~ /choice/ ? 'update' : op
+          keys = %w(id team_task_id value field_type fieldset)
           self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys})
         end
       end
@@ -149,6 +151,8 @@ class Dynamic < ActiveRecord::Base
   def destroy_elasticsearch_dynamic_annotation
     destroy_es_items('dynamics')
     # destroy task response
+    # team tasks of type choice => should reset the anser with null
+    # otherwise delete the field from ES
     handle_elasticsearch_response('destroy')
   end
 

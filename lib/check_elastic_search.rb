@@ -88,12 +88,12 @@ module CheckElasticSearch
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
     client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
-            body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
+            body: { script: { source: source, params: { value: values, id: values['id'], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
     data = get_elasticsearch_data(data)
-    values = { id: self.id }
+    values = { 'id' => self.id }
     keys.each do |k|
       values[k] = data[k] unless data[k].blank?
     end
@@ -142,7 +142,7 @@ module CheckElasticSearch
         data = { value: value, field_type: field.field_type }
         task = self.annotated
         if !task.nil? && task.annotation_type == 'task'
-          data.merge!({ team_task_id: task.team_task_id, fieldset: task.fieldset })
+          data.merge!({ id: task.id, team_task_id: task.team_task_id, fieldset: task.fieldset })
         end
       end
     end
