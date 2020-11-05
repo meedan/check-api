@@ -33,6 +33,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert_difference 'Annotation.count' do
         assert_equal 'en', Bot::Alegre.get_language(@pm)
       end
+      Bot::Alegre.unstub(:request_api)
     end
   end
 
@@ -46,6 +47,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert_difference 'Annotation.count' do
         assert_equal 'und', Bot::Alegre.get_language(@pm)
       end
+      Bot::Alegre.unstub(:request_api)
     end
   end
 
@@ -98,6 +100,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
     end
   end
 
@@ -118,6 +121,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       })
       WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
+      Bot::Alegre.unstub(:request_api)
     end
   end
 
@@ -178,6 +182,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm3, r.target
     assert_equal pm2, r.source
     assert_equal r.weight, 1
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
   end
 
   test "should add relationshipz" do

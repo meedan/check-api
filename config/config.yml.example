@@ -24,6 +24,8 @@ development: &default
 
   # Alegre Similarity Thresholds
   #
+  # MANDATORY
+  # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
   image_similarity_threshold: 0.7
   text_similarity_threshold: 0.7
 
@@ -234,6 +236,8 @@ test:
 
   # Alegre Similarity Thresholds
   #
+  # MANDATORY
+  # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
   image_similarity_threshold: 0.7
   text_similarity_threshold: 0.7
 

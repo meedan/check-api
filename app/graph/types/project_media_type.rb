@@ -277,7 +277,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     argument :source_type, types.String
     argument :target_type, types.String
 
-    resolve -> (project_media, args, _ctx) {
+    resolve -> (project_media, _args, _ctx) {
       related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.id)
       related_items = related_items.where('relationships.relationship_type = ?', { source: args['source_type'], target: args['target_type'] }.to_yaml) if args['source_type'] && args['target_type']
       related_items
