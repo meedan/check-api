@@ -154,7 +154,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
@@ -185,7 +185,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
     end
