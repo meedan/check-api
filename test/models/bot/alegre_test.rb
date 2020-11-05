@@ -23,6 +23,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           'confidence': 1.0
         }
       }.to_json)
+      Bot::Alegre.stubs(:request_api).returns({
+        'result' => {
+          'language' => 'en',
+          'confidence' => 1.0
+        }
+      })
       WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
       assert_difference 'Annotation.count' do
         assert_equal 'en', Bot::Alegre.get_language(@pm)
@@ -35,6 +41,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: {
         'foo': 'bar'
       }.to_json)
+      Bot::Alegre.stubs(:request_api).raises(RuntimeError)
       WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
       assert_difference 'Annotation.count' do
         assert_equal 'und', Bot::Alegre.get_language(@pm)
@@ -101,6 +108,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           'confidence': 1.0
         }
       }.to_json)
+      Bot::Alegre.stubs(:request_api).returns({
+        'result' => {
+          'language' => 'en',
+          'confidence' => 1.0
+        }
+      })
       WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
     end
@@ -161,7 +174,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal pm3, r.target
-    assert_equal pm1, r.source
+    assert_equal pm2, r.source
     assert_equal r.weight, 1
   end
 
@@ -192,7 +205,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal pm3, r.target
-    assert_equal pm1, r.source
+    assert_equal pm2, r.source
     assert_equal r.weight, 1
   end
 
