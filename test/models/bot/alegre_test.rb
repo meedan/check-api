@@ -79,7 +79,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         ]
       }.to_json)
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
-      assert_equal [pm1.id], Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
+      response = {pm1.id => 0}
+      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
       assert_nil pm2.get_annotations('flag').last
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
         "result": valid_flags_data
@@ -134,10 +135,26 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should relate project media to similar items" do
     p = create_project
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
     create_relationship source_id: pm3.id, target_id: pm2.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "id" => 1,
+          "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+          "phash" => 17399941807326929,
+          "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+          "context" => [{
+            "team_id" => pm2.team.id.to_s,
+            "project_media_id" => pm2.id.to_s
+          }],
+          "score" => 0
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm1)
     end
@@ -149,9 +166,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should add relationships" do
     p = create_project
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media project: p, medi_type: "Link"
+    pm2 = create_project_media project: p, medi_type: "Link"
+    pm3 = create_project_media project: p, medi_type: "Link"
     create_relationship source_id: pm3.id, target_id: pm2.id
     assert_difference 'Relationship.count' do
       Bot::Alegre.add_relationships(pm1, {pm2.id => 1})

@@ -148,37 +148,53 @@ class Bot::Alegre < BotUser
     # We currently have two cases of context:
     # - a straight hash with project_media_id
     # - an array of hashes, each with project_media_id
-    context = search_result.dig('_source', 'context')
+    context = self.get_context_from_image_or_text_response(search_result)
     pms = []
     if context.kind_of?(Array)
       context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    Hash[pms.flatten.collect{|pm| [pm.to_i, search_result.with_indifferent_access.dig('_score')]}]
+    Hash[pms.flatten.collect{|pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)]}]
+  end
+
+  def self.get_context_from_image_or_text_response(search_result)
+    search_result.dig('_source', 'context') || search_result.dig('context')
+  end
+
+  def self.get_score_from_image_or_text_response(search_result)
+    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
+  end
+
+  def self.get_similar_items_from_api(path, conditions, pm)
+    Hash[
+      *self.request_api('get', path, conditions).dig('result')&.collect{ |r|
+        self.extract_project_medias_from_context(r) 
+      }
+    ].reject{ |id, score| 
+      id.blank? || pm.id == id
+    }
   end
 
   def self.get_items_with_similar_text(pm, field, threshold, text)
-    similar = self.request_api('get', '/text/similarity/', {
+    self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       context: {
         team_id: pm.team_id,
         field: field
       },
       threshold: threshold
-    })
-    Hash[*similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r) }].reject{ |id, score| id.blank? || pm.id == id }
+    }, pm)
   end
 
   def self.get_items_with_similar_image(pm, threshold)
-    similar = self.request_api('get', '/image/similarity/', {
+    self.get_similar_items_from_api('/image/similarity/', {
       url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
       },
       threshold: threshold
-    })
-    Hash[*similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r) }].reject{ |id, score| id.blank? || pm.id == id }
+    }, pm)
   end
 
   def self.add_relationships(pm, pm_id_scores)

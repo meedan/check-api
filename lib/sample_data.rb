@@ -557,6 +557,7 @@ module SampleData
     options = { disable_es_callbacks: true, user: u }.merge(options)
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
+    options[:media_type] = 'UploadedImage' if options[:is_image]
     pm = ProjectMedia.new
     if options.has_key?(:project) && !options[:project].nil?
       options[:team] = options[:project].team
