@@ -138,7 +138,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    create_relationship source_id: pm3.id, target_id: pm2.id
+    create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
         {
@@ -156,7 +156,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     })
     Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
     assert_difference 'Relationship.count' do
-      Bot::Alegre.relate_project_media_to_similar_items(pm1)
+      Bot::Alegre.relate_project_media_to_similar_items(pm3)
     end
     r = Relationship.last
     assert_equal pm1, r.target
@@ -166,12 +166,28 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should add relationships" do
     p = create_project
-    pm1 = create_project_media project: p, medi_type: "Link"
-    pm2 = create_project_media project: p, medi_type: "Link"
-    pm3 = create_project_media project: p, medi_type: "Link"
-    create_relationship source_id: pm3.id, target_id: pm2.id
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm2.id, target_id: pm1.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "id" => 1,
+          "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+          "phash" => 17399941807326929,
+          "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+          "context" => [{
+            "team_id" => pm1.team.id.to_s,
+            "project_media_id" => pm1.id.to_s
+          }],
+          "score" => 0
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
     assert_difference 'Relationship.count' do
-      Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
+      Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
     end
     r = Relationship.last
     assert_equal pm1, r.target
