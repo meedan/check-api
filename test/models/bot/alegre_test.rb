@@ -165,7 +165,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
             "team_id" => pm2.team.id.to_s,
             "project_media_id" => pm2.id.to_s
           }],
-          "score" => 0
+          "score" => 1.0
         }
       ]
     })
