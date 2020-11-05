@@ -26,7 +26,7 @@ development: &default
   #
   # MANDATORY
   # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
-  image_similarity_threshold: 0.7
+  image_similarity_threshold: 0.96
   text_similarity_threshold: 0.7
 
   # Localization
@@ -238,7 +238,7 @@ test:
   #
   # MANDATORY
   # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
-  image_similarity_threshold: 0.7
+  image_similarity_threshold: 0.96
   text_similarity_threshold: 0.7
 
   # Facebook social login
