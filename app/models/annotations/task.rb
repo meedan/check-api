@@ -11,7 +11,7 @@ class Task < ActiveRecord::Base
 
   after_save :send_slack_notification
   after_destroy :reorder
-  after_commit :add_elasticsearch_task, on: :create
+  after_commit :add_update_elasticsearch_task, on: :create
   after_commit :destroy_elasticsearch_task, on: :destroy
 
   field :label
@@ -240,6 +240,16 @@ class Task < ActiveRecord::Base
     label.to_s.parameterize.tr('-', '_')
   end
 
+  def add_update_elasticsearch_task(op = 'create')
+    # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
+    if self.type =~ /choice/ && self.team_task_id
+      pm = self.project_media
+      keys = %w(team_task_id fieldset)
+      data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
+      self.add_update_nested_obj({op: op, obj: pm, nested_key: 'task_responses', keys: keys, data: data})
+    end
+  end
+
   private
 
   def task_options_is_array
@@ -265,16 +275,6 @@ class Task < ActiveRecord::Base
 
   def fieldset_exists_in_team
     errors.add(:base, I18n.t(:fieldset_not_defined_by_team)) unless self.annotated&.team&.get_fieldsets.to_a.collect{ |f| f['identifier'] }.include?(self.fieldset)
-  end
-
-  def add_elasticsearch_task
-    # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
-    if self.type =~ /choice/ && self.team_task_id
-      pm = self.project_media
-      keys = %w(team_task_id fieldset)
-      data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
-      self.add_update_nested_obj({op: 'create', obj: pm, nested_key: 'task_responses', keys: keys, data: data})
-    end
   end
 
   def destroy_elasticsearch_task

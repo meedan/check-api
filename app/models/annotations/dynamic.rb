@@ -132,12 +132,19 @@ class Dynamic < ActiveRecord::Base
   def handle_elasticsearch_response(op)
     allowed_responses = %w(task_response_multiple_choice task_response_single_choice task_response_free_text)
     if self.annotated_type == 'Task' && allowed_responses.include?(self.annotation_type)
-      annotated = self.annotated
+      task = self.annotated
       # Index response for team tasks or free text tasks
-      if annotated.team_task_id || self.annotation_type == 'task_response_free_text'
-        pm = annotated.is_annotation? ? annotated.annotated : annotated
+      if task.team_task_id || self.annotation_type == 'task_response_free_text'
+        pm = task.project_media
         if op == 'destroy'
-          self.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
+          # destroy choice should reset the answer to nil to keep search for ANY/NON value in ES
+          # so it'll be update action for choice
+          # otherwise delete the field from ES
+          if self.annotation_type =~ /choice/
+            task.add_update_elasticsearch_task('update')
+          else
+            task.destroy_es_items('task_responses', 'destroy_doc_nested', pm)
+          end
         else
           # OP will be update for choices tasks as it's already created in TASK model(add_elasticsearch_task)
           op = self.annotation_type =~ /choice/ ? 'update' : op
@@ -151,8 +158,6 @@ class Dynamic < ActiveRecord::Base
   def destroy_elasticsearch_dynamic_annotation
     destroy_es_items('dynamics')
     # destroy task response
-    # team tasks of type choice => should reset the anser with null
-    # otherwise delete the field from ES
     handle_elasticsearch_response('destroy')
   end
 
