@@ -95,6 +95,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": valid_flags_data
       }.to_json)
       pm3 = create_project_media team: @pm.team, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
     end
