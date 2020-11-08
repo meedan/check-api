@@ -3294,4 +3294,25 @@ class TeamTest < ActiveSupport::TestCase
     assert t.team_bot_installations.collect(&:bot_user).include?(bu)
     assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
   end
+
+  test "should set list columns" do
+    t = create_team
+    t.list_columns = ['type_of_media']
+    t.save!
+    assert_equal 1, t.get_list_columns.size
+  end
+
+  test "should not set list columns if schema is not valid" do
+    t = create_team
+    t.set_list_columns({ foo: 'bar' })
+    assert_raises ActiveRecord::RecordInvalid do
+      t.save!
+    end
+  end
+
+  test "should return list columns" do
+    t = create_team
+    2.times { create_team_task(team_id: t.id, fieldset: 'metadata') }
+    assert_equal 10, t.list_columns.size
+  end
 end

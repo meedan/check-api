@@ -125,9 +125,11 @@ class CheckSearch
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
       es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
-      sort_value = $repository.find(es_id)[sort_key]
-      sort_operator = sort_type == :asc ? :lt : :gt
-      conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      unless sort_key.blank?
+        sort_value = $repository.find(es_id)[sort_key]
+        sort_operator = sort_type == :asc ? :lt : :gt
+        conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      end
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
@@ -341,7 +343,29 @@ class CheckSearch
   end
 
   def build_search_sort
-    if SORT_MAPPING.keys.include?(@options['sort'].to_s)
+    # As per spec, for now the team task sort should be just based on "has data" / "has no data"
+    # Items without data appear first
+    if @options['sort'] =~ /^task_value_[0-9]+$/
+      team_task_id = @options['sort'].match(/^task_value_([0-9]+)$/)[1].to_i
+      missing = {
+        asc: '_first',
+        desc: '_last'
+      }[@options['sort_type'].to_s.downcase.to_sym]
+      return [
+        {
+          'task_responses.id': {
+            order: @options['sort_type'],
+            missing: missing,
+            nested: {
+              path: 'task_responses',
+              filter: {
+                term: { 'task_responses.team_task_id': team_task_id }
+              }
+            }
+          }
+        }
+      ]
+    elsif SORT_MAPPING.keys.include?(@options['sort'].to_s)
       return [
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
