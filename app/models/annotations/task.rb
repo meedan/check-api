@@ -126,6 +126,7 @@ class Task < ActiveRecord::Base
     self.file = nil
     response.save!
     @response = response
+    self.update_task_answer_cache
     self.record_timestamps = false
   end
 
@@ -235,6 +236,10 @@ class Task < ActiveRecord::Base
 
   def self.slug(label)
     label.to_s.parameterize.tr('-', '_')
+  end
+
+  def update_task_answer_cache
+    self.annotated.task_value(self.team_task_id, true) unless self.team_task_id.blank?
   end
 
   private
@@ -349,5 +354,15 @@ ProjectMedia.class_eval do
 
   def ordered_tasks(fieldset)
     Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
+  end
+end
+
+Dynamic.class_eval do
+  after_update :update_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response_/ }
+
+  private
+
+  def update_task_answer_cache
+    self.annotated.update_task_answer_cache if self.annotated_type == 'Task'
   end
 end

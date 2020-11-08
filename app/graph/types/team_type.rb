@@ -38,6 +38,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_language, types.String
   field :get_report, JsonStringType
   field :get_fieldsets, JsonStringType
+  field :list_columns, JsonStringType
 
   field :public_team do
     type PublicTeamType
