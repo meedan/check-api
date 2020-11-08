@@ -17,6 +17,7 @@ BotUserType = GraphqlCrudOperations.define_default_type do
   field :installations_count, types.Int
   field :settings_ui_schema, types.String
   field :installation, TeamBotInstallationType
+  field :default, types.Boolean
 
   field :settings_as_json_schema do
     type types.String
