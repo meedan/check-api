@@ -2045,6 +2045,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') do
       assert_equal value, pm.send("task_value_#{tt.id}")
     end
+    assert_not_nil Rails.cache.read("project_media:task_value:#{pm.id}:#{tt.id}")
+    assert_not_nil pm.reload.task_value(tt.id)
+    d = m.reload.first_response_obj
+    d.destroy!
+    assert_nil Rails.cache.read("project_media:task_value:#{pm.id}:#{tt.id}")
+    assert_nil pm.reload.task_value(tt.id)
   end
 
   test "should return item columns values" do

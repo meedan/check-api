@@ -358,11 +358,19 @@ ProjectMedia.class_eval do
 end
 
 Dynamic.class_eval do
-  after_update :update_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response_/ }
+  after_update :update_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response/ }
+  after_destroy :delete_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response/ }
 
   private
 
   def update_task_answer_cache
     self.annotated.update_task_answer_cache if self.annotated_type == 'Task'
+  end
+
+  def delete_task_answer_cache
+    if self.annotated_type == 'Task'
+      task = Task.find(self.annotated_id)
+      Rails.cache.delete("project_media:task_value:#{task.annotated_id}:#{task.team_task_id}")
+    end
   end
 end
