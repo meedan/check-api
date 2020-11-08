@@ -16,7 +16,6 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   validate :field_format
 
   after_commit :add_update_elasticsearch_field, on: [:create, :update]
-  # after_commit :destroy_elasticsearch_field, on: :destroy
 
   # pairs = { key => value, ... }
   def self.find_in_json(pairs)

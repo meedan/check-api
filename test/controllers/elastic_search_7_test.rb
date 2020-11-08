@@ -4,6 +4,7 @@ class ElasticSearch7Test < ActionController::TestCase
   def setup
     super
     setup_elasticsearch
+    create_task_stuff
   end
 
   test "should index rules result" do
@@ -266,7 +267,6 @@ class ElasticSearch7Test < ActionController::TestCase
   end
 
   test "should search by task responses" do
-    create_task_stuff
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -348,7 +348,6 @@ class ElasticSearch7Test < ActionController::TestCase
   end
 
   test "should update and destroy responses in es" do
-    create_task_stuff
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -392,7 +391,8 @@ class ElasticSearch7Test < ActionController::TestCase
       result = $repository.find(es_id)['task_responses']
       sc = result.select{|r| r['team_task_id'] == tt.id}.first
       mc = result.select{|r| r['team_task_id'] == tt2.id}.first
-      assert_nil sc
+      # destroy should remove answer value
+      assert_nil sc['value']
       assert_equal ['choice_c'], mc['value']
       # destroy mmultiple choice answer
       pm_tt2 = Task.find(pm_tt2.id)
@@ -402,8 +402,8 @@ class ElasticSearch7Test < ActionController::TestCase
       result = $repository.find(es_id)['task_responses']
       sc = result.select{|r| r['team_task_id'] == tt.id}.first
       mc = result.select{|r| r['team_task_id'] == tt2.id}.first
-      assert_nil sc
-      assert_nil mc
+      assert_nil sc['value']
+      assert_nil mc['value']
     end
   end
 
@@ -423,6 +423,7 @@ class ElasticSearch7Test < ActionController::TestCase
   end
 
   test "should filter keyword by fields group a" do
+    create_verification_status_stuff(false)
     t = create_team
     p = create_project team: t
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
@@ -463,7 +464,6 @@ class ElasticSearch7Test < ActionController::TestCase
   end
 
   test "should filter keyword by fields group b" do
-    create_task_stuff
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
@@ -526,6 +526,29 @@ class ElasticSearch7Test < ActionController::TestCase
         ids << id["node"]["dbid"]
       end
       assert_equal [pm.id, pm2.id, pm3.id], ids.sort
+    end
+  end
+
+  test "should search by non or any for choices tasks" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'owner'
+    tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_a' }.to_json }.to_json
+      pm_tt.save!
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: 'ans_b' }.to_json }.to_json
+      pm2_tt.save!
+      sleep 2
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'ANY_VALUE' }]}.to_json)
+      assert_equal [pm.id, pm2.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ team_tasks: [{ id: tt.id, response: 'NO_VALUE' }]}.to_json)
+      assert_equal [pm3.id], results.medias.map(&:id).sort
     end
   end
 end
