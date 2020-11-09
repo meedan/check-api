@@ -930,7 +930,7 @@ class Bot::Smooch < BotUser
         sleep 1
       end
       if report.report_design_field_value('use_visual_card', lang)
-        last_smooch_response = self.send_message_to_user(uid, '', { type: 'image', mediaUrl: report.report_design_image_url(lang) })
+        last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
         sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
