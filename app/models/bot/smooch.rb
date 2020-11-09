@@ -708,6 +708,7 @@ class Bot::Smooch < BotUser
         }
       })
     end
+    return if params['type'] == 'text' && params['text'].blank?
     message_post_body = SmoochApi::MessagePost.new(params)
     begin
       api_instance.post_message(app_id, uid, message_post_body)
