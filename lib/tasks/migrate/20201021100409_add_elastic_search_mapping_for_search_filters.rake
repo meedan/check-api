@@ -11,7 +11,8 @@ namespace :check do
       Team.where('id > ?', last_team_id).find_each do |team|
         progressbar.increment
         # get team tasks
-        tt_ids = TeamTask.where(team_id: team.id, task_type: ["single_choice", "multiple_choice"]).map(&:id)
+        requires_types = ['single_choice', 'multiple_choice','geolocation', 'datetime', 'file_upload']
+        tt_ids = TeamTask.where(team_id: team.id, task_type: requires_types).map(&:id)
         last_pm_id = Rails.cache.read("check:migrate:migrate_task_responses:#{team.id}:project_media_id") || 0
         ProjectMedia.where(team_id: team.id).where('id > ?', last_pm_id).find_in_batches(:batch_size => 2500) do |project_medias|
           pm_ids = project_medias.map(&:id)
@@ -32,7 +33,11 @@ namespace :check do
             .where('annotations.annotated_type' => 'Task', 'annotations.annotated_id' => tasks_ids)
             .find_in_batches(:batch_size => 2500) do |fields|
               fields.each do |field|
-                value = field.selected_values_from_task_answer
+                if field.field_name =~ /choice/
+                  value = field.selected_values_from_task_answer
+                else
+                  value = field.to_s
+                end
                 data = { id: field.task_id, value: value, field_type: field.field_type , team_task_id: pm_task[field.task_id][:team_task_id], fieldset: pm_task[field.task_id][:fieldset]}
                 if project_medias_tasks[pm_task[field.task_id][:pm]].nil?
                   project_medias_tasks[pm_task[field.task_id][:pm]] = [data]

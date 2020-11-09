@@ -132,8 +132,7 @@ module CheckElasticSearch
       # get value for choice and free text fields
       field_name = self.annotation_type.sub(/task_/, '')
       field = self.get_field(field_name)
-      included_fields = %w(response_multiple_choice response_single_choice response_free_text)
-      if !field.nil? && included_fields.include?(field.field_name)
+      unless field.nil?
         if field.field_name =~ /choice/
           value = field.selected_values_from_task_answer
         else
@@ -141,7 +140,7 @@ module CheckElasticSearch
         end
         data = { value: value, field_type: field.field_type }
         task = self.annotated
-        if !task.nil? && task.annotation_type == 'task'
+        if task.respond_to?(:annotation_type) && task.annotation_type == 'task'
           data.merge!({ id: task.id, team_task_id: task.team_task_id, fieldset: task.fieldset })
         end
       end

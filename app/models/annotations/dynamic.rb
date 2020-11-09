@@ -130,8 +130,7 @@ class Dynamic < ActiveRecord::Base
   end
 
   def handle_elasticsearch_response(op)
-    allowed_responses = %w(task_response_multiple_choice task_response_single_choice task_response_free_text)
-    if self.annotated_type == 'Task' && allowed_responses.include?(self.annotation_type)
+    if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
       task = self.annotated
       # Index response for team tasks or free text tasks
       if task.team_task_id || self.annotation_type == 'task_response_free_text'

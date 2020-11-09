@@ -129,6 +129,7 @@ class Task < ActiveRecord::Base
     self.file = nil
     response.save!
     @response = response
+    self.update_task_answer_cache
     self.record_timestamps = false
   end
 
@@ -250,6 +251,10 @@ class Task < ActiveRecord::Base
     end
   end
 
+  def update_task_answer_cache
+    self.annotated.task_value(self.team_task_id, true) unless self.team_task_id.blank?
+  end
+
   private
 
   def task_options_is_array
@@ -367,5 +372,23 @@ ProjectMedia.class_eval do
 
   def ordered_tasks(fieldset)
     Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
+  end
+end
+
+Dynamic.class_eval do
+  after_update :update_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response/ }
+  after_destroy :delete_task_answer_cache, if: proc { |d| d.annotation_type =~ /^task_response/ }
+
+  private
+
+  def update_task_answer_cache
+    self.annotated.update_task_answer_cache if self.annotated_type == 'Task'
+  end
+
+  def delete_task_answer_cache
+    if self.annotated_type == 'Task'
+      task = Task.find(self.annotated_id)
+      Rails.cache.delete("project_media:task_value:#{task.annotated_id}:#{task.team_task_id}")
+    end
   end
 end
