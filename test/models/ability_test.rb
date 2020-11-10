@@ -2073,7 +2073,7 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not duplicate query conditions" do
+  test "zzz should not duplicate query conditions" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'annotator'
@@ -2092,7 +2092,9 @@ class AbilityTest < ActiveSupport::TestCase
       queries = assert_queries do
         ProjectMedia.where(team_id: t.id).permissioned.permissioned.count
       end
-      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"team_id\" = $1 AND \"project_medias\".\"id\" IN (#{pmids[2]}, #{pmids[0]}, #{pmids[1]})"
+      pmids = pmids.sort
+      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"team_id\" = $1 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
+      binding.pry
       assert_equal query, queries.first
     end
   end
