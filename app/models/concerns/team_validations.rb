@@ -16,5 +16,6 @@ module TeamValidations
     validate :language_format
     validate :languages_format
     validate :fieldsets_format
+    validate :list_columns_format
   end
 end

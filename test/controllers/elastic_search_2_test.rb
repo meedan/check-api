@@ -162,7 +162,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 4, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
@@ -205,10 +205,10 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should index and search by location" do
-    att = 'task_response_geolocation'
-    at = create_annotation_type annotation_type: att, label: 'Task Response Geolocation'
+    att = 'geolocation'
+    at = create_annotation_type annotation_type: att, label: 'Geolocation'
     geotype = create_field_type field_type: 'geojson', label: 'GeoJSON'
-    create_field_instance annotation_type_object: at, name: 'response_geolocation', field_type_object: geotype
+    create_field_instance annotation_type_object: at, name: 'geolocation', field_type_object: geotype
     pm = create_project_media disable_es_callbacks: false
     geo = {
       type: 'Feature',
@@ -221,7 +221,7 @@ class ElasticSearch2Test < ActionController::TestCase
       }
     }.to_json
 
-    fields = { response_geolocation: geo }.to_json
+    fields = { geolocation: geo }.to_json
     d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
 
     search = {
@@ -251,12 +251,12 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should index and search by datetime" do
-    att = 'task_response_datetime'
-    at = create_annotation_type annotation_type: att, label: 'Task Response Date Time'
+    att = 'datetime'
+    at = create_annotation_type annotation_type: att, label: 'Date Time'
     datetime = create_field_type field_type: 'datetime', label: 'Date Time'
-    create_field_instance annotation_type_object: at, name: 'response_datetime', field_type_object: datetime
+    create_field_instance annotation_type_object: at, name: 'datetime', field_type_object: datetime
     pm = create_project_media disable_es_callbacks: false
-    fields = { response_datetime: '2017-08-21 14:13:42' }.to_json
+    fields = { datetime: '2017-08-21 14:13:42' }.to_json
     d = create_dynamic_annotation annotation_type: att, annotated: pm, set_fields: fields, disable_es_callbacks: false
 
     search = {

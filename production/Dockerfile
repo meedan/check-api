@@ -17,6 +17,11 @@ ENV DEPLOYUSER=checkdeploy \
     # MALLOC_ARENA MAX is needed because of https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
+# Set a UTF-8 capable locale
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
+
 #
 # USER CONFIG
 #

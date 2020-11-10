@@ -74,14 +74,27 @@ class Comment < ActiveRecord::Base
   end
 
   def add_elasticsearch_comment
-    add_update_nested_obj({op: 'create', nested_key: 'comments', keys: ['text']})
+    add_update_elasticsearch_comment('create')
   end
 
   def update_elasticsearch_comment
-    add_update_nested_obj({op: 'update', nested_key: 'comments', keys: ['text']})
+    add_update_elasticsearch_comment('update')
+  end
+
+  def add_update_elasticsearch_comment(op)
+    # add item/task notes
+    if self.annotated_type == 'ProjectMedia'
+      add_update_nested_obj({op: op, nested_key: 'comments', keys: ['text']})
+    elsif self.annotated_type == 'Task'
+      task = self.annotated
+      data = self.data
+      data['team_task_id'] = task.team_task_id
+      add_update_nested_obj({op: op, obj: task.annotated, nested_key: 'task_comments', keys: ['text', 'team_task_id'], data: data})
+    end
   end
 
   def destroy_elasticsearch_comment
-    destroy_es_items('comments')
+    destroy_es_items('comments') if self.annotated_type == 'ProjectMedia'
+    destroy_es_items('task_comments') if self.annotated_type == 'Task'
   end
 end
