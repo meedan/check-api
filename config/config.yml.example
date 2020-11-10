@@ -25,7 +25,7 @@ development: &default
   # Alegre Similarity Thresholds
   #
   # MANDATORY
-  # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
+  # 0.7 is a good base-level text similarity score - removing this will have unintended and potentially bad consequences.
   image_similarity_threshold: 0.96
   text_similarity_threshold: 0.7
 
@@ -233,13 +233,6 @@ test:
     secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
     bucket: 'check-api-test'
     bucket_region: 'us-east-1'
-
-  # Alegre Similarity Thresholds
-  #
-  # MANDATORY
-  # 0.7 is a good base-level similarity score - removing this will have unintended and potentially bad consequences.
-  image_similarity_threshold: 0.96
-  text_similarity_threshold: 0.7
 
   # Facebook social login
   #

@@ -207,6 +207,7 @@ class Bot::Alegre < BotUser
     # - If it has no existing relationship, use it.
     parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
+    puts source_ids.length
     if source_ids.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
       Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}") if source_ids.length > 1

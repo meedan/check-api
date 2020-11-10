@@ -3205,4 +3205,18 @@ class TeamTest < ActiveSupport::TestCase
     assert t.team_bot_installations.collect(&:bot_user).include?(bu)
     assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
   end
+
+  test "checks for false item titles are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_titles_are_similar(pm, "blah", 1)
+  end
+
+  test "checks for false item titles are similar" do
+    pm = create_project_media
+    t = create_team
+    pm.alegre_similarity_thresholds = {1 => {"test" => {1}}}
+    assert t.items_are_similar("test", pm, "blah", 1)
+  end
+  
 end

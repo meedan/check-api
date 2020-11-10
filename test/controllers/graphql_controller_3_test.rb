@@ -1482,4 +1482,24 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_match /Sorry/, @response.body
   end
+
+  test "should return suggested similar items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: { source: 'suggested_sibling', target: 'suggested_sibling' }
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: { source: 'suggested_sibling', target: 'suggested_sibling' }
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: { source: 'suggested_sibling', target: 'suggested_sibling' }
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
+    assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
+  end
 end

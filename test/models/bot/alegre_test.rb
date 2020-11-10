@@ -73,6 +73,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_nil pm1.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": [
           {
@@ -93,6 +94,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
       assert_nil pm2.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
         "result": valid_flags_data
       }.to_json)
@@ -186,7 +188,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:media_file_url)
   end
 
-  test "should add relationshipz" do
+  test "should add relationships" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
@@ -200,11 +202,42 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal r.weight, 1
   end
 
+  test "should fail to add relationships" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:distinct).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
+    assert_equal response, nil
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
+  end
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
+  end
+
+  test "should get similar items when they are text-based" do
+    p = create_project
+    pm1 = create_project_media project: p, url: "http://example.com"
+    response = Bot::Alegre.get_similar_items(pm1)
+    assert_equal response.class, Hash
+  end
+
+  test "should get items with similar title" do
+    p = create_project
+    pm1 = create_project_media project: p, title: "Blah a string"
+    response = Bot::Alegre.get_items_with_similar_title(pm1, 0.1)
+    assert_equal response.class, Hash
+  end
+
+  test "should respond to a media_file_url request" do
+    p = create_project
+    m = create_uploaded_image
+    pm1 = create_project_media project: p, is_image: true, media: m
+    assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
   test "should capture error when failing to call service" do

@@ -138,6 +138,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "queries for relationship source" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal pm.relationship_source, pm
+  end
+
   test "checks truthfulness of is_claim?" do
     u = create_user
     t = create_team
