@@ -6,7 +6,11 @@ namespace :check do
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
       last_pm_id = Rails.cache.read('check:migrate:migrate_keyword_fields:project_media_id') || 0
+      pmps_all = ProjectMedia.where('id > ?', last_pm_id).count
+      total = (pmps_all/2500.to_f).ceil
+      progressbar = ProgressBar.create(:total => total)
       ProjectMedia.where('id > ?', last_pm_id).find_in_batches(:batch_size => 2500) do |project_medias|
+        progressbar.increment
         pm_ids = project_medias.map(&:id)
         es_body = []
         DynamicAnnotation::Field.select("dynamic_annotation_fields.*, annotations.annotated_id as pm_id")
@@ -36,7 +40,11 @@ namespace :check do
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
       last_pm_id = Rails.cache.read('check:migrate:migrate_task_comments:project_media_id') || 0
+      pmps_all = ProjectMedia.where('id > ?', last_pm_id).count
+      total = (pmps_all/2500.to_f).ceil
+      progressbar = ProgressBar.create(:total => total)
       ProjectMedia.where('id > ?', last_pm_id).find_in_batches(:batch_size => 2500) do |project_medias|
+        progressbar.increment
         pm_ids = project_medias.map(&:id)
         pm_tasks_comments = {}
         # collect tasks with answers [single/multiple] choices
