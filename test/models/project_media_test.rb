@@ -2032,4 +2032,65 @@ class ProjectMediaTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should cache metadata value" do
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team
+    tt = create_team_task fieldset: 'metadata', team_id: t.id
+    pm = create_project_media team: t
+    m = pm.get_annotations('task').last.load
+    value = random_string
+    m.response = { annotation_type: 'task_response', set_fields: { response_test: value }.to_json }.to_json
+    m.save!
+    assert_queries(0, '=') do
+      assert_equal value, pm.send("task_value_#{tt.id}")
+    end
+    assert_not_nil Rails.cache.read("project_media:task_value:#{pm.id}:#{tt.id}")
+    assert_not_nil pm.reload.task_value(tt.id)
+    d = m.reload.first_response_obj
+    d.destroy!
+    assert_nil Rails.cache.read("project_media:task_value:#{pm.id}:#{tt.id}")
+    assert_nil pm.reload.task_value(tt.id)
+  end
+
+  test "should return item columns values" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    at = create_annotation_type annotation_type: 'task_response'
+    create_field_instance annotation_type_object: at, name: 'response_test'
+    t = create_team
+    tt1 = create_team_task fieldset: 'metadata', team_id: t.id
+    tt2 = create_team_task fieldset: 'metadata', team_id: t.id
+    t.list_columns = ["task_value_#{tt1.id}", "task_value_#{tt2.id}"]
+    t.save!
+    pm = create_project_media team: t.reload
+    m = pm.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.response = { annotation_type: 'task_response', set_fields: { response_test: 'Foo Value' }.to_json }.to_json
+    m.save!
+    m = pm.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.response = { annotation_type: 'task_response', set_fields: { response_test: 'Bar Value' }.to_json }.to_json
+    m.save!
+    pm.team
+    # The only SQL query should be to get the team tasks
+    assert_queries(1, '=') do
+      values = pm.list_columns_values
+      assert_equal 5, values.size
+      assert_equal 'Foo Value', values["task_value_#{tt1.id}"]
+      assert_equal 'Bar Value', values["task_value_#{tt2.id}"]
+    end
+    pm2 = create_project_media
+    pm2.team
+    pm2.media
+    # The only SQL query should be to get the team tasks
+    assert_queries(1, '=') do
+      assert_equal 8, pm2.list_columns_values.keys.size
+    end
+  end
+
+  test "should return error if method does not exist" do
+    pm = create_project_media
+    assert_raises NoMethodError do
+      pm.send(random_string)
+    end
+  end
 end

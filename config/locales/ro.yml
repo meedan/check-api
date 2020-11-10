@@ -761,6 +761,14 @@ ro:
   replace_blank_media_only: Ne pare rău, dar puteți înlocui numai elemente goale deocamdată
   cant_preview_rss_feed: Ne pare rău, nu ai permisiunea de previzualizare ca flux
     RSS.
+  list_column_demand: Cereri
+  list_column_share_count: Partajări FB
+  list_column_linked_items_count: Asociate
+  list_column_type: Tip
+  list_column_status: Stare
+  list_column_created_at: Transmis
+  list_column_last_seen: Ultimul transmis
+  list_column_updated_at: Actualizată
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -865,10 +873,10 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Nedemarat
   custom_message_smooch_bot_result_changed_caio: "❗️Verificarea de fapte pe care v-am
     transmis-o a fost *actualizată* cu informații noi:"
@@ -1029,6 +1037,7 @@ ro:
   custom_message_status_junk_checkpoint: Nedorit
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
+  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Nedemarat
   custom_message_status_in_progress_india-today: În curs
   custom_message_status_inconclusive_india-today: ''
@@ -1261,6 +1270,17 @@ ro:
     pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_result_changed_test: "❗️Verificarea de fapte pe care v-am
     transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test: "Vă mulțumim! Cererea dvs. a fost
@@ -1304,17 +1324,6 @@ ro:
     pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️Verificarea de fapte pe care
-    v-am transmis-o a fost *actualizată* cu informații noi:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Salut! Bine ați venit la robotul de
-    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
-    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Ne pare rău, nu
-    am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_result_changed_test-16: "❗️Verificarea de fapte pe care
     v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test-16: ''

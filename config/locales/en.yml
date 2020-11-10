@@ -731,6 +731,14 @@ en:
     item from the same workspace
   replace_blank_media_only: Sorry, but for now you can only replace blank items
   cant_preview_rss_feed: Sorry, you don't have permission to preview an RSS feed.
+  list_column_demand: Requests
+  list_column_share_count: FB Shares
+  list_column_linked_items_count: Related
+  list_column_type: Type
+  list_column_status: Status
+  list_column_created_at: Submitted
+  list_column_last_seen: Last submitted
+  list_column_updated_at: Updated
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
@@ -970,10 +978,10 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
-  custom_message_status_undetermined_boom-test: Undetermined
-  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_undetermined_boom: Undetermined
   custom_message_status_factchecked_boom: Fact-Checked
+  custom_message_status_undetermined_boom-test: Undetermined
+  custom_message_status_factchecked_boom-test: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -1172,6 +1180,8 @@ en:
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: |-
     The information you sent with your request is not clear. Please resend the complete information or follow this link for our latest fact-checks
     https://factly.in/category/fake-news/
+  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: Obrigada,
+    por te enviado a sugestao , mas nao checamos esse tipo de tema.
   custom_message_status_undetermined_india-today: Unstarted
   custom_message_status_in_progress_india-today: In progress
   custom_message_status_inconclusive_india-today: Out of scope
@@ -1551,6 +1561,27 @@ en:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: Thanks!
   custom_message_smooch_bot_ask_for_tos_team456: tada
+  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-3: "Thank you! Your request has
+    been received. Responses are being aggregated and sorted, and we're working on
+    fact-checking your questions.\n      \n✔️*Follow this link for an updated list
+    of common questions that we have fact-checked:* [ Link to a page of fact-checks
+    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
+    Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-3: "❌Sorry, we can't accept
+    this type of message for verification at this time. \n      \nWe can accept most
+    images, videos, links, text messages, and shared WhatsApp messages."
+  custom_message_smooch_bot_disabled_test-3: "❌Thank you for your message. Our fact-checking
+    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
+    for further inquiries."
+  custom_message_smooch_bot_ask_for_tos_test-3: 'This service is provided under the
+    following Terms of Services:'
+  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test: "Thank you! Your request has been
@@ -1594,27 +1625,6 @@ en:
     for your message!
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: Thank
     youuuu
-  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
-    to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_test-3: "Thank you! Your request has
-    been received. Responses are being aggregated and sorted, and we're working on
-    fact-checking your questions.\n      \n✔️*Follow this link for an updated list
-    of common questions that we have fact-checked:* [ Link to a page of fact-checks
-    on your website ]\n\n\U0001F449*Reply with any text* to get back to the *Main
-    Menu* \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-3: "❌Sorry, we can't accept
-    this type of message for verification at this time. \n      \nWe can accept most
-    images, videos, links, text messages, and shared WhatsApp messages."
-  custom_message_smooch_bot_disabled_test-3: "❌Thank you for your message. Our fact-checking
-    service is currently *inactive.*\n      \nContact us at *[email or other contact]*
-    for further inquiries."
-  custom_message_smooch_bot_ask_for_tos_test-3: 'This service is provided under the
-    following Terms of Services:'
-  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
-    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test-16: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test-16: "Thank you! Your request has

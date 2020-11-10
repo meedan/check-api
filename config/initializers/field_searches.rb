@@ -54,10 +54,10 @@ Dynamic.class_eval do
     { keys: [:language, :indexable], data: data }
   end
 
-  def get_elasticsearch_options_dynamic_annotation_task_response_geolocation
-    return {} if self.get_field(:response_geolocation).nil?
+  def get_elasticsearch_options_dynamic_annotation_geolocation
+    return {} if self.get_field(:geolocation).nil?
     location = {}
-    geojson = JSON.parse(self.get_field_value(:response_geolocation))
+    geojson = JSON.parse(self.get_field_value(:geolocation))
     coordinates = geojson['geometry']['coordinates']
     indexable = geojson['properties']['name']
     return {} unless geojson['geometry']['type'] == 'Point'
@@ -78,9 +78,9 @@ Dynamic.class_eval do
     { keys: [:location, :indexable], data: data }
   end
 
-  def get_elasticsearch_options_dynamic_annotation_task_response_datetime
-    return {} if self.get_field(:response_datetime).nil?
-    datetime = DateTime.parse(self.get_field_value(:response_datetime))
+  def get_elasticsearch_options_dynamic_annotation_datetime
+    return {} if self.get_field(:datetime).nil?
+    datetime = DateTime.parse(self.get_field_value(:datetime))
     data = { datetime: datetime.to_i, indexable: datetime.to_s }
     { keys: [:datetime, :indexable], data: data }
   end

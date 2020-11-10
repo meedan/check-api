@@ -1,5 +1,6 @@
 class DynamicAnnotation::Field < ActiveRecord::Base
   include CheckElasticSearch
+  include Versioned
 
   attr_accessor :disable_es_callbacks
 
@@ -13,6 +14,8 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   before_validation :set_annotation_type, :set_field_type, :set_json_value
 
   validate :field_format
+
+  after_commit :add_update_elasticsearch_field, on: [:create, :update]
 
   # pairs = { key => value, ... }
   def self.find_in_json(pairs)
@@ -39,8 +42,6 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     self.annotation.team
   end
 
-  include Versioned
-
   protected
 
   def method_suggestions(prefix)
@@ -52,6 +53,14 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   end
 
   private
+
+  def add_update_elasticsearch_field
+    # Handle analysis fields (title/ description)
+    if self.annotation_type == "verification_status" && ['title', 'content'].include?(self.field_name)
+      key = 'analysis_' + self.field_name.gsub('content', 'description')
+      self.update_elasticsearch_doc([key], { key => self.value }, self.annotation.project_media)
+    end
+  end
 
   def field_format
     self.method_suggestions('validator').each do |name|
