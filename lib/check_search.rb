@@ -254,8 +254,7 @@ class CheckSearch
           path: "task_responses",
           query: { bool: { must: [
               { simple_query_string: { query: @options["keyword"], fields: ["task_responses.value"], default_operator: "AND" } },
-              { term: { "task_responses.fieldset": { value: v } } },
-              { term: { "task_responses.field_type": { value: "text" } } }
+              { term: { "task_responses.fieldset": { value: v } } }
             ]
           } }
         }
