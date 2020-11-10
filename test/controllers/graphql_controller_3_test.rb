@@ -1500,6 +1500,6 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: { source: 'suggested_sibling', target: 'suggested_sibling' }
     post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal [p1b.id, p2b.id], JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
   end
 end

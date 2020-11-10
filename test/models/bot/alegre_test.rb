@@ -209,7 +209,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p, is_image: true
     Relationship::ActiveRecord_Relation.any_instance.stubs(:distinct).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
     response = Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
-    assert_equal response, nil
+    assert_equal response, true
     Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
   end
   test "should get similar items" do
@@ -220,17 +220,65 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should get similar items when they are text-based" do
-    p = create_project
-    pm1 = create_project_media project: p, url: "http://example.com"
-    response = Bot::Alegre.get_similar_items(pm1)
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2"
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_source" => {
+            "id" => 1,
+            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash" => 17399941807326929,
+            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context" => [{
+              "team_id" => pm2.team.id.to_s,
+              "project_media_id" => pm2.id.to_s
+            }],
+          },
+          "_score" => 0.9
+        }
+      ]
+    })
+    response = Bot::Alegre.get_similar_items(pm)
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
   end
 
   test "should get items with similar title" do
-    p = create_project
-    pm1 = create_project_media project: p, title: "Blah a string"
-    response = Bot::Alegre.get_items_with_similar_title(pm1, 0.1)
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { title: 'Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2"
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_source" => {
+            "id" => 1,
+            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash" => 17399941807326929,
+            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context" => [{
+              "team_id" => pm2.team.id.to_s,
+              "project_media_id" => pm2.id.to_s
+            }],
+          },
+          "_score" => 0.9
+        }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
   end
 
   test "should respond to a media_file_url request" do
