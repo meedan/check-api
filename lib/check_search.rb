@@ -366,7 +366,12 @@ class CheckSearch
             nested: {
               path: 'task_responses',
               filter: {
-                term: { 'task_responses.team_task_id': team_task_id }
+                bool: {
+                  must: [
+                    { term: { 'task_responses.team_task_id': team_task_id } },
+                    { exists: { field: 'task_responses.value' } }
+                  ]
+                }
               }
             }
           }
