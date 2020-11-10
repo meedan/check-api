@@ -495,7 +495,7 @@ class ElasticSearch7Test < ActionController::TestCase
       result = CheckSearch.new({keyword: 'Sawy'}.to_json)
       assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
       result = CheckSearch.new({keyword: 'Foo', keyword_fields: {fields:['task_answers']}}.to_json)
-      assert_equal [pm2.id], result.medias.map(&:id)
+      assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
       result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['metadata_answers']}}.to_json)
       assert_equal [pm3.id], result.medias.map(&:id)
       result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {fields: ['task_answers', 'metadata_answers']}}.to_json)
