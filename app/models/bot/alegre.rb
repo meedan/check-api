@@ -31,7 +31,7 @@ class Bot::Alegre < BotUser
 
   def self.get_similar_items(pm)
     if pm.is_text?
-      self.get_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
+      self.get_merged_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
     elsif pm.is_image?
       self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
     else
@@ -39,7 +39,7 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_text(pm, threshold)
+  def self.get_merged_items_with_similar_text(pm, threshold)
     by_title = self.get_items_with_similar_title(pm, threshold)
     by_description = self.get_items_with_similar_description(pm, threshold)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|
@@ -235,7 +235,7 @@ class Bot::Alegre < BotUser
   def self.add_relationship(pm, pm_id_scores, parent_id)
     r = Relationship.new
     r.skip_check_ability = true
-    r.relationship_type = self.relationship_type(pm, weight)
+    r.relationship_type = self.relationship_type(pm, pm_id_scores[parent_id])
     r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id

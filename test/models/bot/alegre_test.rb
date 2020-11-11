@@ -255,7 +255,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah"
     Bot::Alegre.stubs(:get_items_with_similar_title).returns({1 => 0.2, 2 => 0.3})
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({2 => 0.2, 3 => 0.3})
-    assert_equal Bot::Alegre.get_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
+    assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
