@@ -208,7 +208,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.suggested_type
   end
 
-  test "should have a suggested type" do
+  test "should have a confirmed type" do
     assert_not_nil Relationship.confirmed_type
   end
 

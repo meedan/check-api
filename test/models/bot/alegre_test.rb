@@ -293,7 +293,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), 1
   end
 
-  test "should get items with similar title" do
+  test "should get items with similar description" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah"
