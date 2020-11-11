@@ -208,6 +208,10 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.suggested_type
   end
 
+  test "should have a suggested type" do
+    assert_not_nil Relationship.confirmed_type
+  end
+
   test "should get target id" do
     assert_kind_of String, Relationship.target_id(create_project_media)
   end

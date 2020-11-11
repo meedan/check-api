@@ -114,6 +114,10 @@ class Relationship < ActiveRecord::Base
     { source: 'suggested_sibling', target: 'suggested_sibling' }
   end
 
+  def self.confirmed_type
+    { source: 'confirmed_sibling', target: 'confirmed_sibling' }
+  end
+
   def self.default_type
     { source: 'parent', target: 'child' }
   end

@@ -185,6 +185,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert pm.is_text?
   end
 
+  test "checks truthfulness of is_text?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Blank"
+    assert pm.is_blank?
+  end
+
   test "checks falsity of is_text?" do
     u = create_user
     t = create_team

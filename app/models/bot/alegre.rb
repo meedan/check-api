@@ -31,12 +31,20 @@ class Bot::Alegre < BotUser
 
   def self.get_similar_items(pm)
     if pm.is_text?
-      self.get_items_with_similar_title(pm, CONFIG['text_similarity_threshold'])
+      self.get_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
     elsif pm.is_image?
       self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
     else
       {}
     end
+  end
+
+  def self.get_items_with_similar_text(pm, threshold)
+    by_title = self.get_items_with_similar_title(pm, threshold)
+    by_description = self.get_items_with_similar_description(pm, threshold)
+    Hash[(by_title.keys|by_description.keys).collect do |pmid|
+      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].sort.last]
+    end]
   end
 
   def self.relate_project_media_to_similar_items(pm)
@@ -140,8 +148,12 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold)
-    self.get_items_with_similar_text(pm, 'title', threshold, pm.title)
+  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+    pm.title.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
+  end
+
+  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+    pm.description.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
   end
 
   def self.extract_project_medias_from_context(search_result)
@@ -217,13 +229,34 @@ class Bot::Alegre < BotUser
 
     # Better be safe than sorry.
     return if parent_id == pm.id
+    self.add_relationship(pm, pm_id_scores, parent_id)
+  end
 
+  def self.add_relationship(pm, pm_id_scores, parent_id)
     r = Relationship.new
     r.skip_check_ability = true
-    r.relationship_type = Relationship.suggested_type
+    r.relationship_type = self.relationship_type(pm, weight)
     r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id
     r.save!
+  end
+
+  def self.relationship_type(pm, weight)
+    if weight > self.confirmed_relationship_threshold(pm)
+      Relationship.confirmed_type
+    else
+      Relationship.suggested_type
+    end
+  end
+
+  def self.confirmed_relationship_threshold(pm)
+    if pm.is_text?
+      CONFIG['automatic_text_similarity_threshold']
+    elsif pm.is_image?
+      CONFIG['automatic_image_similarity_threshold']
+    else
+      1.0
+    end
   end
 end

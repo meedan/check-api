@@ -212,6 +212,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal response, true
     Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
   end
+
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
@@ -246,6 +247,79 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_similar_items(pm)
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should get items with similar text" do
+    pm = create_project_media quote: "Blah"
+    Bot::Alegre.stubs(:get_items_with_similar_title).returns({1 => 0.2, 2 => 0.3})
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({2 => 0.2, 3 => 0.3})
+    assert_equal Bot::Alegre.get_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
+    Bot::Alegre.unstub(:get_items_with_similar_title)
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should return a confirmed relationship type" do
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { description: 'Description 1' }
+    pm.save!
+    assert_equal Bot::Alegre.relationship_type(pm, 1.0), Relationship.confirmed_type
+  end
+
+  test "should return a suggested relationship type" do
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { description: 'Description 1' }
+    pm.save!
+    assert_equal Bot::Alegre.relationship_type(pm, 0.2), Relationship.suggested_type
+  end
+
+  test "should return a text confirmed relationship threshold" do
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { description: 'Description 1' }
+    pm.save!
+    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), CONFIG['automatic_text_similarity_threshold']
+  end
+
+  test "should return an image confirmed relationship threshold" do
+    p = create_project
+    pm = create_project_media project: p, is_image: true
+    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), CONFIG['automatic_image_similarity_threshold']
+  end
+
+  test "should return a fallback confirmed relationship threshold" do
+    p = create_project
+    pm = create_project_media project: p
+    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), 1
+  end
+
+  test "should get items with similar title" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { description: 'Description 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2"
+    pm2.analysis = { description: 'Description 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_source" => {
+            "id" => 1,
+            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash" => 17399941807326929,
+            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context" => [{
+              "team_id" => pm2.team.id.to_s,
+              "project_media_id" => pm2.id.to_s
+            }],
+          },
+          "_score" => 0.9
+        }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
