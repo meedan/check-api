@@ -297,10 +297,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah"
-    pm.analysis = { description: 'Description 1' }
+    pm.analysis = { content: 'Description 1' }
     pm.save!
     pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { description: 'Description 1' }
+    pm2.analysis = { content: 'Description 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [

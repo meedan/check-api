@@ -149,11 +149,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
-    pm.title.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
+    pm.title.to_s.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
   end
 
   def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
-    pm.description.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
+    pm.description.to_s.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
   end
 
   def self.extract_project_medias_from_context(search_result)
@@ -243,7 +243,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.relationship_type(pm, weight)
-    if weight > self.confirmed_relationship_threshold(pm)
+    if weight && weight > self.confirmed_relationship_threshold(pm)
       Relationship.confirmed_type
     else
       Relationship.suggested_type
