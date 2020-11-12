@@ -251,7 +251,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "should get similar items when they are text-based" do
+  test "should get items with similar text when they are text-based" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah"
