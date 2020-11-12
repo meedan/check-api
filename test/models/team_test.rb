@@ -3206,13 +3206,19 @@ class TeamTest < ActiveSupport::TestCase
     assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
   end
 
+  test "checks for false item images are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_images_are_similar(pm, "blah", 1)
+  end
+
   test "checks for false item titles are similar" do
     pm = create_project_media
     t = create_team
     assert !t.item_titles_are_similar(pm, "blah", 1)
   end
 
-  test "checks for true item titles are similar" do
+  test "checks for true items are similar" do
     pm = create_project_media
     t = create_team
     pm.alegre_similarity_thresholds = {1 => {"test" => 1}}

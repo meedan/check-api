@@ -224,10 +224,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'Title 1' }
+    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
     pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { title: 'Title 1' }
+    pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -250,6 +250,38 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
+
+  test "should get similar items when they are text-based" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2"
+    pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_source" => {
+            "id" => 1,
+            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+            "phash" => 17399941807326929,
+            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+            "context" => [{
+              "team_id" => pm2.team.id.to_s,
+              "project_media_id" => pm2.id.to_s
+            }],
+          },
+          "_score" => 0.9
+        }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+  end
+
 
   test "should get items with similar text" do
     pm = create_project_media quote: "Blah"
