@@ -182,6 +182,20 @@ fil:
       project_media: Item
       attribution: Sinagutan ni
     messages:
+      analysis_verification_status_status_changed: 'Binago ni %{user} ang status sa:
+        %{value}'
+      analysis_title_changed: 'Binago ni %{user} ang pamagat ng panunuri sa: %{value}'
+      analysis_content_changed: 'Binago ni %{user} ang nilalaman ng panunuri sa: %{value}'
+      tasks_create: 'Nagdagdag si %{user} ng gawain: %{title}'
+      tasks_edit: In-edit ni %{user} ang gawaing %{title}
+      tasks_answer_create: 'Sinagutan ni %{user} ang gawaing %{title}: %{answer}'
+      tasks_answer_edit: 'In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}'
+      metadata_create: 'Nagdagdag si %{user} ng metadata field: %{title}'
+      metadata_edit: In-edit ni %{user} ang metadata field na %{title}
+      metadata_answer_create: 'Itinakda ni %{user} ang value ng metadata na %{title}:
+        %{answer}'
+      metadata_answer_edit: 'In-edit ni %{user} ang value ng metadata na %{title}:
+        %{answer}'
       project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
         %{parent_type}
       project_media_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
@@ -764,6 +778,14 @@ fil:
   replace_blank_media_only: Paumanhin, pero sa ngayon, mga blangkong item lang ang
     pwede mong palitan.
   cant_preview_rss_feed: Paumanhin, wala kang pahintulot para magtingin ng RSS feed.
+  list_column_demand: Mga kahilingan
+  list_column_share_count: Mga Share sa FB
+  list_column_linked_items_count: Magkaugnay
+  list_column_type: Uri
+  list_column_status: Status
+  list_column_created_at: Isinumite
+  list_column_last_seen: Huling isinumite
+  list_column_updated_at: In-update
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -866,10 +888,10 @@ fil:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Hindi pa nasisimulan
   custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
     sa iyo ay *in-update* ng bagong impormasyon:"
@@ -1011,6 +1033,7 @@ fil:
   custom_message_status_junk_checkpoint: Junk
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
+  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Hindi pa nasisimulan
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''
@@ -1248,6 +1271,18 @@ fil:
     Talaan*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_result_changed_test: "❗️Ang fact-check na ipinadala namin
     sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test: "Salamat! Naitala na ang iyong
@@ -1293,18 +1328,6 @@ fil:
     Talaan*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️Ang fact-check na ipinadala
-    namin sa iyo ay *in-update* ng bagong impormasyon:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Kumusta? Maligayang pagdating sa fact-checking
-    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
-    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
-    at teknolohiya.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Paumanhin, hindi
-    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_result_changed_test-16: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-16: ''

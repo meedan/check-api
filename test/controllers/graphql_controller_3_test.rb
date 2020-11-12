@@ -42,11 +42,15 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should get project information fast" do
-    n = 2 # Number of media items to be created
+    RequestStore.store[:skip_cached_field_update] = false
+    n = 3 # Number of media items to be created
     m = 2 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
+    create_team_task team_id: t.id
+    create_tag_text team_id: t.id
+    create_team_bot_installation team_id: t.id
     create_team_user user: u, team: t
     p = create_project team: t
     n.times do
@@ -61,15 +65,117 @@ class GraphqlController3Test < ActionController::TestCase
     pm.save!
     sleep 10
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,log_count,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},account{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
+    # Current search query used by the frontend
+    query = %{query CheckSearch {
+      search(query: "{}") {
+        id
+        pusher_channel
+        number_of_results
+        team {
+          id
+          dbid
+          name
+          slug
+          verification_statuses
+          pusher_channel
+          dynamic_search_fields_json_schema
+          rules_search_fields_json_schema
+          medias_count
+          permissions
+          search_id
+          list_columns
+          team_tasks(first: 10000) {
+            edges {
+              node {
+                id
+                dbid
+                fieldset
+                label
+                options
+                type
+              }
+            }
+          }
+          tag_texts(first: 10000) {
+            edges {
+              node {
+                text
+              }
+            }
+          }
+          projects(first: 10000) {
+            edges {
+              node {
+                title
+                dbid
+                id
+                description
+              }
+            }
+          }
+          users(first: 10000) {
+            edges {
+              node {
+                id
+                dbid
+                name
+              }
+            }
+          }
+          check_search_trash {
+            id
+            number_of_results
+          }
+          public_team {
+            id
+            trash_count
+          }
+          search {
+            id
+            number_of_results
+          }
+          team_bot_installations(first: 10000) {
+            edges {
+              node {
+                id
+                team_bot: bot_user {
+                  id
+                  identifier
+                }
+              }
+            }
+          }
+        }
+        medias(first: 20) {
+          edges {
+            node {
+              id
+              dbid
+              picture
+              title
+              description
+              is_read
+              list_columns_values
+              project_media_project(project_id: #{p.id}) {
+                dbid
+                id
+              }
+              team {
+                verification_statuses
+              }
+            }
+          }
+        }
+      }
+    }}
 
     # Make sure we only run queries for the 20 first items
-    assert_queries 320, '<=' do
+    assert_queries 100, '<=' do
       post :create, query: query, team: 'team'
     end
 
     assert_response :success
-    assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
   test "should filter and sort inside ElasticSearch" do
@@ -1483,7 +1589,8 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /Sorry/, @response.body
   end
 
-  test "should return suggested similar items" do
+
+test "should return suggested similar items" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
@@ -1501,5 +1608,80 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: { source: 'suggested_sibling', target: 'suggested_sibling' }
     post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
     assert_equal [p1a.id, p1b.id], JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
+  end
+
+  test "should sort search by metadata value where items without metadata value show first on ascending order" do
+    RequestStore.store[:skip_cached_field_update] = false
+    at = create_annotation_type annotation_type: 'task_response_free_text'
+    create_field_instance annotation_type_object: at, name: 'response_free_text'
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u
+    tt1 = create_team_task fieldset: 'metadata', team_id: t.id
+    tt2 = create_team_task fieldset: 'metadata', team_id: t.id
+    t.list_columns = ["task_value_#{tt1.id}", "task_value_#{tt2.id}"]
+    t.save!
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+    pm4 = create_project_media team: t, disable_es_callbacks: false
+    
+    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
+    m.save!
+    m = pm3.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
+    m.save!
+    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
+    m.save!
+    sleep 5
+
+    m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'C' }.to_json }.to_json
+    m.save!
+    m = pm2.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
+    m.save!
+    m = pm4.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt2.id }.last
+    m.disable_es_callbacks = false
+    m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'A' }.to_json }.to_json
+    m.save!
+    sleep 5
+
+    authenticate_with_user(u)
+    
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm2.id, results.first
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm3.id, results.first
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm2.id, results.last
+
+    query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
+    assert_equal 4, results.size
+    assert_equal pm3.id, results.last
   end
 end

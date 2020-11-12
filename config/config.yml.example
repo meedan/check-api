@@ -43,7 +43,7 @@ development: &default
   # File upload settings
   #
   video_file_max_size: 20971520
-  uploaded_file_max_size: 1000000
+  uploaded_file_max_size: 20971520
   image_min_width: 1
   image_max_width: 10000
   image_min_height: 1

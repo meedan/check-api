@@ -177,6 +177,18 @@ pt:
       project_media: Item
       attribution: Respondida por
     messages:
+      analysis_verification_status_status_changed: "%{user} modificou seu status para:
+        %{value}"
+      analysis_title_changed: "%{user} modificou o título da análise para: %{value}"
+      analysis_content_changed: "%{user} modificou o conteúdo da análise para: %{value}"
+      tasks_create: "%{user} adicionou uma tarefa: %{title}"
+      tasks_edit: "%{user} editou a tarefa %{title}"
+      tasks_answer_create: "%{user} respondeu a tarefa %{title}: %{answer}"
+      tasks_answer_edit: "%{user} editou a resposta da tarefa %{title}: %{answer}"
+      metadata_create: "%{user} adicionou um campo de metadados: %{title}"
+      metadata_edit: "%{user} editou o campo de metadados %{title}"
+      metadata_answer_create: "%{user} definiu valor de metadados %{title}: %{answer}"
+      metadata_answer_edit: "%{user} editou o valor de metadados %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
         %{parent_type}"
       project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
@@ -746,6 +758,14 @@ pt:
     em branco
   cant_preview_rss_feed: Desculpe, você não tem permissão para pré-visualizar um feed
     RSS.
+  list_column_demand: Solicitações
+  list_column_share_count: Compartilhamentos do Facebook
+  list_column_linked_items_count: Relacionado
+  list_column_type: Tipo
+  list_column_status: Status
+  list_column_created_at: Enviado
+  list_column_last_seen: Último envio
+  list_column_updated_at: Atualizado
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -849,10 +869,10 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Não Iniciado
   custom_message_smooch_bot_result_changed_caio: "❗️ A checagem que te enviamos foi
     *atualizada* com nova informação:"
@@ -1010,6 +1030,7 @@ pt:
   custom_message_status_junk_checkpoint: Lixo
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
+  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Não Iniciado
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: Fora da Linha de Atuação
@@ -1244,6 +1265,24 @@ pt:
     0 (ou \U0001F4CC)* para voltar ao *Menu Principal*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: Valeu!
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️ A checagem que te enviamos
+    foi *atualizada* com nova informação:"
+  custom_message_smooch_bot_message_confirmed_test-3: "Obrigado! Sua solicitação foi
+    recebida. As respostas estão sendo agregadas e classificadas e estamos trabalhando
+    para verificar suas perguntas.\n\n✔️ *Siga este link para obter uma lista atualizada
+    de perguntas comuns que foram verificadas:* [Link para uma página de verificações
+    em seu site]\n\n\U0001F449*Responda com qualquer texto* para voltar ao *Menu Principal*
+    \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-3: "❌ Desculpe, não aceitamos
+    este tipo de mensagem neste momento."
+  custom_message_smooch_bot_disabled_test-3: "❌ Obrigado pela sua mensagem. O serviço
+    encontra-se *inativo* no momento."
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Oi! Bem-vindo ao bot de verificação
+    de [Nome da sua organização]. Verificamos afirmações, vídeos e imagens relacionadas
+    a tópicos como política, saúde, finanças e tecnologia.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916 Desculpe, não
+    entendi sua mensagem. Por favor tente novamente!"
   custom_message_smooch_bot_result_changed_test: "❗️ A checagem que te enviamos foi
     *atualizada* com nova informação:"
   custom_message_smooch_bot_message_confirmed_test: "Obrigado! Sua solicitação foi
@@ -1286,24 +1325,6 @@ pt:
     0 (ou \U0001F4CC)* para voltar ao *Menu Principal*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️ A checagem que te enviamos
-    foi *atualizada* com nova informação:"
-  custom_message_smooch_bot_message_confirmed_test-3: "Obrigado! Sua solicitação foi
-    recebida. As respostas estão sendo agregadas e classificadas e estamos trabalhando
-    para verificar suas perguntas.\n\n✔️ *Siga este link para obter uma lista atualizada
-    de perguntas comuns que foram verificadas:* [Link para uma página de verificações
-    em seu site]\n\n\U0001F449*Responda com qualquer texto* para voltar ao *Menu Principal*
-    \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-3: "❌ Desculpe, não aceitamos
-    este tipo de mensagem neste momento."
-  custom_message_smooch_bot_disabled_test-3: "❌ Obrigado pela sua mensagem. O serviço
-    encontra-se *inativo* no momento."
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Oi! Bem-vindo ao bot de verificação
-    de [Nome da sua organização]. Verificamos afirmações, vídeos e imagens relacionadas
-    a tópicos como política, saúde, finanças e tecnologia.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916 Desculpe, não
-    entendi sua mensagem. Por favor tente novamente!"
   custom_message_smooch_bot_result_changed_test-16: "❗️ A checagem que te enviamos
     foi *atualizada* com nova informação:"
   custom_message_smooch_bot_message_confirmed_test-16: "Obrigado! Sua solicitação

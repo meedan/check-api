@@ -50,6 +50,6 @@ DynamicAnnotation::Field.class_eval do
     end
     answer = value['selected'] || []
     answer.insert(-1, value['other']) if !value['other'].blank?
-    answer.to_sentence(locale: I18n.locale)
+    [answer].flatten.join(', ')
   end
 end
