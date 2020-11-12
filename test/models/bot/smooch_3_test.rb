@@ -1253,8 +1253,12 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     uid = random_string
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
-    send_message_to_smooch_bot('Hello', uid)
-    send_message_to_smooch_bot('1', uid)
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot('1', uid)
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     send_message_to_smooch_bot('4', uid)
     assert_equal 'BotResource', Dynamic.where(annotation_type: 'smooch').last.annotated_type
   end
