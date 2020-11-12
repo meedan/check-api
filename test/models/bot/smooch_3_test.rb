@@ -1261,6 +1261,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     send_message_to_smooch_bot('4', uid)
     assert_equal 'BotResource', Dynamic.where(annotation_type: 'smooch').last.annotated_type
+    Rails.cache.unstub(:read)
   end
 
   protected
