@@ -398,7 +398,7 @@ class Bot::Smooch < BotUser
       end
     when 'query'
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
-        self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+        self.delay_for(15.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
@@ -411,7 +411,7 @@ class Bot::Smooch < BotUser
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(message['text'].to_s.downcase.strip)
         if option['smooch_menu_option_value'] =~ /_state$/
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
-          self.delay_for(30.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
+          self.delay_for(15.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, workflow.dig("smooch_state_#{new_state}", 'smooch_menu_message'))
         elsif option['smooch_menu_option_value'] == 'resource'
@@ -1012,6 +1012,7 @@ class Bot::Smooch < BotUser
     return if stored_time > time
     sm = CheckStateMachine.new(uid)
     unless sm.state.value == 'human_mode'
+      sm.reset
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
   end
