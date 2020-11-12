@@ -73,7 +73,8 @@ module UserMultiAuthLogin
           account.sources << source if account.account_sources.where(source_id: source.id).blank?
           user.set_source_image
         end
-      rescue Errno::ECONNREFUSED => e
+      rescue StandardError => e
+        self.notify_error(e, { user_id: user.id }, RequestStore[:request])
         Rails.logger.info "Could not create account for user ##{user.id}: #{e.message}"
       end
     end
