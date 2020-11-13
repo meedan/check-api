@@ -193,10 +193,11 @@ en:
       metadata_answer_create: "%{user} set value of metadata %{title}: %{answer}"
       metadata_answer_edit: "%{user} edited the value of metadata %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
-      project_media_create: "%{user} (%{role} at %{team}) added a %{type}"
+      project_media_create: "%{user} (%{role} at %{team}) submitted a new item"
       project_media_create_related: "%{user} (%{role} at %{team}) added a related
         %{type}"
-      project_media_update: "%{user} (%{role} at %{team}) edited a %{type}"
+      project_media_update: "%{user} (%{role} at %{team}) updated an item"
+      project_media_added_to_list: "%{user} (%{role} at %{team}) added an item to list %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow}
         status of a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
