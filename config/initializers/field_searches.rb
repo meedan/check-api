@@ -183,16 +183,17 @@ ProjectMedia.class_eval do
     timezone = ActiveSupport::TimeZone[tzinfo] if tzinfo
     timezone = timezone ? timezone.formatted_offset : '+00:00'
 
-    {
+    output  = {
       range: {
         "#{field}": {
-          gte: range[0].strftime("%Y-%m-%d %H:%M"),
           lte: range[1].strftime("%Y-%m-%d %H:%M"),
           format: "yyyy-MM-dd' 'HH:mm",
           time_zone: timezone
         }
       }
     }
+    output[:range][:"#{field}"][:gte] = range[0].strftime("%Y-%m-%d %H:%M") if range[0].strftime("%Y").to_i > 0
+    output
   end
 
   def self.field_search_query_type_range_created_at(range, timezone, _options = nil)
