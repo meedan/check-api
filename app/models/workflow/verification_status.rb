@@ -30,7 +30,7 @@ class Workflow::VerificationStatus < Workflow::Base
       if core_status_ids.include?(key.to_s) && custom_statuses.blank?
         I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', options)
       else
-        default_language = self.team.get_language || 'en'
+        default_language = self.team.default_language
         language = options[:locale] || I18n.locale
         default = nil
         label = nil

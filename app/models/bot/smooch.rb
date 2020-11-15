@@ -347,7 +347,7 @@ class Bot::Smooch < BotUser
 
   def self.get_workflow(language = nil)
     team = Team.find(self.config['team_id'])
-    default_language = team.get_language || 'en'
+    default_language = team.default_language
     language ||= default_language
     workflow = nil
     default_workflow = nil
@@ -361,7 +361,7 @@ class Bot::Smooch < BotUser
   def self.get_user_language(message, state = nil)
     uid = message['authorId']
     team = Team.find(self.config['team_id'])
-    default_language = team.get_language || 'en'
+    default_language = team.default_language
     supported_languages = team.get_languages || ['en']
     user_language = Rails.cache.fetch("smooch:user_language:#{uid}") do
       language = default_language
@@ -477,7 +477,7 @@ class Bot::Smooch < BotUser
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
     template = self.config["smooch_template_name_for_#{template_name}"] || template_name
-    default_language = Team.where(id: self.config['team_id'].to_i).last&.get_language || 'en'
+    default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
     locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
     data = { namespace: namespace, template: template, fallback: fallback, language: locale }
     data['header_image'] = image unless image.blank?

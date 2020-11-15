@@ -263,7 +263,7 @@ class BotUser < User
       end
       if !validate && s[:name] == 'smooch_template_locales'
         team = Team.find_by_slug(team_slug)
-        default = team.get_language || 'en'
+        default = team.default_language
         properties[s[:name]].merge!({ uniqueItems: true, default: default, items: { type: 'string', enum: Bot::Smooch.template_locale_options(team_slug) } })
       end
     end
