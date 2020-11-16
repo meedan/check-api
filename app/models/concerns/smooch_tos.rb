@@ -261,5 +261,9 @@ module SmoochTos
       message = message.gsub('%{team}', team.name)
       self.send_message_to_user(uid, message)
     end
+
+    def should_send_tos?(state, typed)
+      state == 'main' && typed == '9'
+    end
   end
 end

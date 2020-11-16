@@ -416,7 +416,7 @@ class Bot::Smooch < BotUser
     language = self.get_user_language(message, state)
     workflow = self.get_workflow(language)
     typed = message['text'].to_s.downcase.strip
-    if state == 'main' && typed == '9'
+    if self.should_send_tos?(state, typed)
       self.send_tos_to_user(uid, language)
       self.bundle_message(message)
       sm.reset
