@@ -425,6 +425,7 @@ class Bot::Smooch < BotUser
     workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(typed)
         if option['smooch_menu_option_value'] =~ /_state$/
+          self.bundle_message(message)
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           self.delay_for(15.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
@@ -445,6 +446,7 @@ class Bot::Smooch < BotUser
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
           workflow = self.get_workflow(option['smooch_menu_option_value'])
+          self.bundle_message(message)
           self.send_message_to_user(uid, self.get_message_for_state(workflow, 'main', option['smooch_menu_option_value']))
         end
         return true
