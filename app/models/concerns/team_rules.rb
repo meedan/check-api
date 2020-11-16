@@ -14,7 +14,7 @@ module TeamRules
   module Rules
     def has_less_than_x_words(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
-      smooch_message.to_s.split(/\s+/).size < value.to_i
+      smooch_message.to_s.split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
     end
 
     def contains_keyword(pm, value, _rule_id)
