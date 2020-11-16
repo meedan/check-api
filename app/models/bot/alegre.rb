@@ -188,6 +188,7 @@ class Bot::Alegre < BotUser
     r.relationship_type = { source: 'parent', target: 'child' }
     r.source_id = parent_id
     r.target_id = pm.id
+    r.user_id ||= BotUser.where(login: 'alegre').last&.id
     r.save!
   end
 end

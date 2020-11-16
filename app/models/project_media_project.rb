@@ -193,8 +193,13 @@ class ProjectMediaProject < ActiveRecord::Base
   end
 
   def slack_notification_message(event = nil)
+    pm = self.project_media
     update = self.slack_channel(event.to_s) ? event : nil
-    self.project_media.slack_notification_message(update)
+    params = pm.slack_params
+    params[:list_name] = self.project.title
+    pretext = I18n.t('slack.messages.project_media_added_to_list', params)
+    # Either render a card or update an existing one
+    pm.should_send_slack_notification_message_for_card?(update) ? pm.slack_notification_message_for_card(pretext) : nil
   end
 
   private

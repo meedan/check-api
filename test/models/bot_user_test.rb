@@ -58,11 +58,13 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should convert settings to JSON schema" do
+    t = create_team
     b = create_bot_user
-    s = [{ name: 'foo', type: 'array', items: [] }, { name: 'bar', type: 'object', properties: {} }]
+    s = [{ name: 'foo', type: 'array', items: [] }, { name: 'bar', type: 'object', properties: {} }, { name: 'smooch_template_locales' }]
     b.set_settings(s)
     b.save!
-    assert_match /items/, b.settings_as_json_schema
-    assert_match /properties/, b.settings_as_json_schema
+    assert_match /items/, b.settings_as_json_schema(false, t.slug)
+    assert_match /properties/, b.settings_as_json_schema(false, t.slug)
+    assert_match /uniqueItems/, b.settings_as_json_schema(false, t.slug)
   end
 end
