@@ -985,7 +985,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
     assert_equal 'waiting_for_message', sm.state.value
-    assert_equal ['Hello for the last time', 'ONE', '2', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
     assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
