@@ -690,7 +690,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal 'waiting_for_message', sm.state.value
       send_message_to_smooch_bot('Hello', uid)
       assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('9', uid)
+      assert_equal 'waiting_for_message', sm.state.value
       send_message_to_smooch_bot('What?', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('What??', uid)
       assert_equal 'main', sm.state.value
       send_message_to_smooch_bot('1', uid)
       assert_equal 'secondary', sm.state.value
