@@ -193,10 +193,8 @@ ru:
         (%{user})'
       project_media_comment: Добавлена заметка к материалу (%{user}, %{role} группы
         %{team})
-      project_media_create: Добавлен материал (%{user}, %{role} группы %{team})
       project_media_create_related: Добавлен связанный материал (%{user}, %{role}
         группы %{team})
-      project_media_update: Отредактирован материал (%{user}, %{role} группы %{team})
       project_media_status: Изменён статус «%{workflow}» материала (%{user}, %{role}
         группы %{team})
       project_media_assign: Назначен материал (%{user}, %{role} группы %{team})
@@ -656,7 +654,6 @@ ru:
   team_rule_conditions: Если
   team_rule_condition: Если
   team_rule_condition_definition: Выберите условие
-  team_rule_has_less_than_x_words: Запрос содержит меньше, чем данное кол-во слов
   team_rule_title_matches_regexp: Заголовок материала совпадает с данным регулярным
     выражением
   team_rule_request_matches_regexp: Запрос совпадает с данным регулярным выражением
@@ -863,10 +860,10 @@ ru:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Добавлено
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -974,7 +971,6 @@ ru:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1020,7 +1016,7 @@ ru:
   custom_message_status_junk_checkpoint: Мусор
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Добавлено
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''

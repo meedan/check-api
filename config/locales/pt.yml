@@ -191,10 +191,8 @@ pt:
       metadata_answer_edit: "%{user} editou o valor de metadados %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a)
         %{parent_type}"
-      project_media_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
       project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a)
         %{type} relacionado(a)"
-      project_media_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
       project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow}
         de um(a) %{type}"
       project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
@@ -316,7 +314,7 @@ pt:
           para redefinir sua senha, por favor, entre em contato com %{support_email}.
       invitation_instructions:
         subject: "%{user} convidou você a participar do espaço de trabalho %{team}"
-        hello: Olá, %{username},
+        hello: Olá %{name}
         someone_invited_you_default:
           html: "%{name} convidou você a participar do espaço de trabalho %{team}
             como %{role}."
@@ -660,8 +658,6 @@ pt:
   team_rule_conditions: Se
   team_rule_condition: Se
   team_rule_condition_definition: Selecionar condição
-  team_rule_has_less_than_x_words: A solicitação contém um número de palavras abaixo
-    de
   team_rule_title_matches_regexp: O título do item corresponde a esta expressão regular
   team_rule_request_matches_regexp: A solicitação corresponde a esta expressão regular
   team_rule_type_is: O tipo do item é
@@ -869,10 +865,10 @@ pt:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Não Iniciado
   custom_message_smooch_bot_result_changed_caio: "❗️ A checagem que te enviamos foi
     *atualizada* com nova informação:"
@@ -984,7 +980,6 @@ pt:
     contexto ou perguntas adicionais relacionadas a esse item. Sua solicitação será
     enviada aos verificadores cerca de 30 segundos após o envio da última mensagem.\n\n*Responda
     0 (ou \U0001F4CC)* para voltar ao *Menu Principal*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1030,7 +1025,7 @@ pt:
   custom_message_status_junk_checkpoint: Lixo
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Não Iniciado
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: Fora da Linha de Atuação

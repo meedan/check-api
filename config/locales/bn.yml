@@ -184,10 +184,10 @@ bn:
     পাঠানো বিষয়টি আমাদের তথ্য যাচাইয়ের সীমার বাইরে। আপনি আমাদের একটি ছবি/ লেখা/ ভিডিও
     পাঠাতে পারেন যা আপনার বিভ্রান্তিকর মনে হবে। আমাদের ওয়েবসাইটটি bangla.boomlive.in
     দেখুন আমাদের আরও তথ্য যাচাই পড়তে।
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: শুরু করা যায়নি
   custom_message_smooch_bot_result_changed_caio: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
     তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
@@ -249,7 +249,6 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -294,7 +293,7 @@ bn:
   custom_message_status_junk_checkpoint: আবর্জনা
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: শুরু করা যায়নি
   custom_message_status_in_progress_india-today: প্রক্রিয়া চলছে
   custom_message_status_inconclusive_india-today: কর্ম পরিধির বাইরে
