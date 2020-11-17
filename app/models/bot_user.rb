@@ -244,7 +244,7 @@ class BotUser < User
 
   def settings_as_json_schema(validate = false, team_slug = nil)
     return nil if self.get_settings.blank?
-    properties = {}
+    properties = {}.with_indifferent_access
     self.get_settings.each do |setting|
       s = setting.with_indifferent_access
       type = s[:type]
@@ -261,7 +261,11 @@ class BotUser < User
       else
         properties[s[:name]][:default] = default
       end
-      properties[s[:name]].merge!({ uniqueItems: true, items: { type: 'string', enum: Bot::Smooch.template_locale_options(team_slug) } }) if !validate && s[:name] == 'smooch_template_locales'
+      if !validate && s[:name] == 'smooch_template_locales'
+        team = Team.find_by_slug(team_slug)
+        default = team.default_language
+        properties[s[:name]].merge!({ uniqueItems: true, default: default, items: { type: 'string', enum: Bot::Smooch.template_locale_options(team_slug) } })
+      end
     end
     properties.deep_reject_key!(:enum) if validate
     { type: 'object', properties: properties }.to_json

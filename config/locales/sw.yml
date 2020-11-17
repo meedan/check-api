@@ -189,10 +189,8 @@ sw:
       metadata_answer_edit: "%{user} alibadilisha thamani ya metadata %{title}:%{answer}"
       project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa
         %{parent_type}"
-      project_media_create: "%{user} (%{role} kwa %{team}) %{type} ameongeza "
       project_media_create_related: "%{user} (%{role} kwa %{team}) ameongeza inayohusiana
         %{type}"
-      project_media_update: "%{user} (%{role} kwa %{team}) amehariri %{type}"
       project_media_status: "%{user} (%{role} kwa %{team}) amebadilisha %{workflow}
         hali ya %{type}"
       project_media_assign: "%{user} (%{role} kwa %{team}) amepangia %{type}"
@@ -638,7 +636,6 @@ sw:
   team_rule_conditions: Iwapo
   team_rule_condition: Iwapo
   team_rule_condition_definition: Chagua hali
-  team_rule_has_less_than_x_words: Ombi lina maneno chini ya nambari
   team_rule_title_matches_regexp: Kichwa cha kipengee kinawiana na usemi huu wa kawaida
   team_rule_request_matches_regexp: Ombi linawiana na usemi huu wa kawaida
   team_rule_type_is: Aina ya kipengee ni
@@ -943,10 +940,10 @@ sw:
     ulichotutumia kipo nje ya upeo wetu wa uhakiki. Unaweza kututumia picha, maandishi
     au video ambayo unahisi kuwa ni ya kupotosha. Angalia Tovuti yetu ya www.boomlive
     ili kusoma uhakiki wetu.
-  custom_message_status_undetermined_boom: Haijaamuliwa
-  custom_message_status_factchecked_boom: Imehakikiwa
   custom_message_status_undetermined_boom-test: Haijaamuliwa
   custom_message_status_factchecked_boom-test: Imehakikiwa
+  custom_message_status_undetermined_boom: Haijaamuliwa
+  custom_message_status_factchecked_boom: Imehakikiwa
   custom_message_status_unstarted_check-bot-garden: Haijaanzwa
   custom_message_smooch_bot_result_changed_caio: "❗️Hakiki tuliyokutumia *imesasishwa*
     na taarifa mpya: "
@@ -1093,8 +1090,6 @@ sw:
     au maswali ya ziada yanayohusiana na kitu hicho. Ombi lako litatumwa kwa wahakikii
     sekunde 30 baada ya kutuma ujumbe wako wa mwisho.\n\n*Jibu 0 (au  \U0001F4CC)*
     kurejea hadi *Menyu kuu*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Asante
-    kwa kutuma swali lako! Tumeanza kulishughulikia ombi lako sasa.
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Samahani,
     hatukuweza kuhakiki swali lako. Jifunze zaidi juu ya aina ya yaliyomo tunayoweza
     kuhakiki kwenye meedan.com
@@ -1143,7 +1138,7 @@ sw:
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: |-
     Taarifa uliyotuma na ombi lako sio wazi. Tafadhali tuma tena habari kamili au fuata kiungo hiki kwa hakiki zetu za hivi karibuni
     https://factly.in/category/fake-news/
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Haijaanzwa
   custom_message_status_in_progress_india-today: Inaendelea
   custom_message_status_inconclusive_india-today: Nje ya wigo

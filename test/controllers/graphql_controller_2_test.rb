@@ -1255,4 +1255,37 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
   end
+
+  test "should search for tags using operator" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    create_tag annotated: pm1, tag: 'test tag 1', disable_es_callbacks: false
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    create_tag annotated: pm2, tag: 'test tag 2', disable_es_callbacks: false
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+    create_tag annotated: pm3, tag: 'test tag 1', disable_es_callbacks: false
+    create_tag annotated: pm3, tag: 'test tag 2', disable_es_callbacks: false
+    pm4 = create_project_media team: t, disable_es_callbacks: false
+    create_tag annotated: pm4, tag: 'test tag 3', disable_es_callbacks: false
+    pm5 = create_project_media team: t, disable_es_callbacks: false
+    sleep 2
+
+    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: 'team'
+    assert_response :success
+    assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+
+    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"or\"}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: 'team'
+    assert_response :success
+    assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+
+    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"and\"}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: 'team'
+    assert_response :success
+    assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+  end
 end

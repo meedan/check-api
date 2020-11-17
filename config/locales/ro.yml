@@ -193,10 +193,8 @@ ro:
       metadata_answer_create: "%{user} a setat valoarea metadatelor %{title}: %{answer}"
       metadata_answer_edit: "%{user} a editat valoarea metadatelor %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
-      project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
         asociat"
-      project_media_update: "%{user} (%{role} în %{team}) a redactat %{type}"
       project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow}
         pentru %{type}"
       project_media_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
@@ -661,8 +659,6 @@ ro:
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
   team_rule_condition_definition: Selectați condiția
-  team_rule_has_less_than_x_words: Cererea conține mai puține cuvinte decât numărul
-    următor
   team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
     regulată
   team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
@@ -873,10 +869,10 @@ ro:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Nedemarat
   custom_message_smooch_bot_result_changed_caio: "❗️Verificarea de fapte pe care v-am
     transmis-o a fost *actualizată* cu informații noi:"
@@ -991,7 +987,6 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1037,7 +1032,7 @@ ro:
   custom_message_status_junk_checkpoint: Nedorit
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Nedemarat
   custom_message_status_in_progress_india-today: În curs
   custom_message_status_inconclusive_india-today: ''

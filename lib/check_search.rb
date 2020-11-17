@@ -401,13 +401,20 @@ class CheckSearch
   end
 
   def search_tags_query(tags)
-    tags_c = []
     tags = tags.collect{ |t| t.delete('#').downcase }
-    tags.each do |tag|
-      tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
+    tags_c = []
+    if @options['tags_operator'].to_s.downcase == 'and'
+      tags.each do |tag|
+        tags_c << { nested: { path: 'tags', query: { match: { 'tags.tag.raw': { query: tag, operator: 'and' } } } } }
+      end
+      { bool: { must: tags_c } }
+    else
+      tags.each do |tag|
+        tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
+      end
+      tags_c << { terms: { "tags.tag": tags } }
+      { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
     end
-    tags_c << { terms: { "tags.tag": tags } }
-    { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
   def build_search_doc_conditions
