@@ -190,10 +190,8 @@ ar:
       metadata_answer_create: 'قام %{user} بضبط قيمة البيانات الوصفيّة %{title}: %{answer}'
       metadata_answer_edit: 'قام %{user} بتحرير قيمة البيانات الوصفيّة %{title}: %{answer}'
       project_media_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
-      project_media_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}
         مرتبط
-      project_media_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
       project_media_status: قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow}
         %{type}
       project_media_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
@@ -636,7 +634,6 @@ ar:
   team_rule_conditions: إذا
   team_rule_condition: إذا
   team_rule_condition_definition: تحديد الشرط
-  team_rule_has_less_than_x_words: يحتوي الطلب على عدد من الكلمات أقل من اﻵتي
   team_rule_title_matches_regexp: عنوان العنصر يوافق التعبير القياسي الآتي
   team_rule_request_matches_regexp: الطلب يوافق التعبير القياسي الآتي
   team_rule_type_is: نوع العنصر هو
@@ -841,10 +838,10 @@ ar:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: لم يبدأ بعد
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -951,7 +948,6 @@ ar:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -996,7 +992,7 @@ ar:
   custom_message_status_junk_checkpoint: سخام
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: لم يبدأ بعد
   custom_message_status_in_progress_india-today: ''
   custom_message_status_inconclusive_india-today: ''

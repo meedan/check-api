@@ -228,7 +228,8 @@ class Relationship < ActiveRecord::Base
   end
 
   def set_user
-    self.user ||= User.current
+    current_user = User.current
+    self.user = current_user if self.user.nil? && !current_user.nil?
   end
 
   def items_are_from_the_same_team

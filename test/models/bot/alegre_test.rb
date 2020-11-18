@@ -414,4 +414,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Net::HTTP.any_instance.unstub(:request)
     end
   end
+
+  test "should set user_id on relationships" do
+    b = create_bot(name: 'Alegre')
+    b.update_column(:login, 'alegre')
+    p = create_project
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    create_relationship source_id: pm3.id, target_id: pm2.id
+    Bot::Alegre.add_relationships(pm1, [pm2.id])
+    r = Relationship.last
+    assert_equal pm1, r.target
+    assert_equal pm3, r.source
+    assert_not_nil r.user_id
+    assert_equal b.id, r.user_id
+  end
 end

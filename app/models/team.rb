@@ -467,6 +467,10 @@ class Team < ActiveRecord::Base
     ]
   end
 
+  def default_language
+    self.get_language || 'en'
+  end
+
   protected
 
   def get_values_from_entry(entry)

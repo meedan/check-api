@@ -245,7 +245,7 @@ class Bot::Fetch < BotUser
         end
       end
       date = claim_review['datePublished'].blank? ? Time.now : Time.parse(claim_review['datePublished'])
-      language = team.get_language || 'en'
+      language = team.default_language
       fields = {
         state: 'paused',
         options: [{

@@ -193,10 +193,12 @@ en:
       metadata_answer_create: "%{user} set value of metadata %{title}: %{answer}"
       metadata_answer_edit: "%{user} edited the value of metadata %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
-      project_media_create: "%{user} (%{role} at %{team}) added a %{type}"
+      project_media_create: "%{user} (%{role} at %{team}) submitted a new item"
       project_media_create_related: "%{user} (%{role} at %{team}) added a related
         %{type}"
-      project_media_update: "%{user} (%{role} at %{team}) edited a %{type}"
+      project_media_update: "%{user} (%{role} at %{team}) updated an item"
+      project_media_added_to_list: "%{user} (%{role} at %{team}) added an item to
+        list %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow}
         status of a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
@@ -637,8 +639,8 @@ en:
   team_rule_conditions: If
   team_rule_condition: If
   team_rule_condition_definition: Select condition
-  team_rule_has_less_than_x_words: Request contains less than the following number
-    of words
+  team_rule_has_less_than_x_words: Request contains less than (or exactly) the following
+    number of words
   team_rule_title_matches_regexp: Item title matches this regular expression
   team_rule_request_matches_regexp: Request matches this regular expression
   team_rule_type_is: Item type is
@@ -978,10 +980,10 @@ en:
     item you have sent us is beyond our scope to check. You could send us an image,
     some text or a video that you find misleading. Check our Website www.boomlive
     to read our fact-checks. '
-  custom_message_status_undetermined_boom: Undetermined
-  custom_message_status_factchecked_boom: Fact-Checked
   custom_message_status_undetermined_boom-test: Undetermined
   custom_message_status_factchecked_boom-test: Fact-Checked
+  custom_message_status_undetermined_boom: Undetermined
+  custom_message_status_factchecked_boom: Fact-Checked
   custom_message_status_unstarted_check-bot-garden: Unstarted
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
@@ -1128,8 +1130,6 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n
     \     \n*Reply 0 (or \U0001F4CC)* to go back to the *Main Menu*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Thank
-    you for sending your query! We started looking at your request now.
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
     we could not verify your query. Learn more about the type of content we can verify
     at meedan.com
@@ -1180,8 +1180,9 @@ en:
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: |-
     The information you sent with your request is not clear. Please resend the complete information or follow this link for our latest fact-checks
     https://factly.in/category/fake-news/
-  custom_message_rule_action_send_message_c8c030fa44ae2721c24efd4531d248ad_fato-ou-fake: Obrigada,
-    por te enviado a sugestao , mas nao checamos esse tipo de tema.
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: "Essa
+    informação que você compartilhou com a gente é #FATO. ✔️\nVocê pode encontrar
+    mais informações relacionadas em g1.com.br\nVolte sempre que tiver outras dúvidas. "
   custom_message_status_undetermined_india-today: Unstarted
   custom_message_status_in_progress_india-today: In progress
   custom_message_status_inconclusive_india-today: Out of scope
