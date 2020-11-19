@@ -245,6 +245,7 @@ class Bot::Alegre < BotUser
     r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id
+    r.user_id ||= BotUser.where(login: 'alegre').last&.id
     r.save!
   end
 

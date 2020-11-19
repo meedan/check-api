@@ -160,16 +160,21 @@ class ElasticSearch6Test < ActionController::TestCase
       p = create_project
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
-      pm1 = create_project_media project: p, disable_es_callbacks: false
+      pm1 = create_project_media project: p, quote: 'claim a', disable_es_callbacks: false
       sleep 5
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-      pm2 = create_project_media project: p, disable_es_callbacks: false
+      pm2 = create_project_media project: p, quote: 'claim b', disable_es_callbacks: false
       sleep 5
       Time.unstub(:now)
 
       # Missing start_time, end_time and timezone
+      # PG
       query = { range: {"#{field}": {}}}
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
@@ -177,39 +182,79 @@ class ElasticSearch6Test < ActionController::TestCase
       from = Time.new(2019, 05, 19, 12, 01).strftime("%Y-%m-%d %H:%M")
       to = Time.new(2019, 05, 20, 14, 01).strftime("%Y-%m-%d %H:%M")
       query = { range: {"#{field}": {start_time: from, end_time: to}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       query = { range: {"#{field}": {start_time: from, end_time: to}, timezone: ''}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       # Missing start_time and end_time
       query = { range: {"#{field}": {}, timezone: 'GMT'}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       query = { range: {"#{field}": {start_time: '', end_time: ''}, timezone: 'GMT'}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       # Missing start_time
       to = Time.new(2019, 05, 20, 14, 01).strftime("%Y-%m-%d %H:%M")
       query = { range: {"#{field}": {start_time: '', end_time: to}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       query = { range: {"#{field}": {end_time: to}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       # Missing end_time
       from = Time.new(2019, 05, 19, 12, 01).strftime("%Y-%m-%d %H:%M")
       query = { range: {"#{field}": {start_time: from, end_time: ''}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
       query = { range: {"#{field}": {start_time: from}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
 
@@ -217,6 +262,11 @@ class ElasticSearch6Test < ActionController::TestCase
       from = Time.new(2019, 05, 19, 12, 01).strftime("%Y-%m-%d")
       to = Time.new(2019, 05, 20, 14, 01).strftime("%Y-%m-%dT%H:%M")
       query = { range: {"#{field}": {start_time: from, end_time: to}}}
+      # PG
+      result = CheckSearch.new(query.to_json)
+      assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+      # ES
+      query[:keyword] = 'claim'
       result = CheckSearch.new(query.to_json)
       assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     end

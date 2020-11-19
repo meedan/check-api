@@ -180,11 +180,21 @@ ro:
       project_media: Element
       attribution: Răspuns dat de
     messages:
+      analysis_verification_status_status_changed: "%{user} și-a schimbat starea în:
+        %{value}"
+      analysis_title_changed: "%{user} a schimbat titlul analizei în: %{value}"
+      analysis_content_changed: "%{user} a modificat conținutul analizei în: %{value}"
+      tasks_create: "%{user} a adăugat o sarcină: %{title}"
+      tasks_edit: "%{user} a editat sarcina %{title}"
+      tasks_answer_create: "%{user} a răspuns la sarcina %{title}: %{answer}"
+      tasks_answer_edit: "%{user} a editat răspunsul la sarcina %{title}: %{answer}"
+      metadata_create: "%{user} a adăugat un câmp de metadate: %{title}"
+      metadata_edit: "%{user} a editat câmpul de metadate %{title}"
+      metadata_answer_create: "%{user} a setat valoarea metadatelor %{title}: %{answer}"
+      metadata_answer_edit: "%{user} a editat valoarea metadatelor %{title}: %{answer}"
       project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
-      project_media_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
         asociat"
-      project_media_update: "%{user} (%{role} în %{team}) a redactat %{type}"
       project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow}
         pentru %{type}"
       project_media_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
@@ -649,8 +659,6 @@ ro:
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
   team_rule_condition_definition: Selectați condiția
-  team_rule_has_less_than_x_words: Cererea conține mai puține cuvinte decât numărul
-    următor
   team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
     regulată
   team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
@@ -749,6 +757,14 @@ ro:
   replace_blank_media_only: Ne pare rău, dar puteți înlocui numai elemente goale deocamdată
   cant_preview_rss_feed: Ne pare rău, nu ai permisiunea de previzualizare ca flux
     RSS.
+  list_column_demand: Cereri
+  list_column_share_count: Partajări FB
+  list_column_linked_items_count: Asociate
+  list_column_type: Tip
+  list_column_status: Stare
+  list_column_created_at: Transmis
+  list_column_last_seen: Ultimul transmis
+  list_column_updated_at: Actualizată
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -971,7 +987,6 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1017,6 +1032,7 @@ ro:
   custom_message_status_junk_checkpoint: Nedorit
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
+  custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
   custom_message_status_undetermined_india-today: Nedemarat
   custom_message_status_in_progress_india-today: În curs
   custom_message_status_inconclusive_india-today: ''
@@ -1249,6 +1265,17 @@ ro:
     pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Verificarea de fapte pe care
+    v-am transmis-o a fost *actualizată* cu informații noi:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Salut! Bine ați venit la robotul de
+    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
+    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Ne pare rău, nu
+    am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_result_changed_test: "❗️Verificarea de fapte pe care v-am
     transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test: "Vă mulțumim! Cererea dvs. a fost
@@ -1292,17 +1319,6 @@ ro:
     pentru revenire în *meniul principal*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️Verificarea de fapte pe care
-    v-am transmis-o a fost *actualizată* cu informații noi:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Salut! Bine ați venit la robotul de
-    verificare a faptelor deținut de [denumirea organizației dvs.]. Verificăm alegații,
-    videoclipuri și imagini pe subiecte precum politică, sănătate, finanțe și tehnologie.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Ne pare rău, nu
-    am înțeles mesajul. Vă rugăm să încercați din nou!"
   custom_message_smooch_bot_result_changed_test-16: "❗️Verificarea de fapte pe care
     v-am transmis-o a fost *actualizată* cu informații noi:"
   custom_message_smooch_bot_message_confirmed_test-16: ''

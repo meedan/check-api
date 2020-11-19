@@ -23,6 +23,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :last_seen, types.String
   field :status, types.String
   field :share_count, types.Int
+  field :list_columns_values, JsonStringType
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 

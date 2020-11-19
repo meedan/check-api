@@ -17,7 +17,7 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:published_at] = self.published_at
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -88,12 +88,12 @@ module CheckElasticSearch
     values = store_elasticsearch_data(options[:keys], options[:data])
     client = $repository.client
     client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], retry_on_conflict: 3,
-            body: { script: { source: source, params: { value: values, id: values[:id], updated_at: Time.now.utc } } }
+            body: { script: { source: source, params: { value: values, id: values['id'], updated_at: Time.now.utc } } }
   end
 
   def store_elasticsearch_data(keys, data)
     data = get_elasticsearch_data(data)
-    values = { id: self.id }
+    values = { 'id' => self.id }
     keys.each do |k|
       values[k] = data[k] unless data[k].blank?
     end
@@ -132,17 +132,16 @@ module CheckElasticSearch
       # get value for choice and free text fields
       field_name = self.annotation_type.sub(/task_/, '')
       field = self.get_field(field_name)
-      included_fields = %w(response_multiple_choice response_single_choice response_free_text)
-      if !field.nil? && included_fields.include?(field.field_name)
+      unless field.nil?
         if field.field_name =~ /choice/
           value = field.selected_values_from_task_answer
         else
           value = [field.value]
         end
-        data = { value: value }
+        data = { value: value, field_type: field.field_type }
         task = self.annotated
-        if !task.nil? && task.annotation_type == 'task'
-          data.merge!({ team_task_id: task.team_task_id })
+        if task.respond_to?(:annotation_type) && task.annotation_type == 'task'
+          data.merge!({ id: task.id, team_task_id: task.team_task_id, fieldset: task.fieldset })
         end
       end
     end

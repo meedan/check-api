@@ -17,7 +17,7 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create
+  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create, :create_metrics_annotation
   after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
   after_commit :apply_rules_and_actions_on_create, on: [:create]
   after_commit :create_relationship, on: [:update, :create]
@@ -288,6 +288,48 @@ class ProjectMedia < ActiveRecord::Base
         new_project_media.save!
       end
     end
+  end
+
+  def method_missing(method, *args, &block)
+    match = /^task_value_([0-9]+)$/.match(method)
+    if match.nil?
+      super
+    else
+      self.task_value(match[1].to_i)
+    end
+  end
+
+  def task_value(team_task_id, force = false)
+    key = "project_media:task_value:#{self.id}:#{team_task_id}"
+    Rails.cache.fetch(key, force: force) do
+      task = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.team_task_id == team_task_id }.last
+      task.nil? ? nil : task.first_response
+    end
+  end
+
+  def type_of_media
+    self.media.type
+  end
+
+  def list_columns_values
+    values = {}
+    columns = self.team.list_columns || Team.default_list_columns
+    columns.each do |column|
+      c = column.with_indifferent_access
+      if c[:show]
+        key = c[:key]
+        values[key] = self.send(key)
+      end
+    end
+    values
+  end
+
+  def created_at_timestamp
+    self.created_at.to_i
+  end
+
+  def updated_at_timestamp
+    self.updated_at.to_i
   end
 
   protected

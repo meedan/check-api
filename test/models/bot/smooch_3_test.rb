@@ -690,7 +690,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal 'waiting_for_message', sm.state.value
       send_message_to_smooch_bot('Hello', uid)
       assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('9', uid)
+      assert_equal 'waiting_for_message', sm.state.value
       send_message_to_smooch_bot('What?', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('What??', uid)
       assert_equal 'main', sm.state.value
       send_message_to_smooch_bot('1', uid)
       assert_equal 'secondary', sm.state.value
@@ -729,40 +733,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_equal 'waiting_for_message', sm.state.value
     @team.set_languages ['en']
     @team.save!
-  end
-
-  test "should ask for TOS again if 24 hours have passed" do
-    uid = random_string
-    assert_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-
-    send_message_to_smooch_bot(random_string, uid)
-    pm = ProjectMedia.last
-    publish_report(pm, {}, nil, { use_visual_card: false })
-    assert_not_nil Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-    t1 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-
-    send_message_to_smooch_bot(random_string, uid)
-    pm = ProjectMedia.last
-    publish_report(pm, {}, nil, { use_visual_card: false })
-    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-    assert_equal t1, t2
-
-    now = Time.now
-    Time.stubs(:now).returns(now + 12.hours)
-    send_message_to_smooch_bot(random_string, uid)
-    pm = ProjectMedia.last
-    publish_report(pm, {}, nil, { use_visual_card: false })
-    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-    assert_equal t1, t2
-
-    Time.stubs(:now).returns(now + 25.hours)
-    send_message_to_smooch_bot(random_string, uid)
-    pm = ProjectMedia.last
-    publish_report(pm, {}, nil, { use_visual_card: false })
-    t2 = Rails.cache.read("smooch:last_accepted_terms:#{uid}")
-    assert_not_equal t1, t2
-
-    Time.unstub(:now)
   end
 
   test "should transition from query state to query state" do
@@ -818,7 +788,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 2, text.size
+      assert_equal 3, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       assert_equal 'main', sm.state.value
@@ -834,7 +804,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{MESSAGE_BOUNDARY}")
       # verify that all messages stored
-      assert_equal 4, text.size
+      assert_equal 5, text.size
       assert_equal '1', text.last
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
@@ -1015,7 +985,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Rails.cache.unstub(:read)
     Sidekiq::Worker.drain_all
     assert_equal 'waiting_for_message', sm.state.value
-    assert_equal ['Hello for the last time', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
+    assert_equal ['Hello for the last time', 'ONE ', '2', 'Query'], JSON.parse(Dynamic.where(annotation_type: 'smooch').last.get_field_value('smooch_data'))['text'].split(Bot::Smooch::MESSAGE_BOUNDARY).map(&:chomp)
     assert_equal 'Hello for the last time', ProjectMedia.last.text
   end
 
@@ -1253,10 +1223,15 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     uid = random_string
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
-    send_message_to_smooch_bot('Hello', uid)
-    send_message_to_smooch_bot('1', uid)
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot('1', uid)
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     send_message_to_smooch_bot('4', uid)
     assert_equal 'BotResource', Dynamic.where(annotation_type: 'smooch').last.annotated_type
+    Rails.cache.unstub(:read)
   end
 
   protected

@@ -7,6 +7,6 @@ class UploadedFile < Media
   end
 
   def self.max_size
-    self.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CONFIG['uploaded_file_max_size'], default: 2.megabytes })
+    self.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CONFIG['uploaded_file_max_size'], default: 20.megabytes })
   end
 end

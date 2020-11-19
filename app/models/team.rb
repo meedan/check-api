@@ -174,6 +174,11 @@ class Team < ActiveRecord::Base
     self.send(:set_language, language)
   end
 
+  def list_columns=(columns)
+    columns = columns.is_a?(String) ? JSON.parse(columns) : columns
+    self.send(:set_list_columns, columns)
+  end
+
   def search_id
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
@@ -359,6 +364,29 @@ class Team < ActiveRecord::Base
     end
   end
 
+  def list_columns
+    show_columns = self.get_list_columns || Team.default_list_columns.collect{ |c| c[:key] }
+    columns = []
+    Team.default_list_columns.each do |column|
+      show = column[:frozen] ? true : show_columns.include?(column[:key])
+      columns << column.merge({ show: show })
+    end
+    TeamTask.where(team_id: self.id, fieldset: 'metadata').each do |tt|
+      key = "task_value_#{tt.id}"
+      columns << {
+        key: key,
+        label: tt.label,
+        show: show_columns.include?(key),
+        type: tt.task_type,
+        frozen: false
+      }
+    end
+    columns.sort_by do |column|
+      index = show_columns.index(column[:key])
+      index.nil? ? show_columns.size : index
+    end
+  end
+
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
     updates = { 'status' => fallback_status_id, 'verification_status' => fallback_status_id }
     ProjectMedia.bulk_reindex(ids_json, updates)
@@ -383,6 +411,64 @@ class Team < ActiveRecord::Base
         report.save!
       end
     end
+  end
+
+  # This is a method and not a constant because we need the localizations to be evaluated in runtime
+  def self.default_list_columns
+    [
+      {
+        key: 'demand',
+        label: I18n.t(:list_column_demand),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'share_count',
+        label: I18n.t(:list_column_share_count),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'linked_items_count',
+        label: I18n.t(:list_column_linked_items_count),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'type_of_media',
+        label: I18n.t(:list_column_type),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'status',
+        label: I18n.t(:list_column_status),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'created_at_timestamp',
+        label: I18n.t(:list_column_created_at),
+        show: true,
+        frozen: true
+      },
+      {
+        key: 'last_seen',
+        label: I18n.t(:list_column_last_seen),
+        show: true,
+        frozen: true
+      },
+      {
+        key: 'updated_at_timestamp',
+        label: I18n.t(:list_column_updated_at),
+        show: true,
+        frozen: true
+      }
+    ]
+  end
+
+  def default_language
+    self.get_language || 'en'
   end
 
   protected

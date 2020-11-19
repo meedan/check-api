@@ -69,3 +69,4 @@ exclude_patterns:
 - "public/viber/bigtext.js"
 - "config/environments/*"
 - "db/schema.rb"
+- "app/models/concerns/smooch_tos.rb"

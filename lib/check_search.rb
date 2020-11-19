@@ -125,9 +125,11 @@ class CheckSearch
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
       es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
-      sort_value = $repository.find(es_id)[sort_key]
-      sort_operator = sort_type == :asc ? :lt : :gt
-      conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      unless sort_key.blank?
+        sort_value = $repository.find(es_id)[sort_key]
+        sort_operator = sort_type == :asc ? :lt : :gt
+        conditions << { range: { sort_key => { sort_operator => sort_value } } }
+      end
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
@@ -197,19 +199,88 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
-    # add keyword conditions
-    keyword_fields = %w(title description quote)
-    keyword_c = [{ simple_query_string: { query: @options["keyword"], fields: keyword_fields, default_operator: "AND" } }]
-
-    [['comments', 'text'], ['dynamics', 'indexable']].each do |pair|
-      keyword_c << { nested: { path: "#{pair[0]}", query: { simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }}}}
+    set_keyword_fields
+    keyword_c = []
+    field_conditions = build_keyword_conditions_media_fields
+    check_seach_concat_conditions(keyword_c, field_conditions)
+    [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
+      keyword_c << {
+        nested: {
+          path: "#{pair[0]}",
+          query: {
+            simple_query_string: { query: @options["keyword"], fields: ["#{pair[0]}.#{pair[1]}"], default_operator: "AND" }
+          }
+        }
+      } if should_include_keyword_field?(pair[0])
     end
 
-    keyword_c << search_tags_query(@options["keyword"].split(' '))
+    keyword_c << search_tags_query(@options["keyword"].split(' ')) if should_include_keyword_field?('tags')
 
-    keyword_c << { nested: { path: "accounts", query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}}}
+    keyword_c << {
+      nested: {
+        path: "accounts",
+        query: { simple_query_string: { query: @options["keyword"], fields: %w(accounts.username accounts.title), default_operator: "AND" }}
+      }
+    } if should_include_keyword_field?('accounts')
+
+    team_tasks_c = build_keyword_conditions_team_tasks
+    check_seach_concat_conditions(keyword_c, team_tasks_c)
 
     [{ bool: { should: keyword_c } }]
+  end
+
+  def set_keyword_fields
+    @options['keyword_fields'] ||= {}
+    @options['keyword_fields']['fields'] = [] unless @options['keyword_fields'].has_key?('fields')
+    @options['keyword_fields']['fields'] << 'team_tasks' if @options['keyword_fields'].has_key?('team_tasks')
+  end
+
+  def build_keyword_conditions_media_fields
+    es_fields = []
+    conditions = []
+    %w(title description quote analysis_title analysis_description).each do |f|
+      es_fields << f if should_include_keyword_field?(f)
+    end
+    conditions << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?
+    conditions
+  end
+
+  def build_keyword_conditions_team_tasks
+    conditions = []
+    # add tasks/metadata answers
+    {'task_answers' => 'tasks', 'metadata_answers' => 'metadata'}.each do |f, v|
+      conditions << {
+        nested: {
+          path: "task_responses",
+          query: { bool: { must: [
+              { simple_query_string: { query: @options["keyword"], fields: ["task_responses.value"], default_operator: "AND" } },
+              { term: { "task_responses.fieldset": { value: v } } }
+            ]
+          } }
+        }
+      } if should_include_keyword_field?(f)
+    end
+    # add team task/metadata filter (ids)
+    # should search in responses and comments
+    if should_include_keyword_field?('team_tasks') && !@options['keyword_fields']['team_tasks'].blank?
+      [['task_responses', 'value'], ['task_comments', 'text']].each do |pair|
+        conditions << {
+          nested: {
+            path: pair[0],
+            query: { bool: { must: [
+                { terms: { "#{pair[0]}.team_task_id": @options['keyword_fields']['team_tasks'] } },
+                { match: { "#{pair[0]}.#{pair[1]}": @options["keyword"] } }
+              ]
+            } }
+          }
+        }
+      end
+    end
+    conditions
+  end
+
+  def should_include_keyword_field?(field)
+    @options['keyword_fields']['fields'].blank? || @options['keyword_fields']['fields'].include?(field)
   end
 
   def build_search_dynamic_annotation_conditions
@@ -261,7 +332,14 @@ class CheckSearch
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
       if response_type == 'choice'
-        must_c << { term: { "task_responses.value.raw": tt['response'] } }
+        # should handle any/no values
+        if tt['response'] == 'ANY_VALUE'
+          must_c << { exists: { field: "task_responses.value" } }
+        elsif tt['response'] == 'NO_VALUE'
+          must_c << { bool: { must_not: [ { exists: { field: "task_responses.value" } } ] } }
+        else
+          must_c << { term: { "task_responses.value.raw": tt['response'] } }
+        end
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
@@ -271,7 +349,34 @@ class CheckSearch
   end
 
   def build_search_sort
-    if SORT_MAPPING.keys.include?(@options['sort'].to_s)
+    # As per spec, for now the team task sort should be just based on "has data" / "has no data"
+    # Items without data appear first
+    if @options['sort'] =~ /^task_value_[0-9]+$/
+      team_task_id = @options['sort'].match(/^task_value_([0-9]+)$/)[1].to_i
+      missing = {
+        asc: '_first',
+        desc: '_last'
+      }[@options['sort_type'].to_s.downcase.to_sym]
+      return [
+        {
+          'task_responses.id': {
+            order: @options['sort_type'],
+            missing: missing,
+            nested: {
+              path: 'task_responses',
+              filter: {
+                bool: {
+                  must: [
+                    { term: { 'task_responses.team_task_id': team_task_id } },
+                    { exists: { field: 'task_responses.value' } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    elsif SORT_MAPPING.keys.include?(@options['sort'].to_s)
       return [
         { SORT_MAPPING[@options['sort'].to_s] => @options['sort_type'].to_s.downcase.to_sym }
       ]
@@ -296,13 +401,20 @@ class CheckSearch
   end
 
   def search_tags_query(tags)
-    tags_c = []
     tags = tags.collect{ |t| t.delete('#').downcase }
-    tags.each do |tag|
-      tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
+    tags_c = []
+    if @options['tags_operator'].to_s.downcase == 'and'
+      tags.each do |tag|
+        tags_c << { nested: { path: 'tags', query: { match: { 'tags.tag.raw': { query: tag, operator: 'and' } } } } }
+      end
+      { bool: { must: tags_c } }
+    else
+      tags.each do |tag|
+        tags_c << { match: { "tags.tag.raw": { query: tag, operator: 'and' } } }
+      end
+      tags_c << { terms: { "tags.tag": tags } }
+      { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
     end
-    tags_c << { terms: { "tags.tag": tags } }
-    { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
   end
 
   def build_search_doc_conditions
