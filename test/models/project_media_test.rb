@@ -145,11 +145,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.relationship_source, pm
   end
 
-  test "checks truthfulness of is_claim?" do
+  test "zzz checks truthfulness of is_claim?" do
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "Claim"
+    pm.media.type = "Claim"
+    pm.media.save!
     assert pm.is_claim?
   end
 
@@ -157,7 +158,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "Link"
+    pm.media.type = "Link"
+    pm.media.save!
     assert pm.is_link?
   end
 
@@ -165,7 +167,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "UploadedImage"
+    pm.media.type = "UploadedImage"
+    pm.media.save!
     assert pm.is_uploaded_image?
   end
 
@@ -173,7 +176,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "UploadedImage"
+    pm.media.type = "UploadedImage"
+    pm.media.save!
     assert pm.is_image?
   end
 
@@ -181,7 +185,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "Link"
+    pm.media.type = "Link"
+    pm.media.save!
     assert pm.is_text?
   end
 
@@ -189,7 +194,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "Blank"
+    pm.media.type = "Blank"
+    pm.media.save!
     assert pm.is_blank?
   end
 
@@ -197,7 +203,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     pm = create_project_media team: t
-    pm.media_type = "UploadedImage"
+    pm.media.type = "UploadedImage"
+    pm.media.save!
     assert !pm.is_text?
   end
 
