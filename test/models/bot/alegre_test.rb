@@ -155,7 +155,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>2}
   end
 
-  test "zzz should relate project media to similar items" do
+  test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true

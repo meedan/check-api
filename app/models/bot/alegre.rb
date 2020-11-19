@@ -242,7 +242,7 @@ class Bot::Alegre < BotUser
     r = Relationship.new
     r.skip_check_ability = true
     r.relationship_type = self.relationship_type(pm, pm_id_scores[parent_id])
-    # r.weight = pm_id_scores[parent_id]
+    r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id
     r.user_id ||= BotUser.where(login: 'alegre').last&.id
