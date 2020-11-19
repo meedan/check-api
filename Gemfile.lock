@@ -153,6 +153,8 @@ GEM
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     bcrypt (3.1.13)
+    bitly (2.0.1)
+      oauth2 (>= 0.5.0, < 2.0)
     bootstrap-sass (3.4.1)
       autoprefixer-rails (>= 5.2.1)
       sassc (>= 2.0.0)
@@ -440,6 +442,7 @@ GEM
     omniauth-twitter (1.4.0)
       omniauth-oauth (~> 1.1)
       rack
+    open_uri_redirections (0.2.1)
     orm_adapter (0.5.0)
     os (0.9.6)
     paper_trail (7.0.1)
@@ -739,6 +742,7 @@ DEPENDENCIES
   authtrail
   awesome_print
   aws-sdk-s3 (= 1.46.0)
+  bitly
   bootstrap-sass (~> 3.4.1)
   bumbler
   byebug
@@ -795,6 +799,7 @@ DEPENDENCIES
   omniauth-google-oauth2
   omniauth-slack
   omniauth-twitter
+  open_uri_redirections
   paper_trail
   parallel_tests
   partitioned!

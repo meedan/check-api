@@ -136,3 +136,5 @@ gem 'swagger-docs', '0.1.9'
 gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
 gem 'shortener'
 gem 'taglib-ruby'
+gem 'bitly', require: false
+gem 'open_uri_redirections', require: false
