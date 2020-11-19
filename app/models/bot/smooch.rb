@@ -573,9 +573,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.resend_slack_message_after_window(message)
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    result = api_instance.get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
+    result = self.smooch_api_get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
     return if result.nil?
     result.messages.each do |m|
       if m.source&.type == 'slack' && m.id == message['message']['_id']
@@ -587,6 +585,18 @@ class Bot::Smooch < BotUser
       end
     end
     false
+  end
+
+  def self.smooch_api_get_messages(app_id, user_id, opts = {})
+    result = nil
+    api_client = self.smooch_api_client
+    api_instance = SmoochApi::ConversationApi.new(api_client)
+    begin
+      result = api_instance.get_messages(app_id, user_id, opts)
+    rescue StandardError => e
+      Rails.logger.error("[Smooch Bot] Exception for get messages : #{e.message}")
+    end
+    result
   end
 
   def self.get_language(message, fallback_language = 'en')
@@ -741,6 +751,9 @@ class Bot::Smooch < BotUser
     # TODO: By Sawy - Should handle User.current value
     # In this case User.current was reset by SlackNotificationWorker worker
     # Quick fix - assigning it again using annotated object and reset its value at the end of creation
+    fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
+    result = self.smooch_api_get_messages(app_id, message['authorId'])
+    fields[:smooch_conversation_id] = result.conversation.id unless result.nil?
     current_user = User.current
     User.current = author
     User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
@@ -751,7 +764,7 @@ class Bot::Smooch < BotUser
     a.disable_es_callbacks = Rails.env.to_s == 'test'
     a.annotation_type = 'smooch'
     a.annotated = annotated
-    a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
+    a.set_fields = fields.to_json
     a.save!
     User.current = current_user
   end
