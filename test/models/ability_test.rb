@@ -2073,7 +2073,7 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "zzz should not duplicate query conditions" do
+  test "should not duplicate query conditions" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'annotator'

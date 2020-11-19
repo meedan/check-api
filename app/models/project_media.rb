@@ -37,19 +37,19 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def is_claim?
-    self.media_type == "Claim"
+    self.media.type == "Claim"
   end
 
   def is_link?
-    self.media_type == "Link"
+    self.media.type == "Link"
   end
 
   def is_uploaded_image?
-    self.media_type == "UploadedImage"
+    self.media.type == "UploadedImage"
   end
 
   def is_blank?
-    self.media_type == "Blank"
+    self.media.type == "Blank"
   end
 
   def is_image?

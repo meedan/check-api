@@ -18,6 +18,7 @@ class Bot::Alegre < BotUser
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
         self.send_to_title_similarity_index(pm)
+        self.send_to_description_similarity_index(pm)
         self.get_flags(pm)
         self.relate_project_media_to_similar_items(pm)
         handled = true
@@ -108,6 +109,11 @@ class Bot::Alegre < BotUser
     self.send_to_text_similarity_index(pm, 'title', pm.title)
   end
 
+  def self.send_to_description_similarity_index(pm)
+    return if pm.description.blank?
+    self.send_to_text_similarity_index(pm, 'description', pm.description)
+  end
+
   def self.send_to_text_similarity_index(pm, field, text)
     self.request_api('post', '/text/similarity/', {
       text: text,
@@ -149,11 +155,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
-    pm.title.to_s.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
+    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
   end
 
   def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
-    pm.description.to_s.split(" ").length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
+    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
   end
 
   def self.extract_project_medias_from_context(search_result)
