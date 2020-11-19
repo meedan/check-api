@@ -145,7 +145,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal pm.relationship_source, pm
   end
 
-  test "zzz checks truthfulness of is_claim?" do
+  test "checks truthfulness of is_claim?" do
     u = create_user
     t = create_team
     pm = create_project_media team: t

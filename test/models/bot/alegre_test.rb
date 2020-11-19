@@ -155,7 +155,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>2}
   end
 
-  test "should relate project media to similar items" do
+  test "zzz should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
@@ -176,6 +176,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
+    pm3.media.type = "UploadedImage"
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -316,12 +317,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return an image confirmed relationship threshold" do
     p = create_project
     pm = create_project_media project: p, is_image: true
+    pm.media.type = "UploadedImage"
     assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), CONFIG['automatic_image_similarity_threshold']
   end
 
   test "should return a fallback confirmed relationship threshold" do
     p = create_project
     pm = create_project_media project: p
+    pm.media.type = "Ball"
     assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), 1
   end
 
@@ -423,7 +426,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.add_relationships(pm1, [pm2.id])
+    Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
     r = Relationship.last
     assert_equal pm1, r.target
     assert_equal pm3, r.source
