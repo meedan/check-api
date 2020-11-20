@@ -89,8 +89,8 @@ namespace :check do
 
       # Analysis and Status
 
-      label = line['selo'].strip.capitalize
-      status = team.media_verification_statuses['statuses'].find{ |s| s['label'] == label }['id']
+      label = '#' + line['selo'].strip.upcase
+      status = team.media_verification_statuses['statuses'].find{ |s| s['label'] == label || s['locales']['pt_BR']['label'] == label }['id']
       s = pm.last_status_obj
       s.skip_check_ability = true
       s.skip_notifications = true
@@ -122,7 +122,7 @@ namespace :check do
           language: 'pt_BR',
           title: title,
           text: [line['explicacao'], link].join("\n"),
-          status_label: '#' + label.upcase,
+          status_label: label.upcase,
           use_visual_card: true,
           headline: '',
           description: title.truncate(240),
