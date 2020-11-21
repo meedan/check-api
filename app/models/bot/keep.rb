@@ -126,7 +126,6 @@ class Bot::Keep < BotUser
       a = Dynamic.where(annotation_type: 'archiver', annotated_type: self.class_name, annotated_id: self.id).last
       if a.nil?
         a = Dynamic.new
-        a.skip_check_ability = true
         a.skip_notifications = true
         a.disable_es_callbacks = Rails.env.to_s == 'test'
         a.annotation_type = 'archiver'
@@ -136,6 +135,7 @@ class Bot::Keep < BotUser
       archives = data['archives']
       response = Bot::Keep.set_response_based_on_pender_data(type, archives[Bot::Keep.annotation_type_to_archiver(type)])
       a.set_fields = { "#{type}_response" => response.to_json }.to_json
+      a.skip_check_ability = true
       a.save!
     end
 

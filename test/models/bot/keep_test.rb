@@ -75,11 +75,14 @@ class Bot::KeepTest < ActiveSupport::TestCase
     l = create_link
     p = create_project team: t
     pm = create_project_media project: p, media: l
-    u = create_user is_admin: true
+    u = create_user
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
         Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
       end
+    end
+    assert_nothing_raised RuntimeError do
+      Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
     end
   end
 
