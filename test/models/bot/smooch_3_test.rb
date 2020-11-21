@@ -867,6 +867,74 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert !Bot::Smooch.resend_message_after_window(message)
   end
 
+  test "should store smooch conversation id" do
+    create_annotation_type_and_fields('Smooch', { 'Conversation Id' => ['Text', true] })
+    conversation_id = random_string
+    result = OpenStruct.new({ conversation: OpenStruct.new({ id: conversation_id })})
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+    Sidekiq::Testing.inline! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert_difference "DynamicAnnotation::Field.where(field_name: 'smooch_conversation_id').count" do
+        Bot::Smooch.run(payload)
+      end
+      pm = ProjectMedia.last
+      a = pm.annotations('smooch').last
+      assert_equal conversation_id, a.load.get_field_value('smooch_conversation_id')
+    end
+    SmoochApi::ConversationApi.any_instance.unstub(:get_messages)
+  end
+
+  test "should rescue ConversationApi get_messages and skip create smooch conversation id" do
+    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).raises(SmoochApi::ApiError.new)
+    Sidekiq::Testing.inline! do
+      uid = random_string
+      messages = [
+        {
+          '_id': random_string,
+          authorId: uid,
+          type: 'text',
+          text: random_string
+        }
+      ]
+      payload = {
+        trigger: 'message:appUser',
+        app: {
+          '_id': @app_id
+        },
+        version: 'v1.1',
+        messages: messages,
+        appUser: {
+          '_id': random_string,
+          'conversationStarted': true
+        }
+      }.to_json
+      assert_no_difference "DynamicAnnotation::Field.where(field_name: 'smooch_conversation_id').count" do
+        Bot::Smooch.run(payload)
+      end
+    end
+    SmoochApi::ConversationApi.any_instance.unstub(:get_messages)
+  end
+
   test "should resend rules action message after window" do
     msgid = random_string
     pm = create_project_media
