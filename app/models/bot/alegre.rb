@@ -185,11 +185,15 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_similar_items_from_api(path, conditions, pm)
-    Hash[
-      *self.request_api('get', path, conditions).dig('result')&.collect{ |r|
+    response = {}
+    self.request_api('get', path, conditions).dig('result')&.collect{ |r|
         self.extract_project_medias_from_context(r) 
-      }
-    ].reject{ |id, score| 
+    }.each do |request_response|
+      request_response.each do |pmid, score|
+        response[pmid] = score
+      end
+    end
+    response.reject{ |id, score| 
       id.blank? || pm.id == id
     }
   end
