@@ -188,6 +188,7 @@ class Dynamic < ActiveRecord::Base
       data.each do |field, value|
         f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
         f.value = value
+        f.skip_check_ability = true
         f.save!
       end
     end
