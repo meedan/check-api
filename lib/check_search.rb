@@ -167,6 +167,8 @@ class CheckSearch
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
+      ids_conditions = build_search_ids_conditions
+      check_seach_concat_conditions(conditions, ids_conditions)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
@@ -187,7 +189,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    @options['id'] ? [$repository.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
@@ -346,6 +348,12 @@ class CheckSearch
       conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
     conditions
+  end
+
+  def build_search_ids_conditions
+    conditions = []
+    return conditions unless @options.has_key?('id') && @options['id'].class.name == 'Array'
+    conditions << { terms: { annotated_id: @options['id'] } }
   end
 
   def build_search_sort

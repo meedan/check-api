@@ -551,4 +551,35 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm3.id], results.medias.map(&:id).sort
     end
   end
+
+  test "should search by media id" do
+    t = create_team
+    u = create_user
+    p = create_project team_id: t.id
+    p2 = create_project team_id: t.id
+    pm = create_project_media project: p, disable_es_callbacks: false
+    pm2 = create_project_media quote: 'claim b', project: p2, disable_es_callbacks: false
+    sleep 2
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u ,t) do
+      # PG
+      query = 'query Search { search(query: "{\"id\":[' + pm.id.to_s + ',' + pm2.id.to_s + '],\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm.id], ids
+      # ES
+      query = 'query Search { search(query: "{\"id\":[' + pm.id.to_s + ',' + pm2.id.to_s + '],\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid, description } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm2.id], ids
+    end
+  end
 end
