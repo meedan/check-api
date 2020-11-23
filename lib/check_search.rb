@@ -13,6 +13,8 @@ class CheckSearch
     @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 20
     @options['esoffset'] ||= 0
+    # set es_id option
+    @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
   end
 
@@ -116,7 +118,7 @@ class CheckSearch
   end
 
   def item_navigation_offset
-    return -1 unless @options['id']
+    return -1 unless @options['es_id']
     sort_key = SORT_MAPPING[@options['sort'].to_s]
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
@@ -124,11 +126,14 @@ class CheckSearch
     if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
-      es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
+      es_id = @options['es_id']
       unless sort_key.blank?
-        sort_value = $repository.find(es_id)[sort_key]
-        sort_operator = sort_type == :asc ? :lt : :gt
-        conditions << { range: { sort_key => { sort_operator => sort_value } } }
+        result = $repository.find([es_id]).first
+        unless result.nil?
+          sort_value = result[sort_key]
+          sort_operator = sort_type == :asc ? :lt : :gt
+          conditions << { range: { sort_key => { sort_operator => sort_value } } }
+        end
       end
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
@@ -167,8 +172,6 @@ class CheckSearch
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
       user = User.current
       conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
-      ids_conditions = build_search_ids_conditions
-      check_seach_concat_conditions(conditions, ids_conditions)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
@@ -189,7 +192,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
@@ -348,12 +351,6 @@ class CheckSearch
       conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
     conditions
-  end
-
-  def build_search_ids_conditions
-    conditions = []
-    return conditions unless @options.has_key?('id') && @options['id'].class.name == 'Array'
-    conditions << { terms: { annotated_id: @options['id'] } }
   end
 
   def build_search_sort
