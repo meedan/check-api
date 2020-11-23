@@ -82,6 +82,6 @@ end
 
 POOL = Concurrent::ThreadPoolExecutor.new(
   min_threads: 1,
-  max_threads: 5,
+  max_threads: 20,
   max_queue: 0 # unbounded work queue
 )

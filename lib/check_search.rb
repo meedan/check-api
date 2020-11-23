@@ -13,6 +13,9 @@ class CheckSearch
     @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 20
     @options['esoffset'] ||= 0
+    adjust_es_window_size
+    # set es_id option
+    @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
   end
 
@@ -116,7 +119,7 @@ class CheckSearch
   end
 
   def item_navigation_offset
-    return -1 unless @options['id']
+    return -1 unless @options['es_id']
     sort_key = SORT_MAPPING[@options['sort'].to_s]
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
@@ -124,12 +127,9 @@ class CheckSearch
     if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
-      es_id = Base64.encode64("ProjectMedia/#{@options['id']}")
-      unless sort_key.blank?
-        sort_value = $repository.find(es_id)[sort_key]
-        sort_operator = sort_type == :asc ? :lt : :gt
-        conditions << { range: { sort_key => { sort_operator => sort_value } } }
-      end
+      es_id = @options['es_id']
+      offset_c = item_navigation_offset_condition(sort_type, sort_key)
+      conditions << offset_c unless offset_c.nil?
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
@@ -137,6 +137,18 @@ class CheckSearch
       condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
       get_pg_results_for_media.where(condition, pm.send(sort_key)).count
     end
+  end
+
+  def item_navigation_offset_condition(sort_type, sort_key)
+    condition = nil
+    return condition if sort_key.blank?
+    result = $repository.find([@options['es_id']]).first
+    unless result.nil?
+      sort_value = result[sort_key]
+      sort_operator = sort_type == :asc ? :lt : :gt
+      condition = { range: { sort_key => { sort_operator => sort_value } } }
+    end
+    condition
   end
 
   def get_pg_results_for_media
@@ -187,10 +199,16 @@ class CheckSearch
 
   def medias_get_search_result(query)
     sort = build_search_sort
-    @options['id'] ? [$repository.find(Base64.encode64("ProjectMedia/#{@options['id']}"))] : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
+
+  def adjust_es_window_size
+    window_size = 10000
+    current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
+    @options['eslimit'] = window_size - @options['esoffset'].to_i if  current_size > window_size
+  end
 
   def index_exists?
     client = $repository.client

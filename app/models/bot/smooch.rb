@@ -124,53 +124,63 @@ class Bot::Smooch < BotUser
 
   ::Version.class_eval do
     def smooch_user_slack_channel_url
-      object_after = JSON.parse(self.object_after)
-      return unless object_after['field_name'] == 'smooch_data'
-      slack_channel_url = ''
-      data = JSON.parse(object_after['value'])
-      unless data.nil?
-        obj = self.associated
-        key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
-        slack_channel_url = Rails.cache.read(key)
-        if slack_channel_url.blank?
-          slack_channel_url = get_slack_channel_url(obj, data)
-          Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
+      Concurrent::Future.execute(executor: POOL) do
+        object_after = JSON.parse(self.object_after)
+        return unless object_after['field_name'] == 'smooch_data'
+        slack_channel_url = ''
+        data = JSON.parse(object_after['value'])
+        unless data.nil?
+          key = "SmoochUserSlackChannelUrl:Team:#{self.team_id}:#{data['authorId']}"
+          slack_channel_url = Rails.cache.read(key)
+          if slack_channel_url.blank?
+            obj = self.associated
+            slack_channel_url = get_slack_channel_url(obj, data)
+            Rails.cache.write(key, slack_channel_url) unless slack_channel_url.blank?
+          end
         end
+        slack_channel_url
       end
-      slack_channel_url
     end
 
     def smooch_user_external_identifier
-      object_after = JSON.parse(self.object_after)
-      return '' unless object_after['field_name'] == 'smooch_data'
-      data = JSON.parse(object_after['value'])
-      field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: data['authorId']).last
-      return '' if field.nil?
-      user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
-      case user[:platform]
-      when 'whatsapp'
-        user[:displayName]
-      when 'twitter'
-        '@' + user[:raw][:screen_name]
-      else
-        ''
+      Concurrent::Future.execute(executor: POOL) do
+        object_after = JSON.parse(self.object_after)
+        return '' unless object_after['field_name'] == 'smooch_data'
+        data = JSON.parse(object_after['value'])
+        Rails.cache.fetch("smooch:user:external_identifier:#{data['authorId']}") do
+          field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: data['authorId']).last
+          return '' if field.nil?
+          user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
+          case user[:platform]
+          when 'whatsapp'
+            user[:displayName]
+          when 'twitter'
+            '@' + user[:raw][:screen_name]
+          else
+            ''
+          end
+        end
       end
     end
 
     def smooch_report_received_at
-      begin
-        self.item.annotation.load.get_field_value('smooch_report_received').to_i
-      rescue
-        nil
+      Concurrent::Future.execute(executor: POOL) do
+        begin
+          self.item.annotation.load.get_field_value('smooch_report_received').to_i
+        rescue
+          nil
+        end
       end
     end
 
     def smooch_report_update_received_at
-      begin
-        field = self.item.annotation.load.get_field('smooch_report_received')
-        field.created_at != field.updated_at ? field.value.to_i : nil
-      rescue
-        nil
+      Concurrent::Future.execute(executor: POOL) do
+        begin
+          field = self.item.annotation.load.get_field('smooch_report_received')
+          field.created_at != field.updated_at ? field.value.to_i : nil
+        rescue
+          nil
+        end
       end
     end
 
@@ -399,7 +409,7 @@ class Bot::Smooch < BotUser
       end
     when 'query'
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
-        self.delay_for(15.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+        self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
@@ -427,7 +437,7 @@ class Bot::Smooch < BotUser
         if option['smooch_menu_option_value'] =~ /_state$/
           self.bundle_message(message)
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
-          self.delay_for(15.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
+          self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, self.get_message_for_state(workflow, new_state, language))
         elsif option['smooch_menu_option_value'] == 'resource'
@@ -573,9 +583,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.resend_slack_message_after_window(message)
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    result = api_instance.get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
+    result = self.smooch_api_get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
     return if result.nil?
     result.messages.each do |m|
       if m.source&.type == 'slack' && m.id == message['message']['_id']
@@ -587,6 +595,18 @@ class Bot::Smooch < BotUser
       end
     end
     false
+  end
+
+  def self.smooch_api_get_messages(app_id, user_id, opts = {})
+    result = nil
+    api_client = self.smooch_api_client
+    api_instance = SmoochApi::ConversationApi.new(api_client)
+    begin
+      result = api_instance.get_messages(app_id, user_id, opts)
+    rescue StandardError => e
+      Rails.logger.error("[Smooch Bot] Exception for get messages : #{e.message}")
+    end
+    result
   end
 
   def self.get_language(message, fallback_language = 'en')
@@ -741,6 +761,9 @@ class Bot::Smooch < BotUser
     # TODO: By Sawy - Should handle User.current value
     # In this case User.current was reset by SlackNotificationWorker worker
     # Quick fix - assigning it again using annotated object and reset its value at the end of creation
+    fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
+    result = self.smooch_api_get_messages(app_id, message['authorId'])
+    fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
     current_user = User.current
     User.current = author
     User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
@@ -751,7 +774,7 @@ class Bot::Smooch < BotUser
     a.disable_es_callbacks = Rails.env.to_s == 'test'
     a.annotation_type = 'smooch'
     a.annotated = annotated
-    a.set_fields = { smooch_data: message.merge({ app_id: app_id }).to_json }.to_json
+    a.set_fields = fields.to_json
     a.save!
     User.current = current_user
   end
