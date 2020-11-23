@@ -557,7 +557,7 @@ class ElasticSearch7Test < ActionController::TestCase
     u = create_user
     pm = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
     pm2 = create_project_media team: t, quote: 'claim b', disable_es_callbacks: false
-    sleep 5
+    sleep 2
     create_team_user team: t, user: u, role: 'owner'
     with_current_user_and_team(u ,t) do
       # Hit ES with option id
@@ -585,6 +585,24 @@ class ElasticSearch7Test < ActionController::TestCase
       post :create, query: query
       assert_response :success
       assert_empty JSON.parse(@response.body)['data']['search']['medias']['edges']
+    end
+  end
+
+  test "should adjust ES window size" do
+    t = create_team
+    u = create_user
+    pm = create_project_media quote: 'claim a', disable_es_callbacks: false
+    sleep 2
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u ,t) do
+      assert_nothing_raised do
+        query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":20000,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
+        post :create, query: query
+        assert_response :success
+        query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":10000,\"esoffset\":20}") {medias(first:20){edges{node{dbid}}}}}'
+        post :create, query: query
+        assert_response :success
+      end
     end
   end
 end
