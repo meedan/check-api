@@ -258,7 +258,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2"
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
@@ -288,7 +288,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2"
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
@@ -394,7 +394,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2"
     pm2.analysis = { title: 'Title 1' }
     pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
         "_id" => "tMXj53UB36CYclMPXp14",
