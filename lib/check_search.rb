@@ -127,14 +127,8 @@ class CheckSearch
       query = medias_build_search_query('ProjectMedia')
       conditions = query[:bool][:must]
       es_id = @options['es_id']
-      unless sort_key.blank?
-        result = $repository.find([es_id]).first
-        unless result.nil?
-          sort_value = result[sort_key]
-          sort_operator = sort_type == :asc ? :lt : :gt
-          conditions << { range: { sort_key => { sort_operator => sort_value } } }
-        end
-      end
+      offset_c = item_navigation_offset_condition(sort_type, sort_key)
+      conditions << offset_c unless offset_c.nil?
       must_not = [{ ids: { values: [es_id] } }]
       query = { bool: { must: conditions, must_not: must_not } }
       $repository.count(query: query)
@@ -142,6 +136,18 @@ class CheckSearch
       condition = sort_type == :asc ? "#{sort_key} < ?" : "#{sort_key} > ?"
       get_pg_results_for_media.where(condition, pm.send(sort_key)).count
     end
+  end
+
+  def item_navigation_offset_condition(sort_type, sort_key)
+    condition = nil
+    return condition if sort_key.blank?
+    result = $repository.find([@options['es_id']]).first
+    unless result.nil?
+      sort_value = result[sort_key]
+      sort_operator = sort_type == :asc ? :lt : :gt
+      condition = { range: { sort_key => { sort_operator => sort_value } } }
+    end
+    condition
   end
 
   def get_pg_results_for_media
