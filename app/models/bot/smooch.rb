@@ -22,10 +22,14 @@ class Bot::Smooch < BotUser
   end
 
   ::Relationship.class_eval do
+    def is_valid_smooch_relationship?
+      self.is_confirmed? || self.is_default?
+    end
+
     after_create do
       target = self.target
       parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target)
+      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_valid_smooch_relationship?
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = parent.last_verification_status
         if !s.nil? && s.status != status
@@ -37,6 +41,7 @@ class Bot::Smooch < BotUser
     end
 
     after_destroy do
+      return if self.is_valid_smooch_relationship?
       target = self.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
@@ -895,7 +900,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_users(pm, action)
-    parent = Relationship.where(target_id: pm.id).last&.source || pm
+    parent = Relationship.default_or_confirmed_parent(pm)
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
@@ -927,7 +932,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
-    parent = Relationship.where(target_id: pm.id).last&.source || pm
+    parent = Relationship.default_or_confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
     if report&.get_field_value('state') == 'published' && !parent.archived
       last_smooch_response = nil
@@ -969,7 +974,7 @@ class Bot::Smooch < BotUser
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
-    pm.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
+    pm.source_relationships.default_or_confirmed.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
       target = relationship.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       next if s.nil? || s.status == status

@@ -127,7 +127,6 @@ class Bot::Alegre < BotUser
 
   def self.send_to_image_similarity_index(pm)
     return if pm.report_type != 'uploadedimage'
-
     self.request_api('post', '/image/similarity/', {
       url: self.media_file_url(pm),
       context: {
@@ -146,7 +145,8 @@ class Bot::Alegre < BotUser
     http.use_ssl = uri.scheme == 'https'
     begin
       response = http.request(request)
-      JSON.parse(response.body)
+      puts response.body
+      parsed = JSON.parse(response.body)
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
       self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
@@ -249,7 +249,7 @@ class Bot::Alegre < BotUser
     r.weight = pm_id_scores[parent_id]
     r.source_id = parent_id
     r.target_id = pm.id
-    r.user_id ||= BotUser.where(login: 'alegre').last&.id
+    r.user_id ||= BotUser.alegre_user&.id
     r.save!
   end
 
