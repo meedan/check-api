@@ -259,20 +259,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "_source" => {
-            "id" => 1,
-            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-            "phash" => 17399941807326929,
-            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context" => [{
-              "team_id" => pm2.team.id.to_s,
-              "project_media_id" => pm2.id.to_s
-            }],
-          },
-          "_score" => 0.9
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
         }
+      }
       ]
     })
     response = Bot::Alegre.get_similar_items(pm)
@@ -290,20 +289,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "_source" => {
-            "id" => 1,
-            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-            "phash" => 17399941807326929,
-            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context" => [{
-              "team_id" => pm2.team.id.to_s,
-              "project_media_id" => pm2.id.to_s
-            }],
-          },
-          "_score" => 0.9
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
         }
+      }
       ]
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
@@ -397,20 +395,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.analysis = { title: 'Title 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "_source" => {
-            "id" => 1,
-            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-            "phash" => 17399941807326929,
-            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context" => [{
-              "team_id" => pm2.team.id.to_s,
-              "project_media_id" => pm2.id.to_s
-            }],
-          },
-          "_score" => 0.9
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
         }
+      }
       ]
     })
     response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
