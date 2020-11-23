@@ -13,6 +13,10 @@ class CheckSearch
     @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 20
     @options['esoffset'] ||= 0
+    # adjust ES window size
+    window_size = 10000
+    current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
+    @options['eslimit'] = window_size - @options['esoffset'].to_i if  current_size > window_size
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
