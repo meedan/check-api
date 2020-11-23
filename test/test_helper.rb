@@ -28,6 +28,17 @@ class ActionController::TestCase
   include Devise::Test::ControllerHelpers
 end
 
+class << Concurrent::Future
+  alias_method :original_execute, :execute
+  def execute(args = {}, &block)
+    if Rails.env == 'test'
+      yield
+    else
+      original_execute(args, &block)
+    end
+  end
+end
+
 class Api::V1::TestController < Api::V1::BaseApiController
   before_filter :verify_payload!, only: [:notify]
   skip_before_filter :authenticate_from_token!, only: [:notify]
