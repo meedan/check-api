@@ -551,4 +551,40 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm3.id], results.medias.map(&:id).sort
     end
   end
+
+  test "should search by media id" do
+    t = create_team
+    u = create_user
+    pm = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'claim b', disable_es_callbacks: false
+    sleep 5
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u ,t) do
+      # Hit ES with option id
+      # A) id is array (should ignore)
+      query = 'query Search { search(query: "{\"id\":[' + pm.id.to_s + '],\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm.id, pm2.id], ids.sort
+      # B) id is string and exists in ES
+      query = 'query Search { search(query: "{\"id\":' + pm.id.to_s + ',\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+      post :create, query: query
+      assert_response :success
+      ids = []
+      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+        ids << id["node"]["dbid"]
+      end
+      assert_equal [pm.id], ids
+      # C) id is string and not exists in ES
+      $repository.delete(get_es_id(pm))
+      query = 'query Search { search(query: "{\"id\":' + pm.id.to_s + ',\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
+      post :create, query: query
+      assert_response :success
+      assert_empty JSON.parse(@response.body)['data']['search']['medias']['edges']
+    end
+  end
 end
