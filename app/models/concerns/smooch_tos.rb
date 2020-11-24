@@ -251,13 +251,19 @@ module SmoochTos
       messages[locale] || messages[default_locale] || messages[:en]
     end
 
-    def tos_message(language)
-      self.get_message_for_language(GREETING, language)
+    def get_custom_message_for_language(workflow, key)
+      message = workflow.dig('smooch_message_smooch_bot_tos', key)
+      message.blank? ? nil : message
     end
 
-    def send_tos_to_user(uid, language)
+    def tos_message(workflow, language)
+      self.get_custom_message_for_language(workflow, 'greeting') || self.get_message_for_language(GREETING, language)
+    end
+
+    def send_tos_to_user(workflow, uid, language)
       team = Team.find(self.config['team_id'].to_i)
-      message = self.get_message_for_language(CONTENT, language).gsub(/^[ ]+/, '')
+      message = self.get_custom_message_for_language(workflow, 'content') || self.get_message_for_language(CONTENT, language)
+      message = message.gsub(/^[ ]+/, '')
       message = message.gsub('%{team}', team.name)
       self.send_message_to_user(uid, message)
     end
