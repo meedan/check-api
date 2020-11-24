@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201113220754) do
+ActiveRecord::Schema.define(version: 202010161522429) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -267,12 +267,13 @@ ActiveRecord::Schema.define(version: 20201113220754) do
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
 
   create_table "relationships", force: :cascade do |t|
-    t.integer  "source_id",         null: false
-    t.integer  "target_id",         null: false
-    t.string   "relationship_type", null: false
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.integer  "source_id",                       null: false
+    t.integer  "target_id",                       null: false
+    t.string   "relationship_type",               null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.integer  "user_id"
+    t.float    "weight",            default: 0.0
   end
 
   add_index "relationships", ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true, using: :btree

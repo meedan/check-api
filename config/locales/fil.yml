@@ -184,22 +184,27 @@ fil:
     messages:
       analysis_verification_status_status_changed: 'Binago ni %{user} ang status sa:
         %{value}'
-      analysis_title_changed: 'Binago ni %{user} ang pamagat ng panunuri sa: %{value}'
-      analysis_content_changed: 'Binago ni %{user} ang nilalaman ng panunuri sa: %{value}'
+      analysis_title_changed: 'Binago ni %{user} ang pamagat ng pagsusuri sa: %{value}'
+      analysis_content_changed: 'Binago ni %{user} ang nilalaman ng pagsusuri sa:
+        %{value}'
       tasks_create: 'Nagdagdag si %{user} ng gawain: %{title}'
       tasks_edit: In-edit ni %{user} ang gawaing %{title}
       tasks_answer_create: 'Sinagutan ni %{user} ang gawaing %{title}: %{answer}'
       tasks_answer_edit: 'In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}'
-      metadata_create: 'Nagdagdag si %{user} ng metadata field: %{title}'
-      metadata_edit: In-edit ni %{user} ang metadata field na %{title}
+      metadata_create: 'Nagdagdag si %{user} ng patlang pang-metadata: %{title}'
+      metadata_edit: In-edit ni %{user} ang patlang pang-metadata na %{title}
       metadata_answer_create: 'Itinakda ni %{user} ang value ng metadata na %{title}:
         %{answer}'
       metadata_answer_edit: 'In-edit ni %{user} ang value ng metadata na %{title}:
         %{answer}'
       project_media_comment: Nagdagdag si %{user} (%{role} sa %{team}) ng note sa
         %{parent_type}
+      project_media_create: Nagsumite si %{user} (%{role} sa %{team}) ng bagong item
       project_media_create_related: Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay
         na %{type}
+      project_media_update: Nag-update si %{user} (%{role} sa %{team}) ng item
+      project_media_added_to_list: Nagdagdag si %{user} (%{role} sa %{team}) ng item
+        sa listahang %{list_name}
       project_media_status: Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow}
         status ng isang %{type}
       project_media_assign: Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}
@@ -676,6 +681,8 @@ fil:
   team_rule_conditions: Kung
   team_rule_condition: Kung
   team_rule_condition_definition: Mamili ng kundisyon
+  team_rule_has_less_than_x_words: Ang kahilingan ay kumulang (o sumakto) sa sumusunod
+    na bilang ng mga salita
   team_rule_title_matches_regexp: Tugma ang pamagat ng item sa regular expression
     na ito
   team_rule_request_matches_regexp: Tugma ang kahilingan sa regular expression na
@@ -773,7 +780,7 @@ fil:
     ng ibang item na mula sa parehong workspace.
   replace_blank_media_only: Paumanhin, pero sa ngayon, mga blangkong item lang ang
     pwede mong palitan.
-  cant_preview_rss_feed: Paumanhin, wala kang pahintulot para magtingin ng RSS feed.
+  cant_preview_rss_feed: Paumanhin, wala kang pahintulot para tumingin ng RSS feed.
   list_column_demand: Mga kahilingan
   list_column_share_count: Mga Share sa FB
   list_column_linked_items_count: Magkaugnay
@@ -889,49 +896,6 @@ fil:
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Hindi pa nasisimulan
-  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
-    sa iyo ay *in-update* ng bagong impormasyon:"
-  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
-    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
-    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
-    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
-    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
-    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
-  custom_message_smooch_bot_message_type_unsupported_caio: |-
-    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
-
-    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
-  custom_message_smooch_bot_disabled_caio: |-
-    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
-
-    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
-    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
-    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
-    at teknolohiya.
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
-    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
-    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
-    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
-    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
-    disease (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
-    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
-    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
-    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
-    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
-    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
-    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
-    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
-    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
-    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
-    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
-    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
-    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
-    Talaan*"
   custom_message_smooch_bot_result_changed_test-1: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-1: "Salamat! Naitala na ang iyong
@@ -975,6 +939,49 @@ fil:
     kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
     ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
     Talaan*"
+  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_status_undetermined_check-message-demo: Hindi pa nasisimulan
   custom_message_status_in_progress_check-message-demo: Kasalukuyang Ginagawa
   custom_message_status_inconclusive_check-message-demo: ''
@@ -1004,6 +1011,7 @@ fil:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ''
