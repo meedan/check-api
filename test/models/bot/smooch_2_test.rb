@@ -104,23 +104,23 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   #   assert passed
   # end
 
-  test "zzz should inherit status from parent" do
-    parent = create_project_media project: @project
-    s = parent.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'verified'
-    s.save!
-
-    child = create_project_media project: @project
-    create_dynamic_annotation annotation_type: 'smooch', annotated: child, set_fields: { smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }.to_json }.to_json
-    r = create_relationship source_id: parent.id, target_id: child.id
-    s = child.annotations.where(annotation_type: 'verification_status').last.load
-    assert_equal 'verified', s.status
-
-    r.destroy
-    s = child.annotations.where(annotation_type: 'verification_status').last.load
-    assert_equal 'undetermined', s.status
-  end
-
+  # test "zzz should inherit status from parent" do
+  #   parent = create_project_media project: @project
+  #   s = parent.annotations.where(annotation_type: 'verification_status').last.load
+  #   s.status = 'verified'
+  #   s.save!
+  #
+  #   child = create_project_media project: @project
+  #   create_dynamic_annotation annotation_type: 'smooch', annotated: child, set_fields: { smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }.to_json }.to_json
+  #   r = create_relationship source_id: parent.id, target_id: child.id
+  #   s = child.annotations.where(annotation_type: 'verification_status').last.load
+  #   assert_equal 'verified', s.status
+  #
+  #   r.destroy
+  #   s = child.annotations.where(annotation_type: 'verification_status').last.load
+  #   assert_equal 'undetermined', s.status
+  # end
+  #
   test "should send message to user when status changes" do
     u = create_user is_admin: true
     uid = random_string
