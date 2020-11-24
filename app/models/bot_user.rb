@@ -245,10 +245,8 @@ class BotUser < User
   def settings_as_json_schema(validate = false, team_slug = nil)
     return nil if self.get_settings.blank?
     properties = {}.with_indifferent_access
-    self.get_settings.each do |setting|
-      s = setting.with_indifferent_access
+    self.get_settings.map(&:with_indifferent_access).reject{ |s| s[:type] == 'hidden' }.each do |s|
       type = s[:type]
-      next if type == 'hidden'
       default = self.get_default_from_setting(s)
       properties[s[:name]] = {
         type: type,
@@ -261,10 +259,24 @@ class BotUser < User
       else
         properties[s[:name]][:default] = default
       end
-      if !validate && s[:name] == 'smooch_template_locales'
-        team = Team.find_by_slug(team_slug)
-        default = team.default_language
-        properties[s[:name]].merge!({ uniqueItems: true, default: default, items: { type: 'string', enum: Bot::Smooch.template_locale_options(team_slug) } })
+      unless validate
+        if s[:name] == 'smooch_template_locales'
+          team = Team.find_by_slug(team_slug)
+          default = team.default_language
+          properties[s[:name]].merge!({ uniqueItems: true, default: default, items: { type: 'string', enum: Bot::Smooch.template_locale_options(team_slug) } })
+        end
+        if s[:name] == 'smooch_workflows'
+          properties[s[:name]][:items]['properties']['smooch_message_smooch_bot_tos']['properties'] = {
+            greeting: {
+              type: 'string',
+              default: Bot::Smooch::GREETING
+            },
+            content: {
+              type: 'string',
+              default: Bot::Smooch::CONTENT
+            }
+          }
+        end
       end
     end
     properties.deep_reject_key!(:enum) if validate
