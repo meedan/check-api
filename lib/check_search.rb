@@ -6,7 +6,7 @@ class CheckSearch
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
     # set sort options
-    smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.where(login: 'smooch').last&.id).exists?
+    smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
     # set show options

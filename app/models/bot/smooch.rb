@@ -195,7 +195,7 @@ class Bot::Smooch < BotUser
       slack_channel_url = nil
       # Fetch project from Smooch Bot and fallback to obj.project_id
       pid = nil
-      bot = BotUser.where(login: 'smooch').last
+      bot = BotUser.smooch_user
       tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
       pid =  tbi.get_smooch_project_id unless tbi.nil?
       pid ||= obj.project_id
@@ -301,13 +301,13 @@ class Bot::Smooch < BotUser
   }
 
   def self.team_has_smooch_bot_installed(pm)
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     tbi = TeamBotInstallation.where(team_id: pm.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
   def self.get_installation(key, value)
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     return nil if bot.nil?
     smooch_bot_installation = nil
     TeamBotInstallation.where(user_id: bot.id).each do |installation|

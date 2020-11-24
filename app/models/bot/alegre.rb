@@ -78,7 +78,7 @@ class Bot::Alegre < BotUser
   def self.save_annotation(pm, type, fields)
     annotation = Dynamic.new
     annotation.annotated = pm
-    annotation.annotator = BotUser.where(login: 'alegre').first
+    annotation.annotator = BotUser.alegre_user
     annotation.annotation_type = type
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = fields.to_json

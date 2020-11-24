@@ -26,7 +26,7 @@ class Relationship < ActiveRecord::Base
                   if: proc { |r| !r.skip_notifications },
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
-  scope :default_or_confirmed, -> { where(relationship_type: [Relationship.default_type.to_yaml, Relationship.confirmed_type.to_yaml]) }
+  scope :default_or_confirmed, -> { where("relationship_type in ('#{[Relationship.default_type.to_yaml, Relationship.confirmed_type.to_yaml].join("', '")}')") }
   def siblings(inclusive = false, limit = 50)
     query = Relationship
     .includes(:target)

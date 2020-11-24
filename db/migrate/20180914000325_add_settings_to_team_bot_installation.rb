@@ -9,7 +9,7 @@ class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
     BotUser.reset_column_information
     TeamBotInstallation.reset_column_information
 
-    bot = BotUser.where(login: 'keep').last
+    bot = BotUser.keep_user
     bot.set_settings([
       { "name" => "archive_archive_is_enabled",  "label" => "Enable Archive.is",  "type" => "boolean", "default" => "false" },
       { "name" => "archive_archive_org_enabled", "label" => "Enable Archive.org", "type" => "boolean", "default" => "false" },

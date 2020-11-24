@@ -421,4 +421,21 @@ class BotUser < User
   def self.alegre_user
     self.get_user('alegre')
   end
+
+  def self.fetch_user
+    self.get_user('fetch')
+  end
+
+  def self.keep_user
+    self.get_user('keep')
+  end
+
+  def self.smooch_user
+    self.get_user('smooch')
+  end
+
+  def self.check_bot_user
+    self.get_user('check_bot')
+  end
+
 end
