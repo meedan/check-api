@@ -285,5 +285,25 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :primary_relationship, RelationshipType do
+    resolve -> (project_media, _args, _ctx) {
+      Relationship.where(target_id: project_media.id).includes(:source).first
+    }
+  end
+
+  field :secondary_relationships_count, types.Int do
+    resolve -> (project_media, _args, _ctx) {
+      source = Relationship.where(target_id: project_media.id).first&.source || project_media
+      Relationship.where(source_id: source.id).count
+    }
+  end
+
+  connection :secondary_relationships, -> { RelationshipType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      source = Relationship.where(target_id: project_media.id).first&.source || project_media
+      Relationship.where(source_id: source.id).includes(:target).order('id DESC')
+    }
+  end
+
   # End of fields
 end

@@ -189,18 +189,6 @@ bn:
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: শুরু করা যায়নি
-  custom_message_smooch_bot_result_changed_caio: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
-    তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
-  custom_message_smooch_bot_message_confirmed_caio: ''
-  custom_message_smooch_bot_message_type_unsupported_caio: ''
-  custom_message_smooch_bot_disabled_caio: ''
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916আমি দুঃখিত, আমি
-    আপনার বার্তাটি বুঝতে পারছিনা। পুনরায় চেষ্টা করুন!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_smooch_bot_result_changed_test-1: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
     তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -213,6 +201,18 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_result_changed_caio: "❗️ তথ্য যাচাই যা আপনি আমাদের পাঠিয়েছিলেন
+    তা নতুন তথ্য সহযোগে *সংস্করণ* করা হয়েছে।"
+  custom_message_smooch_bot_message_confirmed_caio: ''
+  custom_message_smooch_bot_message_type_unsupported_caio: ''
+  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: ''
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916আমি দুঃখিত, আমি
+    আপনার বার্তাটি বুঝতে পারছিনা। পুনরায় চেষ্টা করুন!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_status_undetermined_check-message-demo: শুরু করা যায়নি
   custom_message_status_in_progress_check-message-demo: চলমান
   custom_message_status_inconclusive_check-message-demo: কর্ম পরিধির বাইরে
@@ -249,6 +249,7 @@ bn:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-

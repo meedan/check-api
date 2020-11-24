@@ -28,6 +28,17 @@ class ActionController::TestCase
   include Devise::Test::ControllerHelpers
 end
 
+class << Concurrent::Future
+  alias_method :original_execute, :execute
+  def execute(args = {}, &block)
+    if Rails.env == 'test'
+      yield
+    else
+      original_execute(args, &block)
+    end
+  end
+end
+
 class Api::V1::TestController < Api::V1::BaseApiController
   before_filter :verify_payload!, only: [:notify]
   skip_before_filter :authenticate_from_token!, only: [:notify]
@@ -544,10 +555,19 @@ class ActiveSupport::TestCase
               "title": "Message sent to user when this bot is disabled and not accepting requests",
               "default": ""
             },
-            "smooch_message_smooch_bot_ask_for_tos": {
-              "type": "string",
-              "title": "Message sent to user to ask them to agree to the Terms of Service (placeholders: %{tos} (TOS URL))",
-              "default": ""
+            "smooch_message_smooch_bot_tos": {
+              "type": "object",
+              "title": "Privacy statement",
+              "properties": {
+                "greeting": {
+                  "type": "string",
+                  "default": ""
+                },
+                "content": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
             },
             "smooch_message_smooch_bot_greetings": {
               "type": "string",
@@ -894,8 +914,11 @@ class ActiveSupport::TestCase
       'smooch_workflows' => [
         {
           'smooch_workflow_language' => 'en',
-          'smooch_message_smooch_bot_greetings': 'Hello!',
-          'smooch_message_smooch_bot_ask_for_tos': 'TOS: %{tos}',
+          'smooch_message_smooch_bot_greetings' => 'Hello!',
+          'smooch_message_smooch_bot_tos' => {
+            'greeting' => 'Send 9 to read the terms of service.',
+            'content' => 'Custom terms of service.'
+          }
         }
       ]
     }
