@@ -248,18 +248,6 @@ hi:
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: 'शुरू नहीं किया है '
-  custom_message_smooch_bot_result_changed_caio: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
-    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
-  custom_message_smooch_bot_message_confirmed_caio: ''
-  custom_message_smooch_bot_message_type_unsupported_caio: ''
-  custom_message_smooch_bot_disabled_caio: ''
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: ''
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916 माफ़ कीजिए, आपका
-    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_smooch_bot_result_changed_test-1: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा
     था उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
   custom_message_smooch_bot_message_confirmed_test-1: ''
@@ -272,6 +260,18 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: ''
+  custom_message_smooch_bot_result_changed_caio: "❗️ आपको जो फ़ैक्ट-चेक हमने भेजा था
+    उसे नयी जानकारी के साथ 'अपडेट* किया गया है:"
+  custom_message_smooch_bot_message_confirmed_caio: ''
+  custom_message_smooch_bot_message_type_unsupported_caio: ''
+  custom_message_smooch_bot_disabled_caio: ''
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: ''
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916 माफ़ कीजिए, आपका
+    सन्देश समझ में नहीं आया. कृपया दोबारा कोशिश करें!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: ''
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: ''
   custom_message_status_undetermined_check-message-demo: 'शुरू नहीं किया है '
   custom_message_status_in_progress_check-message-demo: जारी है
   custom_message_status_inconclusive_check-message-demo: 'दायरे से बाहर '
@@ -320,6 +320,7 @@ hi:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: इस संदेश को भेजने के
