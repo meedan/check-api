@@ -41,7 +41,7 @@ class Bot::Smooch < BotUser
     end
 
     after_destroy do
-      if !self.is_valid_smooch_relationship?
+      if self.is_valid_smooch_relationship?
         target = self.target
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
