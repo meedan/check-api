@@ -212,6 +212,13 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.confirmed_type
   end
 
+  test "should not be confirmed" do
+    s = create_project_media project: @project
+    t1 = create_project_media project: @project
+    r = create_relationship source_id: s.id, target_id: t1.id
+    assert_not r.is_confirmed?
+  end
+
   test "should get target id" do
     assert_kind_of String, Relationship.target_id(create_project_media)
   end

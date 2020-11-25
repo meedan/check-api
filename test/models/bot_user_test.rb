@@ -25,6 +25,11 @@ class UserTest < ActiveSupport::TestCase
     assert !b.is_admin
   end
 
+  test "should never be admin" do
+    b = create_bot_user login: "check_bot"
+    assert_equal BotUser.check_bot_user.login, b.login
+  end
+
   test "should have a unique API key" do
     a = create_api_key
     assert_nothing_raised do

@@ -117,15 +117,15 @@ class Relationship < ActiveRecord::Base
   end
 
   def is_suggested?
-    Relationship.suggested_type.to_yaml == self.relationship_type
+    Relationship.suggested_type == self.relationship_type
   end
 
   def is_confirmed?
-    Relationship.confirmed_type.to_yaml == self.relationship_type
+    Relationship.confirmed_type == self.relationship_type
   end
 
   def is_default?
-    Relationship.default_type.to_yaml == self.relationship_type
+    Relationship.default_type == self.relationship_type
   end
 
   def self.suggested_type

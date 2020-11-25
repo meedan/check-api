@@ -221,6 +221,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal response.class, Hash
   end
 
+  test "should get empty similar items when not text or image" do
+    p = create_project
+    pm1 = create_project_media project: p
+    pm1.media.type = "Bloop"
+    response = Bot::Alegre.get_similar_items(pm1)
+    assert_equal response.class, Hash
+  end
+
   test "should not return a malformed hash" do
     Bot::Alegre.stubs(:request_api).returns({"result"=> [{
       "_index"=>"alegre_similarity",
@@ -317,6 +325,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should return a confirmed relationship type" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_description_similarity_index(pm)
   end
 
   test "should return a confirmed relationship type" do
