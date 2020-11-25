@@ -104,7 +104,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   #   assert passed
   # end
 
-  test "zzz should inherit status from parent" do
+  test "should inherit status from parent" do
     parent = create_project_media project: @project
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'

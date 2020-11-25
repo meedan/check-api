@@ -327,7 +327,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
 
-  test "should return a confirmed relationship type" do
+  test "should pass through the send to description similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah"
