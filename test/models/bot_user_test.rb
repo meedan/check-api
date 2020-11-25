@@ -25,7 +25,7 @@ class UserTest < ActiveSupport::TestCase
     assert !b.is_admin
   end
 
-  test "should never be admin" do
+  test "should lookup bots by helper functions" do
     b = create_bot_user login: "check_bot"
     assert_equal BotUser.check_bot_user.login, b.login
   end
