@@ -166,6 +166,7 @@ class Bot::Fetch < BotUser
         user = User.find(user_id)
         team = Team.find(team_id)
         unless self.already_imported?(claim_review, team)
+          Rails.cache.write(self.semaphore_key(team_id, claim_review['identifier']), Time.now)
           ActiveRecord::Base.transaction do
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
@@ -174,14 +175,19 @@ class Bot::Fetch < BotUser
           end
         end
       rescue StandardError => e
+        Rails.cache.delete(self.semaphore_key(team_id, claim_review['identifier']))
         Airbrake.notify(e, { context: 'Fetch Bot', claim_review: claim_review, team_id: team_id }) if Airbrake.configured?
       end
     end
 
+    def self.semaphore_key(team_id, id)
+      "fetch:claim_review_imported:#{team_id}:#{id}"
+    end
+
     def self.already_imported?(claim_review, team)
-      DynamicAnnotation::Field
-        .joins("INNER JOIN annotations ON annotations.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
-        .where('project_medias.team_id' => team.id, 'value' => claim_review['identifier'], 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').last.present?
+      id = claim_review['identifier']
+      joins = "INNER JOIN annotations ON annotations.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'"
+      Rails.cache.read(self.semaphore_key(team.id, id)) || DynamicAnnotation::Field.joins(joins).where('project_medias.team_id' => team.id, 'value' => id, 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').last.present?
     end
 
     def self.create_project_media(team, user)
