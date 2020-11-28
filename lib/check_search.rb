@@ -11,7 +11,7 @@ class CheckSearch
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= MEDIA_TYPES
-    @options['eslimit'] ||= 20
+    @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
     # set es_id option
