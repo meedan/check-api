@@ -19,7 +19,7 @@ class AddMappingForAssignmentSearch < ActiveRecord::Migration
       i += 1
       puts "#{i * 2500} / #{total}"
       as.each do |a|
-        if a.assigned.annotation_type == 'verification_status'
+        if a.assigned && a.assigned.annotation_type == 'verification_status'
           pmids << a.assigned.annotated_id.to_i unless pmids.include?(a.assigned.annotated_id.to_i)
         end
       end
