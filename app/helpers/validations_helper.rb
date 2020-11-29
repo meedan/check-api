@@ -1,4 +1,5 @@
 module ValidationsHelper
+  include CheckArchivedFlags
   def slack_channel_format
     channel = self.get_slack_channel
     if !channel.blank? && /\A[#@]/.match(channel).nil?
@@ -14,7 +15,7 @@ module ValidationsHelper
   end
 
   def parent_is_not_archived(parent, message)
-    errors.add(:base, message) if parent && parent.archived
+    errors.add(:base, message) if parent && parent.archived > CheckArchivedFlags::NONE
   end
 
   RESERVED_TEAM_SLUGS = ['check']

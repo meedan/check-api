@@ -1014,7 +1014,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     2.times do
       pm = create_project_media project: p, disable_es_callbacks: false
-      pm.archived = true
+      pm.archived = 1
       pm.save!
       sleep 1
     end
