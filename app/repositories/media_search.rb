@@ -70,7 +70,6 @@ class MediaSearch
         flag_spam: { type: 'integer' }
       }
     }
-
     indexes :task_responses, {
       type: 'nested',
       properties: {
@@ -91,5 +90,7 @@ class MediaSearch
     indexes :share_count, { type: 'long' }
 
     indexes :demand, { type: 'long' }
+
+    indexes :assigned_user_ids, { type: 'long' }
   end
 end
