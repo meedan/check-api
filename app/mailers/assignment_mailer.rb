@@ -4,7 +4,7 @@ class AssignmentMailer < ApplicationMailer
   def notify(event, author, recipient, assigned, message = nil)
     return unless should_notify?(recipient, assigned)
 
-    if assigned.is_a?(Annotation)
+    if ['Annotation', 'Dynamic'].include?(assigned.class.to_s)
       annotation = assigned
       project_media = annotation.annotated
       url = project_media.full_url
