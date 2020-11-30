@@ -23,7 +23,8 @@ class CheckSearch
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'published_at' => 'published_at'
+    'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
+    'media_published_at' => 'media_published_at'
   }
 
   def pusher_channel

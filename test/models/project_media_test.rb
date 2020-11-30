@@ -2093,4 +2093,56 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.send(random_string)
     end
   end
+
+  test "should cache published value" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal 'unpublished', pm.report_status }
+    r = publish_report(pm)
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 'published', pm.report_status }
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 'paused', pm.report_status }
+    Rails.cache.clear
+    assert_queries(0, '>') { assert_equal 'paused', pm.report_status }
+  end
+
+  test "should cache tags list" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal '', pm.tags_as_sentence }
+    t = create_tag tag: 'foo', annotated: pm
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 'foo', pm.tags_as_sentence }
+    create_tag tag: 'bar', annotated: pm
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 'foo, bar', pm.tags_as_sentence }
+    t.destroy!
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 'bar', pm.tags_as_sentence }
+    Rails.cache.clear
+    assert_queries(0, '>') { assert_equal 'bar', pm.tags_as_sentence }
+  end
+
+  test "should cache media published at" do
+    RequestStore.store[:skip_cached_field_update] = false
+    url = 'http://twitter.com/test/123456'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media media: nil, url: url
+    assert_queries(0, '=') { assert_equal 601720200, pm.media_published_at }
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:31:00"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+    pm = ProjectMedia.find(pm.id)
+    pm.refresh_media = true
+    pm.save!
+    pm = ProjectMedia.find(pm.id)
+    assert_queries(0, '=') { assert_equal 601720260, pm.media_published_at }
+  end
 end

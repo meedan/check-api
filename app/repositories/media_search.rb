@@ -92,5 +92,11 @@ class MediaSearch
     indexes :demand, { type: 'long' }
 
     indexes :assigned_user_ids, { type: 'long' }
+
+    indexes :report_status, { type: 'long' } # 0 = unpublished, 1 = paused, 2 = published
+
+    indexes :tags_as_sentence, { type: 'long' } # tags count is indexed
+
+    indexes :media_published_at, { type: 'long' }
   end
 end
