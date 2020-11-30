@@ -116,7 +116,7 @@ class ElasticSearch3Test < ActionController::TestCase
     result = CheckSearch.new({ show: ['claims', 'links', 'images'] }.to_json)
     assert_equal 3, result.medias.count
     # filter by archived
-    pm.archived = true
+    pm.archived = 1
     pm.save!
     result = CheckSearch.new({ archived: 1 }.to_json)
     assert_equal 1, result.medias.count
