@@ -15,16 +15,20 @@ namespace :check do
         puts "#{i * 3000} / #{total}"       
         es_body = []
         pms.each do |pm|
-          doc_id = pm.get_es_doc_id(pm)
-          report_status = pm.report_status
-          media_published_at = pm.media_published_at
-          tags_as_sentence = pm.tags_as_sentence
-          fields = {
-            'report_status' => ['unpublished', 'paused', 'published'].index(report_status),
-            'media_published_at' => media_published_at.to_i,
-            'tags_as_sentence' => tags_as_sentence.split(', ').size
-          }
-          es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: fields } } }
+          begin
+            doc_id = pm.get_es_doc_id(pm)
+            report_status = pm.report_status
+            media_published_at = pm.media_published_at
+            tags_as_sentence = pm.tags_as_sentence
+            fields = {
+              'report_status' => ['unpublished', 'paused', 'published'].index(report_status),
+              'media_published_at' => media_published_at.to_i,
+              'tags_as_sentence' => tags_as_sentence.split(', ').size
+            }
+            es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: fields } } }
+          rescue
+            errors += 1
+          end
         end
         response = client.bulk body: es_body
         puts "[#{Time.now}] Done for batch ##{i}"
