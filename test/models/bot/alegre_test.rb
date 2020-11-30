@@ -436,7 +436,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_relationship source_id: pm3.id, target_id: pm2.id
     Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
     r = Relationship.last
-    assert_equal pm1, r.target
+    assert_equal pm2, r.target
     assert_equal pm3, r.source
     assert_not_nil r.user_id
     assert_equal b.id, r.user_id
