@@ -1,4 +1,6 @@
 class Media < ActiveRecord::Base
+  include AnnotationBase::Association
+
   self.inheritance_column = :type
 
   attr_accessor :disable_es_callbacks

@@ -741,6 +741,9 @@ en:
   list_column_created_at: Submitted
   list_column_last_seen: Last submitted
   list_column_updated_at: Updated
+  list_column_report_status: Report status
+  list_column_tags_as_sentence: Tags
+  list_column_media_published_at: Media published
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
