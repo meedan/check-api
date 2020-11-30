@@ -93,7 +93,9 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def picture
-    self.media&.picture&.to_s
+    Concurrent::Future.execute(executor: POOL) do
+      self.media&.picture&.to_s
+    end
   end
 
   def get_annotations(type = nil)

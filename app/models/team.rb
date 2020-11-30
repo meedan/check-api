@@ -366,7 +366,7 @@ class Team < ActiveRecord::Base
   end
 
   def list_columns
-    show_columns = self.get_list_columns || Team.default_list_columns.collect{ |c| c[:key] }
+    show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
     columns = []
     Team.default_list_columns.each do |column|
       show = column[:frozen] ? true : show_columns.include?(column[:key])
@@ -464,6 +464,24 @@ class Team < ActiveRecord::Base
         label: I18n.t(:list_column_updated_at),
         show: true,
         frozen: true
+      },
+      {
+        key: 'report_status',
+        label: I18n.t(:list_column_report_status),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'tags_as_sentence',
+        label: I18n.t(:list_column_tags_as_sentence),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'media_published_at',
+        label: I18n.t(:list_column_media_published_at),
+        show: false,
+        frozen: false
       }
     ]
   end

@@ -1302,6 +1302,11 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Rails.cache.unstub(:read)
   end
 
+  test "should get default TOS message" do
+    assert_kind_of String, Bot::Smooch.get_message_for_language(Bot::Smooch::GREETING, 'en')
+    assert_kind_of String, Bot::Smooch.get_message_for_language(Bot::Smooch::CONTENT, 'en')
+  end
+
   protected
 
   def run_concurrent_requests

@@ -12,10 +12,12 @@ module CheckCachedFields
       options = options.with_indifferent_access
 
       if options[:start_as]
+        klass = self
         self.send :after_create, ->(obj) do
           return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
           Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value)
+          klass.index_cached_field(options[:update_es], value, name, obj) unless Rails.env == 'test'
         end
       end
 
@@ -41,11 +43,19 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
+    def index_cached_field(update_es, value, name, target)
+      update_index = update_es || false
+      if update_index
+        value = update_index.call(value) if update_index.is_a?(Proc)
+        options = { keys: [name], data: { name => value }, parent: target }
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
+      end
+    end
+
     def update_cached_field(name, obj, condition, ids, callback, options)
       condition ||= proc { true }
       return unless condition.call(obj)
       recalculate = options[:recalculate]
-      update_index = options[:update_es] || false
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)
@@ -55,10 +65,7 @@ module CheckCachedFields
         target.disable_es_callbacks = true
         ActiveRecord::Base.connection_pool.with_connection { target.save! }
         # update es index
-        if update_index
-          options = { keys: [name], data: { name => value }, parent: target }
-          ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
-        end
+        self.index_cached_field(options[:update_es], value, name, target)
       end
     end
   end

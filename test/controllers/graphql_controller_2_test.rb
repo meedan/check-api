@@ -1288,4 +1288,72 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
   end
+
+  test "should get secondary items" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    source = create_project_media team: t, project: p
+    target = create_project_media team: t, project: p
+    r = create_relationship source_id: source.id, target_id: target.id
+    query = "query GetById { project_media(ids: \"#{target.id},#{p.id}\") { primary_relationship { dbid }, secondary_relationships(first: 1) { edges { node { dbid } } }, secondary_relationships_count } }"
+    post :create, query: query, team: 'team'
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 1, data['secondary_relationships_count']
+    assert_equal r.id, data['primary_relationship']['dbid']
+    assert_equal r.id, data['secondary_relationships']['edges'][0]['node']['dbid']
+  end
+
+  test "should search by user assigned to item" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+
+    u1 = create_user
+    create_team_user user: u1, team: t
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    a1 = Assignment.create! user: u1, assigned: pm1.last_status_obj, disable_es_callbacks: false
+    u3 = create_user
+    create_team_user user: u3, team: t
+    Assignment.create! user: u3, assigned: pm1.last_status_obj, disable_es_callbacks: false
+
+    u2 = create_user
+    create_team_user user: u2, team: t
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    a2 = Assignment.create! user: u2, assigned: pm2.last_status_obj, disable_es_callbacks: false
+    u4 = create_user
+    create_team_user user: u4, team: t
+    Assignment.create! user: u4, assigned: pm2.last_status_obj, disable_es_callbacks: false
+
+    u5 = create_user
+    sleep 2
+
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+
+    a1.destroy!
+    a2.destroy!
+    sleep 2
+
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+
+    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+  end
 end
