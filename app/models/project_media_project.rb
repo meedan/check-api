@@ -4,7 +4,6 @@ class ProjectMediaProject < ActiveRecord::Base
   include CheckElasticSearch
   include CheckPusher
   include ValidationsHelper
-  include CheckArchivedFlags
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
 

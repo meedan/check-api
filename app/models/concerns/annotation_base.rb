@@ -62,7 +62,6 @@ module AnnotationBase
     include CustomLock
     include AssignmentConcern
     include AnnotationPrivate
-    include CheckArchivedFlags
 
     attr_accessor :disable_es_callbacks, :is_being_copied, :force_version
     self.table_name = 'annotations'

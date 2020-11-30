@@ -1,6 +1,5 @@
 class Ability
   include CheckBasicAbilities
-  include CheckArchivedFlags
 
   def initialize(user = nil, team = nil)
     alias_action :create, :update, :destroy, :to => :cud

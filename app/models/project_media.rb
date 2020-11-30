@@ -11,7 +11,6 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
   include ProjectMediaBulk
-  include CheckArchivedFlags
 
   validates_presence_of :media, :team
 

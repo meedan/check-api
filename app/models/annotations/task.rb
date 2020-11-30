@@ -1,7 +1,6 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
   include HasJsonSchema
-  include CheckArchivedFlags
 
   attr_accessor :file
 

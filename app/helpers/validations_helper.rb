@@ -1,5 +1,4 @@
 module ValidationsHelper
-  include CheckArchivedFlags
   def slack_channel_format
     channel = self.get_slack_channel
     if !channel.blank? && /\A[#@]/.match(channel).nil?

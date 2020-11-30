@@ -3,7 +3,6 @@ class Project < ActiveRecord::Base
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
-  include CheckArchivedFlags
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user

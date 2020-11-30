@@ -11,7 +11,6 @@ class Team < ActiveRecord::Base
   include TeamDuplication
   include TeamImport
   include TeamRules
-  include CheckArchivedFlags
 
   attr_accessor :affected_ids, :is_being_copied
 

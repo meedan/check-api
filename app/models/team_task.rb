@@ -1,6 +1,5 @@
 class TeamTask < ActiveRecord::Base
   include ErrorNotification
-  include CheckArchivedFlags
 
   attr_accessor :keep_completed_tasks
 
