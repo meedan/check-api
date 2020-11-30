@@ -195,7 +195,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
     assert_difference 'Relationship.count' do
-      response = Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
+      response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     end
     r = Relationship.last
     assert_equal pm3, r.target
@@ -209,8 +209,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
     Relationship::ActiveRecord_Relation.any_instance.stubs(:distinct).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
-    response = Bot::Alegre.add_relationships(pm3, {pm2.id => 1})
-    assert_equal response, true
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_equal response, false
     Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
   end
 
@@ -335,41 +335,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
     assert Bot::Alegre.send_to_description_similarity_index(pm)
-  end
-
-  test "should return a confirmed relationship type" do
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { description: 'Description 1' }
-    pm.save!
-    assert_equal Bot::Alegre.relationship_type(pm, 1.0), Relationship.confirmed_type
-  end
-
-  test "should return a suggested relationship type" do
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { description: 'Description 1' }
-    pm.save!
-    assert_equal Bot::Alegre.relationship_type(pm, 0.2), Relationship.suggested_type
-  end
-
-  test "should return a text confirmed relationship threshold" do
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { description: 'Description 1' }
-    pm.save!
-    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), CONFIG['automatic_text_similarity_threshold']
-  end
-
-  test "should return an image confirmed relationship threshold" do
-    p = create_project
-    pm = create_project_media project: p, is_image: true
-    pm.media.type = "UploadedImage"
-    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), CONFIG['automatic_image_similarity_threshold']
-  end
-
-  test "should return a fallback confirmed relationship threshold" do
-    p = create_project
-    pm = create_project_media project: p
-    pm.media.type = "Ball"
-    assert_equal Bot::Alegre.confirmed_relationship_threshold(pm), 1
   end
 
   test "should get items with similar description" do

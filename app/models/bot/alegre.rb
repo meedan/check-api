@@ -30,11 +30,29 @@ class Bot::Alegre < BotUser
     handled
   end
 
+  def self.translate_similar_items(similar_items, relationship_type)
+    Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
+  end
+
+  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+    self.translate_similar_items(
+      suggested_or_confirmed, Relationship.suggested_type
+    ).merge(
+      self.translate_similar_items(
+        confirmed, Relationship.confirmed_type
+      )
+    )
+  end
+
   def self.get_similar_items(pm)
     if pm.is_text?
-      self.get_merged_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
+      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
+      confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['automatic_text_similarity_threshold'])
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
-      self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
+      suggested_or_confirmed = self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
+      confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['automatic_image_similarity_threshold'])
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     else
       {}
     end
@@ -229,7 +247,6 @@ class Bot::Alegre < BotUser
     # - If it has no existing relationship, use it.
     parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
-    puts source_ids.length
     if source_ids.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
       Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}") if source_ids.length > 1
@@ -243,31 +260,17 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
-    r = Relationship.new
-    r.skip_check_ability = true
-    r.relationship_type = self.relationship_type(pm, pm_id_scores[parent_id])
-    r.weight = pm_id_scores[parent_id]
-    r.source_id = parent_id
-    r.target_id = pm.id
-    r.user_id ||= BotUser.alegre_user&.id
-    r.save!
-  end
-
-  def self.relationship_type(pm, weight)
-    if weight && weight > self.confirmed_relationship_threshold(pm)
-      Relationship.confirmed_type
+    if pm_id_scores[parent_id]
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = pm_id_scores[parent_id][:relationship_type]
+      r.weight = pm_id_scores[parent_id][:score]
+      r.source_id = parent_id
+      r.target_id = pm.id
+      r.user_id ||= BotUser.alegre_user&.id
+      r.save!
     else
-      Relationship.suggested_type
-    end
-  end
-
-  def self.confirmed_relationship_threshold(pm)
-    if pm.is_text?
-      CONFIG['automatic_text_similarity_threshold']
-    elsif pm.is_image?
-      CONFIG['automatic_image_similarity_threshold']
-    else
-      1.0
+      return false
     end
   end
 end
