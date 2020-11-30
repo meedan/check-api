@@ -421,7 +421,7 @@ class Bot::Smooch < BotUser
 
   def self.get_message_for_state(workflow, state, language)
     message = []
-    message << self.tos_message(language) if state.to_s == 'main'
+    message << self.tos_message(workflow, language) if state.to_s == 'main'
     message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
     message.join("\n\n")
   end
@@ -433,7 +433,7 @@ class Bot::Smooch < BotUser
     workflow = self.get_workflow(language)
     typed = message['text'].to_s.downcase.strip
     if self.should_send_tos?(state, typed)
-      self.send_tos_to_user(uid, language)
+      self.send_tos_to_user(workflow, uid, language)
       self.bundle_message(message)
       sm.reset
       return true

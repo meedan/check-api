@@ -17,7 +17,7 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:published_at] = self.published_at
     # Intial nested objects with []
-    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments'].each{ |f| ms.attributes[f] = [] }
+    ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
     $repository.refresh_index! if CONFIG['elasticsearch_sync']
@@ -34,7 +34,7 @@ module CheckElasticSearch
     data = get_elasticsearch_data(options[:data])
     fields = { 'updated_at' => Time.now.utc }
     options[:keys].each do |k|
-      unless data[k].blank?
+      unless data[k].nil?
         if data[k].class.to_s == 'Hash'
           value = get_fresh_value(data[k].with_indifferent_access)
           fields[k] = value unless value.nil?

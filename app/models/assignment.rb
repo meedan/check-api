@@ -1,4 +1,6 @@
 class Assignment < ActiveRecord::Base
+  include CheckElasticSearch
+
   attr_accessor :propagate_in_foreground
 
   belongs_to :assigned, polymorphic: true
@@ -9,6 +11,7 @@ class Assignment < ActiveRecord::Base
   before_update { raise ActiveRecord::ReadOnlyRecord }
   after_create :send_email_notification_on_create, :increase_assignments_count, :propagate_assignments, :apply_rules_and_actions
   after_destroy :send_email_notification_on_destroy, :decrease_assignments_count, :propagate_unassignments
+  after_commit :update_elasticsearch_assignment
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
@@ -124,6 +127,15 @@ class Assignment < ActiveRecord::Base
     if target.is_a?(ProjectMedia)
       rule_ids = target.team.get_rules_that_match_condition { |condition, _value| condition == 'item_is_assigned_to_user' }
       target.team.apply_rules_and_actions(target, rule_ids)
+    end
+  end
+
+  def update_elasticsearch_assignment
+    if ['Annotation', 'Dynamic'].include?(self.assigned_type) && self.assigned.annotation_type == 'verification_status'
+      pm = self.assigned.annotated
+      uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
+      options = { keys: ['assigned_user_ids'], data: { 'assigned_user_ids' => uids }, parent: pm }
+      ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
     end
   end
 end
