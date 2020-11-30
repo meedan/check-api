@@ -48,7 +48,7 @@ module ProjectMediaEmbed
   end
 
   def published_at
-    p = self.media&.metadata['published_at']
+    p = self.media&.metadata&.dig('published_at')
     p.blank? ? nil : (p.is_a?(Numeric) ? Time.at(p).utc : DateTime.parse(p).utc)
   end
 
