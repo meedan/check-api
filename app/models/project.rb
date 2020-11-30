@@ -3,6 +3,7 @@ class Project < ActiveRecord::Base
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
+  include CheckArchivedFlags
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
@@ -35,7 +36,7 @@ class Project < ActiveRecord::Base
     start_as: 0,
     update_es: false,
     recalculate: proc { |p|
-      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
+      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => CheckArchivedFlags::NONE, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
     },
     update_on: [
       {
@@ -247,7 +248,7 @@ class Project < ActiveRecord::Base
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
     ProjectMediaProject
       .joins(:project_media)
-      .where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
+      .where({ 'project_medias.archived' => CheckArchivedFlags::NONE, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
       .group('project_media_projects.project_id')
       .count.to_h.each do |pid, count|
       pids_count[pid.to_i] = count.to_i

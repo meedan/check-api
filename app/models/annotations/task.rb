@@ -1,6 +1,7 @@
 class Task < ActiveRecord::Base
   include AnnotationBase
   include HasJsonSchema
+  include CheckArchivedFlags
 
   attr_accessor :file
 
@@ -299,7 +300,7 @@ Comment.class_eval do
     RequestStore[:task_comment] = self
     task = self.annotated.reload
     parent = task.annotated
-    return if parent&.reload&.archived
+    return if parent&.reload&.archived > CheckArchivedFlags::NONE
     task.log_count ||= 0
     task.log_count += value
     task.skip_check_ability = true

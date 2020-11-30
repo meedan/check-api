@@ -4,6 +4,7 @@ class ProjectMediaProject < ActiveRecord::Base
   include CheckElasticSearch
   include CheckPusher
   include ValidationsHelper
+  include CheckArchivedFlags
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
 
@@ -66,7 +67,7 @@ class ProjectMediaProject < ActiveRecord::Base
   def self.bulk_create(inputs, team)
     # Filter IDs
     pmids = ProjectMedia.where(id: inputs.collect{ |input| input['project_media_id'] }, team_id: team.id).select(:id).map(&:id)
-    pids = Project.where(id: inputs.collect{ |input| input['project_id'] }, team_id: team.id, archived: false).select(:id).map(&:id)
+    pids = Project.where(id: inputs.collect{ |input| input['project_id'] }, team_id: team.id, archived: CheckArchivedFlags::NONE).select(:id).map(&:id)
     inserts = []
     inputs.each do |input|
       inserts << input.to_h if pmids.include?(input['project_media_id']) && pids.include?(input['project_id'])

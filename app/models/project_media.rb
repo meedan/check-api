@@ -11,6 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
   include ProjectMediaBulk
+  include CheckArchivedFlags
 
   validates_presence_of :media, :team
 
@@ -151,7 +152,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def custom_permissions(ability = nil)
     perms = {}
-    perms["embed ProjectMedia"] = !self.archived
+    perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::NONE
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
