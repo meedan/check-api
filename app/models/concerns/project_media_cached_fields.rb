@@ -151,5 +151,49 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :report_status,
+      start_as: proc { |_pm| 'unpublished' },
+      update_es: proc { |value| ['unpublished', 'paused', 'published'].index(value) },
+      recalculate: proc { |pm| pm.get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
+      update_on: [
+        {
+          model: Dynamic,
+          if: proc { |d| d.annotation_type == 'report_design' },
+          affected_ids: proc { |d| [d.annotated_id.to_i] },
+          events: {
+            save: proc { |_pm, d| d.data.with_indifferent_access[:state] }
+          }
+        }
+      ]
+
+    cached_field :tags_as_sentence,
+      start_as: proc { |_pm| '' },
+      update_es: proc { |value| value.split(', ').size },
+      recalculate: proc { |pm| pm.get_annotations('tag').map(&:load).map(&:tag_text).join(', ') },
+      update_on: [
+        {
+          model: Tag,
+          affected_ids: proc { |t| [t.annotated_id.to_i] },
+          events: {
+            save: proc { |pm, t| pm.tags_as_sentence.split(', ').concat([t.tag_text]).join(', ') },
+            destroy: proc { |pm, t| pm.tags_as_sentence.split(', ').reject{ |tt| tt == t.tag_text }.join(', ') }
+          }
+        }
+      ]
+
+    cached_field :media_published_at,
+      start_as: proc { |pm| pm.published_at.to_i },
+      update_es: true,
+      recalculate: proc { |pm| pm.published_at.to_i },
+      update_on: [
+        {
+          model: Link,
+          affected_ids: proc { |m| m.project_media_ids },
+          events: {
+            save: :recalculate
+          }
+        }
+      ]
   end
 end

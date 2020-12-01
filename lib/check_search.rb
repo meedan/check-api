@@ -11,7 +11,7 @@ class CheckSearch
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= MEDIA_TYPES
-    @options['eslimit'] ||= 20
+    @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
     # set es_id option
@@ -23,7 +23,8 @@ class CheckSearch
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'published_at' => 'published_at'
+    'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
+    'media_published_at' => 'media_published_at'
   }
 
   def pusher_channel
@@ -65,7 +66,8 @@ class CheckSearch
     return @medias if @medias
     if should_hit_elasticsearch?('ProjectMedia')
       query = medias_build_search_query
-      @ids = medias_get_search_result(query).collect{|i| i['annotated_id']}.uniq
+      result = medias_get_search_result(query)
+      @ids = result.collect{ |i| i['annotated_id'] }.uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
     else
@@ -101,7 +103,7 @@ class CheckSearch
       query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     end
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -182,6 +184,7 @@ class CheckSearch
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
+    conditions.concat build_search_assignment_conditions
     conditions.concat build_search_doc_conditions
     conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
@@ -416,6 +419,11 @@ class CheckSearch
     return [] if @options["tags"].blank? || @options["tags"].class.name != 'Array'
     tags_c = search_tags_query(@options["tags"])
     [tags_c]
+  end
+
+  def build_search_assignment_conditions
+    return [] unless @options['assigned_to'].is_a?(Array)
+    [{ terms: { assigned_user_ids: @options['assigned_to'].map(&:to_i) } }]
   end
 
   def search_tags_query(tags)
