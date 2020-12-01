@@ -426,7 +426,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set user_id on relationships" do
+  test "zzz should set user_id on relationships" do
     b = create_bot(name: 'Alegre')
     b.update_column(:login, 'alegre')
     p = create_project
@@ -434,9 +434,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
     create_relationship source_id: pm3.id, target_id: pm2.id
-    Bot::Alegre.add_relationships(pm1, {pm2.id => 1})
+    Bot::Alegre.add_relationships(pm1, {pm3.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     r = Relationship.last
-    assert_equal pm2, r.target
+    assert_equal pm1, r.target
     assert_equal pm3, r.source
     assert_not_nil r.user_id
     assert_equal b.id, r.user_id

@@ -227,6 +227,11 @@ class ProjectMedia < ActiveRecord::Base
     coder['active_record_yaml_version'] = 0
   end
 
+  def self.get_similar_items(project_media, relationship_type)
+    related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source.id).order('relationships.weight DESC')
+    related_items.where('relationships.relationship_type = ?', relationship_type.to_yaml)
+  end
+
   def self.archive_or_restore_related_medias(archived, project_media_id)
     ids = Relationship.where(source_id: project_media_id).map(&:target_id)
     ProjectMedia.where(id: ids).update_all(archived: archived)

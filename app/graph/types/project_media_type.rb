@@ -287,25 +287,25 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :suggested_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
-      GraphqlCrudOperations.get_similar_items(project_media, Relationship.suggested_type)
+      ProjectMedia.get_similar_items(project_media, Relationship.suggested_type)
     }
   end
 
-  connection :suggested_similar_items, -> { ProjectMediaType.connection_type } do
+  connection :confirmed_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
-      GraphqlCrudOperations.get_similar_items(project_media, Relationship.confirmed_type)
+      ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type)
     }
   end
 
-  connection :suggested_similar_items_count, -> { ProjectMediaType.connection_type } do
+  field :suggested_similar_items_count, types.Int do
     resolve -> (project_media, _args, _ctx) {
-      GraphqlCrudOperations.get_similar_items(project_media, Relationship.suggested_type, true)
+      ProjectMedia.get_similar_items(project_media, Relationship.suggested_type).count
     }
   end
 
-  connection :suggested_similar_items_count, -> { ProjectMediaType.connection_type } do
+  field :confirmed_similar_items_count, types.Int do
     resolve -> (project_media, _args, _ctx) {
-      GraphqlCrudOperations.get_similar_items(project_media, Relationship.confirmed_type, true)
+      ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type).count
     }
   end
 
