@@ -287,9 +287,25 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   connection :suggested_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
-      related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source.id).order('relationships.weight DESC')
-      related_items = related_items.where('relationships.relationship_type = ?', Relationship.suggested_type.to_yaml)
-      related_items
+      self.get_similar_items(project_media, Relationship.suggested_type)
+    }
+  end
+
+  connection :suggested_similar_items, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      self.get_similar_items(project_media, Relationship.confirmed_type)
+    }
+  end
+
+  connection :suggested_similar_items_count, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      self.get_similar_items(project_media, Relationship.suggested_type, true)
+    }
+  end
+
+  connection :suggested_similar_items_count, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      self.get_similar_items(project_media, Relationship.confirmed_type, true)
     }
   end
 

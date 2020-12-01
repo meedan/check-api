@@ -486,6 +486,13 @@ class GraphqlCrudOperations
   def self.load_if_can(klass, id, ctx)
     klass.find_if_can(id, ctx[:ability])
   end
+
+  def self.get_similar_items(project_media, relationship_type, return_count_only=false)
+    related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source.id).order('relationships.weight DESC')
+    related_items = related_items.where('relationships.relationship_type = ?', relationship_type.to_yaml)
+    return_count_only ? related_items.count : related_items
+  end
+
 end
 
 JsonStringType = GraphQL::ScalarType.define do
