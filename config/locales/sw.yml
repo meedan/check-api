@@ -747,6 +747,7 @@ sw:
   list_column_created_at: Imewasilishwa
   list_column_last_seen: Iliwasilishwa mwisho
   list_column_updated_at: Imesasishwa
+  list_column_tags_as_sentence: Lebo
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1655,6 +1656,4 @@ sw:
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: |-
     Asante kwa kuwasiliana nasi.
     Ila hatutaweza kuhakiki ujumbe wako kwa sasa. Soma taarifa zetu zote zilizohakikiwa hapa: www.thequint.com/news/webqoof
-  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: "Halo,\n\nAsante
-    kwa kuwasiliana nasi. Tafadhali tutumie maelezo zaidi yanayohusu dai ili tuweze
-    kukuhakikia.\nUnaweza kusoma hakiki zetu zote hapa: \nhttps://www.thequint.com/news/webqoof"
+  custom_message_rule_action_send_message_0ccb1ccf34ecc6f45844909db8bac6eb_webqoof: ''
