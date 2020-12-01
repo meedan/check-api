@@ -438,6 +438,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal pm2, r.target
     assert_equal pm3, r.source
+    puts r.user_id
+    puts b.id
     assert_not_nil r.user_id
     assert_equal b.id, r.user_id
   end
