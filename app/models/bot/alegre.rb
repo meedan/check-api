@@ -51,7 +51,7 @@ class Bot::Alegre < BotUser
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
-      confirmed = self.get_merged_items_with_similar_image(pm, CONFIG['automatic_image_similarity_threshold'])
+      confirmed = self.get_items_with_similar_image(pm, CONFIG['automatic_image_similarity_threshold'])
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     else
       {}
