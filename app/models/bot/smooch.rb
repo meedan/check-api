@@ -924,7 +924,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_users(pm, action)
-    parent = Relationship.default_or_confirmed_parent(pm)
+    parent = Relationship.confirmed_parent(pm)
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
@@ -956,7 +956,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
-    parent = Relationship.default_or_confirmed_parent(pm)
+    parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
     if report&.get_field_value('state') == 'published' && parent.archived == CheckArchivedFlags::FlagCodes::NONE
       last_smooch_response = nil
@@ -998,7 +998,7 @@ class Bot::Smooch < BotUser
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
-    pm.source_relationships.default_or_confirmed.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
+    pm.source_relationships.confirmed.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
       target = relationship.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       next if s.nil? || s.status == status
