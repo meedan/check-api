@@ -1085,7 +1085,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media under archived project" do
-    p = create_project archived: true
+    p = create_project archived: 1
     assert_raises ActiveRecord::RecordInvalid do
       create_project_media add_to_project_id: p.id
     end
@@ -1093,10 +1093,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should archive" do
     pm = create_project_media
-    assert !pm.archived
-    pm.archived = true
+    assert_equal pm.archived, 0
+    pm.archived = 1
     pm.save!
-    assert pm.reload.archived
+    assert_equal pm.reload.archived, 1
   end
 
   test "should create annotation when is embedded for the first time" do
@@ -1487,7 +1487,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = nil
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
-      pm.archived = true;pm.save
+      pm.archived = 1;pm.save
       assert_equal 2, pm.versions.count
     end
     version = pm.versions.last
@@ -1774,7 +1774,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media team: t, add_to_project_id: p.id
     create_project_media team: t, add_to_project_id: p1.id
-    create_project_media team: t, archived: true, add_to_project_id: p.id
+    create_project_media team: t, archived: 1, add_to_project_id: p.id
     pm = create_project_media team: t, add_to_project_id: p1.id
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id
     create_project_media_project project_media: pm, project: p2
@@ -1868,7 +1868,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should not throw exception for trashed item if request does not come from a client" do
     pm = create_project_media project: p
-    pm.archived = true
+    pm.archived = 1
     pm.save!
     User.current = nil
     assert_nothing_raised do
@@ -1994,7 +1994,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
     pm = ProjectMedia.find(pm.id)
-    assert !pm.archived
+    assert_equal pm.archived, 0
   end
 
   test "should set media type for links" do
