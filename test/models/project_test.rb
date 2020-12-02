@@ -516,11 +516,11 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      p.archived = true
+      p.archived = 1
       p.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
     end
   end
 
@@ -529,7 +529,7 @@ class ProjectTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     n = Sidekiq::Extensions::DelayedClass.jobs.size
     p = Project.find(p.id)
-    p.archived = true
+    p.archived = 1
     p.save!
     assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
   end
@@ -550,23 +550,23 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      p.archived = true
+      p.archived = 1
       p.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
       p = Project.find(p.id)
-      p.archived = false
+      p.archived = 0
       p.save!
-      assert !pm1.reload.archived
-      assert !pm2.reload.archived
-      assert !pm3.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 0, pm2.reload.archived
+      assert_equal 0, pm3.reload.archived
     end
   end
 
   test "should not create project under archived team" do
     t = create_team
-    t.archived = true
+    t.archived = 1
     t.save!
 
     assert_raises ActiveRecord::RecordInvalid do
@@ -794,10 +794,10 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, p.reload.medias_count
     r.destroy!
     assert_equal 2, p.reload.medias_count
-    pm1.archived = true
+    pm1.archived = 1
     pm1.save!
     assert_equal 1, p.reload.medias_count
-    pm1.archived = false
+    pm1.archived = 0
     pm1.save!
     assert_equal 2, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true

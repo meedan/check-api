@@ -148,7 +148,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [@project.id], pm.project_ids
-    assert !pm.archived
+    assert_equal 0, pm.archived
 
     messages = [
       {
@@ -173,7 +173,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p1.id], pm.project_ids
-    assert !pm.archived
+    assert_equal 0, pm.archived
 
     messages = [
       {
@@ -198,7 +198,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p2.id], pm.project_ids
-    assert !pm.archived
+    assert_equal 0, pm.archived
 
     messages = [
       {
@@ -222,7 +222,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert pm.archived
+    assert_equal 1, pm.archived
 
     messages = [
       {
@@ -247,7 +247,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert pm.archived
+    assert_equal 1, pm.archived
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
 
     @team.settings = s1

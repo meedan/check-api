@@ -139,7 +139,7 @@ module TeamRules
   module Actions
     def send_to_trash(pm, _value, _rule_id)
       pm = ProjectMedia.find(pm.id)
-      pm.archived = 1
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
       pm.skip_check_ability = true
       pm.save!
     end

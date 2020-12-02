@@ -35,7 +35,7 @@ class Project < ActiveRecord::Base
     start_as: 0,
     update_es: false,
     recalculate: proc { |p|
-      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
+      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
     },
     update_on: [
       {
@@ -247,7 +247,7 @@ class Project < ActiveRecord::Base
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
     ProjectMediaProject
       .joins(:project_media)
-      .where({ 'project_medias.archived' => false, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
+      .where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
       .group('project_media_projects.project_id')
       .count.to_h.each do |pid, count|
       pids_count[pid.to_i] = count.to_i

@@ -428,7 +428,7 @@ module SampleData
         project.lead_image = f
       end
     end
-    project.archived = options[:archived] || false
+    project.archived = options[:archived] || 0
     team = options[:team] || create_team
     project.team_id = options[:team_id] || team.id
     project.save!
@@ -452,7 +452,7 @@ module SampleData
         team.logo = f
       end
     end
-    team.archived = options[:archived] || false
+    team.archived = options[:archived] || 0
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!

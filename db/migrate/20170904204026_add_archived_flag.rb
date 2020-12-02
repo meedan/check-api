@@ -1,9 +1,9 @@
 class AddArchivedFlag < ActiveRecord::Migration
   def change
-    add_column :project_medias, :archived, :boolean, default: false
+    add_column :project_medias, :archived, :integer, default: 0
     add_index :project_medias, :archived
 
-    add_column :sources, :archived, :boolean, default: false
+    add_column :sources, :archived, :integer, default: 0
     add_index :sources, :archived
     
     add_index :projects, :archived

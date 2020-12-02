@@ -175,16 +175,16 @@ class RelationshipTest < ActiveSupport::TestCase
     t2 = create_project_media project: @project
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
-    assert !t1.reload.archived
-    assert !t2.reload.archived
-    s.archived = true
+    assert_equal 0, t1.reload.archived
+    assert_equal 0, t2.reload.archived
+    s.archived = 1
     s.save!
-    assert t1.reload.archived
-    assert t2.reload.archived
-    s.archived = false
+    assert_equal 1, t1.reload.archived
+    assert_equal 1, t2.reload.archived
+    s.archived = 0
     s.save!
-    assert !t1.reload.archived
-    assert !t2.reload.archived
+    assert_equal 0, t1.reload.archived
+    assert_equal 0, t2.reload.archived
   end
 
   test "should delete medias when source is deleted" do
