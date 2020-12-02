@@ -23,7 +23,7 @@ class Bot::Smooch < BotUser
 
   ::Relationship.class_eval do
     def is_valid_smooch_relationship?
-      self.is_confirmed? || self.is_default?
+      self.is_confirmed?
     end
 
     after_create do
