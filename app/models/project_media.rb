@@ -181,7 +181,7 @@ class ProjectMedia < ActiveRecord::Base
 
   def custom_permissions(ability = nil)
     perms = {}
-    perms["embed ProjectMedia"] = !self.archived
+    perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)

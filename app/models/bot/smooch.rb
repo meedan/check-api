@@ -958,7 +958,7 @@ class Bot::Smooch < BotUser
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
     parent = Relationship.default_or_confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
-    if report&.get_field_value('state') == 'published' && !parent.archived
+    if report&.get_field_value('state') == 'published' && parent.archived == CheckArchivedFlags::FlagCodes::NONE
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction', lang)
         introduction = report.report_design_introduction(data, lang)

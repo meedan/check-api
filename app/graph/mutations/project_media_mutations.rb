@@ -23,7 +23,7 @@ module ProjectMediaMutations
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project_media', create_fields, update_fields, ['project', 'check_search_project', 'project_was', 'check_search_project_was', 'check_search_team', 'check_search_trash', 'relationships_target', 'relationships_source', 'related_to', 'team'])
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update(ProjectMedia, { archived: 'bool', previous_project_id: 'int' }, ['team', 'project', 'check_search_project', 'check_search_team', 'check_search_trash'])
+  BulkUpdate = GraphqlCrudOperations.define_bulk_update(ProjectMedia, { archived: 'int', previous_project_id: 'int' }, ['team', 'project', 'check_search_project', 'check_search_team', 'check_search_trash'])
 
   Replace = GraphQL::Relay::Mutation.define do
     name 'ReplaceProjectMedia'

@@ -4,7 +4,7 @@ class CreateTeams < ActiveRecord::Migration
       t.string :name
       t.string :logo
       t.boolean :private, default: false
-      t.boolean :archived, default: false
+      t.integer :archived, default: 0
       t.timestamps null: false
     end
   end
