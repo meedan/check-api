@@ -158,7 +158,7 @@ class TestController < ApplicationController
 
   def archive_project
     p = Project.find(params[:project_id])
-    p.archived = true
+    p.archived = CheckArchivedFlags::FlagCodes::TRASHED
     p.save!
     render_success 'project', p
   end

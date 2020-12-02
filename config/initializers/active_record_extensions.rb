@@ -86,7 +86,7 @@ module ActiveRecordExtensions
   end
 
   def is_archived?
-    self.respond_to?(:archived) && self.archived_was
+    self.respond_to?(:archived) && self.archived_was > CheckArchivedFlags::FlagCodes::NONE
   end
 
   def graphql_id

@@ -526,15 +526,15 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
-      t.archived = true
+      t.archived = 1
       t.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
-      assert !p1.reload.archived
-      assert p2.reload.archived
-      assert !s1.reload.archived
-      assert s2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
+      assert_equal 0, p1.reload.archived
+      assert_equal 1, p2.reload.archived
+      assert_equal 0, s1.reload.archived
+      assert_equal 1, s2.reload.archived
     end
   end
 
@@ -574,23 +574,23 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p1
       pm3 = create_project_media project: p1
-      t.archived = true
+      t.archived = 1
       t.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
-      assert p1.reload.archived
-      assert !p2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
+      assert_equal 1, p1.reload.archived
+      assert_equal 0, p2.reload.archived
       t = Team.find(t.id)
-      t.archived = false
+      t.archived = 0
       t.save!
-      assert !pm1.reload.archived
-      assert !pm2.reload.archived
-      assert !pm3.reload.archived
-      assert !p1.reload.archived
-      assert !p2.reload.archived
-      assert !s1.reload.archived
-      assert !s2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 0, pm2.reload.archived
+      assert_equal 0, pm3.reload.archived
+      assert_equal 0, p1.reload.archived
+      assert_equal 0, p2.reload.archived
+      assert_equal 0, s1.reload.archived
+      assert_equal 0, s2.reload.archived
     end
   end
 
@@ -3100,9 +3100,9 @@ class TeamTest < ActiveSupport::TestCase
     ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
     ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
 
-    assert !pm1.reload.archived
-    assert !pm2.reload.archived
-    assert !pm3.reload.archived
+    assert_equal 0, pm1.reload.archived
+    assert_equal 0, pm2.reload.archived
+    assert_equal 0, pm3.reload.archived
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end

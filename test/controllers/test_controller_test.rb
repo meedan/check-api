@@ -337,19 +337,19 @@ class TestControllerTest < ActionController::TestCase
 
   test "should archive project if in test mode" do
     p = create_project
-    assert !p.archived
+    assert_equal 0, p.archived
     get :archive_project, project_id: p.id
     assert_response :success
-    assert p.reload.archived
+    assert_equal 1, p.reload.archived
   end
 
   test "should not archive project if not in test mode" do
     Rails.stubs(:env).returns('development')
     p = create_project
-    assert !p.archived
+    assert_equal 0, p.archived
     get :archive_project, project_id: p.id
     assert_response 400
-    assert !p.reload.archived
+    assert_equal 0, p.reload.archived
     Rails.unstub(:env)
   end
 
