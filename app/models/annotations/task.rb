@@ -299,7 +299,7 @@ Comment.class_eval do
     RequestStore[:task_comment] = self
     task = self.annotated.reload
     parent = task.annotated
-    return if parent&.reload&.archived > CheckArchivedFlags::NONE
+    return if parent&.reload&.archived > CheckArchivedFlags::FlagCodes::NONE
     task.log_count ||= 0
     task.log_count += value
     task.skip_check_ability = true

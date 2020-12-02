@@ -206,7 +206,7 @@ class Team < ActiveRecord::Base
   end
 
   def trash
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::TRASHED , sources_count: 0 })
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
   end
 
   def trash_size
@@ -221,7 +221,7 @@ class Team < ActiveRecord::Base
   end
 
   def medias_count
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::NONE, sources_count: 0 }).count
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE, sources_count: 0 }).count
   end
 
   def check_search_team
@@ -233,7 +233,7 @@ class Team < ActiveRecord::Base
   end
 
   def check_search_trash
-    CheckSearch.new({ 'archived' => CheckArchivedFlags::TRASHED, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+    CheckSearch.new({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
   def public_team
@@ -285,7 +285,7 @@ class Team < ActiveRecord::Base
     ability ||= Ability.new
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
-    perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::NONE))
+    perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE))
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))

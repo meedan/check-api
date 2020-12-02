@@ -14,7 +14,7 @@ module ValidationsHelper
   end
 
   def parent_is_not_archived(parent, message)
-    errors.add(:base, message) if parent && parent.archived > CheckArchivedFlags::NONE
+    errors.add(:base, message) if parent && parent.archived > CheckArchivedFlags::FlagCodes::NONE
   end
 
   RESERVED_TEAM_SLUGS = ['check']

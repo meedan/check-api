@@ -312,7 +312,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media project: p
     pm1 = create_project_media project: p, user: u
     create_relationship source_id: pm.id, target_id: pm1.id
-    pm1.archived = 1
+    pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm1.save!
 
     authenticate_with_user(u)
@@ -1157,7 +1157,7 @@ class GraphqlController2Test < ActionController::TestCase
     team = create_team
     create_team_user team: team, user: u, role: 'owner'
     p = create_project team: team
-    create_project_media archived: 1, project: p
+    create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, project: p
     assert_equal 1, team.reload.trash_count
     id = team.graphql_id
     authenticate_with_user(u)

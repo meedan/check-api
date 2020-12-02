@@ -32,7 +32,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
   end
 
   def archived_and_owned?(obj)
-    obj.user_id == User.current.id && obj.archived_was > CheckArchivedFlags::NONE
+    obj.user_id == User.current.id && obj.archived_was > CheckArchivedFlags::FlagCodes::NONE
   end
 
   def perform(ids)
@@ -60,7 +60,7 @@ class PermissionsLoader < GraphQL::Batch::Loader
         archived_owned << obj
       elsif obj.user_id == User.current.id
         owned << obj
-      elsif obj.archived_was > CheckArchivedFlags::NONE
+      elsif obj.archived_was > CheckArchivedFlags::FlagCodes::NONE
         archived << obj
       else
         other << obj

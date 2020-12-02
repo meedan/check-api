@@ -6,7 +6,6 @@ module ActiveRecordExtensions
     include CheckPusher
     include CheckSettings
     include CheckCachedFields
-    include CheckArchivedFlags
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache, :keep_file, :version_object
 
@@ -87,7 +86,7 @@ module ActiveRecordExtensions
   end
 
   def is_archived?
-    self.respond_to?(:archived) && self.archived_was > CheckArchivedFlags::NONE
+    self.respond_to?(:archived) && self.archived_was > CheckArchivedFlags::FlagCodes::NONE
   end
 
   def graphql_id
