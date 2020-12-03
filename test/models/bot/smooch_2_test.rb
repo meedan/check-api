@@ -84,7 +84,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   test "should replicate status to related items" do
     parent = create_project_media project: @project
     child = create_project_media project: @project
-    create_relationship source_id: parent.id, target_id: child.id, user: create_user
+    create_relationship source_id: parent.id, target_id: child.id, user: create_user, relationship_type: Relationship.confirmed_type
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
     s.save!
