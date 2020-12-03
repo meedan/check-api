@@ -112,7 +112,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
 
     child = create_project_media project: @project
     create_dynamic_annotation annotation_type: 'smooch', annotated: child, set_fields: { smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }.to_json }.to_json
-    r = create_relationship source_id: parent.id, target_id: child.id
+    r = create_relationship source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'verified', s.status
 

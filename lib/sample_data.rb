@@ -817,7 +817,7 @@ module SampleData
     options = {
       source_id: source_id,
       target_id: target_id,
-      relationship_type: Relationship.default_type
+      relationship_type: options[:relationship_type]||Relationship.default_type
     }.merge(options)
     r = Relationship.new
     options.each do |key, value|
