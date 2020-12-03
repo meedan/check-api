@@ -163,7 +163,6 @@ class Bot::Alegre < BotUser
     http.use_ssl = uri.scheme == 'https'
     begin
       response = http.request(request)
-      puts response.body
       parsed = JSON.parse(response.body)
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
