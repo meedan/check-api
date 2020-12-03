@@ -212,6 +212,13 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.confirmed_type
   end
 
+  test "should not be default" do
+    s = create_project_media project: @project
+    t1 = create_project_media project: @project
+    r = create_relationship source_id: s.id, target_id: t1.id, relationship_type: Relationship.confirmed_type
+    assert_not r.is_default?
+  end
+
   test "should not be sugggested" do
     s = create_project_media project: @project
     t1 = create_project_media project: @project
