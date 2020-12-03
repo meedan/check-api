@@ -25,4 +25,10 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
       (team.private && (!User.current || (!User.current.is_admin && TeamUser.where(team_id: team.id, user_id: User.current.id).last.nil?))) ? 0 : team.trash_count
     }
   end
+
+  field :unconfirmed_count, types.Int do
+    resolve ->(team, _args, _ctx) {
+      (team.private && (!User.current || (!User.current.is_admin && TeamUser.where(team_id: team.id, user_id: User.current.id).last.nil?))) ? 0 : team.unconfirmed_count
+    }
+  end
 end

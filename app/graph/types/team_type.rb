@@ -34,6 +34,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :rules_search_fields_json_schema, JsonStringType
   field :medias_count, types.Int
   field :trash_count, types.Int
+  field :unconfirmed_count, types.Int
   field :get_languages, types.String
   field :get_language, types.String
   field :get_report, JsonStringType

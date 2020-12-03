@@ -159,7 +159,7 @@ class CheckSearch
     filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
-    archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
+    archived = @options['archived'].to_i
     filters = filters.merge({
       archived: archived,
       sources_count: 0

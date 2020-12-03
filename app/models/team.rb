@@ -209,6 +209,10 @@ class Team < ActiveRecord::Base
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
   end
 
+  def unconfirmed
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED , sources_count: 0 })
+  end
+
   def trash_size
     {
       project_media: self.trash_count,
@@ -218,6 +222,10 @@ class Team < ActiveRecord::Base
 
   def trash_count
     self.trash.count
+  end
+
+  def unconfirmed_count
+    self.unconfirmed.count
   end
 
   def medias_count

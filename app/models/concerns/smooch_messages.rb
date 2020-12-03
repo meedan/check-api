@@ -109,11 +109,10 @@ module SmoochMessages
       self.get_installation('smooch_app_id', app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
-      if request_type == 'default_requests'
+      if ['default_requests', 'timeout_requests'].include?(request_type)
         message['project_id'] = self.get_project_id(message)
+        message['archived'] = request_type == 'default_requests' ? CheckArchivedFlags::FlagCodes::NONE : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif request_type == 'timeout_requests'
-        annotated = Team.current
       elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
         annotated = annotated_obj
       end
