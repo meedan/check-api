@@ -118,7 +118,7 @@ class ElasticSearch2Test < ActionController::TestCase
       pm2.refresh_media = true
       pm2.save!
     end
-    sleep 10
+    sleep 1
     ms2 = $repository.find(get_es_id(pm2))
     assert_equal 'overridden_title', ms2['title']
     ms = $repository.find(get_es_id(pm))
@@ -162,12 +162,21 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 4, ElasticSearchWorker.jobs.size
+    assert_equal 2, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size
     pm.destroy
     assert ElasticSearchWorker.jobs.size > 0
+  end
+
+  test "should update analysis data in foreground" do
+    pm = create_project_media disable_es_callbacks: false
+    sleep 1
+    pm.analysis = { title: 'analysis_title', content: 'analysis_description' }
+    ms = $repository.find(get_es_id(pm))
+    assert_equal 'analysis_title', ms['analysis_title']
+    assert_equal 'analysis_description', ms['analysis_description']
   end
 
   test "should add or destroy es for annotations in background" do
