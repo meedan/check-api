@@ -58,7 +58,17 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     # Handle analysis fields (title/ description)
     if self.annotation_type == "verification_status" && ['title', 'content'].include?(self.field_name)
       key = 'analysis_' + self.field_name.gsub('content', 'description')
-      self.update_elasticsearch_doc([key], { key => self.value }, self.annotation.project_media)
+      options = {
+        keys: [key],
+        data: { key => self.value },
+        obj: self.annotation.project_media
+      }
+      if Rails.env == 'test'
+        self.update_elasticsearch_doc(options[:keys], options[:data], options[:obj])
+      else
+        options[:doc_id] = self.get_es_doc_id(options[:obj])
+        self.update_elasticsearch_doc_bg(options) # This is actually processed in foreground
+      end
     end
   end
 
