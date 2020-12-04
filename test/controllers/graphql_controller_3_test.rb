@@ -540,7 +540,7 @@ class GraphqlController3Test < ActionController::TestCase
     info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
     info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
 
@@ -761,10 +761,10 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm1 = create_project_media project: p
-    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     pm2 = create_project_media project: p
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     sleep 10
     query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
