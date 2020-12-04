@@ -39,7 +39,7 @@ module ProjectMediaCachedFields
     cached_field :linked_items_count,
       start_as: 0,
       update_es: true,
-      recalculate: proc { |pm| Relationship.where("source_id = ? OR target_id = ?", pm.id, pm.id).count },
+      recalculate: proc { |pm| Relationship.confirmed.where("source_id = ? OR target_id = ?", pm.id, pm.id).count },
       update_on: [
         {
           model: Relationship,
