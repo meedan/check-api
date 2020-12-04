@@ -1603,12 +1603,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
     pm2 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    create_relationship source_id: pm.id, target_id: pm2.id
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
     pm3 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-    r = create_relationship source_id: pm.id, target_id: pm3.id
+    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
@@ -1736,7 +1736,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
