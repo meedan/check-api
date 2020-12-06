@@ -190,7 +190,7 @@ class Bot::Alegre < BotUser
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    Hash[pms.flatten.collect{|pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)]}]
+    Hash[pms.flatten.collect{ |pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)] }]
   end
 
   def self.get_context_from_image_or_text_response(search_result)
@@ -204,7 +204,7 @@ class Bot::Alegre < BotUser
   def self.get_similar_items_from_api(path, conditions, pm)
     response = {}
     self.request_api('get', path, conditions).dig('result')&.collect{ |r|
-        self.extract_project_medias_from_context(r) 
+      self.extract_project_medias_from_context(r) 
     }.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score

@@ -14,9 +14,10 @@ class Relationship < ActiveRecord::Base
   validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
   validate :items_are_from_the_same_team
 
-  after_create :increment_counters, :index_source
+  after_create :index_source
+  after_commit :update_counters, on: :create
   after_update :propagate_inversion, :reset_counters
-  after_destroy :decrement_counters, :unindex_source
+  after_destroy :update_counters, :unindex_source
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
 
@@ -27,6 +28,7 @@ class Relationship < ActiveRecord::Base
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
   scope :confirmed, -> { where("relationship_type = ?", Relationship.confirmed_type.to_yaml) }
+
   def siblings(inclusive = false, limit = 50)
     query = Relationship
     .includes(:target)
@@ -164,6 +166,16 @@ class Relationship < ActiveRecord::Base
     # We want to keep the history of related items added or removed
   end
 
+  def relationship_source_type=(type)
+    self.relationship_type ||= {}
+    self.relationship_type[:source] = type
+  end
+
+  def relationship_target_type=(type)
+    self.relationship_type ||= {}
+    self.relationship_type[:target] = type
+  end
+
   protected
 
   def es_values
@@ -180,17 +192,18 @@ class Relationship < ActiveRecord::Base
     Digest::MD5.hexdigest(self.relationship_type.to_json) + '_' + self.source_id.to_s
   end
 
-  def update_counters(value)
+  def update_counters
+    return if self.is_default?
     source = self.source
     target = self.target
-    unless source.nil?
-      source.skip_check_ability = true
-      source.update_attribute(:targets_count, source.targets_count + value)
-    end
-    unless target.nil?
-      target.skip_check_ability = true
-      target.update_attribute(:sources_count, target.sources_count + value)
-    end
+
+    target.skip_check_ability = true
+    target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
+    target.save!
+
+    source.skip_check_ability = true
+    source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
+    source.save!
   end
 
   private
@@ -204,21 +217,13 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  def increment_counters
-    self.update_counters(1)
-  end
-
-  def decrement_counters
-    self.update_counters(-1)
-  end
-
   def reset_counters
     if (self.source_id_was && self.source_id_was != self.source_id) || (self.target_id_was && self.target_id_was != self.target_id)
       previous = Relationship.new(source_id: self.source_id_was, target_id: self.target_id_was)
-      previous.update_counters(-1)
+      previous.update_counters
       previous.send :unindex_source
       current = Relationship.new(source_id: self.source_id, target_id: self.target_id)
-      current.update_counters(1)
+      current.update_counters
       current.send :index_source
     end
   end

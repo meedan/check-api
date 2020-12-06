@@ -32,8 +32,8 @@ class ProjectMedia < ActiveRecord::Base
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
-  def relationship_source(relationship_type=Relationship.default_type)
-    Relationship.where(target_id: self.id, relationship_type: relationship_type.to_yaml).last || self
+  def relationship_source(relationship_type = Relationship.default_type)
+    Relationship.where(target_id: self.id).where('relationship_type = ?', relationship_type.to_yaml).last&.source || self
   end
 
   def is_claim?
@@ -210,9 +210,9 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def related_items_ids
-    parent = Relationship.where(target_id: self.id).last&.source || self
+    parent = Relationship.confirmed.where(target_id: self.id).last&.source || self
     ids = [parent.id]
-    Relationship.where(source_id: parent.id).find_each do |r|
+    Relationship.confirmed.where(source_id: parent.id).find_each do |r|
       ids << r.target_id
     end
     ids.uniq.sort
@@ -228,8 +228,12 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def self.get_similar_items(project_media, relationship_type)
-    related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source.id).order('relationships.weight DESC')
+    related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source(relationship_type).id).order('relationships.weight DESC')
     related_items.where('relationships.relationship_type = ?', relationship_type.to_yaml)
+  end
+
+  def self.get_similar_relationships(project_media, relationship_type)
+    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('weight DESC')
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)

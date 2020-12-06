@@ -26,7 +26,11 @@ class Bot::Smooch < BotUser
       self.is_confirmed?
     end
 
-    after_create do
+    def suggestion_accepted?
+      self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
+    end
+
+    def inherit_status_and_send_report
       target = self.target
       parent = self.source
       if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_valid_smooch_relationship?
@@ -38,6 +42,14 @@ class Bot::Smooch < BotUser
         end
         ::Bot::Smooch.delay_for(1.second).send_report_from_parent_to_child(parent.id, target.id)
       end
+    end
+
+    after_create do
+      self.inherit_status_and_send_report
+    end
+
+    after_update do
+      self.inherit_status_and_send_report if self.suggestion_accepted?
     end
 
     after_destroy do

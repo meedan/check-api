@@ -291,6 +291,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :suggested_similar_relationships, -> { RelationshipType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      ProjectMedia.get_similar_relationships(project_media, Relationship.suggested_type)
+    }
+  end
+
   connection :confirmed_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type)
@@ -306,6 +312,18 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :confirmed_similar_items_count, types.Int do
     resolve -> (project_media, _args, _ctx) {
       ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type).count
+    }
+  end
+
+  field :is_confirmed_similar_to_another_item, types.Boolean do
+    resolve -> (project_media, _args, _ctx) {
+      Relationship.confirmed_parent(project_media).id != project_media.id
+    }
+  end
+
+  field :confirmed_main_item, ProjectMediaType do
+    resolve -> (project_media, _args, _ctx) {
+      Relationship.confirmed_parent(project_media)
     }
   end
 

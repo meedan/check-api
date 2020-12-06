@@ -93,7 +93,7 @@ module ProjectAssociation
       data = {
         'team_id' => obj.team_id,
         'archived' => { method: 'archived', klass: obj.class.name, id: obj.id, type: 'int' },
-        'sources_count' => obj.sources_count,
+        'sources_count' => { method: 'sources_count', klass: 'ProjectMedia', id: obj.id, type: 'int' },
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
         'associated_type' => obj.media.type,
