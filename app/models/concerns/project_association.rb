@@ -89,7 +89,7 @@ module ProjectAssociation
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       keys = %w(team_id archived sources_count read user_id associated_type published_at)
-      obj = self.class.find_by_id(obj.id)
+      obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {
         'team_id' => obj.team_id,
