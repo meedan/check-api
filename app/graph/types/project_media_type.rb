@@ -297,6 +297,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  connection :confirmed_similar_relationships, -> { RelationshipType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      ProjectMedia.get_similar_relationships(project_media, Relationship.confirmed_type)
+    }
+  end
+
   connection :confirmed_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type)
