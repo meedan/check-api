@@ -20,6 +20,7 @@ class Relationship < ActiveRecord::Base
   after_update :propagate_inversion
   after_destroy :update_counters, prepend: true
   after_destroy :unindex_source
+  after_commit :update_counters
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
 
