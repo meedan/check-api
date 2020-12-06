@@ -321,4 +321,11 @@ class RelationshipTest < ActiveSupport::TestCase
       create_relationship source_id: pm1.id, target_id: pm2.id
     end
   end
+
+  test "should set source type and target type independently" do
+    r = Relationship.new
+    r.relationship_source_type = 'confirmed_sibling'
+    r.relationship_target_type = 'confirmed_sibling'
+    assert r.is_confirmed?
+  end
 end

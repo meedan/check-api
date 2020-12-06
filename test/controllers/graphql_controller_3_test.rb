@@ -1605,8 +1605,8 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1a.id, p1b.id], JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_confirmed_similar_to_another_item, confirmed_main_item { id }, suggested_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
+    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
 
   test "should return confirmed similar items" do
