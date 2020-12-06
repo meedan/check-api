@@ -14,10 +14,12 @@ class Relationship < ActiveRecord::Base
   validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? }
   validate :items_are_from_the_same_team
 
+  after_create :update_counters, prepend: true
   after_create :index_source
-  after_commit :update_counters, on: :create
-  after_update :propagate_inversion, :reset_counters
-  after_destroy :update_counters, :unindex_source
+  after_update :reset_counters, prepend: true
+  after_update :propagate_inversion
+  after_destroy :update_counters, prepend: true
+  after_destroy :unindex_source
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
 

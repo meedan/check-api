@@ -90,7 +90,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 0, s.sources_count
     assert_equal 0, t.targets_count
     assert_equal 0, t.sources_count
-    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: { source: 'foo', target: 'bar' }
+    r = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, s.reload.targets_count
     assert_equal 0, s.reload.sources_count
     assert_equal 1, t.reload.sources_count
@@ -245,14 +245,14 @@ class RelationshipTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     p = create_project team: t
-    r = create_relationship
+    r = create_relationship relationship_type: Relationship.confirmed_type
     assert_empty r.versions
     so = create_project_media project: p
     n = so.cached_annotations_count
     ta = create_project_media project: p
     
     with_current_user_and_team(u, t) do
-      r = create_relationship source_id: so.id, target_id: ta.id
+      r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type
     end
     
     assert_not_empty r.versions

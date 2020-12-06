@@ -20,7 +20,7 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-    create_relationship source_id: pm1.id, target_id: pm2.id
+    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)

@@ -363,7 +363,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, current_user: u
     perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation",
-      "update Status", "administer Content"].sort
+      "update Status", "administer Content", "create Relationship"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -1571,7 +1571,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
     result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id)
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_equal 1, pm.reload.requests_count
+    assert_equal 2, pm2.reload.requests_count
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
     pm3 = create_project_media team: team, add_to_project_id: p.id
@@ -1579,7 +1581,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
-    create_relationship source_id: pm.id, target_id: pm3.id
+    create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(5, pm.demand) }
     assert_queries(0, '=') { assert_equal(5, pm2.demand) }
     assert_queries(0, '=') { assert_equal(5, pm3.demand) }
@@ -1611,7 +1613,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(2, pm3.linked_items_count) }
     r.destroy!
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
@@ -1646,7 +1648,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
     pm2 = create_project_media team: team
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
@@ -1776,7 +1778,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_project_media team: t, add_to_project_id: p1.id
     create_project_media team: t, archived: 1, add_to_project_id: p.id
     pm = create_project_media team: t, add_to_project_id: p1.id
-    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id
+    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id, relationship_type: Relationship.confirmed_type
     create_project_media_project project_media: pm, project: p2
     assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
