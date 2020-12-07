@@ -192,9 +192,7 @@ class ProjectMedia < ActiveRecord::Base
   def related_items_ids
     parent = Relationship.confirmed.where(target_id: self.id).last&.source || self
     ids = [parent.id]
-    Relationship.confirmed.where(source_id: parent.id).find_each do |r|
-      ids << r.target_id
-    end
+    ids.concat(Relationship.confirmed.where(source_id: parent.id).select(:target_id).map(&:target_id))
     ids.uniq.sort
   end
 
