@@ -12,7 +12,7 @@ class Relationship < ActiveRecord::Base
   before_validation :set_user
   validate :relationship_type_is_valid
   validate :items_are_from_the_same_team
-  validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }
+  validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
   after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
