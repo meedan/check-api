@@ -45,7 +45,7 @@ module SmoochResources
     end
 
     def refresh_rss_feeds_cache
-      bot = BotUser.where(login: 'smooch').last
+      bot = BotUser.smooch_user
       TeamBotInstallation.where(user_id: bot.id).each do |tbi|
         tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
           next if resource['smooch_custom_resource_feed_url'].blank?

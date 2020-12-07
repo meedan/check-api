@@ -7,7 +7,7 @@ module TeamRules
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
            'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user', 'relate_similar_items']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
@@ -165,23 +165,9 @@ module TeamRules
     def send_message_to_user(pm, value, _rule_id)
       Team.delay_for(1.second).send_message_to_user(self.id, pm.id, value)
     end
-
-    def relate_similar_items(pm, _value, rule_id)
-      Team.delay_for(1.second).relate_similar_items(pm.id, pm.alegre_similarity_thresholds[rule_id].to_json) unless pm.alegre_similarity_thresholds.blank?
-    end
   end
 
   module ClassMethods
-    def relate_similar_items(pmid, thresholds_json)
-      pm = ProjectMedia.where(id: pmid).last
-      return if pm.nil?
-      thresholds = JSON.parse(thresholds_json)
-      similar_titles = Bot::Alegre.get_items_with_similar_title(pm, thresholds['title'].to_f) if thresholds['title']
-      similar_images = Bot::Alegre.get_items_with_similar_image(pm, thresholds['image'].to_f) if thresholds['image']
-      pm_ids = thresholds['title'] && thresholds['image'] ? (similar_titles & similar_images) : (similar_titles || similar_images)
-      Bot::Alegre.add_relationships(pm, pm_ids.sort)
-    end
-
     def send_message_to_user(team_id, pmid, value)
       team = Team.where(id: team_id).last
       return if team.nil?

@@ -1,6 +1,6 @@
 class FixSmoochBotSettings < ActiveRecord::Migration
   def change
-    b = BotUser.where(login: 'smooch').last
+    b = BotUser.smooch_user
     unless b.nil?
       settings = b.settings.deep_dup.with_indifferent_access
       settings[:settings].each_with_index do |s, i|

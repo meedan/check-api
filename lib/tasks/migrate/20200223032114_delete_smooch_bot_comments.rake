@@ -2,7 +2,7 @@ namespace :check do
   namespace :migrate do
     desc "Delete comments that were created by Smooch bot"
     task delete_smooch_bot_comments: :environment do
-      smooch_bot = BotUser.where(login: 'smooch').last
+      smooch_bot = BotUser.smooch_user
       Comment.where(annotation_type: 'comment', annotator_type: [smooch_bot.class.name, nil], annotator_id: [smooch_bot.id, nil])
       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
       .where('pm.user_id' => smooch_bot.id)
@@ -17,8 +17,8 @@ namespace :check do
 
     desc "Delete comments that created by Alegre bot and update Alegre requests with Smooch bot"
     task delete_alegre_bot_comments: :environment do
-      alegre_bot = BotUser.where(login: 'alegre').last
-      smooch_bot = BotUser.where(login: 'smooch').last
+      alegre_bot = BotUser.alegre_user
+      smooch_bot = BotUser.smooch_user
       # delete alegre comments
       Comment.where(annotation_type: 'comment', annotator_type: alegre_bot.class.name, annotator_id: alegre_bot.id)
       .find_in_batches(:batch_size => 2500) do |comments|
@@ -52,7 +52,7 @@ namespace :check do
     task reindex_smooch_medias_comments: :environment do
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
-      smooch_bot = BotUser.where(login: 'smooch').last
+      smooch_bot = BotUser.smooch_user
       ProjectMedia.where(user_id: smooch_bot.id).find_in_batches(:batch_size => 2500) do |pms|
         es_body = []
         pms.each do |pm|

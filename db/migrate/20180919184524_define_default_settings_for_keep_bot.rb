@@ -3,7 +3,7 @@ class DefineDefaultSettingsForKeepBot < ActiveRecord::Migration
     config = CONFIG['clamav_service_path']
     CONFIG['clamav_service_path'] = nil
 
-    bot = BotUser.where(login: 'keep').last
+    bot = BotUser.keep_user
     unless bot.nil?
       bot.set_settings([
         { "name" => "archive_archive_is_enabled",  "label" => "Enable Archive.is",  "type" => "boolean", "default" => "true" },
