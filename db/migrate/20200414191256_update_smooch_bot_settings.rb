@@ -1,6 +1,6 @@
 class UpdateSmoochBotSettings < ActiveRecord::Migration
   def change
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     unless bot.nil? 
       TeamBotInstallation.where(user_id: bot.id).each do |tbi|
         settings = tbi.settings || {}

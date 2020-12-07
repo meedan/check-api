@@ -1,6 +1,6 @@
 class UpdateSmoochBotSettingOption < ActiveRecord::Migration
   def change
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     unless bot.nil? 
       settings = bot.get_settings.clone || []
       i = 0

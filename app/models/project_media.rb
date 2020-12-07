@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :relationship, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -31,6 +31,30 @@ class ProjectMedia < ActiveRecord::Base
                   targets: proc { |pm| [pm.media, pm.team].concat(pm.projects) },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
+
+  def is_claim?
+    self.media.type == "Claim"
+  end
+
+  def is_link?
+    self.media.type == "Link"
+  end
+
+  def is_uploaded_image?
+    self.media.type == "UploadedImage"
+  end
+
+  def is_blank?
+    self.media.type == "Blank"
+  end
+
+  def is_image?
+    self.is_uploaded_image?
+  end
+
+  def is_text?
+    self.is_claim? || self.is_link? || self.is_blank?
+  end
 
   def report_type
     self.media.class.name.downcase
@@ -161,30 +185,14 @@ class ProjectMedia < ActiveRecord::Base
     perms
   end
 
-  def relationships_object
-    unless self.related_to_id.nil?
-      type = Relationship.default_type.to_json
-      id = [self.related_to_id, type].join('/')
-      OpenStruct.new({ id: id, type: type })
-    end
-  end
-
-  def relationships_source
-    self.relationships_object
-  end
-
-  def relationships_target
-    self.relationships_object
-  end
-
   def related_to
     ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
   end
 
   def related_items_ids
-    parent = Relationship.where(target_id: self.id).last&.source || self
+    parent = Relationship.confirmed.where(target_id: self.id).last&.source || self
     ids = [parent.id]
-    Relationship.where(source_id: parent.id).find_each do |r|
+    Relationship.confirmed.where(source_id: parent.id).find_each do |r|
       ids << r.target_id
     end
     ids.uniq.sort
@@ -197,6 +205,27 @@ class ProjectMedia < ActiveRecord::Base
     coder['attributes'] = @attributes
     coder['new_record'] = new_record?
     coder['active_record_yaml_version'] = 0
+  end
+
+  def relationship_source(relationship_type = Relationship.default_type)
+    Relationship.where(target_id: self.id).where('relationship_type = ?', relationship_type.to_yaml).last&.source || self
+  end
+
+  def self.get_similar_items(project_media, relationship_type)
+    related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source(relationship_type).id).order('relationships.weight DESC')
+    related_items.where('relationships.relationship_type = ?', relationship_type.to_yaml)
+  end
+
+  def self.get_similar_relationships(project_media, relationship_type)
+    Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('weight DESC')
+  end
+
+  def get_default_relationships
+    self.relationships.where('relationship_type = ?', Relationship.default_type.to_yaml)
+  end
+
+  def relationships
+    Relationship.where('source_id = ? OR target_id = ?', self.id, self.id)
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)
