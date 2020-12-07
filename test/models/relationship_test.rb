@@ -68,13 +68,24 @@ class RelationshipTest < ActiveSupport::TestCase
 
   test "should not have duplicate relationships" do
     s = create_project_media project: @project
+    s2 = create_project_media project: @project
     t = create_project_media project: @project
+    t2 = create_project_media project: @project
     name = { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s.id, target_id: t.id, relationship_type: name
     assert_raises ActiveRecord::RecordInvalid do
       assert_no_difference 'Relationship.count' do
         create_relationship source_id: s.id, target_id: t.id, relationship_type: name
       end
+    end
+    assert_nothing_raised do
+      create_relationship source_id: s.id, target_id: t2.id, relationship_type: name
+    end
+    assert_nothing_raised do
+      create_relationship source_id: s2.id, target_id: t.id, relationship_type: name
+    end
+    assert_nothing_raised do
+      create_relationship source_id: s.id, target_id: t.id
     end
   end
 

@@ -1703,4 +1703,14 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal 4, results.size
     assert_equal pm3.id, results.last
   end
+
+  test "should load permissions for GraphQL" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    User.current = create_user
+    PermissionsLoader.any_instance.stubs(:fulfill).returns(nil)
+    assert_kind_of Array, PermissionsLoader.new(nil).perform([pm1.id, pm2.id])
+    PermissionsLoader.any_instance.unstub(:fulfill)
+    User.current = nil
+  end
 end

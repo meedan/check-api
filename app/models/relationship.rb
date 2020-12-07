@@ -11,8 +11,8 @@ class Relationship < ActiveRecord::Base
 
   before_validation :set_user
   validate :relationship_type_is_valid
-  validate :child_or_parent_does_not_have_another_parent, on: :create, if: proc { |x| !x.is_being_copied? && !x.is_default? }
   validate :items_are_from_the_same_team
+  validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }
 
   after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
@@ -29,10 +29,6 @@ class Relationship < ActiveRecord::Base
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
   scope :confirmed, -> { where('relationship_type = ?', Relationship.confirmed_type.to_yaml) }
-
-  def graphql_deleted_id
-    self.target&.graphql_id.to_s
-  end
 
   def team
     self.source.team
@@ -154,10 +150,6 @@ class Relationship < ActiveRecord::Base
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
-  end
-
-  def child_or_parent_does_not_have_another_parent
-    errors.add(:base, I18n.t(:relationship_item_has_parent)) if (self.source && self.source.sources.count > 0) || (self.target && self.target.sources.count > 0)
   end
 
   def set_user

@@ -34,7 +34,7 @@ class GraphqlCrudOperations
       parent = obj.version_object if parent_name == 'version'
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version', 'source_project_media', 'target_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
         ret[parent_name.to_sym] = parent
       end
     end

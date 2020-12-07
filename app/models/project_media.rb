@@ -221,7 +221,11 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def get_default_relationships
-    Relationship.where('relationship_type = ?', Relationship.default_type.to_yaml).where('source_id = ? OR target_id = ?', self.id, self.id)
+    self.relationships.where('relationship_type = ?', Relationship.default_type.to_yaml)
+  end
+
+  def relationships
+    Relationship.where('source_id = ? OR target_id = ?', self.id, self.id)
   end
 
   def self.archive_or_restore_related_medias(archived, project_media_id)
