@@ -425,4 +425,29 @@ class BotUser < User
   def set_team_author_id
     self.team_author_id = Team.current&.id if self.team_author_id.blank?
   end
+
+  def self.get_user(login)
+    BotUser.find_by_login(login)
+  end
+
+  def self.alegre_user
+    self.get_user('alegre')
+  end
+
+  def self.fetch_user
+    self.get_user('fetch')
+  end
+
+  def self.keep_user
+    self.get_user('keep')
+  end
+
+  def self.smooch_user
+    self.get_user('smooch')
+  end
+
+  def self.check_bot_user
+    self.get_user('check_bot')
+  end
+
 end

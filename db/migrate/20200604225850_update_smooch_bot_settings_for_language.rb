@@ -4,7 +4,7 @@ class UpdateSmoochBotSettingsForLanguage < ActiveRecord::Migration
                           'smooch_message_smooch_bot_not_final', 'smooch_message_smooch_bot_meme', 'smooch_message_smooch_bot_window_closing', 'smooch_bot_id',
                           'smooch_window_duration', 'smooch_rules_and_actions', 'smooch_task', 'smooch_localize_messages']
 
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     unless bot.nil?
 
       # Update the bot schema

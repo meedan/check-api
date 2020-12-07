@@ -20,7 +20,7 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-    create_relationship source_id: pm1.id, target_id: pm2.id
+    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
@@ -197,44 +197,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_empty result.medias
     result = CheckSearch.new({verification_status: ['foo-bar']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-  end
-
-  test "should search and filter in target reports and return parents and children" do
-    t = create_team
-    p = create_project team: t
-    sm = create_claim_media quote: 'source'
-    tm1 = create_claim_media quote: 'target 1'
-    tm2 = create_claim_media quote: 'target 2'
-    om = create_claim_media quote: 'unrelated target'
-    s = create_project_media project: p, media: sm, disable_es_callbacks: false
-    t1 = create_project_media project: p, media: tm1, disable_es_callbacks: false
-    t2 = create_project_media project: p, media: tm2, disable_es_callbacks: false
-    o = create_project_media project: p, media: om, disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({ keyword: 'target' }.to_json)
-    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
-    r1 = create_relationship source_id: s.id, target_id: t1.id
-    r2 = create_relationship source_id: s.id, target_id: t2.id
-    sleep 1
-    result = CheckSearch.new({ keyword: 'target', include_related_items: true }.to_json)
-    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
-    r1.destroy
-    r2.destroy
-    sleep 1
-    result = CheckSearch.new({ keyword: 'target' }.to_json)
-    assert_equal [t1.id, t2.id, o.id].sort, result.medias.map(&:id).sort
-    # filter target reports
-    q = create_claim_media quote: 'test'
-    t3 = create_project_media project: p, media: q, disable_es_callbacks: false
-    create_relationship source_id: s.id, target_id: t3.id
-    vs = t3.last_verification_status_obj
-    vs.status = 'verified'
-    vs.save!
-
-    sleep 2
-    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s).first['targets'].sort
-    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { keyword: 'test' }).first['targets'].sort
-    assert_equal [t3].sort, Relationship.targets_grouped_by_type(s, { verification_status: ['verified'] }).first['targets'].sort
   end
 
   # Please add new tests to test/controllers/elastic_search_7_test.rb

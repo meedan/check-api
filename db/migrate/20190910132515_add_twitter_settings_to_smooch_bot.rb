@@ -1,7 +1,7 @@
 class AddTwitterSettingsToSmoochBot < ActiveRecord::Migration
   def change
     Dynamic.where(annotation_type: 'smooch_user').destroy_all
-    tb = BotUser.where(login: 'smooch').last
+    tb = BotUser.smooch_user
     unless tb.nil?
       settings = tb.get_settings.clone || []
       settings.insert(-2, { name: 'smooch_twitter_authorization_url', label: 'Visit this link to authorize the Twitter Business Account that will forward DMs to this bot', type: 'readonly', default: '' })

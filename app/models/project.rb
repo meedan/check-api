@@ -51,7 +51,7 @@ class Project < ActiveRecord::Base
         model: Relationship,
         affected_ids: proc { |r| ProjectMediaProject.where(project_media_id: r.target_id).map(&:project_id) },
         events: {
-          create: :recalculate,
+          save: :recalculate,
           destroy: :recalculate
         }
       },

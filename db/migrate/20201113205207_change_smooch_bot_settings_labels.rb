@@ -1,6 +1,6 @@
 class ChangeSmoochBotSettingsLabels < ActiveRecord::Migration
   def change
-    tb = BotUser.where(login: 'smooch').last
+    tb = BotUser.smooch_user
     unless tb.nil?
       settings = tb.get_settings.clone || []
       i = settings.find_index{ |s| s['name'] == 'smooch_project_id' }

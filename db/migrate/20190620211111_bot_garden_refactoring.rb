@@ -56,8 +56,8 @@ class BotGardenRefactoring < ActiveRecord::Migration
         old_pender = b['id'] if b['name'] == 'Pender'
         old_check = b['id'] if b['name'] == 'Check Bot'
       end
-      pender = BotUser.where(login: 'pender').last || BotUser.create!(name: 'Pender', login: 'pender')
-      check = BotUser.where(login: 'check_bot').last || BotUser.create!(name: 'Check Bot', login: 'check_bot')
+      pender = BotUser.pender_user || BotUser.create!(name: 'Pender', login: 'pender')
+      check = BotUser.check_bot_user || BotUser.create!(name: 'Check Bot', login: 'check_bot')
       Annotation.where(annotator_type: 'Bot::Bot', annotator_id: old_pender).update_all(annotator_type: 'BotUser', annotator_id: pender.id)
       Annotation.where(annotator_type: 'Bot::Bot', annotator_id: old_check).update_all(annotator_type: 'BotUser', annotator_id: check.id)
     end

@@ -2062,95 +2062,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should relate items with similar titles through rules" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
-      t = create_team
-      p = create_project team: t
-      rules = []
-      rules << {
-        "name": random_string,
-        "project_ids": "",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "item_titles_are_similar",
-                  "rule_value": "70"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "relate_similar_items",
-            "action_value": ""
-          }
-        ]
-      }
-      t.rules = rules.to_json
-      t.save!
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/')
-        .with(body: { text: 'This is only a test', context: { team_id: t.id, field: 'title' }, threshold: 0.7 }.to_json)
-        .to_return(status: 200, body: { result: [] }.to_json)
-      pm1 = create_project_media project: p, quote: 'This is only a test'
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/')
-        .with(body: { text: 'This is just a test', context: { team_id: t.id, field: 'title' }, threshold: 0.7 }.to_json)
-        .to_return(status: 200, body: { result: [{ '_source' => { context: { project_media_id: pm1.id } } }] }.to_json)
-      pm2 = create_project_media project: p, quote: 'This is just a test'
-      assert_not_nil Relationship.where(source_id: pm1.id, target_id: pm2.id).last
-    end
-  end
-
-  test "should relate similar images through rules" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
-      t = create_team
-      p = create_project team: t
-      rules = []
-      rules << {
-        "name": random_string,
-        "project_ids": "",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "item_images_are_similar",
-                  "rule_value": "70"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "relate_similar_items",
-            "action_value": ""
-          }
-        ]
-      }
-      t.rules = rules.to_json
-      t.save!
-      body = { context: { team_id: t.id }, threshold: 0.7 }
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/')
-        .with(body: WebMock.hash_including(body))
-        .to_return(status: 200, body: { result: [] }.to_json)
-      pm1 = create_project_media project: p, media: create_uploaded_image
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/')
-        .with(body: WebMock.hash_including(body))
-        .to_return(status: 200, body: { result: [{ context: { project_media_id: pm1.id } }] }.to_json)
-      pm2 = create_project_media project: p, media: create_uploaded_image
-      assert_not_nil Relationship.where(source_id: pm1.id, target_id: pm2.id).last
-    end
-  end
-
   test "should list custom statuses as options for rule" do
     create_verification_status_stuff(false)
     t = create_team
@@ -3293,6 +3204,25 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     assert t.team_bot_installations.collect(&:bot_user).include?(bu)
     assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
+  end
+
+  test "checks for false item images are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_images_are_similar(pm, "blah", 1)
+  end
+
+  test "checks for false item titles are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_titles_are_similar(pm, "blah", 1)
+  end
+
+  test "checks for true items are similar" do
+    pm = create_project_media
+    t = create_team
+    pm.alegre_similarity_thresholds = {1 => {"test" => 1}}
+    assert t.items_are_similar("test", pm, "blah", 1)
   end
 
   test "should set list columns" do

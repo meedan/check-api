@@ -1,5 +1,4 @@
 class Bot::Alegre < BotUser
-
   check_settings
 
   ::ProjectMedia.class_eval do
@@ -19,7 +18,9 @@ class Bot::Alegre < BotUser
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
         self.send_to_title_similarity_index(pm)
+        self.send_to_description_similarity_index(pm)
         self.get_flags(pm)
+        self.relate_project_media_to_similar_items(pm)
         handled = true
       end
     rescue StandardError => e
@@ -27,6 +28,49 @@ class Bot::Alegre < BotUser
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
     end
     handled
+  end
+
+  def self.translate_similar_items(similar_items, relationship_type)
+    Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
+  end
+
+  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+    self.translate_similar_items(
+      suggested_or_confirmed, Relationship.suggested_type
+    ).merge(
+      self.translate_similar_items(
+        confirmed, Relationship.confirmed_type
+      )
+    )
+  end
+
+  def self.get_similar_items(pm)
+    if pm.is_text?
+      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
+      confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['automatic_text_similarity_threshold'])
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+    elsif pm.is_image?
+      suggested_or_confirmed = self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
+      confirmed = self.get_items_with_similar_image(pm, CONFIG['automatic_image_similarity_threshold'])
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+    else
+      {}
+    end
+  end
+
+  def self.get_merged_items_with_similar_text(pm, threshold)
+    by_title = self.get_items_with_similar_title(pm, threshold)
+    by_description = self.get_items_with_similar_description(pm, threshold)
+    Hash[(by_title.keys|by_description.keys).collect do |pmid|
+      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].sort.last]
+    end]
+  end
+
+  def self.relate_project_media_to_similar_items(pm)
+    self.add_relationships(
+      pm,
+      Bot::Alegre.get_similar_items(pm)
+    )
   end
 
   def self.get_language(pm)
@@ -52,7 +96,7 @@ class Bot::Alegre < BotUser
   def self.save_annotation(pm, type, fields)
     annotation = Dynamic.new
     annotation.annotated = pm
-    annotation.annotator = BotUser.where(login: 'alegre').first
+    annotation.annotator = BotUser.alegre_user
     annotation.annotation_type = type
     annotation.disable_es_callbacks = Rails.env.to_s == 'test'
     annotation.set_fields = fields.to_json
@@ -83,6 +127,11 @@ class Bot::Alegre < BotUser
     self.send_to_text_similarity_index(pm, 'title', pm.title)
   end
 
+  def self.send_to_description_similarity_index(pm)
+    return if pm.description.blank?
+    self.send_to_text_similarity_index(pm, 'description', pm.description)
+  end
+
   def self.send_to_text_similarity_index(pm, field, text)
     self.request_api('post', '/text/similarity/', {
       text: text,
@@ -96,7 +145,6 @@ class Bot::Alegre < BotUser
 
   def self.send_to_image_similarity_index(pm)
     return if pm.report_type != 'uploadedimage'
-
     self.request_api('post', '/image/similarity/', {
       url: self.media_file_url(pm),
       context: {
@@ -115,7 +163,7 @@ class Bot::Alegre < BotUser
     http.use_ssl = uri.scheme == 'https'
     begin
       response = http.request(request)
-      JSON.parse(response.body)
+      parsed = JSON.parse(response.body)
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
       self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
@@ -123,55 +171,80 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold)
-    self.get_items_with_similar_text(pm, 'title', threshold, pm.title)
+  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
   end
 
-  def self.extract_project_medias_from_context(context)
+  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
+  end
+
+  def self.extract_project_medias_from_context(search_result)
     # We currently have two cases of context:
     # - a straight hash with project_media_id
     # - an array of hashes, each with project_media_id
+    context = self.get_context_from_image_or_text_response(search_result)
     pms = []
     if context.kind_of?(Array)
       context.each{ |c| pms.push(c.with_indifferent_access.dig('project_media_id')) }
     elsif context.kind_of?(Hash)
       pms.push(context.with_indifferent_access.dig('project_media_id'))
     end
-    pms
+    Hash[pms.flatten.collect{ |pm| [pm.to_i, self.get_score_from_image_or_text_response(search_result)] }]
+  end
+
+  def self.get_context_from_image_or_text_response(search_result)
+    search_result.dig('_source', 'context') || search_result.dig('context')
+  end
+
+  def self.get_score_from_image_or_text_response(search_result)
+    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
+  end
+
+  def self.get_similar_items_from_api(path, conditions, pm)
+    response = {}
+    self.request_api('get', path, conditions).dig('result')&.collect{ |r|
+      self.extract_project_medias_from_context(r) 
+    }.each do |request_response|
+      request_response.each do |pmid, score|
+        response[pmid] = score
+      end
+    end
+    response.reject{ |id, score| 
+      id.blank? || pm.id == id
+    }
   end
 
   def self.get_items_with_similar_text(pm, field, threshold, text)
-    similar = self.request_api('get', '/text/similarity/', {
+    self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       context: {
         team_id: pm.team_id,
         field: field
       },
       threshold: threshold
-    })
-    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('_source', 'context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    }, pm)
   end
 
   def self.get_items_with_similar_image(pm, threshold)
-    similar = self.request_api('get', '/image/similarity/', {
+    self.get_similar_items_from_api('/image/similarity/', {
       url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
       },
       threshold: threshold
-    })
-    similar.dig('result')&.collect{ |r| self.extract_project_medias_from_context(r.dig('context')) }.flatten.reject{ |id| id.blank? }.map(&:to_i).uniq.sort - [pm.id]
+    }, pm)
   end
 
-  def self.add_relationships(pm, pm_ids)
-    return if pm_ids.blank? || pm_ids.include?(pm.id)
+  def self.add_relationships(pm, pm_id_scores)
+    return if pm_id_scores.blank? || pm_id_scores.keys.include?(pm.id)
 
     # Take first match as being the best potential parent.
     # Conditions to check for a valid parent in 2-level hierarchy:
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
-    parent_id = pm_ids[0]
+    parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
     if source_ids.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
@@ -182,13 +255,21 @@ class Bot::Alegre < BotUser
 
     # Better be safe than sorry.
     return if parent_id == pm.id
+    self.add_relationship(pm, pm_id_scores, parent_id)
+  end
 
-    r = Relationship.new
-    r.skip_check_ability = true
-    r.relationship_type = { source: 'parent', target: 'child' }
-    r.source_id = parent_id
-    r.target_id = pm.id
-    r.user_id ||= BotUser.where(login: 'alegre').last&.id
-    r.save!
+  def self.add_relationship(pm, pm_id_scores, parent_id)
+    if pm_id_scores[parent_id]
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = pm_id_scores[parent_id][:relationship_type]
+      r.weight = pm_id_scores[parent_id][:score]
+      r.source_id = parent_id
+      r.target_id = pm.id
+      r.user_id ||= BotUser.alegre_user&.id
+      r.save!
+    else
+      return false
+    end
   end
 end

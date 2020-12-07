@@ -540,7 +540,7 @@ class GraphqlController3Test < ActionController::TestCase
     info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
     info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
 
@@ -761,10 +761,10 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm1 = create_project_media project: p
-    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     pm2 = create_project_media project: p
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     sleep 10
     query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
@@ -772,26 +772,6 @@ class GraphqlController3Test < ActionController::TestCase
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
     assert_equal 1, response['item_navigation_offset']
-  end
-
-  test "should return secondary items by type" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
-    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: { source: 'parent', target: 'child' }
-    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: { source: 'full_video', target: 'clip' }
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
-    create_relationship source_id: p2.id, target_id: p2a.id
-    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: { source: 'full_video', target: 'clip' }
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { secondary_items(source_type: \"full_video\", target_type: \"clip\", first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['secondary_items']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
   test "should set smooch user slack channel url in background" do
@@ -1589,6 +1569,66 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /Sorry/, @response.body
   end
 
+  test "should return similar items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_confirmed_similar_to_another_item, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug
+    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
+  end
+
+  test "should return suggested similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
+  end
+
+  test "should return confirmed similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.confirmed_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
+  end
+
   test "should sort search by metadata value where items without metadata value show first on ascending order" do
     RequestStore.store[:skip_cached_field_update] = false
     at = create_annotation_type annotation_type: 'task_response_free_text'
@@ -1662,5 +1702,15 @@ class GraphqlController3Test < ActionController::TestCase
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size
     assert_equal pm3.id, results.last
+  end
+
+  test "should load permissions for GraphQL" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    User.current = create_user
+    PermissionsLoader.any_instance.stubs(:fulfill).returns(nil)
+    assert_kind_of Array, PermissionsLoader.new(nil).perform([pm1.id, pm2.id])
+    PermissionsLoader.any_instance.unstub(:fulfill)
+    User.current = nil
   end
 end
