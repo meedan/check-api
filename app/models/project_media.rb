@@ -207,6 +207,10 @@ class ProjectMedia < ActiveRecord::Base
     coder['active_record_yaml_version'] = 0
   end
 
+  def relationship_source(relationship_type = Relationship.default_type)
+    Relationship.where(target_id: self.id).where('relationship_type = ?', relationship_type.to_yaml).last&.source || self
+  end
+
   def self.get_similar_items(project_media, relationship_type)
     related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.relationship_source(relationship_type).id).order('relationships.weight DESC')
     related_items.where('relationships.relationship_type = ?', relationship_type.to_yaml)
