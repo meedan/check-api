@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :relationship, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -31,10 +31,6 @@ class ProjectMedia < ActiveRecord::Base
                   targets: proc { |pm| [pm.media, pm.team].concat(pm.projects) },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
-
-  def relationship_source(relationship_type = Relationship.default_type)
-    Relationship.where(target_id: self.id).where('relationship_type = ?', relationship_type.to_yaml).last&.source || self
-  end
 
   def is_claim?
     self.media.type == "Claim"
@@ -187,22 +183,6 @@ class ProjectMedia < ActiveRecord::Base
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
     perms["administer Content"] = ability.can?(:administer_content, self)
     perms
-  end
-
-  def relationships_object
-    unless self.related_to_id.nil?
-      type = Relationship.default_type.to_json
-      id = [self.related_to_id, type].join('/')
-      OpenStruct.new({ id: id, type: type })
-    end
-  end
-
-  def relationships_source
-    self.relationships_object
-  end
-
-  def relationships_target
-    self.relationships_object
   end
 
   def related_to

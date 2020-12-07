@@ -1289,24 +1289,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
   end
 
-  test "should get secondary items" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    authenticate_with_user(u)
-    p = create_project team: t
-    source = create_project_media team: t, project: p
-    target = create_project_media team: t, project: p
-    r = create_relationship source_id: source.id, target_id: target.id
-    query = "query GetById { project_media(ids: \"#{target.id},#{p.id}\") { primary_relationship { dbid }, secondary_relationships(first: 1) { edges { node { dbid } } }, secondary_relationships_count } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project_media']
-    assert_equal 1, data['secondary_relationships_count']
-    assert_equal r.id, data['primary_relationship']['dbid']
-    assert_equal r.id, data['secondary_relationships']['edges'][0]['node']['dbid']
-  end
-
   test "should search by user assigned to item" do
     u = create_user is_admin: true
     t = create_team

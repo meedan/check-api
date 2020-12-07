@@ -212,14 +212,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :relationship do
-    type RelationshipType
-
-    resolve ->(project_media, _args, _ctx) {
-      Relationship.where(target_id: project_media.id).first || Relationship.where(source_id: project_media.id).first
-    }
-  end
-
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations
 
   instance_exec :project_media, &GraphqlCrudOperations.field_annotations_count
@@ -246,21 +238,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :relationships do
-    type -> { RelationshipsType }
-
-    resolve -> (project_media, _args, _ctx) do
-      OpenStruct.new({
-        id: project_media.id,
-        target_id: Relationship.target_id(project_media),
-        source_id: Relationship.source_id(project_media),
-        project_media_id: project_media.id,
-        targets_count: project_media.targets_count,
-        sources_count: project_media.sources_count
-      })
-    end
-  end
-
   DynamicAnnotation::AnnotationType.select('annotation_type').map(&:annotation_type).each do |type|
     connection "dynamic_annotations_#{type}".to_sym, -> { DynamicType.connection_type } do
       resolve ->(project_media, _args, _ctx) { project_media.get_annotations(type) }
@@ -274,14 +251,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :project_ids, JsonStringType
 
-  connection :secondary_items, -> { ProjectMediaType.connection_type } do
-    argument :source_type, types.String
-    argument :target_type, types.String
-
-    resolve -> (project_media, args, _ctx) {
-      related_items = ProjectMedia.joins('INNER JOIN relationships ON relationships.target_id = project_medias.id').where('relationships.source_id' => project_media.id)
-      related_items = related_items.where('relationships.relationship_type = ?', { source: args['source_type'], target: args['target_type'] }.to_yaml) if args['source_type'] && args['target_type']
-      related_items
+  connection :suggested_similar_relationships, -> { RelationshipType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      ProjectMedia.get_similar_relationships(project_media, Relationship.suggested_type)
     }
   end
 
@@ -291,9 +263,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :suggested_similar_relationships, -> { RelationshipType.connection_type } do
+  field :suggested_similar_items_count, types.Int do
     resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_relationships(project_media, Relationship.suggested_type)
+      ProjectMedia.get_similar_items(project_media, Relationship.suggested_type).count
     }
   end
 
@@ -306,12 +278,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   connection :confirmed_similar_items, -> { ProjectMediaType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       ProjectMedia.get_similar_items(project_media, Relationship.confirmed_type)
-    }
-  end
-
-  field :suggested_similar_items_count, types.Int do
-    resolve -> (project_media, _args, _ctx) {
-      ProjectMedia.get_similar_items(project_media, Relationship.suggested_type).count
     }
   end
 
@@ -330,26 +296,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :confirmed_main_item, ProjectMediaType do
     resolve -> (project_media, _args, _ctx) {
       Relationship.confirmed_parent(project_media)
-    }
-  end
-
-  field :primary_relationship, RelationshipType do
-    resolve -> (project_media, _args, _ctx) {
-      Relationship.where(target_id: project_media.id).includes(:source).first
-    }
-  end
-
-  field :secondary_relationships_count, types.Int do
-    resolve -> (project_media, _args, _ctx) {
-      source = Relationship.where(target_id: project_media.id).first&.source || project_media
-      Relationship.where(source_id: source.id).count
-    }
-  end
-
-  connection :secondary_relationships, -> { RelationshipType.connection_type } do
-    resolve -> (project_media, _args, _ctx) {
-      source = Relationship.where(target_id: project_media.id).first&.source || project_media
-      Relationship.where(source_id: source.id).includes(:target).order('id DESC')
     }
   end
 

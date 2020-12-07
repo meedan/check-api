@@ -8,12 +8,11 @@ module RelationshipMutations
   }
 
   update_fields = {
-    current_id: 'int',
     source_id: 'int',
     target_id: 'int',
     relationship_source_type: 'str',
     relationship_target_type: 'str'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('relationship', create_fields, update_fields, ['source_project_media', 'target_project_media', 'current_project_media', 'relationships_target', 'relationships_source'])
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('relationship', create_fields, update_fields, ['source_project_media', 'target_project_media'])
 end

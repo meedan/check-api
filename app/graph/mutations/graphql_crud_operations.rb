@@ -34,7 +34,7 @@ class GraphqlCrudOperations
       parent = obj.version_object if parent_name == 'version'
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version', 'source_project_media', 'target_project_media'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -106,7 +106,6 @@ class GraphqlCrudOperations
 
   def self.destroy_from_single_id(graphql_id, inputs, ctx, parents)
     obj = self.object_from_id(graphql_id)
-    obj.current_id = inputs[:current_id] if obj.is_a?(Relationship)
     obj.keep_completed_tasks = inputs[:keep_completed_tasks] if obj.is_a?(TeamTask)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ActiveRecord::Base.connection_pool.with_connection { obj.destroy }
@@ -287,8 +286,6 @@ class GraphqlCrudOperations
         input_field :project_media_id, types.Int
       end
 
-      input_field(:current_id, types.Int) if type == 'relationship'
-
       input_field(:keep_completed_tasks, types.Boolean) if type == 'team_task'
 
       return_field :deletedId, types.ID
@@ -303,7 +300,7 @@ class GraphqlCrudOperations
     fields = {}
     parents.each do |parent|
       parentclass = parent =~ /^check_search_/ ? 'CheckSearch' : parent.gsub(/_was$/, '').camelize
-      parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media', 'current_project_media'].include?(parent)
+      parentclass = 'ProjectMedia' if ['related_to', 'source_project_media', 'target_project_media'].include?(parent)
       parentclass = 'TagText' if parent == 'tag_text_object'
       fields[parent.to_sym] = "#{parentclass}Type".constantize
     end

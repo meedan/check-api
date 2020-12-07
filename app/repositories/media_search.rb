@@ -9,7 +9,6 @@ class MediaSearch
     indexes :annotated_type, { type: 'text' }
     indexes :annotated_id, { type: 'integer' }
     indexes :associated_type, { type: 'keyword' }
-    indexes :relationship_sources, { type: 'text' }
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
     indexes :analysis_title, { type: 'text', analyzer: 'check' }
