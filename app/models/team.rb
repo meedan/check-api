@@ -233,7 +233,7 @@ class Team < ActiveRecord::Base
   end
 
   def check_search_team
-    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+    check_search_filter
   end
 
   def search
@@ -241,7 +241,12 @@ class Team < ActiveRecord::Base
   end
 
   def check_search_trash
-    CheckSearch.new({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
+    CheckSearch.new({'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+  end
+
+  def check_search_unconfirmed
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
   end
 
   def public_team
@@ -291,9 +296,11 @@ class Team < ActiveRecord::Base
   def custom_permissions(ability = nil)
     perms = {}
     ability ||= Ability.new
+    tmp = ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
-    perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE))
+    perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
+    perms["confirm ProjectMedia"] = ability.can?(:confirm, tmp)
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
