@@ -755,7 +755,7 @@ class Bot::Smooch < BotUser
         self.save_media_message(message)
       end
     # update archived column
-    if message['archived'] == CheckArchivedFlags::FlagCodes::NONE && pm.archived != CheckArchivedFlags::FlagCodes::NONE
+    if !pm.nil? && pm.archived != CheckArchivedFlags::FlagCodes::NONE && message['archived'] == CheckArchivedFlags::FlagCodes::NONE
       pm.archived = CheckArchivedFlags::FlagCodes::NONE
       pm.save!
     end
@@ -763,9 +763,6 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_smooch_request(annotated, message, app_id, author, request_type)
-    # TODO: By Sawy - Should handle User.current value
-    # In this case User.current was reset by SlackNotificationWorker worker
-    # Quick fix - assigning it again using annotated object and reset its value at the end of creation
     fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
     result = self.smooch_api_get_messages(app_id, message['authorId'])
     fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
@@ -780,6 +777,9 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_smooch_annotations(annotated, author, fields)
+    # TODO: By Sawy - Should handle User.current value
+    # In this case User.current was reset by SlackNotificationWorker worker
+    # Quick fix - assigning it again using annotated object and reset its value at the end of creation
     current_user = User.current
     User.current = author
     User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)

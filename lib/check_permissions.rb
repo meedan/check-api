@@ -104,7 +104,7 @@ module CheckPermissions
   def get_operation
     return :create if self.new_record?
     changes = self.changes.to_json
-    op = 'update'
+    op = :update
     if changes == '{"archived":[1,0]}'
       op = :restore
     elsif changes == '{"archived":[2,0]}'
