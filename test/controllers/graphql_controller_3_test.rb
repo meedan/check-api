@@ -1569,7 +1569,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /Sorry/, @response.body
   end
 
-  test "should return suggested similar items" do
+  test "should return similar items" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
@@ -1585,28 +1585,8 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_confirmed_similar_to_another_item, confirmed_main_item { id }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items']['edges'].collect{ |x| x['node']['dbid'] }.sort
-  end
-
-  test "should return confirmed similar items" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
-    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.confirmed_type
-    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.confirmed_type
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
-    create_relationship source_id: p2.id, target_id: p2a.id
-    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items(first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1a.id, p1b.id], JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items']['edges'].collect{ |x| x['node']['dbid'] }
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_confirmed_similar_to_another_item, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug
+    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
   end
 
   test "should return suggested similar items count" do

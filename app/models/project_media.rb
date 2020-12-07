@@ -220,6 +220,10 @@ class ProjectMedia < ActiveRecord::Base
     Relationship.where(source_id: project_media.relationship_source(relationship_type).id).where('relationship_type = ?', relationship_type.to_yaml).order('weight DESC')
   end
 
+  def get_default_relationships
+    Relationship.where('relationship_type = ?', Relationship.default_type).where('source_id = ? OR target_id = ?', self.id, self.id)
+  end
+
   def self.archive_or_restore_related_medias(archived, project_media_id)
     ids = Relationship.where(source_id: project_media_id).map(&:target_id)
     ProjectMedia.where(id: ids).update_all(archived: archived)

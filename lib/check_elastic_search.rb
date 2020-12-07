@@ -9,7 +9,6 @@ module CheckElasticSearch
     ms.attributes[:annotation_type] = 'mediasearch'
     ms.attributes[:team_id] = self.team_id
     ms.attributes[:project_id] = self.project_ids
-    rtid = self.is_a?(ProjectMedia) ? (self.related_to_id || self.sources.first&.id) : nil
     ms.attributes[:annotated_type] = self.class.name
     ms.attributes[:annotated_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc

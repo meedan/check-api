@@ -28,7 +28,7 @@ class Relationship < ActiveRecord::Base
                   if: proc { |r| !r.skip_notifications },
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
-  scope :confirmed, -> { where("relationship_type = ?", Relationship.confirmed_type.to_yaml) }
+  scope :confirmed, -> { where('relationship_type = ?', Relationship.confirmed_type.to_yaml) }
 
   def graphql_deleted_id
     self.target&.graphql_id.to_s

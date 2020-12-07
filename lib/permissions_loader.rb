@@ -56,15 +56,10 @@ class PermissionsLoader < GraphQL::Batch::Loader
 
     objs.each do |obj|
       obj.team = team
-      if archived_and_owned?(obj)
-        archived_owned << obj
-      elsif obj.user_id == User.current.id
-        owned << obj
-      elsif obj.archived_was > CheckArchivedFlags::FlagCodes::NONE
-        archived << obj
-      else
-        other << obj
-      end
+      if archived_and_owned?(obj) ; archived_owned << obj
+      elsif obj.user_id == User.current.id ; owned << obj
+      elsif obj.archived_was > CheckArchivedFlags::FlagCodes::NONE ; archived << obj
+      else other << obj end
     end
 
     clone_permissions(archived_owned, archived, owned, other)
