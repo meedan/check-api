@@ -109,11 +109,11 @@ module SmoochMessages
       self.get_installation('smooch_app_id', app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
-      if ['default_requests', 'timeout_requests'].include?(request_type)
+      if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
         message['project_id'] = self.get_project_id(message)
         message['archived'] = request_type == 'default_requests' ? CheckArchivedFlags::FlagCodes::NONE : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
+      elsif 'menu_options_requests' == request_type
         annotated = annotated_obj
       end
 
@@ -126,6 +126,7 @@ module SmoochMessages
       # Only save the annotation for the same requester once.
       key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
       self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key) || request_type != 'default_requests'
+      self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type) if !Rails.cache.read(key)
       Rails.cache.write(key, hash)
 
       # If item is published (or parent item), send a report right away
