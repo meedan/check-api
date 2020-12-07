@@ -102,48 +102,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 0, t.reload.targets_count
   end
 
-  test "should return siblings" do
-    p = create_project_media project: @project
-    r = create_relationship source_id: p.id, target_id: create_project_media(project: @project).id
-    s1 = create_project_media project: @project
-    s2 = create_project_media project: @project
-    s3 = create_project_media project: @project
-    create_relationship source_id: p.id, relationship_type: { source: 'foo', target: 'bar' }, target_id: create_project_media(project: @project).id
-    create_relationship source_id: p.id, target_id: s1.id
-    create_relationship source_id: p.id, target_id: s2.id
-    create_relationship source_id: p.id, target_id: s3.id
-    assert_equal [s1, s2, s3].sort, r.siblings.sort
-  end
-
-  test "should return targets grouped by type" do
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
-    t2 = create_project_media project: @project
-    t3 = create_project_media project: @project
-    t4 = create_project_media project: @project
-    t5 = create_project_media project: @project
-    t6 = create_project_media project: @project
-    create_relationship
-    create_relationship source_id: s.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: t1.id
-    create_relationship source_id: s.id, relationship_type: { source: 'duplicates', target: 'duplicate_of' }, target_id: t2.id
-    create_relationship source_id: s.id, relationship_type: { source: 'parent', target: 'child' }, target_id: t3.id
-    create_relationship source_id: s.id, relationship_type: { source: 'parent', target: 'child' }, target_id: t4.id
-    create_relationship source_id: s.id, relationship_type: { source: 'depends_on', target: 'blocks' }, target_id: t5.id
-    create_relationship source_id: s.id, relationship_type: { source: 'depends_on', target: 'blocks' }, target_id: t6.id
-    targets = nil
-    # Avoid N + 1 problem
-    assert_queries 5 do
-      targets = Relationship.targets_grouped_by_type(s).sort_by{ |x| x['type'] }
-    end
-    assert_equal 3, targets.size
-    assert_equal({ source: 'depends_on', target: 'blocks' }.to_json, targets[0]['type'])
-    assert_equal({ source: 'duplicates', target: 'duplicate_of' }.to_json, targets[1]['type'])
-    assert_equal({ source: 'parent', target: 'child' }.to_json, targets[2]['type'])
-    assert_equal [t5, t6].sort, targets[0]['targets'].sort
-    assert_equal [t1, t2].sort, targets[1]['targets'].sort
-    assert_equal [t3, t4].sort, targets[2]['targets'].sort
-  end
-
   test "should create related report" do
     p = create_project
     pm = create_project_media project: p
@@ -231,14 +189,6 @@ class RelationshipTest < ActiveSupport::TestCase
     t1 = create_project_media project: @project
     r = create_relationship source_id: s.id, target_id: t1.id
     assert_not r.is_confirmed?
-  end
-
-  test "should get target id" do
-    assert_kind_of String, Relationship.target_id(create_project_media)
-  end
-
-  test "should get source id" do
-    assert_kind_of String, Relationship.source_id(create_project_media)
   end
 
   test "should have versions" do
