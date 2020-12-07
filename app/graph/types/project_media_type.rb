@@ -293,7 +293,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :default_relationships_count, types.Int do
+  field :default_relationships_count, types.Int do
     resolve -> (project_media, _args, _ctx) {
       project_media.get_default_relationships.count
     }
