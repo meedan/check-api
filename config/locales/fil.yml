@@ -789,7 +789,9 @@ fil:
   list_column_created_at: Isinumite
   list_column_last_seen: Huling isinumite
   list_column_updated_at: In-update
+  list_column_report_status: Iulat ang status
   list_column_tags_as_sentence: Mga tag
+  list_column_media_published_at: Nailathala ang media
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1012,7 +1014,6 @@ fil:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ''
@@ -1142,7 +1143,7 @@ fil:
     ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
     Talaan*"
   custom_message_status_start_mantis-8135: ''
-  custom_message_status_pause_mantis-8135: ''
+  custom_message_status_pause_mantis-8135: Inihinto
   custom_message_status_undetermined_mantis-8305: ''
   custom_message_status_in_progress_mantis-8305: Kasalukuyang Ginagawa
   custom_message_status_undetermined_mmtan: ''
