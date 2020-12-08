@@ -746,7 +746,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm1 = create_project_media project: p
     sleep 1
     pm2 = create_project_media project: p
-    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
@@ -1233,11 +1233,12 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm = create_project_media team: t, user: u
+    p = create_project team: t
+    pm = create_project_media team: t, project: p, user: u
     create_project_media team: t
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + '], \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
 
     assert_response :success
@@ -1336,22 +1337,23 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm1 = create_project_media team: t, read: true
-    pm2 = create_project_media team: t
+    p = create_project team: t
+    pm1 = create_project_media team: t, project: p, read: true
+    pm2 = create_project_media team: t, project: p
     pm3 = create_project_media
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":true, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":false, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
@@ -1644,7 +1646,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media team: t, disable_es_callbacks: false
     pm3 = create_project_media team: t, disable_es_callbacks: false
     pm4 = create_project_media team: t, disable_es_callbacks: false
-    
+
     m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
     m.disable_es_callbacks = false
     m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
@@ -1674,7 +1676,7 @@ class GraphqlController3Test < ActionController::TestCase
     sleep 5
 
     authenticate_with_user(u)
-    
+
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
     assert_response :success
