@@ -10,7 +10,7 @@ class CheckSearch
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] ||= MEDIA_TYPES
+    @options['show'] ||= (@options['projects'] ? MEDIA_TYPES : (MEDIA_TYPES - ['blank'])) # FIXME: Refactor CheckSearch to avoid special cases
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
