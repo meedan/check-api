@@ -797,10 +797,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot('1', uid)
-      # TODO: Sawy fix
-      # assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference "Dynamic.where(#{conditions}).count", 1 do
         Sidekiq::Worker.drain_all
-      # end
+      end
       a = Dynamic.where(conditions).last
       f = a.get_field_value('smooch_data')
       text  = JSON.parse(f)['text'].split("\n#{MESSAGE_BOUNDARY}")
@@ -810,19 +809,15 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      conditions[:annotated_type] = @team.class.name
-      conditions[:annotated_id] = @team.id
-      # TODO: Sawy fix
-      # assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
-      # end
+      end
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      # TODO: Sawy fix
-      # assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
-      # end
+      end
     end
     Time.unstub(:now)
   end

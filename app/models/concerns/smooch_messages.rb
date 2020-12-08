@@ -147,17 +147,18 @@ module SmoochMessages
     def create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
       fields = { smooch_request_type: request_type }
       fields[:smooch_resource_id] = annotated_obj.id if request_type == 'resource_requests' && !annotated_obj.nil?
-      self.create_smooch_annotations(annotated, author, fields)
+      self.create_smooch_annotations(annotated, author, fields, true)
     end
 
-    def create_smooch_annotations(annotated, author, fields)
+    def create_smooch_annotations(annotated, author, fields, attach_to = false)
       # TODO: By Sawy - Should handle User.current value
       # In this case User.current was reset by SlackNotificationWorker worker
       # Quick fix - assigning it again using annotated object and reset its value at the end of creation
       current_user = User.current
       User.current = author
       User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
-      a = Dynamic.where(annotation_type: 'smooch', annotated_id: annotated.id, annotated_type: annotated.class.name).last
+      a = nil
+      a = Dynamic.where(annotation_type: 'smooch', annotated_id: annotated.id, annotated_type: annotated.class.name).last if attach_to
       if a.nil?
         a = Dynamic.new
         a.annotation_type = 'smooch'
