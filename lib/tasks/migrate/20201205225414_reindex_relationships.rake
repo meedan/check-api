@@ -8,12 +8,19 @@ namespace :check do
       ActiveRecord::Base.logger = nil
       started = Time.now.to_i
       errors = 0
-     
-      total = Relationship.where('id > ?', LAST).count
+
+      total = Relationship.count
       i = 0
-      Relationship.where('id > ?', LAST).order('id ASC').find_each do |relationship|
+      skipped = []
+      Relationship.joins(:source).where('relationships.id > ?', LAST).order('relationships.id ASC').find_each do |relationship|
         i += 1
-        print "Updating relationship #{i}/#{total} (ID #{relationship.id})... "
+        n = relationship.source.targets_count
+        print "Updating relationship #{i}/#{total} (ID #{relationship.id}, #{n} targets)... "
+        if n > 50
+          skipped << relationship.source_id unless skipped.include?(relationship.source_id)
+          puts "Skipped because it's too big (we have skipped #{skipped.size} sources so far)"
+          next
+        end
         relationship.updated_at = Time.now
         begin
           relationship.save!
@@ -22,9 +29,9 @@ namespace :check do
           puts "Error: #{e.message}"
         end
       end
-      
+
       minutes = ((Time.now.to_i - started) / 60).to_i
-      puts "[#{Time.now}] Done in #{minutes} minutes. Errors: #{errors}"
+      puts "[#{Time.now}] Done in #{minutes} minutes. Errors: #{errors} Skipped: #{skipped.inspect} (#{skipped.size})"
       ActiveRecord::Base.logger = old_logger
       RequestStore.store[:skip_notifications] = false
       RequestStore.store[:skip_rules] = false
