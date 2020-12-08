@@ -242,7 +242,6 @@ class Team < ActiveRecord::Base
 
   def check_search_trash
     check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
-    CheckSearch.new({'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
   end
 
   def check_search_unconfirmed

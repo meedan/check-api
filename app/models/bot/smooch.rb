@@ -780,41 +780,6 @@ class Bot::Smooch < BotUser
     pm
   end
 
-  def self.create_smooch_request(annotated, message, app_id, author, request_type)
-    fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
-    result = self.smooch_api_get_messages(app_id, message['authorId'])
-    fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
-    RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
-    self.create_smooch_annotations(annotated, author, fields)
-  end
-
-  def self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
-    fields = { smooch_request_type: request_type }
-    fields[:smooch_resource_id] = annotated_obj.id if request_type == 'resource_requests' && !annotated_obj.nil?
-    self.create_smooch_annotations(annotated, author, fields)
-  end
-
-  def self.create_smooch_annotations(annotated, author, fields)
-    # TODO: By Sawy - Should handle User.current value
-    # In this case User.current was reset by SlackNotificationWorker worker
-    # Quick fix - assigning it again using annotated object and reset its value at the end of creation
-    current_user = User.current
-    User.current = author
-    User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
-    a = Dynamic.where(annotation_type: 'smooch', annotated_id: annotated.id, annotated_type: annotated.class.name).last
-    if a.nil?
-      a = Dynamic.new
-      a.annotation_type = 'smooch'
-      a.annotated = annotated
-    end
-    a.skip_check_ability = true
-    a.skip_notifications = true
-    a.disable_es_callbacks = Rails.env.to_s == 'test'
-    a.set_fields = fields.to_json
-    a.save!
-    User.current = current_user
-  end
-
   def self.get_project_id(_message = nil)
     project_id = self.config['smooch_project_id'].to_i
     raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?

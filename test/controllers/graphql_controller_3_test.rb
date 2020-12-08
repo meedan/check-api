@@ -126,9 +126,14 @@ class GraphqlController3Test < ActionController::TestCase
             id
             number_of_results
           }
+          check_search_unconfirmed {
+            id
+            number_of_results
+          }
           public_team {
             id
             trash_count
+            unconfirmed_count
           }
           search {
             id

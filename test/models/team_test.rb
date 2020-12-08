@@ -1581,21 +1581,21 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [p4.id], pm4.reload.project_ids
   end
 
-  test "should return number of items in trash and outside trash" do
+  test "should return number of items in trash, unconfirmed and outside trash" do
     t = create_team
     p1 = create_project team: t
     p2 = create_project team: t
     create_project_media project: p1
     create_project_media project: p1
-    create_project_media project: p1, archived: 1
-    create_project_media project: p2
-    create_project_media project: p2
-    create_project_media project: p2, archived: 1
+    create_project_media project: p1
+    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media project: p2, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
     create_project_media
-    create_project_media
-    create_project_media archived: 1
-    assert_equal 2, t.reload.trash_count
-    assert_equal 4, t.reload.medias_count
+    t = t.reload
+    assert_equal 3, t.medias_count
+    assert_equal 2, t.trash_count
+    assert_equal 1, t.unconfirmed_count
   end
 
   test "should be copied to another project as a result of a rule" do
