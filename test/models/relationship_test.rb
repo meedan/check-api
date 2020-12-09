@@ -289,4 +289,16 @@ class RelationshipTest < ActiveSupport::TestCase
     r.relationship_target_type = 'confirmed_sibling'
     assert r.is_confirmed?
   end
+
+  test "should re-point targets to new source when adding as a target an item that already has targets" do
+    t = create_team
+    i1 = create_project_media(team: t).id
+    i11 = create_project_media(team: t).id
+    i111 = create_project_media(team: t).id
+    create_relationship source_id: i11, target_id: i111, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: i1, target_id: i11, relationship_type: Relationship.confirmed_type
+    assert_not_nil Relationship.where(source_id: i1, target_id: i11).last
+    assert_not_nil Relationship.where(source_id: i1, target_id: i111).last
+    assert_nil Relationship.where(source_id: i11, target_id: i111).last
+  end
 end
