@@ -27,7 +27,7 @@ class Bot::Smooch < BotUser
     end
 
     def suggestion_accepted?
-      self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
+      !self.is_being_created && self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
     def inherit_status_and_send_report
