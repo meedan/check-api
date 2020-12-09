@@ -14,6 +14,7 @@ module TeamRules
   module Rules
     def has_less_than_x_words(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
+      return false if smooch_message.blank?
       smooch_message.to_s.gsub(Bot::Smooch::MESSAGE_BOUNDARY, '').split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
     end
 
@@ -34,7 +35,7 @@ module TeamRules
       # Special case to match keywords with spaces
       unless contains
         keywords.each do |keyword|
-          contains = !text.to_s.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.to_s.match(' ')
+          contains = !text.to_s.downcase.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.to_s.match(' ')
         end
       end
       contains
