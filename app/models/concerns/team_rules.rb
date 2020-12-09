@@ -34,7 +34,7 @@ module TeamRules
       # Special case to match keywords with spaces
       unless contains
         keywords.each do |keyword|
-          contains = !text.to_s.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.to_s.match(' ')
+          contains = !text.to_s.downcase.match(/(^|[^[:alpha:]])#{keyword}($|[^[:alpha:]])/).nil? if !contains && keyword.to_s.match(' ')
         end
       end
       contains
