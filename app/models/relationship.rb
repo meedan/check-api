@@ -14,7 +14,7 @@ class Relationship < ActiveRecord::Base
   validate :items_are_from_the_same_team
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
-  after_create :update_counters, prepend: true
+  after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_destroy :update_counters, prepend: true
@@ -160,6 +160,15 @@ class Relationship < ActiveRecord::Base
   def items_are_from_the_same_team
     if self.source && self.target && self.source.team_id != self.target.team_id
       errors.add(:base, I18n.t(:relationship_not_same_team))
+    end
+  end
+
+  def point_targets_to_new_source
+    Relationship.where(source_id: self.target_id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).each do |old_relationship|
+      old_relationship.delete
+      new_relationship = Relationship.new(source_id: self.source_id, target_id: old_relationship.target_id, relationship_type: old_relationship.relationship_type, user_id: old_relationship.user_id, weight: old_relationship.weight)
+      new_relationship.skip_check_ability = true
+      new_relationship.save!
     end
   end
 end
