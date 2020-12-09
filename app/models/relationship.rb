@@ -1,7 +1,7 @@
 class Relationship < ActiveRecord::Base
   include CheckElasticSearch
 
-  attr_accessor :is_being_copied, :is_being_created
+  attr_accessor :is_being_copied
 
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
@@ -9,7 +9,6 @@ class Relationship < ActiveRecord::Base
 
   serialize :relationship_type
 
-  before_create :set_is_being_created
   before_validation :set_user
   validate :relationship_type_is_valid
   validate :items_are_from_the_same_team
@@ -162,9 +161,5 @@ class Relationship < ActiveRecord::Base
     if self.source && self.target && self.source.team_id != self.target.team_id
       errors.add(:base, I18n.t(:relationship_not_same_team))
     end
-  end
-
-  def set_is_being_created
-    self.is_being_created = true
   end
 end
