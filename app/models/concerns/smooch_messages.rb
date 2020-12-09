@@ -130,7 +130,11 @@ module SmoochMessages
       Rails.cache.write(key, hash)
 
       # If item is published (or parent item), send a report right away
-      self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if request_type == 'default_requests'
+      self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
+    end
+
+    def should_try_to_send_report?(request_type, annotated)
+      request_type == 'default_requests' && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
     end
 
     def resend_message(message)
