@@ -263,6 +263,12 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :suggested_main_item, ProjectMediaType do
+    resolve -> (project_media, _args, _ctx) {
+      Relationship.where('relationship_type = ?', Relationship.suggested_type.to_yaml).where(target_id: project_media.id).first&.source
+    }
+  end
+
   connection :confirmed_similar_relationships, -> { RelationshipType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       ProjectMedia.get_similar_relationships(project_media, Relationship.confirmed_type)
