@@ -39,13 +39,14 @@ module ProjectMediaCachedFields
     cached_field :linked_items_count,
       start_as: 0,
       update_es: true,
-      recalculate: proc { |pm| Relationship.where("source_id = ? OR target_id = ?", pm.id, pm.id).count },
+      recalculate: proc { |pm| ProjectMedia.get_similar_items(pm, Relationship.confirmed_type).count },
       update_on: [
         {
           model: Relationship,
+          if: proc { |r| r.is_confirmed? },
           affected_ids: proc { |r| [r.source_id, r.target_id] },
           events: {
-            create: :recalculate,
+            save: :recalculate,
             destroy: :recalculate
           }
         }
@@ -85,9 +86,10 @@ module ProjectMediaCachedFields
         },
         {
           model: Relationship,
+          if: proc { |r| r.is_confirmed? },
           affected_ids: proc { |r| [r.source&.related_items_ids, r.target_id].flatten.reject{ |id| id.blank? }.uniq },
           events: {
-            create: :recalculate,
+            save: :recalculate,
             destroy: :recalculate
           }
         }
@@ -108,9 +110,10 @@ module ProjectMediaCachedFields
         },
         {
           model: Relationship,
+          if: proc { |r| r.is_confirmed? },
           affected_ids: proc { |r| r.source&.related_items_ids.to_a },
           events: {
-            create: proc { |_pm, r| [r.source&.last_seen.to_i, r.target&.last_seen.to_i].max },
+            save: proc { |_pm, r| [r.source&.last_seen.to_i, r.target&.last_seen.to_i].max },
             destroy: :recalculate
           }
         }

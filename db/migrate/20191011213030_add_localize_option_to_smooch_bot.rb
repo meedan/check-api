@@ -1,6 +1,6 @@
 class AddLocalizeOptionToSmoochBot < ActiveRecord::Migration
   def change
-    tb = BotUser.where(login: 'smooch').last
+    tb = BotUser.smooch_user
     unless tb.nil?
       settings = tb.get_settings.clone || []
       settings << { name: 'smooch_localize_messages', label: 'Localize custom messages', type: 'boolean', default: 'false' }

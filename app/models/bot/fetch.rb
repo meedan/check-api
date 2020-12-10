@@ -65,7 +65,7 @@ class Bot::Fetch < BotUser
   end
 
   def self.get_installation_for_team(team_slug)
-    bot_id = BotUser.where(login: 'fetch').last&.id
+    bot_id = BotUser.fetch_user&.id
     team_id = Team.where(slug: team_slug).last&.id
     TeamBotInstallation.where(user_id: bot_id, team_id: team_id).last
   end

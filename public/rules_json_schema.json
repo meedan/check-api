@@ -115,14 +115,6 @@
                                 "value": "<%= I18n.t(:team_rule_title_contains_keyword) %>"
                               },
                               {
-                                "key": "item_titles_are_similar",
-                                "value": "<%= I18n.t(:team_rule_item_titles_are_similar) %>"
-                              },
-                              {
-                                "key": "item_images_are_similar",
-                                "value": "<%= I18n.t(:team_rule_item_images_are_similar) %>"
-                              },
-                              {
                                 "key": "report_is_published",
                                 "value": "<%= I18n.t(:team_rule_report_is_published) %>"
                               },
@@ -217,22 +209,6 @@
                           <% end %>
                           {
                             "if": {
-                              "properties": { "rule_definition": { "const": "item_titles_are_similar" } }
-                            },
-                            "then": {
-                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_title_threshold) %>", "type": "integer", "minimum": 0, "maximum": 100 } }
-                            }
-                          },
-                          {
-                            "if": {
-                              "properties": { "rule_definition": { "const": "item_images_are_similar" } }
-                            },
-                            "then": {
-                              "properties": { "rule_value": { "title": "<%= I18n.t(:team_rule_type_image_threshold) %>", "type": "integer", "minimum": 0, "maximum": 100 } }
-                            }
-                          },
-                          {
-                            "if": {
                               "properties": { "rule_definition": { "const": "has_less_than_x_words" } }
                             },
                             "then": {
@@ -321,10 +297,6 @@
                     {
                       "key": "copy_to_project",
                       "value": "<%= I18n.t(:team_rule_copy_to_project) %>"
-                    },
-                    {
-                      "key": "relate_similar_items",
-                      "value": "<%= I18n.t(:team_rule_relate_similar_items) %>"
                     },
                     {
                       "key": "send_message_to_user",

@@ -4,7 +4,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   interfaces [NodeIdentification.interface]
 
-  field :archived, types.Boolean
+  field :archived, types.Int
   field :private, types.Boolean
   field :avatar, types.String
   field :name, !types.String

@@ -428,7 +428,7 @@ module SampleData
         project.lead_image = f
       end
     end
-    project.archived = options[:archived] || false
+    project.archived = options[:archived] || 0
     team = options[:team] || create_team
     project.team_id = options[:team_id] || team.id
     project.save!
@@ -452,7 +452,7 @@ module SampleData
         team.logo = f
       end
     end
-    team.archived = options[:archived] || false
+    team.archived = options[:archived] || 0
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.save!
@@ -557,6 +557,7 @@ module SampleData
     options = { disable_es_callbacks: true, user: u }.merge(options)
     options[:media_type] = 'Link' unless options[:url].blank?
     options[:media_type] = 'Claim' unless options[:quote].blank?
+    options[:media_type] = 'UploadedImage' if options[:is_image]
     pm = ProjectMedia.new
     if options.has_key?(:project) && !options[:project].nil?
       options[:team] = options[:project].team
@@ -816,7 +817,7 @@ module SampleData
     options = {
       source_id: source_id,
       target_id: target_id,
-      relationship_type: { source: 'parent', target: 'child' }
+      relationship_type: options[:relationship_type]||Relationship.default_type
     }.merge(options)
     r = Relationship.new
     options.each do |key, value|

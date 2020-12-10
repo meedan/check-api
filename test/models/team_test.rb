@@ -526,15 +526,15 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
-      t.archived = true
+      t.archived = 1
       t.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
-      assert !p1.reload.archived
-      assert p2.reload.archived
-      assert !s1.reload.archived
-      assert s2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
+      assert_equal 0, p1.reload.archived
+      assert_equal 1, p2.reload.archived
+      assert_equal 0, s1.reload.archived
+      assert_equal 1, s2.reload.archived
     end
   end
 
@@ -574,23 +574,23 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p1
       pm3 = create_project_media project: p1
-      t.archived = true
+      t.archived = 1
       t.save!
-      assert !pm1.reload.archived
-      assert pm2.reload.archived
-      assert pm3.reload.archived
-      assert p1.reload.archived
-      assert !p2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 1, pm2.reload.archived
+      assert_equal 1, pm3.reload.archived
+      assert_equal 1, p1.reload.archived
+      assert_equal 0, p2.reload.archived
       t = Team.find(t.id)
-      t.archived = false
+      t.archived = 0
       t.save!
-      assert !pm1.reload.archived
-      assert !pm2.reload.archived
-      assert !pm3.reload.archived
-      assert !p1.reload.archived
-      assert !p2.reload.archived
-      assert !s1.reload.archived
-      assert !s2.reload.archived
+      assert_equal 0, pm1.reload.archived
+      assert_equal 0, pm2.reload.archived
+      assert_equal 0, pm3.reload.archived
+      assert_equal 0, p1.reload.archived
+      assert_equal 0, p2.reload.archived
+      assert_equal 0, s1.reload.archived
+      assert_equal 0, s2.reload.archived
     end
   end
 
@@ -2062,95 +2062,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should relate items with similar titles through rules" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
-      t = create_team
-      p = create_project team: t
-      rules = []
-      rules << {
-        "name": random_string,
-        "project_ids": "",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "item_titles_are_similar",
-                  "rule_value": "70"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "relate_similar_items",
-            "action_value": ""
-          }
-        ]
-      }
-      t.rules = rules.to_json
-      t.save!
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/')
-        .with(body: { text: 'This is only a test', context: { team_id: t.id, field: 'title' }, threshold: 0.7 }.to_json)
-        .to_return(status: 200, body: { result: [] }.to_json)
-      pm1 = create_project_media project: p, quote: 'This is only a test'
-      WebMock.stub_request(:get, 'http://alegre/text/similarity/')
-        .with(body: { text: 'This is just a test', context: { team_id: t.id, field: 'title' }, threshold: 0.7 }.to_json)
-        .to_return(status: 200, body: { result: [{ '_source' => { context: { project_media_id: pm1.id } } }] }.to_json)
-      pm2 = create_project_media project: p, quote: 'This is just a test'
-      assert_not_nil Relationship.where(source_id: pm1.id, target_id: pm2.id).last
-    end
-  end
-
-  test "should relate similar images through rules" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
-      t = create_team
-      p = create_project team: t
-      rules = []
-      rules << {
-        "name": random_string,
-        "project_ids": "",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "item_images_are_similar",
-                  "rule_value": "70"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "relate_similar_items",
-            "action_value": ""
-          }
-        ]
-      }
-      t.rules = rules.to_json
-      t.save!
-      body = { context: { team_id: t.id }, threshold: 0.7 }
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/')
-        .with(body: WebMock.hash_including(body))
-        .to_return(status: 200, body: { result: [] }.to_json)
-      pm1 = create_project_media project: p, media: create_uploaded_image
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/')
-        .with(body: WebMock.hash_including(body))
-        .to_return(status: 200, body: { result: [{ context: { project_media_id: pm1.id } }] }.to_json)
-      pm2 = create_project_media project: p, media: create_uploaded_image
-      assert_not_nil Relationship.where(source_id: pm1.id, target_id: pm2.id).last
-    end
-  end
-
   test "should list custom statuses as options for rule" do
     create_verification_status_stuff(false)
     t = create_team
@@ -3100,9 +3011,9 @@ class TeamTest < ActiveSupport::TestCase
     ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
     ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
 
-    assert !pm1.reload.archived
-    assert !pm2.reload.archived
-    assert !pm3.reload.archived
+    assert_equal 0, pm1.reload.archived
+    assert_equal 0, pm2.reload.archived
+    assert_equal 0, pm3.reload.archived
     assert_equal 1, p.reload.project_media_projects.count
     assert_equal 1, p.reload.medias_count
   end
@@ -3295,6 +3206,25 @@ class TeamTest < ActiveSupport::TestCase
     assert !t.team_bot_installations.collect(&:bot_user).include?(bu_non_default)
   end
 
+  test "checks for false item images are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_images_are_similar(pm, "blah", 1)
+  end
+
+  test "checks for false item titles are similar" do
+    pm = create_project_media
+    t = create_team
+    assert !t.item_titles_are_similar(pm, "blah", 1)
+  end
+
+  test "checks for true items are similar" do
+    pm = create_project_media
+    t = create_team
+    pm.alegre_similarity_thresholds = {1 => {"test" => 1}}
+    assert t.items_are_similar("test", pm, "blah", 1)
+  end
+
   test "should set list columns" do
     t = create_team
     t.list_columns = ['type_of_media']
@@ -3314,5 +3244,85 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     2.times { create_team_task(team_id: t.id, fieldset: 'metadata') }
     assert_equal 13, t.list_columns.size
+  end
+
+  test "should match rule by title with spaces" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "Foo Bar, Bar Foo"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    url = 'http://test.com'
+    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","title":"Bar Foo","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    create_project_media project: p0, media: nil, url: url
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 1, Project.find(p1.id).project_media_projects.count
+  end
+
+  test "should not match rule by number of words if request is empty" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "has_less_than_x_words",
+                "rule_value": "3"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "copy_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    create_project_media project: p0
+    assert_equal 1, Project.find(p0.id).project_media_projects.count
+    assert_equal 0, Project.find(p1.id).project_media_projects.count
   end
 end

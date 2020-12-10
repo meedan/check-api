@@ -152,7 +152,7 @@ class Ability
       annotated_type == 'Task' && obj.annotation.team&.id == @context_team.id
     end
     can :lock_annotation, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false
+      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
     can :import_spreadsheet, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
@@ -170,7 +170,7 @@ class Ability
       obj.related_to_team?(@context_team)
     end
     can :update, ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id && !obj.project_media.archived
+      obj.project && obj.project.team_id == @context_team.id && obj.project_media.archived == CheckArchivedFlags::FlagCodes::NONE
     end
     can [:create, :update], Source, :team_id => @context_team.id
     can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
@@ -195,7 +195,7 @@ class Ability
     can [:destroy, :create], Assignment do |obj|
       type = obj.assigned_type
       obj = obj.assigned
-      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
+      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && obj.archived == CheckArchivedFlags::FlagCodes::NONE))
     end
   end
 
@@ -212,7 +212,7 @@ class Ability
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false
+      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
     can :update, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.user_id == @user.id
@@ -233,7 +233,7 @@ class Ability
     can [:destroy, :create], Assignment do |obj|
       type = obj.assigned_type
       obj = obj.assigned
-      (type == 'Annotation' && obj.annotator_id.to_i == @user.id && !obj.annotated_is_archived? && !obj.locked?) || (type == 'Project' && obj.user_id == @user.id && !obj.archived)
+      (type == 'Annotation' && obj.annotator_id.to_i == @user.id && !obj.annotated_is_archived? && !obj.locked?) || (type == 'Project' && obj.user_id == @user.id && obj.archived == CheckArchivedFlags::FlagCodes::NONE)
     end
     can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?

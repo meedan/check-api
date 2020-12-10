@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
     task match_request_count_and_request_messages: :environment do
-      smooch_bot = BotUser.where(login: 'smooch').last
+      smooch_bot = BotUser.smooch_user
       Dynamic.where(annotation_type: 'smooch', annotator_type: [nil], annotator_id: [nil])
       .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
       .where('pm.user_id' => smooch_bot.id)

@@ -1,6 +1,6 @@
 class UpdateArchiverSettingsOnKeepBot < ActiveRecord::Migration
   def change
-    bot = BotUser.where(login: 'keep').last
+    bot = BotUser.keep_user
     settings = bot.get_settings
 
     settings.each do |s|

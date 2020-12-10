@@ -138,6 +138,84 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "queries for relationship source" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal pm.relationship_source, pm
+  end
+
+  test "checks truthfulness of is_claim?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "Claim"
+    pm.media.save!
+    assert pm.is_claim?
+  end
+
+  test "checks truthfulness of is_link?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "Link"
+    pm.media.save!
+    assert pm.is_link?
+  end
+
+  test "checks truthfulness of is_uploaded_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "UploadedImage"
+    pm.media.save!
+    assert pm.is_uploaded_image?
+  end
+
+  test "checks truthfulness of is_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "UploadedImage"
+    pm.media.save!
+    assert pm.is_image?
+  end
+
+  test "checks truthfulness of is_text?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "Link"
+    pm.media.save!
+    assert pm.is_text?
+  end
+
+  test "checks truthfulness of is_blank?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "Blank"
+    pm.media.save!
+    assert pm.is_blank?
+  end
+
+  test "checks falsity of is_text?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media.type = "UploadedImage"
+    pm.media.save!
+    assert !pm.is_text?
+  end
+
+  test "checks falsity of is_image?" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    pm.media_type = "Link"
+    assert !pm.is_image?
+  end
+
   test "non members should not read project media in private team" do
     u = create_user
     t = create_team
@@ -285,7 +363,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media project: p, current_user: u
     perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation",
-      "update Status", "administer Content"].sort
+      "update Status", "administer Content", "create Relationship"].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -1007,7 +1085,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media under archived project" do
-    p = create_project archived: true
+    p = create_project archived: 1
     assert_raises ActiveRecord::RecordInvalid do
       create_project_media add_to_project_id: p.id
     end
@@ -1015,10 +1093,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should archive" do
     pm = create_project_media
-    assert !pm.archived
-    pm.archived = true
+    assert_equal pm.archived, 0
+    pm.archived = 1
     pm.save!
-    assert pm.reload.archived
+    assert_equal pm.reload.archived, 1
   end
 
   test "should create annotation when is embedded for the first time" do
@@ -1357,20 +1435,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [s2], t2.sources
   end
 
-  test "should get relationship target" do
-    pm = create_project_media
-    assert_nil pm.relationships_target
-    pm.related_to_id = 1
-    assert_not_nil pm.relationships_target.id
-  end
-
-  test "should get relationship source" do
-    pm = create_project_media
-    assert_nil pm.relationships_source
-    pm.related_to_id = 1
-    assert_not_nil pm.relationships_source.id
-  end
-
   test "should return related" do
     pm = create_project_media
     pm2 = create_project_media
@@ -1409,7 +1473,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = nil
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
-      pm.archived = true;pm.save
+      pm.archived = 1;pm.save
       assert_equal 2, pm.versions.count
     end
     version = pm.versions.last
@@ -1493,7 +1557,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
     result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id)
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_equal 1, pm.reload.requests_count
+    assert_equal 2, pm2.reload.requests_count
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
     pm3 = create_project_media team: team, add_to_project_id: p.id
@@ -1501,7 +1567,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
     assert_queries(0, '=') { assert_equal(2, pm3.demand) }
-    create_relationship source_id: pm.id, target_id: pm3.id
+    create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(5, pm.demand) }
     assert_queries(0, '=') { assert_equal(5, pm2.demand) }
     assert_queries(0, '=') { assert_equal(5, pm3.demand) }
@@ -1525,15 +1591,15 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm.linked_items_count) }
     pm2 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
-    create_relationship source_id: pm.id, target_id: pm2.id
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
     pm3 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
-    r = create_relationship source_id: pm.id, target_id: pm3.id
+    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(1, pm3.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(2, pm3.linked_items_count) }
     r.destroy!
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
     assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
@@ -1568,7 +1634,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
     pm2 = create_project_media team: team
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     assert_queries(0, '=') { assert_equal(t, pm.last_seen) }
     sleep 1
@@ -1658,7 +1724,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
     sleep 3
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
@@ -1690,16 +1756,18 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should query media" do
+    setup_elasticsearch
     t = create_team
     p = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
-    pm = create_project_media team: t, add_to_project_id: p.id
-    create_project_media team: t, add_to_project_id: p1.id
-    create_project_media team: t, archived: true, add_to_project_id: p.id
-    pm = create_project_media team: t, add_to_project_id: p1.id
-    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id).id
+    pm = create_project_media team: t, add_to_project_id: p.id, disable_es_callbacks: false
+    create_project_media team: t, add_to_project_id: p1.id, disable_es_callbacks: false
+    create_project_media team: t, archived: 1, add_to_project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: t, add_to_project_id: p1.id, disable_es_callbacks: false
+    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     create_project_media_project project_media: pm, project: p2
+    sleep 2
     assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
@@ -1790,7 +1858,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should not throw exception for trashed item if request does not come from a client" do
     pm = create_project_media project: p
-    pm.archived = true
+    pm.archived = 1
     pm.save!
     User.current = nil
     assert_nothing_raised do
@@ -1916,7 +1984,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm.save!
     end
     pm = ProjectMedia.find(pm.id)
-    assert !pm.archived
+    assert_equal pm.archived, 0
   end
 
   test "should set media type for links" do

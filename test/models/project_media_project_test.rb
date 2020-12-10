@@ -31,7 +31,7 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
 
   test "should not create project media under archived project" do
     t = create_team
-    p = create_project team: t, archived: true
+    p = create_project team: t, archived: 1
     pm = create_project_media team: t
 
     assert_raises ActiveRecord::RecordInvalid do

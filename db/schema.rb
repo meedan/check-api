@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201129212613) do
+ActiveRecord::Schema.define(version: 20201207144206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -236,7 +236,7 @@ ActiveRecord::Schema.define(version: 20201129212613) do
     t.datetime "updated_at",                               null: false
     t.integer  "user_id"
     t.integer  "cached_annotations_count", default: 0
-    t.boolean  "archived",                 default: false
+    t.integer  "archived",                 default: 0
     t.integer  "targets_count",            default: 0,     null: false
     t.integer  "sources_count",            default: 0,     null: false
     t.integer  "team_id"
@@ -254,9 +254,9 @@ ActiveRecord::Schema.define(version: 20201129212613) do
     t.string   "title"
     t.text     "description"
     t.string   "lead_image"
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
-    t.boolean  "archived",          default: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "archived",          default: 0
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
@@ -267,14 +267,16 @@ ActiveRecord::Schema.define(version: 20201129212613) do
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
 
   create_table "relationships", force: :cascade do |t|
-    t.integer  "source_id",         null: false
-    t.integer  "target_id",         null: false
-    t.string   "relationship_type", null: false
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.integer  "source_id",                       null: false
+    t.integer  "target_id",                       null: false
+    t.string   "relationship_type",               null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.integer  "user_id"
+    t.float    "weight",            default: 0.0
   end
 
+  add_index "relationships", ["relationship_type"], name: "index_relationships_on_relationship_type", using: :btree
   add_index "relationships", ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true, using: :btree
 
   create_table "shortened_urls", force: :cascade do |t|
@@ -299,12 +301,12 @@ ActiveRecord::Schema.define(version: 20201129212613) do
     t.string   "name"
     t.string   "slogan"
     t.string   "avatar"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.integer  "team_id"
     t.string   "file"
-    t.boolean  "archived",     default: false
-    t.integer  "lock_version", default: 0,     null: false
+    t.integer  "archived",     default: 0
+    t.integer  "lock_version", default: 0, null: false
   end
 
   create_table "tag_texts", force: :cascade do |t|
@@ -361,7 +363,7 @@ ActiveRecord::Schema.define(version: 20201129212613) do
     t.string   "name"
     t.string   "logo"
     t.boolean  "private",     default: true
-    t.boolean  "archived",    default: false
+    t.integer  "archived",    default: 0
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.text     "description"

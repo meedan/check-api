@@ -319,7 +319,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should not create source under trashed team" do
     t = create_team
-    t.archived = true
+    t.archived = 1
     t.save!
 
     assert_raises ActiveRecord::RecordInvalid do
