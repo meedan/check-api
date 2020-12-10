@@ -1,6 +1,6 @@
 module TeamMutations
   create_fields = {
-    archived: 'bool',
+    archived: 'int',
     private: 'bool',
     name: '!str',
     slug: '!str',
@@ -9,7 +9,7 @@ module TeamMutations
   }
 
   update_fields = {
-    archived: 'bool',
+    archived: 'int',
     private: 'bool',
     name: 'str',
     description: 'str',

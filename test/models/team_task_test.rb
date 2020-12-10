@@ -139,14 +139,14 @@ class TeamTaskTest < ActiveSupport::TestCase
     p = create_project team: t
     p2 = create_project team: t
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, archived: true
+      pm = create_project_media project: p, archived: 1
       tt =create_team_task team_id: t.id, project_ids: [p2.id]
       pm2 = create_project_media project: p2
       # Assign task to user and archive the item
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt.assigned_to_ids = u2.id
       pm2_tt.save!
-      pm2.archived = true
+      pm2.archived = 1
       pm2.save!
       with_current_user_and_team(u, t) do
         assert_no_difference 'Task.length' do

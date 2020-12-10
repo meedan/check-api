@@ -41,35 +41,35 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should not bulk-send project medias to trash if not allowed" do
     @tu.update_column(:role, 'contributor')
-    @pms.each { |pm| assert !pm.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: true }) { ids, team { dbid } } }'
+    @pms.each { |pm| assert_equal 0, pm.archived }
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response :success
     assert_error_message 'allowed'
-    @pms.each { |pm| assert !pm.reload.archived }
+    @pms.each { |pm| assert_equal 0, pm.reload.archived }
   end
 
   test "should not bulk-send project medias to trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: true }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 1 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response 400
     assert_error_message 'maximum'
   end
 
   test "should bulk-send project medias to trash" do
-    @pms.each { |pm| assert !pm.archived }
+    @pms.each { |pm| assert_equal 0, pm.archived }
     @ps.each { |p| assert_equal 1, p.reload.medias_count }
     assert_search_finds_all({ archived: 0 })
     assert_search_finds_none({ archived: 1 })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: true }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response :success
     
-    @pms.each { |pm| assert pm.reload.archived }
+    @pms.each { |pm| assert_equal 1, pm.reload.archived }
     @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: 1 })
     assert_search_finds_none({ archived: 0 })
@@ -78,39 +78,39 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should not bulk-restore project medias from trash if not allowed" do
     @tu.update_column(:role, 'contributor')
-    @pms.each { |pm| pm.archived = true ; pm.save! }
-    @pms.each { |pm| assert pm.reload.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: false }) { ids, team { dbid } } }'
+    @pms.each { |pm| pm.archived = 1 ; pm.save! }
+    @pms.each { |pm| assert_equal 1, pm.reload.archived }
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response :success
     assert_error_message 'allowed'
-    @pms.each { |pm| assert pm.reload.archived }
+    @pms.each { |pm| assert_equal 1, pm.reload.archived }
   end
 
   test "should not bulk-restore project medias from trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: false }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 0 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response 400
     assert_error_message 'maximum'
   end
 
   test "should bulk-restore project medias from trash" do
-    @pms.each { |pm| pm.archived = true ; pm.save! }
+    @pms.each { |pm| pm.archived = 1 ; pm.save! }
     Sidekiq::Worker.drain_all
     sleep 1
-    @pms.each { |pm| assert pm.reload.archived }
+    @pms.each { |pm| assert_equal 1, pm.reload.archived }
     @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: 1 })
     assert_search_finds_none({ archived: 0 })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: false }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
     assert_response :success
     
-    @pms.each { |pm| assert !pm.reload.archived }
+    @pms.each { |pm| assert_equal 0, pm.reload.archived }
     @ps.each { |p| assert_equal 1, p.reload.medias_count }
     assert_search_finds_all({ archived: 0 })
     assert_search_finds_none({ archived: 1 })
@@ -302,7 +302,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should update archived media by owner" do
-    pm = create_project_media team: @t, archived: true
+    pm = create_project_media team: @t, archived: 1
     query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
     post :create, query: query, team: @t.slug
     assert_response :success

@@ -1,6 +1,6 @@
 class AddTemplateNamesSettingsToSmoochBot < ActiveRecord::Migration
   def change
-    tb = BotUser.where(login: 'smooch').last
+    tb = BotUser.smooch_user
     unless tb.nil?
       settings = tb.get_settings.clone || []
       # Reorder existing template settings

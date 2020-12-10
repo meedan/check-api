@@ -61,7 +61,7 @@ class GraphqlController3Test < ActionController::TestCase
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false
-    pm.archived = true
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
     sleep 10
 
@@ -188,7 +188,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm1b = create_project_media project: p1b, disable_es_callbacks: false ; sleep 1
     pm1b.disable_es_callbacks = false ; pm1b.updated_at = Time.now ; pm1b.save! ; sleep 1
     pm1a.disable_es_callbacks = false ; pm1a.updated_at = Time.now ; pm1a.save! ; sleep 1
-    pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: true ; sleep 1
+    pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::TRASHED ; sleep 1
     t2 = create_team
     p2 = create_project team: t2
     pm2 = []
@@ -329,7 +329,7 @@ class GraphqlController3Test < ActionController::TestCase
     queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
     # query on PG
-    queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+    queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
     queries.each do |query|
       post :create, query: query, team: t.slug
@@ -540,7 +540,7 @@ class GraphqlController3Test < ActionController::TestCase
     info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm, set_fields: { smooch_data: '{}' }.to_json)
     pm2 = create_project_media project: p
-    r = create_relationship source_id: pm.id, target_id: pm2.id
+    r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2, set_fields: { smooch_data: '{}' }.to_json)
     info = { title: 'Title Test', content: 'Description Test' }; pm.analysis = info; pm.save!
 
@@ -746,7 +746,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm1 = create_project_media project: p
     sleep 1
     pm2 = create_project_media project: p
-    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
@@ -761,10 +761,10 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     p = create_project team: t
     pm1 = create_project_media project: p
-    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm1.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     pm2 = create_project_media project: p
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
-    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     sleep 10
     query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
@@ -772,26 +772,6 @@ class GraphqlController3Test < ActionController::TestCase
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
     assert_equal 1, response['item_navigation_offset']
-  end
-
-  test "should return secondary items by type" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
-    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: { source: 'parent', target: 'child' }
-    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: { source: 'full_video', target: 'clip' }
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
-    create_relationship source_id: p2.id, target_id: p2a.id
-    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: { source: 'full_video', target: 'clip' }
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { secondary_items(source_type: \"full_video\", target_type: \"clip\", first: 10000) { edges { node { dbid } } } } }", team: t.slug
-    assert_equal [p1b.id], JSON.parse(@response.body)['data']['project_media']['secondary_items']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
   test "should set smooch user slack channel url in background" do
@@ -1253,11 +1233,12 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm = create_project_media team: t, user: u
+    p = create_project team: t
+    pm = create_project_media team: t, project: p, user: u
     create_project_media team: t
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + '], \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
 
     assert_response :success
@@ -1356,22 +1337,23 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm1 = create_project_media team: t, read: true
-    pm2 = create_project_media team: t
+    p = create_project team: t
+    pm1 = create_project_media team: t, project: p, read: true
+    pm2 = create_project_media team: t, project: p
     pm3 = create_project_media
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":true, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":false, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
@@ -1589,6 +1571,66 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /Sorry/, @response.body
   end
 
+  test "should return similar items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_confirmed_similar_to_another_item, suggested_main_item { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug
+    assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
+  end
+
+  test "should return suggested similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
+  end
+
+  test "should return confirmed similar items count" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    authenticate_with_user(u)
+    p = create_project team: t
+    p1 = create_project_media project: p
+    p1a = create_project_media project: p
+    p1b = create_project_media project: p
+    create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.confirmed_type
+    create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.confirmed_type
+    p2 = create_project_media project: p
+    p2a = create_project_media project: p
+    p2b = create_project_media project: p
+    create_relationship source_id: p2.id, target_id: p2a.id
+    create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
+    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug; false
+    assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
+  end
+
   test "should sort search by metadata value where items without metadata value show first on ascending order" do
     RequestStore.store[:skip_cached_field_update] = false
     at = create_annotation_type annotation_type: 'task_response_free_text'
@@ -1604,7 +1646,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media team: t, disable_es_callbacks: false
     pm3 = create_project_media team: t, disable_es_callbacks: false
     pm4 = create_project_media team: t, disable_es_callbacks: false
-    
+
     m = pm1.get_annotations('task').map(&:load).select{ |t| t.team_task_id == tt1.id }.last
     m.disable_es_callbacks = false
     m.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'B' }.to_json }.to_json
@@ -1634,7 +1676,7 @@ class GraphqlController3Test < ActionController::TestCase
     sleep 5
 
     authenticate_with_user(u)
-    
+
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -1662,5 +1704,15 @@ class GraphqlController3Test < ActionController::TestCase
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size
     assert_equal pm3.id, results.last
+  end
+
+  test "should load permissions for GraphQL" do
+    pm1 = create_project_media
+    pm2 = create_project_media
+    User.current = create_user
+    PermissionsLoader.any_instance.stubs(:fulfill).returns(nil)
+    assert_kind_of Array, PermissionsLoader.new(nil).perform([pm1.id, pm2.id])
+    PermissionsLoader.any_instance.unstub(:fulfill)
+    User.current = nil
   end
 end

@@ -22,10 +22,18 @@ class Bot::Smooch < BotUser
   end
 
   ::Relationship.class_eval do
-    after_create do
+    def is_valid_smooch_relationship?
+      self.is_confirmed?
+    end
+
+    def suggestion_accepted?
+      self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
+    end
+
+    def inherit_status_and_send_report
       target = self.target
       parent = self.source
-      if ::Bot::Smooch.team_has_smooch_bot_installed(target)
+      if ::Bot::Smooch.team_has_smooch_bot_installed(target) && self.is_valid_smooch_relationship?
         s = target.annotations.where(annotation_type: 'verification_status').last&.load
         status = parent.last_verification_status
         if !s.nil? && s.status != status
@@ -36,13 +44,23 @@ class Bot::Smooch < BotUser
       end
     end
 
+    after_create do
+      self.inherit_status_and_send_report
+    end
+
+    after_update do
+      self.inherit_status_and_send_report if self.suggestion_accepted?
+    end
+
     after_destroy do
-      target = self.target
-      s = target.annotations.where(annotation_type: 'verification_status').last&.load
-      status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
-      if !s.nil? && s.status != status
-        s.status = status
-        s.save!
+      if self.is_valid_smooch_relationship?
+        target = self.target
+        s = target.annotations.where(annotation_type: 'verification_status').last&.load
+        status = ::Workflow::Workflow.options(target, 'verification_status')[:default]
+        if !s.nil? && s.status != status
+          s.status = status
+          s.save!
+        end
       end
     end
   end
@@ -190,7 +208,7 @@ class Bot::Smooch < BotUser
       slack_channel_url = nil
       # Fetch project from Smooch Bot and fallback to obj.project_id
       pid = nil
-      bot = BotUser.where(login: 'smooch').last
+      bot = BotUser.smooch_user
       tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
       pid =  tbi.get_smooch_project_id unless tbi.nil?
       pid ||= obj.project_id
@@ -296,13 +314,13 @@ class Bot::Smooch < BotUser
   }
 
   def self.team_has_smooch_bot_installed(pm)
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     tbi = TeamBotInstallation.where(team_id: pm.team_id, user_id: bot&.id.to_i).last
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
   def self.get_installation(key, value)
-    bot = BotUser.where(login: 'smooch').last
+    bot = BotUser.smooch_user
     return nil if bot.nil?
     smooch_bot_installation = nil
     TeamBotInstallation.where(user_id: bot.id).each do |installation|
@@ -918,7 +936,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_users(pm, action)
-    parent = Relationship.where(target_id: pm.id).last&.source || pm
+    parent = Relationship.confirmed_parent(pm)
     report = parent.get_annotations('report_design').last&.load
     return if report.nil?
     last_published_at = report.get_field_value('last_published').to_i
@@ -950,9 +968,9 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
-    parent = Relationship.where(target_id: pm.id).last&.source || pm
+    parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
-    if report&.get_field_value('state') == 'published' && !parent.archived
+    if report&.get_field_value('state') == 'published' && parent.archived == CheckArchivedFlags::FlagCodes::NONE
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction', lang)
         introduction = report.report_design_introduction(data, lang)
@@ -992,7 +1010,7 @@ class Bot::Smooch < BotUser
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
-    pm.source_relationships.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
+    pm.source_relationships.confirmed.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
       target = relationship.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       next if s.nil? || s.status == status

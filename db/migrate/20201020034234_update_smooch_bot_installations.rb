@@ -3,7 +3,7 @@ class UpdateSmoochBotInstallations < ActiveRecord::Migration
     # Iterate through Smooch Bot installations in order to store bot resources
     current_user = User.current
     current_team = Team.current
-    User.current = bot = BotUser.where(login: 'smooch').last
+    User.current = bot = BotUser.smooch_user
     bot.team_bot_installations.each do |tbi|
       puts "Updating Smooch Bot for team #{tbi.team.name}..."
       tbi = tbi.becomes(TeamBotInstallation)
