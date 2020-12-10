@@ -10,7 +10,7 @@ class CheckSearch
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] ||= media_default_types_to_show @options['projects'] # FIXME: Refactor CheckSearch to avoid special cases
+    @options['show'] ||= media_default_types_to_show # FIXME: Refactor CheckSearch to avoid special cases
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
@@ -114,12 +114,12 @@ class CheckSearch
     MEDIA_TYPES & @options['show']
   end
 
-  def media_default_types_to_show(is_project)
+  def media_default_types_to_show
     # FIXME: In an upcoming refactoring types to show should be defined from the query only
     # in order to define this kind of handling based on special conditions.
     # Currently each query encodes to a different GraphQL ID making it difficult to do
-    # Relay updates on the frontend side
-    is_project ? MEDIA_TYPES : (MEDIA_TYPES - ['blank'])
+    # Relay updates on the frontend side.
+    (@options['projects'] || @options['archived']) ? MEDIA_TYPES : (MEDIA_TYPES - ['blank'])
   end
 
   def get_pg_results
