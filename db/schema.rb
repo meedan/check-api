@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201205225414) do
+ActiveRecord::Schema.define(version: 20201207144206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -276,6 +276,7 @@ ActiveRecord::Schema.define(version: 20201205225414) do
     t.float    "weight",            default: 0.0
   end
 
+  add_index "relationships", ["relationship_type"], name: "index_relationships_on_relationship_type", using: :btree
   add_index "relationships", ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true, using: :btree
 
   create_table "shortened_urls", force: :cascade do |t|
