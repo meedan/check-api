@@ -361,9 +361,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
-      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation",
-      "update Status", "administer Content", "create Relationship"].sort
+    perm_keys = [
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
+      "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship"
+    ].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -1970,21 +1972,32 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should restore item from trash if not super admin" do
+  test "should restore and confirm item if not super admin" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'owner', is_admin: false
+    # test restore
     pm = create_project_media team: t
-    pm.archived = 1
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
-    pm = ProjectMedia.find(pm.id)
-    assert pm.archived
+    pm = pm.reload
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
     with_current_user_and_team(u, t) do
-      pm.archived = 0
+      pm.archived = CheckArchivedFlags::FlagCodes::NONE
       pm.save!
     end
-    pm = ProjectMedia.find(pm.id)
-    assert_equal pm.archived, 0
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
+    # test confirm
+    pm = create_project_media team: t
+    pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    pm.save!
+    pm = pm.reload
+    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
+    with_current_user_and_team(u, t) do
+      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm.save!
+    end
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
   end
 
   test "should set media type for links" do

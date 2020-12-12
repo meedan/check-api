@@ -387,6 +387,18 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.archived_count
+    proc do |name|
+      field name do
+        type types.Int
+
+        resolve ->(team, _args, _ctx) {
+          (team.private && (!User.current || (!User.current.is_admin && TeamUser.where(team_id: team.id, user_id: User.current.id).last.nil?))) ? 0 : team.send(name)
+        }
+      end
+    end
+  end
+
   def self.field_log_count
     proc do |_classname|
       field :log_count do
