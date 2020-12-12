@@ -772,29 +772,12 @@ class Bot::Smooch < BotUser
       else
         self.save_media_message(message)
       end
+    # update archived column
+    if !pm.nil? && pm.archived != CheckArchivedFlags::FlagCodes::NONE && message['archived'] == CheckArchivedFlags::FlagCodes::NONE
+      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm.save!
+    end
     pm
-  end
-
-  def self.create_smooch_request(annotated, message, app_id, author, request_type)
-    # TODO: By Sawy - Should handle User.current value
-    # In this case User.current was reset by SlackNotificationWorker worker
-    # Quick fix - assigning it again using annotated object and reset its value at the end of creation
-    fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
-    result = self.smooch_api_get_messages(app_id, message['authorId'])
-    fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
-    current_user = User.current
-    User.current = author
-    User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
-    RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
-    a = Dynamic.new
-    a.skip_check_ability = true
-    a.skip_notifications = true
-    a.disable_es_callbacks = Rails.env.to_s == 'test'
-    a.annotation_type = 'smooch'
-    a.annotated = annotated
-    a.set_fields = fields.to_json
-    a.save!
-    User.current = current_user
   end
 
   def self.get_project_id(_message = nil)
@@ -858,11 +841,19 @@ class Bot::Smooch < BotUser
     begin
       url = self.extract_url(text)
       pm = nil
+      extra = {}
       if url.nil?
         claim = self.extract_claim(text)
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team_id).last || self.create_project_media(message, 'Claim', { quote: claim })
+        extra = { quote: claim }
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team_id).last
       else
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last || self.create_project_media(message, 'Link', { url: url })
+        extra = { url: url }
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last
+      end
+
+      if pm.nil?
+        type = url.nil? ? 'Claim' : 'Link'
+        pm = self.create_project_media(message, type, extra)
       end
 
       self.add_hashtags(text, pm)
@@ -875,6 +866,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_project_media(message, type, extra)
+    extra.merge!({ archived: message['archived'] })
     pm = ProjectMedia.create!({ add_to_project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
@@ -924,7 +916,7 @@ class Bot::Smooch < BotUser
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(add_to_project_id: message['project_id'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.create!(add_to_project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
       FileUtils.rm_f filepath

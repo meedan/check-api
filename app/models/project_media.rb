@@ -180,6 +180,7 @@ class ProjectMedia < ActiveRecord::Base
     perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms["confirm ProjectMedia"] = ability.can?(:confirm, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
     perms["administer Content"] = ability.can?(:administer_content, self)
     perms
