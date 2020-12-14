@@ -1973,31 +1973,67 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should restore and confirm item if not super admin" do
+    setup_elasticsearch
     t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
     u = create_user
     create_team_user user: u, team: t, role: 'owner', is_admin: false
-    # test restore
-    pm = create_project_media team: t
-    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    pm.save!
-    pm = pm.reload
-    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
-    with_current_user_and_team(u, t) do
-      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    Sidekiq::Testing.inline! do
+      # test restore
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id).sort
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p.id, p2.id], result.sort
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
       pm.save!
-    end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
-    # test confirm
-    pm = create_project_media team: t
-    pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
-    pm.save!
-    pm = pm.reload
-    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
-    with_current_user_and_team(u, t) do
-      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm = pm.reload
+      assert_empty pm.project_media_projects
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_empty result
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.disable_es_callbacks = false
+        pm.add_to_project_id = p3.id
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      sleep 1
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p3.id], result
+      # test confirm
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id)
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p.id, p2.id], result.sort
+      pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
       pm.save!
+      pm = pm.reload
+      assert_empty pm.project_media_projects
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_empty result
+      assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.disable_es_callbacks = false
+        pm.add_to_project_id = p3.id
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      sleep 1
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p3.id], result
     end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
   end
 
   test "should set media type for links" do

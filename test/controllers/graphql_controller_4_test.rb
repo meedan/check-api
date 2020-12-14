@@ -111,10 +111,33 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
     
     @pms.each { |pm| assert_equal 0, pm.reload.archived }
-    @ps.each { |p| assert_equal 1, p.reload.medias_count }
+    @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: 0 })
     assert_search_finds_none({ archived: 1 })
     assert_equal 1, CheckPusher::Worker.jobs.size
+  end
+
+  test "should bulk-restore project medias from trash and assign to list" do
+    add_to = create_project team: @t
+    @pms.each { |pm| pm.archived = 1 ; pm.save! }
+    Sidekiq::Worker.drain_all
+    sleep 1
+    @pms.each { |pm| assert_equal 1, pm.reload.archived }
+    @ps.each { |p| assert_equal 0, p.reload.medias_count }
+    assert_search_finds_all({ archived: 1 })
+    assert_search_finds_none({ archived: 0 })
+    assert_equal 0, CheckPusher::Worker.jobs.size
+
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0, add_to_project_id: ' + add_to.id.to_s + ' }) { ids, team { dbid } } }'
+    post :create, query: query, team: @t.slug
+    assert_response :success
+
+    @pms.each { |pm| assert_equal 0, pm.reload.archived }
+    @ps.each { |p| assert_equal 0, p.reload.medias_count }
+    assert_equal @pms.length, add_to.reload.medias_count
+    assert_search_finds_all({ archived: 0 })
+    assert_search_finds_none({ archived: 1 })
+    assert_equal 3, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-create tags if not allowed" do
