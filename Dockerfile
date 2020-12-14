@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpegthumbnailer \
     git \
     graphicsmagick \
-    idn \
+    libidn \
     inotify-tools \
     libpq-dev \
     libtag1-dev \
