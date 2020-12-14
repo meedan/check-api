@@ -16,7 +16,7 @@ before_install:
 - docker exec elasticsearch elasticsearch-plugin install analysis-icu
 - docker restart elasticsearch
 - sudo apt-get update
-- sudo apt-get install -y libidn wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer libtag1-dev golang-go golang-glide
+- sudo apt-get install -y libidn11 wget phantomjs redis-server graphicsmagick fontconfig libfontconfig ffmpegthumbnailer libtag1-dev golang-go golang-glide
 - wget -q --waitretry=5 --retry-connrefused -t 20 -T 10 -O - http://127.0.0.1:9200
 - redis-server &
 - git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
