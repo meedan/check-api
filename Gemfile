@@ -9,16 +9,16 @@ end
 group :test do
   gem 'parallel_tests'
   gem 'minitest-hooks'
-  gem 'simplecov', '0.13.0', require: false
+  gem 'simplecov', '0.18.5', require: false
   gem 'simplecov-console', require: false
-  gem 'codeclimate-test-reporter', '1.0.8', require: nil
+  gem 'codeclimate-test-reporter', '1.0.7', require: nil
   gem 'test_after_commit'
   gem 'minitest-retry'
 end
 
 group :doc do
   gem 'railroady', require: false
-  gem 'sdoc', '~> 0.4.0', require: false
+  gem 'sdoc', '2.0.3', require: false
   gem 'gem-licenses', require: false
 end
 
@@ -39,6 +39,7 @@ gem 'pg_application_name'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.1.0'
+gem "json", ">= 2.3.0"
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
@@ -96,7 +97,7 @@ gem 'loofah', '2.3.1'
 gem 'deep_cloneable', '~> 2.3.0'
 gem 'rails-html-sanitizer', '1.0.4'
 gem 'sprockets', '3.7.2'
-gem 'pghero'
+gem 'pghero'#, ">= 2.7.0"
 gem 'pg_query', '>= 0.9.0'
 gem 'multi_json', '1.12.2'
 gem 'json-schema'
@@ -107,7 +108,7 @@ gem 'redis-rails'
 gem 'activejob', '4.2.11.1'
 gem 'rack', '>= 1.6.11'
 gem 'jwt'
-gem 'smooch-api', git: 'https://github.com/smooch/smooch-ruby.git', ref: 'a2c1646'
+#gem 'smooch-api', git: 'https://github.com/smooch/smooch-ruby.git', ref: 'a2c1646'
 gem 'typhoeus'
 gem 'sidekiq-benchmark'
 gem 'sidekiq-status'
