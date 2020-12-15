@@ -29,7 +29,7 @@ group :development do
 end
 
 gem 'webmock'
-gem 'mocha'
+gem 'mocha', '1.2.1'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
 gem 'sqlite3', require: false
 gem 'lograge'
