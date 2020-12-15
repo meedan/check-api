@@ -656,6 +656,9 @@ GEM
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
+    smooch-api (5.29.1)
+      json (~> 2.3, >= 2.3.1)
+      typhoeus (~> 1.0, >= 1.0.1)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -838,6 +841,7 @@ DEPENDENCIES
   simplecov (= 0.18.5)
   simplecov-console
   sinatra
+  smooch-api
   sprockets (= 3.7.2)
   sqlite3
   swagger-docs (= 0.1.9)
