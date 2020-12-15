@@ -435,8 +435,8 @@ GEM
     open_uri_redirections (0.2.1)
     orm_adapter (0.5.0)
     os (1.1.1)
-    paper_trail (10.3.1)
-      activerecord (>= 4.2)
+    paper_trail (7.0.1)
+      activerecord (>= 4.0, < 5.2)
       request_store (~> 1.1)
     parallel (1.20.1)
     parallel_tests (3.4.0)
@@ -794,7 +794,7 @@ DEPENDENCIES
   omniauth-slack
   omniauth-twitter
   open_uri_redirections
-  paper_trail
+  paper_trail (= 7.0.1)
   parallel_tests
   partitioned!
   peek-rblineprof
