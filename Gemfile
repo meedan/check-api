@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-
 group :development, :test do
   gem 'byebug', require: false
   gem 'rubocop', '0.49.0', require: false
@@ -114,6 +113,7 @@ gem 'typhoeus'
 gem 'sidekiq-benchmark'
 gem 'sidekiq-status'
 gem 'mini_magick', '4.10.1'
+gem 'peek', '1.0.1'
 gem 'peek-rblineprof'
 gem 'request_store-sidekiq', '~> 0.1'
 gem 'aasm'

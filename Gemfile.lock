@@ -128,7 +128,7 @@ GEM
       execjs
     awesome_print (1.8.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.406.0)
+    aws-partitions (1.407.0)
     aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -179,6 +179,8 @@ GEM
     coffee-script-source (1.12.2)
     colorize (0.8.1)
     concurrent-ruby (1.1.7)
+    concurrent-ruby-ext (1.1.7)
+      concurrent-ruby (= 1.1.7)
     connection_pool (2.2.3)
     crack (0.4.4)
     crass (1.0.6)
@@ -444,7 +446,9 @@ GEM
       parallel
     parser (2.7.2.0)
       ast (~> 2.4.1)
-    peek (1.1.0)
+    peek (1.0.1)
+      concurrent-ruby (>= 0.9.0)
+      concurrent-ruby-ext (>= 0.9.0)
       railties (>= 4.0.0)
     peek-rblineprof (0.2.0)
       peek
@@ -801,6 +805,7 @@ DEPENDENCIES
   paper_trail (= 7.0.1)
   parallel_tests
   partitioned!
+  peek (= 1.0.1)
   peek-rblineprof
   pender_client!
   pg (~> 0.15)
