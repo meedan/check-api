@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+
 group :development, :test do
   gem 'byebug', require: false
   gem 'rubocop', '0.49.0', require: false
@@ -108,7 +109,7 @@ gem 'redis-rails'
 gem 'activejob', '4.2.11.1'
 gem 'rack', '>= 1.6.11'
 gem 'jwt'
-gem 'smooch-api'#, git: 'https://github.com/smooch/smooch-ruby.git', ref: 'a2c1646'
+gem 'smooch-api', '5.29.1'#, git: 'https://github.com/smooch/smooch-ruby.git', ref: 'a2c1646'
 gem 'typhoeus'
 gem 'sidekiq-benchmark'
 gem 'sidekiq-status'

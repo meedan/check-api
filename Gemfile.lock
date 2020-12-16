@@ -128,7 +128,7 @@ GEM
       execjs
     awesome_print (1.8.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.407.0)
+    aws-partitions (1.408.0)
     aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -846,7 +846,7 @@ DEPENDENCIES
   simplecov (= 0.18.5)
   simplecov-console
   sinatra
-  smooch-api
+  smooch-api (= 5.29.1)
   sprockets (= 3.7.2)
   sqlite3
   swagger-docs (= 0.1.9)

@@ -805,7 +805,7 @@ class Bot::Smooch < BotUser
 
   def self.extract_url(text)
     begin
-      urls = Twitter::Extractor.extract_urls(text)
+      urls = Twitter::TwitterText::Extractor.extract_urls(text)
       return nil if urls.blank?
       urls_to_ignore = self.config['smooch_urls_to_ignore'].to_s.split(/\s+/)
       url = urls.reject{ |u| urls_to_ignore.include?(u) }.first
@@ -834,7 +834,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.add_hashtags(text, pm)
-    hashtags = Twitter::Extractor.extract_hashtags(text)
+    hashtags = Twitter::TwitterText::Extractor.extract_hashtags(text)
     return nil if hashtags.blank?
 
     # Only add team tags.
