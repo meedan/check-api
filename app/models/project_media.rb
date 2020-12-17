@@ -361,6 +361,17 @@ class ProjectMedia < ActiveRecord::Base
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
   end
 
+  def create_project_media_project
+    unless self.add_to_project_id.blank?
+      ProjectMediaProject.create!(
+        project_media_id: self.id,
+        project_id: self.add_to_project_id,
+        set_tasks_responses: self.set_tasks_responses,
+        disable_es_callbacks: self.disable_es_callbacks
+      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
+    end
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/project_media_private.rb

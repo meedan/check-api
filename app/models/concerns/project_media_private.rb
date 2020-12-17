@@ -37,7 +37,15 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
+    if self.archived_changed?
+      ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id)
+      if self.archived_was == CheckArchivedFlags::FlagCodes::NONE
+        # Remove related ProjectMediaProject
+        self.project_media_projects.destroy_all
+      elsif self.archived == CheckArchivedFlags::FlagCodes::NONE
+        self.create_project_media_project
+      end
+    end
   end
 
   def destroy_related_medias
@@ -72,14 +80,5 @@ module ProjectMediaPrivate
       self.team_id = project.team_id unless project.nil?
     end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
-  end
-
-  def create_project_media_project
-    ProjectMediaProject.create!(
-      project_media_id: self.id,
-      project_id: self.add_to_project_id,
-      set_tasks_responses: self.set_tasks_responses,
-      disable_es_callbacks: self.disable_es_callbacks
-      ) unless self.add_to_project_id.blank?
   end
 end
