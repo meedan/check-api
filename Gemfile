@@ -98,7 +98,7 @@ gem 'loofah', '2.3.1'
 gem 'deep_cloneable', '~> 2.3.0'
 gem 'rails-html-sanitizer', '1.0.4'
 gem 'sprockets', '3.7.2'
-gem 'pghero'#, ">= 2.7.0"
+gem 'pghero', '2.1.1'#, ">= 2.7.0"
 gem 'pg_query', '>= 0.9.0'
 gem 'multi_json', '1.12.2'
 gem 'json-schema', '2.5.0'

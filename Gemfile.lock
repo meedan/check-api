@@ -459,7 +459,7 @@ GEM
       rails (>= 3.0.0)
       rspec-rails
     pg_query (1.2.0)
-    pghero (2.2.1)
+    pghero (2.1.1)
       activerecord
     phony (2.18.18)
     phony_rails (0.14.13)
@@ -812,7 +812,7 @@ DEPENDENCIES
   pg (~> 0.15)
   pg_application_name
   pg_query (>= 0.9.0)
-  pghero
+  pghero (= 2.1.1)
   phony_rails
   puma
   pusher
