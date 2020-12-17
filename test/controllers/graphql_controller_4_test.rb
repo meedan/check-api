@@ -73,7 +73,7 @@ class GraphqlController4Test < ActionController::TestCase
     @ps.each { |p| assert_equal 0, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    assert_equal 1, CheckPusher::Worker.jobs.size
+    assert_equal 2, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-restore project medias from trash if not allowed" do

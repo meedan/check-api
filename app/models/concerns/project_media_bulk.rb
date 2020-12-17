@@ -15,8 +15,8 @@ module ProjectMediaBulk
       # SQL bulk-update
       ProjectMedia.where(id: ids, team_id: team&.id).update_all({ archived: archived })
 
-      # Bulk add_to_project_id
-      self.bulk_assign_to(ids, add_to_project_id, team) unless add_to_project_id.blank?
+      # Bulk add_to or destroy ProjectMediaProjects
+      self.bulk_assign_or_remove_pmp(ids, archived, add_to_project_id, team)
 
       # Update "medias_count" cache of each list
       pids = ProjectMediaProject.where(project_media_id: ids).select('DISTINCT(project_id) AS pid').map(&:pid)
@@ -37,12 +37,19 @@ module ProjectMediaBulk
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
 
-    def bulk_assign_to(ids, add_to_project_id, team)
-      inputs = []
-      ids.each do |id|
-        inputs << { 'project_media_id' => id.to_i, 'project_id' => add_to_project_id }
+    def bulk_assign_or_remove_pmp(ids, archived, add_to_project_id, team)
+      if archived > CheckArchivedFlags::FlagCodes::NONE
+        # should remove all existing PMPs for TRASH or UNCONFIRMED action
+        input_ids = ProjectMediaProject.where(project_media_id: ids).map(&:id)
+        ProjectMediaProject.bulk_destroy(input_ids, {}, team)
+      elsif archived == CheckArchivedFlags::FlagCodes::NONE && !add_to_project_id.blank?
+        # should assign to project_id for restore or confirm action
+        inputs = []
+        ids.each do |id|
+          inputs << { 'project_media_id' => id.to_i, 'project_id' => add_to_project_id }
+        end
+        ProjectMediaProject.bulk_create(inputs, team)
       end
-      ProjectMediaProject.bulk_create(inputs, team)
     end
 
     def bulk_reindex(ids_json, updates)
