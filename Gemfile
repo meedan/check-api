@@ -101,7 +101,7 @@ gem 'sprockets', '3.7.2'
 gem 'pghero'#, ">= 2.7.0"
 gem 'pg_query', '>= 0.9.0'
 gem 'multi_json', '1.12.2'
-gem 'json-schema'
+gem 'json-schema', '2.5.0'
 gem 'ffi', '1.9.24'
 gem 'google_drive'
 gem 'activerecord-import'
