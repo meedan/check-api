@@ -9,7 +9,7 @@ end
 group :test do
   gem 'parallel_tests'
   gem 'minitest-hooks'
-  gem 'simplecov', '0.18.5', require: false
+  gem 'simplecov', '0.17.1', require: false
   gem 'simplecov-console', require: false
   gem 'codeclimate-test-reporter', '1.0.7', require: nil
   gem 'test_after_commit'
