@@ -735,7 +735,7 @@ en:
   cant_preview_rss_feed: Sorry, you don't have permission to preview an RSS feed.
   list_column_demand: Requests
   list_column_share_count: FB Shares
-  list_column_linked_items_count: Related
+  list_column_linked_items_count: Similar media
   list_column_type: Type
   list_column_status: Status
   list_column_created_at: Submitted
