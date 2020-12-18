@@ -29,6 +29,8 @@ class Relationship < ActiveRecord::Base
                   data: proc { |r| Relationship.where(id: r.id).last.nil? ? { source_id: r.source_id, target_id: r.target_id }.to_json : r.to_json }
 
   scope :confirmed, -> { where('relationship_type = ?', Relationship.confirmed_type.to_yaml) }
+  scope :suggested, -> { where('relationship_type = ?', Relationship.suggested_type.to_yaml) }
+  scope :default, -> { where('relationship_type = ?', Relationship.default_type.to_yaml) }
 
   def team
     self.source.team

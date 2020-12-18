@@ -97,5 +97,13 @@ class MediaSearch
     indexes :tags_as_sentence, { type: 'long' } # tags count is indexed
 
     indexes :media_published_at, { type: 'long' }
+
+    indexes :reaction_count, { type: 'long' }
+
+    indexes :comment_count, { type: 'long' }
+
+    indexes :related_count, { type: 'long' }
+
+    indexes :suggestions_count, { type: 'long' }
   end
 end
