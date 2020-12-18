@@ -2200,7 +2200,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm2.media
     # The only SQL query should be to get the team tasks
     assert_queries(1, '=') do
-      assert_equal 12, pm2.list_columns_values.keys.size
+      assert_equal 8, pm2.list_columns_values.keys.size
     end
   end
 
