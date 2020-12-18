@@ -453,12 +453,13 @@ GEM
     peek-rblineprof (0.2.0)
       peek
       rblineprof
-    pg (0.20.0)
+    pg (0.15.0)
     pg_application_name (1.2.0)
       pg
       rails (>= 3.0.0)
       rspec-rails
-    pg_query (1.0.2)
+    pg_query (0.13.0)
+      json (>= 1.8, < 3)
     pghero (2.1.1)
       activerecord
     phony (2.18.18)
@@ -809,9 +810,9 @@ DEPENDENCIES
   peek (= 1.0.1)
   peek-rblineprof
   pender_client!
-  pg (= 0.20.0)
+  pg (= 0.15.0)
   pg_application_name
-  pg_query (= 1.0.2)
+  pg_query (= 0.13.0)
   pghero (= 2.1.1)
   phony_rails
   puma
