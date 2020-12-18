@@ -499,25 +499,25 @@ class Team < ActiveRecord::Base
       {
         key: 'comment_count',
         label: I18n.t(:list_column_comment_count),
-        show: true,
+        show: false,
         frozen: false
       },
       {
         key: 'reaction_count',
         label: I18n.t(:list_column_reaction_count),
-        show: true,
+        show: false,
         frozen: false
       },
       {
         key: 'related_count',
         label: I18n.t(:list_column_related_count),
-        show: true,
+        show: false,
         frozen: false
       },
       {
         key: 'suggestions_count',
         label: I18n.t(:list_column_suggestions_count),
-        show: true,
+        show: false,
         frozen: false
       }
     ]
