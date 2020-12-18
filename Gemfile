@@ -34,7 +34,7 @@ gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '8
 gem 'sqlite3', require: false
 gem 'lograge'
 gem 'rails', '4.2.11.1'
-gem 'pg', '~> 0.15'
+gem 'pg', '0.20.0'
 gem 'pg_application_name'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
@@ -99,7 +99,7 @@ gem 'deep_cloneable', '~> 2.3.0'
 gem 'rails-html-sanitizer', '1.0.4'
 gem 'sprockets', '3.7.2'
 gem 'pghero', '2.1.1'#, ">= 2.7.0"
-gem 'pg_query', '>= 0.9.0'
+gem 'pg_query', '1.0.2'
 gem 'multi_json', '1.12.2'
 gem 'json-schema', '2.5.0'
 gem 'ffi', '1.9.24'

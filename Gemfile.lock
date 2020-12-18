@@ -128,13 +128,13 @@ GEM
       execjs
     awesome_print (1.8.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.408.0)
+    aws-partitions (1.409.0)
     aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-kms (1.39.0)
+    aws-sdk-kms (1.40.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-s3 (1.46.0)
@@ -453,12 +453,12 @@ GEM
     peek-rblineprof (0.2.0)
       peek
       rblineprof
-    pg (0.21.0)
+    pg (0.20.0)
     pg_application_name (1.2.0)
       pg
       rails (>= 3.0.0)
       rspec-rails
-    pg_query (1.2.0)
+    pg_query (1.0.2)
     pghero (2.1.1)
       activerecord
     phony (2.18.18)
@@ -809,9 +809,9 @@ DEPENDENCIES
   peek (= 1.0.1)
   peek-rblineprof
   pender_client!
-  pg (~> 0.15)
+  pg (= 0.20.0)
   pg_application_name
-  pg_query (>= 0.9.0)
+  pg_query (= 1.0.2)
   pghero (= 2.1.1)
   phony_rails
   puma
