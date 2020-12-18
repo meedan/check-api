@@ -453,7 +453,7 @@ GEM
     peek-rblineprof (0.2.0)
       peek
       rblineprof
-    pg (1.0.0)
+    pg (0.18.4)
     pg_application_name (1.2.0)
       pg
       rails (>= 3.0.0)
@@ -810,7 +810,7 @@ DEPENDENCIES
   peek (= 1.0.1)
   peek-rblineprof
   pender_client!
-  pg (= 1.0.0)
+  pg (~> 0.18.0)
   pg_application_name
   pg_query (= 0.13.0)
   pghero (= 2.1.1)
