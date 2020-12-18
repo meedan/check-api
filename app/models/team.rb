@@ -495,6 +495,30 @@ class Team < ActiveRecord::Base
         label: I18n.t(:list_column_media_published_at),
         show: false,
         frozen: false
+      },
+      {
+        key: 'comment_count',
+        label: I18n.t(:list_column_comment_count),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'reaction_count',
+        label: I18n.t(:list_column_reaction_count),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'related_count',
+        label: I18n.t(:list_column_related_count),
+        show: true,
+        frozen: false
+      },
+      {
+        key: 'suggestions_count',
+        label: I18n.t(:list_column_suggestions_count),
+        show: true,
+        frozen: false
       }
     ]
   end

@@ -735,6 +735,8 @@ en:
   cant_preview_rss_feed: Sorry, you don't have permission to preview an RSS feed.
   list_column_demand: Requests
   list_column_share_count: FB Shares
+  list_column_reaction_count: FB Reactions
+  list_column_comment_count: FB Comments
   list_column_linked_items_count: Similar media
   list_column_type: Type
   list_column_status: Status
@@ -744,6 +746,8 @@ en:
   list_column_report_status: Report status
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Media published
+  list_column_related_count: Related
+  list_column_suggestions_count: Suggested matches
   custom_message_status_undetermined_afp-checamos: Aguardando Verificação
   custom_message_status_in_progress_afp-checamos: Em andamento
   custom_message_status_inconclusive_afp-checamos: O que é a AFP
