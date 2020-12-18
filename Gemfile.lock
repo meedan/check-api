@@ -810,7 +810,7 @@ DEPENDENCIES
   peek (= 1.0.1)
   peek-rblineprof
   pender_client!
-  pg (= 0.15.0)
+  pg (= 0.15)
   pg_application_name
   pg_query (= 0.13.0)
   pghero (= 2.1.1)

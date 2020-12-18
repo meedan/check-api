@@ -34,7 +34,7 @@ gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '8
 gem 'sqlite3', require: false
 gem 'lograge'
 gem 'rails', '4.2.11.1'
-gem 'pg', '0.15.0'
+gem 'pg', '0.15'
 gem 'pg_application_name'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
