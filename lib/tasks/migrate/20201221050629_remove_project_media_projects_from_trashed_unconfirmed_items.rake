@@ -1,6 +1,6 @@
 namespace :check do
   namespace :migrate do
-    task remove_pmp_From_trashed_unconfirmed_items: :environment do
+    task remove_pmp_from_trashed_unconfirmed_items: :environment do
       started = Time.now.to_i
       client = $repository.client
       options = { index: CheckElasticSearchModel.get_index_alias }
