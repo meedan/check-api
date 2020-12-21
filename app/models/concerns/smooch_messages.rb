@@ -109,12 +109,11 @@ module SmoochMessages
       self.get_installation('smooch_app_id', app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
-      if request_type == 'default_requests'
+      if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
         message['project_id'] = self.get_project_id(message)
+        message['archived'] = request_type == 'default_requests' ? CheckArchivedFlags::FlagCodes::NONE : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif request_type == 'timeout_requests'
-        annotated = Team.current
-      elsif ['menu_options_requests', 'resource_requests'].include?(request_type)
+      elsif 'menu_options_requests' == request_type
         annotated = annotated_obj
       end
 
@@ -124,13 +123,53 @@ module SmoochMessages
       hash = self.message_hash(message)
       Rails.cache.write("smooch:message:#{hash}", annotated.id)
 
+      self.smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
+      # If item is published (or parent item), send a report right away
+      self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
+    end
+
+    def smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
       # Only save the annotation for the same requester once.
       key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
       self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key) || request_type != 'default_requests'
+      self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type) if !Rails.cache.read(key)
       Rails.cache.write(key, hash)
+    end
 
-      # If item is published (or parent item), send a report right away
-      self.send_report_to_user(message['authorId'], message, annotated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, annotated)
+    def create_smooch_request(annotated, message, app_id, author, request_type)
+      fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
+      result = self.smooch_api_get_messages(app_id, message['authorId'])
+      fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
+      RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
+      self.create_smooch_annotations(annotated, author, fields)
+    end
+
+    def create_smooch_resources_and_type(annotated, annotated_obj, author, request_type)
+      fields = { smooch_request_type: request_type }
+      fields[:smooch_resource_id] = annotated_obj.id if request_type == 'resource_requests' && !annotated_obj.nil?
+      self.create_smooch_annotations(annotated, author, fields, true)
+    end
+
+    def create_smooch_annotations(annotated, author, fields, attach_to = false)
+      # TODO: By Sawy - Should handle User.current value
+      # In this case User.current was reset by SlackNotificationWorker worker
+      # Quick fix - assigning it again using annotated object and reset its value at the end of creation
+      current_user = User.current
+      User.current = author
+      User.current = annotated.user if User.current.nil? && annotated.respond_to?(:user)
+      a = nil
+      a = Dynamic.where(annotation_type: 'smooch', annotated_id: annotated.id, annotated_type: annotated.class.name).last if attach_to
+      if a.nil?
+        a = Dynamic.new
+        a.annotation_type = 'smooch'
+        a.annotated = annotated
+      end
+      a.skip_check_ability = true
+      a.skip_notifications = true
+      a.disable_es_callbacks = Rails.env.to_s == 'test'
+      a.set_fields = fields.to_json
+      a.save!
+      User.current = current_user
     end
 
     def should_try_to_send_report?(request_type, annotated)

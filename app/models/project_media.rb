@@ -181,6 +181,7 @@ class ProjectMedia < ActiveRecord::Base
     perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
+    perms["confirm ProjectMedia"] = ability.can?(:confirm, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
     perms["administer Content"] = ability.can?(:administer_content, self)
     perms
@@ -359,6 +360,17 @@ class ProjectMedia < ActiveRecord::Base
     # set fields with integer value
     fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
+  end
+
+  def create_project_media_project
+    unless self.add_to_project_id.blank?
+      ProjectMediaProject.create!(
+        project_media_id: self.id,
+        project_id: self.add_to_project_id,
+        set_tasks_responses: self.set_tasks_responses,
+        disable_es_callbacks: self.disable_es_callbacks
+      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
+    end
   end
 
   # private

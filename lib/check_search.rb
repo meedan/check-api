@@ -24,7 +24,8 @@ class CheckSearch
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
     'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
-    'media_published_at' => 'media_published_at'
+    'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
+    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count'
   }
 
   def pusher_channel
@@ -167,7 +168,7 @@ class CheckSearch
     filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
-    archived = @options.has_key?('archived') ? (@options['archived'].to_i == 1) : false
+    archived = @options['archived'].to_i
     filters = filters.merge({
       archived: archived,
       sources_count: 0
