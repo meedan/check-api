@@ -850,7 +850,7 @@ DEPENDENCIES
   sinatra
   smooch-api (= 5.29.1)
   sprockets (= 3.7.2)
-  sqlite3
+  sqlite3 (= 1.4.2)
   swagger-docs (= 0.1.9)
   taglib-ruby
   test_after_commit
