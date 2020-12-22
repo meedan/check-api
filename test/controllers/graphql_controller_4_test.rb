@@ -137,7 +137,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal @pms.length, add_to.reload.medias_count
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    assert_equal 3, CheckPusher::Worker.jobs.size
+    assert_equal 4, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-create tags if not allowed" do
