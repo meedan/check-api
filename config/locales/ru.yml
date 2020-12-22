@@ -760,7 +760,9 @@ ru:
   cant_preview_rss_feed: Извините, у вас нет доступа к предпросмотру RSS-ленты.
   list_column_demand: Запросы
   list_column_share_count: Репосты FB
-  list_column_linked_items_count: Связанные
+  list_column_reaction_count: Реакции FB
+  list_column_comment_count: Комментарии FB
+  list_column_linked_items_count: Похожие медиа-файлы
   list_column_type: Тип
   list_column_status: Статус
   list_column_created_at: Отправлено
@@ -769,6 +771,7 @@ ru:
   list_column_report_status: Статус отчёта
   list_column_tags_as_sentence: Тэги
   list_column_media_published_at: Опубликовано
+  list_column_related_count: Связанные
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -871,49 +874,11 @@ ru:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom-test: ''
-  custom_message_status_factchecked_boom-test: ''
   custom_message_status_undetermined_boom: ''
   custom_message_status_factchecked_boom: ''
+  custom_message_status_undetermined_boom-test: ''
+  custom_message_status_factchecked_boom-test: ''
   custom_message_status_unstarted_check-bot-garden: Добавлено
-  custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
-    to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_test-1: "Thank you! Your request has
-    been received. Responses are being aggregated and sorted, and we're working on
-    fact-checking your questions.\n\n✔️*Follow this link for an updated list of common
-    questions that we have fact-checked:* [ Link to a page of fact-checks on your
-    website ]\n\n\U0001F449*Reply with any text* to get back to the *Main Menu* \U0001F4CC"
-  custom_message_smooch_bot_message_type_unsupported_test-1: |-
-    ❌Sorry, we can't accept this type of message for verification at this time.
-
-    We can accept most images, videos, links, text messages, and shared WhatsApp messages.
-  custom_message_smooch_bot_disabled_test-1: |-
-    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
-
-    Contact us at *[email or other contact]* for further inquiries.
-  custom_message_smooch_bot_ask_for_tos_test-1: ''
-  custom_message_smooch_bot_greetings_test-1: Hi! Welcome to [Name of your organization]’s
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
-  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916I'm sorry, I didn't
-    understand your message. Please try again!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Main
-    Menu*\n\n*Reply 1* (or \U0001F50D) to submit a request for a fact-check about
-    an article, video, image, or other content.\n*Reply 2* (or \U0001F9A0) to get
-    the latest information about coronavirus disease (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Information
-    about Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Reply with any
-    one of the following numbers (or emoji) to get information about that topic:*\n\n*1:*
-    How do I protect myself and/or my family? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
-    I think I might be getting sick \U0001F912\n*3:* How can I handle stress associated
-    with COVID-19? ❤️\n*4:* Information about cases and recoveries globally \U0001F4CA\n*5:*
-    Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
-    back to the *Main Menu* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Please
-    enter the question, link, picture, or video that you want fact-checked,* followed
-    by any context or additional questions related to that item. Your request will
-    be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
-    0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_smooch_bot_result_changed_caio: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_caio: "Thank you! Your request has been
@@ -948,6 +913,44 @@ ru:
     Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
     back to the *Main Menu* \U0001F4CC"
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Please
+    enter the question, link, picture, or video that you want fact-checked,* followed
+    by any context or additional questions related to that item. Your request will
+    be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
+    0 (or \U0001F4CC)* to go back to the *Main Menu*"
+  custom_message_smooch_bot_result_changed_test-1: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-1: "Thank you! Your request has
+    been received. Responses are being aggregated and sorted, and we're working on
+    fact-checking your questions.\n\n✔️*Follow this link for an updated list of common
+    questions that we have fact-checked:* [ Link to a page of fact-checks on your
+    website ]\n\n\U0001F449*Reply with any text* to get back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_message_type_unsupported_test-1: |-
+    ❌Sorry, we can't accept this type of message for verification at this time.
+
+    We can accept most images, videos, links, text messages, and shared WhatsApp messages.
+  custom_message_smooch_bot_disabled_test-1: |-
+    ❌Thank you for your message. Our fact-checking service is currently *inactive.*
+
+    Contact us at *[email or other contact]* for further inquiries.
+  custom_message_smooch_bot_ask_for_tos_test-1: ''
+  custom_message_smooch_bot_greetings_test-1: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-1: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_test-1: "\U0001F4CC*Main
+    Menu*\n\n*Reply 1* (or \U0001F50D) to submit a request for a fact-check about
+    an article, video, image, or other content.\n*Reply 2* (or \U0001F9A0) to get
+    the latest information about coronavirus disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_test-1: "*Information
+    about Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Reply with any
+    one of the following numbers (or emoji) to get information about that topic:*\n\n*1:*
+    How do I protect myself and/or my family? \U0001F468‍\U0001F469‍\U0001F467\n*2:*
+    I think I might be getting sick \U0001F912\n*3:* How can I handle stress associated
+    with COVID-19? ❤️\n*4:* Information about cases and recoveries globally \U0001F4CA\n*5:*
+    Latest updates from the World Health Organization \U0001F310\n\n*Reply 0* to get
+    back to the *Main Menu* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_test-1: "*Please
     enter the question, link, picture, or video that you want fact-checked,* followed
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n\n*Reply
@@ -1251,17 +1254,6 @@ ru:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: Спасибо!
   custom_message_smooch_bot_ask_for_tos_team456: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
-    to you has been *updated* with new information:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
-    fact-checking bot. We fact-check claims, videos and images related to topics such
-    as politics, health, finance, and technology.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
-    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test: "❗️The fact-check that we sent to
     you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test: "Thank you! Your request has been
@@ -1302,6 +1294,17 @@ ru:
     0 (or \U0001F4CC)* to go back to the *Main Menu*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️The fact-check that we sent
+    to you has been *updated* with new information:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Hi! Welcome to [Name of your organization]’s
+    fact-checking bot. We fact-check claims, videos and images related to topics such
+    as politics, health, finance, and technology.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916I'm sorry, I didn't
+    understand your message. Please try again!"
   custom_message_smooch_bot_result_changed_test-16: "❗️The fact-check that we sent
     to you has been *updated* with new information:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
