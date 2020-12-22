@@ -19,8 +19,9 @@ class ProjectMedia < ActiveRecord::Base
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create, :create_metrics_annotation
   after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
+  after_create :create_relationship
   after_commit :apply_rules_and_actions_on_create, on: [:create]
-  after_commit :create_relationship, on: [:update, :create]
+  after_commit :create_relationship, on: [:update]
   after_commit :set_quote_metadata, on: [:create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
