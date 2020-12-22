@@ -23,7 +23,8 @@ module ProjectMediaBulk
       Project.bulk_update_medias_count(pids)
 
       # Get a project, if any
-      project = Project.where(id: previous_project_id.to_i, team_id: team.id).last
+      project_id = previous_project_id || add_to_project_id
+      project = Project.where(id: project_id.to_i, team_id: team.id).last
 
       # Pusher
       team.notify_pusher_channel
