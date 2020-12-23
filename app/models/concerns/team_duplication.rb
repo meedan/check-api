@@ -38,7 +38,7 @@ module TeamDuplication
               team_id = copy.id
             end
           end
-          processed_user_ids = self.process_team_bot_installations(t)
+          processed_user_ids = self.process_team_bot_installations(t, team)
           self.process_team_users(t, team, processed_user_ids)
           team.save(validate: false)
           self.store_clones(team)
@@ -61,7 +61,7 @@ module TeamDuplication
       end
     end
 
-    def self.process_team_bot_installations(t)
+    def self.process_team_bot_installations(t, team)
       processed_user_ids = []
       t.team_bot_installations.each do |tbi|
         new_tbi = tbi.deep_clone
