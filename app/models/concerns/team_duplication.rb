@@ -7,7 +7,7 @@ module TeamDuplication
   included do
     attr_accessor :mapping, :original_team, :copy_team
 
-    def self.duplicate(t, user = nil)
+    def self.duplicate(t)
       @clones = []
       @project_id_map = {}
       team_id = nil
@@ -38,33 +38,10 @@ module TeamDuplication
               team_id = copy.id
             end
           end
-          processed_user_ids = []
-          t.team_bot_installations.each do |tbi|
-            new_tbi = tbi.deep_clone
-            new_tbi.team = team
-            if new_tbi.user.name == "Smooch"
-              new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
-            end
-            new_tbi.save(validate: false)
-            processed_user_ids << new_tbi.user_id
-          end
-          t.team_users.each do |tu|
-            next if processed_user_ids.include?(tu.user_id)
-            new_tu = TeamUser.new(tu.attributes.select{|k,v| k!="id"})
-            new_tu.team = team
-            new_tu.save!
-          end
+          processed_user_ids = self.process_team_bot_installations(t)
+          self.process_team_users(t, processed_user_ids)
           team.save(validate: false)
-          @clones.each do |clone|
-            if !clone[:original].is_a?(Team)
-              if clone[:clone].respond_to?(:team_id) && clone[:clone].team_id.nil?
-                clone[:clone].team_id = team.id
-              end
-              if clone[:original].is_a?(TeamTask)
-                clone[:clone].project_ids = clone[:clone].project_ids.collect{|pid| @project_id_map[pid]}
-              end
-            end
-          end
+          self.store_clones(team)
           # • The rules key in the workspace settings field should point to the cloned lists for any action of type move to list or add to list
           # • Implement a GraphQL mutation to clone a workspace
           return team
@@ -72,6 +49,43 @@ module TeamDuplication
       rescue StandardError => e
         self.log_error(e, t)
         nil
+      end
+    end
+
+    def self.process_team_users(t, processed_user_ids)
+      t.team_users.each do |tu|
+        next if processed_user_ids.include?(tu.user_id)
+        new_tu = TeamUser.new(tu.attributes.select{|k,_| k!="id"})
+        new_tu.team = team
+        new_tu.save!
+      end
+    end
+
+    def self.process_team_bot_installations(t)
+      processed_user_ids = []
+      t.team_bot_installations.each do |tbi|
+        new_tbi = tbi.deep_clone
+        new_tbi.team = team
+        if new_tbi.user.name == "Smooch"
+          new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
+        end
+        new_tbi.save(validate: false)
+        processed_user_ids << new_tbi.user_id
+      end
+      processed_user_ids
+    end
+
+    def self.store_clones(team)
+      @clones.each do |clone|
+        if !clone[:original].is_a?(Team)
+          if clone[:clone].respond_to?(:team_id) && clone[:clone].team_id.nil?
+            clone[:clone].team_id = team.id
+          end
+          if clone[:original].is_a?(TeamTask)
+            clone[:clone].project_ids = clone[:clone].project_ids.collect{|pid| @project_id_map[pid]}
+          end
+        end
+        clone[:clone].save!
       end
     end
 
