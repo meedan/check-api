@@ -588,6 +588,18 @@ class ElasticSearch7Test < ActionController::TestCase
     end
   end
 
+  test "should search trash and unconfirmed items" do
+    t = create_team
+    pm = create_project_media team: t, disable_es_callbacks: false
+    pm2 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED, disable_es_callbacks: false
+    pm3 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED, disable_es_callbacks: false
+    pm4 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED, disable_es_callbacks: false
+    sleep 2
+    assert_equal [pm2, pm3], pm.check_search_trash.medias.sort
+    assert_equal [pm4], pm.check_search_unconfirmed.medias
+    assert_equal [pm], t.check_search_team.medias
+  end
+
   test "should adjust ES window size" do
     t = create_team
     u = create_user

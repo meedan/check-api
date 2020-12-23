@@ -209,6 +209,10 @@ class Team < ActiveRecord::Base
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::TRASHED , sources_count: 0 })
   end
 
+  def unconfirmed
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED , sources_count: 0 })
+  end
+
   def trash_size
     {
       project_media: self.trash_count,
@@ -220,12 +224,16 @@ class Team < ActiveRecord::Base
     self.trash.count
   end
 
+  def unconfirmed_count
+    self.unconfirmed.count
+  end
+
   def medias_count
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE, sources_count: 0 }).count
   end
 
   def check_search_team
-    CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+    check_search_filter
   end
 
   def search
@@ -233,7 +241,11 @@ class Team < ActiveRecord::Base
   end
 
   def check_search_trash
-    CheckSearch.new({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED, 'parent' => { 'type' => 'team', 'slug' => self.slug } }.to_json)
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::TRASHED })
+  end
+
+  def check_search_unconfirmed
+    check_search_filter({ 'archived' => CheckArchivedFlags::FlagCodes::UNCONFIRMED })
   end
 
   def public_team
@@ -283,9 +295,11 @@ class Team < ActiveRecord::Base
   def custom_permissions(ability = nil)
     perms = {}
     ability ||= Ability.new
+    tmp = ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
-    perms["restore ProjectMedia"] = ability.can?(:restore, ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE))
+    perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
+    perms["confirm ProjectMedia"] = ability.can?(:confirm, tmp)
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
@@ -479,6 +493,30 @@ class Team < ActiveRecord::Base
       {
         key: 'media_published_at',
         label: I18n.t(:list_column_media_published_at),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'comment_count',
+        label: I18n.t(:list_column_comment_count),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'reaction_count',
+        label: I18n.t(:list_column_reaction_count),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'related_count',
+        label: I18n.t(:list_column_related_count),
+        show: false,
+        frozen: false
+      },
+      {
+        key: 'suggestions_count',
+        label: I18n.t(:list_column_suggestions_count),
         show: false,
         frozen: false
       }

@@ -809,15 +809,13 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      conditions[:annotated_type] = @team.class.name
-      conditions[:annotated_id] = @team.id
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
       end
       send_message_to_smooch_bot(random_string, uid)
       send_message_to_smooch_bot(random_string, uid)
       Time.stubs(:now).returns(now + 30.minutes)
-      assert_difference "Dynamic.where(#{conditions}).count", 1 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 1 do
         Sidekiq::Worker.drain_all
       end
     end
@@ -1298,7 +1296,33 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Rails.cache.stubs(:read).returns(nil)
     Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
     send_message_to_smooch_bot('4', uid)
-    assert_equal 'BotResource', Dynamic.where(annotation_type: 'smooch').last.annotated_type
+    a = Dynamic.where(annotation_type: 'smooch').last
+    annotated = a.annotated
+    assert_equal 'ProjectMedia', a.annotated_type
+    assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, annotated.archived
+    assert_not_nil a.get_field('smooch_resource_id')
+    # Test auto confirm the media if resend same media as a default request
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot('1', uid)
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
+    assert_no_difference 'ProjectMedia.count' do
+      send_message_to_smooch_bot('2', uid)
+    end
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
+    # Test resend same media (should not update archived cloumn)
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Hello', uid)
+      send_message_to_smooch_bot('1', uid)
+    end
+    Rails.cache.stubs(:read).returns(nil)
+    Rails.cache.stubs(:read).with("smooch:last_message_from_user:#{uid}").returns(Time.now + 10.seconds)
+    assert_no_difference 'ProjectMedia.count' do
+      send_message_to_smooch_bot('2', uid)
+    end
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
     Rails.cache.unstub(:read)
   end
 

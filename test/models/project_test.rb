@@ -516,11 +516,11 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      p.archived = 1
+      p.archived = CheckArchivedFlags::FlagCodes::TRASHED
       p.save!
-      assert_equal 0, pm1.reload.archived
-      assert_equal 1, pm2.reload.archived
-      assert_equal 1, pm3.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm2.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm3.reload.archived
     end
   end
 
@@ -529,7 +529,7 @@ class ProjectTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     n = Sidekiq::Extensions::DelayedClass.jobs.size
     p = Project.find(p.id)
-    p.archived = 1
+    p.archived = CheckArchivedFlags::FlagCodes::TRASHED
     p.save!
     assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
   end
@@ -550,23 +550,23 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      p.archived = 1
+      p.archived = CheckArchivedFlags::FlagCodes::TRASHED
       p.save!
-      assert_equal 0, pm1.reload.archived
-      assert_equal 1, pm2.reload.archived
-      assert_equal 1, pm3.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm2.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm3.reload.archived
       p = Project.find(p.id)
-      p.archived = 0
+      p.archived = CheckArchivedFlags::FlagCodes::NONE
       p.save!
-      assert_equal 0, pm1.reload.archived
-      assert_equal 0, pm2.reload.archived
-      assert_equal 0, pm3.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2.reload.archived
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm3.reload.archived
     end
   end
 
   test "should not create project under archived team" do
     t = create_team
-    t.archived = 1
+    t.archived = CheckArchivedFlags::FlagCodes::TRASHED
     t.save!
 
     assert_raises ActiveRecord::RecordInvalid do
@@ -765,7 +765,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project
     create_project_media project: p
     create_project_media project: p
-    create_project_media project: p, archived: 1
+    create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::TRASHED
     assert_equal 2, p.reload.medias_count
   end
 
@@ -796,12 +796,13 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, p.reload.medias_count
     r.destroy!
     assert_equal 2, p.reload.medias_count
-    pm1.archived = 1
+    pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm1.save!
     assert_equal 1, p.reload.medias_count
-    pm1.archived = 0
+    assert_equal 1, p.reload.medias_count
+    pm1.archived = CheckArchivedFlags::FlagCodes::NONE
     pm1.save!
-    assert_equal 2, p.reload.medias_count
+    assert_equal 1, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
 end

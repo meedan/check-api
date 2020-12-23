@@ -36,14 +36,33 @@ module ProjectMediaCachedFields
   end
 
   included do
-    cached_field :linked_items_count,
+
+    { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
+      cached_field field_name,
+        start_as: 0,
+        update_es: true,
+        recalculate: proc { |pm| Relationship.send(type).where(source_id: pm.id).count },
+        update_on: [
+          {
+            model: Relationship,
+            if: proc { |r| !r.is_default? },
+            affected_ids: proc { |r| [r.source_id] },
+            events: {
+              save: :recalculate,
+              destroy: :recalculate
+            }
+          }
+        ]
+    end
+
+    cached_field :related_count,
       start_as: 0,
       update_es: true,
-      recalculate: proc { |pm| ProjectMedia.get_similar_items(pm, Relationship.confirmed_type).count },
+      recalculate: proc { |pm| Relationship.default.where('source_id = ? OR target_id = ?', pm.id, pm.id).count },
       update_on: [
         {
           model: Relationship,
-          if: proc { |r| r.is_confirmed? },
+          if: proc { |r| r.is_default? },
           affected_ids: proc { |r| [r.source_id, r.target_id] },
           events: {
             save: :recalculate,
@@ -72,7 +91,7 @@ module ProjectMediaCachedFields
       update_es: true,
       recalculate: proc { |pm|
         n = 0
-        pm.related_items_ids.collect{ |id| n += ProjectMedia.find(id).requests_count }
+        pm.related_items_ids.collect{ |id| n += ProjectMedia.new(id: id).requests_count }
         n
       },
       update_on: [
@@ -98,7 +117,7 @@ module ProjectMediaCachedFields
     cached_field :last_seen,
       start_as: proc { |pm| pm.created_at.to_i },
       update_es: true,
-      recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || pm.reload.created_at).to_i },
+      recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find(pm.id).created_at).to_i },
       update_on: [
         {
           model: Dynamic,
@@ -140,20 +159,22 @@ module ProjectMediaCachedFields
         }
       ]
 
-    cached_field :share_count,
-      start_as: 0,
-      update_es: true,
-      recalculate: proc { |pm| begin JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']['share_count'] rescue 0 end },
-      update_on: [
-        {
-          model: DynamicAnnotation::Field,
-          if: proc { |f| f.field_name == 'metrics_data' },
-          affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
-          events: {
-            save: :recalculate
+    [:share, :reaction, :comment].each do |metric|
+      cached_field "#{metric}_count".to_sym,
+        start_as: 0,
+        update_es: true,
+        recalculate: proc { |pm| begin JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end },
+        update_on: [
+          {
+            model: DynamicAnnotation::Field,
+            if: proc { |f| f.field_name == 'metrics_data' },
+            affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
+            events: {
+              save: :recalculate
+            }
           }
-        }
-      ]
+        ]
+    end
 
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
