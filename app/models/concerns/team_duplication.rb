@@ -39,7 +39,7 @@ module TeamDuplication
             end
           end
           processed_user_ids = self.process_team_bot_installations(t)
-          self.process_team_users(t, processed_user_ids)
+          self.process_team_users(t, team, processed_user_ids)
           team.save(validate: false)
           self.store_clones(team)
           # • The rules key in the workspace settings field should point to the cloned lists for any action of type move to list or add to list
@@ -52,7 +52,7 @@ module TeamDuplication
       end
     end
 
-    def self.process_team_users(t, processed_user_ids)
+    def self.process_team_users(t, team, processed_user_ids)
       t.team_users.each do |tu|
         next if processed_user_ids.include?(tu.user_id)
         new_tu = TeamUser.new(tu.attributes.select{|k,_| k!="id"})
