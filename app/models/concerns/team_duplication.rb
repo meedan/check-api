@@ -70,7 +70,6 @@ module TeamDuplication
           return team
         end
       rescue StandardError => e
-        binding.pry
         self.log_error(e, t)
         nil
       end
