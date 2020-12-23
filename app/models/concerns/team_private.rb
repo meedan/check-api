@@ -82,4 +82,9 @@ module TeamPrivate
     ]
     self.set_fieldsets fieldsets
   end
+
+  def check_search_filter(params = {})
+    params.merge!({ 'parent' => { 'type' => 'team', 'slug' => self.slug }})
+    CheckSearch.new(params.to_json)
+  end
 end

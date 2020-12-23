@@ -361,9 +361,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
-    perm_keys = ["read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
-      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "embed ProjectMedia", "lock Annotation",
-      "update Status", "administer Content", "create Relationship"].sort
+    perm_keys = [
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
+      "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship"
+    ].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
     # load permissions as owner
@@ -1593,16 +1595,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
     create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
     pm3 = create_project_media team: t
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
     r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal(2, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(2, pm3.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
     r.destroy!
     assert_queries(0, '=') { assert_equal(1, pm.linked_items_count) }
-    assert_queries(0, '=') { assert_equal(1, pm2.linked_items_count) }
+    assert_queries(0, '=') { assert_equal(0, pm2.linked_items_count) }
     assert_queries(0, '=') { assert_equal(0, pm3.linked_items_count) }
     assert_queries(0, '>') { assert_equal(1, pm.linked_items_count(true)) }
   end
@@ -1729,7 +1731,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
     assert_equal 1, result['linked_items_count']
-    assert_equal 1, result2['linked_items_count']
+    assert_equal 0, result2['linked_items_count']
     assert_equal t, result['last_seen']
 
     t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
@@ -1970,21 +1972,68 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should restore item from trash if not super admin" do
+  test "should restore and confirm item if not super admin" do
+    setup_elasticsearch
     t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
     u = create_user
     create_team_user user: u, team: t, role: 'owner', is_admin: false
-    pm = create_project_media team: t
-    pm.archived = 1
-    pm.save!
-    pm = ProjectMedia.find(pm.id)
-    assert pm.archived
-    with_current_user_and_team(u, t) do
-      pm.archived = 0
+    Sidekiq::Testing.inline! do
+      # test restore
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id).sort
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p.id, p2.id], result.sort
+      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
       pm.save!
+      pm = pm.reload
+      assert_empty pm.project_media_projects
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_empty result
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.disable_es_callbacks = false
+        pm.add_to_project_id = p3.id
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      sleep 1
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p3.id], result
+      # test confirm
+      pm = create_project_media project: p, disable_es_callbacks: false
+      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
+      sleep 1
+      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id)
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p.id, p2.id], result.sort
+      pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
+      pm.save!
+      pm = pm.reload
+      assert_empty pm.project_media_projects
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_empty result
+      assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.disable_es_callbacks = false
+        pm.add_to_project_id = p3.id
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      sleep 1
+      result = $repository.find(get_es_id(pm))['project_id']
+      assert_equal [p3.id], result
     end
-    pm = ProjectMedia.find(pm.id)
-    assert_equal pm.archived, 0
   end
 
   test "should set media type for links" do
@@ -2212,5 +2261,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal 601720260, pm.media_published_at }
+  end
+
+  test "should cache number of related items" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    assert_queries(0, '=') { assert_equal 0, pm1.related_count }
+    assert_queries(0, '=') { assert_equal 0, pm2.related_count }
+    r = create_relationship source_id: pm1.id, target_id: pm2.id
+    assert_queries(0, '=') { assert_equal 1, pm1.related_count }
+    assert_queries(0, '=') { assert_equal 1, pm2.related_count }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal 0, pm1.related_count }
+    assert_queries(0, '=') { assert_equal 0, pm2.related_count }
   end
 end
