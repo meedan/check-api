@@ -38,20 +38,23 @@ module TeamDuplication
               team_id = copy.id
             end
           end
-          t.team_users.each do |tu|
-            new_tu = TeamUser.new(tu.attributes.select{|k,v| k!="id"})
-            new_tu.team_id = team.id
-            new_tu.save!
-          end
-          team.save(validate: false)
+          processed_user_ids = []
           t.team_bot_installations.each do |tbi|
             new_tbi = tbi.deep_clone
-            new_tbi.team_id = team.id
+            new_tbi.team = team
             if new_tbi.user.name == "Smooch"
               new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
             end
             new_tbi.save(validate: false)
+            processed_user_ids << new_tbi.user_id
           end
+          t.team_users.each do |tu|
+            next if processed_user_ids.include?(tu.user_id)
+            new_tu = TeamUser.new(tu.attributes.select{|k,v| k!="id"})
+            new_tu.team = team
+            new_tu.save!
+          end
+          team.save(validate: false)
           @clones.each do |clone|
             if !clone[:original].is_a?(Team)
               if clone[:clone].respond_to?(:team_id) && clone[:clone].team_id.nil?
@@ -67,6 +70,7 @@ module TeamDuplication
           return team
         end
       rescue StandardError => e
+        binding.pry
         self.log_error(e, t)
         nil
       end
