@@ -1055,4 +1055,9 @@ class Bot::Smooch < BotUser
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
   end
+
+  def self.sanitize_installation(team_bot_installation)
+    team_bot_installation.apply_default_settings
+    team_bot_installation
+  end
 end

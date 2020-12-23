@@ -215,7 +215,6 @@ class RelationshipTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type
     end
-    
     assert_not_empty r.versions
     v = r.versions.last
     assert_equal so.id, v.associated_id

@@ -904,6 +904,57 @@ class TeamTest < ActiveSupport::TestCase
     create_team_user team: team, user: u, role: 'owner'
     project = create_project team: team, user: u
     project2 = create_project team: team, user: u
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_matches_regexp",
+                "rule_value": "^start_with_title"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": project.id.to_s
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "request_matches_regexp",
+                "rule_value": "^start_with_request"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": project2.id.to_s
+        }
+      ]
+    }
+    team.rules = rules.to_json
+    team.save!
     tt = create_tag_text(team_id: team.id)
     co = create_contact(team_id: team.id)
     tt2 = create_team_task(team_id: team.id)

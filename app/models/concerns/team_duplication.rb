@@ -11,45 +11,52 @@ module TeamDuplication
       @clones = []
       @project_id_map = {}
       team_id = nil
-      begin
-        ActiveRecord::Base.transaction do
-          Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
-          team = t.deep_clone include: [
-            :projects,
-            :contacts,
-            :tag_texts,
-            :team_tasks
-          ] do |original, copy|
-            next if original.is_a?(Version)
-            @clones << {original: original, clone: copy}
-            if original.is_a?(Team)
-              copy.name = "Copy of #{copy.name}"
-              copy.slug = copy.generate_copy_slug
-              copy.is_being_copied = true
-            elsif original.is_a?(Project)
-              copy.generate_token(true)
-            elsif original.is_a?(TagText)
-              copy.team_id = team_id if !team_id.nil?
-            end
-            copy.save(validate: false)
-            if original.is_a?(Project)
-              @project_id_map[original.id] = copy.id
-            elsif copy.is_a?(Team)
-              team_id = copy.id
-            end
+      ActiveRecord::Base.transaction do
+        Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
+        team = t.deep_clone include: [
+          :projects,
+          :contacts,
+          :tag_texts,
+          :team_tasks
+        ] do |original, copy|
+          next if original.is_a?(Version)
+          @clones << {original: original, clone: copy}
+          if original.is_a?(Team)
+            copy.name = "Copy of #{copy.name}"
+            copy.slug = copy.generate_copy_slug
+            copy.is_being_copied = true
+            copy.set_slack_notifications_enabled = false
+          elsif original.is_a?(Project)
+            copy.generate_token(true)
+            copy.set_slack_notifications_enabled = false
+          elsif original.is_a?(TagText)
+            copy.team_id = team_id if !team_id.nil?
           end
-          processed_user_ids = self.process_team_bot_installations(t, team)
-          self.process_team_users(t, team, processed_user_ids)
-          team.save(validate: false)
-          self.store_clones(team)
-          # • The rules key in the workspace settings field should point to the cloned lists for any action of type move to list or add to list
-          # • Implement a GraphQL mutation to clone a workspace
-          return team
+          copy.save(validate: false)
+          if original.is_a?(Project)
+            @project_id_map[original.id] = copy.id
+          elsif copy.is_a?(Team)
+            team_id = copy.id
+          end
         end
-      rescue StandardError => e
-        self.log_error(e, t)
-        nil
+        processed_user_ids = self.process_team_bot_installations(t, team)
+        self.process_team_users(t, team, processed_user_ids)
+        team = self.update_team_rules(t, team)
+        team.save(validate: false)
+        self.store_clones(team)
+        return team
       end
+    end
+
+    def self.update_team_rules(old_team, new_team)
+      (new_team.get_rules||[]).each do |rule|
+        (rule["actions"]||[]).each do |action|
+          if action["action_definition"] == "move_to_project" || action["action_definition"] == "add_to_project"
+            action["action_value"] = @project_id_map[action["action_value"].to_i].to_s
+          end
+        end
+      end
+      new_team
     end
 
     def self.process_team_users(t, team, processed_user_ids)
@@ -67,7 +74,9 @@ module TeamDuplication
         new_tbi = tbi.deep_clone
         new_tbi.team = team
         if new_tbi.user.name == "Smooch"
+          new_tbi = Bot::Smooch.sanitize_installation(new_tbi)
           new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
+          new_tbi.settings["smooch_workflows"] = tbi.settings["smooch_workflows"]
         end
         new_tbi.save(validate: false)
         processed_user_ids << new_tbi.user_id
