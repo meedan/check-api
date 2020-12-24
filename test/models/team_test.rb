@@ -823,8 +823,9 @@ class TeamTest < ActiveSupport::TestCase
     Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).once
     Team.any_instance.stubs(:save).with(validate: false).raises(RuntimeError)
-
-    assert_nil Team.duplicate(team)
+    assert_raise RuntimeError do
+      Team.duplicate(team)
+    end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
     Team.any_instance.unstub(:save)
