@@ -1156,7 +1156,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
   end
 
-  test "should provide empty fallback only if deleted status has no items" do
+  test "should duplicate when user is owner and not duplicate when not an owner" do
     t = create_team
     value = {
       label: 'Status',
