@@ -1176,7 +1176,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response 400
 
     authenticate_with_user(u)
-
     query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
     post :create, query: query, team: t.slug
     assert_response :success

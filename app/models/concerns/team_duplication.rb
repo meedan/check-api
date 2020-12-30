@@ -28,10 +28,21 @@ module TeamDuplication
         self.process_team_bot_installations(t, team)
         team = self.update_team_rules(team)
         Team.current = team
+        self.add_current_user(team)
         team.save!
         self.store_clones
         return team
       end
+    end
+
+    def self.add_current_user(team)
+      return nil if User.current.nil?
+      TeamUser.new(
+        role: "owner",
+        status: "member",
+        user_id: User.current.id,
+        team_id: team.id
+      ).save!
     end
 
     def self.alter_team_copy(copy)
