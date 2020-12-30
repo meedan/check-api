@@ -7,7 +7,7 @@ module TeamDuplication
   included do
     attr_accessor :mapping, :original_team, :copy_team
 
-    def self.duplicate(t, custom_slug=nil, custom_name=nil)
+    def self.duplicate(t, custom_slug = nil, custom_name = nil)
       @clones = []
       @project_id_map = {}
       @team_id = nil
@@ -25,11 +25,10 @@ module TeamDuplication
           @clones << {original: original, clone: copy}
           self.alter_copy_by_type(original, copy)
         end
-        processed_user_ids = self.process_team_bot_installations(t, team)
-        self.process_team_users(t, team, processed_user_ids)
+        self.process_team_bot_installations(t, team)
         team = self.update_team_rules(team)
         Team.current = team
-        team.save(validate: false)
+        team.save!
         self.store_clones(team)
         return team
       end
@@ -55,7 +54,7 @@ module TeamDuplication
       elsif original.is_a?(TagText)
         copy.team_id = @team_id if !@team_id.nil?
       end
-      copy.save(validate: false)
+      copy.save!
       if original.is_a?(Project)
         @project_id_map[original.id] = copy.id
       elsif copy.is_a?(Team)
@@ -74,17 +73,7 @@ module TeamDuplication
       new_team
     end
 
-    def self.process_team_users(t, team, processed_user_ids)
-      t.team_users.each do |tu|
-        next if processed_user_ids.include?(tu.user_id)
-        new_tu = TeamUser.new(tu.attributes.select{|k,_| k!="id"})
-        new_tu.team = team
-        new_tu.save!
-      end
-    end
-
     def self.process_team_bot_installations(t, team)
-      processed_user_ids = []
       t.team_bot_installations.each do |tbi|
         new_tbi = tbi.deep_clone
         new_tbi.team = team
@@ -94,17 +83,12 @@ module TeamDuplication
           new_tbi.settings["smooch_workflows"] = tbi.settings["smooch_workflows"]
         end
         new_tbi.save(validate: false)
-        processed_user_ids << new_tbi.user_id
       end
-      processed_user_ids
     end
 
     def self.store_clones(team)
       @clones.each do |clone|
         if !clone[:original].is_a?(Team)
-          if clone[:clone].respond_to?(:team_id) && clone[:clone].team_id.nil?
-            clone[:clone].team_id = team.id
-          end
           if clone[:original].is_a?(TeamTask)
             clone[:clone].project_ids = clone[:clone].project_ids.collect{|pid| @project_id_map[pid]}
           end

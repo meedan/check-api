@@ -200,7 +200,7 @@ class Project < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
   end
 
-  def generate_token(force=false)
+  def generate_token(force = false)
     self.token = nil if self.is_being_copied
     if force
       self.token = SecureRandom.uuid
