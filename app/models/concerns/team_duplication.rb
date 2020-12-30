@@ -35,15 +35,23 @@ module TeamDuplication
       end
     end
 
+    def self.alter_team_copy(copy)
+      copy.name = @custom_name || "Copy of #{copy.name}"
+      copy.slug = @custom_slug || copy.generate_copy_slug
+      copy.is_being_copied = true
+      copy.set_slack_notifications_enabled = false
+    end
+
+    def self.alter_project_copy(copy)
+      copy.generate_token(true)
+      copy.set_slack_notifications_enabled = false
+    end
+
     def self.alter_copy_by_type(original, copy)
       if original.is_a?(Team)
-        copy.name = @custom_name || "Copy of #{copy.name}"
-        copy.slug = @custom_slug || copy.generate_copy_slug
-        copy.is_being_copied = true
-        copy.set_slack_notifications_enabled = false
+        self.alter_team_copy(copy)
       elsif original.is_a?(Project)
-        copy.generate_token(true)
-        copy.set_slack_notifications_enabled = false
+        self.alter_project_copy(copy)
       elsif original.is_a?(TagText)
         copy.team_id = @team_id if !@team_id.nil?
       end
