@@ -1157,7 +1157,9 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should duplicate when user is owner and not duplicate when not an owner" do
+    u = create_user
     t = create_team
+    create_team_user user: u, team: t, role: 'owner'
     value = {
       label: 'Status',
       active: 'id',
@@ -1169,22 +1171,13 @@ class GraphqlController2Test < ActionController::TestCase
     t.set_media_verification_statuses(value)
     t.save!
 
-    query = "mutation duplicateTeam { duplicateTeam(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
     post :create, query: query, team: t.slug
     assert_response 400
 
-    u = create_user
-    create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
 
-    pm = create_project_media project: nil, team: t
-    s = pm.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'id'
-    s.save!
-
-    pm.destroy!
-
-    query = "mutation duplicateTeam { duplicateTeam(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id\", fallback_status_id: \"\" }) { team { id } } }"
+    query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
     post :create, query: query, team: t.slug
     assert_response :success
   end

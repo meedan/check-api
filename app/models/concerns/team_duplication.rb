@@ -7,10 +7,12 @@ module TeamDuplication
   included do
     attr_accessor :mapping, :original_team, :copy_team
 
-    def self.duplicate(t)
+    def self.duplicate(t, custom_slug=nil, custom_name=nil)
       @clones = []
       @project_id_map = {}
-      team_id = nil
+      @team_id = nil
+      @custom_name = custom_name
+      @custom_slug = custom_slug
       ActiveRecord::Base.transaction do
         Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
         team = t.deep_clone include: [
@@ -21,34 +23,39 @@ module TeamDuplication
         ] do |original, copy|
           next if original.is_a?(Version)
           @clones << {original: original, clone: copy}
-          if original.is_a?(Team)
-            copy.name = "Copy of #{copy.name}"
-            copy.slug = copy.generate_copy_slug
-            copy.is_being_copied = true
-            copy.set_slack_notifications_enabled = false
-          elsif original.is_a?(Project)
-            copy.generate_token(true)
-            copy.set_slack_notifications_enabled = false
-          elsif original.is_a?(TagText)
-            copy.team_id = team_id if !team_id.nil?
-          end
-          copy.save(validate: false)
-          if original.is_a?(Project)
-            @project_id_map[original.id] = copy.id
-          elsif copy.is_a?(Team)
-            team_id = copy.id
-          end
+          self.alter_copy_by_type(original, copy)
         end
         processed_user_ids = self.process_team_bot_installations(t, team)
         self.process_team_users(t, team, processed_user_ids)
-        team = self.update_team_rules(t, team)
+        team = self.update_team_rules(team)
+        Team.current = team
         team.save(validate: false)
         self.store_clones(team)
         return team
       end
     end
 
-    def self.update_team_rules(old_team, new_team)
+    def self.alter_copy_by_type(original, copy)
+      if original.is_a?(Team)
+        copy.name = @custom_name || "Copy of #{copy.name}"
+        copy.slug = @custom_slug || copy.generate_copy_slug
+        copy.is_being_copied = true
+        copy.set_slack_notifications_enabled = false
+      elsif original.is_a?(Project)
+        copy.generate_token(true)
+        copy.set_slack_notifications_enabled = false
+      elsif original.is_a?(TagText)
+        copy.team_id = @team_id if !@team_id.nil?
+      end
+      copy.save(validate: false)
+      if original.is_a?(Project)
+        @project_id_map[original.id] = copy.id
+      elsif copy.is_a?(Team)
+        @team_id = copy.id
+      end
+    end
+
+    def self.update_team_rules(new_team)
       (new_team.get_rules||[]).each do |rule|
         (rule["actions"]||[]).each do |action|
           if action["action_definition"] == "move_to_project" || action["action_definition"] == "add_to_project"
@@ -96,11 +103,6 @@ module TeamDuplication
         end
         clone[:clone].save!
       end
-    end
-
-    def self.log_error(e, t)
-      self.notify_error(e, { team_id: t.id }, RequestStore[:request])
-      Rails.logger.error "[Team Duplication] Could not duplicate team #{t.slug}: #{e.message} #{e.backtrace.join("\n")}"
     end
   end
 
