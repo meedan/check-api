@@ -29,7 +29,7 @@ module TeamDuplication
         team = self.update_team_rules(team)
         Team.current = team
         team.save!
-        self.store_clones(team)
+        self.store_clones
         return team
       end
     end
@@ -86,7 +86,7 @@ module TeamDuplication
       end
     end
 
-    def self.store_clones(team)
+    def self.store_clones
       @clones.each do |clone|
         if !clone[:original].is_a?(Team)
           if clone[:original].is_a?(TeamTask)
