@@ -828,7 +828,7 @@ class TeamTest < ActiveSupport::TestCase
     end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
-    Team.any_instance.unstub(:save)
+    Team.any_instance.unstub(:save!)
     RequestStore.store[:disable_es_callbacks] = false
   end
 
