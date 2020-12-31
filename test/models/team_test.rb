@@ -822,7 +822,7 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = true
     Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).once
-    Team.any_instance.stubs(:save).with(validate: false).raises(RuntimeError)
+    Team.any_instance.stubs(:save!).raises(RuntimeError)
     assert_raise RuntimeError do
       Team.duplicate(team)
     end
