@@ -80,7 +80,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
               "conditions": [
                 {
                   "rule_definition": "request_matches_regexp",
-                  "rule_value": "^[0-9]+$"
+                  "rule_value": "[0-9]+"
                 }
               ]
             }
@@ -205,7 +205,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        text: random_number.to_s
+        text: random_number.to_s + ' ' + random_string
       }
     ]
     payload = {
