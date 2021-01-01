@@ -41,14 +41,10 @@ module SmoochMessages
       end
     end
 
-    def discard_or_process_message(message, app_id)
-      if self.config['smooch_disabled']
-        language = self.get_user_language(message)
-        workflow = self.get_workflow(language)
-        self.send_message_to_user(message['authorId'], workflow['smooch_message_smooch_bot_disabled'], {}, true)
-      else
-        self.process_message(message, app_id)
-      end
+    def send_message_if_disabled_and_return_state(uid, workflow, state)
+      disabled = self.config['smooch_disabled']
+      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_disabled'], {}, true) if disabled
+      disabled ? 'disabled' : state
     end
 
     def process_message(message, app_id)
