@@ -140,7 +140,6 @@ module SmoochMessages
       fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
-      RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
       self.create_smooch_annotations(annotated, author, fields)
     end
 
