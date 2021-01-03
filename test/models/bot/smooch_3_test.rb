@@ -1286,6 +1286,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
 
   test "should request resource" do
     setup_smooch_bot(true)
+    RequestStore.store[:skip_cached_field_update] = false
     uid = random_string
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
@@ -1300,6 +1301,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     annotated = a.annotated
     assert_equal 'ProjectMedia', a.annotated_type
     assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, annotated.archived
+    # verify requests_count & demand count
+    assert_equal 1, annotated.requests_count
+    assert_equal 1, annotated.demand
     assert_not_nil a.get_field('smooch_resource_id')
     # Test auto confirm the media if resend same media as a default request
     Sidekiq::Testing.fake! do
@@ -1312,6 +1316,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       send_message_to_smooch_bot('2', uid)
     end
     assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
+    assert_equal 2, annotated.reload.requests_count
     # Test resend same media (should not update archived cloumn)
     Sidekiq::Testing.fake! do
       send_message_to_smooch_bot('Hello', uid)
@@ -1323,6 +1328,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       send_message_to_smooch_bot('2', uid)
     end
     assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
+    assert_equal 3, annotated.reload.requests_count
     Rails.cache.unstub(:read)
   end
 
