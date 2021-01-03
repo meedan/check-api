@@ -131,12 +131,12 @@ module SmoochMessages
     def smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
       # Only save the annotation for the same requester once.
       key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
-      self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key) || request_type != 'default_requests'
+      self.create_smooch_request(annotated, message, app_id, author) if !Rails.cache.read(key) || request_type != 'default_requests'
       self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type) if !Rails.cache.read(key)
       Rails.cache.write(key, hash)
     end
 
-    def create_smooch_request(annotated, message, app_id, author, request_type)
+    def create_smooch_request(annotated, message, app_id, author)
       fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
