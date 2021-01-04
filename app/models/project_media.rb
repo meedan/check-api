@@ -335,6 +335,17 @@ class ProjectMedia < ActiveRecord::Base
     self.updated_at.to_i
   end
 
+  def create_project_media_project
+    unless self.add_to_project_id.blank?
+      ProjectMediaProject.create!(
+        project_media_id: self.id,
+        project_id: self.add_to_project_id,
+        set_tasks_responses: self.set_tasks_responses,
+        disable_es_callbacks: self.disable_es_callbacks
+      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
+    end
+  end
+
   protected
 
   def set_es_account_data
@@ -360,17 +371,6 @@ class ProjectMedia < ActiveRecord::Base
     # set fields with integer value
     fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
-  end
-
-  def create_project_media_project
-    unless self.add_to_project_id.blank?
-      ProjectMediaProject.create!(
-        project_media_id: self.id,
-        project_id: self.add_to_project_id,
-        set_tasks_responses: self.set_tasks_responses,
-        disable_es_callbacks: self.disable_es_callbacks
-      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
-    end
   end
 
   # private
