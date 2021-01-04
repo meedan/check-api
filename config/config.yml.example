@@ -29,8 +29,8 @@ development: &default
   image_similarity_threshold: 0.96
   text_similarity_threshold: 0.7
   automatic_image_similarity_threshold: 0.99
-  automatic_text_similarity_threshold: 0.95
-  similarity_text_length_threshold: 4
+  automatic_text_similarity_threshold: 0.90
+  similarity_text_length_threshold: 8
 
   # Localization
   #
