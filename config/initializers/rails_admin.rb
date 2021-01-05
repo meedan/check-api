@@ -90,13 +90,13 @@ RailsAdmin.config do |config|
   ]
 
   config.navigation_static_links = {
-    'Web Client' => CONFIG['checkdesk_client'],
+    'Web Client' => CheckConfig.get('checkdesk_client'),
     'Check API Explorer' => '/api',
     'GraphiQL' => '/graphiql',
     'Sidekiq' => '/sidekiq',
     'PG Hero' => '/pghero',
-    'Pender API Explorer' => "#{CONFIG['pender_url']}/api",
-    'Alegre API Explorer' => "#{CONFIG['alegre_host']}"
+    'Pender API Explorer' => "#{CheckConfig.get('pender_url')}/api",
+    'Alegre API Explorer' => "#{CheckConfig.get('alegre_host')}"
   }
 
   config.navigation_static_label = 'External Tools'
@@ -275,7 +275,7 @@ RailsAdmin.config do |config|
     end
 
     show do
-      id = CONFIG['default_project_media_workflow']
+      id = CheckConfig.get('default_project_media_workflow')
       configure "get_media_#{id.pluralize}", :json do
         label "Media #{id.pluralize.tr('_', ' ')}"
       end
@@ -344,7 +344,7 @@ RailsAdmin.config do |config|
         visible_only_for_admin
       end
 
-      id = CONFIG['default_project_media_workflow']
+      id = CheckConfig.get('default_project_media_workflow')
       field "media_#{id.pluralize}", :yaml do
         partial 'json_editor'
         help "A list of custom #{id.pluralize.tr('_', ' ')} for items that match your team's guidelines."

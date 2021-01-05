@@ -64,7 +64,7 @@ module TeamImport
 
     def get_spreadsheet(id = '')
       begin
-        @session = GoogleDrive::Session.from_service_account_key(CONFIG['google_credentials_path'])
+        @session = GoogleDrive::Session.from_service_account_key(CheckConfig.get('google_credentials_path'))
         @session.spreadsheet_by_key(id)
       rescue Signet::AuthorizationError
         Team.raise_error(I18n.t('team_import.cannot_authenticate_with_the_credentials'), 'UNAUTHORIZED')
@@ -121,7 +121,7 @@ module TeamImport
 
     def get_user(user, row, column = 'user')
       @result[row] << I18n.t("team_import.blank_#{column}") and return if user.blank?
-      pattern = Regexp.new(CONFIG['checkdesk_client'] + "/check\/user\/([0-9]+)")
+      pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/check\/user\/([0-9]+)")
       if (match = pattern.match(user))
         u = User.find_by_id(match[1].to_i)
       else
@@ -134,7 +134,7 @@ module TeamImport
     def get_projects(projects, row = nil)
       projects = projects.split(',').map { |p| p.strip }
       @result[row] << I18n.t("team_import.blank_project") and return projects if projects.empty?
-      pattern = Regexp.new(CONFIG['checkdesk_client'] + "/#{self.slug}\/project\/([0-9]+)")
+      pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/#{self.slug}\/project\/([0-9]+)")
       ids = []
       projects.each do |p|
         if (match = pattern.match(p))

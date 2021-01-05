@@ -47,8 +47,8 @@
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= I18n.t("mail_security.#{@type}_text",
-                            app_name: CONFIG['app_name'],
-                            change_password: link_to(t("mail_security.password_text"), "#{CONFIG['checkdesk_client']}/check/user/password-reset")).html_safe
+                            app_name: CheckConfig.get('app_name'),
+                            change_password: link_to(t("mail_security.password_text"), "#{CheckConfig.get('checkdesk_client')}/check/user/password-reset")).html_safe
                            %>
                         </div>
                       </div>
@@ -246,8 +246,8 @@
                                 <th class="footer" style="font-weight: normal; padding: 0;" text-align: <%= @direction[:align] %>>
                                   <p class="h4 text-gray" style="color: #9a9a9a !important; font-size: 15px; line-height: 20px; margin: 0;">
                                     <%= I18n.t("mail_security.privacy",
-                                      manage: link_to(t("mail_security.manage_text"), "#{CONFIG['checkdesk_client']}/check/me/privacy"),
-                                      privacy: link_to(t("mail_security.privacy_text"), CONFIG['privacy_policy_url'])
+                                      manage: link_to(t("mail_security.manage_text"), "#{CheckConfig.get('checkdesk_client')}/check/me/privacy"),
+                                      privacy: link_to(t("mail_security.privacy_text"), CheckConfig.get('privacy_policy_url'))
                                       ).html_safe %>
                                     <br></p>
                                 </th>

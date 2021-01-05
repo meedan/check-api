@@ -88,7 +88,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should update elasticsearch after refresh pender data" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
@@ -129,7 +129,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should set elasticsearch data for media account" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -153,7 +153,7 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.fake!
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

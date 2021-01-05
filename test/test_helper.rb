@@ -157,9 +157,9 @@ class ActiveSupport::TestCase
     ApiKey.current = Team.current = User.current = nil
     Team.unstub(:current)
     User.unstub(:current)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
-    WebMock.stub_request(:get, /#{CONFIG['narcissus_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
     WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
@@ -223,7 +223,7 @@ class ActiveSupport::TestCase
 
   def authenticate_with_token(api_key = nil)
     unless @request.nil?
-      header = CONFIG['authorization_header'] || 'X-Token'
+      header = CheckConfig.get('authorization_header', 'X-Token')
       api_key ||= create_api_key
       @request.headers.merge!({ header => api_key.access_token })
     end
@@ -231,7 +231,7 @@ class ActiveSupport::TestCase
 
   def authenticate_with_user_token(token = nil)
     unless @request.nil?
-      header = CONFIG['authorization_header'] || 'X-Token'
+      header = CheckConfig.get('authorization_header', 'X-Token')
       token ||= create_omniauth_user.token
       @request.headers.merge!({ header => token })
     end
@@ -512,7 +512,7 @@ class ActiveSupport::TestCase
     })
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', true] })
     create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     Sidekiq::Testing.inline!
     @app_id = random_string
     @msg_id = random_string
@@ -906,7 +906,7 @@ class ActiveSupport::TestCase
         }
       }
     ]
-    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     @pm_for_menu_option = create_project_media(project: @project)
     @settings = {
       'smooch_project_id' => @project.id,
@@ -1023,7 +1023,7 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, @audio_url_2).to_return(status: 200, body: '', headers: {})
     WebMock.stub_request(:head, @audio_url_2).to_return(status: 200, body: '', headers: {})
     @link_url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url + '","type":"item"}}' })
     @link_url_2 = 'https://' + random_string + '.com'
     WebMock.stub_request(:get, pender_url).with({ query: { url: @link_url_2 } }).to_return({ body: '{"type":"media","data":{"url":"' + @link_url_2 + '","type":"item"}}' })
