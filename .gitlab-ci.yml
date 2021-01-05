@@ -16,13 +16,13 @@ build_qa:
 
   script:
     - apk add --no-cache curl python3 py3-pip
-    - pip install botocore==1.19.48
     - pip install awscli==1.18.103
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA" .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
+    - gitlab-deploy-ssm-env
     - gitlab-deploy-ssm-env
 
 deploy_qa:
@@ -74,7 +74,6 @@ build_live:
   script:
     - apk add --no-cache curl python3 py3-pip git
     - pip install docutils==0.14
-    - pip install botocore==1.19.48
     - pip install awscli==1.18.103
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA" .
