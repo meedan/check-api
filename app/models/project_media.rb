@@ -89,7 +89,7 @@ class ProjectMedia < ActiveRecord::Base
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
       button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CONFIG['app_name']
+        type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
     }
   end
@@ -169,7 +169,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    "#{CONFIG['checkdesk_client']}/#{self.team.slug}/media/#{self.id}"
+    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)

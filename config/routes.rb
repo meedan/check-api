@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
-  if CONFIG['pghero_enabled']
+  if CheckConfig.get('pghero_enabled')
     authenticate :api_user, -> (user) { user.is_admin } do
       mount PgHero::Engine, at: 'pghero'
     end
@@ -42,8 +42,8 @@ Rails.application.routes.draw do
   end
 
   # Short URLs (powered by https://github.com/jpmcgrath/shortener)
-  if CONFIG['short_url_host']
-    constraints host: URI.parse(CONFIG['short_url_host']).host do
+  if CheckConfig.get('short_url_host')
+    constraints host: URI.parse(CheckConfig.get('short_url_host')).host do
       get '/:id' => 'shortener/shortened_urls#show'
     end
   end

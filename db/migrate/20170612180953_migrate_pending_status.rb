@@ -1,6 +1,6 @@
 class MigratePendingStatus < ActiveRecord::Migration
   def change
-    if CONFIG['app_name'] === 'Check' && !defined?(Status).nil?
+    if CheckConfig.get('app_name') === 'Check' && !defined?(Status).nil?
       client = $repository.client
       options = {
         index: CheckElasticSearchModel.get_index_name,

@@ -44,7 +44,7 @@ Dynamic.class_eval do
 
   def adjust_report_design_image_url(url)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    (ENV['RAILS_ENV'] == 'development' && url =~ /^#{CONFIG['storage']['asset_host']}/) ? url.gsub(CONFIG['storage']['asset_host'], "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}") : url
+    (ENV['RAILS_ENV'] == 'development' && url =~ /^#{CheckConfig.get('storage_asset_host')}/) ? url.gsub(CheckConfig.get('storage_asset_host'), "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}") : url
   end
 
   def report_design_date(date, language)
@@ -91,9 +91,9 @@ Dynamic.class_eval do
       temp_url = CheckS3.public_url(path)
 
       # Convert the HTML to PNG
-      uri = URI("#{CONFIG['narcissus_url']}/?url=#{temp_url}&selector=%23frame")
+      uri = URI("#{CheckConfig.get('narcissus_url')}/?url=#{temp_url}&selector=%23frame")
       request = Net::HTTP::Get.new(uri)
-      request['x-api-key'] = CONFIG['narcissus_token']
+      request['x-api-key'] = CheckConfig.get('narcissus_token')
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
       screenshot = JSON.parse(response.body)['url']
       raise "Unexpected response from screenshot service: #{screenshot}" unless screenshot =~ /^http/

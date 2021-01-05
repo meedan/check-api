@@ -38,7 +38,7 @@ class Bot::Keep < BotUser
   def self.valid_request?(request)
     begin
       payload = request.raw_post
-      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'].to_s, payload)
+      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token').to_s, payload)
       if Rack::Utils.secure_compare(signature, request.headers['X-Signature'].to_s)
         JSON.parse(request.raw_post)
         return true

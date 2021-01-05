@@ -7,7 +7,7 @@
 <%= 
   I18n.t("mails_notifications.request_to_join.#{@info[:request_status]}_text",
       team: @info[:team].name,
-      app_name: CONFIG['app_name'],
+      app_name: CheckConfig.get('app_name'),
       url: @info[:url]
     )
 %>
@@ -21,5 +21,5 @@
 ...
 <% end %>
 
-<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CheckConfig.get('app_name')) %>
 https://meedan.com

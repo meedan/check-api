@@ -27,7 +27,7 @@ class TeamUserMailerTest < ActionMailer::TestCase
     info = {
       team: t,
       requestor: u,
-      url: "#{CONFIG['checkdesk_client']}/#{t.slug}",
+      url: "#{CheckConfig.get('checkdesk_client')}/#{t.slug}",
     }
 
     email = TeamUserMailer.request_to_join(o1.email, info, 'mail subject')

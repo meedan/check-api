@@ -6,7 +6,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.run(body)
-    if CONFIG['alegre_host'].blank?
+    if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
       return false
     end
@@ -46,12 +46,12 @@ class Bot::Alegre < BotUser
 
   def self.get_similar_items(pm)
     if pm.is_text?
-      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['text_similarity_threshold'])
-      confirmed = self.get_merged_items_with_similar_text(pm, CONFIG['automatic_text_similarity_threshold'])
+      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('text_similarity_threshold'))
+      confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('automatic_text_similarity_threshold'))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
-      suggested_or_confirmed = self.get_items_with_similar_image(pm, CONFIG['image_similarity_threshold'])
-      confirmed = self.get_items_with_similar_image(pm, CONFIG['automatic_image_similarity_threshold'])
+      suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold'))
+      confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold'))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     else
       {}
@@ -119,7 +119,7 @@ class Bot::Alegre < BotUser
 
   def self.media_file_url(pm)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
-    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}/#{pm.media.file.file.path}"
+    ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}"
   end
 
   def self.send_to_title_similarity_index(pm)
@@ -155,7 +155,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.request_api(method, path, params = {})
-    uri = URI(CONFIG['alegre_host'] + path)
+    uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
     request.body = params.to_json
@@ -171,11 +171,11 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
     pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CONFIG["similarity_text_length_threshold"])
+  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
     pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
   end
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= @project_media.title %></title>
-    <link href="<%= CONFIG['checkdesk_base_url'] %>/css/oembed.css?t=201904021148" rel="stylesheet" type="text/css">
+    <link href="<%= CheckConfig.get('checkdesk_base_url') %>/css/oembed.css?t=201904021148" rel="stylesheet" type="text/css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/2.1.8/linkify-jquery.min.js"></script>
@@ -39,15 +39,15 @@
       </div>
     </article>
 
-    <script src="<%= CONFIG['checkdesk_base_url'] %>/javascripts/oembed.js?t=201904021148"></script>
+    <script src="<%= CheckConfig.get('checkdesk_base_url') %>/javascripts/oembed.js?t=201904021148"></script>
 
-    <% unless CONFIG['google_analytics_code'].blank? %>
+    <% unless CheckConfig.get('google_analytics_code').blank? %>
       <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-        ga('create', '<%= CONFIG["google_analytics_code"] %>', 'auto');
+        ga('create', '<%= CheckConfig.get("google_analytics_code") %>', 'auto');
         ga('set', 'anonymizeIp', true); // make it GDPR-compliant
         ga('send', 'pageview');
       </script>

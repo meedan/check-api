@@ -5,17 +5,17 @@ module ProjectMediaEmbed
 
   def oembed_url(format = '')
     format = ".#{format}" unless format.blank?
-    url = CONFIG['checkdesk_base_url'] + '/api/project_medias/' + self.id.to_s + '/oembed' + format
+    url = CheckConfig.get('checkdesk_base_url') + '/api/project_medias/' + self.id.to_s + '/oembed' + format
     request = RequestStore[:request]
     url += '?' + request.query_string if request.present? && !request.query_string.blank?
     url
   end
 
   def embed_url(shorten = true)
-    url = CONFIG['pender_url'] + '/api/medias.html?url=' + self.full_url.to_s
-    return url unless shorten && CONFIG['short_url_host']
+    url = CheckConfig.get('pender_url') + '/api/medias.html?url=' + self.full_url.to_s
+    return url unless shorten && CheckConfig.get('short_url_host')
     key = Shortener::ShortenedUrl.generate!(url).unique_key
-    CONFIG['short_url_host'] + '/' + key
+    CheckConfig.get('short_url_host') + '/' + key
   end
 
   def author_name
@@ -44,7 +44,7 @@ module ProjectMediaEmbed
   end
 
   def provider
-    self.media.is_a?(Link) ? self.media.provider : CONFIG['app_name']
+    self.media.is_a?(Link) ? self.media.provider : CheckConfig.get('app_name')
   end
 
   def published_at
@@ -127,8 +127,8 @@ module ProjectMediaEmbed
       title: self.title.to_s,
       author_name: self.author_name,
       author_url: self.author_url,
-      provider_name: CONFIG['app_name'] || '',
-      provider_url: CONFIG['app_url'] || '',
+      provider_name: CheckConfig.get('app_name', ''),
+      provider_url: CheckConfig.get('app_url', ''),
       thumbnail_url: self.media.picture.to_s,
       html: self.oembed_html(options),
       width: options[:maxwidth] || 800,
@@ -173,12 +173,12 @@ module ProjectMediaEmbed
       return if pm.nil?
 
       url = pm.full_url.to_s
-      PenderClient::Request.get_medias(CONFIG['pender_url_private'], { url: url, refresh: '1' }, CONFIG['pender_key'])
+      PenderClient::Request.get_medias(CheckConfig.get('pender_url_private'), { url: url, refresh: '1' }, CheckConfig.get('pender_key'))
       CcDeville.clear_cache_for_url(url)
 
       # Clear Pender cache, both URL-encoded and unencoded because each can end up being used.
-      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + url)
-      CcDeville.clear_cache_for_url(CONFIG['pender_url'] + '/api/medias.html?url=' + ERB::Util.url_encode(url))
+      CcDeville.clear_cache_for_url(CheckConfig.get('pender_url') + '/api/medias.html?url=' + url)
+      CcDeville.clear_cache_for_url(CheckConfig.get('pender_url') + '/api/medias.html?url=' + ERB::Util.url_encode(url))
     end
   end
 end

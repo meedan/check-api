@@ -1363,7 +1363,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should upload image to S3" do
     t = create_team
-    assert_match /#{Regexp.escape(CONFIG['storage']['asset_host'])}/, t.avatar
+    assert_match /#{Regexp.escape(CheckConfig.get('storage_asset_host'))}/, t.avatar
   end
 
   test "should be able to create partitions in parallel" do
@@ -1671,7 +1671,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     create_project_media project: p0, media: nil, url: url
@@ -1758,7 +1758,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     create_project_media project: p0, media: nil, url: url, smooch_message: { 'text' => 'test' }
@@ -1833,7 +1833,7 @@ class TeamTest < ActiveSupport::TestCase
   test "should skip permission when applying action" do
     t = create_team
     p = create_project team: t
-    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     create_team_bot_installation user_id: b.id, settings: nil, team_id: t.id
     rules = []
     rules << {
@@ -1885,7 +1885,7 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_nothing_raised do
@@ -3285,7 +3285,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"Bar Foo","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     create_project_media project: p0, media: nil, url: url

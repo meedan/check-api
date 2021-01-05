@@ -275,8 +275,8 @@ class SourceTest < ActiveSupport::TestCase
   test "should refresh source and accounts" do
     WebMock.disable_net_connect!
     url = "http://twitter.com/example#{Time.now.to_i}"
-    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
-    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
+    pender_refresh_url = CheckConfig.get('pender_url_private') + '/api/medias?refresh=1&url=' + url + '/'
     ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
     WebMock.stub_request(:get, pender_url).to_return(ret)
     WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
@@ -387,7 +387,7 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source
     overridden = s.overridden
     keys.each {|k| assert overridden[k]}
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     author_url = 'http://facebook.com/123456'
     data = { url: author_url, picture: 'http://fb/p.png', author_name: 'username', description: 'Bar', type: 'profile' }
     response = '{"type":"media","data":' + data.to_json + '}'
@@ -471,9 +471,9 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source team: t
     s.accounts << a
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     s.refresh_accounts = true
     s.save!

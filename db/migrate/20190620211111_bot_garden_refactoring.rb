@@ -1,8 +1,8 @@
 class BotGardenRefactoring < ActiveRecord::Migration
   def change
     RequestStore.store[:skip_notifications] = true
-    config = CONFIG['clamav_service_path']
-    CONFIG['clamav_service_path'] = nil
+    config = CheckConfig.get('clamav_service_path')
+    CheckConfig.set('clamav_service_path', nil)
 
     puts "[#{Time.now}] Refactoring Bot Garden"
     
@@ -90,7 +90,7 @@ class BotGardenRefactoring < ActiveRecord::Migration
       drop_table(table) if ActiveRecord::Base.connection.table_exists?(table)
     end
 
-    CONFIG['clamav_service_path'] = config
+    CheckConfig.set('clamav_service_path', config)
     RequestStore.store[:skip_notifications] = false
   end
 end
