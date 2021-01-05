@@ -2,11 +2,11 @@ class ImageUploader < FileUploader
   include CarrierWave::MiniMagick
 
   version :thumbnail, if: :should_generate_thumbnail? do
-    process resize_to_fit: CONFIG['image_thumbnail_size'] || [100, 100]
+    process resize_to_fit: CheckConfig.get('image_thumbnail_size', [100, 100])
   end
 
   version :embed, if: :should_generate_thumbnail? do
-    process resize_to_fit: CONFIG['image_embed_size'] || [800, 600]
+    process resize_to_fit: CheckConfig.get('image_embed_size', [800, 600])
   end
 
   def default_url

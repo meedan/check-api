@@ -35,7 +35,7 @@ module ActiveRecordExtensions
 
   # Used to migrate data from CD2 to this
   def image_callback(value)
-    if CONFIG['migrate_checkdesk_images']
+    if CheckConfig.get('migrate_checkdesk_images')
       uri = URI.parse(value)
       result = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') { |http| http.get(uri.path) }
       if result.code.to_i == 200

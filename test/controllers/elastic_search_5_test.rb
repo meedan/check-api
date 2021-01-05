@@ -45,7 +45,7 @@ class ElasticSearch5Test < ActionController::TestCase
     MediaSearch.delete_index target_index
     MediaSearch.create_index(target_index, false)
     m = create_media_search
-    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    url = "http://#{CheckConfig.get('elasticsearch_host')}:#{CheckConfig.get('elasticsearch_port')}"
     client = Elasticsearch::Client.new(url: url)
     repository = MediaSearch.new(client: client, index_name: source_index)
     results = repository.search(query: { match_all: { } }, size: 10000)

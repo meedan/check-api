@@ -9,7 +9,7 @@ class ElasticSearch3Test < ActionController::TestCase
   test "should search with diacritics pt" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "coração", "description":"vovô foi à são paulo"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -29,7 +29,7 @@ class ElasticSearch3Test < ActionController::TestCase
   test "should search with diacritics FR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "cañon", "description":"légion française"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -51,7 +51,7 @@ class ElasticSearch3Test < ActionController::TestCase
   test "should search with diacritics AR" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"تْشِك"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -73,7 +73,7 @@ class ElasticSearch3Test < ActionController::TestCase
   test "should search arabic #6066" do
      t = create_team
      p = create_project team: t
-     pender_url = CONFIG['pender_url_private'] + '/api/medias'
+     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
      url = 'http://test.com'
      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"بِسْمِ ٱللهِ ٱلرَّحْمٰنِ ٱلرَّحِيمِ"}}'
      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

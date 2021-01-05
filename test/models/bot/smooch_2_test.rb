@@ -232,7 +232,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   test "should ban user that sends unsafe URL" do
     uid = random_string
     url = 'http://unsafe.com/'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"error","data":{"code":12}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)

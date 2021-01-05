@@ -38,13 +38,13 @@ class Team < ActiveRecord::Base
 
   def avatar
     custom = begin self.logo.file.public_url rescue nil end
-    default = CONFIG['checkdesk_base_url'] + self.logo.url
+    default = CheckConfig.get('checkdesk_base_url') + self.logo.url
     custom || default
   end
 
   def url
     url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
-    url || CONFIG['checkdesk_client'] + '/' + self.slug
+    url || CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
   def team

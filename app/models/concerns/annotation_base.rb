@@ -319,7 +319,7 @@ module AnnotationBase
       parent_type: I18n.t("activerecord.models.#{item_type}"),
       url: object.full_url,
       button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.#{annotation_type}"), app: CONFIG['app_name']
+        type: I18n.t("activerecord.models.#{annotation_type}"), app: CheckConfig.get('app_name')
       })
     }.merge(self.slack_params_assignment)
   end

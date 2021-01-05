@@ -50,10 +50,10 @@ class TeamUser < ActiveRecord::Base
       user: Bot::Slack.to_slack(user.name),
       user_image: user.profile_image,
       team: Bot::Slack.to_slack(self.team.name),
-      url: "#{CONFIG['checkdesk_client']}/check/user/#{user.id}",
+      url: "#{CheckConfig.get('checkdesk_client')}/check/user/#{user.id}",
       description: Bot::Slack.to_slack(user.source&.description, false),
       button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.user"), app: CONFIG['app_name']
+        type: I18n.t("activerecord.models.user"), app: CheckConfig.get('app_name')
       })
     }
   end

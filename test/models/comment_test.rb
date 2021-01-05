@@ -297,7 +297,7 @@ class CommentTest < ActiveSupport::TestCase
     pm2 = create_project_media project: p2
     p3 = create_project team: t2
     pm3 = create_project_media project: p3
-    text = "Please check reports #{CONFIG['checkdesk_client']}/test/project/#{p1.id}/media/#{pm1.id} and #{CONFIG['checkdesk_client']}/test/project/#{p2.id}/media/#{pm2.id} and #{CONFIG['checkdesk_client']}/test2/project/1/media/#{pm3.id} because they are nice"
+    text = "Please check reports #{CheckConfig.get('checkdesk_client')}/test/project/#{p1.id}/media/#{pm1.id} and #{CheckConfig.get('checkdesk_client')}/test/project/#{p2.id}/media/#{pm2.id} and #{CheckConfig.get('checkdesk_client')}/test2/project/1/media/#{pm3.id} because they are nice"
     c = create_comment text: text, annotated: pm1
     assert_includes c.entity_objects, pm1
     assert_includes c.entity_objects, pm2
@@ -438,7 +438,7 @@ class CommentTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     p = create_project team: t
     pm = create_project_media project: p
-    text = "Please check this report [#{CONFIG['checkdesk_client']}/test/project/#{p.id}/media/#{pm.id}]"
+    text = "Please check this report [#{CheckConfig.get('checkdesk_client')}/test/project/#{p.id}/media/#{pm.id}]"
     c = create_comment text: text, annotated: pm
     assert_includes c.entity_objects, pm
   end

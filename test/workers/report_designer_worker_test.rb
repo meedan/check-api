@@ -4,7 +4,7 @@ class ReportDesignerWorkerTest < ActiveSupport::TestCase
   def setup
     super
     require 'sidekiq/testing'
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
   end
 
   test "should send message to Smooch users" do

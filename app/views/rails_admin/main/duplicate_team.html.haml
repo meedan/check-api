@@ -1,7 +1,7 @@
 - if request.post?
   %h4= t("admin.actions.duplicate_team.the_team_is_being_copied")
   %p
-    = t("admin.actions.duplicate_team.url_when_ready.html", copy_url: "#{CONFIG['checkdesk_client']}/#{@object.generate_copy_slug}")
+    = t("admin.actions.duplicate_team.url_when_ready.html", copy_url: "#{CheckConfig.get('checkdesk_client')}/#{@object.generate_copy_slug}")
 - else
   %h4
     = t("admin.actions.duplicate_team.are_you_sure_you_want_to_copy_team.html", team: @model_config.with(object: @object).object_label)

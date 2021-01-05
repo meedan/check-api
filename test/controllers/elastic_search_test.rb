@@ -13,7 +13,7 @@ class ElasticSearchTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -46,7 +46,7 @@ class ElasticSearchTest < ActionController::TestCase
     p = create_project team: @team
     p2 = create_project team: @team
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -86,7 +86,7 @@ class ElasticSearchTest < ActionController::TestCase
     m1 = create_valid_media
     pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
     authenticate_with_user(u)
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -146,7 +146,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search with keyword" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -205,7 +205,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search with context" do
     t = create_team
     p = create_project team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)

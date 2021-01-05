@@ -1,7 +1,7 @@
 class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
   def change
-    config = CONFIG['clamav_service_path']
-    CONFIG['clamav_service_path'] = nil
+    config = CheckConfig.get('clamav_service_path')
+    CheckConfig.set('clamav_service_path', nil)
 
     add_column(:users, :settings, :text) unless column_exists?(:users, :settings)
     add_column(:team_users, :settings, :text) unless column_exists?(:team_users, :settings)
@@ -26,6 +26,6 @@ class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
       installation.save!
     end
     
-    CONFIG['clamav_service_path'] = config
+    CheckConfig.set('clamav_service_path', config)
   end
 end

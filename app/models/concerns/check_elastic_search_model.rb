@@ -45,7 +45,7 @@ module CheckElasticSearchModel
   end
 
   def self.get_index_name_prefix
-    CONFIG['elasticsearch_index'].blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CONFIG['elasticsearch_index']
+    CheckConfig.get('elasticsearch_index').blank? ? [Rails.application.engine_name, Rails.env, 'annotations'].join('_') : CheckConfig.get('elasticsearch_index')
   end
 
   def self.get_index_alias

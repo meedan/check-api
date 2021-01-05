@@ -49,20 +49,20 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "handle error when failing authentication on Google Drive" do
-    credentials_path = CONFIG['google_credentials_path']
+    credentials_path = CheckConfig.get('google_credentials_path')
     invalid_credentials = JSON.parse(File.read(credentials_path))
     invalid_credentials['client_email'] = 'invalid@email.com'
     File.open('/tmp/invalid.json', "w+") do |f|
       f.write(invalid_credentials.to_json)
     end
-    CONFIG['google_credentials_path'] = '/tmp/invalid.json'
+    CheckConfig.set('google_credentials_path', '/tmp/invalid.json')
     spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0'
     with_current_user_and_team(@user, @team) {
       assert_raise RuntimeError do
         Team.import_spreadsheet_in_background(spreadsheet_url, @team.id, @user.id)
       end
     }
-    CONFIG['google_credentials_path'] = credentials_path
+    CheckConfig.set('google_credentials_path', credentials_path)
   end
 
   test "should raise error if spreadsheet id was not found" do
@@ -75,7 +75,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should rescue when any error raise when try to get spreadsheet" do
-    GoogleDrive::Session.stubs(:from_service_account_key).with(CONFIG['google_credentials_path']).returns(RuntimeError)
+    GoogleDrive::Session.stubs(:from_service_account_key).with(CheckConfig.get('google_credentials_path')).returns(RuntimeError)
     with_current_user_and_team(@user, @team) {
       assert_raise RuntimeError do
         Team.import_spreadsheet_in_background(@@spreadsheet_url, @team.id, @user.id)
@@ -87,9 +87,9 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should get id from the valid projects when import from spreadsheet" do
     projects = []
     projects << invalid_domain = "http://invalid-domain/#{@team.slug}/project/1"
-    projects << invalid_team = "#{CONFIG['checkdesk_client']}/other-team/project/2"
+    projects << invalid_team = "#{CheckConfig.get('checkdesk_client')}/other-team/project/2"
     (3..4).each do |id|
-      projects << "#{CONFIG['checkdesk_client']}/#{@team.slug}/project/#{id}"
+      projects << "#{CheckConfig.get('checkdesk_client')}/#{@team.slug}/project/#{id}"
     end
     projects = projects.join(' , ')
     assert_equal [3, 4], @team.send(:get_projects, projects)
@@ -130,7 +130,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should return blank project error from spreadsheet" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url }
     row = add_data_on_spreadsheet(data)
 
@@ -140,14 +140,14 @@ class TeamImportTest < ActiveSupport::TestCase
 
   test "should show url when import from spreadsheet a duplicated media" do
     url = 'https://ca.ios.ba/'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
     m = create_media url: url
     pm = create_project_media media: m, project: @p
     create_bot name: 'Check Bot'
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: url, user: user_url, projects: @p.url }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
@@ -157,7 +157,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should add as note column 'Item note'" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url, projects: @p.url, annotator: user_url, note1: 'A note', note2: 'Other note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
@@ -170,14 +170,14 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should not add note if annotator is not valid" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     invalid_annotator = 'some annotator that is invalid'
     data1 = { item: random_string, user: user_url, projects: @p.url, annotator: invalid_annotator, note1: 'A note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row_with_invalid_annotator = add_data_on_spreadsheet(data1)
 
     user2 = create_user is_admin: true
-    user2_url = "#{CONFIG['checkdesk_client']}/check/user/#{user2.id}"
+    user2_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{user2.id}"
     data2 = data1.merge({ item: random_string, annotator: user2_url})
     row_with_valid_annotator = add_data_on_spreadsheet(data2)
 
@@ -192,7 +192,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should add user as annotator if annotator is blank" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url, projects: @p.url, note1: 'A note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row = add_data_on_spreadsheet(data)
@@ -206,7 +206,7 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should add annotator with user email or team owner" do
     user2 = create_user
     create_team_user team: @team, user: user2
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data1 = { item: random_string, user: user_url, projects: @p.url, annotator: user2.email, note1: 'A note' }
     spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
     row_with_email_annotator = add_data_on_spreadsheet(data1)
@@ -228,7 +228,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should not assign if user on assigned to is not valid" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     invalid_assignee = 'Some assignee that is invalid'
     data = { item: random_string, user: user_url, projects: @p.url, assigned_to: invalid_assignee }
     row_with_invalid_assignee = add_data_on_spreadsheet(data)
@@ -241,7 +241,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should assign if user is filled in" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data1 = { item: random_string, user: user_url, projects: @p.url, assigned_to: user_url}
     row_with_valid_assignee = add_data_on_spreadsheet(data1)
 
@@ -261,7 +261,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should not try to add duplicated tags" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url, projects: @p.url, tags: 'tag1, tag2' }
     row = add_data_on_spreadsheet(data)
 
@@ -278,7 +278,7 @@ class TeamImportTest < ActiveSupport::TestCase
   test "should rescue when raise error on item creation" do
     ProjectMedia.stubs(:create!).raises(RuntimeError.new('error'))
 
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url, projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
@@ -288,7 +288,7 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should show status error if not valid" do
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     invalid_status = 'Some status that is invalid'
     data1 = { item: random_string, user: user_url, projects: @p.url, status: invalid_status }
     row_with_invalid_status = add_data_on_spreadsheet(data1)
@@ -314,7 +314,7 @@ class TeamImportTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Response', field_type_object: ft1
 
     create_team_task team_id: @team.id, label: 'What?'
-    user_url = "#{CONFIG['checkdesk_client']}/check/user/#{@user.id}"
+    user_url = "#{CheckConfig.get('checkdesk_client')}/check/user/#{@user.id}"
     data = { item: random_string, user: user_url, projects: @p.url, task1: 'A text' }
     row = add_data_on_spreadsheet(data)
 
@@ -362,7 +362,7 @@ class TeamImportTest < ActiveSupport::TestCase
   def create_test_worksheet
     @@spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
     @@spreadsheet_id = "1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo"
-    session = GoogleDrive::Session.from_service_account_key(CONFIG['google_credentials_path'])
+    session = GoogleDrive::Session.from_service_account_key(CheckConfig.get('google_credentials_path'))
     spreadsheet = session.spreadsheet_by_key(@@spreadsheet_id)
     @@worksheet = spreadsheet.add_worksheet(Time.now)
     data = { import_status: 'Import Status', item: 'Item to Add',	user: 'Added By', projects: 'Project URL', assigned_to: 'Assigned To', tags: 'Tags', status: 'Item Status', annotator: 'Annotator', note1: 'Item note', note2: 'Item note', task1: 'What?', task2: 'When?' }
