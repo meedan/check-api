@@ -608,7 +608,7 @@ fr:
             change_status: Modifier l’état de l’élément
             lock_unlock_status: Verrouiller/déverrouiller l’état
             add_remove_tag: Ajouter/supprimer des balise
-            send_to_trash: Envoyer l’élément ou la source à la corbeille
+            send_to_trash: Déplacer l’élément ou la source vers la corbeille
             empty_trash: Vider la corbeille
         task_management:
           name: Gestion des tâches
@@ -704,7 +704,7 @@ fr:
   team_rule_actions: alors
   team_rule_action: alors
   team_rule_action_definition: Sélectionner une action
-  team_rule_send_to_trash: Envoyer à la corbeille
+  team_rule_send_to_trash: Déplacer vers la corbeille
   team_rule_move_to_project: Déplacer l’élément vers une liste
   team_rule_copy_to_project: Ajouter l’élément à une liste
   team_rule_ban_submitter: Bannir l’expéditeur (ses futurs messages n’apparaîtront
@@ -1048,6 +1048,7 @@ fr:
     cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
     après envoi de votre dernier message.\n      \n*Répondez par 0 (ou \U0001F4CC)*
     pour revenir au *menu principal*"
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1537,4 +1538,4 @@ fr:
     vous remercions de nous avoir contactés. Nous ne serons pas à même de vérifier
     votre message pour l’instant. Consultez ici nos histoires dont les faits ont été
     vérifiés : www.thequint.com/news/webqoof (site en anglais)'
-  custom_message_rule_action_send_message_0ccb1ccf34ecc6f45844909db8bac6eb_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''
