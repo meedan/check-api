@@ -24,5 +24,5 @@
 
 <%= render @info[:model] rescue render "project"  %>
 
-<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CONFIG['app_name']) %>
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CheckConfig.get('app_name')) %>
 https://meedan.com

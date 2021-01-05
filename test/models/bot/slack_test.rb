@@ -62,7 +62,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should send message to Slack thread if there is annotation" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     2.times do
@@ -78,7 +78,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should not send message to Slack thread if there is no annotation" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     2.times do
@@ -94,7 +94,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should not send message to Slack thread if there is no annotation type" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     2.times do
@@ -111,7 +111,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   end
 
   test "should send message to Slack thread if there is annotation (one message per annotation / thread)" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
     3.times do
@@ -128,7 +128,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should update message on Slack thread when status is changed" do
     create_verification_status_stuff(false)
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
@@ -151,7 +151,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should update message on Slack thread when title is changed" do
     create_verification_status_stuff(false)
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media
@@ -173,7 +173,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should not through error for slack notification if attachments fields is nil" do
     create_verification_status_stuff(false)
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     RequestStore.store[:disable_es_callbacks] = true
     stub = WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\./).to_return(body: 'ok')
     pm = create_project_media

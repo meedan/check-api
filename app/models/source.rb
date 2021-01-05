@@ -60,7 +60,7 @@ class Source < ActiveRecord::Base
 
   def image
     custom = self.public_path
-    custom || self.avatar || (self.accounts.empty? ? CONFIG['checkdesk_base_url'] + '/images/source.png' : self.accounts.first.data['picture'].to_s)
+    custom || self.avatar || (self.accounts.empty? ? CheckConfig.get('checkdesk_base_url') + '/images/source.png' : self.accounts.first.data['picture'].to_s)
   end
 
   def description

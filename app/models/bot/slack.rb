@@ -97,7 +97,7 @@ class Bot::Slack < BotUser
     end
 
     def to_slack_url(url, text, truncate = true)
-      url.insert(0, "#{CONFIG['checkdesk_client']}/") unless url.start_with? "#{CONFIG['checkdesk_client']}/"
+      url.insert(0, "#{CheckConfig.get('checkdesk_client')}/") unless url.start_with? "#{CheckConfig.get('checkdesk_client')}/"
       text = self.to_slack(text, truncate).to_s.tr("\n", ' ')
       "<#{url}|#{text}>"
     end

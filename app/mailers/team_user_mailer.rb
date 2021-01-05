@@ -9,7 +9,7 @@ class TeamUserMailer < ApplicationMailer
       info = {
         team: team,
         requestor: requestor,
-        url: "#{CONFIG['checkdesk_client']}/#{team.slug}",
+        url: "#{CheckConfig.get('checkdesk_client')}/#{team.slug}",
       }
       subject = I18n.t("mails_notifications.request_to_join.subject", team: team.name)
       recipients = team.recipients(requestor)
@@ -31,7 +31,7 @@ class TeamUserMailer < ApplicationMailer
       info = {
         team: team,
         requestor: requestor,
-        url: "#{CONFIG['checkdesk_client']}/#{team.slug}",
+        url: "#{CheckConfig.get('checkdesk_client')}/#{team.slug}",
         request_status: request_status
       }
       self.set_template_var(info, requestor.email)

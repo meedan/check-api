@@ -8,10 +8,10 @@ namespace :transifex do
 
   task login: :environment do
     Transifex.configure do |c|
-      c.client_login = CONFIG['transifex_user']
-      c.client_secret = CONFIG['transifex_password']
+      c.client_login = CheckConfig.get('transifex_user')
+      c.client_secret = CheckConfig.get('transifex_password')
     end
-    puts "Logged in as #{CONFIG['transifex_user']} on Transifex."
+    puts "Logged in as #{CheckConfig.get('transifex_user')} on Transifex."
   end
 
   # Get the supported languages on Transifex and update config/application.rb accordingly

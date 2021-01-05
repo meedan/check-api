@@ -11,7 +11,7 @@ module BaseDoc
       # param :query, :text, :string, :required, 'Text to be classified'
       # response(code, message, exampleRequest)
       # "exampleRequest" should be: { query: {}, headers: {}, body: {} }
-      authed = { CONFIG['authorization_header'] => 'test' }
+      authed = { CheckConfig.get('authorization_header') => 'test' }
       response :ok, 'The version of this application', { query: {}, headers: authed }
       response 401, 'Access denied', { query: {} }
     end

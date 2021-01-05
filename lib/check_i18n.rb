@@ -27,7 +27,7 @@ class CheckI18n
   end
 
   def self.upload_custom_strings_to_transifex_in_background(team, prefix, strings)
-    if !CONFIG['transifex_user'].blank? && !CONFIG['transifex_password'].blank?
+    if !CheckConfig.get('transifex_user').blank? && !CheckConfig.get('transifex_password').blank?
       self.delay_for(1.second).lock_and_upload_custom_strings_to_transifex(team.id, prefix, strings)
     end
   end
@@ -50,10 +50,10 @@ class CheckI18n
   def self.upload_custom_strings_to_transifex(team, prefix, strings)
     require 'transifex'
     Transifex.configure do |c|
-      c.client_login = CONFIG['transifex_user']
-      c.client_secret = CONFIG['transifex_password']
+      c.client_login = CheckConfig.get('transifex_user')
+      c.client_secret = CheckConfig.get('transifex_password')
     end
-    project = Transifex::Project.new(CONFIG['transifex_project'])
+    project = Transifex::Project.new(CheckConfig.get('transifex_project'))
     resource_slug = 'api-custom-messages-' + team.slug
     resource = nil
     yaml = { 'en' => {} }
@@ -78,7 +78,7 @@ class CheckI18n
 
     if count > 0
       if resource.nil?
-        Transifex::Resources.new(CONFIG['transifex_project']).create({ slug: resource_slug, name: "Custom Messages: #{team.name}", i18n_type: 'YML', content: yaml.to_yaml })
+        Transifex::Resources.new(CheckConfig.get('transifex_project')).create({ slug: resource_slug, name: "Custom Messages: #{team.name}", i18n_type: 'YML', content: yaml.to_yaml })
       else
         resource.content.update(i18n_type: 'YML', content: yaml.to_yaml)
       end
