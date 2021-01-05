@@ -40,6 +40,7 @@ deploy_qa:
     GITHUB_TOKEN: $GITHUB_TOKEN
   script:
     - apk add --no-cache curl python3 py3-pip git
+    - pip install boto3==1.16.28
     - pip install botocore==1.19.48
     - pip install docutils==0.16
     - pip install awscli==1.18.188
@@ -97,6 +98,7 @@ deploy_live:
     GITHUB_TOKEN: $GITHUB_TOKEN
   script:
     - apk add --no-cache curl python3 py3-pip git
+    - pip install boto3==1.16.28
     - pip install botocore==1.19.48
     - pip install docutils==0.16
     - pip install awscli==1.18.188
