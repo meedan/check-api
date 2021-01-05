@@ -22,8 +22,6 @@ build_qa:
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
-    - gitlab-deploy-ssm-env
-    - gitlab-deploy-ssm-env
 
 deploy_qa:
   image: docker:latest
@@ -59,7 +57,6 @@ deploy_qa:
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
-    - gitlab-deploy-ssm-env
 
 build_live:
   image: docker:latest
