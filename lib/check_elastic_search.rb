@@ -18,7 +18,7 @@ module CheckElasticSearch
     ['accounts', 'comments', 'tags', 'dynamics', 'task_responses', 'task_comments', 'assigned_user_ids'].each{ |f| ms.attributes[f] = [] }
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
-    $repository.refresh_index! if CONFIG['elasticsearch_sync']
+    $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
   def update_elasticsearch_doc(keys, data = {}, obj = nil)

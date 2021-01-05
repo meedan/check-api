@@ -114,7 +114,7 @@ module CheckExport
     get_media_by_type('Link').find_each(start: last_id + 1) do |pm|
       key = [self.team.slug, self.title.parameterize, pm.id, 'screenshot'].join('_') + '.png'
       begin
-        screenshot_url = JSON.parse(pm.get_annotations('archiver').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CONFIG['pender_url'], CONFIG['pender_url_private'])
+        screenshot_url = JSON.parse(pm.get_annotations('archiver').last.get_fields.select{ |f| f.field_name == 'pender_archive_response' }.last.value)['screenshot_url'].gsub(CheckConfig.get('pender_url'), CheckConfig.get('pender_url_private'))
         output[key] = open(screenshot_url).read
       rescue
         output[key] = nil
@@ -180,7 +180,7 @@ module CheckExport
       obj.export_zip(type, last_id, annotation_types)
       link = CheckS3.public_url(obj.export_filepath(type))
       AdminMailer.delay.send_download_link(type, obj, link, email, obj.export_password) unless email.blank?
-      days = CONFIG['export_download_expiration_days'] || 7
+      days = CheckConfig.get('export_download_expiration_days', 7)
       klass.constantize.delay_for(days.to_i.days).remove_export_file(obj.export_filepath(type))
     end
 

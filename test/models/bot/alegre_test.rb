@@ -29,7 +29,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           'confidence' => 1.0
         }
       })
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       assert_difference 'Annotation.count' do
         assert_equal 'en', Bot::Alegre.get_language(@pm)
       end
@@ -43,7 +43,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         'foo': 'bar'
       }.to_json)
       Bot::Alegre.stubs(:request_api).raises(RuntimeError)
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       assert_difference 'Annotation.count' do
         assert_equal 'und', Bot::Alegre.get_language(@pm)
       end
@@ -57,7 +57,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
 
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
         "success": true
@@ -121,7 +121,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           'confidence' => 1.0
         }
       })
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
       Bot::Alegre.unstub(:request_api)
     end
@@ -409,7 +409,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
-      WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
       assert_nothing_raised do
         Bot::Alegre.run('test')

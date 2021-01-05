@@ -1,6 +1,6 @@
 class Api::V1::ConfirmationsController < Devise::ConfirmationsController
   def show
-    valid_host = params[:client_host].to_s == CONFIG['checkdesk_client']
+    valid_host = params[:client_host].to_s == CheckConfig.get('checkdesk_client')
     if valid_host
       User.current = nil
       User.current = self.resource = resource_class.confirm_by_token(params[:confirmation_token])
@@ -10,7 +10,7 @@ class Api::V1::ConfirmationsController < Devise::ConfirmationsController
              else
                resource.valid? ? '/check/user/already-confirmed' : '/check/user/unconfirmed'
              end
-      redirect_to CONFIG['checkdesk_client'] + path
+      redirect_to CheckConfig.get('checkdesk_client') + path
     else
       render_error('Unrecognized client', 'INVALID_VALUE')
     end

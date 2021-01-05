@@ -28,7 +28,7 @@ class CheckS3Test < ActiveSupport::TestCase
 
   test "should get public URL" do
     assert_kind_of String, CheckS3.public_url('foo/bar')
-    stub_configs({ 'storage' => nil }) do
+    stub_configs({ 'storage_bucket' => nil }) do
       assert_nil CheckS3.public_url('foo/bar')
     end
   end

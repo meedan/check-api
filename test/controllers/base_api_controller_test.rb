@@ -52,7 +52,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should get current user from token" do
     u = create_omniauth_user info: {name: 'Test User'}
-    header = CONFIG['authorization_header'] || 'X-Token'
+    header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     get :me
     assert_response :success
@@ -76,7 +76,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should return error from session" do
     u = create_omniauth_user info: {name: 'Test User'}
-    header = CONFIG['authorization_header'] || 'X-Token'
+    header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = 'Error message'
     get :me
@@ -88,7 +88,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should return warning from session" do
     u = create_omniauth_user info: {name: 'Test User'}
-    header = CONFIG['authorization_header'] || 'X-Token'
+    header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.warning'] = 'Warning message'
     get :me
@@ -100,7 +100,7 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should not return error from session" do
     u = create_omniauth_user info: {name: 'Test User'}
-    header = CONFIG['authorization_header'] || 'X-Token'
+    header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = nil
     get :me

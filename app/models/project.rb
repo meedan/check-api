@@ -90,7 +90,7 @@ class Project < ActiveRecord::Base
   def avatar
     # We are not really using now, so just return the default image
     # self.lead_image&.file&.public_url&.to_s
-    CONFIG['checkdesk_base_url'] + self.lead_image.url
+    CheckConfig.get('checkdesk_base_url') + self.lead_image.url
   end
 
   def as_json(options = {})
@@ -148,7 +148,7 @@ class Project < ActiveRecord::Base
       team: Bot::Slack.to_slack(self.team.name),
       url: self.url,
       button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.project"), app: CONFIG['app_name']
+        type: I18n.t("activerecord.models.project"), app: CheckConfig.get('app_name')
       })
     }.merge(self.slack_params_assignment)
   end
@@ -189,7 +189,7 @@ class Project < ActiveRecord::Base
   end
 
   def url
-    "#{CONFIG['checkdesk_client']}/#{self.team.slug}/project/#{self.id}"
+    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}/project/#{self.id}"
   end
 
   def search_id

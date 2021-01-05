@@ -72,10 +72,10 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should parse JSON exception" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
       u = create_user
@@ -1169,16 +1169,16 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm1 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com/2'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm2 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
@@ -1195,16 +1195,16 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
     pm1 = ProjectMedia.find(pm1.id) ; pm1.disable_es_callbacks = false ; pm1.refresh_media = true ; pm1.save! ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com/2'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
     pm2 = ProjectMedia.find(pm2.id) ; pm2.disable_es_callbacks = false ; pm2.refresh_media = true ; pm2.save! ; sleep 1

@@ -7,7 +7,7 @@ class SafeValidator < ActiveModel::EachValidator
   end
 
   def validate_each(record, attribute, value)
-    if !value.nil? && !CONFIG['clamav_service_path'].blank? && self.virus_found?(value)
+    if !value.nil? && !CheckConfig.get('clamav_service_path').blank? && self.virus_found?(value)
       record.errors[attribute] << "validation failed! Virus was found."
     end
   end

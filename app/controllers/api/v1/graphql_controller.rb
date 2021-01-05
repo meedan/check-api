@@ -14,7 +14,7 @@ module Api
       after_action :trigger_bot_events
 
       def create
-        Honeycomb.add_field('graphql_query', params[:query]) unless CONFIG['honeycomb_key'].blank?
+        Honeycomb.add_field('graphql_query', params[:query]) unless CheckConfig.get('honeycomb_key').blank?
         parse_graphql_result do |context|
           query_string = params[:query]
           query_variables = prepare_query_variables(params[:variables])
@@ -23,7 +23,7 @@ module Api
       end
 
       def batch
-        Honeycomb.add_field('graphql_query', params[:_json]) unless CONFIG['honeycomb_key'].blank?
+        Honeycomb.add_field('graphql_query', params[:_json]) unless CheckConfig.get('honeycomb_key').blank?
         parse_graphql_result do |context|
           queries = params[:_json].map do |param|
             {

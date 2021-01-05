@@ -181,7 +181,7 @@
                 <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
                  • 
                 <%= I18n.t("mails_notifications.unsubscribe_link", 
-                    unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CONFIG['checkdesk_client']}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
+                    unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CheckConfig.get('checkdesk_client')}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
                 <br>
               </p>
             </th>

@@ -26,7 +26,7 @@ class AccountSourceTest < ActiveSupport::TestCase
 
   test "should create account if url set" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     assert_difference 'AccountSource.count' do
       as = create_account_source url: url, source: @s
@@ -41,7 +41,7 @@ class AccountSourceTest < ActiveSupport::TestCase
 
   test "should create a unique account per source" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     u = create_user
     t = create_team

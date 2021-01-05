@@ -6,7 +6,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     super
     BotUser.delete_all
     Sidekiq::Testing.inline!
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     User.unstub(:current)
     Team.unstub(:current)
 
@@ -47,7 +47,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
       { name: 'status_fallback', label: 'Status Fallback (Check status identifier)', type: 'readonly', default: '' },
       { name: 'status_mapping', label: 'Status Mapping (JSON where key is a reviewRating.ratingValue and value is a Check status identifier)', type: 'readonly', default: '' }
     ]
-    @bot = create_team_bot name: 'Fetch', set_role: 'editor', login: 'fetch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CONFIG['fetch_check_webhook_url']}/api/bots/fetch"
+    @bot = create_team_bot name: 'Fetch', set_role: 'editor', login: 'fetch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('fetch_check_webhook_url')}/api/bots/fetch"
     @settings = {
       'fetch_service_name' => 'test',
       'status_fallback' => 'in_progress',

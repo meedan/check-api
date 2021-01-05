@@ -99,7 +99,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source
     assert_graphql_create('account_source', { account_id: a.id, source_id: s.id })
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     assert_graphql_create('account_source', { source_id: s.id, url: url })
   end
@@ -121,7 +121,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should create media" do
     p = create_project team: @team
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_graphql_create('project_media', { add_to_project_id: p.id, url: url, media_type: 'Link' })
@@ -406,13 +406,13 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     url = "http://twitter.com/example#{Time.now.to_i}"
-    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
-    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
+    pender_refresh_url = CheckConfig.get('pender_url_private') + '/api/medias?refresh=1&url=' + url + '/'
     ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
     WebMock.stub_request(:get, pender_url).to_return(ret)
     WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
     a = create_account user: u, url: url
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
+    PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
       WebMock.disable_net_connect!
       id = a.graphql_id
       query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'

@@ -120,7 +120,7 @@ module SampleData
     url = if options.has_key?(:url)
             options[:url]
     else
-      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
       url = random_url
       options[:data] ||= {}
       data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
@@ -593,7 +593,7 @@ module SampleData
   end
 
   def create_valid_media(options = {})
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = random_url
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
@@ -602,7 +602,7 @@ module SampleData
   end
 
   def create_valid_account(options = {})
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = random_url
     options[:data] ||= {}
     data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])

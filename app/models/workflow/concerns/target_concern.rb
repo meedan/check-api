@@ -15,7 +15,7 @@ module Workflow
           end
 
           define_method "default_#{target_id}_status_type" do
-            CONFIG["default_#{target_id}_workflow"]
+            CheckConfig.get("default_#{target_id}_workflow")
           end
 
           define_method "last_#{workflow_id}_obj" do
