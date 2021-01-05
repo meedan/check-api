@@ -22,7 +22,7 @@ module TeamDuplication
           :team_tasks
         ] do |original, copy|
           next if original.is_a?(Version)
-          @clones << {original: original, clone: copy}
+          @clones << { original: original, clone: copy }
           self.alter_copy_by_type(original, copy)
         end
         self.process_team_bot_installations(t, team)
@@ -86,12 +86,17 @@ module TeamDuplication
 
     def self.process_team_bot_installations(t, team)
       t.team_bot_installations.each do |tbi|
-        new_tbi = tbi.deep_clone
+        new_tbi = tbi.deep_dup
         new_tbi.team = team
-        if new_tbi.user.name == "Smooch"
+        if new_tbi.user.name == 'Smooch'
           new_tbi = Bot::Smooch.sanitize_installation(new_tbi)
-          new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
-          new_tbi.settings["smooch_workflows"] = tbi.settings["smooch_workflows"]
+          new_tbi.settings['smooch_project_id'] = @project_id_map[tbi.settings["smooch_project_id"]]
+          new_tbi.settings['smooch_workflows'] = tbi.settings["smooch_workflows"].deep_dup
+          tbi.settings['smooch_workflows'].each_with_index do |w, i|
+            w['smooch_custom_resources'].each_with_index do |r, j|
+              new_tbi.settings['smooch_workflows'][i]['smooch_custom_resources'][j] = r.deep_dup.merge({ 'smooch_custom_resource_id' => (0...8).map { (65 + rand(26)).chr }.join })
+            end
+          end
         end
         new_tbi.save(validate: false)
       end
@@ -101,7 +106,7 @@ module TeamDuplication
       @clones.each do |clone|
         if !clone[:original].is_a?(Team)
           if clone[:original].is_a?(TeamTask)
-            clone[:clone].project_ids = clone[:clone].project_ids.collect{|pid| @project_id_map[pid]}
+            clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
           end
         end
         clone[:clone].save!
@@ -116,7 +121,7 @@ module TeamDuplication
       slug = self.slug + "-copy-#{i}"
       if slug.length > 63
         extra = slug.length - 63
-        slug.remove!(slug[11..10+extra])
+        slug.remove!(slug[11..10 + extra])
       end
       break unless Team.find_by(slug: slug)
       i += 1
