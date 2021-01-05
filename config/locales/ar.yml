@@ -185,10 +185,12 @@ ar:
       tasks_edit: قام %{user} بتحرير مهمة %{title}
       tasks_answer_create: 'قام %{user} بإجابة مهمة %{title}: %{answer}'
       tasks_answer_edit: 'قام %{user} بتحرير إجابة مهمة %{title}: %{answer}'
-      metadata_create: 'قام %{user} بإضافة حقل البيانات الوصفيّة: %{title}'
-      metadata_edit: قام %{user} بتحرير حقل البيانات الوصفيّة %{title}
-      metadata_answer_create: 'قام %{user} بضبط قيمة البيانات الوصفيّة %{title}: %{answer}'
-      metadata_answer_edit: 'قام %{user} بتحرير قيمة البيانات الوصفيّة %{title}: %{answer}'
+      metadata_create: 'قام %{user} بإضافة حقل للبيانات الوصفيّة: %{title}'
+      metadata_edit: قام %{user} بتحرير حقل في البيانات الوصفيّة %{title}
+      metadata_answer_create: 'قام %{user} بضبط قيمة في البيانات الوصفيّة %{title}:
+        %{answer}'
+      metadata_answer_edit: 'قام %{user} بتحرير قيمة في البيانات الوصفيّة %{title}:
+        %{answer}'
       project_media_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_media_create: قام %{user} (%{role} في %{team}) بإرسال عنصر جديد
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}
@@ -690,10 +692,10 @@ ar:
   team_rule_item_is_read: 'تمت قراءة العنصر '
   team_rule_field_from_fieldset_tasks_value_is: المهمة لها إجابة محددة
   team_rule_field_from_fieldset_metadata_value_is: البيانات الوصفية لها قيمة محددة
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: إجابة المهمة تتضمن الكلمة
-    المفتاحية
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: إجابة المهمة تتضمن كلمة
+    مفتاحية
   team_rule_field_from_fieldset_metadata_value_contains_keyword: قيمة البيانات الوصفيّة
-    تتضمن الكلمة المفتاحية
+    تتضمن كلمة مفتاحية
   team_rule_select_field_metadata: تحديد البيانات الوصفيّة
   team_rule_select_field_value_metadata: تحديد القيمة
   team_rule_select_field_tasks: اختيار مهمة
@@ -732,10 +734,12 @@ ar:
     نفس مساحة العمل
   replace_blank_media_only: 'عذراً، في الوقت الحالي لا يمكنكم إلّا استبدال العناصر
     الخالية  '
-  cant_preview_rss_feed: عذراً ، لا يوجد عندك تصريح لمعاينة موجز RSS.
+  cant_preview_rss_feed: عذراً، لا يوجد عندك تصريح لمعاينة موجز RSS.
   list_column_demand: الطلبات
   list_column_share_count: مشاركات فيسبوك
-  list_column_linked_items_count: ذات صلة
+  list_column_reaction_count: تفاعلات فيسبوك
+  list_column_comment_count: تعليقات فيسبوك
+  list_column_linked_items_count: المواد الإعلامية المتشابهة
   list_column_type: النوع
   list_column_status: الحالة
   list_column_created_at: تم الإرسال
@@ -743,7 +747,9 @@ ar:
   list_column_updated_at: آخر تحديث
   list_column_report_status: حالة التقرير
   list_column_tags_as_sentence: الوسوم
-  list_column_media_published_at: تاريخ نشر الميديا
+  list_column_media_published_at: تاريخ نشر المادة الإعلامية
+  list_column_related_count: ذات صلة
+  list_column_suggestions_count: المتطابقات المقترحة
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -997,7 +1003,7 @@ ar:
   custom_message_status_unstarted_checkpoint: ''
   custom_message_status_error_checkpoint: ''
   custom_message_status_out_of_scope_checkpoint: خارج النطاق
-  custom_message_status_junk_checkpoint: سخام
+  custom_message_status_junk_checkpoint: مهملات
   custom_message_rule_action_send_message_74ce3b4dee1c558bef58c53c1dd84d27_estadao: ''
   custom_message_rule_action_send_message_13e9776886dd1fbb9ccd98b058feb693_factly: ''
   custom_message_rule_action_send_message_f9b7465c1e096d53029bcd102751bb3e_fato-ou-fake: ''
@@ -1036,7 +1042,7 @@ ar:
   custom_message_status_false_infotagion: مزيف
   custom_message_status_misleading_infotagion: مُضَلِّل
   custom_message_status_true_infotagion: ''
-  custom_message_status_unconfirmed_infotagion: ''
+  custom_message_status_unconfirmed_infotagion: غير مؤكد
   custom_message_status_undetermined_africa-check: لم يبدأ بعد
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
@@ -1339,11 +1345,11 @@ ar:
   custom_message_smooch_bot_message_unconfirmed_test-govtech-pap: ''
   custom_message_smooch_bot_not_final_test-govtech-pap: ''
   custom_message_rule_action_send_message_f9450047e2c282b7756a3b1da14cc891_vishvas-news: ''
-  custom_message_status_video_as_evidence_watching-western-sahara: ''
+  custom_message_status_video_as_evidence_watching-western-sahara: الفيديو كدليل
   custom_message_status_undetermined_watching-western-sahara: لم يبدأ بعد
   custom_message_status_in_progress_watching-western-sahara: قيد التقدم
   custom_message_status_inconclusive_watching-western-sahara: غير محسوم
-  custom_message_status_false_watching-western-sahara: مزيف
-  custom_message_status_verified_watching-western-sahara: صحيح
+  custom_message_status_false_watching-western-sahara: خاطئ
+  custom_message_status_verified_watching-western-sahara: 'متحقّق منه '
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
   custom_message_rule_action_send_message_0ccb1ccf34ecc6f45844909db8bac6eb_webqoof: ''

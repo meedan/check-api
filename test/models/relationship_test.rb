@@ -287,6 +287,20 @@ class RelationshipTest < ActiveSupport::TestCase
     assert r.is_confirmed?
   end
 
+  test "should detach to specific list" do
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    pm_s = create_project_media team: t
+    pm_t = create_project_media project: p
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    assert_equal [p.id], pm_t.project_ids
+    r.add_to_project_id = p2.id
+    r.destroy
+    assert_equal [p.id, p2.id], pm_t.reload.project_ids.sort
+
+  end
+
   test "should re-point targets to new source when adding as a target an item that already has targets" do
     t = create_team
     i1 = create_project_media(team: t).id

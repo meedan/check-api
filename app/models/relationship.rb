@@ -1,7 +1,7 @@
 class Relationship < ActiveRecord::Base
   include CheckElasticSearch
 
-  attr_accessor :is_being_copied
+  attr_accessor :is_being_copied, :add_to_project_id
 
   belongs_to :source, class_name: 'ProjectMedia'
   belongs_to :target, class_name: 'ProjectMedia'
@@ -17,6 +17,7 @@ class Relationship < ActiveRecord::Base
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
+  before_destroy :detach_to_list
   after_destroy :update_counters, prepend: true
   after_commit :update_counters
 
@@ -108,6 +109,12 @@ class Relationship < ActiveRecord::Base
   def relationship_target_type=(type)
     self.relationship_type ||= {}
     self.relationship_type[:target] = type
+  end
+
+  def detach_to_list
+    pm = self.target
+    pm.add_to_project_id = self.add_to_project_id
+    pm.create_project_media_project
   end
 
   protected

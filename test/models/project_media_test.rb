@@ -2191,7 +2191,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # The only SQL query should be to get the team tasks
     assert_queries(1, '=') do
       values = pm.list_columns_values
-      assert_equal 5, values.size
+      assert_equal 2, values.size
       assert_equal 'Foo Value', values["task_value_#{tt1.id}"]
       assert_equal 'Bar Value', values["task_value_#{tt2.id}"]
     end

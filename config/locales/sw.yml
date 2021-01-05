@@ -741,7 +741,9 @@ sw:
   cant_preview_rss_feed: Samahani, huna ruhusa ya kukagua mlisho wa RSS.
   list_column_demand: Maombi
   list_column_share_count: Shiriki za FB
-  list_column_linked_items_count: Inayohusiana
+  list_column_reaction_count: Hisia za FB
+  list_column_comment_count: Maoni ya FB
+  list_column_linked_items_count: Vyombo vya habari sawa
   list_column_type: Aina
   list_column_status: Hali
   list_column_created_at: Imewasilishwa
@@ -750,6 +752,8 @@ sw:
   list_column_report_status: Ripoti hali
   list_column_tags_as_sentence: Lebo
   list_column_media_published_at: Imechapishwa kwenye vyombo vya habari
+  list_column_related_count: Inayohusiana
+  list_column_suggestions_count: Mechi zilizopendekezwa
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
