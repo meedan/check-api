@@ -9,10 +9,12 @@ namespace :check do
       .joins("INNER JOIN annotations a on a.annotated_id = project_medias.id AND a.annotation_type = 'smooch'")
       .group('project_medias.id').find_in_batches(batch_size: 2500) do |pms|
         pms.each do |pm|
+          print '.'
           Rails.cache.write("check_cached_field:ProjectMedia:#{pm.id}:requests_count", pm.c)
         end
         es_body = []
         ProjectMedia.where(id: pms.map(&:id)).find_each do |pm|
+          print '.'
           demand = pm.demand(true)
           doc_id = Base64.encode64("ProjectMedia/#{pm.id}")
           fields = { 'demand' => demand.to_i }
