@@ -23,7 +23,7 @@ module Api
       end
 
       def me
-        header = CONFIG['authorization_header'] || 'X-Token'
+        header = CheckConfig.get('authorization_header', 'X-Token')
         token = request.headers[header]
 
         message = render_error_message
@@ -84,7 +84,7 @@ module Api
       end
 
       def authenticate_from_token!
-        header = CONFIG['authorization_header'] || 'X-Token'
+        header = CheckConfig.get('authorization_header', 'X-Token')
         token = request.headers[header]
         @key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         (render_unauthorized and return false) if @key.nil?
@@ -100,7 +100,7 @@ module Api
       end
 
       def identify_user(mandatory)
-        header = CONFIG['authorization_header'] || 'X-Token'
+        header = CheckConfig.get('authorization_header', 'X-Token')
         token = request.headers[header].to_s
         key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?

@@ -3,27 +3,27 @@ class DeviseMailer < Devise::Mailer
   layout nil
 
   def confirmation_instructions(record, token, opts={})
-    @host = CONFIG['checkdesk_base_url']
-    @client_host = CONFIG['checkdesk_client']
+    @host = CheckConfig.get('checkdesk_base_url')
+    @client_host = CheckConfig.get('checkdesk_client')
     @direction = ApplicationMailer.set_template_direction
-    opts[:subject] = I18n.t(:mail_account_confirmation, app_name: CONFIG['app_name'])
+    opts[:subject] = I18n.t(:mail_account_confirmation, app_name: CheckConfig.get('app_name'))
     super
   end
 
   def reset_password_instructions(record, token, opts={})
-    @host = CONFIG['checkdesk_base_url']
+    @host = CheckConfig.get('checkdesk_base_url')
     @title = I18n.t("mails_notifications.reset_password.title")
     @direction = ApplicationMailer.set_template_direction
-    opts[:subject] = I18n.t('devise.mailer.reset_password_instructions.subject', app_name: CONFIG['app_name'])
+    opts[:subject] = I18n.t('devise.mailer.reset_password_instructions.subject', app_name: CheckConfig.get('app_name'))
     super
   end
 
   def invitation_instructions(record, token, opts={})
-    @host = CONFIG['checkdesk_base_url']
-    @client_host = CONFIG['checkdesk_client']
+    @host = CheckConfig.get('checkdesk_base_url')
+    @client_host = CheckConfig.get('checkdesk_client')
     @team = opts[:invitation_team]
     @role = opts[:role]
-    @url = "#{CONFIG['checkdesk_client']}/#{@team.slug}"
+    @url = "#{CheckConfig.get('checkdesk_client')}/#{@team.slug}"
     @invited_by = record.invited_by.nil? ? 'Someone' : record.invited_by.name
     @invited_text = opts[:invitation_text]
     @invited_type = @invited_text.blank? ? 'default' : 'custom'

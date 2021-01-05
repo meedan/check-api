@@ -17,6 +17,6 @@ class Api::V1::InvitationsController < Devise::InvitationsController
              error_key = resource.errors.messages.keys[0].to_s
              error_key == 'invitation_accepted' ? "/#{slug}" : "/?invitation_response=#{error_key}"
            end
-    redirect_to CONFIG['checkdesk_client'] + path
+    redirect_to CheckConfig.get('checkdesk_client') + path
   end
 end

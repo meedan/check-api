@@ -54,10 +54,7 @@ development: &default
   # Legal documents settings
   #
   tos_url: 'https://meedan.com/en/check/check_tos.html'
-  tos_smooch_url:
-    lang:
-      en: 'https://meedan.com/en/check/check_message_tos.html'
-      es: 'https://meedan.com/es/check/check_message_tos.html'
+  tos_smooch_url: "{\"lang\":{\"en\":\"https://meedan.com/en/check/check_message_tos.html\",\"es\":\"https://meedan.com/es/check/check_message_tos.html\"}}"
   privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
   privacy_email: 'privacy@meedan.com'
 
@@ -70,14 +67,13 @@ development: &default
   # REQUIRED
   # Use values below for local development
   #
-  storage:
-    endpoint: 'http://minio:9000'
-    asset_host: 'http://localhost:9000/check-api-dev'
-    access_key: 'AKIAIOSFODNN7EXAMPLE'
-    secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
-    bucket: 'check-api-dev'
-    bucket_region: 'us-east-1'
-    path_style:
+  sotrage_endpoint: 'http://minio:9000'
+  sotrage_asset_host: 'http://localhost:9000/check-api-dev'
+  sotrage_access_key: 'AKIAIOSFODNN7EXAMPLE'
+  sotrage_secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+  sotrage_bucket: 'check-api-dev'
+  sotrage_bucket_region: 'us-east-1'
+  sotrage_path_style:
 
   # Screenshot service URL
   #
@@ -106,11 +102,10 @@ development: &default
   #
   # OPTIONAL
   #
-  airbrake:
-    host: # '<AIRBRAKE HOST>'
-    port: # '<AIRBRAKE PORT>'
-    project_key: # '<AIRBRAKE PROJECT KEY>'
-    environment: # '<AIRBRAKE ENVIRONMENT>'
+  aribrake_host: # '<AIRBRAKE HOST>'
+  aribrake_port: # '<AIRBRAKE PORT>'
+  aribrake_project_key: # '<AIRBRAKE PROJECT KEY>'
+  aribrake_environment: # '<AIRBRAKE ENVIRONMENT>'
 
   # Email settings
   #
@@ -229,13 +224,12 @@ test:
   transifex_user:
   transifex_password:
   transifex_project:
-  storage:
-    endpoint: 'http://minio:9000'
-    public_endpoint: 'http://localhost:9000/check-api-test'
-    access_key: 'AKIAIOSFODNN7EXAMPLE'
-    secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
-    bucket: 'check-api-test'
-    bucket_region: 'us-east-1'
+  storage_endpoint: 'http://minio:9000'
+  storage_public_endpoint: 'http://localhost:9000/check-api-test'
+  storage_access_key: 'AKIAIOSFODNN7EXAMPLE'
+  storage_secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+  storage_bucket: 'check-api-test'
+  storage_bucket_region: 'us-east-1'
 
   # Facebook social login
   #

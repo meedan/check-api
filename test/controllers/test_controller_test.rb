@@ -147,7 +147,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create link if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -162,7 +162,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not create link if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     Rails.stubs(:env).returns('development')
@@ -204,7 +204,7 @@ class TestControllerTest < ActionController::TestCase
   test "should set media status if in test mode" do
     create_verification_status_stuff
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -218,7 +218,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not set media status if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -234,7 +234,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should set media tag if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -248,7 +248,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not set media tag if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -293,7 +293,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create task if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -308,7 +308,7 @@ class TestControllerTest < ActionController::TestCase
   test "should not create task if not in test mode" do
     Rails.stubs(:env).returns('development')
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user

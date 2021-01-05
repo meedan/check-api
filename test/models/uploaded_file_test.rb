@@ -8,7 +8,7 @@ class UploadedFileTest < ActiveSupport::TestCase
   end
 
   test "should not upload unsafe file (real)" do
-    unless CONFIG['clamav_service_path'].blank?
+    unless CheckConfig.get('clamav_service_path').blank?
       assert_no_difference 'UploadedFile.count' do
         assert_raises ActiveRecord::RecordInvalid do
           create_uploaded_file file: 'unsafe.txt'
@@ -18,7 +18,7 @@ class UploadedFileTest < ActiveSupport::TestCase
   end
 
   test "should upload safe file (real)" do
-    unless CONFIG['clamav_service_path'].blank?
+    unless CheckConfig.get('clamav_service_path').blank?
       assert_difference 'UploadedFile.count' do
         create_uploaded_file
       end

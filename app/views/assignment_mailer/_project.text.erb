@@ -9,6 +9,6 @@
 <%= @info[:project_url] %>
 
 <%= I18n.t("mails_notifications.unsubscribe_link", unsubscribe: I18n.t("mails_notifications.unsubscribe")) %>
-<%= "#{CONFIG['checkdesk_client']}/check/me/edit" %>
+<%= "#{CheckConfig.get('checkdesk_client')}/check/me/edit" %>
 
 ...

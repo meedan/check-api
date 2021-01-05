@@ -615,7 +615,7 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should not make a real HTTP request to a core bot" do
-    b = create_team_bot name: 'Keep', set_request_url: CONFIG['checkdesk_base_url_private'] + '/foo/bar'
+    b = create_team_bot name: 'Keep', set_request_url: CheckConfig.get('checkdesk_base_url_private') + '/foo/bar'
     b.call({})
   end
 

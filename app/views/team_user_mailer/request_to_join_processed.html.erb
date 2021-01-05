@@ -57,7 +57,7 @@
                           <%= 
                             I18n.t("mails_notifications.request_to_join.#{@info[:request_status]}_text",
                                 team: @info[:team].name,
-                                app_name: CONFIG['app_name'],
+                                app_name: CheckConfig.get('app_name'),
                                 url: link_to(I18n.t("mails_notifications.request_to_join.team_page"), @info[:url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;")
                               ).html_safe
                           %>
