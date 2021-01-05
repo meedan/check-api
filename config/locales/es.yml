@@ -757,13 +757,17 @@ es:
   list_column_share_count: Compartidas en FB
   list_column_reaction_count: Reacciones en FB
   list_column_comment_count: Comentarios en FB
+  list_column_linked_items_count: Similar media
   list_column_type: Tipo
   list_column_status: Estado
   list_column_created_at: Presentado
   list_column_last_seen: Presentado por última vez
   list_column_updated_at: Actualizada
+  list_column_report_status: Report status
   list_column_tags_as_sentence: Etiquetas
+  list_column_media_published_at: Media published
   list_column_related_count: Relacionado(s)
+  list_column_suggestions_count: Suggested matches
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1001,6 +1005,7 @@ es:
     Su solicitud se enviará a los verificadores de hechos aproximadamente 30 segundos
     después de que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)*
     para volver al *Menú Principal*"
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
@@ -1083,7 +1088,7 @@ es:
   custom_message_status_false_infotagion: Falso
   custom_message_status_misleading_infotagion: Engañoso
   custom_message_status_true_infotagion: ''
-  custom_message_status_unconfirmed_infotagion: ''
+  custom_message_status_unconfirmed_infotagion: Unconfirmed
   custom_message_status_undetermined_africa-check: Sin iniciar
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''
@@ -1154,7 +1159,7 @@ es:
     después de que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)*
     para volver al *Menú Principal*"
   custom_message_status_start_mantis-8135: ''
-  custom_message_status_pause_mantis-8135: ''
+  custom_message_status_pause_mantis-8135: Paused
   custom_message_status_undetermined_mantis-8305: ''
   custom_message_status_in_progress_mantis-8305: En progreso
   custom_message_status_undetermined_mmtan: ''
@@ -1466,4 +1471,4 @@ es:
   custom_message_status_false_watching-western-sahara: Falso
   custom_message_status_verified_watching-western-sahara: Verificado
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
-  custom_message_rule_action_send_message_0ccb1ccf34ecc6f45844909db8bac6eb_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''
