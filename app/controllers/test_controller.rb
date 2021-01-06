@@ -189,6 +189,14 @@ class TestController < ApplicationController
     render_success 'cache_key', { params[:key] => params[:value] }
   end
 
+  def suggest_similarity_item
+    Team.current = Team.find(params[:team_id])
+    pm1 = params[:pm1]
+    pm2 = params[:pm2]
+    create_relationship source_id: pm1, target_id: pm2 ,relationship_type: Relationship.suggested_type
+    render_success 'suggest_similarity', pm1
+  end
+
   protected
 
   def new_media(type)
