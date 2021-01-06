@@ -228,9 +228,7 @@ class Bot::Smooch < BotUser
     # Save Twitter token and authorization URL
     after_create do
       if self.bot_user.identifier == 'smooch'
-        token = SecureRandom.hex
-        self.set_smooch_authorization_token = token
-        self.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+        self.reset_smooch_authorization_token
         self.save!
       end
     end
@@ -1056,8 +1054,16 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.sanitize_installation(team_bot_installation)
+  def self.sanitize_installation(team_bot_installation, blast_secret_settings=false)
     team_bot_installation.apply_default_settings
+    team_bot_installation.reset_smooch_authorization_token
+    team_bot_installation
+    if blast_secret_settings
+      team_bot_installation.settings.delete("smooch_app_id")
+      team_bot_installation.settings.delete("smooch_secret_key_key_id")
+      team_bot_installation.settings.delete("smooch_secret_key_secret")
+      team_bot_installation.settings.delete("smooch_webhook_secret")
+    end
     team_bot_installation
   end
 end

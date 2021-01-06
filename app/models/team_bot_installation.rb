@@ -21,6 +21,12 @@ class TeamBotInstallation < TeamUser
     BotUser.where(id: self.user_id).last
   end
 
+  def reset_smooch_authorization_token
+    token = SecureRandom.hex
+    self.set_smooch_authorization_token = token
+    self.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+  end
+
   def apply_default_settings
     bot = self.bot_user
     if !bot.blank? && !bot.get_settings.blank?

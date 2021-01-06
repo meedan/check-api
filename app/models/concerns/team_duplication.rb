@@ -8,6 +8,7 @@ module TeamDuplication
     attr_accessor :mapping, :original_team, :copy_team
 
     def self.duplicate(t, custom_slug = nil, custom_name = nil)
+      @bot_ids = []
       @clones = []
       @project_id_map = {}
       @team_id = nil
@@ -26,6 +27,7 @@ module TeamDuplication
           self.alter_copy_by_type(original, copy)
         end
         self.process_team_bot_installations(t, team)
+        team = self.modify_settings(t, team)
         team = self.update_team_rules(team)
         Team.current = team
         self.add_current_user(team)
@@ -33,6 +35,14 @@ module TeamDuplication
         self.store_clones
         return team
       end
+    end
+
+    def self.modify_settings(old_team, new_team)
+      team_task_map = Hash[@clones.select{|x| x[:original].is_a?(TeamTask)}.collect{|x| [x[:original].id, x[:clone].id]}]
+      new_list_columns = old_team.get_list_columns.collect{|lc| lc.include?("task_value_") ? "task_value_#{team_task_map[lc.split("_").last.to_i]}" : lc}
+      new_team.set_list_columns = new_list_columns
+      new_team.set_languages = old_team.get_languages
+      new_team
     end
 
     def self.add_current_user(team)
@@ -76,8 +86,21 @@ module TeamDuplication
     def self.update_team_rules(new_team)
       (new_team.get_rules||[]).each do |rule|
         (rule["actions"]||[]).each do |action|
-          if action["action_definition"] == "move_to_project" || action["action_definition"] == "add_to_project"
-            action["action_value"] = @project_id_map[action["action_value"].to_i].to_s
+          if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
+            action["action_value"] = @project_id_map[action["action_value"].to_i]
+          end
+        end
+        (rule["conditions"]||[]).each do |condition|
+          if condition["rule_definition"] == "item_is_assigned_to_user"
+            if !User.current.nil?
+              if !(@bot_ids|[User.current.id]).include?(condition["rule_value"])
+                condition["rule_value"] = User.current.id
+              else
+                condition["rule_value"] = nil
+              end
+            else
+              condition["rule_value"] = nil
+            end
           end
         end
       end
@@ -86,14 +109,15 @@ module TeamDuplication
 
     def self.process_team_bot_installations(t, team)
       t.team_bot_installations.each do |tbi|
-        new_tbi = tbi.deep_clone
+        new_tbi = TeamBotInstallation.where(team: team, user: tbi.user).first || tbi.deep_clone
         new_tbi.team = team
         if new_tbi.user.name == "Smooch"
-          new_tbi = Bot::Smooch.sanitize_installation(new_tbi)
+          new_tbi = Bot::Smooch.sanitize_installation(new_tbi, true)
           new_tbi.settings["smooch_project_id"] = @project_id_map[tbi.settings["smooch_project_id"]]
           new_tbi.settings["smooch_workflows"] = tbi.settings["smooch_workflows"]
         end
         new_tbi.save(validate: false)
+        @bot_ids << new_tbi.user_id
       end
     end
 

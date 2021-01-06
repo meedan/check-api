@@ -760,6 +760,113 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t.avatar, pt.avatar
   end
 
+  test "should duplicate a team and copy team users and contacts" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    u1 = create_user
+    u2 = create_user
+    create_team_user team: team, user: u1, role: 'owner', status: 'member'
+    create_team_user team: team, user: u2, role: 'editor', status: 'invited'
+    create_contact team: team
+
+    RequestStore.store[:disable_es_callbacks] = true
+    team.set_languages = ["en", "pt", "es"]
+    team.save!
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamUser.where(team_id: copy.id).count
+    assert_equal 1, Contact.where(team_id: copy.id).count
+    assert_equal team.get_languages, copy.get_languages
+    # team attributes
+    assert_equal "#{team.slug}-copy-1", copy.slug
+    
+    %w(name archived private description).each do |att|
+      assert_equal team.send(att), copy.send(att)
+    end
+
+    # team users
+    assert_equal team.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }, copy.team_users.map { |tu| [tu.user.id, tu.role, tu.status] }
+
+    # contacts
+    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, TeamUser.where(team_id: team.id).count
+    assert_equal 1, Contact.where(team_id: team.id).count
+  end
+
+  test "should duplicate a team and copy project medias" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    u = create_user
+    project = create_project team: team, user: u
+    source = create_source user: u
+    source.team = team; source.save
+    account = create_account user: u, team: team, source: source
+
+
+    media = create_media account: account, user: u
+    pm1 = create_project_media user: u, team: team, project: project, media: media
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    assert_equal 1, Source.where(team_id: copy.id).count
+    assert_equal 1, team.project_medias.count
+
+    copy_p = copy.projects.find_by_title(project.title)
+
+    # sources
+    assert_equal team.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }, copy.sources.map { |s| [s.user.id, s.slogan, s.file.path ] }
+
+    # project medias
+    assert_equal copy.project_medias.map(&:media).sort, copy.project_medias.map(&:media).sort
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 1, Source.where(team_id: team.id).count
+    assert_equal 1, team.project_medias.count
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should duplicate a team and annotations" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+
+    create_comment annotated: pm
+    create_tag annotated: pm
+    create_flag annotated: pm
+
+    at = create_annotation_type annotation_type: 'response'
+    ft2 = create_field_type field_type: 'text'
+    create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
+
+    task = create_task annotated: pm, annotator: u
+    task.response = { annotation_type: 'response', set_fields: { response: 'Test' }.to_json }.to_json; task.save!
+    original_annotations_count = pm.annotations.size
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+
+    copy_pm = copy.project_medias.first
+
+    assert_equal ["comment", "flag", "tag", "task"], copy_pm.annotations.map(&:annotation_type).sort
+    assert_equal 1, copy_pm.annotations.where(annotation_type: 'task').count
+    copy_task = copy_pm.annotations.where(annotation_type: 'task').last
+    assert_equal 1, Annotation.where(annotated_id: copy_task, annotation_type: 'response').count
+    assert_equal original_annotations_count, copy_pm.annotations.size
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal original_annotations_count, ProjectMedia.find(pm.id).annotations.size
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
   test "should generate slug for copy based on original" do
     team1 = create_team slug: 'team-a'
     team2 = create_team slug: 'team-a-copy-1'
@@ -769,12 +876,76 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'team-a-copy-2', copy.slug
   end
 
+  test "should copy versions on team duplication" do
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p1 = create_project team: t
+      pm = create_project_media user: u, team: t, project: p1
+      p2 = create_project team: t
+      pmp = pm.project_media_projects.last
+      pmp.project_id = p2.id; pmp.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+      assert copy.is_a?(Team)
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
+  test "should copy versions on team duplication and destroy it when embed has previous version" do
+    [DynamicAnnotation::AnnotationType, DynamicAnnotation::FieldType, DynamicAnnotation::FieldInstance].each{ |klass| klass.delete_all }
+    create_annotation_type_and_fields('Metadata', { 'Value' => ['JSON', false] })
+    t = create_team
+    u = create_user
+    u.is_admin = true;u.save
+    create_team_user team: t, user: u, role: 'owner'
+    with_current_user_and_team(u, t) do
+      p = create_project team: t
+      pm1 = create_project_media user: u, team: t, project: p
+      pm2 = create_project_media user: u, team: t, project: p
+      e = create_metadata annotated: pm1, title: 'Foo', annotator: u
+      e = Dynamic.find(e.id)
+      e.title = 'bar'; e.annotated = pm2; e.save!
+      RequestStore.store[:disable_es_callbacks] = true
+      copy = Team.duplicate(t, u)
+
+      copy_pm1 = copy.project_medias.first
+      copy_pm2 = copy.project_medias.last
+      copy_e = copy_pm2.annotations('metadata').last.load.get_field('metadata_value')
+      v = copy_e.versions.last
+      assert_equal copy_e.id.to_s, v.item_id
+      assert_equal [copy_e.id, copy_pm2.id], [v.get_object['id'], v.associated_id]
+      obj_after = JSON.parse v.object_after
+      assert_equal [copy_e.id, copy_pm2.id], [obj_after['id'], v.associated_id]
+      assert copy.destroy!
+      RequestStore.store[:disable_es_callbacks] = false
+    end
+    User.current = nil
+  end
+
   test "should generate slug with 63 maximum chars" do
     team = create_team slug: 'lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-morbi-at'
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 'lorem-ipsumsit-amet-consectetur-adipiscing-elit-morbi-at-copy-1', copy.slug
+  end
+
+  test "should not copy invalid statuses" do
+    team = create_team
+    value = { 'default' => '1', 'active' => '1' }
+    team.set_media_verification_statuses(value)
+    assert !team.valid?
+    team.save(validate: false)
+    assert_equal value, team.get_media_verification_statuses
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.errors[:statuses].blank?
+    assert_equal team.get_media_verification_statuses, copy.get_media_verification_statuses
   end
 
   test "should not notify slack if is being copied" do
@@ -796,6 +967,52 @@ class TeamTest < ActiveSupport::TestCase
     Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
+  test "should duplicate team with duplicated source" do
+    team = create_team
+    user = create_user
+    source = create_source user: user, team: team
+    duplicated_source = source.dup
+    duplicated_source.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert Team.exists?(copy.id)
+  end
+
+  test "should copy comment image" do
+    team = create_team name: 'Team A'
+
+    project = create_project team: team, title: 'Project'
+    u = create_user
+    pm = create_project_media user: u, team: team, project: project
+    c = create_comment annotated: pm, file: 'rails.png'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_pm = copy.project_medias.first
+    copy_comment = copy_pm.get_annotations('comment').first.load
+    assert_match /^http/, copy_comment.file.file.public_url
+  end
+
+  test "should skip validation on team with big image" do
+    team = create_team
+    user = create_user
+    pm = create_project_media team: team, project: create_project(team: team)
+    c = create_comment annotated: pm
+    File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
+      c.file = f
+    end
+    c.save(validate: false)
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert copy.valid?
+  end
+
   test "should generate new token on duplication" do
     team = create_team
     project = create_project team: team
@@ -804,6 +1021,38 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
     copy_p = copy.projects.find_by_title(project.title)
     assert_not_equal project.token, copy_p.token
+  end
+
+  test "should duplicate a team when project is archived" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team
+
+    pm1 = create_project_media project: project
+    project.archived = true; project.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title(project.title)
+    assert_not_nil copy_p
+    assert_equal team.project_medias.map(&:media).sort, copy.project_medias.map(&:media).sort
+  end
+
+  test "should duplicate a team with sources and projects when team is archived" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    project = create_project team: team
+
+    source = create_source
+    source.team = team; source.save
+
+    team.archived = true; team.save!
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 1, Project.where(team_id: copy.id).count
+    assert_equal 1, Source.where(team_id: copy.id).count
   end
 
   test "should reset current team when team is deleted" do
@@ -822,13 +1071,12 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = true
     Airbrake.stubs(:configured?).returns(true)
     Airbrake.stubs(:notify).once
-    Team.any_instance.stubs(:save!).raises(RuntimeError)
-    assert_raise RuntimeError do
-      Team.duplicate(team)
-    end
+    Team.any_instance.stubs(:save).with(validate: false).raises(RuntimeError)
+
+    assert_nil Team.duplicate(team)
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
-    Team.any_instance.unstub(:save!)
+    Team.any_instance.unstub(:save)
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -896,83 +1144,77 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal [u.id], t.owners('owner').map(&:id)
   end
 
-  test "should duplicate a team and copy relevant objects" do
-    setup_smooch_bot
+  test "should destroy a duplicated team with project media" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    u = create_user
+    project = create_project team: team, user: u
+    create_team_user team: team, user: u, role: 'owner'
+    pm = nil
+    with_current_user_and_team(u, team) do
+      pm = create_project_media user: u, project: project
+      pm.archived = true ; pm.save
+    end
+    Team.current = User.current = nil
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    copy_pm = copy.project_medias.first
+    # TODO:Sawy fix
+    # assert_equal pm.versions.map(&:event_type).sort, copy_pm.versions.map(&:event_type).sort
+    assert_equal pm.versions.count, copy_pm.versions.count
+    assert_equal pm.get_versions_log.count, copy_pm.get_versions_log.count
+
+    assert_nothing_raised do
+      copy.destroy
+    end
+    RequestStore.store[:disable_es_callbacks] = false
+  end
+
+  test "should duplicate a team and copy relationships and versions" do
     team = create_team
-    smooch_bot = BotUser.last
-    smooch_bot.install_to!(team)
     u = create_user is_admin: true
     create_team_user team: team, user: u, role: 'owner'
     project = create_project team: team, user: u
     project2 = create_project team: team, user: u
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "title_matches_regexp",
-                "rule_value": "^start_with_title"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": project.id.to_s
-        }
-      ]
-    }
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "request_matches_regexp",
-                "rule_value": "^start_with_request"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": project2.id.to_s
-        }
-      ]
-    }
-    team.rules = rules.to_json
-    team.save!
-    tt = create_tag_text(team_id: team.id)
-    co = create_contact(team_id: team.id)
-    tt2 = create_team_task(team_id: team.id)
     RequestStore.store[:disable_es_callbacks] = true
     with_current_user_and_team(u, team) do
+      pm1 = create_project_media user: u, team: team, project: project
+      pm2 = create_project_media user: u, team: team, project: project
+      pm3 = create_project_media team: team
+      create_relationship source_id: pm1.id, target_id: pm2.id
+      # add pm1 to project2
+      create_project_media_project project: project2, project_media: pm1
+
+      assert_equal 1, Relationship.count
+      assert_equal [1, 0, 0, 1], [pm1.source_relationships.count, pm1.target_relationships.count, pm2.source_relationships.count, pm2.target_relationships.count]
+      version =  pm1.get_versions_log(['create_relationship']).first
+      changes = version.get_object_changes
+      assert_equal [[nil, pm1.id], [nil, pm2.id], [nil, pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal pm2.full_url, JSON.parse(version.meta)['target']['url']
+      assert_equal [pm1.id, pm2.id, pm3.id].sort, team.project_medias.map(&:id).sort
+      assert_equal [pm1.id, pm2.id], project.project_medias.map(&:id).sort
+      assert_equal [pm1.id], project2.project_medias.map(&:id)
+
       copy = Team.duplicate(team)
-      assert_equal 0, copy.project_medias.count
+      assert_equal 3, copy.project_medias.count
+      copy_pm1 = copy.project_medias.where(media_id: pm1.media.id).first
+      copy_pm2 = copy.project_medias.where(media_id: pm2.media.id).first
+      copy_pm3 = copy.project_medias.where(media_id: pm3.media.id).first
+      assert_not_nil copy_pm1
+      assert_not_nil copy_pm2
+      assert_not_nil copy_pm3
       copy_p = copy.projects.find_by_title(project.title)
       copy_p2 = copy.projects.find_by_title(project2.title)
       assert_not_nil copy_p
-      assert_not_nil copy_p2
-      assert_equal tt.text, copy.tag_texts.first.text
-      assert_equal co.location, copy.contacts.first.location
-      assert_equal tt2.label, copy.team_tasks.first.label
-      assert_equal team.team_bot_installations.first.user_id, copy.team_bot_installations.first.user_id
-      assert_equal team.users.first.id, copy.users.first.id
-      assert_equal 0, Relationship.count
+      assert_not_nil copy_p
+      assert_equal [copy_pm1.id, copy_pm2.id].sort, copy_p.project_medias.map(&:id).sort
+      assert_equal [copy_pm1.id], copy_p2.project_medias.map(&:id)
+
+      assert_equal 2, Relationship.count
+      assert_equal [1, 0, 0, 1], [copy_pm1.source_relationships.count, copy_pm1.target_relationships.count, copy_pm2.source_relationships.count, copy_pm2.target_relationships.count]
+      version =  copy_pm1.reload.get_versions_log(['create_relationship']).first.reload
+      changes = version.get_object_changes
+      assert_equal [[nil, copy_pm1.id], [nil, copy_pm2.id], [nil, copy_pm1.source_relationships.first.id]], [changes['source_id'], changes['target_id'], changes['id']]
+      assert_equal copy_pm2.full_url, JSON.parse(version.meta)['target']['url']
     end
     RequestStore.store[:disable_es_callbacks] = false
   end
@@ -1019,6 +1261,24 @@ class TeamTest < ActiveSupport::TestCase
     assert_difference 'TeamTask.count', -2 do
       t.destroy!
     end
+  end
+
+  test "should duplicate a team and copy team tasks" do
+    team = create_team name: 'Team A', logo: 'rails.png'
+    create_team_task team_id: team.id, label: 'Foo'
+    create_team_task team_id: team.id, label: 'Bar'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+    assert_equal 2, TeamTask.where(team_id: copy.id).count
+
+    assert_equal team.team_tasks.map(&:label).sort, copy.team_tasks.map(&:label).sort
+
+    assert_difference 'Team.count', -1 do
+      copy.destroy
+    end
+    assert_equal 2, TeamTask.where(team_id: team.id).count
   end
 
   test "should have teams with the same slug" do
@@ -2506,7 +2766,7 @@ class TeamTest < ActiveSupport::TestCase
       "actions": [
         {
           "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_value": p1.id
         }
       ]
     }
