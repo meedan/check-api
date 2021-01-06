@@ -454,5 +454,6 @@ class TestControllerTest < ActionController::TestCase
     assert_equal [], pm2.sources
     assert_equal [], pm3.sources
     assert_equal [], pm1.sources
+    Rails.unstub(:env)
   end
 end
