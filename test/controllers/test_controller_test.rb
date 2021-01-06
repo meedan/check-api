@@ -432,6 +432,7 @@ class TestControllerTest < ActionController::TestCase
     pm3 = create_project_media project: p
     get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 200
     assert pm1.targets.include? pm2
     assert pm1.targets.include? pm3
     assert_equal [pm1], pm2.sources
@@ -449,6 +450,7 @@ class TestControllerTest < ActionController::TestCase
     pm3 = create_project_media project: p
     get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 400
     assert_not pm1.targets.include? pm2
     assert_not pm1.targets.include? pm3
     assert_equal [], pm2.sources
