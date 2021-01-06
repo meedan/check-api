@@ -438,7 +438,8 @@ class TestControllerTest < ActionController::TestCase
     assert_equal [pm1], pm3.sources
   end
 
-  test "should not have similarity between items by default" do
+  test "should not create similarity items if not in test mode" do
+    Rails.stubs(:env).returns('development')
     u = create_user
     t = create_team
     create_team_user team: t, user: u
@@ -446,6 +447,8 @@ class TestControllerTest < ActionController::TestCase
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
     pm3 = create_project_media project: p
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
     assert_not pm1.targets.include? pm2
     assert_not pm1.targets.include? pm3
     assert_equal [], pm2.sources
