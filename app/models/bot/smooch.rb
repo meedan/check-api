@@ -837,16 +837,16 @@ class Bot::Smooch < BotUser
     Rails.cache.write("smooch:banned:#{uid}", message.to_json)
   end
 
-  # Don't save if it contains only menu options
+  # Don't save as a ProjectMedia if it contains only menu options
   def self.is_a_valid_text_message?(text)
     !text.split(/#{MESSAGE_BOUNDARY}|\s+/).reject{ |m| m =~ /^[0-9]*$/ }.empty?
   end
 
   def self.save_text_message(message)
     text = message['text']
-    team_id = Team.where(id: config['team_id'].to_i).last
+    team = Team.where(id: config['team_id'].to_i).last
 
-    return nil unless self.is_a_valid_text_message?(text)
+    return team unless self.is_a_valid_text_message?(text)
 
     begin
       url = self.extract_url(text)
@@ -855,10 +855,10 @@ class Bot::Smooch < BotUser
       if url.nil?
         claim = self.extract_claim(text)
         extra = { quote: claim }
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team_id).last
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
         extra = { url: url }
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team.id).last
       end
 
       if pm.nil?
