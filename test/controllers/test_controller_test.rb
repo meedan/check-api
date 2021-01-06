@@ -421,4 +421,41 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should create similarity items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 200
+    assert pm1.targets.include? pm2
+    assert pm1.targets.include? pm3
+    assert_equal [pm1], pm2.sources
+    assert_equal [pm1], pm3.sources
+  end
+
+  test "should not create similarity items if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 400
+    assert_not pm1.targets.include? pm2
+    assert_not pm1.targets.include? pm3
+    assert_equal [], pm2.sources
+    assert_equal [], pm3.sources
+    assert_equal [], pm1.sources
+    Rails.unstub(:env)
+  end
 end
