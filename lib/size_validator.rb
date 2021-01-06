@@ -7,7 +7,7 @@ class SizeValidator < ActiveModel::EachValidator
   }.with_indifferent_access
 
   def self.config(key)
-    CONFIG["image_#{key}"] || DEFAULTS[key]
+    CheckConfig.get("image_#{key}") || DEFAULTS[key]
   end
 
   def invalid_size?(w, h)

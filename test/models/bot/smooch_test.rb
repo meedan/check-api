@@ -411,7 +411,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
           'confidence': 1.0
         }
       }.to_json)
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host']]
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host')]
       assert_equal 'en', Bot::Smooch.get_language({ 'text' => 'This is just a test' })
     end
   end

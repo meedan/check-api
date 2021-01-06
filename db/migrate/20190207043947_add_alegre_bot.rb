@@ -10,8 +10,8 @@ class AddAlegreBot < ActiveRecord::Migration
     meedan_team.skip_check_ability = true
     meedan_team.save!
 
-    config = CONFIG['clamav_service_path']
-    CONFIG['clamav_service_path'] = nil
+    config = CheckConfig.get('clamav_service_path')
+    CheckConfig.set('clamav_service_path', nil)
 
     Team.current = meedan_team
     tb = BotUser.new
@@ -21,7 +21,7 @@ class AddAlegreBot < ActiveRecord::Migration
     File.open(File.join(Rails.root, 'public', 'alegre.png')) do |f|
       tb.image = f
     end
-    tb.set_request_url CONFIG['checkdesk_base_url_private'] + '/api/bots/alegre'
+    tb.set_request_url CheckConfig.get('checkdesk_base_url_private') + '/api/bots/alegre'
     tb.set_role 'editor'
     tb.set_version '0.0.1'
     tb.set_source_code_url 'https://github.com/meedan/check-api/blob/develop/app/models/bot/alegre.rb'
@@ -32,8 +32,8 @@ class AddAlegreBot < ActiveRecord::Migration
     tb.set_limited true
     tb.save!
     Team.current = nil
-    
-    CONFIG['clamav_service_path'] = config
+
+    CheckConfig.set('clamav_service_path', config)
 
     RequestStore.store[:skip_notifications] = false
   end
