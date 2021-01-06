@@ -762,7 +762,9 @@ pt:
     RSS.
   list_column_demand: Solicitações
   list_column_share_count: Compartilhamentos do Facebook
-  list_column_linked_items_count: Relacionado
+  list_column_reaction_count: Reações no Facebook
+  list_column_comment_count: Comentários no Facebook
+  list_column_linked_items_count: Similar media
   list_column_type: Tipo
   list_column_status: Status
   list_column_created_at: Enviado
@@ -771,6 +773,8 @@ pt:
   list_column_report_status: Status do relatório
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Mídia publicada
+  list_column_related_count: Relacionado
+  list_column_suggestions_count: Coincidências sugeridas
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1070,7 +1074,7 @@ pt:
   custom_message_status_false_infotagion: Não É Verdade
   custom_message_status_misleading_infotagion: Enganoso
   custom_message_status_true_infotagion: Verdadeiro
-  custom_message_status_unconfirmed_infotagion: ''
+  custom_message_status_unconfirmed_infotagion: Não confirmado
   custom_message_status_undetermined_africa-check: Não Iniciado
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''

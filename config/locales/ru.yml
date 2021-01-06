@@ -760,7 +760,9 @@ ru:
   cant_preview_rss_feed: Извините, у вас нет доступа к предпросмотру RSS-ленты.
   list_column_demand: Запросы
   list_column_share_count: Репосты FB
-  list_column_linked_items_count: Связанные
+  list_column_reaction_count: Реакции FB
+  list_column_comment_count: Комментарии FB
+  list_column_linked_items_count: Похожие медиа-файлы
   list_column_type: Тип
   list_column_status: Статус
   list_column_created_at: Отправлено
@@ -769,6 +771,7 @@ ru:
   list_column_report_status: Статус отчёта
   list_column_tags_as_sentence: Тэги
   list_column_media_published_at: Опубликовано
+  list_column_related_count: Связанные
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''

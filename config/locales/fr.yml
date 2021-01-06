@@ -781,7 +781,9 @@ fr:
   cant_preview_rss_feed: Désolé, vous n’êtes pas autorisé à voir l’aperçu d’un fil RSS.
   list_column_demand: Demandes
   list_column_share_count: Partages sur Facebook
-  list_column_linked_items_count: Associés
+  list_column_reaction_count: Réactions sur Facebook
+  list_column_comment_count: Commentaires sur Facebook
+  list_column_linked_items_count: Médias semblables
   list_column_type: Type
   list_column_status: État
   list_column_created_at: Envoyé
@@ -790,6 +792,8 @@ fr:
   list_column_report_status: État du rapport
   list_column_tags_as_sentence: Balises
   list_column_media_published_at: Média publié
+  list_column_related_count: Associés
+  list_column_suggestions_count: Correspondances suggérées
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -1128,7 +1132,7 @@ fr:
   custom_message_status_false_infotagion: Faux
   custom_message_status_misleading_infotagion: Trompeur
   custom_message_status_true_infotagion: ''
-  custom_message_status_unconfirmed_infotagion: ''
+  custom_message_status_unconfirmed_infotagion: Non confirmés
   custom_message_status_undetermined_africa-check: Non commencé
   custom_message_status_in_progress_africa-check: ''
   custom_message_status_false_africa-check: ''

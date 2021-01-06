@@ -405,6 +405,9 @@ class Bot::Smooch < BotUser
     language = self.get_user_language(message, state)
     workflow = self.get_workflow(language)
     message['language'] = language
+
+    state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
+
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
@@ -502,7 +505,7 @@ class Bot::Smooch < BotUser
     end
     bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
     if type == 'default_requests'
-      self.discard_or_process_message(bundle, app_id)
+      self.process_message(bundle, app_id)
     elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
       key = "smooch:banned:#{bundle['authorId']}"
       self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
@@ -832,9 +835,16 @@ class Bot::Smooch < BotUser
     Rails.cache.write("smooch:banned:#{uid}", message.to_json)
   end
 
+  # Don't save if it contains only menu options
+  def self.is_a_valid_text_message?(text)
+    !text.split(/#{MESSAGE_BOUNDARY}|\s+/).reject{ |m| m =~ /^[0-9]*$/ }.empty?
+  end
+
   def self.save_text_message(message)
     text = message['text']
     team_id = Team.where(id: config['team_id'].to_i).last
+
+    return nil unless self.is_a_valid_text_message?(text)
 
     begin
       url = self.extract_url(text)
@@ -893,7 +903,7 @@ class Bot::Smooch < BotUser
     if message['type'] == 'file'
       message['mediaType'] = self.detect_media_type(message)
       m = message['mediaType'].to_s.match(/^(image|video|audio)\//)
-      message['type'] = m[1] unless  m.nil?
+      message['type'] = m[1] unless m.nil?
     end
     allowed_types = { 'image' => 'jpeg', 'video' => 'mp4', 'audio' => 'mp3' }
     return unless allowed_types.keys.include?(message['type'])
