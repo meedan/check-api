@@ -74,6 +74,7 @@ module TeamDuplication
         self.alter_project_copy(copy)
       elsif original.is_a?(TagText)
         copy.team_id = @team_id if !@team_id.nil?
+        copy.tags_count = 0
       end
       copy.save!
       if original.is_a?(Project)
@@ -84,6 +85,7 @@ module TeamDuplication
     end
 
     def self.update_team_rules(new_team)
+      team_task_map = Hash[@clones.select{ |c| c[:original].is_a?(TeamTask) }.collect{ |tt| [tt[:original].id, tt[:clone].id] }]
       new_team.get_rules.to_a.each do |rule|
         rule["actions"].to_a.each do |action|
           if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
@@ -92,9 +94,10 @@ module TeamDuplication
         end
         rule.dig("rules", "groups").to_a.each do |group|
           group["conditions"].each do |condition|
-            if condition["rule_definition"] == "item_is_assigned_to_user"
+            if ["item_is_assigned_to_user", "item_user_is"].include?(condition["rule_definition"])
               condition["rule_value"] = (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(condition["rule_value"])) ? User.current.id : nil
             end
+            condition["rule_value"]["team_task_id"] = team_task_map[condition["rule_value"]["team_task_id"]] if condition["rule_definition"].match(/^field_from_fieldset/)
           end
         end
       end
