@@ -432,13 +432,6 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.get_message_for_state(workflow, state, language)
-    message = []
-    message << self.tos_message(workflow, language) if state.to_s == 'main'
-    message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-    message.join("\n\n")
-  end
-
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -1064,10 +1057,9 @@ class Bot::Smooch < BotUser
     end
   end
 
-  def self.sanitize_installation(team_bot_installation, blast_secret_settings=false)
+  def self.sanitize_installation(team_bot_installation, blast_secret_settings = false)
     team_bot_installation.apply_default_settings
     team_bot_installation.reset_smooch_authorization_token
-    team_bot_installation
     if blast_secret_settings
       team_bot_installation.settings.delete("smooch_app_id")
       team_bot_installation.settings.delete("smooch_secret_key_key_id")

@@ -84,23 +84,15 @@ module TeamDuplication
     end
 
     def self.update_team_rules(new_team)
-      (new_team.get_rules||[]).each do |rule|
-        (rule["actions"]||[]).each do |action|
+      new_team.get_rules.to_a.each do |rule|
+        rule["actions"].to_a.each do |action|
           if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
             action["action_value"] = @project_id_map[action["action_value"].to_i]
           end
         end
-        (rule["conditions"]||[]).each do |condition|
+        rule["conditions"].to_a.each do |condition|
           if condition["rule_definition"] == "item_is_assigned_to_user"
-            if !User.current.nil?
-              if !(@bot_ids|[User.current.id]).include?(condition["rule_value"])
-                condition["rule_value"] = User.current.id
-              else
-                condition["rule_value"] = nil
-              end
-            else
-              condition["rule_value"] = nil
-            end
+            condition["rule_value"] = (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(condition["rule_value"])) ? User.current.id : nil
           end
         end
       end
