@@ -147,7 +147,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create link if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -162,7 +162,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not create link if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     Rails.stubs(:env).returns('development')
@@ -204,7 +204,7 @@ class TestControllerTest < ActionController::TestCase
   test "should set media status if in test mode" do
     create_verification_status_stuff
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -218,7 +218,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not set media status if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -234,7 +234,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should set media tag if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -248,7 +248,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should not set media tag if not in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -293,7 +293,7 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create task if in test mode" do
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -308,7 +308,7 @@ class TestControllerTest < ActionController::TestCase
   test "should not create task if not in test mode" do
     Rails.stubs(:env).returns('development')
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_user
@@ -419,6 +419,43 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     get :new_team_data_field,{ team_id: t.id, fieldset: 'metadata'}
     assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create similarity items" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 200
+    assert pm1.targets.include? pm2
+    assert pm1.targets.include? pm3
+    assert_equal [pm1], pm2.sources
+    assert_equal [pm1], pm3.sources
+  end
+
+  test "should not create similarity items if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    p = create_project team: t
+    pm1 = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm2, team_id: t.id }
+    get :suggest_similarity_item, { pm1: pm1, pm2: pm3, team_id: t.id }
+    assert_response 400
+    assert_not pm1.targets.include? pm2
+    assert_not pm1.targets.include? pm3
+    assert_equal [], pm2.sources
+    assert_equal [], pm3.sources
+    assert_equal [], pm1.sources
     Rails.unstub(:env)
   end
 end

@@ -84,7 +84,7 @@
                         <div class="media-info" style="padding-left: 30px; padding-right: 30px; text-align: <%= @direction[:align] %>;">
                           <div>
                             <span class="span text-bold" style="font-size: 15px; font-weight: bold !important; line-height: 15px;">
-                              <%= I18n.t("mails_notifications.media_status.added_to", app_name: CONFIG['app_name']) %>
+                              <%= I18n.t("mails_notifications.media_status.added_to", app_name: CheckConfig.get('app_name')) %>
                             </span>
                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                               <tr>
@@ -250,7 +250,7 @@
                 <%= link_to(I18n.t("mails_notifications.project_view"), @info[:project_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>
                  • 
                 <%= I18n.t("mails_notifications.unsubscribe_link", 
-                    unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CONFIG['checkdesk_client']}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
+                    unsubscribe: link_to(I18n.t("mails_notifications.unsubscribe"), "#{CheckConfig.get('checkdesk_client')}/check/me/edit", :class => "link", :style => "color: #0d6cf7 !important; text-decoration: none;")).html_safe %>
                 <br>
               </p>
             </th>

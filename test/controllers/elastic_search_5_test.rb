@@ -14,16 +14,24 @@ class ElasticSearch5Test < ActionController::TestCase
   end
 
   test "should search for parent items only" do
-    p = create_project
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
     pm1 = create_project_media disable_es_callbacks: false, project: p
     pm2 = create_project_media disable_es_callbacks: false, project: p
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
     result = CheckSearch.new({}.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
+    # detach and assign to specific list
+    r.add_to_project_id = p2.id
+    r.destroy
+    sleep 2
+    result = $repository.find(get_es_id(pm2))
+    assert_equal [p.id, p2.id], result['project_id'].sort
   end
 
   test "should reindex data" do
@@ -37,7 +45,7 @@ class ElasticSearch5Test < ActionController::TestCase
     MediaSearch.delete_index target_index
     MediaSearch.create_index(target_index, false)
     m = create_media_search
-    url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"
+    url = "http://#{CheckConfig.get('elasticsearch_host')}:#{CheckConfig.get('elasticsearch_port')}"
     client = Elasticsearch::Client.new(url: url)
     repository = MediaSearch.new(client: client, index_name: source_index)
     results = repository.search(query: { match_all: { } }, size: 10000)

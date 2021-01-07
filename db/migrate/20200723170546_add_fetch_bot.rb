@@ -16,7 +16,7 @@ class AddFetchBot < ActiveRecord::Migration
     File.open(File.join(Rails.root, 'public', 'fetch.png')) do |f|
       tb.image = f
     end
-    tb.set_request_url CONFIG['checkdesk_base_url_private'] + '/api/bots/fetch'
+    tb.set_request_url CheckConfig.get('checkdesk_base_url_private') + '/api/bots/fetch'
     tb.set_role 'editor'
     tb.set_version '0.0.1'
     tb.set_source_code_url 'https://github.com/meedan/check-api/blob/develop/app/models/bot/fetch.rb'

@@ -8,7 +8,7 @@ class AdminMailer < ApplicationMailer
       @project = obj.title
       @team = obj.team.name
       @link = link
-      @days = CONFIG['export_download_expiration_days'] || 7
+      @days = CheckConfig.get('export_download_expiration_days', 7)
       @password = password
       @type = type
       recipients = obj.team.owners('owner', ['member']).where.not(email: [nil, '', email]).to_a
@@ -30,7 +30,7 @@ class AdminMailer < ApplicationMailer
     @link = CheckS3.public_url(link)
     Rails.logger.info "[Data Import/Export] Sending e-mail to #{email} with download link #{@link} related to team #{slug}"
     @team = slug
-    @days = CONFIG['export_download_expiration_days'] || 7
+    @days = CheckConfig.get('export_download_expiration_days', 7)
     @password = password
     mail(to: email, subject: I18n.t("mails_notifications.admin_mailer.team_download_subject", team: @team))
   end

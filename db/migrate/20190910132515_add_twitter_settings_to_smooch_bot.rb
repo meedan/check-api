@@ -12,7 +12,7 @@ class AddTwitterSettingsToSmoochBot < ActiveRecord::Migration
       TeamBotInstallation.where(user_id: tb.id).each do |tbi|
         token = SecureRandom.hex
         tbi.set_smooch_authorization_token = token
-        tbi.set_smooch_twitter_authorization_url = "#{CONFIG['checkdesk_base_url']}/api/users/auth/twitter?context=smooch&destination=#{CONFIG['checkdesk_base_url']}/api/admin/smooch_bot/#{tbi.id}/authorize/twitter?token=#{token}"
+        tbi.set_smooch_twitter_authorization_url = "#{CheckConfig.get('checkdesk_base_url')}/api/users/auth/twitter?context=smooch&destination=#{CheckConfig.get('checkdesk_base_url')}/api/admin/smooch_bot/#{tbi.id}/authorize/twitter?token=#{token}"
         tbi.save!
       end
     end

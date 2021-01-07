@@ -54,7 +54,7 @@ class WebhooksControllerTest < ActionController::TestCase
     Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -73,7 +73,7 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_equal [], f.keys
 
     payload = { type: 'screenshot', url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
     post :index, name: :keep
@@ -88,7 +88,7 @@ class WebhooksControllerTest < ActionController::TestCase
     Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -107,7 +107,7 @@ class WebhooksControllerTest < ActionController::TestCase
     assert_equal [], f.keys
 
     payload = { url: 'http://anothertest.com', screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
     post :index, name: :keep
@@ -121,13 +121,13 @@ class WebhooksControllerTest < ActionController::TestCase
   test "should not save Pender response through webhook if there is no project media" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
     post :index, name: :keep
@@ -139,7 +139,7 @@ class WebhooksControllerTest < ActionController::TestCase
     Team.any_instance.stubs(:get_limits_keep).returns(true)
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -159,7 +159,7 @@ class WebhooksControllerTest < ActionController::TestCase
     a.destroy
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
     post :index, name: :keep
@@ -171,7 +171,7 @@ class WebhooksControllerTest < ActionController::TestCase
   test "should not save Pender response through webhook if team is not allowed" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -185,7 +185,7 @@ class WebhooksControllerTest < ActionController::TestCase
     pm.create_all_archive_annotations
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
     post :index, name: :keep

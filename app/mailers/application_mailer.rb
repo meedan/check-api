@@ -1,5 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: CONFIG['default_mail']
+  default from: CheckConfig.get('default_mail')
   layout 'mailer'
 
   def self.set_template_direction

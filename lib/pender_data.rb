@@ -10,7 +10,7 @@ module PenderData
       result = { type: 'error', data: { code: -1 } }.with_indifferent_access
       pender_key = get_pender_key
       begin
-        result = PenderClient::Request.get_medias(CONFIG['pender_url_private'], params, pender_key)
+        result = PenderClient::Request.get_medias(CheckConfig.get('pender_url_private'), params, pender_key)
       rescue StandardError => e
         Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
         Airbrake.notify(e, params: params) if Airbrake.configured?
@@ -100,6 +100,6 @@ module PenderData
   end
 
   def get_pender_key
-    self.pender_key || CONFIG['pender_key']
+    self.pender_key || CheckConfig.get('pender_key')
   end
 end

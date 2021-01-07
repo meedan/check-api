@@ -795,6 +795,7 @@ fil:
   list_column_tags_as_sentence: Mga tag
   list_column_media_published_at: Nailathala ang media
   list_column_related_count: Magkaugnay
+  list_column_suggestions_count: Mga iminumungkahing tugma
   custom_message_status_undetermined_afp-checamos: ''
   custom_message_status_in_progress_afp-checamos: ''
   custom_message_status_inconclusive_afp-checamos: ''
@@ -897,54 +898,11 @@ fil:
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_boom-factcheck: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_boom-factcheck: ''
   custom_message_rule_action_send_message_f26f0abb9bb6b4d6c2b65470347a8037_boom-factcheck: ''
-  custom_message_status_undetermined_boom: ''
-  custom_message_status_factchecked_boom: ''
   custom_message_status_undetermined_boom-test: ''
   custom_message_status_factchecked_boom-test: ''
+  custom_message_status_undetermined_boom: ''
+  custom_message_status_factchecked_boom: ''
   custom_message_status_unstarted_check-bot-garden: Hindi pa nasisimulan
-  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
-    sa iyo ay *in-update* ng bagong impormasyon:"
-  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
-    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
-    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
-    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
-    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
-    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
-  custom_message_smooch_bot_message_type_unsupported_caio: |-
-    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
-
-    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
-  custom_message_smooch_bot_disabled_caio: |-
-    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
-
-    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
-  custom_message_smooch_bot_ask_for_tos_caio: ''
-  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
-    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
-    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
-    at teknolohiya.
-  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
-    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
-  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
-    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
-    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
-    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
-    disease (COVID-19)"
-  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
-    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
-    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
-    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
-    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
-    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
-    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
-    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
-    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
-  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
-    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
-    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
-    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
-    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
-    Talaan*"
   custom_message_smooch_bot_result_changed_test-1: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-1: "Salamat! Naitala na ang iyong
@@ -988,6 +946,49 @@ fil:
     kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
     ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
     Talaan*"
+  custom_message_smooch_bot_result_changed_caio: "❗️Ang fact-check na ipinadala namin
+    sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_caio: "Salamat! Naitala na ang iyong
+    kahilingan. Pinagsasama-sama at inaayos na ang mga tugon, at itinatrabaho na namin
+    ang pagfa-fact check sa iyong mga katanungan.\n\n✔️*Sundan ang link na ito para
+    sa naka-update na listahan ng mga karaniwang katanungang nai-fact-check na namin.*
+    [ Link sa pahina ng mga fact-check sa iyong website ]\n\n\U0001F449 Tumugon ng
+    kahit anong teksto para makabalik sa *Pangunahing Talaan*"
+  custom_message_smooch_bot_message_type_unsupported_caio: |-
+    ❌Paumanhin, sa ngayon, hindi kami nakatatanggap ng ganitong uri ng mensahe para sa beripikasyon.
+
+    Tumatanggap kami ng karamihan ng larawan, video, link, mensaheng teksto, at mga mensaheng nakabahagi sa WhatsApp.
+  custom_message_smooch_bot_disabled_caio: |-
+    ❌Salamat sa iyong mensahe. Kasalukuyang *inactive* ang aming serbisyong pang-fact-check.
+
+    Makipag-ugnay sa amin sa *[email o iba pang contact]* para sa karagdagang katanungan.
+  custom_message_smooch_bot_ask_for_tos_caio: ''
+  custom_message_smooch_bot_greetings_caio: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_caio: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
+  custom_message_smooch_bot_smooch_state_main_smooch_menu_message_caio: "\U0001F4CC*Pangunahing
+    Talaan*\n\n*Tumugon ng 1* (o \U0001F50D) para mag-sumite ng kahilingan para sa
+    pag-fact-check ng artikulo, video, larawan, o iba pang kontent.\n*Tumugon ng 2*
+    (o \U0001F9A0) para makakuha ng pinakabagong impormasyon tungkol sa coronavirus
+    disease (COVID-19)"
+  custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_caio: "*Impormasyon
+    tungkol sa Coronavirus disease (COVID-19)* \U0001F9A0\n\n\U0001F449*Tumugon gamit
+    ang alinman sa mga sumusunod na bilang (o emoji) para makakuha ng impormasyon
+    tungkol sa paksang iyon:*\n\n*1:* Paano ko mapangangalagaan ang sarili at/o ang
+    aking pamilya?* \U0001F468‍\U0001F469‍\U0001F467\n*2:* Tila magkakasakit na yata
+    ako \U0001F912\n*3:* Paano ko kakayanin ang stress na kaugnay ng COVID-19? ❤️\n*4:*
+    Impormasyon tungkol sa mga kaso at paggaling sa buong mundo  \U0001F4CA\n*5:*
+    Ang mga pinakabagong update mula sa World Health Organization \U0001F310\n\n*Tumugon
+    ng 0* para makabalik sa *Pangunahing Talaan* \U0001F4CC"
+  custom_message_smooch_bot_smooch_state_query_smooch_menu_message_caio: "*Mangyaring
+    ilagay ang katanungan, link, larawan, o video na nais mong ipa-fact-check,* kasunod
+    ang anumang konteksto o dagdag na katanungang kaugnay ng item na iyon. Ang iyong
+    kahilingan ay ipadadala sa mga fact-checker halos 30 segundo matapos mong maipadala
+    ang iyong huling mensahe.\n\n*Tumugon ng 0 (o \U0001F4CC)* para makabalik sa *Pangunahing
+    Talaan*"
   custom_message_status_undetermined_check-message-demo: Hindi pa nasisimulan
   custom_message_status_in_progress_check-message-demo: Kasalukuyang Ginagawa
   custom_message_status_inconclusive_check-message-demo: ''
@@ -1017,6 +1018,7 @@ fil:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
+  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: ''
@@ -1279,6 +1281,18 @@ fil:
     Talaan*"
   custom_message_rule_action_send_message_38f5c24717fedaa404babb0c4710152e_team-1: ''
   custom_message_smooch_bot_ask_for_tos_team456: ''
+  custom_message_smooch_bot_result_changed_test-3: "❗️Ang fact-check na ipinadala
+    namin sa iyo ay *in-update* ng bagong impormasyon:"
+  custom_message_smooch_bot_message_confirmed_test-3: ''
+  custom_message_smooch_bot_message_type_unsupported_test-3: ''
+  custom_message_smooch_bot_disabled_test-3: ''
+  custom_message_smooch_bot_ask_for_tos_test-3: ''
+  custom_message_smooch_bot_greetings_test-3: Kumusta? Maligayang pagdating sa fact-checking
+    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
+    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
+    at teknolohiya.
+  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Paumanhin, hindi
+    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_result_changed_test: "❗️Ang fact-check na ipinadala namin
     sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test: "Salamat! Naitala na ang iyong
@@ -1324,18 +1338,6 @@ fil:
     Talaan*"
   custom_message_rule_action_send_message_233f1ef50650cf42a68e62c83a6a4db6_test: ''
   custom_message_rule_action_send_message_c62da88381e0c6538e2cd2a68eb4afba_test: ''
-  custom_message_smooch_bot_result_changed_test-3: "❗️Ang fact-check na ipinadala
-    namin sa iyo ay *in-update* ng bagong impormasyon:"
-  custom_message_smooch_bot_message_confirmed_test-3: ''
-  custom_message_smooch_bot_message_type_unsupported_test-3: ''
-  custom_message_smooch_bot_disabled_test-3: ''
-  custom_message_smooch_bot_ask_for_tos_test-3: ''
-  custom_message_smooch_bot_greetings_test-3: Kumusta? Maligayang pagdating sa fact-checking
-    bot ng [Pangalan ng iyong organisasyon]. Nagfa-fact-check kami ng mga pahayag,
-    video, at larawang may kaugnayan sa mga paksa tulad ng pulitika, kalusugan, pananalapi,
-    at teknolohiya.
-  custom_message_smooch_bot_option_not_available_test-3: "\U0001F916Paumanhin, hindi
-    ko naintindihan ang iyong mensahe. Mangyaring sumubok muli!"
   custom_message_smooch_bot_result_changed_test-16: "❗️Ang fact-check na ipinadala
     namin sa iyo ay *in-update* ng bagong impormasyon:"
   custom_message_smooch_bot_message_confirmed_test-16: ''
@@ -1412,4 +1414,4 @@ fil:
   custom_message_status_false_watching-western-sahara: Mali
   custom_message_status_verified_watching-western-sahara: Beripikado
   custom_message_rule_action_send_message_75c054be4ed982db4c6dfa3ae5d87b87_webqoof: ''
-  custom_message_rule_action_send_message_0ccb1ccf34ecc6f45844909db8bac6eb_webqoof: ''
+  custom_message_rule_action_send_message_c1fec060998ac9c8f98a9d17f4677ec7_webqoof: ''

@@ -38,10 +38,10 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       api_instance = SmoochApi::IntegrationApi.new(api_client)
       params = {
         'type' => 'twitter',
-        'tier' => CONFIG['smooch_twitter_tier'],
-        'envName' => CONFIG['smooch_twitter_env_name'],
-        'consumerKey' => CONFIG['smooch_twitter_consumer_key'],
-        'consumerSecret' => CONFIG['smooch_twitter_consumer_secret'],
+        'tier' => CheckConfig.get('smooch_twitter_tier'),
+        'envName' => CheckConfig.get('smooch_twitter_env_name'),
+        'consumerKey' => CheckConfig.get('smooch_twitter_consumer_key'),
+        'consumerSecret' => CheckConfig.get('smooch_twitter_consumer_secret'),
         'accessTokenKey' => auth['token'],
         'accessTokenSecret' => auth['secret'],
         'displayName' => 'Twitter'

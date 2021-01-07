@@ -17,7 +17,7 @@ module CheckPusher
     end
 
     def send_to_pusher(channels, event, data, actor_session_id)
-      ::Pusher.trigger(channels, event, { message: data, actor_session_id: actor_session_id }) unless CONFIG['pusher_key'].blank?
+      ::Pusher.trigger(channels, event, { message: data, actor_session_id: actor_session_id }) unless CheckConfig.get('pusher_key').blank?
     end
 
     def pusher_options=(options)

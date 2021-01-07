@@ -4,18 +4,18 @@ class AccountTest < ActiveSupport::TestCase
   def setup
     super
     @url = 'https://www.youtube.com/user/MeedanTube'
-    WebMock.stub_request(:get, CONFIG['pender_url_private'] + '/api/medias?url=https://www.youtube.com/user/MeedanTube').to_return(body: '{"type":"media","data":{"url":"' + @url + '/","type":"profile"}}')
+    WebMock.stub_request(:get, CheckConfig.get('pender_url_private') + '/api/medias?url=https://www.youtube.com/user/MeedanTube').to_return(body: '{"type":"media","data":{"url":"' + @url + '/","type":"profile"}}')
     s = create_source
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+    PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s]
       @account = create_account(url: @url, source: s, user: create_user)
     end
   end
 
   test "should create account" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+      PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+        WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s]
         create_valid_account
       end
     end
@@ -146,7 +146,7 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should raise error when try to create account with invalid url" do
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://invalid-url.ee'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }}).to_return(body: '{"type":"error","data":{"message":"The URL is not valid", "code":4}}')
     assert_raise ActiveRecord::RecordInvalid do
@@ -157,8 +157,8 @@ class AccountTest < ActiveSupport::TestCase
   test "should not create account with duplicated URL" do
     assert_no_difference 'Account.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-          WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+        PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+          WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s]
           create_account(url: @url)
         end
       end
@@ -241,7 +241,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should skip Pender and save URL as is" do
     WebMock.disable_net_connect!
     url = 'http://keep.it'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}')
     a = create_account url: 'http://keep.it', skip_pender: true
     assert_equal 'http://keep.it', a.url
@@ -255,7 +255,7 @@ class AccountTest < ActiveSupport::TestCase
     s = create_source
     s2 = create_source
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     assert_difference 'Account.count' do
       a = Account.create_for_source(url, s)
@@ -278,7 +278,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should get author_name from Pender to create source" do
     WebMock.disable_net_connect!
     url = 'http://example.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
@@ -290,7 +290,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should create source with 'Untitled-xxx' if author_name from Pender is blank" do
     WebMock.disable_net_connect!
     url = 'http://example.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":""}}')
     account = Account.create url: url, user: create_user
@@ -302,7 +302,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should have image" do
     WebMock.disable_net_connect!
     url = 'http://example.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
     account = Account.create url: url, user: create_user
@@ -313,8 +313,8 @@ class AccountTest < ActiveSupport::TestCase
   test "should refresh account and sources" do
     WebMock.disable_net_connect!
     url = "http://twitter.com/example#{Time.now.to_i}"
-    pender_url = CONFIG['pender_url_private'] + '/api/medias?url=' + url
-    pender_refresh_url = CONFIG['pender_url_private'] + '/api/medias?refresh=1&url=' + url + '/'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
+    pender_refresh_url = CheckConfig.get('pender_url_private') + '/api/medias?refresh=1&url=' + url + '/'
     ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
     WebMock.stub_request(:get, pender_url).to_return(ret)
     WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
@@ -376,9 +376,9 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should always return an account when creating an account for a source" do
-    WebMock.disable_net_connect! allow: /#{CONFIG['elasticsearch_host']}|#{CONFIG['storage']['endpoint']}/
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     url = random_url
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url }
     }).to_return(body: '{"type":"media","data":{"url":"' + url + '/","type":"profile","author_name":"John Doe", "picture": "http://provider/picture.png"}}')
     Account.any_instance.stubs(:save).returns(false)
@@ -390,8 +390,8 @@ class AccountTest < ActiveSupport::TestCase
   test "should send specific token to parse url on pender" do
     params1 = { url: random_url }
     params2 = { url: random_url }
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params1, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "profile", "author_name" => "Default token"}})
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "profile", "author_name" => "Specific token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params1, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "profile", "author_name" => "Default token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "profile", "author_name" => "Specific token"}})
 
     a = Account.new url: params1[:url]
     a.valid?
@@ -409,9 +409,9 @@ class AccountTest < ActiveSupport::TestCase
     t = create_team
     a = create_account team: t
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     a.refresh_account = true
     a.save!

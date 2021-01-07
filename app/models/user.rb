@@ -112,7 +112,7 @@ class User < ActiveRecord::Base
 
   def avatar
     custom = self.reload.image&.file&.public_url&.to_s
-    default = CONFIG['checkdesk_base_url'] + self.image.url
+    default = CheckConfig.get('checkdesk_base_url') + self.image.url
     custom || default
   end
 
@@ -138,7 +138,7 @@ class User < ActiveRecord::Base
   end
 
   def inactive_message
-    self.is_active? ? super :  I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email'])
+    self.is_active? ? super :  I18n.t(:banned_user, app_name: CheckConfig.get('app_name'), support_email: CheckConfig.get('support_email'))
   end
 
   def active_for_authentication?
@@ -266,7 +266,7 @@ class User < ActiveRecord::Base
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
-    Time.parse(open(CheckConfig.get(mapping[page])).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+    Time.parse(open(CheckConfig.get(mapping[page], nil, :json)).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
   end
 
   def self.terms_last_updated_at

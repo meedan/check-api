@@ -18,7 +18,7 @@ class SecurityMailer < ApplicationMailer
     @ip = activity.ip
     @platform = @user_agent.os.split.first
     subject = I18n.t("mail_security.#{type}_subject",
-      app_name: CONFIG['app_name'], browser: @user_agent.browser, platform: @platform)
+      app_name: CheckConfig.get('app_name'), browser: @user_agent.browser, platform: @platform)
     mail(to: email, subject: subject)
   end
 

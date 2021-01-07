@@ -24,11 +24,11 @@ module Workflow
     end
 
     def self.check_default_project_media_workflow
-      CONFIG['default_project_media_workflow'] = self.id
+      CheckConfig.set('default_project_media_workflow', self.id)
     end
 
     def self.check_default_task_workflow
-      CONFIG['default_task_workflow'] = self.id
+      CheckConfig.set('default_task_workflow', self.id)
     end
 
     def self.workflow_permissions

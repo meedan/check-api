@@ -88,7 +88,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
 
   test "should parse webhook payload" do
     payload = { foo: 'bar' }.to_json
-    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
+    sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     request = OpenStruct.new(headers: {}, env: {}, raw_post: nil)
     request.headers['X-Signature'] = sig
     request.raw_post = payload
@@ -118,7 +118,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_annotation_type_and_fields('Metrics', { 'Data' => ['JSON', false] })
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm = create_project_media media: nil, url: url, disable_es_callbacks: false

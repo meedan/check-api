@@ -1,11 +1,11 @@
 require 'aws-sdk-s3'
 
 Aws.config.update(
-  endpoint: CONFIG.dig('storage', 'endpoint'),
-  access_key_id: CONFIG.dig('storage', 'access_key'),
-  secret_access_key: CONFIG.dig('storage', 'secret_key'),
+  endpoint: CheckConfig.get('storage_endpoint'),
+  access_key_id: CheckConfig.get('storage_access_key'),
+  secret_access_key: CheckConfig.get('storage_secret_key'),
   force_path_style: true,
-  region: CONFIG.dig('storage', 'bucket_region')
+  region: CheckConfig.get('storage_bucket_region')
 )
 
 class CheckS3
@@ -14,7 +14,7 @@ class CheckS3
   end
 
   def self.bucket
-    self.resource.bucket(CONFIG['storage']['bucket'])
+    self.resource.bucket(CheckConfig.get('storage_bucket'))
   end
 
   def self.exist?(path)
@@ -28,13 +28,13 @@ class CheckS3
   end
 
   def self.public_url(path)
-    begin Aws::S3::Object.new(CONFIG['storage']['bucket'], path).public_url rescue nil end
+    begin Aws::S3::Object.new(CheckConfig.get('storage_bucket'), path).public_url rescue nil end
   end
 
   def self.get(path)
     client = Aws::S3::Client.new
     begin
-      client.get_object(bucket: CONFIG['storage']['bucket'], key: path)
+      client.get_object(bucket: CheckConfig.get('storage_bucket'), key: path)
     rescue Aws::S3::Errors::NoSuchKey
       nil
     end
@@ -46,10 +46,10 @@ class CheckS3
       acl: 'public-read',
       key: path,
       body: content,
-      bucket: CONFIG['storage']['bucket'],
+      bucket: CheckConfig.get('storage_bucket'),
       content_type: content_type
     )
-    begin client.put_object_acl(acl: 'public-read', key: path, bucket: CONFIG['storage']['bucket']) rescue nil end
+    begin client.put_object_acl(acl: 'public-read', key: path, bucket: CheckConfig.get('storage_bucket')) rescue nil end
   end
 
   def self.delete(*paths)
@@ -58,6 +58,6 @@ class CheckS3
       objects << { key: path }
     end
     client = Aws::S3::Client.new
-    client.delete_objects(bucket: CONFIG['storage']['bucket'], delete: { objects: objects })
+    client.delete_objects(bucket: CheckConfig.get('storage_bucket'), delete: { objects: objects })
   end
 end
