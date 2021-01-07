@@ -38,13 +38,13 @@ class Team < ActiveRecord::Base
 
   def avatar
     custom = begin self.logo.file.public_url rescue nil end
-    default = CONFIG['checkdesk_base_url'] + self.logo.url
+    default = CheckConfig.get('checkdesk_base_url') + self.logo.url
     custom || default
   end
 
   def url
     url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
-    url || CONFIG['checkdesk_client'] + '/' + self.slug
+    url || CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
   def team
@@ -303,6 +303,7 @@ class Team < ActiveRecord::Base
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
+    perms["duplicate Team"] = ability.can?(:duplicate, self)
     [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
@@ -382,8 +383,7 @@ class Team < ActiveRecord::Base
     show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
     columns = []
     Team.default_list_columns.each do |column|
-      show = column[:frozen] ? true : show_columns.include?(column[:key])
-      columns << column.merge({ show: show })
+      columns << column.merge({ show: show_columns.include?(column[:key]) })
     end
     TeamTask.where(team_id: self.id, fieldset: 'metadata').each do |tt|
       key = "task_value_#{tt.id}"
@@ -391,8 +391,7 @@ class Team < ActiveRecord::Base
         key: key,
         label: tt.label,
         show: show_columns.include?(key),
-        type: tt.task_type,
-        frozen: false
+        type: tt.task_type
       }
     end
     columns.sort_by do |column|
@@ -433,92 +432,77 @@ class Team < ActiveRecord::Base
       {
         key: 'demand',
         label: I18n.t(:list_column_demand),
-        show: true,
-        frozen: false
+        show: true
       },
       {
         key: 'share_count',
         label: I18n.t(:list_column_share_count),
-        show: true,
-        frozen: false
+        show: true
       },
       {
         key: 'linked_items_count',
         label: I18n.t(:list_column_linked_items_count),
-        show: true,
-        frozen: false
+        show: true
       },
       {
         key: 'type_of_media',
         label: I18n.t(:list_column_type),
-        show: true,
-        frozen: false
+        show: true
       },
       {
         key: 'status',
         label: I18n.t(:list_column_status),
-        show: true,
-        frozen: false
+        show: true
       },
       {
         key: 'created_at_timestamp',
         label: I18n.t(:list_column_created_at),
-        show: true,
-        frozen: true
+        show: true
       },
       {
         key: 'last_seen',
         label: I18n.t(:list_column_last_seen),
-        show: true,
-        frozen: true
+        show: true
       },
       {
         key: 'updated_at_timestamp',
         label: I18n.t(:list_column_updated_at),
-        show: true,
-        frozen: true
+        show: true
       },
       {
         key: 'report_status',
         label: I18n.t(:list_column_report_status),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'tags_as_sentence',
         label: I18n.t(:list_column_tags_as_sentence),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'media_published_at',
         label: I18n.t(:list_column_media_published_at),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'comment_count',
         label: I18n.t(:list_column_comment_count),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'reaction_count',
         label: I18n.t(:list_column_reaction_count),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'related_count',
         label: I18n.t(:list_column_related_count),
-        show: false,
-        frozen: false
+        show: false
       },
       {
         key: 'suggestions_count',
         label: I18n.t(:list_column_suggestions_count),
-        show: false,
-        frozen: false
+        show: false
       }
     ]
   end

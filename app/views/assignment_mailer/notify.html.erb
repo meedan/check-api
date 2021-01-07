@@ -124,7 +124,7 @@
                               model: I18n.t("activerecord.models.#{@info[:model]}"),
                               username: @info[:username],
                               author: link_to(@info[:author],
-                                "#{CONFIG['checkdesk_client']}/check/user/#{@info[:author_id]}",
+                                "#{CheckConfig.get('checkdesk_client')}/check/user/#{@info[:author_id]}",
                                 :class => 'link',
                                 :style => "color: #0d6cf7 !important; text-decoration: none;"
                                 )

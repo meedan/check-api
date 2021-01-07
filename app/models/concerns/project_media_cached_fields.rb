@@ -77,7 +77,7 @@ module ProjectMediaCachedFields
       update_on: [
         {
           model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' },
+          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| [d.annotated_id] },
           events: {
             create: proc { |pm, _d| pm.requests_count + 1 },
@@ -97,7 +97,7 @@ module ProjectMediaCachedFields
       update_on: [
         {
           model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' },
+          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
             create: proc { |pm, _d| pm.demand + 1 }
@@ -121,7 +121,7 @@ module ProjectMediaCachedFields
       update_on: [
         {
           model: Dynamic,
-          if: proc { |d| d.annotation_type == 'smooch' },
+          if: proc { |d| d.annotation_type == 'smooch' && d.annotated_type == 'ProjectMedia' },
           affected_ids: proc { |d| d.annotated&.related_items_ids.to_a },
           events: {
             create: proc { |_pm, d| d.created_at.to_i }

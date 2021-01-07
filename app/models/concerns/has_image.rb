@@ -5,7 +5,7 @@ module HasImage
 
   module ClassMethods
     def max_size
-      self.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CONFIG['uploaded_file_max_size'], default: 1.megabyte })
+      self.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CheckConfig.get('uploaded_file_max_size'), default: 1.megabyte })
     end
   end
 

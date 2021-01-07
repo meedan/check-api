@@ -25,7 +25,7 @@ class Comment < ActiveRecord::Base
     super.merge({
       comment: Bot::Slack.to_slack(self.text, false),
       button: I18n.t("slack.fields.view_button", {
-        type: I18n.t("activerecord.models.#{self.annotated.class_name.underscore}"), app: CONFIG['app_name']
+        type: I18n.t("activerecord.models.#{self.annotated.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
     })
   end
@@ -48,7 +48,7 @@ class Comment < ActiveRecord::Base
     team = self.annotated_type === 'ProjectMedia' ? self.annotated.team : nil
     if team
       words = self.text.to_s.split(/\s+/)
-      pattern = Regexp.new(CONFIG['checkdesk_client'])
+      pattern = Regexp.new(CheckConfig.get('checkdesk_client'))
       words.each do |word|
         match = word.match(pattern)
         if !match.nil? && Team.slug_from_url(word) == team.slug

@@ -60,7 +60,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should create media if url or quote set" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_difference 'ProjectMedia.count', 2 do
@@ -71,7 +71,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should find media by normalized url" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media url: url
@@ -314,7 +314,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should update project media embed data" do
     create_verification_status_stuff
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -616,7 +616,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should refresh Pender data" do
     create_verification_status_stuff
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = random_url
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"1"}}')
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"2"}}')
@@ -759,16 +759,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     pm = create_project_media team: t
     stub_configs({ 'pender_url' => 'https://pender.fake' }) do
-      assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
+      assert_equal CheckConfig.get('pender_url') + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
     stub_configs({ 'pender_url' => 'https://pender.fake' }) do
-      assert_match /#{CONFIG['short_url_host']}/, pm.embed_url
+      assert_match /#{CheckConfig.get('short_url_host')}/, pm.embed_url
     end
   end
 
   test "should have oEmbed endpoint" do
     create_annotation_type_and_fields('Embed Code', { 'Copied' => ['Boolean', false] })
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -804,7 +804,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get author URL for oEmbed" do
     url = 'http://twitter.com/test'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     u = create_omniauth_user url: url, provider: 'twitter'
@@ -844,7 +844,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get source URL for external link for oEmbed" do
     url = 'http://twitter.com/test/123456'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -852,7 +852,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal url, pm.source_url
     c = create_claim_media
     pm = create_project_media media: c
-    assert_match CONFIG['checkdesk_client'], pm.source_url
+    assert_match CheckConfig.get('checkdesk_client'), pm.source_url
   end
 
   test "should get completed tasks for oEmbed" do
@@ -881,7 +881,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get provider for oEmbed" do
     url = 'http://twitter.com/test/123456'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -895,7 +895,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get published time for oEmbed" do
     create_task_status_stuff
     url = 'http://twitter.com/test/123456'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -909,7 +909,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get source author for oEmbed" do
     u = create_user name: 'Foo'
     url = 'http://twitter.com/test/123456'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","author_name":"Bar"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
@@ -934,7 +934,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       PenderClient::Request.unstub(:get_medias)
       expected = File.read(File.join(Rails.root, 'test', 'data', "oembed-#{pm.default_project_media_status_type}.html"))
         .gsub(/.*<body/m, '<body')
-        .gsub('https?://[^:]*:3000', CONFIG['checkdesk_base_url'])
+        .gsub('https?://[^:]*:3000', CheckConfig.get('checkdesk_base_url'))
       actual = ProjectMedia.find(pm.id).html.gsub(/.*<body/m, '<body')
       assert_equal expected, actual
     end
@@ -1003,7 +1003,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}, project_ids: [p3.id]
 
     Sidekiq::Testing.inline! do
-      pender_url = CONFIG['pender_url_private'] + '/api/medias'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
       # test empty json+ld
       url = 'http://test1.com'
       raw = {"json+ld": {}}
@@ -1073,7 +1073,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should expose conflict error from Pender" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"error","data":{"message":"Conflict","code":9}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response, status: 409)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response, status: 409)
@@ -1301,7 +1301,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://www.facebook.com/meedan/posts/123456'
     author_url = 'http://facebook.com/123456'
     author_normal_url = 'http://www.facebook.com/meedan'
@@ -1352,14 +1352,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_bot name: 'Check Bot'
 
     url = 'https://www.facebook.com/Ma3komMona/videos/695409680623722'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     l = create_link url: url
     pm = create_project_media media: l
 
     url = 'https://www.facebook.com/Ma3komMona/videos/vb.268809099950451/695409680623722/?type=3&theater'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"https://www.facebook.com/Ma3komMona/videos/695409680623722","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_difference 'ProjectMedia.count' do
@@ -1500,9 +1500,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not create project media with unsafe URL" do
-    WebMock.disable_net_connect! allow: [CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('storage_endpoint')]
     url = 'http://unsafe.com/'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"error","data":{"code":12}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
@@ -1514,7 +1514,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should get metadata" do
     create_verification_status_stuff
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'https://twitter.com/test/statuses/123456'
     response = { 'type' => 'media', 'data' => { 'url' => url, 'type' => 'item', 'title' => 'Media Title', 'description' => 'Media Description' } }.to_json
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
@@ -2050,13 +2050,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     url1 = random_url
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
     url2 = random_url
     author_url2 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
     pm = ProjectMedia.create url: url1
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
@@ -2079,11 +2079,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media media: l, project: create_project(team: t)
 
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: l.url, refresh: '1' }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, CONFIG['pender_key']).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: l.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: author_url1 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     assert pm.media.metadata['title'].blank?
 
@@ -2143,7 +2143,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     url = 'https://twitter.com/meedan/status/1321600654750613505'
     response = {"type" => "media","data" => {"url" => url, "type" => "item", "metrics" => {"facebook"=> {"reaction_count" => 2, "comment_count" => 5, "share_count" => 10, "comment_plugin_count" => 0 }}}}
 
-    PenderClient::Request.stubs(:get_medias).with(CONFIG['pender_url_private'], { url: url }, CONFIG['pender_key']).returns(response)
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key')).returns(response)
     pm = create_project_media media: nil, url: url
     assert_equal response['data']['metrics'], JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     PenderClient::Request.unstub(:get_medias)
@@ -2191,7 +2191,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # The only SQL query should be to get the team tasks
     assert_queries(1, '=') do
       values = pm.list_columns_values
-      assert_equal 5, values.size
+      assert_equal 2, values.size
       assert_equal 'Foo Value', values["task_value_#{tt1.id}"]
       assert_equal 'Bar Value', values["task_value_#{tt2.id}"]
     end
@@ -2249,7 +2249,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should cache media published at" do
     RequestStore.store[:skip_cached_field_update] = false
     url = 'http://twitter.com/test/123456'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"1989-01-25 08:30:00"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm = create_project_media media: nil, url: url

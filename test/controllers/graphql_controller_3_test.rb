@@ -481,7 +481,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should return project medias when provided URL is not normalized and it exists on db" do
     url = 'http://www.atarde.uol.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
     url_normalized = 'http://www.atarde.com.br/bahia/salvador/noticias/2089363-comunidades-recebem-caminhao-da-biometria-para-regularizacao-eleitoral'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url_normalized + '","type":"item"}}')
     m = create_media url: url
     u = create_user
@@ -1522,7 +1522,7 @@ class GraphqlController3Test < ActionController::TestCase
     }
     u = create_user
     t = create_team
-    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
     tu = create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
@@ -1538,7 +1538,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should not get Smooch Bot RSS feed preview if not owner" do
     u = create_user
     t = create_team
-    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
     tu = create_team_user team: t, user: u, role: 'editor'
     authenticate_with_user(u)
@@ -1552,7 +1552,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should not get Smooch Bot RSS feed preview if not member of the team" do
     u = create_user
     t = create_team
-    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
     tu = create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(create_user)
@@ -1566,7 +1566,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should not get Smooch Bot RSS feed preview if not logged in" do
     u = create_user
     t = create_team
-    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CONFIG['checkdesk_base_url_private']}/api/bots/smooch"
+    b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
     tu = create_team_user team: t, user: u, role: 'owner'
     url = random_url

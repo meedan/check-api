@@ -6,7 +6,7 @@ module UserTwoFactorAuth
   included do
     attr_accessor :two_factor
     devise :two_factor_authenticatable, :two_factor_backupable,
-         :otp_secret_encryption_key => CONFIG['two_factor_key']
+         :otp_secret_encryption_key => CheckConfig.get('two_factor_key')
 
     def two_factor
       data = {}
@@ -19,7 +19,7 @@ module UserTwoFactorAuth
         self.otp_secret = User.generate_otp_secret
         self.save!
         # render qrcode if otp is disabled
-        issuer = "Meedan-#{CONFIG['app_name']}"
+        issuer = "Meedan-#{CheckConfig.get('app_name')}"
         uri = self.reload.otp_provisioning_uri(self.email, issuer: issuer)
         qrcode = RQRCode::QRCode.new(uri)
         data[:qrcode_svg] = qrcode.as_svg(module_size: 4)

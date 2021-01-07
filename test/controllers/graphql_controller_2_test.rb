@@ -72,10 +72,10 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should parse JSON exception" do
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
-    PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-      WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
       u = create_user
@@ -1094,6 +1094,14 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['source_project_media']['id']
     assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['target_project_media']['id']
     assert_nil Relationship.where(id: r.id).last
+    # detach to specific list
+    p2 = create_project team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id
+    assert_equal [p.id], pm2.project_ids
+    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", add_to_project_id: ' + p2.id.to_s + ' }) { deletedId, source_project_media { id }, target_project_media { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [p.id, p2.id], pm2.reload.project_ids.sort
   end
 
   test "should get version from global id" do
@@ -1156,21 +1164,46 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
   end
 
+  test "should duplicate when user is owner and not duplicate when not an owner" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'owner'
+    value = {
+      label: 'Status',
+      active: 'id',
+      default: 'id',
+      statuses: [
+        { id: 'id', locales: { en: { label: 'Custom Status', description: 'The meaning of this status' } }, style: { color: 'red' } },
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+
+    query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response 400
+
+    authenticate_with_user(u)
+    query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
+
   test "should filter by link published date" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'owner'
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm1 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com/2'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     pm2 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
@@ -1187,16 +1220,16 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
     pm1 = ProjectMedia.find(pm1.id) ; pm1.disable_es_callbacks = false ; pm1.refresh_media = true ; pm1.save! ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s, CONFIG['storage']['endpoint']]
+    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com/2'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
     pm2 = ProjectMedia.find(pm2.id) ; pm2.disable_es_callbacks = false ; pm2.refresh_media = true ; pm2.save! ; sleep 1

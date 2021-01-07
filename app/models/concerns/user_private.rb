@@ -29,7 +29,7 @@ module UserPrivate
   end
 
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.encrypted_password? && CONFIG['send_welcome_email_on_registration'] && !self.is_invited?
+    RegistrationMailer.delay.welcome_email(self) if self.encrypted_password? && CheckConfig.get('send_welcome_email_on_registration') && !self.is_invited?
   end
 
   def user_is_member_in_current_team
@@ -57,7 +57,7 @@ module UserPrivate
       RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
     else
       self.errors.messages.clear
-      errors.add(:base, I18n.t(:banned_user, app_name: CONFIG['app_name'], support_email: CONFIG['support_email']))
+      errors.add(:base, I18n.t(:banned_user, app_name: CheckConfig.get('app_name'), support_email: CheckConfig.get('support_email')))
     end
   end
 

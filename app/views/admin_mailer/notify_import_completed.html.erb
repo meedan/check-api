@@ -55,11 +55,11 @@
                       <div class="text-gray" style="color: #757575 !important;">
                         <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
                           <%= 
-                          	simple_format(
-                          		I18n.t("mails_notifications.admin_mailer.team_import_text",
-                          			app_name: CONFIG['app_name'], worksheet_url: @worksheet_url
-                          			)
-                          		)
+                              simple_format(
+                                I18n.t("mails_notifications.admin_mailer.team_import_text",
+                                  app_name: CheckConfig.get('app_name'), worksheet_url: @worksheet_url
+                                )
+                              )
                           %>
                         </div>
                       </div>

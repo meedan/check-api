@@ -35,7 +35,7 @@ class Bot::Fetch < BotUser
 
   def self.valid_request?(request)
     installation = self.get_installation_for_team(request.query_parameters['team'])
-    request.query_parameters['token'] == CONFIG['fetch_token'] && !installation.nil?
+    request.query_parameters['token'] == CheckConfig.get('fetch_token') && !installation.nil?
   end
 
   def self.webhook(request)
@@ -79,7 +79,7 @@ class Bot::Fetch < BotUser
   end
 
   def self.webhook_url(team)
-    CONFIG['fetch_check_webhook_url'] + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CONFIG['fetch_token']
+    CheckConfig.get('fetch_check_webhook_url') + '/api/webhooks/fetch?team=' + team.slug + '&token=' + CheckConfig.get('fetch_token')
   end
 
   def self.setup_service(installation, previous_service, new_service)
@@ -109,10 +109,10 @@ class Bot::Fetch < BotUser
         query << "#{key}=#{value}"
       end
       query_string = query.join('&')
-      uri = URI("#{CONFIG['fetch_url']}/#{endpoint}?#{query_string}")
+      uri = URI("#{CheckConfig.get('fetch_url')}/#{endpoint}?#{query_string}")
       response = Net::HTTP.get_response(uri)
     elsif [:post, :delete].include?(verb)
-      uri = URI("#{CONFIG['fetch_url']}/#{endpoint}")
+      uri = URI("#{CheckConfig.get('fetch_url')}/#{endpoint}")
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
         klass = {
           post: Net::HTTP::Post,

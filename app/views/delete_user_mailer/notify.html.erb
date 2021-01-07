@@ -57,7 +57,7 @@
                           <%= 
                             I18n.t("mails_notifications.delete_user.header_text",
                                 id: @info[:user].id,
-                                anonymous: link_to(I18n.t("mails_notifications.delete_user.anonymous"), "#{CONFIG['checkdesk_client']}/check/user/#{@info[:user].id}", :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;")
+                                anonymous: link_to(I18n.t("mails_notifications.delete_user.anonymous"), "#{CheckConfig.get('checkdesk_client')}/check/user/#{@info[:user].id}", :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;")
                               ).html_safe
                           %>
                         </div>

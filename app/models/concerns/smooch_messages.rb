@@ -41,14 +41,17 @@ module SmoochMessages
       end
     end
 
-    def discard_or_process_message(message, app_id)
-      if self.config['smooch_disabled']
-        language = self.get_user_language(message)
-        workflow = self.get_workflow(language)
-        self.send_message_to_user(message['authorId'], workflow['smooch_message_smooch_bot_disabled'], {}, true)
-      else
-        self.process_message(message, app_id)
-      end
+    def get_message_for_state(workflow, state, language)
+      message = []
+      message << self.tos_message(workflow, language) if state.to_s == 'main'
+      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
+      message.join("\n\n")
+    end
+
+    def send_message_if_disabled_and_return_state(uid, workflow, state)
+      disabled = self.config['smooch_disabled']
+      self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_disabled'], {}, true) if disabled
+      disabled ? 'disabled' : state
     end
 
     def process_message(message, app_id)
@@ -131,16 +134,15 @@ module SmoochMessages
     def smooch_save_annotations(message, annotated, app_id, author, request_type, annotated_obj)
       # Only save the annotation for the same requester once.
       key = 'smooch:request:' + message['authorId'] + ':' + annotated.id.to_s
-      self.create_smooch_request(annotated, message, app_id, author, request_type) if !Rails.cache.read(key) || request_type != 'default_requests'
+      self.create_smooch_request(annotated, message, app_id, author) if !Rails.cache.read(key) || request_type != 'default_requests'
       self.create_smooch_resources_and_type(annotated, annotated_obj, author, request_type) if !Rails.cache.read(key)
       Rails.cache.write(key, hash)
     end
 
-    def create_smooch_request(annotated, message, app_id, author, request_type)
+    def create_smooch_request(annotated, message, app_id, author)
       fields = { smooch_data: message.merge({ app_id: app_id }).to_json }
       result = self.smooch_api_get_messages(app_id, message['authorId'])
       fields[:smooch_conversation_id] = result.conversation.id unless result.nil? || result.conversation.nil?
-      RequestStore.store[:skip_cached_field_update] = true if ['timeout_requests', 'resource_requests'].include?(request_type)
       self.create_smooch_annotations(annotated, author, fields)
     end
 

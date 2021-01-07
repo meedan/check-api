@@ -134,8 +134,8 @@ class UserTest < ActiveSupport::TestCase
 
   test "should create account if user has provider and url" do
     assert_difference 'Account.count' do
-      PenderClient::Mock.mock_medias_returns_parsed_data(CONFIG['pender_url_private']) do
-        WebMock.disable_net_connect! allow: [CONFIG['elasticsearch_host'].to_s + ':' + CONFIG['elasticsearch_port'].to_s]
+      PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
+        WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s]
         create_omniauth_user provider: 'youtube', url: 'https://www.youtube.com/user/MeedanTube'
       end
     end
@@ -622,7 +622,7 @@ class UserTest < ActiveSupport::TestCase
   test "should update account url when update Facebook id" do
     WebMock.disable_net_connect!
     url1 = 'https://www.facebook.com/1062518227129764'
-    pender_url = CONFIG['pender_url_private'] + '/api/medias'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: '{"type":"media","data":{"url":"' + url1 + '","type":"profile"}}')
 
     u = create_omniauth_user provider: 'facebook', uid: '1062518227129764', email: 'user@fb.com', url: url1

@@ -215,13 +215,11 @@ class RelationshipTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type
     end
-    
     assert_not_empty r.versions
     v = r.versions.last
     assert_equal so.id, v.associated_id
     assert_equal 'ProjectMedia', v.associated_type
     so = ProjectMedia.find(so.id)
-    assert_equal n + 2, so.reload.cached_annotations_count
     assert so.get_versions_log.map(&:event_type).include?('create_relationship')
 
     with_current_user_and_team(u, t) do
@@ -233,7 +231,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal so.id, v2.associated_id
     assert_equal 'ProjectMedia', v2.associated_type
     so = ProjectMedia.find(so.id)
-    assert_equal n + 4, so.reload.cached_annotations_count
     assert so.get_versions_log.map(&:event_type).include?('destroy_relationship')
     assert_not_nil v2.meta
   end
@@ -288,6 +285,20 @@ class RelationshipTest < ActiveSupport::TestCase
     r.relationship_source_type = 'confirmed_sibling'
     r.relationship_target_type = 'confirmed_sibling'
     assert r.is_confirmed?
+  end
+
+  test "should detach to specific list" do
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    pm_s = create_project_media team: t
+    pm_t = create_project_media project: p
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    assert_equal [p.id], pm_t.project_ids
+    r.add_to_project_id = p2.id
+    r.destroy
+    assert_equal [p.id, p2.id], pm_t.reload.project_ids.sort
+
   end
 
   test "should re-point targets to new source when adding as a target an item that already has targets" do

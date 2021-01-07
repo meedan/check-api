@@ -1,16 +1,16 @@
-CONFIG['storage']['asset_host'] ||= "#{CONFIG['storage']['endpoint']}/#{CONFIG['storage']['bucket']}"
+CheckConfig.set('storage_asset_host', "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}") if !CheckConfig.get('storage_asset_host')
 
-bucket_name = CONFIG['storage']['bucket']
+bucket_name = CheckConfig.get('storage_bucket')
 
 unless bucket_name.blank?
   credentials = {
     provider:              'AWS',
-    aws_access_key_id:     CONFIG['storage']['access_key'],
-    aws_secret_access_key: CONFIG['storage']['secret_key'],
-    region:                CONFIG['storage']['bucket_region'],
-    path_style:            CONFIG['storage']['path_style'].nil? ? true : CONFIG['storage']['path_style'],
-    endpoint:              CONFIG['storage']['endpoint'],
-    host:                  CONFIG['storage']['endpoint'] ? URI(CONFIG['storage']['endpoint']).host : ''
+    aws_access_key_id:     CheckConfig.get('storage_access_key'),
+    aws_secret_access_key: CheckConfig.get('storage_secret_key'),
+    region:                CheckConfig.get('storage_bucket_region'),
+    path_style:            CheckConfig.get('storage_path_style').nil? ? true : CheckConfig.get('storage_path_style'),
+    endpoint:              CheckConfig.get('storage_endpoint'),
+    host:                  CheckConfig.get('storage_endpoint') ? URI(CheckConfig.get('storage_endpoint')).host : ''
   }
 
   CarrierWave.configure do |config|
@@ -19,7 +19,7 @@ unless bucket_name.blank?
     config.fog_directory  = bucket_name
     config.fog_public = true
     config.storage = :fog
-    config.asset_host = CONFIG['storage']['asset_host']
+    config.asset_host = CheckConfig.get('storage_asset_host')
   end
 
   begin

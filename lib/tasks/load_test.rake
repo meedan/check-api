@@ -105,7 +105,7 @@ namespace :test do
             conversationStarted: true
           }
         }.to_json
-        file.puts "#{CONFIG['checkdesk_base_url']}/api/webhooks/smooch POST #{params}"
+        file.puts "#{CheckConfig.get('checkdesk_base_url')}/api/webhooks/smooch POST #{params}"
       end
       puts "[#{Time.now}] Generated file with random requests"
       file.close
@@ -173,10 +173,10 @@ namespace :test do
               conversationStarted: true
             }
           }.to_json
-          confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch 2>/dev/null ; echo)
+          confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CheckConfig.get('checkdesk_base_url')}/api/webhooks/smooch 2>/dev/null ; echo)
           while confirm.chomp != '{"type":"success"}'
             puts "Unexpected confirmation response: #{confirm}"
-            confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CONFIG['checkdesk_base_url']}/api/webhooks/smooch 2>/dev/null ; echo)
+            confirm = %x(curl -XPOST -H 'X-API-Key: #{secret}' -H 'Content-Type: application/json' -d '#{payload}' #{CheckConfig.get('checkdesk_base_url')}/api/webhooks/smooch 2>/dev/null ; echo)
           end
         end
         after = Time.now.to_i
