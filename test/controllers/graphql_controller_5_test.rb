@@ -215,6 +215,20 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal @m2.id.to_s, tasks[2]['node']['dbid']
   end
 
+  test "should update project media source" do
+    s = create_source team: @t
+    s2 = create_source team: @t
+    pm = create_project_media team: @t, source_id: s.id
+    pm2 = create_project_media team: @t, source_id: s2.id
+    assert_equal s.id, pm.source_id
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\", source_id: #{s2.id}}) { project_media { source { dbid, medias_count } } } }"
+    post :create, query: query, team: @t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    assert_equal s2.id, data['source']['dbid']
+    assert_equal 2, data['source']['medias_count']
+  end
+
   protected
 
   def assert_error_message(expected)

@@ -59,7 +59,7 @@ module ProjectAssociation
     include ActiveModel::Validations::Callbacks
     include CheckElasticSearch
 
-    before_validation :set_media_or_source, :set_user, on: :create
+    before_validation :set_media_and_source, :set_user, on: :create
 
     validate :is_unique, on: :create, unless: proc { |p| p.is_being_copied }
 
@@ -103,9 +103,10 @@ module ProjectAssociation
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
         'associated_type' => obj.media.type,
-        'published_at' => obj.published_at
+        'published_at' => obj.published_at,
+        'source_id' => obj.source_id
       }
-      options = { keys: keys, data: data, parent: obj }
+      options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
     end
 
@@ -119,8 +120,13 @@ module ProjectAssociation
 
     private
 
-    def set_media_or_source
+    def set_media_and_source
       self.set_media
+      if self.source_id.blank?
+        a = self.media.account
+        s_id = a.source_ids.last unless a.nil?
+        self.source_id = s_id unless s_id.blank?
+      end
     end
 
     def set_user

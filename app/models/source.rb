@@ -10,6 +10,7 @@ class Source < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   has_many :account_sources, dependent: :destroy
   has_many :accounts, through: :account_sources
+  has_many :project_medias
   belongs_to :user
   belongs_to :team
   has_one :bot_user
@@ -39,11 +40,7 @@ class Source < ActiveRecord::Base
   end
 
   def medias
-    #TODO: fix me - list valid project media ids
-    m_ids = Media.where(account_id: self.account_ids).map(&:id)
-    conditions = { media_id: m_ids }
-    conditions[:team_id] = Team.current.id unless Team.current.nil?
-    ProjectMedia.where(conditions)
+    self.project_medias.where(archived: CheckArchivedFlags::FlagCodes::NONE)
   end
 
   def collaborators

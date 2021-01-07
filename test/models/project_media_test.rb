@@ -1327,11 +1327,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     m = create_media url: url, account: nil, account_id: nil
     a = m.account
+    s = a.sources.first
     p = create_project team: t
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, project: p, disable_es_callbacks: false
       sleep 2
       pm = ProjectMedia.find(pm.id)
+      # verify project media source
+      assert_equal s.id, pm.source_id
+      result = $repository.find(get_es_id(pm))
+      assert_equal s.id, result['source_id']
       with_current_user_and_team(u, t) do
         pm.refresh_media = true
         sleep 2
@@ -1339,10 +1344,50 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new_account = m.reload.account
       assert_not_equal a, new_account
       assert_nil Account.where(id: a.id).last
-      result = $repository.find(get_es_id(pm))['accounts']
-      assert_equal 1, result.size
-      assert_equal result.first['id'], new_account.id
+      result = $repository.find(get_es_id(pm))
+      assert_equal 1, result['accounts'].size
+      assert_equal result['accounts'].first['id'], new_account.id
     end
+  end
+
+  # TODO: Sawy fix test
+  # test "should validate media source" do
+  #   t = create_team
+  #   t2 = create_team
+  #   s = create_source team: t
+  #   s2 = create_source team: t2
+  #   pm = nil
+  #   assert_difference 'ProjectMedia.count', 2 do
+  #     create_project_media team: t
+  #     pm = create_project_media team: t, source_id: s.id
+  #   end
+  #   assert_raises ActiveRecord::RecordInvalid do
+  #     pm.source_id = s2.id
+  #     pm.save!
+  #   end
+  #   assert_raises ActiveRecord::RecordInvalid do
+  #     create_project_media team: t, source_id: s2.id
+  #   end
+  # end
+
+  test "should assign media source using account" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    m = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      s = m.account.sources.first
+      assert_equal t.id, s.team_id
+      pm = create_project_media media: m
+      assert_equal s.id, pm.source_id
+    end
+    # TODO: Sawy fix this case
+    # t2 = create_team
+    # create_team_user team: t2, user: u, role: 'owner'
+    # with_current_user_and_team(u, t) do
+    #   pm = create_project_media media: m
+    # end
   end
 
   test "should create media when normalized URL exists" do

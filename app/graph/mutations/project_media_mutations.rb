@@ -19,6 +19,7 @@ module ProjectMediaMutations
     archived: 'int',
     previous_project_id: 'int',
     add_to_project_id: 'int',
+    source_id: 'int',
     read: 'bool'
   })
 
