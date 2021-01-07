@@ -41,6 +41,13 @@ module SmoochMessages
       end
     end
 
+    def get_message_for_state(workflow, state, language)
+      message = []
+      message << self.tos_message(workflow, language) if state.to_s == 'main'
+      message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
+      message.join("\n\n")
+    end
+
     def send_message_if_disabled_and_return_state(uid, workflow, state)
       disabled = self.config['smooch_disabled']
       self.send_message_to_user(uid, workflow['smooch_message_smooch_bot_disabled'], {}, true) if disabled

@@ -596,6 +596,8 @@ en:
             third_party: Add third-party integrations
             invite_owner: Invite, approve, and remove workspace owners
             invite_members: Invite, approve, and remove workspace members
+  team_clone:
+    user_not_authorized: Sorry, you are not allowed to duplicate this team.
   team_import:
     invalid_google_spreadsheet_url: Invalid spreadsheet URL %{spreadsheet_url}
     not_found_google_spreadsheet_url: Spreadsheet not found at %{spreadsheet_url}

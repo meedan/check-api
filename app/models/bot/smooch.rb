@@ -228,9 +228,7 @@ class Bot::Smooch < BotUser
     # Save Twitter token and authorization URL
     after_create do
       if self.bot_user.identifier == 'smooch'
-        token = SecureRandom.hex
-        self.set_smooch_authorization_token = token
-        self.set_smooch_twitter_authorization_url = "#{CheckConfig.get('checkdesk_base_url')}/api/users/auth/twitter?context=smooch&destination=#{CheckConfig.get('checkdesk_base_url')}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+        self.reset_smooch_authorization_token
         self.save!
       end
     end
@@ -432,13 +430,6 @@ class Bot::Smooch < BotUser
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
         self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
-  end
-
-  def self.get_message_for_state(workflow, state, language)
-    message = []
-    message << self.tos_message(workflow, language) if state.to_s == 'main'
-    message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-    message.join("\n\n")
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -1064,5 +1055,17 @@ class Bot::Smooch < BotUser
       sm.reset
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
+  end
+
+  def self.sanitize_installation(team_bot_installation, blast_secret_settings = false)
+    team_bot_installation.apply_default_settings
+    team_bot_installation.reset_smooch_authorization_token
+    if blast_secret_settings
+      team_bot_installation.settings.delete("smooch_app_id")
+      team_bot_installation.settings.delete("smooch_secret_key_key_id")
+      team_bot_installation.settings.delete("smooch_secret_key_secret")
+      team_bot_installation.settings.delete("smooch_webhook_secret")
+    end
+    team_bot_installation
   end
 end

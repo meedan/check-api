@@ -303,6 +303,7 @@ class Team < ActiveRecord::Base
     perms["update ProjectMedia"] = ability.can?(:update, ProjectMedia.new(team_id: self.id))
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
+    perms["duplicate Team"] = ability.can?(:duplicate, self)
     [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end

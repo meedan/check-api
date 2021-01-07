@@ -1019,7 +1019,7 @@ class AbilityTest < ActiveSupport::TestCase
     a = create_account
 
     with_current_user_and_team(u, t) do
-      assert_equal ["bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia"].sort, JSON.parse(t.permissions).keys.sort
+      assert_equal ["bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team"].sort, JSON.parse(t.permissions).keys.sort
       assert_equal ["read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end

@@ -215,13 +215,11 @@ class RelationshipTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type
     end
-    
     assert_not_empty r.versions
     v = r.versions.last
     assert_equal so.id, v.associated_id
     assert_equal 'ProjectMedia', v.associated_type
     so = ProjectMedia.find(so.id)
-    assert_equal n + 2, so.reload.cached_annotations_count
     assert so.get_versions_log.map(&:event_type).include?('create_relationship')
 
     with_current_user_and_team(u, t) do
@@ -233,7 +231,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal so.id, v2.associated_id
     assert_equal 'ProjectMedia', v2.associated_type
     so = ProjectMedia.find(so.id)
-    assert_equal n + 4, so.reload.cached_annotations_count
     assert so.get_versions_log.map(&:event_type).include?('destroy_relationship')
     assert_not_nil v2.meta
   end
