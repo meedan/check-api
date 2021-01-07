@@ -88,6 +88,10 @@ module TeamDuplication
       Hash[@clones.select{ |c| c[:original].is_a?(TeamTask) }.collect{ |tt| [tt[:original].id, tt[:clone].id] }]
     end
 
+    def self.alter_rule_value_user(user_id)
+      (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(user_id)) ? User.current.id : nil
+    end
+
     def self.update_team_rules(new_team)
       team_task_map = self.team_task_map
       new_team.get_rules.to_a.each do |rule|
@@ -99,7 +103,7 @@ module TeamDuplication
         rule.dig("rules", "groups").to_a.each do |group|
           group["conditions"].each do |condition|
             if ["item_is_assigned_to_user", "item_user_is"].include?(condition["rule_definition"])
-              condition["rule_value"] = (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(condition["rule_value"])) ? User.current.id : nil
+              condition["rule_value"] = self.alter_rule_value_user(condition["rule_value"])
             end
             condition["rule_value"]["team_task_id"] = team_task_map[condition["rule_value"]["team_task_id"]] if condition["rule_definition"].match(/^field_from_fieldset/)
           end
