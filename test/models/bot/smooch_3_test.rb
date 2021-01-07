@@ -1337,6 +1337,13 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_kind_of String, Bot::Smooch.get_message_for_language(Bot::Smooch::CONTENT, 'en')
   end
 
+  test "should sanitize settings" do
+    i = @installation.deep_dup
+    assert_not_nil i.settings['smooch_app_id']
+    Bot::Smooch.sanitize_installation(i, true)
+    assert_nil i.settings['smooch_app_id']
+  end
+
   protected
 
   def run_concurrent_requests

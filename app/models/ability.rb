@@ -155,6 +155,7 @@ class Ability
       obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
     can :import_spreadsheet, Team, :id => @context_team.id
+    can :duplicate_team, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
     can [:create, :update, :destroy], BotResource, :team_id => @context_team.id
   end
