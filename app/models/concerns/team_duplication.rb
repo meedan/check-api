@@ -38,7 +38,7 @@ module TeamDuplication
     end
 
     def self.modify_settings(old_team, new_team)
-      team_task_map = Hash[@clones.select{|x| x[:original].is_a?(TeamTask)}.collect{|x| [x[:original].id, x[:clone].id]}]
+      team_task_map = self.team_task_map
       new_list_columns = old_team.get_list_columns.to_a.collect{|lc| lc.include?("task_value_") ? "task_value_#{team_task_map[lc.split("_").last.to_i]}" : lc}
       new_team.set_list_columns = new_list_columns unless new_list_columns.blank?
       new_team.set_languages = old_team.get_languages
@@ -84,8 +84,12 @@ module TeamDuplication
       end
     end
 
+    def self.team_task_map
+      Hash[@clones.select{ |c| c[:original].is_a?(TeamTask) }.collect{ |tt| [tt[:original].id, tt[:clone].id] }]
+    end
+
     def self.update_team_rules(new_team)
-      team_task_map = Hash[@clones.select{ |c| c[:original].is_a?(TeamTask) }.collect{ |tt| [tt[:original].id, tt[:clone].id] }]
+      team_task_map = self.team_task_map
       new_team.get_rules.to_a.each do |rule|
         rule["actions"].to_a.each do |action|
           if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
