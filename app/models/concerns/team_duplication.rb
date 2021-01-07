@@ -109,8 +109,8 @@ module TeamDuplication
           new_tbi = Bot::Smooch.sanitize_installation(new_tbi, true)
           new_tbi.settings['smooch_project_id'] = @project_id_map[tbi.settings["smooch_project_id"]]
           new_tbi.settings['smooch_workflows'] = tbi.settings["smooch_workflows"].deep_dup
-          tbi.settings['smooch_workflows'].each_with_index do |w, i|
-            w['smooch_custom_resources'].each_with_index do |r, j|
+          tbi.settings['smooch_workflows'].to_a.each_with_index do |w, i|
+            w['smooch_custom_resources'].to_a.each_with_index do |r, j|
               new_tbi.settings['smooch_workflows'][i]['smooch_custom_resources'][j] = r.deep_dup.merge({ 'smooch_custom_resource_id' => (0...8).map { (65 + rand(26)).chr }.join })
             end
           end
