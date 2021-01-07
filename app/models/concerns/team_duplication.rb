@@ -38,9 +38,9 @@ module TeamDuplication
     end
 
     def self.modify_settings(old_team, new_team)
-      team_task_map = Hash[@clones.select{|x| x[:original].is_a?(TeamTask)}.collect{|x| [x[:original].id, x[:clone].id]}]
+      team_task_map = self.team_task_map
       new_list_columns = old_team.get_list_columns.to_a.collect{|lc| lc.include?("task_value_") ? "task_value_#{team_task_map[lc.split("_").last.to_i]}" : lc}
-      new_team.set_list_columns = new_list_columns
+      new_team.set_list_columns = new_list_columns unless new_list_columns.blank?
       new_team.set_languages = old_team.get_languages
       new_team
     end
@@ -74,6 +74,7 @@ module TeamDuplication
         self.alter_project_copy(copy)
       elsif original.is_a?(TagText)
         copy.team_id = @team_id if !@team_id.nil?
+        copy.tags_count = 0
       end
       copy.save!
       if original.is_a?(Project)
@@ -83,7 +84,16 @@ module TeamDuplication
       end
     end
 
+    def self.team_task_map
+      Hash[@clones.select{ |c| c[:original].is_a?(TeamTask) }.collect{ |tt| [tt[:original].id, tt[:clone].id] }]
+    end
+
+    def self.alter_rule_value_user(user_id)
+      (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(user_id)) ? User.current.id : nil
+    end
+
     def self.update_team_rules(new_team)
+      team_task_map = self.team_task_map
       new_team.get_rules.to_a.each do |rule|
         rule["actions"].to_a.each do |action|
           if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
@@ -92,9 +102,10 @@ module TeamDuplication
         end
         rule.dig("rules", "groups").to_a.each do |group|
           group["conditions"].each do |condition|
-            if condition["rule_definition"] == "item_is_assigned_to_user"
-              condition["rule_value"] = (!User.current.nil? && !(@bot_ids|[User.current.id]).include?(condition["rule_value"])) ? User.current.id : nil
+            if ["item_is_assigned_to_user", "item_user_is"].include?(condition["rule_definition"])
+              condition["rule_value"] = self.alter_rule_value_user(condition["rule_value"])
             end
+            condition["rule_value"]["team_task_id"] = team_task_map[condition["rule_value"]["team_task_id"]] if condition["rule_definition"].match(/^field_from_fieldset/)
           end
         end
       end
@@ -109,8 +120,8 @@ module TeamDuplication
           new_tbi = Bot::Smooch.sanitize_installation(new_tbi, true)
           new_tbi.settings['smooch_project_id'] = @project_id_map[tbi.settings["smooch_project_id"]]
           new_tbi.settings['smooch_workflows'] = tbi.settings["smooch_workflows"].deep_dup
-          tbi.settings['smooch_workflows'].each_with_index do |w, i|
-            w['smooch_custom_resources'].each_with_index do |r, j|
+          tbi.settings['smooch_workflows'].to_a.each_with_index do |w, i|
+            w['smooch_custom_resources'].to_a.each_with_index do |r, j|
               new_tbi.settings['smooch_workflows'][i]['smooch_custom_resources'][j] = r.deep_dup.merge({ 'smooch_custom_resource_id' => (0...8).map { (65 + rand(26)).chr }.join })
             end
           end
