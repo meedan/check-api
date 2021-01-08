@@ -5,7 +5,7 @@ module HasVideo
 
   module ClassMethods
     def max_size
-      self.get_max_size({ env: ENV['MAX_VIDEO_SIZE'], config: CheckConfig.get('video_file_max_size'), default: 20.megabyte })
+      self.get_max_size({ env: ENV['MAX_VIDEO_SIZE'], config: CheckConfig.get('video_file_max_size', nil, :integer), default: 20.megabyte })
     end
   end
 
