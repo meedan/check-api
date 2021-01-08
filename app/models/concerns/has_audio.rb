@@ -5,7 +5,7 @@ module HasAudio
 
   module ClassMethods
     def max_size
-      self.get_max_size({ env: ENV['MAX_AUDIO_SIZE'], config: CheckConfig.get('audio_file_max_size'), default: 20.megabyte })
+      self.get_max_size({ env: ENV['MAX_AUDIO_SIZE'], config: CheckConfig.get('audio_file_max_size').to_i, default: 20.megabyte })
     end
   end
 
