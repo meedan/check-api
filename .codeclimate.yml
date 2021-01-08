@@ -43,7 +43,7 @@ plugins:
     config:
       languages:
         ruby:
-          mass_threshold: 19
+          mass_threshold: 20
   bundler-audit:
     enabled: true
 exclude_patterns:
