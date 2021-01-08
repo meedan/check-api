@@ -7,6 +7,7 @@ class CheckConfig
     value ||= CONFIG[key] if CONFIG.has_key?(key)
     return default if value.nil?
     value = self.parse_value(value) if type == :json
+    value = value.to_i if type == :integer
     return value unless value.is_a?(Hash) && value.has_key?('lang')
     self.get_lang_value(value)
   end

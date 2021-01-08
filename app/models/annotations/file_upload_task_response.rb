@@ -6,7 +6,7 @@ class FileUploadTaskResponse < Dynamic
   end
 
   def self.max_size
-    UploadedFile.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CheckConfig.get('uploaded_file_max_size').to_i, default: 20.megabytes })
+    UploadedFile.get_max_size({ env: ENV['MAX_UPLOAD_SIZE'], config: CheckConfig.get('uploaded_file_max_size', nil, :integer), default: 20.megabytes })
   end
 
   # Re-define class variables from parent class
