@@ -21,19 +21,10 @@ class TeamBotInstallation < TeamUser
     BotUser.where(id: self.user_id).last
   end
 
-  private
-
-  def can_be_installed_if_approved
-    if self.bot_user.present? && !self.bot_user.get_approved && self.team_id != self.bot_user.team_author_id
-      errors.add(:base, I18n.t(:bot_not_approved_for_installation))
-    end
-  end
-
-  def settings_follow_schema
-    if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank?
-      value = JSON.parse(self.bot_user.settings_as_json_schema(true))
-      errors.add(:settings, JSON::Validator.fully_validate(value, self.settings)) if !JSON::Validator.validate(value, self.settings)
-    end
+  def reset_smooch_authorization_token
+    token = SecureRandom.hex
+    self.set_smooch_authorization_token = token
+    self.set_smooch_twitter_authorization_url = "#{CheckConfig.get('checkdesk_base_url')}/api/users/auth/twitter?context=smooch&destination=#{CheckConfig.get('checkdesk_base_url')}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
   end
 
   def apply_default_settings
@@ -51,6 +42,21 @@ class TeamBotInstallation < TeamUser
       end
       current_settings = self.settings || {}
       self.settings = settings.merge(current_settings)
+    end
+  end
+
+  private
+
+  def can_be_installed_if_approved
+    if self.bot_user.present? && !self.bot_user.get_approved && self.team_id != self.bot_user.team_author_id
+      errors.add(:base, I18n.t(:bot_not_approved_for_installation))
+    end
+  end
+
+  def settings_follow_schema
+    if self.bot_user && self.respond_to?(:settings) && self.bot_user.get_settings && !self.settings.blank?
+      value = JSON.parse(self.bot_user.settings_as_json_schema(true))
+      errors.add(:settings, JSON::Validator.fully_validate(value, self.settings)) if !JSON::Validator.validate(value, self.settings)
     end
   end
 

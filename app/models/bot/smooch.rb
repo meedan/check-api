@@ -228,9 +228,7 @@ class Bot::Smooch < BotUser
     # Save Twitter token and authorization URL
     after_create do
       if self.bot_user.identifier == 'smooch'
-        token = SecureRandom.hex
-        self.set_smooch_authorization_token = token
-        self.set_smooch_twitter_authorization_url = "#{CheckConfig.get('checkdesk_base_url')}/api/users/auth/twitter?context=smooch&destination=#{CheckConfig.get('checkdesk_base_url')}/api/admin/smooch_bot/#{self.id}/authorize/twitter?token=#{token}"
+        self.reset_smooch_authorization_token
         self.save!
       end
     end
@@ -432,13 +430,6 @@ class Bot::Smooch < BotUser
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
         self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
-  end
-
-  def self.get_message_for_state(workflow, state, language)
-    message = []
-    message << self.tos_message(workflow, language) if state.to_s == 'main'
-    message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-    message.join("\n\n")
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -837,16 +828,16 @@ class Bot::Smooch < BotUser
     Rails.cache.write("smooch:banned:#{uid}", message.to_json)
   end
 
-  # Don't save if it contains only menu options
+  # Don't save as a ProjectMedia if it contains only menu options
   def self.is_a_valid_text_message?(text)
     !text.split(/#{MESSAGE_BOUNDARY}|\s+/).reject{ |m| m =~ /^[0-9]*$/ }.empty?
   end
 
   def self.save_text_message(message)
     text = message['text']
-    team_id = Team.where(id: config['team_id'].to_i).last
+    team = Team.where(id: config['team_id'].to_i).last
 
-    return nil unless self.is_a_valid_text_message?(text)
+    return team unless self.is_a_valid_text_message?(text)
 
     begin
       url = self.extract_url(text)
@@ -855,10 +846,10 @@ class Bot::Smooch < BotUser
       if url.nil?
         claim = self.extract_claim(text)
         extra = { quote: claim }
-        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team_id).last
+        pm = ProjectMedia.joins(:media).where('lower(quote) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
       else
         extra = { url: url }
-        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team_id).last
+        pm = ProjectMedia.joins(:media).where('medias.url' => url, 'project_medias.team_id' => team.id).last
       end
 
       if pm.nil?
@@ -1064,5 +1055,17 @@ class Bot::Smooch < BotUser
       sm.reset
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
+  end
+
+  def self.sanitize_installation(team_bot_installation, blast_secret_settings = false)
+    team_bot_installation.apply_default_settings
+    team_bot_installation.reset_smooch_authorization_token
+    if blast_secret_settings
+      team_bot_installation.settings.delete("smooch_app_id")
+      team_bot_installation.settings.delete("smooch_secret_key_key_id")
+      team_bot_installation.settings.delete("smooch_secret_key_secret")
+      team_bot_installation.settings.delete("smooch_webhook_secret")
+    end
+    team_bot_installation
   end
 end

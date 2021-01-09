@@ -200,9 +200,13 @@ class Project < ActiveRecord::Base
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
   end
 
-  def generate_token
+  def generate_token(force = false)
     self.token = nil if self.is_being_copied
-    self.token ||= SecureRandom.uuid
+    if force
+      self.token = SecureRandom.uuid
+    else
+      self.token ||= SecureRandom.uuid
+    end
   end
 
   def self.archive_or_restore_project_medias_if_needed(archived, team_id)
