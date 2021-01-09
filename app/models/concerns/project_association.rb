@@ -122,7 +122,7 @@ module ProjectAssociation
 
     def set_media_and_source
       self.set_media
-      if self.source_id.blank?
+      if self.source_id.blank? && !self.media.nil?
         a = self.media.account
         s = a.sources.first unless a.nil?
         unless Team.current.nil? || s.nil? || s.team_id == Team.current.id

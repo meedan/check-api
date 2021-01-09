@@ -107,10 +107,9 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get medias" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
+    t = create_team
+    s = create_source team: t
+    pm = create_project_media team: t, source: s, skip_autocreate_source: false
     assert_equal [pm], s.medias
     assert_equal 1, s.medias_count
   end

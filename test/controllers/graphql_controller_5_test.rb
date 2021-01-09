@@ -218,8 +218,8 @@ class GraphqlController5Test < ActionController::TestCase
   test "should update project media source" do
     s = create_source team: @t
     s2 = create_source team: @t
-    pm = create_project_media team: @t, source_id: s.id
-    pm2 = create_project_media team: @t, source_id: s2.id
+    pm = create_project_media team: @t, source_id: s.id, skip_autocreate_source: false
+    pm2 = create_project_media team: @t, source_id: s2.id, skip_autocreate_source: false
     assert_equal s.id, pm.source_id
     query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\", source_id: #{s2.id}}) { project_media { source { dbid, medias_count } } } }"
     post :create, query: query, team: @t.slug
