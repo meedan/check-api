@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
   validates_presence_of :media, :team
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
-  # validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank?  }
+  validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
 
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create, :create_metrics_annotation

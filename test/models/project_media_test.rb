@@ -644,10 +644,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should create or reset archive response when refresh media" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    l = create_link
     t = create_team
     t.set_limits_keep = true
     t.save!
+    l = create_link team: t
     tb = BotUser.where(name: 'Keep').last
     tb.set_settings = [{ name: 'archive_pender_archive_enabled', type: 'boolean' }]
     tb.set_approved = true
@@ -1351,43 +1351,46 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   # TODO: Sawy fix test
-  # test "should validate media source" do
-  #   t = create_team
-  #   t2 = create_team
-  #   s = create_source team: t
-  #   s2 = create_source team: t2
-  #   pm = nil
-  #   assert_difference 'ProjectMedia.count', 2 do
-  #     create_project_media team: t
-  #     pm = create_project_media team: t, source_id: s.id
-  #   end
-  #   assert_raises ActiveRecord::RecordInvalid do
-  #     pm.source_id = s2.id
-  #     pm.save!
-  #   end
-  #   assert_raises ActiveRecord::RecordInvalid do
-  #     create_project_media team: t, source_id: s2.id
-  #   end
-  # end
+  test "should validate media source" do
+    t = create_team
+    t2 = create_team
+    s = create_source team: t
+    s2 = create_source team: t2
+    pm = nil
+    assert_difference 'ProjectMedia.count', 2 do
+      create_project_media team: t
+      pm = create_project_media team: t, source_id: s.id
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.source_id = s2.id
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media team: t, source_id: s2.id, skip_autocreate_source: false
+    end
+  end
 
   test "should assign media source using account" do
     u = create_user
     t = create_team
+    t2 = create_team
     create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'owner'
     m = nil
+    s = nil
     with_current_user_and_team(u, t) do
       m = create_valid_media
       s = m.account.sources.first
       assert_equal t.id, s.team_id
-      pm = create_project_media media: m
+      pm = create_project_media media: m, team: t, skip_autocreate_source: false
       assert_equal s.id, pm.source_id
     end
-    # TODO: Sawy fix this case
-    # t2 = create_team
-    # create_team_user team: t2, user: u, role: 'owner'
-    # with_current_user_and_team(u, t) do
-    #   pm = create_project_media media: m
-    # end
+    with_current_user_and_team(u, t2) do
+      pm = create_project_media media: m, team: t2, skip_autocreate_source: false
+      assert_not_nil pm.source_id
+      assert_not_equal s.id, pm.source_id
+      assert_equal m.account, pm.source.accounts.first
+    end
   end
 
   test "should create media when normalized URL exists" do

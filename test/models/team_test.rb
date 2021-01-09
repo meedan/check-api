@@ -798,8 +798,8 @@ class TeamTest < ActiveSupport::TestCase
     team = create_team name: 'Team A', logo: 'rails.png'
     u = create_user
     project = create_project team: team, user: u
-    source = create_source user: u
-    source.team = team; source.save
+    source = create_source user: u, team: team
+    # source.team = team; source.save
     account = create_account user: u, team: team, source: source
 
 
@@ -1562,7 +1562,7 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     s = create_source
-    c = create_claim_media account: create_valid_account
+    c = create_claim_media account: create_valid_account({team: t})
     c.account.sources << s
     pm1 = pm2 = pm3 = pm4 = nil
     Airbrake.stubs(:configured?).returns(true)
@@ -1571,7 +1571,7 @@ class TeamTest < ActiveSupport::TestCase
       pm1 = create_project_media media: c, project: p0
       pm2 = create_project_media media: create_uploaded_video, project: p0
       pm3 = create_project_media media: create_uploaded_image, project: p0
-      pm4 = create_project_media media: create_link, project: p0
+      pm4 = create_project_media media: create_link({team: t}), project: p0
     end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
@@ -1718,7 +1718,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p1.id).project_media_projects.count
     m = create_claim_media quote: 'test'
     create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
-    m = create_link
+    m = create_link({team: t})
     create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
     assert_equal 2, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count

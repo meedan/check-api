@@ -135,7 +135,7 @@ class Source < ActiveRecord::Base
   end
 
   def set_team
-    self.team = Team.current unless Team.current.nil?
+    self.team = Team.current if self.team_id.nil? && !Team.current.nil?
   end
 
   def is_unique_per_team

@@ -105,9 +105,10 @@ class ProjectTest < ActiveSupport::TestCase
     rescue
       # Already exists
     end
-    m1 = create_valid_media
-    m2 = create_valid_media
-    p = create_project
+    t = create_team
+    m1 = create_valid_media team: t
+    m2 = create_valid_media team: t
+    p = create_project team: t
     create_project_media project: p, media: m1
     create_project_media project: p, media: m2
     assert_equal [m1, m2].sort, p.reload.project_medias.map(&:media).sort
@@ -345,8 +346,9 @@ class ProjectTest < ActiveSupport::TestCase
   test "should export data for Check" do
     create_verification_status_stuff
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, media: create_valid_media({team: t})
       c = create_comment annotated: pm, text: 'Note 1'
       tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
       task = create_task annotator: create_user, annotated: pm
@@ -363,9 +365,10 @@ class ProjectTest < ActiveSupport::TestCase
   test "should export data for Check starting from specific id" do
     create_verification_status_stuff
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      pm2 = create_project_media project: p, media: create_valid_media
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, media: create_valid_media({team: t})
+      pm2 = create_project_media project: p, media: create_valid_media({team: t})
       c = create_comment annotated: pm, text: 'Note 1'
       c2 = create_comment annotated: pm2, text: 'Note 2'
       tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
@@ -385,12 +388,13 @@ class ProjectTest < ActiveSupport::TestCase
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, media: create_valid_media({team: t})
       c = create_comment annotated: pm, text: 'Note 1'
       n = 2
       n.times { create_annotation annotation_type: 'smooch', annotated: pm }
-      pm2 = create_project_media project: p, media: create_valid_media
+      pm2 = create_project_media project: p, media: create_valid_media({team: t})
       exported_data = p.export(0, ['comment', 'task', 'smooch'])
       assert_equal 2, exported_data.size
       assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:number_of_requests)
@@ -403,9 +407,10 @@ class ProjectTest < ActiveSupport::TestCase
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      pm2 = create_project_media project: p, media: create_valid_media
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, media: create_valid_media({team: t})
+      pm2 = create_project_media project: p, media: create_valid_media({team: t})
       n = 1
       n.times { create_annotation annotation_type: 'smooch', annotated: pm2 }
       exported_data = p.export
@@ -419,11 +424,12 @@ class ProjectTest < ActiveSupport::TestCase
     create_verification_status_stuff
     create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', false]})
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
+      t = create_team
+      p = create_project team: t
+      pm = create_project_media project: p, media: create_valid_media({team: t})
       n = 2
       n.times { create_annotation annotation_type: 'smooch_response', annotated: pm }
-      pm2 = create_project_media project: p, media: create_valid_media
+      pm2 = create_project_media project: p, media: create_valid_media({team: t})
       exported_data = p.export(0, ['smooch_response'])
       assert_equal 2, exported_data.size
       assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:responses_with_final_status_count)
@@ -434,12 +440,13 @@ class ProjectTest < ActiveSupport::TestCase
   test "should include language on export if send it as parameter" do
     at = create_annotation_type annotation_type: 'language'
     create_field_instance name: 'language', annotation_type_object: at
-    p = create_project
-    pm1 = create_project_media project: p, media: create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm1 = create_project_media project: p, media: create_valid_media({team: t})
     create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'en' }.to_json
-    pm2 = create_project_media project: p, media: create_valid_media
+    pm2 = create_project_media project: p, media: create_valid_media({team: t})
     create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json
-    pm3 = create_project_media project: p, media: create_valid_media
+    pm3 = create_project_media project: p, media: create_valid_media({team: t})
     exported_data = p.export(0, ['language'])
 
     assert_equal 3, exported_data.size
@@ -450,8 +457,9 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export data to CSV" do
     create_verification_status_stuff
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: create_valid_media({team: t})
     c = create_comment annotated: pm, text: 'Note 1'
     tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
     at = create_annotation_type annotation_type: 'task_response'
@@ -466,8 +474,9 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should export project" do
     create_verification_status_stuff(false)
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: create_valid_media({team: t})
     c = create_comment annotated: pm, text: 'Note 1'
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response'
@@ -656,14 +665,14 @@ class ProjectTest < ActiveSupport::TestCase
       i = create_uploaded_image
       pm2 = create_project_media media: i, project: p
       pm2.create_all_archive_annotations
-      l1 = create_link
+      l1 = create_link team: t
       pm3 = create_project_media media: l1, project: p
       pm3.create_all_archive_annotations
       archiver = Annotation.where(annotation_type: 'archiver', annotated_id: pm3.id).last
       f = DynamicAnnotation::Field.where(field_name: "pender_archive_response", annotation_id: archiver.id).last
       f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
       f.save!
-      l2 = create_link
+      l2 = create_link team: t
       pm4 = create_project_media media: l2, project: p
       pm4.create_all_archive_annotations
 

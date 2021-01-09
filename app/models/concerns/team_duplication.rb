@@ -161,7 +161,9 @@ module TeamDuplication
     def self.update_version_object_changes(log)
       changes = log.get_object_changes.with_indifferent_access
       return if changes.blank?
-      associations = { annotated_id: 'associated_type', source_id: 'associated_type', target_id: 'associated_type', id: 'item_type' }
+      associations = { annotated_id: 'associated_type', target_id: 'associated_type', id: 'item_type' }
+      # TODO: Sawy review the logic as source_id exists in Relation & ProjectMedia
+      associations[:source_id] = 'associated_type' unless log.item_type == 'ProjectMedia'
       associations.each_pair do |field, method|
         unless changes[field].blank?
           changes[field].map! do |a|

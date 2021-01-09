@@ -124,8 +124,14 @@ module ProjectAssociation
       self.set_media
       if self.source_id.blank?
         a = self.media.account
-        s_id = a.source_ids.last unless a.nil?
-        self.source_id = s_id unless s_id.blank?
+        s = a.sources.first unless a.nil?
+        unless Team.current.nil? || s.nil? || s.team_id == Team.current.id
+          # clone exiting source to current team
+          # This case happens when add exiting media
+          s = Source.create_source(s.name)
+          a.create_account_source(s)
+        end
+        self.source_id = s.id unless s.blank?
       end
     end
 
