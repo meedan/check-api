@@ -12,7 +12,7 @@ DuplicateTeamMutation = GraphQL::Relay::Mutation.define do
     user = User.current
     ability = Ability.new(user)
     team = GraphqlCrudOperations.load_if_can(Team, id, ctx)
-    raise I18n.t('team_clone.user_not_authorized') if ability.cannot?(:duplicate_team, team)
+    raise I18n.t('team_clone.user_not_authorized') if ability.cannot?(:duplicate, team)
     new_team = Team.duplicate(team, inputs['custom_slug'], inputs['custom_name'])
     { team: new_team }
   }

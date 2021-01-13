@@ -26,7 +26,7 @@ module SmoochResources
           end
         end
       end
-      message = message.join("\n\n")
+      message = self.utmize_urls(message.join("\n\n"), 'resource')
       self.send_message_to_user(uid, message) unless message.blank?
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end

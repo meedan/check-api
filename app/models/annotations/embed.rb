@@ -34,7 +34,7 @@ Dynamic.class_eval do
     unless self.annotated.nil?
       keys = %w(title description)
       if self.annotated_type == 'ProjectMedia'
-        self.update_es_metadata_pm_annotation(keys)
+        self.update_es_metadata_pm_annotation(keys, self.annotated)
       elsif self.annotated_type == 'Media' && self.annotated.type == 'Link'
         self.annotated.project_medias.each do |pm|
           m = pm.get_annotations('metadata').last
@@ -44,10 +44,10 @@ Dynamic.class_eval do
     end
   end
 
-  def update_es_metadata_pm_annotation(keys)
+  def update_es_metadata_pm_annotation(keys, pm)
     data = {}
     keys.each { |k| data[k] = self.send(k) }
-    self.update_elasticsearch_doc(keys, data)
+    self.update_elasticsearch_doc(keys, data, pm)
   end
 
   def metadata_for_registration_account(data)
