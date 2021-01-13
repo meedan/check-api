@@ -185,7 +185,9 @@ module SmoochMessages
     end
 
     def utmize_urls(text, source)
-      Twitter::TwitterText::Rewriter.rewrite_urls(text) do |url|
+      entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
+      Twitter::TwitterText::Rewriter.rewrite_entities(text, entities) do |entity, _codepoints|
+        url = entity[:url]
         begin
           uri = URI.parse(url)
           new_query_ar = URI.decode_www_form(uri.query.to_s) << ['utm_source', "check_#{source}"]
