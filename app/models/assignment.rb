@@ -134,7 +134,7 @@ class Assignment < ActiveRecord::Base
     if ['Annotation', 'Dynamic'].include?(self.assigned_type) && self.assigned.annotation_type == 'verification_status'
       pm = self.assigned.annotated
       uids = Assignment.where(assigned_type: self.assigned_type, assigned_id: self.assigned_id).map(&:user_id)
-      options = { keys: ['assigned_user_ids'], data: { 'assigned_user_ids' => uids }, parent: pm }
+      options = { keys: ['assigned_user_ids'], data: { 'assigned_user_ids' => uids }, obj: pm }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(pm), YAML::dump(options), 'update_doc')
     end
   end
