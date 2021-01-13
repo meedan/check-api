@@ -183,5 +183,18 @@ module SmoochMessages
       self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) if code == 470
       self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
     end
+
+    def utmize_urls(text, source)
+      Twitter::TwitterText::Rewriter.rewrite_urls(text) do |url|
+        begin
+          uri = URI.parse(url)
+          new_query_ar = URI.decode_www_form(uri.query.to_s) << ['utm_source', "check_#{source}"]
+          uri.query = URI.encode_www_form(new_query_ar)
+          uri.to_s
+        rescue
+          url
+        end
+      end
+    end
   end
 end
