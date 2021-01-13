@@ -584,7 +584,7 @@ class Bot::Smooch < BotUser
       template = original['fallback_template']
       language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
       query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-      text = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
+      text = report.report_design_field_value('use_text_message', language) ? self.utmize_urls(report.report_design_text(language).to_s, 'report') : nil
       image = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
       last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
       last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
@@ -975,7 +975,7 @@ class Bot::Smooch < BotUser
         sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
-        last_smooch_response = self.send_message_to_user(uid, report.report_design_text(lang))
+        last_smooch_response = self.send_message_to_user(uid, self.utmize_urls(report.report_design_text(lang), 'report'))
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end

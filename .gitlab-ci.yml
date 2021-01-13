@@ -103,6 +103,8 @@ deploy_live:
     - pip install ecs-deploy==1.11.0
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /live/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/live/check-api/##' > env.live.names
+    - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-workbench $NAME /live/check-api/$NAME " >> live-check-api-workbench.env.args; done
+    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  `cat live-check-api-workbench.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-migration $NAME /live/check-api/$NAME " >> live-check-api-migration.env.args; done
     - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  `cat live-check-api-migration.env.args`
     - taskArn=$(aws ecs run-task --cluster ecs-live --task-definition live-check-api-migration --query 'tasks[].taskArn' --output text)

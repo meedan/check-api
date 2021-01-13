@@ -96,7 +96,7 @@ Dynamic.class_eval do
       request['x-api-key'] = CheckConfig.get('narcissus_token')
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
       screenshot = JSON.parse(response.body)['url']
-      raise "Unexpected response from screenshot service: #{screenshot}" unless screenshot =~ /^http/
+      raise "Unexpected response from screenshot service for request #{uri}: #{response.body}" unless screenshot =~ /^http/
       data[:options][option_index][:visual_card_url] = screenshot
       self.set_fields = data.to_json
       self.save!
