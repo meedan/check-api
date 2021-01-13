@@ -540,5 +540,16 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert t2 > t1
   end
 
-  # Add tests to test/models/bot/smooch_3_test.rb
+  test "should add utm_source parameter to URLs" do
+    input = 'Go to https://x.com and http://meedan.com/?lang=en and http://meedan.com/en/website?a=1&b=2 and http://meedan.com/en/ and http://meedan.com/en'
+    expected = 'Go to https://x.com?utm_source=check_test and http://meedan.com/?lang=en&utm_source=check_test and http://meedan.com/en/website?a=1&b=2&utm_source=check_test and http://meedan.com/en/?utm_source=check_test and http://meedan.com/en?utm_source=check_test'
+    output = Bot::Smooch.utmize_urls(input, 'test')
+    assert_equal expected, output
+
+    URI.stubs(:parse).raises(RuntimeError)
+    input = 'Test http://meedan.com'
+    output = Bot::Smooch.utmize_urls(input, 'test')
+    assert_equal input, output
+    URI.unstub(:parse)
+  end
 end
