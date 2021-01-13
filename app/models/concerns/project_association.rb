@@ -105,7 +105,7 @@ module ProjectAssociation
         'associated_type' => obj.media.type,
         'published_at' => obj.published_at
       }
-      options = { keys: keys, data: data, parent: obj }
+      options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
     end
 

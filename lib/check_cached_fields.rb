@@ -47,7 +47,7 @@ module CheckCachedFields
       update_index = update_es || false
       if update_index
         value = update_index.call(value) if update_index.is_a?(Proc)
-        options = { keys: [name], data: { name => value }, parent: target }
+        options = { keys: [name], data: { name => value }, obj: target }
         ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
       end
     end
