@@ -616,35 +616,34 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: sawy fix
-  # test "should delete sources, projects and project medias when team is deleted" do
-  #   Sidekiq::Testing.inline! do
-  #     t = create_team
-  #     u = create_user
-  #     create_team_user user: u, team: t, role: 'owner'
-  #     p1 = create_project
-  #     p2 = create_project team: t
-  #     s1 = create_source
-  #     s2 = create_source team: t
-  #     pm1 = create_project_media
-  #     pm2 = create_project_media project: p2
-  #     pm3 = create_project_media project: p2
-  #     c = create_comment annotated: pm2
-  #     RequestStore.store[:disable_es_callbacks] = true
-  #     with_current_user_and_team(u, t) do
-  #       t.destroy_later
-  #     end
-  #     RequestStore.store[:disable_es_callbacks] = false
-  #     assert_not_nil ProjectMedia.where(id: pm1.id).last
-  #     assert_nil ProjectMedia.where(id: pm2.id).last
-  #     assert_nil ProjectMedia.where(id: pm3.id).last
-  #     assert_not_nil Project.where(id: p1.id).last
-  #     assert_nil Project.where(id: p2.id).last
-  #     assert_not_nil Source.where(id: s1.id).last
-  #     assert_nil Source.where(id: s2.id).last
-  #     assert_nil Comment.where(id: c.id).last
-  #   end
-  # end
+  test "should delete sources, projects and project medias when team is deleted" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t, role: 'owner'
+      p1 = create_project
+      p2 = create_project team: t
+      s1 = create_source
+      s2 = create_source team: t
+      pm1 = create_project_media
+      pm2 = create_project_media project: p2
+      pm3 = create_project_media project: p2
+      c = create_comment annotated: pm2
+      RequestStore.store[:disable_es_callbacks] = true
+      with_current_user_and_team(u, t) do
+        t.destroy_later
+      end
+      RequestStore.store[:disable_es_callbacks] = false
+      assert_not_nil ProjectMedia.where(id: pm1.id).last
+      assert_nil ProjectMedia.where(id: pm2.id).last
+      assert_nil ProjectMedia.where(id: pm3.id).last
+      assert_not_nil Project.where(id: p1.id).last
+      assert_nil Project.where(id: p2.id).last
+      assert_not_nil Source.where(id: s1.id).last
+      assert_nil Source.where(id: s2.id).last
+      assert_nil Comment.where(id: c.id).last
+    end
+  end
 
   test "should not delete team later if doesn't have permission" do
     u = create_user

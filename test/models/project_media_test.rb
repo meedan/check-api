@@ -1327,16 +1327,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
     m = create_media team: t, url: url, account: nil, account_id: nil
     a = m.account
-    # s = a.sources.first
     p = create_project team: t
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, project: p, disable_es_callbacks: false
       sleep 2
       pm = ProjectMedia.find(pm.id)
-      # verify project media source
-      # assert_equal s.id, pm.source_id
-      # result = $repository.find(get_es_id(pm))
-      # assert_equal s.id, result['source_id']
       with_current_user_and_team(u, t) do
         pm.refresh_media = true
         sleep 2
@@ -1350,7 +1345,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy fix test
   test "should validate media source" do
     t = create_team
     t2 = create_team
