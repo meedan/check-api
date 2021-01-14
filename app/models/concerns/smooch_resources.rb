@@ -69,6 +69,7 @@ module SmoochResources
         br.feed_url = resource['smooch_custom_resource_feed_url']
         br.number_of_articles = resource['smooch_custom_resource_number_of_articles'].to_i
         br.team_id = team_id
+        br.skip_check_ability = true
         br.save!
       end
     end
