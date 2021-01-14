@@ -26,7 +26,7 @@ module SmoochResources
           end
         end
       end
-      message = message.join("\n\n")
+      message = self.utmize_urls(message.join("\n\n"), 'resource')
       self.send_message_to_user(uid, message) unless message.blank?
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
     end
@@ -69,6 +69,7 @@ module SmoochResources
         br.feed_url = resource['smooch_custom_resource_feed_url']
         br.number_of_articles = resource['smooch_custom_resource_number_of_articles'].to_i
         br.team_id = team_id
+        br.skip_check_ability = true
         br.save!
       end
     end
