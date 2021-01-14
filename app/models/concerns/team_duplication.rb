@@ -31,6 +31,7 @@ module TeamDuplication
         team = self.update_team_rules(team)
         Team.current = team
         self.add_current_user(team)
+        team.skip_check_ability = true
         team.save!
         self.store_clones
         return team
@@ -48,6 +49,7 @@ module TeamDuplication
     def self.add_current_user(team)
       return nil if User.current.nil?
       TeamUser.new(
+        skip_check_ability: true,
         role: "owner",
         status: "member",
         user_id: User.current.id,
@@ -68,6 +70,7 @@ module TeamDuplication
     end
 
     def self.alter_copy_by_type(original, copy)
+      copy.skip_check_ability = true # We use a specific "duplicate" permission before calling the Team.duplicate method
       if original.is_a?(Team)
         self.alter_team_copy(copy)
       elsif original.is_a?(Project)
@@ -126,6 +129,7 @@ module TeamDuplication
             end
           end
         end
+        new_tbi.skip_check_ability = true
         new_tbi.save(validate: false)
         @bot_ids << new_tbi.user_id
       end
@@ -138,6 +142,7 @@ module TeamDuplication
             clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
           end
         end
+        clone[:clone].skip_check_ability = true
         clone[:clone].save!
       end
     end
