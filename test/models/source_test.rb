@@ -487,4 +487,11 @@ class SourceTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should relate source to project media" do
+    t = create_team
+    pm = create_project_media team: t
+    s = create_source team: t, add_to_project_media_id: pm.id
+    assert_equal s.id, pm.reload.source_id
+  end
+
 end
