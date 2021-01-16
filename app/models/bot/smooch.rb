@@ -767,8 +767,9 @@ class Bot::Smooch < BotUser
         self.save_media_message(message)
       end
     # update archived column
-    if !pm.nil? && pm.archived != CheckArchivedFlags::FlagCodes::NONE && message['archived'] == CheckArchivedFlags::FlagCodes::NONE
-      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    if pm.is_a?(ProjectMedia) && pm.archived != CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS && message['archived'] == CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
+      pm.skip_check_ability = true
+      pm.archived = CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.save!
     end
     pm

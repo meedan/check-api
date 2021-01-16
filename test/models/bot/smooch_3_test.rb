@@ -148,7 +148,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [@project.id], pm.project_ids
-    assert_equal 0, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
 
     messages = [
       {
@@ -173,7 +173,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p1.id], pm.project_ids
-    assert_equal 0, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
 
     messages = [
       {
@@ -198,7 +198,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p2.id], pm.project_ids
-    assert_equal 0, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
 
     messages = [
       {
@@ -222,7 +222,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal 1, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
 
     messages = [
       {
@@ -247,7 +247,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_nil Rails.cache.read("smooch:banned:#{uid}")
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal 1, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
     assert_not_nil Rails.cache.read("smooch:banned:#{uid}")
 
     @team.settings = s1
@@ -1315,7 +1315,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot('2', uid)
     end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, annotated.reload.archived
     assert_equal 2, annotated.reload.requests_count
     # Test resend same media (should not update archived cloumn)
     Sidekiq::Testing.fake! do
@@ -1327,7 +1327,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot('2', uid)
     end
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, annotated.reload.archived
     assert_equal 3, annotated.reload.requests_count
     Rails.cache.unstub(:read)
   end

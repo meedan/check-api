@@ -12,6 +12,7 @@ class Bot::Alegre < BotUser
     end
 
     handled = false
+    pm = nil
     begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
@@ -27,7 +28,17 @@ class Bot::Alegre < BotUser
       Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
     end
+
+    self.unarchive_if_archived(pm)
+
     handled
+  end
+
+  def self.unarchive_if_archived(pm)
+    if pm&.archived == CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
+      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+      pm.save!
+    end
   end
 
   def self.translate_similar_items(similar_items, relationship_type)
