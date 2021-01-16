@@ -371,6 +371,8 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     Bot::Smooch.run(payload)
     sleep 1
     pm = ProjectMedia.last
+    pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    pm.save!
     create_relationship source_id: pm.id, target_id: child1.id, user: u
     r = create_report(pm)
     pa1 = r.reload.get_field_value('last_published')

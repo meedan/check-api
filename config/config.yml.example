@@ -9,7 +9,7 @@ development: &default
   pender_url: 'http://localhost:3200'
   pender_url_private: 'http://pender:3200'
   pender_key: 'dev'
-  alegre_host: 'http://alegre:3100'
+  alegre_host: 'http://alegre:5000'
   alegre_token: 'dev'
   elasticsearch_host: 'elasticsearch'
   elasticsearch_port: 9200

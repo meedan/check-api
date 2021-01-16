@@ -146,6 +146,8 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     }.to_json
     Bot::Smooch.run(payload)
     pm = ProjectMedia.last
+    pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    pm.save!
     with_current_user_and_team(u, @team) do
       s = pm.last_verification_status_obj
       s.status = 'false'
