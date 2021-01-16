@@ -241,10 +241,12 @@ ActiveRecord::Schema.define(version: 20210110193931) do
     t.integer  "sources_count",            default: 0,     null: false
     t.integer  "team_id"
     t.boolean  "read",                     default: false, null: false
+    t.integer  "source_id"
   end
 
   add_index "project_medias", ["id"], name: "index_project_medias_on_id", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
+  add_index "project_medias", ["source_id"], name: "index_project_medias_on_source_id", using: :btree
   add_index "project_medias", ["team_id"], name: "index_project_medias_on_team_id", using: :btree
   add_index "project_medias", ["user_id"], name: "index_project_medias_on_user_id", using: :btree
 

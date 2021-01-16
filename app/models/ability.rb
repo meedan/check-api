@@ -109,8 +109,8 @@ class Ability
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
-    can :destroy, Source, :team_id => @context_team.id
-    can :destroy, [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
+    can :destroy, [Account, Source], :team_id => @context_team.id
+    can :destroy, AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment tag dynamic task).each do |annotation_type|
       can :destroy, annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id
@@ -173,9 +173,9 @@ class Ability
     can :update, ProjectMediaProject do |obj|
       obj.project && obj.project.team_id == @context_team.id && obj.project_media.archived == CheckArchivedFlags::FlagCodes::NONE
     end
-    can [:create, :update], Source, :team_id => @context_team.id
+    can [:create, :update], [Account, Source], :team_id => @context_team.id
     can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
-    can [:create, :update], [Account, AccountSource], source: { team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team&.id == @context_team.id && !obj.annotated_is_archived?
     end

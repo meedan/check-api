@@ -81,4 +81,8 @@ module ProjectMediaPrivate
     end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
   end
+
+  def source_belong_to_team
+    errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
+  end
 end

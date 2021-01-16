@@ -3,7 +3,8 @@ module SourceMutations
     avatar: 'str',
     slogan: '!str',
     name: '!str',
-    user_id: 'int'
+    user_id: 'int',
+    add_to_project_media_id: 'int'
   }
 
   update_fields = {
@@ -12,6 +13,7 @@ module SourceMutations
     name: 'str',
     refresh_accounts: 'int',
     user_id: 'int',
+    add_to_project_media_id: 'int',
     lock_version: 'int'
   }
 

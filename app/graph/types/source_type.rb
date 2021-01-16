@@ -34,6 +34,12 @@ SourceType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :medias_count, types.Int do
+    resolve -> (source, _args, _ctx) {
+      source.medias_count
+    }
+  end
+
   connection :collaborators, -> { UserType.connection_type } do
     resolve ->(source, _args, _ctx) {
       source.collaborators

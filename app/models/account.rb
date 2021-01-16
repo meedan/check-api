@@ -139,13 +139,14 @@ class Account < ActiveRecord::Base
     end
   end
 
-  private
-
   def create_account_source(source)
     return if self.disable_account_source_creation
     self.sources << source
+    self.skip_check_ability = true
     self.save!
   end
+
+  private
 
   def set_user
     self.user = User.current unless User.current.nil?

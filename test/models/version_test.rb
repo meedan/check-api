@@ -144,6 +144,7 @@ class VersionTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       pm = create_project_media team: t
       pm.team_id = t2.id
+      pm.source_id = nil
       pm.skip_check_ability = true
       pm.save!
       log = pm.get_versions_log(['update_projectmedia']).last

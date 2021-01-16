@@ -245,7 +245,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_nil c.current_team
     t = create_team
     p = create_project team: t
-    m = create_valid_media
+    m = create_valid_media team: t
     pm = create_project_media project: p, media: m
     c = create_comment annotated: pm
     assert_equal t, c.current_team

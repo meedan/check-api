@@ -134,6 +134,14 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :source do
+    type -> { SourceType }
+
+    resolve -> (project_media, _args, _ctx) {
+      RecordLoader.for(Source).load(project_media.source_id)
+    }
+  end
+
   instance_exec :project_media, &GraphqlCrudOperations.field_log
 
   instance_exec :project_media, &GraphqlCrudOperations.field_log_count
