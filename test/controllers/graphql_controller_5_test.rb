@@ -215,6 +215,34 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal @m2.id.to_s, tasks[2]['node']['dbid']
   end
 
+  test "should update project media source" do
+    s = create_source team: @t
+    s2 = create_source team: @t
+    pm = create_project_media team: @t, source_id: s.id, skip_autocreate_source: false
+    pm2 = create_project_media team: @t, source_id: s2.id, skip_autocreate_source: false
+    assert_equal s.id, pm.source_id
+    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\", source_id: #{s2.id}}) { project_media { source { dbid, medias_count, medias(first: 10) { edges { node { dbid } } } } } } }"
+    post :create, query: query, team: @t.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
+    assert_equal s2.id, data['source']['dbid']
+    assert_equal 2, data['source']['medias_count']
+    assert_equal 2, data['source']['medias']['edges'].size
+  end
+
+  test "should create related project media for source" do
+    t = create_team
+    pm = create_project_media team: t
+    u = create_user
+    create_team_user user: u, team: t, role: 'owner'
+    authenticate_with_user(u)
+    query = 'mutation create { createSource(input: { name: "new source", slogan: "new source", clientMutationId: "1", add_to_project_media_id: ' + pm.id.to_s + ' }) { source { dbid } } }'
+    post :create, query: query, team: t
+    assert_response :success
+    source = JSON.parse(@response.body)['data']['createSource']['source']
+    assert_equal pm.reload.source_id, source['dbid']
+  end
+
   protected
 
   def assert_error_message(expected)

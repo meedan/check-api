@@ -84,14 +84,14 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'contributor'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -121,12 +121,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'journalist'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
@@ -156,12 +156,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'editor'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -187,12 +187,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'owner'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     with_current_user_and_team(u, t) do
       ability = Ability.new

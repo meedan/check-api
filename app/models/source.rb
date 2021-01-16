@@ -1,5 +1,5 @@
 class Source < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks
+  attr_accessor :disable_es_callbacks, :add_to_project_media_id
 
   include HasImage
   include CheckElasticSearch
@@ -10,6 +10,7 @@ class Source < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   has_many :account_sources, dependent: :destroy
   has_many :accounts, through: :account_sources
+  has_many :project_medias
   belongs_to :user
   belongs_to :team
   has_one :bot_user
@@ -24,7 +25,7 @@ class Source < ActiveRecord::Base
 
   after_create :create_metadata, :notify_team_bots_create
   after_update :notify_team_bots_update
-  after_save :cache_source_overridden
+  after_save :cache_source_overridden, :add_to_project_media
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
@@ -39,11 +40,7 @@ class Source < ActiveRecord::Base
   end
 
   def medias
-    #TODO: fix me - list valid project media ids
-    m_ids = Media.where(account_id: self.account_ids).map(&:id)
-    conditions = { media_id: m_ids }
-    conditions[:team_id] = Team.current.id unless Team.current.nil?
-    ProjectMedia.where(conditions)
+    self.project_medias.where(archived: CheckArchivedFlags::FlagCodes::NONE)
   end
 
   def collaborators
@@ -138,7 +135,7 @@ class Source < ActiveRecord::Base
   end
 
   def set_team
-    self.team = Team.current unless Team.current.nil?
+    self.team = Team.current if self.team_id.nil? && !Team.current.nil?
   end
 
   def is_unique_per_team
@@ -194,5 +191,16 @@ class Source < ActiveRecord::Base
 
   def notify_team_bots(event)
     BotUser.enqueue_event("#{event}_source", self.team_id, self)
+  end
+
+  def add_to_project_media
+    unless self.add_to_project_media_id.blank?
+      pm = ProjectMedia.find_by_id self.add_to_project_media_id
+      unless pm.nil?
+        pm.source_id = self.id
+        pm.skip_check_ability = true
+        pm.save!
+      end
+    end
   end
 end

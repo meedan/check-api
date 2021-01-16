@@ -588,6 +588,25 @@ class ElasticSearch7Test < ActionController::TestCase
     end
   end
 
+  test "should search by source" do
+    t = create_team
+    s = create_source team: t
+    s2 = create_source team: t
+    s3 = create_source team: t
+    pm = create_project_media team: t, source: s, disable_es_callbacks: false, skip_autocreate_source: false
+    pm2 = create_project_media team: t, source: s, disable_es_callbacks: false, skip_autocreate_source: false
+    pm3 = create_project_media team: t, source: s2, disable_es_callbacks: false, skip_autocreate_source: false
+    sleep 5
+    result = CheckSearch.new({ sources: [s.id] }.to_json)
+    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({ sources: [s2.id] }.to_json)
+    assert_equal [pm3.id], result.medias.map(&:id)
+    result = CheckSearch.new({ sources: [s.id, s2.id] }.to_json)
+    assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({ sources: [s3.id] }.to_json)
+    assert_empty result.medias
+  end
+
   test "should search trash and unconfirmed items" do
     t = create_team
     pm = create_project_media team: t, disable_es_callbacks: false

@@ -34,7 +34,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
-    l = create_link
+    l = create_link team: t
     p = create_project team: t
     pm = create_project_media project: p, media: l
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
@@ -72,7 +72,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
-    l = create_link
+    l = create_link team:  t
     p = create_project team: t
     pm = create_project_media project: p, media: l
     u = create_user
