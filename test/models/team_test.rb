@@ -738,13 +738,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t.graphql_id, t.team_graphql_id
   end
 
-  test "should return the json schema url" do
-    t = create_team
-    t.set_languages ['en', 'es', 'pt', 'fr']
-    t.save!
-    assert_kind_of Hash, t.reload.rails_admin_json_schema('statuses')
-  end
-
   test "should have public team id" do
     t = create_team
     assert_kind_of String, t.public_team_id

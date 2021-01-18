@@ -8,26 +8,11 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
-  rescue_from CanCan::AccessDenied do |exception|
-    team = Team.current ? Team.current.id : 'empty'
-    logger.warn message: "Access denied on #{exception.action} #{exception.subject} - User ID '#{current_api_user.id}' - Is admin? '#{current_api_user.is_admin?}' - Team: '#{team}'"
-    redirect_to '/403.html'
-  end
-
   # app/controllers/application_controller.rb
   def append_info_to_payload(payload)
     super
     payload[:request_id] = request.uuid
     payload[:user_id] = current_api_user.id if current_api_user
-  end
-
-  def authenticated?
-    if signed_in?
-      User.current = current_api_user
-      Team.current = nil
-    else
-      redirect_to('/') unless signed_in?
-    end
   end
 
   private

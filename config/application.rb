@@ -65,7 +65,5 @@ module Check
       'Access-Control-Allow-Credentials' => 'true',
       'Access-Control-Request-Method' => '*'
     })
-
-    config.assets.precompile += %w(rails_admin/rails_admin.css rails_admin/rails_admin.js)
   end
 end

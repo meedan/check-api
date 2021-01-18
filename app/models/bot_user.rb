@@ -120,10 +120,6 @@ class BotUser < User
     self.send(:set_events, events)
   end
 
-  def rails_admin_json_schema(field)
-    field == 'events' ? JSON_SCHEMA : {}
-  end
-
   def subscribed_to?(event)
     return false if self.get_events.blank?
     self.get_events.collect{ |ev| ev['event'] || ev[:event] }.map(&:to_s).include?(event.to_s)

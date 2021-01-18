@@ -70,10 +70,6 @@ class User < ActiveRecord::Base
     self.cached_teams.size
   end
 
-  def teams_owned
-    self.teams.joins(:team_users).where({'team_users.role': 'owner', 'team_users.status': 'member'})
-  end
-
   def assign_annotation(annotation)
     Assignment.create! user_id: self.id, assigned_id: annotation.id, assigned_type: 'Annotation'
   end

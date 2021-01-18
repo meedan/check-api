@@ -65,8 +65,6 @@ class Project < ActiveRecord::Base
       },
     ]
 
-  include CheckExport
-
   def check_search_team
     self.team.check_search_team
   end
@@ -118,12 +116,6 @@ class Project < ActiveRecord::Base
 
   def slack_channel=(channel)
     self.send(:set_slack_channel, channel)
-  end
-
-  def admin_label
-    unless self.new_record? || self.team.nil?
-      [self.team.name.truncate(15),self.title.truncate(25)].join(' - ')
-    end
   end
 
   def update_elasticsearch_doc_team_bg(_options)

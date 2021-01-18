@@ -92,9 +92,6 @@ class Ability
   end
 
   def owner_perms
-    can :access, :rails_admin
-    can :dashboard
-
     can :destroy, :trash
 
     can :destroy, Team, :id => @context_team.id
@@ -102,7 +99,6 @@ class Ability
     can :update, TeamUser, team_id: @context_team.id
     can :destroy, Contact, :team_id => @context_team.id
     can :destroy, Project, :team_id => @context_team.id
-    can :export_project, Project, team_id: @context_team.id
     can :destroy, [Media, Link, Claim] do |obj|
       obj.team_ids.include?(@context_team.id)
     end
