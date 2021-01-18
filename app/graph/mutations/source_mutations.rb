@@ -4,7 +4,8 @@ module SourceMutations
     slogan: '!str',
     name: '!str',
     user_id: 'int',
-    add_to_project_media_id: 'int'
+    add_to_project_media_id: 'int',
+    urls: 'str',
   }
 
   update_fields = {
@@ -17,5 +18,5 @@ module SourceMutations
     lock_version: 'int'
   }
 
-  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields)
+  Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('source', create_fields, update_fields, ['project_media'])
 end

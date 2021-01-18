@@ -488,10 +488,26 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should relate source to project media" do
-    t = create_team
-    pm = create_project_media team: t
-    s = create_source team: t, add_to_project_media_id: pm.id
-    assert_equal s.id, pm.reload.source_id
+     t = create_team
+     pm = create_project_media team: t
+     s = create_source team: t
+     assert_not_equal s.id, pm.reload.source_id
+     s.add_to_project_media_id = pm.id
+     s.save!
+     assert_equal s.project_media, pm
+     assert_equal s.id, pm.reload.source_id
   end
 
+  test "should create source accounts" do
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
+    pender_refresh_url = CheckConfig.get('pender_url_private') + '/api/medias?refresh=1&url=' + url + '/'
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
+    s = create_source urls: [url].to_json
+    assert_equal 1, s.accounts.count
+    WebMock.allow_net_connect!
+  end
 end

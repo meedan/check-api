@@ -1,5 +1,5 @@
 class Source < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks, :add_to_project_media_id
+  attr_accessor :disable_es_callbacks, :add_to_project_media_id, :urls
 
   include HasImage
   include CheckElasticSearch
@@ -25,7 +25,7 @@ class Source < ActiveRecord::Base
 
   after_create :create_metadata, :notify_team_bots_create
   after_update :notify_team_bots_update
-  after_save :cache_source_overridden, :add_to_project_media
+  after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
@@ -45,6 +45,10 @@ class Source < ActiveRecord::Base
 
   def collaborators
     self.annotators
+  end
+
+  def project_media
+    ProjectMedia.find_by_id(self.add_to_project_media_id) unless self.add_to_project_media_id.nil?
   end
 
   def medias_count
@@ -200,6 +204,19 @@ class Source < ActiveRecord::Base
         pm.source_id = self.id
         pm.skip_check_ability = true
         pm.save!
+      end
+    end
+  end
+
+  def create_related_accounts
+    unless self.urls.blank?
+      urls = JSON.parse(self.urls)
+      urls.each do |url|
+        as = AccountSource.new
+        as.source = self
+        as.url = url
+        as.skip_check_ability = true
+        begin as.save! rescue {} end
       end
     end
   end
