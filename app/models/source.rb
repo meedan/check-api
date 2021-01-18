@@ -27,7 +27,7 @@ class Source < ActiveRecord::Base
   after_update :notify_team_bots_update
   after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
 
-  notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
+  notifies_pusher on: :save, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s].concat(s.project_medias) }
 
   custom_optimistic_locking include_attributes: [:name, :image, :description]
 
