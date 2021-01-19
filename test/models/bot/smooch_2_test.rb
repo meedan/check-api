@@ -196,16 +196,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       ]
       assert Bot::Smooch.run(confirmation.to_json)
     end
-    # test with empty text
-    assert_nil CheckI18n.convert_numbers(nil)
-    assert_nil CheckI18n.convert_numbers('')
-  end
-
-  test "should get is rtl lang" do
-    I18n.locale = :ar
-    assert CheckI18n.is_rtl_lang?
-    I18n.locale = :en
-    assert_not CheckI18n.is_rtl_lang?
   end
 
   test "should support file only if image or video or audio" do

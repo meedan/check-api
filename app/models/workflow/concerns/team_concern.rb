@@ -29,6 +29,7 @@ module Workflow
                       borderColor: { type: 'string', title: 'Border color', format: 'color' }
                     }
                   },
+                  should_send_message: { type: 'boolean' },
                   locales: {
                     type: 'object',
                     patternProperties: {
@@ -37,7 +38,8 @@ module Workflow
                         required: ['label', 'description'],
                         properties: {
                           label: { type: 'string' },
-                          description: { type: 'string' }
+                          description: { type: 'string' },
+                          message: { type: 'string' }
                         }
                       }
                     }
