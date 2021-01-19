@@ -74,18 +74,6 @@ module Workflow
       end
     end
 
-    def self.workflow_admin_permissions
-      id = self.id
-      proc do
-        can :destroy, Dynamic do |obj|
-          @teams.include?(obj.team&.id)
-        end
-        can :update, Dynamic, ['annotation_type = ?', id] do |obj|
-          @teams.include?(obj.team&.id) && obj.annotation_type == id
-        end
-      end
-    end
-
     def self.target
       ProjectMedia
     end
