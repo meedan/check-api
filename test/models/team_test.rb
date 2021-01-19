@@ -1495,11 +1495,7 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal 0, Project.find(p0.id).project_media_projects.count
     assert_equal 0, Project.find(p1.id).project_media_projects.count
-    url = 'http://test.com'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    create_project_media project: p0, media: nil, url: url, smooch_message: { 'text' => 'test' }
+    create_project_media project: p0, media: create_claim_media, smooch_message: { 'text' => 'test' }
     assert_equal 1, Project.find(p0.id).project_media_projects.count
     assert_equal 1, Project.find(p1.id).project_media_projects.count
   end
@@ -1984,10 +1980,10 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
-    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
-    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
-    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
+    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
+    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
+    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
+    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
     assert_equal [p2], pm1.projects
     assert_equal [p2], pm2.projects
     assert_equal [p1], pm3.projects
@@ -1998,10 +1994,10 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     p1 = p1.reload
-    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }
-    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }
-    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }
-    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }
+    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
+    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
+    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
+    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
     assert_equal [p2], pm1.projects
     assert_equal [p2], pm2.projects
     assert_equal [p2], pm3.projects
