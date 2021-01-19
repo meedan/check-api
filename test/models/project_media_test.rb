@@ -1255,47 +1255,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Link.any_instance.unstub(:pender_embed)
   end
 
-  test "should get number of contributing users" do
-    create_verification_status_stuff
-    pm = create_project_media
-    create_comment annotated: pm, annotator: create_user
-    create_comment annotated: pm, annotator: create_user
-    create_tag annotated: pm, annotator: create_user
-    create_task annotated: pm, annotator: create_user
-    assert_equal 5, pm.contributing_users_count
-  end
-
-  test "should get time to first and last status" do
-    create_verification_status_stuff(false)
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-
-    with_current_user_and_team(u, t) do
-      time = Time.now - 10.minutes
-      Time.stubs(:now).returns(time)
-
-      pm = create_project_media team: t, user: u
-      assert_equal '', pm.time_to_status(:first)
-      assert_equal '', pm.time_to_status(:last)
-
-      Time.stubs(:now).returns(time + 5.minutes)
-      s = pm.last_status_obj
-      s.status = 'In Progress'; s.save!
-      assert_equal '', pm.time_to_status(:first)
-      assert_equal 5.minutes.to_i, pm.time_to_status(:last)
-
-      Time.stubs(:now).returns(time + 8.minutes)
-      s = pm.last_status_obj
-      s.status = ::Workflow::Workflow.core_options(pm, pm.default_project_media_status_type)[:default]
-      s.save!
-
-      assert_equal 5.minutes.to_i, pm.time_to_status(:first)
-      assert_equal 8.minutes.to_i, pm.time_to_status(:last)
-      Time.unstub(:now)
-    end
-  end
-
   test "should update media account when change author_url" do
     setup_elasticsearch
     u = create_user is_admin: true

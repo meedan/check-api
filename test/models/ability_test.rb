@@ -1183,33 +1183,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should access rails_admin if user is team owner" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'owner'
-    p = create_project team: t
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:access, :rails_admin)
-    end
-  end
-
-  test "should not access rails_admin if user not team owner or admin" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t
-    p = create_project team: t
-
-    %w(contributor journalist editor).each do |role|
-      tu.role = role; tu.save!
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert !ability.can?(:access, :rails_admin)
-      end
-    end
-  end
-
   test "owner permissions for task" do
     u = create_user
     t = create_team
@@ -1374,17 +1347,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
-    end
-  end
-
-  test "owner permissions for export project data" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:export_project, Project)
     end
   end
 

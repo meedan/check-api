@@ -364,6 +364,7 @@ class TeamTest < ActiveSupport::TestCase
       t.media_verification_statuses = value
       t.save!
     end
+    assert_equal 2, Team.find(t.id).media_verification_statuses[:statuses].size
   end
 
   test "should not save invalid custom verification statuses" do
@@ -736,13 +737,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_kind_of String, t.graphql_id
     assert_kind_of String, t.team_graphql_id
     assert_equal t.graphql_id, t.team_graphql_id
-  end
-
-  test "should return the json schema url" do
-    t = create_team
-    t.set_languages ['en', 'es', 'pt', 'fr']
-    t.save!
-    assert_kind_of Hash, t.reload.rails_admin_json_schema('statuses')
   end
 
   test "should have public team id" do
@@ -1665,64 +1659,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal ['ar', 'en'], t.get_languages
   end
 
-  test "should match rule and trigger action to send message to user" do
-    setup_smooch_bot
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "status_is",
-                "rule_value": "in_progress"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "send_message_to_user",
-          "action_value": random_string
-        }
-      ]
-    }
-    @team.rules = rules.to_json
-    @team.save!
-    messages = [
-      {
-        '_id': random_string,
-        authorId: random_string,
-        type: 'text',
-        text: 'foo bar'
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    assert Bot::Smooch.run(payload)
-    Bot::Smooch.expects(:send_message_to_user).once
-    pm = ProjectMedia.last
-    s = pm.last_status_obj
-    s.status = 'in_progress'
-    s.save!
-    Bot::Smooch.unstub(:send_message_to_user)
-  end
-
   test "should support emojis in regexp rule" do
     t = create_team
     p0 = create_project team: t
@@ -2356,123 +2292,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_nothing_raised do
       t.save!
     end
-  end
-
-  test "should send custom messages to Transifex" do
-    t = create_team
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "status_is",
-                "rule_value": "in_progress"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "send_message_to_user",
-          "action_value": random_string
-        }
-      ]
-    }
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      assert_nothing_raised do
-        t.rules = rules.to_json
-        t.save!
-      end
-    end
-  end
-
-  test "should not send custom messages to Transifex" do
-    t = create_team
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "status_is",
-                "rule_value": "in_progress"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "send_message_to_user",
-          "action_value": random_string
-        }
-      ]
-    }
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      CheckI18n.stubs(:upload_custom_strings_to_transifex).raises(StandardError)
-      assert_raises StandardError do
-        t.rules = rules.to_json
-        t.save!
-      end
-      CheckI18n.unstub(:upload_custom_strings_to_transifex)
-    end
-  end
-
-  test "should create Transifex resource if it does not exist" do
-    require 'transifex'
-    t = create_team
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "status_is",
-                "rule_value": "in_progress"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "send_message_to_user",
-          "action_value": random_string
-        }
-      ]
-    }
-    ::Transifex::Project.any_instance.stubs(:resource).raises(::Transifex::TransifexError.new(nil, nil, nil))
-    stub_configs({ 'transifex_user' => random_string, 'transifex_password' => random_string, 'transifex_project' => 'check-2' }) do
-      t.rules = rules.to_json
-      t.save!
-    end
-    ::Transifex::Project.any_instance.unstub(:resource)
-  end
-
-  test "should get translated message from Transifex if available" do
-    t = create_team
-    t.set_language 'pt_PT'
-    t.save!
-    assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo')
-    assert_equal 'Foo', CheckI18n.i18n_t(t, 'custom_message', 'Foo', { locale: 'pt_PT' })
-    assert_match /custom_message/, CheckI18n.i18n_t(t, 'custom_message', nil)
   end
 
   test "should match rule by language" do

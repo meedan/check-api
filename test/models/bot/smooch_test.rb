@@ -554,4 +554,46 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_equal input, output
     URI.unstub(:parse)
   end
+
+  test "should send message on status change" do
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', should_send_message: true, locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status', message: 'Custom' } }, style: { color: 'blue' } }
+      ]
+    }
+    @team.set_media_verification_statuses(value)
+    @team.save!
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    pm = ProjectMedia.last
+    Bot::Smooch.stubs(:send_message_to_user).with(uid, 'Custom').once
+    s = pm.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = '2'
+    s.save!
+    Bot::Smooch.unstub(:send_message_to_user)
+  end
 end
