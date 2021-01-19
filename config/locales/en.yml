@@ -641,7 +641,7 @@ en:
   team_rule_conditions: If
   team_rule_condition: If
   team_rule_condition_definition: Select condition
-  team_rule_has_less_than_x_words: Request contains less than (or exactly) the following
+  team_rule_has_less_than_x_words: Text request contains less than (or exactly) the following
     number of words
   team_rule_title_matches_regexp: Item title matches this regular expression
   team_rule_request_matches_regexp: Request matches this regular expression
