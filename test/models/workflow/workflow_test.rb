@@ -16,6 +16,7 @@ class Workflow::WorkflowTest < ActiveSupport::TestCase
     vs = pm.annotations.where(annotation_type: 'verification_status').last.load
     stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
       assert_equal 'undetermined', pm.last_status
+      assert_equal 'undetermined', pm.get_project_media_status
       assert_equal vs, pm.last_status_obj
       assert_equal 'verification_status', pm.default_project_media_status_type
       assert_equal t.get_media_verification_statuses, t.get_media_statuses

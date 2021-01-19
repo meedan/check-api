@@ -364,6 +364,7 @@ class TeamTest < ActiveSupport::TestCase
       t.media_verification_statuses = value
       t.save!
     end
+    assert_equal 2, Team.find(t.id).media_verification_statuses[:statuses].size
   end
 
   test "should not save invalid custom verification statuses" do

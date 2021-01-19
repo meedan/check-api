@@ -48,10 +48,6 @@ module Workflow
           }
         }
 
-        def self.custom_statuses_schema
-          CUSTOM_STATUSES_SCHEMA
-        end
-
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil, items_count = false, published_reports_count = false|
             statuses = self.send("get_#{type}_#{id.pluralize}") || ::Workflow::Workflow.core_options(type.camelize.constantize.new, id)
