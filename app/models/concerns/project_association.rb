@@ -129,7 +129,8 @@ module ProjectAssociation
           # clone exiting source to current team
           # This case happens when add exiting media
           s = Source.create_source(s.name)
-          a.create_account_source(s)
+          as = AccountSource.where(account_id: a.id, source_id: s.id).last
+          a.create_account_source(s) if as.nil?
         end
         self.source_id = s.id unless s.blank?
       end
