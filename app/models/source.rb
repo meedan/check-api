@@ -1,5 +1,5 @@
 class Source < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks, :add_to_project_media_id
+  attr_accessor :disable_es_callbacks, :add_to_project_media_id, :urls, :validate_primary_link_exist
 
   include HasImage
   include CheckElasticSearch
@@ -20,12 +20,13 @@ class Source < ActiveRecord::Base
   before_validation :set_user, :set_team, on: :create
 
   validates_presence_of :name
-  validate :is_unique_per_team, on: :create
+  validate :is_unique_per_team
+  validate :primary_url_exists, on: :create
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
   after_create :create_metadata, :notify_team_bots_create
   after_update :notify_team_bots_update
-  after_save :cache_source_overridden, :add_to_project_media
+  after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
 
   notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
@@ -45,6 +46,10 @@ class Source < ActiveRecord::Base
 
   def collaborators
     self.annotators
+  end
+
+  def project_media
+    ProjectMedia.find_by_id(self.add_to_project_media_id) unless self.add_to_project_media_id.nil?
   end
 
   def medias_count
@@ -141,7 +146,9 @@ class Source < ActiveRecord::Base
   def is_unique_per_team
     unless self.team.nil? || self.name.blank?
       s = Source.get_duplicate(self.name, self.team)
-      errors.add(:base, "This source already exists in this team and has id #{s.id}") unless s.nil?
+      unless s.nil?
+        errors.add(:base, I18n.t(:duplicate_source)) if self.id.nil? || s.id != self.id
+      end
     end
   end
 
@@ -200,6 +207,49 @@ class Source < ActiveRecord::Base
         pm.source_id = self.id
         pm.skip_check_ability = true
         pm.save!
+      end
+    end
+  end
+
+  def get_source_urls
+    begin JSON.parse(self.urls) rescue nil end unless self.urls.blank?
+  end
+
+  def primary_url_exists
+    # validate if the primary link (first url in self.urls) exists in team
+    urls = get_source_urls
+    if !urls.blank? && Team.current && self.validate_primary_link_exist
+      # run account.valid to get normalized URL
+      a = Account.new
+      a.url = urls.first
+      a.valid?
+      a = Account.where(url: a.url).last
+      s = a.sources.where(team_id: Team.current.id).last unless a.nil?
+      unless s.nil?
+        error = {
+          message: I18n.t(:source_exists),
+          code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
+          data: {
+            team_id: s.team_id,
+            type: 'source',
+            id: s.id,
+            name: s.name
+          }
+        }
+        raise error.to_json
+      end
+    end
+  end
+
+  def create_related_accounts
+    urls = get_source_urls
+    unless urls.blank?
+      urls.each do |url|
+        as = AccountSource.new
+        as.source = self
+        as.url = url
+        as.skip_check_ability = true
+        begin as.save! rescue {} end
       end
     end
   end
