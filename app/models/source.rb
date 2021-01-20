@@ -232,7 +232,8 @@ class Source < ActiveRecord::Base
           data: {
             team_id: s.team_id,
             type: 'source',
-            id: s.id
+            id: s.id,
+            name: s.name
           }
         }
         raise error.to_json
