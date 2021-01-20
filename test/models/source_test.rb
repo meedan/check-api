@@ -502,12 +502,21 @@ class SourceTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!
     url = "http://twitter.com/example#{Time.now.to_i}"
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
-    pender_refresh_url = CheckConfig.get('pender_url_private') + '/api/medias?refresh=1&url=' + url + '/'
     ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
     WebMock.stub_request(:get, pender_url).to_return(ret)
-    WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
     s = create_source urls: [url].to_json
     assert_equal 1, s.accounts.count
     WebMock.allow_net_connect!
+    # validate primary url exists
+    t = create_team
+    Team.stubs(:current).returns(t)
+    s.update_columns(team_id: t.id)
+    assert_raises RuntimeError do
+      create_source  urls: [url].to_json, validate_primary_link_exist: true
+    end
+    assert_difference 'Source.count' do
+      create_source  urls: [url].to_json
+    end
+    Team.unstub(:current)
   end
 end

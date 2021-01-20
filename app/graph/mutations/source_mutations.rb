@@ -6,6 +6,7 @@ module SourceMutations
     user_id: 'int',
     add_to_project_media_id: 'int',
     urls: 'str',
+    validate_primary_link_exist: 'bool'
   }
 
   update_fields = {

@@ -530,6 +530,7 @@ module SampleData
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     source.add_to_project_media_id = options[:add_to_project_media_id] if options.has_key?(:add_to_project_media_id)
     source.urls = options[:urls] if options.has_key?(:urls)
+    source.validate_primary_link_exist = options[:validate_primary_link_exist] || false
     file = nil
     if options.has_key?(:file)
       file = options[:file]
