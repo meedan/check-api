@@ -994,7 +994,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_message_on_status_change(pm_id, status)
-    pm = ProjectMedia.find(pm_id)
+    pm = ProjectMedia.find_by_id(pm_id)
+    return if pm.nil?
     parent = Relationship.where(target_id: pm.id).last&.source || pm
     ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
       pm2.get_annotations('smooch').find_each do |annotation|
