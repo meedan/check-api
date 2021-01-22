@@ -24,7 +24,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
 
   connection :account_sources, -> { AccountSourceType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.account_sources
+      source.account_sources.order(id: :asc)
     }
   end
 
