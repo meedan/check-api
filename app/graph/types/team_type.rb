@@ -91,8 +91,12 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :sources, -> { SourceType.connection_type } do
-    resolve ->(team, _args, _ctx) {
-      team.sources
+    argument :keyword, types.String
+
+    resolve ->(team, args, _ctx) {
+      sources = team.sources
+      sources = sources.where('name ILIKE ?', "%#{args['keyword']}%") unless args['keyword'].blank?
+      sources
     }
   end
 
