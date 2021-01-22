@@ -46,14 +46,14 @@ deploy_qa:
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /qa/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/qa/check-api/##' > env.qa.names
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-migration $NAME /qa/check-api/$NAME " >> qa-check-api-migration.env.args; done
-    - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA --exclusive-secrets `cat qa-check-api-migration.env.args`
+    - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA -e qa-check-api-migration GITHUB_TOKEN null --exclusive-secrets `cat qa-check-api-migration.env.args`
     - taskArn=$(aws ecs run-task --cluster ecs-qa --task-definition qa-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
     - aws ecs wait tasks-stopped --cluster ecs-qa --tasks $taskArn
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-c $NAME /qa/check-api/$NAME " >> qa-check-api-c.env.args; done
-    - ecs deploy ecs-qa qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-secrets `cat qa-check-api-c.env.args`
+    - ecs deploy ecs-qa qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 -e qa-check-api-c GITHUB_TOKEN null --exclusive-secrets `cat qa-check-api-c.env.args`
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-background $NAME /qa/check-api/$NAME " >> qa-check-api-background.env.args; done
-    - ecs deploy ecs-qa qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-secrets `cat qa-check-api-background.env.args`
+    - ecs deploy ecs-qa qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 -e qa-check-api-background GITHUB_TOKEN null --exclusive-secrets `cat qa-check-api-background.env.args`
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
@@ -102,16 +102,16 @@ deploy_live:
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /live/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/live/check-api/##' > env.live.names
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-workbench $NAME /live/check-api/$NAME " >> live-check-api-workbench.env.args; done
-    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-secrets `cat live-check-api-workbench.env.args`
+    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA -e live-check-api-workbench GITHUB_TOKEN null --exclusive-secrets `cat live-check-api-workbench.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-migration $NAME /live/check-api/$NAME " >> live-check-api-migration.env.args; done
-    - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-secrets `cat live-check-api-migration.env.args`
+    - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA -e live-check-api-migration GITHUB_TOKEN null --exclusive-secrets `cat live-check-api-migration.env.args`
     - taskArn=$(aws ecs run-task --cluster ecs-live --task-definition live-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
     - aws ecs wait tasks-stopped --cluster ecs-live --tasks $taskArn
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-c $NAME /live/check-api/$NAME " >> live-check-api-c.env.args; done
-    - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-secrets `cat live-check-api-c.env.args`
+    - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 -e live-check-api-c GITHUB_TOKEN null --exclusive-secrets `cat live-check-api-c.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-background $NAME /live/check-api/$NAME " >> live-check-api-background.env.args; done
-    - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-secrets `cat live-check-api-background.env.args`
+    - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 -e live-check-api-background GITHUB_TOKEN null --exclusive-secrets `cat live-check-api-background.env.args`
     - echo "new Image was deployed $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
   only:
     - master
