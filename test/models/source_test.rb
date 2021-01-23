@@ -488,14 +488,23 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should relate source to project media" do
-     t = create_team
-     pm = create_project_media team: t
-     s = create_source team: t
-     assert_not_equal s.id, pm.reload.source_id
-     s.add_to_project_media_id = pm.id
-     s.save!
-     assert_equal s.project_media, pm
-     assert_equal s.id, pm.reload.source_id
+    setup_elasticsearch
+    t = create_team
+    pm = create_project_media team: t, disable_es_callbacks: false
+    id = get_es_id(pm)
+    s = create_source team: t
+    sleep 2
+    assert_not_equal s.id, pm.source_id
+    result = $repository.find(id)
+    assert_equal pm.source_id, result['source_id']
+    s.add_to_project_media_id = pm.id
+    s.disable_es_callbacks = false
+    s.save!
+    sleep 2
+    assert_equal s.project_media, pm
+    assert_equal s.id, pm.reload.source_id
+    result = $repository.find(id)
+    assert_equal pm.reload.source_id, result['source_id']
   end
 
   test "should create source accounts" do
