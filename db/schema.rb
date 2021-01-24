@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210110193931) do
+ActiveRecord::Schema.define(version: 20210124161425) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -138,9 +138,9 @@ ActiveRecord::Schema.define(version: 20210110193931) do
     t.text     "description"
     t.boolean  "optional",        default: true
     t.text     "settings"
-    t.string   "default_value"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.string   "default_value"
   end
 
   create_table "dynamic_annotation_field_types", primary_key: "field_type", force: :cascade do |t|
@@ -336,23 +336,25 @@ ActiveRecord::Schema.define(version: 20210110193931) do
     t.integer  "order",                     default: 0
     t.string   "fieldset",                  default: "",    null: false
     t.boolean  "show_in_browser_extension", default: true,  null: false
+    t.string   "annotated_type",            default: "",    null: false
   end
 
+  add_index "team_tasks", ["annotated_type"], name: "index_team_tasks_on_annotated_type", using: :btree
   add_index "team_tasks", ["fieldset"], name: "index_team_tasks_on_fieldset", using: :btree
 
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
-    t.string   "type"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
     t.string   "role"
     t.string   "status",                 default: "member"
-    t.text     "settings"
     t.integer  "invited_by_id"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_accepted_at"
+    t.text     "settings"
+    t.string   "type"
     t.string   "invitation_email"
   end
 
@@ -409,6 +411,7 @@ ActiveRecord::Schema.define(version: 20210110193931) do
     t.string   "unconfirmed_email"
     t.integer  "current_project_id"
     t.boolean  "is_active",                 default: true
+    t.datetime "last_accepted_terms_at"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_created_at"
@@ -417,7 +420,6 @@ ActiveRecord::Schema.define(version: 20210110193931) do
     t.integer  "invitation_limit"
     t.integer  "invited_by_id"
     t.string   "invited_by_type"
-    t.datetime "last_accepted_terms_at"
     t.string   "encrypted_otp_secret"
     t.string   "encrypted_otp_secret_iv"
     t.string   "encrypted_otp_secret_salt"
@@ -457,4 +459,8 @@ ActiveRecord::Schema.define(version: 20210110193931) do
   add_index "versions", ["item_type", "item_id", "whodunnit"], name: "index_versions_on_item_type_and_item_id_and_whodunnit", using: :btree
   add_index "versions", ["team_id"], name: "index_versions_on_team_id", using: :btree
 
+  add_foreign_key "accounts", "teams"
+  add_foreign_key "project_medias", "users"
+  add_foreign_key "sources", "teams"
+  add_foreign_key "users", "sources"
 end

@@ -9,6 +9,7 @@ module TeamTaskMutations
     keep_completed_tasks: 'bool',
     order: 'int',
     fieldset: 'str',
+    annotated_type: 'str',
     show_in_browser_extension: 'bool'
   }
 
