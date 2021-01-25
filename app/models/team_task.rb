@@ -52,9 +52,14 @@ class TeamTask < ActiveRecord::Base
   end
 
   def add_teamwide_tasks_bg(_options, _projects, _keep_completed_tasks)
-    # items related to added projects
-    condition = self.project_ids.blank? ? { team_id: self.team_id } : { 'pmp.project_id': self.project_ids }
-    handle_add_projects(condition)
+    # add metadata to items or sources based on associated_type field
+    if self.fieldset == 'metadata' && self.associated_type == 'Source'
+      add_to_sources
+    else
+      # items related to added projects
+      condition = self.project_ids.blank? ? { team_id: self.team_id } : { 'pmp.project_id': self.project_ids }
+      handle_add_projects(condition)
+    end
   end
 
   def update_teamwide_tasks_bg(options, projects, keep_completed_tasks)
@@ -84,7 +89,7 @@ class TeamTask < ActiveRecord::Base
         self.destory_project_media_task(t)
       end
     else
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
+      Task.where(annotation_type: 'task', annotated_type: ['ProjectMedia', 'Source'])
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
         self.destory_project_media_task(t)
       end
@@ -149,6 +154,17 @@ class TeamTask < ActiveRecord::Base
   def delete_teamwide_tasks
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
+  end
+
+  def add_to_sources
+    Source.where(team_id: self.team_id).find_each do |s|
+      begin
+        s.create_auto_tasks(nil, [self])
+      rescue StandardError => e
+        TeamTask.notify_error(e, { team_task_id: self.id, source_id: s.id }, RequestStore[:request] )
+        Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a source [#{s.id}]: #{e.message} #{e.backtrace.join("\n")}"
+      end
+    end
   end
 
   def handle_remove_projects(projects)

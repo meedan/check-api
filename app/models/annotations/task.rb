@@ -217,7 +217,7 @@ class Task < ActiveRecord::Base
 
   def move(direction)
     index = nil
-    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks = self.annotated.ordered_tasks(self.fieldset, self.associated_type)
     tasks.each_with_index do |task, i|
       task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0
       task.order ||= i + 1
@@ -273,7 +273,7 @@ class Task < ActiveRecord::Base
   end
 
   def reorder
-    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks = self.annotated.ordered_tasks(self.fieldset, self.associated_type)
     tasks.each_with_index { |task, i| task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0 }
     tasks
   end
@@ -368,10 +368,6 @@ ProjectMedia.class_eval do
 
   def selected_value_for_task?(team_task_id, value)
     self.task_answer_selected_values(['task_team_task_id(a2.annotation_type, a2.data) = ?', team_task_id]).include?(value)
-  end
-
-  def ordered_tasks(fieldset)
-    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
   end
 end
 

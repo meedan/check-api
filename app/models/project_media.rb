@@ -10,6 +10,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
   include ProjectMediaBulk
+  include ProjectMediaSourceAssociations
 
   validates_presence_of :media, :team
 

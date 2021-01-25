@@ -83,6 +83,54 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert_equal 'free_text', tt.type
   end
 
+  test "should add teamwide metadata to sources" do
+    t = create_team
+    s = create_source team: t
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: t, source: s
+      tt = create_team_task team_id: t.id, project_ids: [], fieldset: 'metadata', associated_type: 'Source', description: 'Foo', options: [{ label: 'Foo' }]
+      tt2 = create_team_task team_id: t.id, project_ids: [], fieldset: 'metadata', associated_type: 'ProjectMedia', description: 'Foo2', options: [{ label: 'Foo2' }]
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      assert_nil pm_tt
+      assert_not_nil pm_tt2
+      s_tt = s.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      s_tt2 = s.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      assert_not_nil s_tt
+      assert_nil s_tt2
+      # test adding to new sources
+      s2 = nil
+      assert_difference 'Task.length', 1 do
+        s2 = create_source
+      end
+      s2_tt = s2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      assert_not_nil s2_tt
+      # test update
+      tt.label = 'update label'; tt.save!
+      assert_equal 'update label', s_tt.reload.label
+      assert_equal 'update label', s2_tt.reload.label
+      # test destroy
+      assert_difference 'Task.length', -1 do
+        tt2.destroy
+      end
+      assert_raises ActiveRecord::RecordNotFound do
+        pm_tt2.reload
+      end
+      assert_nothing_raised ActiveRecord::RecordNotFound do
+        s_tt.reload
+      end
+      tt.destroy
+      assert_raises ActiveRecord::RecordNotFound do
+        s_tt.reload
+      end
+      assert_raises ActiveRecord::RecordNotFound do
+        s2_tt.reload
+      end
+    end
+    Team.unstub(:current)
+  end
+
   test "should add teamwide task to existing items" do
     t =  create_team
     p = create_project team: t
