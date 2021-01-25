@@ -132,8 +132,6 @@ namespace :check do
           theme_color: pm.reload.last_status_color,
           url: '',
           use_text_message: true,
-          use_disclaimer: false,
-          disclaimer: '',
           date: date ? "Checagem publicada em: #{report.report_design_date(date.to_date, 'pt-BR').downcase}" : ''
         }]
       }

@@ -108,10 +108,12 @@
 
       #date {
         font-weight: lighter;
-        font-size: 14px;
+        font-size: 16px;
+        position: absolute;
+        right: 20px;
       }
 
-      #url.translucid, #date.translucid {
+      #url.translucid, #date.translucid, #whatsapp.translucid, #facebook.translucid, #twitter.translucid {
         padding: 5px 10px;
       }
 
@@ -143,12 +145,40 @@
         background: rgba(0, 0, 0, 0.75);
       }
       
-      .dark #description, .dark #url, .dark #date {
+      .dark #description, .dark #url, .dark #date, .dark #whatsapp, .dark #facebook, .dark #twitter {
         color: white;
       }
 
       .dark #title {
         background: black;
+      }
+
+      .social-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+        padding: 3px;
+        margin-right: 5px;
+      }
+
+      .social-icon img {
+        filter: invert(1);
+      }
+
+      #whatsapp, #facebook, #twitter {
+        display: flex;
+      }
+
+      #whatsapp .social-icon {
+        background-color: #25D366;
+      }
+
+      #facebook .social-icon {
+        background-color: #1877F2;
+      }
+
+      #twitter .social-icon {
+        background-color: #1DA1F2;
       }
     </style>
   </head>
@@ -157,6 +187,9 @@
       <div id="top"></div>
       <div id="title"></div>
       <div id="image">
+        <div>
+          <div id="date" class="translucid"></div>
+        </div>
         <div id="avatar-and-status">
           <div id="avatar"></div>
           <div id="status" class="translucid"></div>
@@ -165,7 +198,25 @@
           <div id="url" class="translucid"></div>
         </div>
         <div>
-          <div id="date" class="translucid"></div>
+          <div id="whatsapp" class="translucid">
+            <div class="social-icon">
+              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v4/icons/whatsapp.svg" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div id="facebook" class="translucid">
+            <div class="social-icon">
+              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v4/icons/facebook.svg" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div id="twitter" class="translucid">
+            <div class="social-icon">
+              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v4/icons/twitter.svg" />
+            </div>
+          </div>
         </div>
       </div>
       <div id="description" class="translucid"></div>
