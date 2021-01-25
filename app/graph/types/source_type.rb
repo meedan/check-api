@@ -49,4 +49,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
   instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count
+
+  instance_exec :source, &GraphqlCrudOperations.field_tasks
 end
