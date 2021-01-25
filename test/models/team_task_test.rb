@@ -488,9 +488,16 @@ class TeamTaskTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm = create_project_media project: p
     tt = create_team_task team_id: t.id, project_ids: [p2.id]
+    # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
     tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
+    # Source error
+    tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
+    create_source team: t
+    Source.any_instance.stubs(:create_auto_tasks).raises(StandardError)
+    tt2.add_teamwide_tasks_bg({}, [], false);
+    Source.any_instance.unstub(:create_auto_tasks)
   end
 
   test "should have valid fieldset" do

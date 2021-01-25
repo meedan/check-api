@@ -161,8 +161,7 @@ class TeamTask < ActiveRecord::Base
       begin
         s.create_auto_tasks(nil, [self])
       rescue StandardError => e
-        TeamTask.notify_error(e, { team_task_id: self.id, source_id: s.id }, RequestStore[:request] )
-        Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a source [#{s.id}]: #{e.message} #{e.backtrace.join("\n")}"
+        team_task_notification_error(e, s)
       end
     end
   end
@@ -222,8 +221,7 @@ class TeamTask < ActiveRecord::Base
       begin
         pm.create_auto_tasks(nil, [self])
       rescue StandardError => e
-        TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
-        Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
+        team_task_notification_error(e, pm)
       end
     end
   end
@@ -266,6 +264,11 @@ class TeamTask < ActiveRecord::Base
     tasks = self.team.ordered_team_tasks(self.fieldset)
     tasks.each_with_index { |task, i| task.update_column(:order, i + 1) if task.order.to_i == 0 }
     tasks
+  end
+
+  def team_task_notification_error(e, obj)
+    TeamTask.notify_error(e, { team_task_id: self.id, item_type: obj.class.name, item_id: obj.id }, RequestStore[:request] )
+    Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a #{obj.class.name} [#{obj.id}]: #{e.message} #{e.backtrace.join("\n")}"
   end
 end
 
