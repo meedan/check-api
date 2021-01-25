@@ -256,17 +256,17 @@ class User < ActiveRecord::Base
   end
 
   def self.terms_last_updated_at_by_page(page)
+    require 'open-uri'
     mapping = {
       tos: 'tos_url',
       tos_smooch: 'tos_smooch_url',
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
-    Time.parse(open(CheckConfig.get(mapping[page], nil, :json)).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+    Time.parse(open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
   end
 
   def self.terms_last_updated_at
-    require 'open-uri'
     begin
       tos = User.terms_last_updated_at_by_page(:tos)
       pp = User.terms_last_updated_at_by_page(:privacy_policy)
