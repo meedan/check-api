@@ -40,6 +40,14 @@ module ProjectMediaSourceAssociations
     Task.where(annotation_type: 'task', annotated_type: associated_type, annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
   end
 
+  def task_value(team_task_id, force = false)
+    key = "#{self.class.name.underscore}:task_value:#{self.id}:#{team_task_id}"
+    Rails.cache.fetch(key, force: force) do
+      task = Task.where(annotation_type: 'task', annotated_type: self.class.name, annotated_id: self.id).select{ |t| t.team_task_id == team_task_id }.last
+      task.nil? ? nil : task.first_response
+    end
+  end
+
   protected
 
   def respond_to_auto_tasks(tasks)

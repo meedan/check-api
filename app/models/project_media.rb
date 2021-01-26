@@ -303,14 +303,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def task_value(team_task_id, force = false)
-    key = "project_media:task_value:#{self.id}:#{team_task_id}"
-    Rails.cache.fetch(key, force: force) do
-      task = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.team_task_id == team_task_id }.last
-      task.nil? ? nil : task.first_response
-    end
-  end
-
   def type_of_media
     self.media.type
   end

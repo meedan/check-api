@@ -528,4 +528,18 @@ class SourceTest < ActiveSupport::TestCase
     end
     Team.unstub(:current)
   end
+
+  test "should assign task to sources" do
+    create_task_stuff
+    team = create_team
+    tt = create_team_task team_id: team.id
+    s = create_source team: team
+    t = create_task annotated: s, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt.id
+    t.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
+    t.save!
+    r = t.responses.first
+    assert_not_nil r
+    t.destroy
+    assert_nil Annotation.where(id: r.id).last
+  end
 end

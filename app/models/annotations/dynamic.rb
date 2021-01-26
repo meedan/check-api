@@ -262,8 +262,8 @@ class Dynamic < ActiveRecord::Base
                when 'task_response_free_text'
                  self.send(:rule_ids_for_text_task_response)
                end
-    pm = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
-    team.apply_rules_and_actions(pm, rule_ids || [])
+    annotated = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
+    team.apply_rules_and_actions(pm, rule_ids || []) if annotated.class.name == 'ProjectMedia'
   end
 
   def rule_ids_for_report
