@@ -299,8 +299,7 @@ module AnnotationBase
   end
 
   def annotated_is_archived?
-    archived_record = self.annotated_type.constantize.where('id = ? AND archived > ?', self.annotated_id, CheckArchivedFlags::FlagCodes::NONE).last.present?
-    self.annotated.present? && self.annotated.respond_to?(:archived) && archived_record
+    self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where('id = ? AND archived > ?', self.annotated_id, CheckArchivedFlags::FlagCodes::NONE).last.present?
   end
 
   def slack_params
