@@ -1,5 +1,20 @@
 class AddKeepBot < ActiveRecord::Migration
   def change
+    # create team task table to fix migration when start app from scratch
+    create_table :team_tasks do |t|
+      t.string :label, null: false
+      t.string :task_type, null: false
+      t.text :description
+      t.text :options
+      t.text :project_ids
+      t.text :mapping
+      t.boolean :required, default: false
+      t.integer :team_id, null: false
+      t.integer :order, default: 0
+      t.string :associated_type, null: false, default: "ProjectMedia"
+      t.timestamps null: false
+    end
+
     RequestStore.store[:skip_notifications] = true
 
     Team.reset_column_information
