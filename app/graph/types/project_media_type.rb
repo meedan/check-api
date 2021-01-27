@@ -152,24 +152,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :tasks, -> { TaskType.connection_type } do
-    argument :fieldset, types.String
-
-    resolve ->(project_media, args, _ctx) {
-      tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: project_media.id)
-      tasks = tasks.from_fieldset(args['fieldset']) unless args['fieldset'].blank?
-      # Order tasks by order field
-      ids = tasks.to_a.sort_by{ |obj| obj.order ||= 0 }.map(&:id)
-      values = []
-      ids.each_with_index do |id, i|
-        values << "(#{id}, #{i})"
-      end
-      return tasks if values.empty?
-      joins = ActiveRecord::Base.send(:sanitize_sql_array,
-        ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), 'annotations'])
-      tasks.joins(joins).order('x.order_number')
-    }
-  end
+  instance_exec :project_media, &GraphqlCrudOperations.field_tasks
 
   connection :comments, -> { CommentType.connection_type } do
     resolve ->(project_media, _args, _ctx) {

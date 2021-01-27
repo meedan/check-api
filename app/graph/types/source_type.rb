@@ -15,6 +15,7 @@ SourceType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :accounts_count, types.Int
   field :overridden, JsonStringType
+  field :archived, types.Int
 
   connection :accounts, -> { AccountType.connection_type } do
     resolve ->(source, _args, _ctx) {
@@ -49,4 +50,6 @@ SourceType = GraphqlCrudOperations.define_default_type do
   instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count
+
+  instance_exec :source, &GraphqlCrudOperations.field_tasks
 end
