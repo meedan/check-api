@@ -13,7 +13,7 @@ class Dynamic < ActiveRecord::Base
   after_create :create_fields
   after_update :update_fields
   after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text'].include?(d.annotation_type) }
-  after_commit :send_slack_notification, on: [:create, :update]
+  after_commit :dynamic_send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
@@ -47,6 +47,12 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message_task_response
     params = self.slack_params_task_response
     params[:task].slack_notification_message(params)
+  end
+
+  # TODO: Sawy::remove this method and handle slack notification for sources
+  def dynamic_send_slack_notification
+    ignore_notification = self.annotated_type == 'Task' && self.annotated.annotated_type == 'Source'
+    self.send_slack_notification unless ignore_notification
   end
 
   def data
