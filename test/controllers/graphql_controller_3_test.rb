@@ -1444,6 +1444,12 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal t2.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
+    s = create_source team: t
+    t3 = create_task annotated: s, fieldset: 'metadata'
+    query = 'query { source(id: "' + s.id.to_s + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal t3.id, JSON.parse(@response.body)['data']['source']['tasks']['edges'][0]['node']['dbid'].to_i
   end
 
   test "should get team tasks by fieldset" do

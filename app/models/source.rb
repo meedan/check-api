@@ -1,11 +1,12 @@
 class Source < ActiveRecord::Base
-  attr_accessor :disable_es_callbacks, :add_to_project_media_id, :urls, :validate_primary_link_exist
+  attr_accessor :disable_es_callbacks, :add_to_project_media_id, :urls, :validate_primary_link_exist, :set_tasks_responses
 
   include HasImage
   include CheckElasticSearch
   include CheckPusher
   include ValidationsHelper
   include CustomLock
+  include ProjectMediaSourceAssociations
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   has_many :account_sources, dependent: :destroy
@@ -24,7 +25,7 @@ class Source < ActiveRecord::Base
   validate :primary_url_exists, on: :create
   validate :team_is_not_archived, unless: proc { |s| s.team && s.team.is_being_copied }
 
-  after_create :create_metadata, :notify_team_bots_create
+  after_create :create_metadata, :notify_team_bots_create, :create_auto_tasks
   after_update :notify_team_bots_update
   after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
 

@@ -390,6 +390,29 @@ class GraphqlCrudOperations
     end
   end
 
+  def self.field_tasks
+    proc do |_classname|
+      connection :tasks, -> { TaskType.connection_type } do
+        argument :fieldset, types.String
+
+        resolve ->(obj, args, _ctx) {
+          tasks = Task.where(annotation_type: 'task', annotated_type: obj.class.name, annotated_id: obj.id)
+          tasks = tasks.from_fieldset(args['fieldset']) unless args['fieldset'].blank?
+          # Order tasks by order field
+          ids = tasks.to_a.sort_by{ |task| task.order ||= 0 }.map(&:id)
+          values = []
+          ids.each_with_index do |id, i|
+            values << "(#{id}, #{i})"
+          end
+          return tasks if values.empty?
+          joins = ActiveRecord::Base.send(:sanitize_sql_array,
+            ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), 'annotations'])
+          tasks.joins(joins).order('x.order_number')
+        }
+      end
+    end
+  end
+
   def self.archived_count
     proc do |name|
       field name do
