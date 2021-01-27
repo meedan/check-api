@@ -51,7 +51,7 @@ class Dynamic < ActiveRecord::Base
 
   # TODO: Sawy::remove this method and handle slack notification for sources
   def dynamic_send_slack_notification
-    ignore_notification = self.annotated_type == 'Task' && self.annotated.annotated_type == 'Source'
+    ignore_notification = self.annotated_type == 'Task' && self.annotated.present? && self.annotated.annotated_type == 'Source'
     self.send_slack_notification unless ignore_notification
   end
 
