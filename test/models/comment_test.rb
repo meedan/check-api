@@ -461,4 +461,11 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment annotated: t
     assert_equal t, c.task
   end
+
+  test "should sort" do
+    c1 = create_comment
+    sleep 1
+    c2 = create_comment
+    assert_equal [c1, c2], Comment.all_sorted.to_a
+  end
 end

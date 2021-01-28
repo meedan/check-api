@@ -85,15 +85,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   # Test CRUD operations for each model
 
-  test "should read accounts" do
-    assert_graphql_read('account', 'url')
-    assert_graphql_read('account', 'metadata')
-  end
-
-  test "should read account sources" do
-    assert_graphql_read('account_source', 'source_id')
-  end
-
   test "should create account source" do
     a = create_valid_account
     s = create_source
@@ -108,10 +99,6 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     assert_graphql_create('comment', { text: 'test', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
-  end
-
-  test "should read comments" do
-    assert_graphql_read('comment', 'text')
   end
 
   test "should destroy comment" do
@@ -136,7 +123,6 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should read project medias" do
-    assert_graphql_read('project_media', 'last_status')
     authenticate_with_user
     p = create_project team: @team
     tt = create_team_task team_id: @team.id, project_ids: [p.id], order: 2
@@ -227,10 +213,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('project', { title: 'test', description: 'test' })
   end
 
-  test "should read project" do
-    assert_graphql_read('project', 'title')
-  end
-
   test "should read project with team_id as argument" do
     authenticate_with_token
     p = create_project team: @team
@@ -254,32 +236,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('source', { name: 'test', slogan: 'test' })
   end
 
-  test "should read source" do
-    User.delete_all
-    assert_graphql_read('source', 'image')
-    authenticate_with_user
-    u = create_user
-    s = create_source team: @team, user: u
-    create_comment annotated: s
-    create_tag annotated: s
-    query = "query GetById { source(id: \"#{s.id}\") {  annotations(annotation_type: \"comment,tag\") { edges { node { ... on Annotation { dbid } } } }, annotations_count(annotation_type: \"comment,tag\")} }"
-    post :create, query: query, team: @team.slug
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['source']
-    assert_equal 2, data['annotations_count']
-    assert_equal 2, data['annotations']['edges'].size
-  end
-
   test "should update source" do
     assert_graphql_update('source', :name, 'foo', 'bar')
   end
 
   test "should create team" do
     assert_graphql_create('team', { name: 'test', description: 'test', slug: 'test' })
-  end
-
-  test "should read team" do
-    assert_graphql_read('team', 'name')
   end
 
   test "should update team" do
@@ -295,17 +257,9 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('team_user', { team_id: @team.id, user_id: u.id, status: 'member' })
   end
 
-  test "should read team user" do
-    assert_graphql_read('team_user', 'user_id')
-  end
-
   test "should update team user" do
     t = create_team
     assert_graphql_update('team_user', :team_id, t.id, @team.id)
-  end
-
-  test "should read user" do
-    assert_graphql_read('user', 'email')
   end
 
   test "should update user" do
@@ -317,73 +271,14 @@ class GraphqlControllerTest < ActionController::TestCase
     # assert_graphql_destroy('user')
   end
 
-  test "should read object from project" do
-    assert_graphql_read_object('project', { 'team' => 'name' })
-  end
-
-  test "should read object from account" do
-    assert_graphql_read_object('account', { 'user' => 'name' })
-  end
-
-  test "should read object from project media" do
-    assert_graphql_read_object('project_media', { 'media' => 'url' })
-  end
-
-  test "should read object from team user" do
-    assert_graphql_read_object('team_user', { 'team' => 'name', 'user' => 'name' })
-  end
-
-  test "should read collection from source" do
-    User.delete_all
-    assert_graphql_read_collection('source', { 'accounts' => 'url', 'collaborators' => 'name' }, 'DESC')
-  end
-
-  test "should read collection from project" do
-    assert_graphql_read_collection('project', { 'project_medias' => 'media_id' })
-  end
-
-  test "should read object from media" do
-    assert_graphql_read_object('media', { 'account' => 'url' })
-  end
-
-  test "should read collection from team" do
-    assert_graphql_read_collection('team', { 'team_users' => 'user_id', 'join_requests' => 'user_id', 'users' => 'name', 'contacts' =>  'location', 'projects' => 'title', 'sources' => 'name' })
-  end
-
-  test "should read collection from account" do
-    assert_graphql_read_collection('account', { 'medias' => 'url' })
-  end
-
-  test "should read object from annotation" do
-    assert_graphql_read_object('annotation', { 'annotator' => 'name', 'project_media' => 'dbid' })
-  end
-
-  test "should read object from user" do
-    User.any_instance.stubs(:current_team).returns(create_team)
-    assert_graphql_read_object('user', { 'source' => 'name', 'current_team' => 'name' })
-    User.any_instance.unstub(:current_team)
-  end
-
-  test "should read collection from user" do
-    assert_graphql_read_collection('user', { 'teams' => 'name', 'team_users' => 'role', 'annotations' => 'content' }, 'DESC')
-  end
-
   test "should create tag" do
     p = create_project team: @team
     pm = create_project_media project: p
     assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
-  test "should read tags" do
-    assert_graphql_read('tag', 'tag')
-  end
-
   test "should destroy tag" do
     assert_graphql_destroy('tag')
-  end
-
-  test "should read annotations" do
-    assert_graphql_read('annotation', 'annotated_id')
   end
 
   test "should destroy annotation" do
@@ -425,20 +320,12 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: @team.id })
   end
 
-  test "should read contact" do
-    assert_graphql_read('contact', 'location')
-  end
-
   test "should update contact" do
     assert_graphql_update('contact', :location, 'foo', 'bar')
   end
 
   test "should destroy contact" do
     assert_graphql_destroy('contact')
-  end
-
-  test "should read object from contact" do
-    assert_graphql_read_object('contact', { 'team' => 'name' })
   end
 
   test "should get access denied on source by id" do

@@ -12,9 +12,7 @@ ContactType = GraphqlCrudOperations.define_default_type do
   field :team do
     type -> { TeamType }
 
-    resolve -> (contact, _args, _ctx) {
-      contact.team
-    }
+    resolve -> (contact, _args, _ctx) { contact.team }
   end
 
 # End of fields
