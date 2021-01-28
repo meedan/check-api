@@ -367,7 +367,7 @@ class Team < ActiveRecord::Base
     Team.default_list_columns.each do |column|
       columns << column.merge({ show: show_columns.include?(column[:key]) })
     end
-    TeamTask.where(team_id: self.id, fieldset: 'metadata').each do |tt|
+    TeamTask.where(team_id: self.id, fieldset: 'metadata', associated_type: 'ProjectMedia').each do |tt|
       key = "task_value_#{tt.id}"
       columns << {
         key: key,

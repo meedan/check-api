@@ -248,7 +248,7 @@ class Task < ActiveRecord::Base
 
   def add_update_elasticsearch_task(op = 'create')
     # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
-    if self.type =~ /choice/ && self.team_task_id
+    if self.type =~ /choice/ && self.team_task_id && self.annotated_type == 'ProjectMedia'
       pm = self.project_media
       keys = %w(team_task_id fieldset)
       data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
