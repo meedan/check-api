@@ -20,8 +20,6 @@ MediaType = GraphqlCrudOperations.define_default_type do
   field :account do
     type -> { AccountType }
 
-    resolve -> (media, _args, _ctx) {
-      media.account
-    }
+    resolve -> (media, _args, _ctx) { media.account }
   end
 end

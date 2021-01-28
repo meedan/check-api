@@ -67,9 +67,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :join_requests, -> { TeamUserType.connection_type } do
-    resolve -> (team, _args, _ctx) {
-      team.team_users.where({ status: 'requested' })
-    }
+    resolve -> (team, _args, _ctx) { team.team_users.where({ status: 'requested' }) }
   end
 
   connection :users, -> { UserType.connection_type } do
@@ -79,9 +77,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :contacts, -> { ContactType.connection_type } do
-    resolve -> (team, _args, _ctx) {
-      team.contacts
-    }
+    resolve -> (team, _args, _ctx) { team.contacts }
   end
 
   connection :projects, -> { ProjectType.connection_type } do

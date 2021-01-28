@@ -66,16 +66,12 @@ UserType = GraphqlCrudOperations.define_default_type do
 
   field :source do
     type SourceType
-    resolve -> (user, _args, _ctx) do
-      Source.find(user.source_id)
-    end
+    resolve -> (user, _args, _ctx) { Source.find(user.source_id) }
   end
 
   field :current_team do
     type TeamType
-    resolve -> (user, _args, _ctx) do
-      user.current_team
-    end
+    resolve -> (user, _args, _ctx) { user.current_team }
   end
 
   field :bot do
@@ -94,28 +90,19 @@ UserType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :teams, -> { TeamType.connection_type } do
-    resolve ->(user, _args, _ctx) {
-      user.teams
-    }
+    resolve ->(user, _args, _ctx) { user.teams }
   end
 
   connection :team_users, -> { TeamUserType.connection_type } do
     argument :status, types.String
 
-    resolve ->(user, args, _ctx) {
-      team_users = user.team_users
-      team_users = team_users.where(status: args['status']) if args['status']
-      team_users
-    }
+    resolve ->(user, args, _ctx) { team_users = user.team_users ; team_users = team_users.where(status: args['status']) if args['status'] ; team_users }
   end
 
   connection :annotations, -> { AnnotationType.connection_type } do
     argument :type, types.String
 
-    resolve ->(user, args, _ctx) {
-      type = args['type']
-      type.blank? ? user.annotations : user.annotations(type)
-    }
+    resolve ->(user, args, _ctx) { type = args['type'] ; type.blank? ? user.annotations : user.annotations(type) }
   end
 
   connection :assignments, -> { ProjectMediaType.connection_type } do
