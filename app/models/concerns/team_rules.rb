@@ -181,8 +181,8 @@ module TeamRules
   def rules_json_schema
     pm = ProjectMedia.new(team_id: self.id)
     statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
-    choice_field_objs = self.team_tasks.where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
-    text_field_objs = self.team_tasks.where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    choice_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    text_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
     namespace = OpenStruct.new({
       projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },

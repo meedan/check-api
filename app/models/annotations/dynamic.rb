@@ -139,7 +139,7 @@ class Dynamic < ActiveRecord::Base
     if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
       task = self.annotated
       # Index response for team tasks or free text tasks
-      if task.team_task_id || self.annotation_type == 'task_response_free_text'
+      if task.annotated_type == 'ProjectMedia' && (task.team_task_id || self.annotation_type == 'task_response_free_text')
         pm = task.project_media
         if op == 'destroy'
           handle_destroy_response(task, pm)
