@@ -9,7 +9,7 @@ class Task < ActiveRecord::Base
   before_validation :set_slug, on: :create
   before_validation :set_order, on: :create
 
-  after_save :send_slack_notification
+  after_save :task_send_slack_notification
   after_destroy :reorder
   after_commit :add_update_elasticsearch_task, on: :create
   after_commit :destroy_elasticsearch_task, on: :destroy
@@ -44,6 +44,11 @@ class Task < ActiveRecord::Base
 
   def json_schema_enabled?
     true
+  end
+
+  # TODO: Sawy::remove this method and handle slack notification for sources
+  def task_send_slack_notification
+    self.send_slack_notification unless self.annotated_type == 'Source'
   end
 
   def status=(value)
