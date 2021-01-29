@@ -189,8 +189,12 @@ es:
         %{answer}"
       metadata_answer_edit: "%{user} editó el valor de los metadatos %{title}: %{answer} "
       project_media_comment: "%{user} (%{role} at %{team}) añadió una nota a una  %{parent_type}"
+      project_media_create: "%{user}(%{role} en %{team}) envió un nuevo ítem"
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type}
         relacionado"
+      project_media_update: "%{user}(%{role} en %{team}) actualizó un ítem"
+      project_media_added_to_list: "%{user}(%{role} en %{team}) añadió un ítem a la
+        lista %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) cambiar el %{workflow} del
         estado a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
@@ -607,6 +611,8 @@ es:
             third_party: Añadir integraciones de terceros
             invite_owner: Invitar, aprobar y eliminar propietarios de área de trabajo
             invite_members: Invitar, aprobar y eliminar miembros de área de trabajo
+  team_clone:
+    user_not_authorized: Lo sentimos, no tienes permitido duplicar este equipo.
   team_import:
     invalid_google_spreadsheet_url: URL de hoja de cálculo inválida %{spreadsheet_url}
     not_found_google_spreadsheet_url: Hoja de cálculo no encontrada en %{spreadsheet_url}
@@ -1005,7 +1011,6 @@ es:
     Su solicitud se enviará a los verificadores de hechos aproximadamente 30 segundos
     después de que haya enviado su último mensaje.\n\n*Responda 0 (o \U0001F4CC)*
     para volver al *Menú Principal*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-

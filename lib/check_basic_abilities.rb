@@ -15,8 +15,6 @@ module CheckBasicAbilities
   end
 
   def global_admin_perms
-    can :access, :rails_admin
-    can :dashboard
     can :manage, :all
   end
 

@@ -14,9 +14,7 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
   field :team do
     type TeamType
 
-    resolve -> (team_user, _args, _ctx) {
-      team_user.team
-    }
+    resolve -> (team_user, _args, _ctx) { team_user.team }
   end
 
   field :user do

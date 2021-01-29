@@ -617,6 +617,8 @@ ro:
             third_party: Adaugă integrare a terților
             invite_owner: Invită, aprobă și elimină coordonatori ai spațiului de lucru
             invite_members: Invită, aprobă și elimină membri ai spațiului de lucru
+  team_clone:
+    user_not_authorized: Ne pare rău, nu aveți permisiunea să duplicați această echipă.
   team_import:
     invalid_google_spreadsheet_url: URL %{spreadsheet_url} pentru tabel electronic
       nu este valid
@@ -663,8 +665,6 @@ ro:
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
   team_rule_condition_definition: Selectați condiția
-  team_rule_has_less_than_x_words: Cererea conține mai puțin de (sau exact) următorul
-    număr de cuvinte
   team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
     regulată
   team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
@@ -1000,7 +1000,6 @@ ro:
   custom_message_smooch_bot_smooch_state_main_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_secondary_smooch_menu_message_check-message-demo: ''
   custom_message_smooch_bot_smooch_state_query_smooch_menu_message_check-message-demo: ''
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-

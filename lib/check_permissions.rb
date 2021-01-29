@@ -70,7 +70,7 @@ module CheckPermissions
       'Claim' => [ProjectMedia, Comment, Tag, Dynamic, Task],
       'Project' => [Source, Media, ProjectMedia, Claim, Link],
       'ProjectMedia' => [Comment, Tag, Dynamic, Task, Relationship],
-      'Source' => [Account, Project],
+      'Source' => [Account, Project, Dynamic, Task],
       'User' => [Source, TeamUser, Team, Project]
     }
   end
@@ -87,7 +87,11 @@ module CheckPermissions
           model.team_id = Team.current.id
         end
 
-        model = self.set_media_for_permissions(model) if self.class.name == 'ProjectMedia'
+        if self.class.name == 'Source'
+          model.source = self if model.respond_to?('source=')
+        end
+
+        model = self.set_media_for_permissions(model) if ['ProjectMedia', 'Source'].include?(self.class.name)
 
         perms["create #{data}"] = ability.can?(:create, model)
       end

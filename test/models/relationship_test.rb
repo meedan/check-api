@@ -312,4 +312,12 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_not_nil Relationship.where(source_id: i1, target_id: i111).last
     assert_nil Relationship.where(source_id: i11, target_id: i111).last
   end
+
+  test "should not attempt to update source count if source does not exist" do
+    r = create_relationship relationship_type: Relationship.confirmed_type
+    r.source.delete
+    assert_nothing_raised do
+      r.reload.send :update_counters
+    end
+  end
 end

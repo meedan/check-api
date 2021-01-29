@@ -641,8 +641,8 @@ en:
   team_rule_conditions: If
   team_rule_condition: If
   team_rule_condition_definition: Select condition
-  team_rule_has_less_than_x_words: Request contains less than (or exactly) the following
-    number of words
+  team_rule_has_less_than_x_words: Text request contains less than (or exactly) the
+    following number of words
   team_rule_title_matches_regexp: Item title matches this regular expression
   team_rule_request_matches_regexp: Request matches this regular expression
   team_rule_type_is: Item type is
@@ -1139,8 +1139,6 @@ en:
     by any context or additional questions related to that item. Your request will
     be sent to fact-checkers about 30 seconds after you have sent your last message.\n
     \     \n*Reply 0 (or \U0001F4CC)* to go back to the *Main Menu*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Thank
-    you for sending your query! We started looking at your request now.
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Sorry,
     we could not verify your query. Learn more about the type of content we can verify
     at meedan.com

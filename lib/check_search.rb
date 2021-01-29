@@ -202,6 +202,8 @@ class CheckSearch
     check_seach_concat_conditions(conditions, rules_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_seach_concat_conditions(conditions, team_tasks_conditions)
+    media_source_conditions = build_search_media_source_conditions
+    check_seach_concat_conditions(conditions, media_source_conditions)
     { bool: { must: conditions } }
   end
 
@@ -376,6 +378,11 @@ class CheckSearch
       conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
     conditions
+  end
+
+  def build_search_media_source_conditions
+    return [] unless @options.has_key?('sources') && @options['sources'].class.name == 'Array'
+    [{ terms: { source_id: @options['sources'] } }]
   end
 
   def build_search_sort

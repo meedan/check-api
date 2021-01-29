@@ -111,9 +111,7 @@ namespace :check do
           theme_color: pm.last_status_color,
           url: item.dig('raw_claim', 'publisher', 'url'),
           use_text_message: true,
-          text: [item.dig('raw_claim', 'articleBody'), item.dig('raw_claim', 'url')].join("\n\n"),
-          use_disclaimer: false,
-          disclaimer: ''
+          text: [item.dig('raw_claim', 'articleBody'), item.dig('raw_claim', 'url')].join("\n\n")
         }]
       }
       report.set_fields = fields.to_json

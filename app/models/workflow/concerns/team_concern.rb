@@ -29,6 +29,7 @@ module Workflow
                       borderColor: { type: 'string', title: 'Border color', format: 'color' }
                     }
                   },
+                  should_send_message: { type: 'boolean' },
                   locales: {
                     type: 'object',
                     patternProperties: {
@@ -37,7 +38,8 @@ module Workflow
                         required: ['label', 'description'],
                         properties: {
                           label: { type: 'string' },
-                          description: { type: 'string' }
+                          description: { type: 'string' },
+                          message: { type: 'string' }
                         }
                       }
                     }
@@ -47,10 +49,6 @@ module Workflow
             }
           }
         }
-
-        def self.custom_statuses_schema
-          CUSTOM_STATUSES_SCHEMA
-        end
 
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil, items_count = false, published_reports_count = false|

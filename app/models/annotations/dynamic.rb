@@ -13,7 +13,7 @@ class Dynamic < ActiveRecord::Base
   after_create :create_fields
   after_update :update_fields
   after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text'].include?(d.annotation_type) }
-  after_commit :send_slack_notification, on: [:create, :update]
+  after_commit :dynamic_send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
@@ -47,6 +47,12 @@ class Dynamic < ActiveRecord::Base
   def slack_notification_message_task_response
     params = self.slack_params_task_response
     params[:task].slack_notification_message(params)
+  end
+
+  # TODO: Sawy::remove this method and handle slack notification for sources
+  def dynamic_send_slack_notification
+    ignore_notification = self.annotated_type == 'Task' && self.annotated.present? && self.annotated.annotated_type == 'Source'
+    self.send_slack_notification unless ignore_notification
   end
 
   def data
@@ -133,7 +139,7 @@ class Dynamic < ActiveRecord::Base
     if self.annotated_type == 'Task' && self.annotation_type =~ /^task_response/
       task = self.annotated
       # Index response for team tasks or free text tasks
-      if task.team_task_id || self.annotation_type == 'task_response_free_text'
+      if task.annotated_type == 'ProjectMedia' && (task.team_task_id || self.annotation_type == 'task_response_free_text')
         pm = task.project_media
         if op == 'destroy'
           handle_destroy_response(task, pm)
@@ -250,6 +256,14 @@ class Dynamic < ActiveRecord::Base
   def apply_rules_and_actions
     team = self.annotated.team
     # Evaluate only the rules that contain a condition that matches this report, language, flag or task answer
+    annotated = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
+    if annotated.class.name == 'ProjectMedia'
+      rule_ids = get_rule_ids
+      team.apply_rules_and_actions(annotated, rule_ids || [])
+    end
+  end
+
+  def get_rule_ids
     rule_ids = case self.annotation_type
                when 'report_design'
                  self.send(:rule_ids_for_report)
@@ -262,8 +276,7 @@ class Dynamic < ActiveRecord::Base
                when 'task_response_free_text'
                  self.send(:rule_ids_for_text_task_response)
                end
-    pm = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
-    team.apply_rules_and_actions(pm, rule_ids || [])
+    rule_ids
   end
 
   def rule_ids_for_report

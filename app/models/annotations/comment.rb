@@ -87,9 +87,11 @@ class Comment < ActiveRecord::Base
       add_update_nested_obj({op: op, nested_key: 'comments', keys: ['text']})
     elsif self.annotated_type == 'Task'
       task = self.annotated
-      data = self.data
-      data['team_task_id'] = task.team_task_id
-      add_update_nested_obj({op: op, obj: task.annotated, nested_key: 'task_comments', keys: ['text', 'team_task_id'], data: data})
+      if (task.annotated_type == 'ProjectMedia')
+        data = self.data
+        data['team_task_id'] = task.team_task_id
+        add_update_nested_obj({op: op, obj: task.annotated, nested_key: 'task_comments', keys: ['text', 'team_task_id'], data: data})
+      end
     end
   end
 

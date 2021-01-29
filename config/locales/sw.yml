@@ -598,6 +598,8 @@ sw:
             third_party: Ongeza mijumuisho ya mhusika wa tatu
             invite_owner: Alika, kubali, na ondoa wamiliki wa ulingo wa kazi
             invite_members: Alika, kubali, na undoa wanachama wa ulingo wa kazi
+  team_clone:
+    user_not_authorized: Samahani, huruhusiwi kuiga timu hii.
   team_import:
     invalid_google_spreadsheet_url: KISARA batili cha lahajedwali %{spreadsheet_url}
     not_found_google_spreadsheet_url: Lahajedwali haijapatikana kwa %{spreadsheet_url}
@@ -641,8 +643,6 @@ sw:
   team_rule_conditions: Iwapo
   team_rule_condition: Iwapo
   team_rule_condition_definition: Chagua hali
-  team_rule_has_less_than_x_words: Ombi lina chini ya (au haswa) idadi ifuatayo ya
-    maneno
   team_rule_title_matches_regexp: Kichwa cha kipengee kinawiana na usemi huu wa kawaida
   team_rule_request_matches_regexp: Ombi linawiana na usemi huu wa kawaida
   team_rule_type_is: Aina ya kipengee ni
@@ -1104,8 +1104,6 @@ sw:
     au maswali ya ziada yanayohusiana na kitu hicho. Ombi lako litatumwa kwa wahakikii
     sekunde 30 baada ya kutuma ujumbe wako wa mwisho.\n\n*Jibu 0 (au  \U0001F4CC)*
     kurejea hadi *Menyu kuu*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: Asante
-    kwa kutuma swali lako! Tumeanza kulishughulikia ombi lako sasa.
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: Samahani,
     hatukuweza kuhakiki swali lako. Jifunze zaidi juu ya aina ya yaliyomo tunayoweza
     kuhakiki kwenye meedan.com

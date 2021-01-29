@@ -3,36 +3,6 @@ require 'active_support/concern'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_auto_tasks(project_id = nil, tasks = [])
-    team = self.team
-    return if team.nil? || team.is_being_copied
-    self.set_tasks_responses ||= {}
-    if tasks.blank?
-      tasks = self.team.auto_tasks(project_id)
-    end
-    created = []
-    tasks.each do |task|
-      t = Task.new
-      t.label = task.label
-      t.type = task.task_type
-      t.description = task.description
-      t.team_task_id = task.id
-      t.json_schema = task.json_schema
-      t.options = task.options unless task.options.blank?
-      t.annotator = User.current
-      t.annotated = self
-      t.order = task.order
-      t.fieldset = task.fieldset
-      t.skip_check_ability = true
-      t.skip_notifications = true
-      t.save!
-      created << t
-      # set auto-response
-      self.set_jsonld_response(task) unless task.mapping.blank?
-    end
-    self.respond_to_auto_tasks(created)
-  end
-
   def create_metrics_annotation
     unless self.media.url.blank? || self.media.metadata.dig('metrics').nil?
       Bot::Keep.update_metrics(self.media, self.media.metadata['metrics'])
@@ -155,22 +125,6 @@ module ProjectMediaCreators
       "mapping_#{task['type']}_#{mapping_type}",
       "mapping_#{task['type']}",
     ]
-  end
-
-  def respond_to_auto_tasks(tasks)
-    # set_tasks_responses = { task_slug (string) => response (string) }
-    responses = self.set_tasks_responses.to_h
-    tasks.each do |task|
-      if responses.has_key?(task.slug)
-        task = Task.find(task.id)
-        type = "task_response_#{task.type}"
-        fields = {
-          "response_#{task.type}" => responses[task.slug]
-        }
-        task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
-        task.save!
-      end
-    end
   end
 
   def create_relationship(type = Relationship.default_type)

@@ -105,9 +105,10 @@ class ProjectTest < ActiveSupport::TestCase
     rescue
       # Already exists
     end
-    m1 = create_valid_media
-    m2 = create_valid_media
-    p = create_project
+    t = create_team
+    m1 = create_valid_media team: t
+    m2 = create_valid_media team: t
+    p = create_project team: t
     create_project_media project: p, media: m1
     create_project_media project: p, media: m2
     assert_equal [m1, m2].sort, p.reload.project_medias.map(&:media).sort
@@ -320,165 +321,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'my-channel', p.get_slack_channel
   end
 
-  test "should display team on admin label" do
-    t = create_team name: 'my-team'
-    p = create_project team: t, title: 'my-project'
-    assert_equal 'my-team - my-project', p.admin_label
-  end
-
-  test "should have a filename without spaces" do
-    t = create_team name: 'Team t'
-    p = create_project team: t, title: 'Project p'
-    assert_match(/team-t_project-p_.*/, p.export_filename(:csv))
-  end
-
-  test "should have the time on filename" do
-    t = create_team name: 'Team t'
-    p = create_project team: t, title: 'Project p'
-    p.update_attribute(:created_at, Time.now - 2.days)
-    time = Time.now
-    Time.stubs(:now).returns(time)
-    assert_match(/team-t_project-p_#{Time.now.to_i.to_s}.*/, p.export_filename(:csv))
-    Time.unstub(:now)
-  end
-
-  test "should export data for Check" do
-    create_verification_status_stuff
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      c = create_comment annotated: pm, text: 'Note 1'
-      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-      task = create_task annotator: create_user, annotated: pm
-      exported_data = p.export
-      assert_equal 1, exported_data.size
-      assert_equal p.team_id, exported_data.first[:team_id]
-      assert_equal pm.id, exported_data.first[:report_id]
-      assert_equal 'sports', exported_data.first[:tags]
-      assert_equal c.text, exported_data.first[:note_content_1]
-      assert_equal task.label, exported_data.first[:task_1_question]
-    end
-  end
-
-  test "should export data for Check starting from specific id" do
-    create_verification_status_stuff
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      pm2 = create_project_media project: p, media: create_valid_media
-      c = create_comment annotated: pm, text: 'Note 1'
-      c2 = create_comment annotated: pm2, text: 'Note 2'
-      tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-      tag2 = create_tag tag: 'music', annotated: pm2, annotator: create_user
-      task = create_task annotator: create_user, annotated: pm
-      exported_data = p.export(pm.id)
-      assert_equal 1, exported_data.size
-      assert_equal p.team_id, exported_data.first[:team_id]
-      assert_equal pm2.id, exported_data.first[:report_id]
-      assert_equal 'music', exported_data.first[:tags]
-      assert_equal 'Note 2', exported_data.first[:note_content_1]
-      assert_nil exported_data.first[:task_1_question]
-    end
-  end
-
-  test "should include number of smooch requests on export if send it as parameter" do
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      c = create_comment annotated: pm, text: 'Note 1'
-      n = 2
-      n.times { create_annotation annotation_type: 'smooch', annotated: pm }
-      pm2 = create_project_media project: p, media: create_valid_media
-      exported_data = p.export(0, ['comment', 'task', 'smooch'])
-      assert_equal 2, exported_data.size
-      assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:number_of_requests)
-      assert_equal 0, exported_data.find { |e| e[:report_id] == pm2.id}.dig(:number_of_requests)
-      assert_equal 'Note 1', exported_data.find { |e| e[:report_id] == pm.id}.dig(:note_content_1)
-    end
-  end
-
-  test "should not include number of smooch requests on export by default" do
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false]})
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      pm2 = create_project_media project: p, media: create_valid_media
-      n = 1
-      n.times { create_annotation annotation_type: 'smooch', annotated: pm2 }
-      exported_data = p.export
-      assert_equal 2, exported_data.size
-      assert_nil exported_data.find { |e| e[:report_id] == pm.id}.dig(:number_of_requests)
-      assert_nil exported_data.find { |e| e[:report_id] == pm2.id}.dig(:number_of_requests)
-    end
-  end
-
-  test "should include number of smooch responses on export if send it as parameter" do
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Smooch Response', { 'Data' => ['JSON', false]})
-    stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
-      p = create_project
-      pm = create_project_media project: p, media: create_valid_media
-      n = 2
-      n.times { create_annotation annotation_type: 'smooch_response', annotated: pm }
-      pm2 = create_project_media project: p, media: create_valid_media
-      exported_data = p.export(0, ['smooch_response'])
-      assert_equal 2, exported_data.size
-      assert_equal 2, exported_data.find { |e| e[:report_id] == pm.id}.dig(:responses_with_final_status_count)
-      assert_equal 0, exported_data.find { |e| e[:report_id] == pm2.id}.dig(:responses_with_final_status_count)
-    end
-  end
-
-  test "should include language on export if send it as parameter" do
-    at = create_annotation_type annotation_type: 'language'
-    create_field_instance name: 'language', annotation_type_object: at
-    p = create_project
-    pm1 = create_project_media project: p, media: create_valid_media
-    create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'en' }.to_json
-    pm2 = create_project_media project: p, media: create_valid_media
-    create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json
-    pm3 = create_project_media project: p, media: create_valid_media
-    exported_data = p.export(0, ['language'])
-
-    assert_equal 3, exported_data.size
-    assert_equal 'en', exported_data.find { |e| e[:report_id] == pm1.id}.dig(:language)
-    assert_equal 'pt', exported_data.find { |e| e[:report_id] == pm2.id}.dig(:language)
-    assert_nil exported_data.find { |e| e[:report_id] == pm3.id}.dig(:language)
-  end
-
-  test "should export data to CSV" do
-    create_verification_status_stuff
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
-    c = create_comment annotated: pm, text: 'Note 1'
-    tag = create_tag tag: 'sports', annotated: pm, annotator: create_user
-    at = create_annotation_type annotation_type: 'task_response'
-    create_field_instance annotation_type_object: at, name: 'response'
-    task = create_task annotator: create_user, annotated: pm
-    task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
-    task.save!
-    exported_data = p.export_csv.values.first
-    header = "team_id,report_id,report_title,report_url,report_date,media_content,media_url,report_status,report_author,time_delta_to_first_status,time_delta_to_last_status,time_original_media_publishing,type,contributing_users,tags,notes_ugc_count,tasks_count,tasks_resolved_count,note_date_1,note_user_1,note_content_1,task_1_question,task_1_answer_1_user,task_1_answer_1_date,task_1_answer_1_content,task_1_answer_1_note"
-    assert_match(header, exported_data)
-  end
-
-  test "should export project" do
-    create_verification_status_stuff(false)
-    p = create_project
-    pm = create_project_media project: p, media: create_valid_media
-    c = create_comment annotated: pm, text: 'Note 1'
-    at = create_annotation_type annotation_type: 'task_response'
-    create_field_instance annotation_type_object: at, name: 'response'
-    task = create_task annotator: create_user, annotated: pm
-    task.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
-    task.save!
-    assert_nothing_raised do
-      p.class.export_project(:csv, p.class.name, p.id, 'me@email.com', 0, ['comment'])
-    end
-  end
-
   test "should have search id" do
     p = create_project
     assert_not_nil p.search_id
@@ -622,61 +464,6 @@ class ProjectTest < ActiveSupport::TestCase
         p.destroy_later
       end
     end
-  end
-
-  test "should export project to CSV" do
-    Sidekiq::Testing.inline! do
-      p = create_project
-      assert_nothing_raised do
-        p.export_to_csv_in_background
-      end
-    end
-  end
-
-  test "should export project images" do
-    Team.any_instance.stubs(:get_limits_keep).returns(true)
-    stub_configs({ 'pender_url' => 'http://pender', 'pender_url_private' => 'http://pender-private' }) do
-      WebMock.stub_request(:get, 'http://pender-private/images/test.png').to_return(body: 'foo')
-      ft = create_field_type field_type: 'image_path', label: 'Image Path'
-      at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-      create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
-      create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-      t = create_team
-      t.set_limits_keep = true
-      t.save!
-      BotUser.delete_all
-      tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
-      tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
-      tbi.set_archive_pender_archive_enabled = true
-      tbi.save!
-      p = create_project team: t
-      c = create_claim_media
-      pm1 = create_project_media media: c, project: p
-      pm1.create_all_archive_annotations
-      i = create_uploaded_image
-      pm2 = create_project_media media: i, project: p
-      pm2.create_all_archive_annotations
-      l1 = create_link
-      pm3 = create_project_media media: l1, project: p
-      pm3.create_all_archive_annotations
-      archiver = Annotation.where(annotation_type: 'archiver', annotated_id: pm3.id).last
-      f = DynamicAnnotation::Field.where(field_name: "pender_archive_response", annotation_id: archiver.id).last
-      f.value = { screenshot_url: 'http://pender/images/test.png' }.to_json
-      f.save!
-      l2 = create_link
-      pm4 = create_project_media media: l2, project: p
-      pm4.create_all_archive_annotations
-
-      assert_equal 2, p.export_images.values.reject{ |x| x.nil? }.size
-    end
-    Team.any_instance.unstub(:get_limits_keep)
-  end
-
-  test "should export images in background" do
-    p = create_project
-    n = Sidekiq::Extensions::DelayedClass.jobs.size
-    p.export_images_in_background
-    assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
   end
 
   test "should reset current project when project is deleted" do

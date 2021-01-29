@@ -426,7 +426,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "zzz should set user_id on relationships" do
+  test "should set user_id on relationships" do
     b = create_bot(name: 'Alegre')
     b.update_column(:login, 'alegre')
     p = create_project
@@ -440,5 +440,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm3, r.source
     assert_not_nil r.user_id
     assert_equal b.id, r.user_id
+  end
+
+  test "should unarchive item after running" do
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      pm = create_project_media
+      pm.archived = CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
+      pm.save!
+      assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.reload.archived
+      Bot::Alegre.run({ data: { dbid: pm.id }, event: 'create_project_media' })
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
+    end
   end
 end

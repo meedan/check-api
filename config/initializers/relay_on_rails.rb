@@ -57,15 +57,16 @@ class CheckGraphql
     end
   end
 
-  def self.object_from_id(id, _ctx)
+  def self.object_from_id(id, ctx)
     type_name, id = CheckGraphql.decode_id(id)
     obj = nil
     if type_name == 'About'
       name = Rails.application.class.parent_name
       obj = OpenStruct.new({ name: name, version: VERSION, id: 1, type: 'About' })
     elsif ['Relationships', 'RelationshipsSource', 'RelationshipsTarget'].include?(type_name)
-      obj = ProjectMedia.find(id)
+      obj = ProjectMedia.find_if_can(id)
     elsif type_name == 'CheckSearch'
+      Team.find_if_can(Team.current&.id.to_i, ctx[:ability])
       obj = CheckSearch.new(id)
     else
       obj = type_name.constantize.find_if_can(id)

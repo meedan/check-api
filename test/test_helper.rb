@@ -1,16 +1,20 @@
-require 'simplecov'
 require 'minitest/hooks/test'
 
-SimpleCov.start 'rails' do
-  nocov_token 'nocov'
-  merge_timeout 3600
-  command_name "Tests #{rand(100000)}"
-  add_filter do |file|
-    (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
-    !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
-    !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+# Avoid coverage report when running a single test
+unless ARGV.include?('-n')
+  require 'simplecov'
+  puts 'Starting coverage...'
+  SimpleCov.start 'rails' do
+    nocov_token 'nocov'
+    merge_timeout 3600
+    command_name "Tests #{rand(100000)}"
+    add_filter do |file|
+      (!file.filename.match(/\/app\/controllers\/[^\/]+\.rb$/).nil? && file.filename.match(/application_controller\.rb$/).nil?) ||
+      !file.filename.match(/\/app\/controllers\/concerns\/[^\/]+_doc\.rb$/).nil? ||
+      !file.filename.match(/\/lib\/sample_data\.rb$/).nil?
+    end
+    coverage_dir 'coverage'
   end
-  coverage_dir 'coverage'
 end
 
 ENV['RAILS_ENV'] ||= 'test'
@@ -161,11 +165,6 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
-    WebMock.stub_request(:post, 'https://www.transifex.com/api/2/project/check-2/resources').to_return(status: 200, body: 'ok', headers: {})
-    WebMock.stub_request(:get, 'https://www.transifex.com/api/2/project/check-2/resource/api/translation/en').to_return(status: 200, body: { 'content' => { 'en' => {} }.to_yaml }.to_json, headers: {})
-    WebMock.stub_request(:put, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:get, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: { i18n_type: 'YML', 'content' => { 'en' => {} }.to_yaml }.to_json)
-    WebMock.stub_request(:delete, /^https:\/\/www\.transifex\.com\/api\/2\/project\/check-2\/resource\/api-custom-messages-/).to_return(status: 200, body: 'ok')
     RequestStore.store[:skip_cached_field_update] = true
   end
 
@@ -324,27 +323,6 @@ class ActiveSupport::TestCase
     document_graphql_query('create', type, query, @response.body)
   end
 
-  def assert_graphql_read(type, field = 'id')
-    klass = (type == 'version') ? PaperTrail::Version : type.camelize.constantize
-    klass.delete_all
-    u = create_user
-    x1 = send("create_#{type}", { team: @team })
-    x2 = send("create_#{type}", { team: @team })
-    user = type == 'user' ? x1 : u
-    authenticate_with_user(user)
-    query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
-    post :create, query: query
-    yield if block_given?
-    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    n = [Comment, Tag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
-    assert_equal n, edges.size
-    edges = edges.collect{ |e| e['node'][field].to_s }
-    assert edges.include?(x1.send(field).to_s)
-    assert edges.include?(x2.send(field).to_s)
-    assert_response :success
-    document_graphql_query('read', type, query, @response.body)
-  end
-
   def assert_graphql_update(type, attr, from, to)
     obj = send("create_#{type}", { team: @team }.merge({ attr => from }))
     user = obj.is_a?(User) ? obj : create_user
@@ -375,116 +353,6 @@ class ActiveSupport::TestCase
     end
     assert_response :success
     document_graphql_query('destroy', type, query, @response.body)
-  end
-
-  def assert_graphql_read_object(type, fields = {})
-    type.camelize.constantize.delete_all
-
-    x1 = nil
-    x2 = nil
-    if type === 'annotation'
-      pm = create_project_media
-      Annotation.delete_all
-      x1 = create_comment(annotated: pm).reload
-      x2 = create_comment(annotated: pm).reload
-      Annotation.where("annotation_type != 'comment'").delete_all
-    else
-      x1 = send("create_#{type}").reload
-      x2 = send("create_#{type}").reload
-    end
-
-    node = '{ '
-    fields.each do |name, key|
-      node += "#{name} { #{key} }, "
-    end
-    node.gsub!(/, $/, ' }')
-
-    query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
-
-    type === 'user' ? authenticate_with_user(x1) : authenticate_with_user
-
-    post :create, query: query
-
-    yield if block_given?
-
-    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-    assert_equal type.camelize.constantize.count, edges.size
-
-    objs = [x1, x2]
-
-    fields.each do |name, key|
-      equal = false
-      edges.each do |edge|
-        objs.each do |obj|
-          equal = (obj.send(name).send(key) == edge['node'][name][key]) unless equal
-        end
-      end
-      assert equal
-    end
-
-    assert_response :success
-    document_graphql_query('read_object', type, query, @response.body)
-  end
-
-  def assert_graphql_read_collection(type, fields = {}, order = 'ASC')
-    type.camelize.constantize.delete_all
-
-    obj = send("create_#{type}")
-
-    node = '{ '
-    fields.each do |name, key|
-      if name === 'medias' && obj.is_a?(Source)
-        m = create_valid_media(account: create_valid_account(source: obj))
-        p = create_project team: @team
-        create_project_media media: m, project: p
-      elsif name === 'collaborators'
-        obj.add_annotation create_comment(annotator: create_user)
-      elsif name === 'annotations' || name === 'comments'
-        if obj.annotations.empty?
-          c = create_comment annotated: nil
-          obj.is_a?(User) ? create_comment(annotator: obj, annotated: nil) : obj.add_annotation(c)
-        end
-      elsif name === 'tags'
-        create_tag annotated: obj
-      elsif name === 'tasks'
-        create_task annotated: obj
-      elsif name === 'join_requests'
-        obj.team_users << create_team_user(team: obj, role: 'contributor', status: 'requested')
-      else
-        RequestStore.store[:disable_es_callbacks] = true
-        obj.disable_es_callbacks = true if obj.respond_to?(:disable_es_callbacks)
-        obj.send(name).send('<<', [send("create_#{name.singularize}")])
-        obj.save!
-        RequestStore.store[:disable_es_callbacks] = false
-      end
-      obj = obj.reload
-      node += "#{name} { edges { node { #{key} } } }, "
-    end
-    node.gsub!(/, $/, ' }')
-
-    query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
-    type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
-
-    post :create, query: query
-
-    yield if block_given?
-
-    edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
-
-    fields.each do |name, key|
-      next if !obj.respond_to?(name)
-      equal = false
-      edges.each do |edge|
-        if edge['node'][name]['edges'].size > 0 && !equal
-          equal = (obj.send(name).first.send(key) == edge['node'][name]['edges'][0]['node'][key])
-          equal = (obj.send(name).last.send(key) == edge['node'][name]['edges'][0]['node'][key]) unless equal
-        end
-      end
-      assert equal
-    end
-
-    assert_response :success
-    document_graphql_query('read_collection', type, query, @response.body)
   end
 
   def assert_graphql_get_by_id(type, field, value)

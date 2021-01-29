@@ -135,9 +135,9 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
-  def auto_tasks(add_to_project_id, only_selected = false)
+  def auto_tasks(add_to_project_id, only_selected = false, associated_type = 'ProjectMedia')
     tasks = []
-    self.team_tasks.order(order: :asc, id: :asc).each do |task|
+    self.team_tasks.where(associated_type: associated_type).order(order: :asc, id: :asc).each do |task|
       if only_selected
         tasks << task if task.project_ids.include?(add_to_project_id)
       else
@@ -250,24 +250,6 @@ class Team < ActiveRecord::Base
 
   def public_team
     self
-  end
-
-  def rails_admin_json_schema(field)
-    statuses_schema = Team.custom_statuses_schema.clone
-    statuses_schema[:properties][:statuses][:items][:properties][:locales].delete(:patternProperties)
-    properties = {}
-    self.get_languages.to_a.each do |locale|
-      properties[locale] = {
-        type: 'object',
-        required: ['label', 'description'],
-        properties: {
-          label: { type: 'string', title: "Label (#{CheckCldr.language_code_to_name(locale)})" },
-          description: { type: 'string', title: "Description (#{CheckCldr.language_code_to_name(locale)})" }
-        }
-      }
-    end
-    statuses_schema[:properties][:statuses][:items][:properties][:locales][:properties] = properties
-    field =~ /statuses/ ? statuses_schema : {}
   end
 
   def public_team_id
@@ -385,7 +367,7 @@ class Team < ActiveRecord::Base
     Team.default_list_columns.each do |column|
       columns << column.merge({ show: show_columns.include?(column[:key]) })
     end
-    TeamTask.where(team_id: self.id, fieldset: 'metadata').each do |tt|
+    TeamTask.where(team_id: self.id, fieldset: 'metadata', associated_type: 'ProjectMedia').each do |tt|
       key = "task_value_#{tt.id}"
       columns << {
         key: key,

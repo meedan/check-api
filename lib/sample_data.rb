@@ -325,9 +325,7 @@ module SampleData
               use_text_message: { type: 'boolean', default: false },
               title: { type: 'string', default: '' },
               text: { type: 'string', default: '' },
-              date: { type: 'string', default: '' },
-              use_disclaimer: { type: 'boolean', default: false },
-              disclaimer: { type: 'string', default: '' }
+              date: { type: 'string', default: '' }
             }
           }
         }
@@ -462,7 +460,7 @@ module SampleData
 
   def create_media(options = {})
     return create_valid_media(options) if options[:url].blank?
-    account = options.has_key?(:account) ? options[:account] : create_account
+    account = options.has_key?(:account) ? options[:account] : create_account({team: options[:team]})
     user = options.has_key?(:user) ? options[:user] : create_user
     type = options.has_key?(:type) ? options[:type] : :link
     m = type.to_s.camelize.constantize.new
@@ -528,6 +526,9 @@ module SampleData
     source.avatar = options[:avatar]
     source.team = options[:team] if options.has_key?(:team)
     source.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
+    source.add_to_project_media_id = options[:add_to_project_media_id] if options.has_key?(:add_to_project_media_id)
+    source.urls = options[:urls] if options.has_key?(:urls)
+    source.validate_primary_link_exist = options[:validate_primary_link_exist] || false
     file = nil
     if options.has_key?(:file)
       file = options[:file]
@@ -564,10 +565,12 @@ module SampleData
       options[:add_to_project_id] = options[:project].id unless options.has_key?(:add_to_project_id)
     end
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_valid_media unless options.has_key?(:media)
+    options[:media] = create_valid_media({team: options[:team]}) unless options.has_key?(:media)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
+    options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
+    pm.source = create_source({team: options[:team]}) if options[:skip_autocreate_source]
     pm.save!
     pm.reload
   end
@@ -598,7 +601,7 @@ module SampleData
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
-    create_media({ account: create_valid_account }.merge(options).merge({ url: url }))
+    create_media({ account: create_valid_account({team: options[:team]}) }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})

@@ -7,12 +7,13 @@ module TeamRules
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
            'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'send_message_to_user']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
   module Rules
     def has_less_than_x_words(pm, value, _rule_id)
+      return false unless pm.media&.type == 'Claim'
       smooch_message = get_smooch_message(pm)
       return false if smooch_message.blank?
       smooch_message.to_s.gsub(Bot::Smooch::MESSAGE_BOUNDARY, '').split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
@@ -162,29 +163,6 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       ProjectMediaProject.create!(project: project, project_media: pm) if !project.nil? && ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
     end
-
-    def send_message_to_user(pm, value, _rule_id)
-      Team.delay_for(1.second).send_message_to_user(self.id, pm.id, value)
-    end
-  end
-
-  module ClassMethods
-    def send_message_to_user(team_id, pmid, value)
-      team = Team.where(id: team_id).last
-      return if team.nil?
-      pm = ProjectMedia.where(id: pmid).last
-      parent = Relationship.where(target_id: pm.id).last&.source || pm
-      ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
-        pm2.get_annotations('smooch').find_each do |annotation|
-          data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-          Bot::Smooch.get_installation('smooch_app_id', data['app_id']) if Bot::Smooch.config.blank?
-          key = 'rule_action_send_message_' + Digest::MD5.hexdigest(value)
-          message = CheckI18n.i18n_t(team, key, value, { locale: data['language'] })
-          response = Bot::Smooch.send_message_to_user(data['authorId'], message)
-          Bot::Smooch.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
-        end
-      end
-    end
   end
 
   included do
@@ -193,7 +171,7 @@ module TeamRules
     include ErrorNotification
 
     validate :rules_names, :rules_regular_expressions_are_valid
-    after_save :update_rules_index, :upload_custom_rules_strings_to_transifex
+    after_save :update_rules_index
 
     def self.rule_id(rule)
       rule.with_indifferent_access[:name].parameterize.tr('-', '_')
@@ -203,8 +181,8 @@ module TeamRules
   def rules_json_schema
     pm = ProjectMedia.new(team_id: self.id)
     statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
-    choice_field_objs = self.team_tasks.where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
-    text_field_objs = self.team_tasks.where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    choice_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
+    text_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
     namespace = OpenStruct.new({
       projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },
@@ -362,20 +340,5 @@ module TeamRules
         end
       end
     end
-  end
-
-  def upload_custom_rules_strings_to_transifex
-    strings = {}
-    unless self.get_rules.blank?
-      self.get_rules.each do |rule|
-        rule['actions'].to_a.each do |action|
-          if action['action_definition'] == 'send_message_to_user'
-            key = Digest::MD5.hexdigest(action['action_value'])
-            strings[key] = action['action_value']
-          end
-        end
-      end
-    end
-    CheckI18n.upload_custom_strings_to_transifex_in_background(self, 'rule_action_send_message', strings) unless strings.blank?
   end
 end
