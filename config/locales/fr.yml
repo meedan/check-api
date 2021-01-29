@@ -678,8 +678,6 @@ fr:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Sélectionner une condition
-  team_rule_has_less_than_x_words: La demande comprend moins que (ou exactement) ce
-    nombre de mots
   team_rule_title_matches_regexp: Le titre de l’élément correspond à cette expression
     rationnelle
   team_rule_request_matches_regexp: La demande correspond à cette expression rationnelle
@@ -1048,7 +1046,6 @@ fr:
     cet élément. Votre demande sera envoyée aux vérificateurs de faits environ 30 secondes
     après envoi de votre dernier message.\n      \n*Répondez par 0 (ou \U0001F4CC)*
     pour revenir au *menu principal*"
-  custom_message_rule_action_send_message_8faad806d17093bc05924b0b62b9152d_check-message-demo: ''
   custom_message_rule_action_send_message_85cc487f9c26576b18903b30512bc115_check-message-demo: ''
   custom_message_rule_action_send_message_65cfd5904f4bb22b55b8e5f70d71bf86_check-message-demo: ''
   custom_message_smooch_bot_ask_for_confirmation_checkpoint: |-
