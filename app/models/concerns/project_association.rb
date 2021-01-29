@@ -59,7 +59,7 @@ module ProjectAssociation
     include ActiveModel::Validations::Callbacks
     include CheckElasticSearch
 
-    before_validation :set_media_or_source, :set_user, on: :create
+    before_validation :set_media_and_source, :set_user, on: :create
 
     validate :is_unique, on: :create, unless: proc { |p| p.is_being_copied }
 
@@ -93,7 +93,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id associated_type published_at)
+      keys = %w(team_id archived sources_count read user_id associated_type published_at source_id)
       obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {
@@ -103,7 +103,8 @@ module ProjectAssociation
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
         'associated_type' => obj.media.type,
-        'published_at' => obj.published_at
+        'published_at' => obj.published_at,
+        'source_id' => obj.source_id
       }
       options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')
@@ -119,8 +120,22 @@ module ProjectAssociation
 
     private
 
-    def set_media_or_source
+    def set_media_and_source
       self.set_media
+      set_source if self.source_id.blank? && !self.media.nil?
+    end
+
+    def set_source
+      a = self.media.account
+      s = a.sources.first unless a.nil?
+      unless Team.current.nil? || s.nil? || s.team_id == Team.current.id
+        # clone exiting source to current team
+        # This case happens when add exiting media
+        s = Source.create_source(s.name)
+        as = AccountSource.where(account_id: a.id, source_id: s.id).last
+        a.create_account_source(s) if as.nil?
+      end
+      self.source_id = s.id unless s.blank?
     end
 
     def set_user

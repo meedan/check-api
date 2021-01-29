@@ -9,7 +9,7 @@ class Task < ActiveRecord::Base
   before_validation :set_slug, on: :create
   before_validation :set_order, on: :create
 
-  after_save :send_slack_notification
+  after_save :task_send_slack_notification
   after_destroy :reorder
   after_commit :add_update_elasticsearch_task, on: :create
   after_commit :destroy_elasticsearch_task, on: :destroy
@@ -44,6 +44,11 @@ class Task < ActiveRecord::Base
 
   def json_schema_enabled?
     true
+  end
+
+  # TODO: Sawy::remove this method and handle slack notification for sources
+  def task_send_slack_notification
+    self.send_slack_notification unless self.annotated_type == 'Source'
   end
 
   def status=(value)
@@ -217,7 +222,7 @@ class Task < ActiveRecord::Base
 
   def move(direction)
     index = nil
-    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks = self.annotated.ordered_tasks(self.fieldset, self.associated_type)
     tasks.each_with_index do |task, i|
       task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0
       task.order ||= i + 1
@@ -243,7 +248,7 @@ class Task < ActiveRecord::Base
 
   def add_update_elasticsearch_task(op = 'create')
     # Will index team tasks of type choices only so user can filter by ANY/NON answer value(#8801)
-    if self.type =~ /choice/ && self.team_task_id
+    if self.type =~ /choice/ && self.team_task_id && self.annotated_type == 'ProjectMedia'
       pm = self.project_media
       keys = %w(team_task_id fieldset)
       data = { 'team_task_id' => self.team_task_id, 'fieldset' => self.fieldset }
@@ -273,7 +278,7 @@ class Task < ActiveRecord::Base
   end
 
   def reorder
-    tasks = self.annotated.ordered_tasks(self.fieldset)
+    tasks = self.annotated.ordered_tasks(self.fieldset, self.associated_type)
     tasks.each_with_index { |task, i| task.update_column(:data, task.data.merge(order: i + 1)) if task.order.to_i == 0 }
     tasks
   end
@@ -368,10 +373,6 @@ ProjectMedia.class_eval do
 
   def selected_value_for_task?(team_task_id, value)
     self.task_answer_selected_values(['task_team_task_id(a2.annotation_type, a2.data) = ?', team_task_id]).include?(value)
-  end
-
-  def ordered_tasks(fieldset)
-    Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.fieldset == fieldset }.sort_by{ |t| t.order || t.id || 0 }.to_a
   end
 end
 

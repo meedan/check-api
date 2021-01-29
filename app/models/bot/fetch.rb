@@ -268,8 +268,6 @@ class Bot::Fetch < BotUser
           url: '',
           use_text_message: true,
           text: [self.parse_text(claim_review['text']).truncate(760 - claim_review['url'].to_s.size), claim_review['url']].join("\n\n"),
-          use_disclaimer: false,
-          disclaimer: '',
           date: report.report_design_date(date.to_date, language)
         }]
       }

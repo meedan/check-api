@@ -98,12 +98,6 @@ class UploadedImageTest < ActiveSupport::TestCase
     end
   end
 
-  test "should return public_path as media url" do
-    t = create_uploaded_image
-    assert_equal t.file.url, t.media_url
-    assert_equal t.public_path, t.media_url
-  end
-
   test "should return a list of white-listed extensions" do
     assert_kind_of Array, ImageUploader.new.extension_white_list
   end

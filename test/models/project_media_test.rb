@@ -549,14 +549,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should have versions" do
-    m = create_valid_media
     t = create_team
+    m = create_valid_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'owner'
     pm = nil
     User.current = u
     assert_difference 'PaperTrail::Version.count', 1 do
-      pm = create_project_media team: t, media: m, user: u
+      pm = create_project_media team: t, media: m, user: u, skip_autocreate_source: false
     end
     assert_equal 1, pm.versions.count
     User.current = nil
@@ -644,10 +644,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should create or reset archive response when refresh media" do
     create_annotation_type_and_fields('Pender Archive', { 'Response' => ['JSON', false] })
-    l = create_link
     t = create_team
     t.set_limits_keep = true
     t.save!
+    l = create_link team: t
     tb = BotUser.where(name: 'Keep').last
     tb.set_settings = [{ name: 'archive_pender_archive_enabled', type: 'boolean' }]
     tb.set_approved = true
@@ -1255,47 +1255,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Link.any_instance.unstub(:pender_embed)
   end
 
-  test "should get number of contributing users" do
-    create_verification_status_stuff
-    pm = create_project_media
-    create_comment annotated: pm, annotator: create_user
-    create_comment annotated: pm, annotator: create_user
-    create_tag annotated: pm, annotator: create_user
-    create_task annotated: pm, annotator: create_user
-    assert_equal 5, pm.contributing_users_count
-  end
-
-  test "should get time to first and last status" do
-    create_verification_status_stuff(false)
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-
-    with_current_user_and_team(u, t) do
-      time = Time.now - 10.minutes
-      Time.stubs(:now).returns(time)
-
-      pm = create_project_media team: t, user: u
-      assert_equal '', pm.time_to_status(:first)
-      assert_equal '', pm.time_to_status(:last)
-
-      Time.stubs(:now).returns(time + 5.minutes)
-      s = pm.last_status_obj
-      s.status = 'In Progress'; s.save!
-      assert_equal '', pm.time_to_status(:first)
-      assert_equal 5.minutes.to_i, pm.time_to_status(:last)
-
-      Time.stubs(:now).returns(time + 8.minutes)
-      s = pm.last_status_obj
-      s.status = ::Workflow::Workflow.core_options(pm, pm.default_project_media_status_type)[:default]
-      s.save!
-
-      assert_equal 5.minutes.to_i, pm.time_to_status(:first)
-      assert_equal 8.minutes.to_i, pm.time_to_status(:last)
-      Time.unstub(:now)
-    end
-  end
-
   test "should update media account when change author_url" do
     setup_elasticsearch
     u = create_user is_admin: true
@@ -1325,7 +1284,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: author2_url } }).to_return(body: response)
 
 
-    m = create_media url: url, account: nil, account_id: nil
+    m = create_media team: t, url: url, account: nil, account_id: nil
     a = m.account
     p = create_project team: t
     Sidekiq::Testing.inline! do
@@ -1339,9 +1298,51 @@ class ProjectMediaTest < ActiveSupport::TestCase
       new_account = m.reload.account
       assert_not_equal a, new_account
       assert_nil Account.where(id: a.id).last
-      result = $repository.find(get_es_id(pm))['accounts']
-      assert_equal 1, result.size
-      assert_equal result.first['id'], new_account.id
+      result = $repository.find(get_es_id(pm))
+      assert_equal 1, result['accounts'].size
+      assert_equal result['accounts'].first['id'], new_account.id
+    end
+  end
+
+  test "should validate media source" do
+    t = create_team
+    t2 = create_team
+    s = create_source team: t
+    s2 = create_source team: t2
+    pm = nil
+    assert_difference 'ProjectMedia.count', 2 do
+      create_project_media team: t
+      pm = create_project_media team: t, source_id: s.id
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.source_id = s2.id
+      pm.save!
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media team: t, source_id: s2.id, skip_autocreate_source: false
+    end
+  end
+
+  test "should assign media source using account" do
+    u = create_user
+    t = create_team
+    t2 = create_team
+    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'owner'
+    m = nil
+    s = nil
+    with_current_user_and_team(u, t) do
+      m = create_valid_media
+      s = m.account.sources.first
+      assert_equal t.id, s.team_id
+      pm = create_project_media media: m, team: t, skip_autocreate_source: false
+      assert_equal s.id, pm.source_id
+    end
+    with_current_user_and_team(u, t2) do
+      pm = create_project_media media: m, team: t2, skip_autocreate_source: false
+      assert_not_nil pm.source_id
+      assert_not_equal s.id, pm.source_id
+      assert_equal m.account, pm.source.accounts.first
     end
   end
 
@@ -1355,7 +1356,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    l = create_link url: url
+    t = create_team
+    l = create_link team: t, url: url
     pm = create_project_media media: l
 
     url = 'https://www.facebook.com/Ma3komMona/videos/vb.268809099950451/695409680623722/?type=3&theater'
@@ -1366,7 +1368,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = ProjectMedia.new
       pm.url = url
       pm.media_type = 'Link'
-      pm.team = create_team
+      pm.team = t
       pm.save!
     end
   end

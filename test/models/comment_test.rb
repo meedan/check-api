@@ -245,7 +245,7 @@ class CommentTest < ActiveSupport::TestCase
     assert_nil c.current_team
     t = create_team
     p = create_project team: t
-    m = create_valid_media
+    m = create_valid_media team: t
     pm = create_project_media project: p, media: m
     c = create_comment annotated: pm
     assert_equal t, c.current_team
@@ -460,5 +460,12 @@ class CommentTest < ActiveSupport::TestCase
     t = create_task
     c = create_comment annotated: t
     assert_equal t, c.task
+  end
+
+  test "should sort" do
+    c1 = create_comment
+    sleep 1
+    c2 = create_comment
+    assert_equal [c1, c2], Comment.all_sorted.to_a
   end
 end

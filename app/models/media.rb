@@ -50,10 +50,6 @@ class Media < ActiveRecord::Base
     begin JSON.parse(self.get_annotations('metadata').last.load.get_field_value('metadata_value')).with_indifferent_access rescue {} end
   end
 
-  def media_url
-    self.url
-  end
-
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
   end

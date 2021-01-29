@@ -12,13 +12,10 @@ class Bot::Smooch < BotUser
   include SmoochMessages
   include SmoochResources
   include SmoochTos
+  include SmoochStatus
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
-  end
-
-  ::Workflow::VerificationStatus.class_eval do
-    check_workflow from: :any, to: :any, actions: :replicate_status_to_children
   end
 
   ::Relationship.class_eval do
@@ -118,25 +115,6 @@ class Bot::Smooch < BotUser
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
-    end
-  end
-
-  ::DynamicAnnotation::Field.class_eval do
-    after_save do
-      if self.field_name == 'smooch_user_slack_channel_url'
-        smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user', annotation_id: self.annotation.id).last
-        value = smooch_user_data.value_json unless smooch_user_data.nil?
-        a = self.annotation
-        Rails.cache.write("SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{value['id']}", self.value) unless value.blank?
-      end
-    end
-
-    protected
-
-    def replicate_status_to_children
-      pm = self.annotation.annotated
-      return unless Bot::Smooch.team_has_smooch_bot_installed(pm)
-      ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
     end
   end
 
@@ -464,7 +442,7 @@ class Bot::Smooch < BotUser
           resource = self.send_resource_to_user(uid, workflow, option)
           self.bundle_message(message)
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
-        elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}$/
+        elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}(_[A-Z]{2})?$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
           workflow = self.get_workflow(option['smooch_menu_option_value'])
@@ -584,7 +562,7 @@ class Bot::Smooch < BotUser
       template = original['fallback_template']
       language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
       query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-      text = report.report_design_field_value('use_text_message', language) ? self.utmize_urls(report.report_design_text(language).to_s, 'report') : nil
+      text = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
       image = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
       last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
       last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
@@ -767,8 +745,9 @@ class Bot::Smooch < BotUser
         self.save_media_message(message)
       end
     # update archived column
-    if !pm.nil? && pm.archived != CheckArchivedFlags::FlagCodes::NONE && message['archived'] == CheckArchivedFlags::FlagCodes::NONE
-      pm.archived = CheckArchivedFlags::FlagCodes::NONE
+    if pm.is_a?(ProjectMedia) && pm.archived != CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS && message['archived'] == CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
+      pm.skip_check_ability = true
+      pm.archived = CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.save!
     end
     pm
@@ -975,7 +954,7 @@ class Bot::Smooch < BotUser
         sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
-        last_smooch_response = self.send_message_to_user(uid, self.utmize_urls(report.report_design_text(lang), 'report'))
+        last_smooch_response = self.send_message_to_user(uid, report.report_design_text(lang))
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end
@@ -1012,6 +991,23 @@ class Bot::Smooch < BotUser
     end
     User.current = nil
     Team.current = nil
+  end
+
+  def self.send_message_on_status_change(pm_id, status)
+    pm = ProjectMedia.find_by_id(pm_id)
+    return if pm.nil?
+    parent = Relationship.where(target_id: pm.id).last&.source || pm
+    ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
+      pm2.get_annotations('smooch').find_each do |annotation|
+        data = JSON.parse(annotation.load.get_field_value('smooch_data'))
+        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+        message = parent.team.get_status_message_for_language(status, data['language'])
+        unless message.blank?
+          response = self.send_message_to_user(data['authorId'], message)
+          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+        end
+      end
+    end
   end
 
   def self.refresh_smooch_slack_timeout(uid, slack_data = {})

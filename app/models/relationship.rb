@@ -120,7 +120,7 @@ class Relationship < ActiveRecord::Base
   protected
 
   def update_counters
-    return if self.is_default?
+    return if self.is_default? || self.source.nil? || self.target.nil?
     source = self.source
     target = self.target
 

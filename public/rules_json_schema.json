@@ -299,10 +299,6 @@
                       "value": "<%= I18n.t(:team_rule_copy_to_project) %>"
                     },
                     {
-                      "key": "send_message_to_user",
-                      "value": "<%= I18n.t(:team_rule_send_message_to_user) %>"
-                    },
-                    {
                       "key": "send_to_trash",
                       "value": "<%= I18n.t(:team_rule_send_to_trash) %>"
                     },
@@ -320,14 +316,6 @@
                   },
                   "then": {
                     "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_destination) %>", "type": "integer", "enum": <%= projects.to_json %> } }
-                  }
-                },
-                {
-                  "if": {
-                    "properties": { "action_definition": { "const": "send_message_to_user" } }
-                  },
-                  "then": {
-                    "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_action_value) %>", "type": "string" } }
                   }
                 }
               ]

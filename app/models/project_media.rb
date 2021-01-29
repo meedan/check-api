@@ -5,16 +5,17 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaAssociations
   include ProjectMediaCreators
   include ProjectMediaEmbed
-  include ProjectMediaExport
   include Versioned
   include ValidationsHelper
   include ProjectMediaPrivate
   include ProjectMediaCachedFields
   include ProjectMediaBulk
+  include ProjectMediaSourceAssociations
 
   validates_presence_of :media, :team
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
+  validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
 
   before_validation :set_team_id, on: :create
   after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create, :create_metrics_annotation
@@ -299,14 +300,6 @@ class ProjectMedia < ActiveRecord::Base
       super
     else
       self.task_value(match[1].to_i)
-    end
-  end
-
-  def task_value(team_task_id, force = false)
-    key = "project_media:task_value:#{self.id}:#{team_task_id}"
-    Rails.cache.fetch(key, force: force) do
-      task = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id).select{ |t| t.team_task_id == team_task_id }.last
-      task.nil? ? nil : task.first_response
     end
   end
 

@@ -15,22 +15,16 @@ AccountType = GraphqlCrudOperations.define_default_type do
   field :user do
     type UserType
 
-    resolve -> (account, _args, _ctx) {
-      account.user
-    }
+    resolve -> (account, _args, _ctx) { account.user }
   end
 
   connection :medias, -> { MediaType.connection_type } do
-    resolve ->(account, _args, _ctx) {
-      account.medias
-    }
+    resolve -> (account, _args, _ctx) { account.medias }
   end
 
   field :metadata do
     type JsonStringType
 
-    resolve ->(account, _args, _ctx) {
-      account.metadata
-    }
+    resolve ->(account, _args, _ctx) { account.metadata }
   end
 end

@@ -105,5 +105,7 @@ class MediaSearch
     indexes :related_count, { type: 'long' }
 
     indexes :suggestions_count, { type: 'long' }
+
+    indexes :source_id, { type: 'integer' }
   end
 end

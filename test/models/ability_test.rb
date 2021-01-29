@@ -84,14 +84,14 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'contributor'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -121,12 +121,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'journalist'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     pm_own = create_project_media media: own_media, user: u
     with_current_user_and_team(u, t) do
@@ -156,12 +156,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'editor'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -187,12 +187,12 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u , role: 'owner'
-    m = create_valid_media
+    m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id
+    own_media = create_valid_media user_id: u.id, team: t
     own_pm = create_project_media project: p, media: own_media
-    m2 = create_valid_media
+    m2 = create_valid_media team: t
     pm2 = create_project_media media: m2
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1183,33 +1183,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should access rails_admin if user is team owner" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'owner'
-    p = create_project team: t
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:access, :rails_admin)
-    end
-  end
-
-  test "should not access rails_admin if user not team owner or admin" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t
-    p = create_project team: t
-
-    %w(contributor journalist editor).each do |role|
-      tu.role = role; tu.save!
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert !ability.can?(:access, :rails_admin)
-      end
-    end
-  end
-
   test "owner permissions for task" do
     u = create_user
     t = create_team
@@ -1374,17 +1347,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, da)
       assert ability.can?(:update, own_da)
       assert ability.can?(:destroy, own_da)
-    end
-  end
-
-  test "owner permissions for export project data" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
-    p = create_project team: t
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:export_project, Project)
     end
   end
 

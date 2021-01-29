@@ -107,10 +107,9 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should get medias" do
-    s = create_source
-    p = create_project
-    m = create_valid_media(account: create_valid_account(source: s))
-    pm = create_project_media project: p, media: m
+    t = create_team
+    s = create_source team: t
+    pm = create_project_media team: t, source: s, skip_autocreate_source: false
     assert_equal [pm], s.medias
     assert_equal 1, s.medias_count
   end
@@ -182,7 +181,7 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project"].sort
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project", "create Task", "create Dynamic"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
@@ -488,4 +487,59 @@ class SourceTest < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should relate source to project media" do
+    setup_elasticsearch
+    t = create_team
+    pm = create_project_media team: t, disable_es_callbacks: false
+    id = get_es_id(pm)
+    s = create_source team: t
+    sleep 2
+    assert_not_equal s.id, pm.source_id
+    result = $repository.find(id)
+    assert_equal pm.source_id, result['source_id']
+    s.add_to_project_media_id = pm.id
+    s.disable_es_callbacks = false
+    s.save!
+    sleep 2
+    assert_equal s.project_media, pm
+    assert_equal s.id, pm.reload.source_id
+    result = $repository.find(id)
+    assert_equal pm.reload.source_id, result['source_id']
+  end
+
+  test "should create source accounts" do
+    WebMock.disable_net_connect!
+    url = "http://twitter.com/example#{Time.now.to_i}"
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias?url=' + url
+    ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
+    WebMock.stub_request(:get, pender_url).to_return(ret)
+    s = create_source urls: [url].to_json
+    assert_equal 1, s.accounts.count
+    WebMock.allow_net_connect!
+    # validate primary url exists
+    t = create_team
+    Team.stubs(:current).returns(t)
+    s.update_columns(team_id: t.id)
+    assert_raises RuntimeError do
+      create_source  urls: [url].to_json, validate_primary_link_exist: true
+    end
+    assert_difference 'Source.count' do
+      create_source  urls: [url].to_json
+    end
+    Team.unstub(:current)
+  end
+
+  test "should assign task to sources" do
+    create_task_stuff
+    team = create_team
+    tt = create_team_task team_id: team.id
+    s = create_source team: team
+    t = create_task annotated: s, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt.id
+    t.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
+    t.save!
+    r = t.responses.first
+    assert_not_nil r
+    t.destroy
+    assert_nil Annotation.where(id: r.id).last
+  end
 end
