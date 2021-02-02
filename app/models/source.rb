@@ -115,7 +115,7 @@ class Source < ActiveRecord::Base
     return s unless s.nil?
     s = Source.new
     s.name = name
-    s.team_id = team.id
+    s.team_id = team.id unless team.nil?
     s.skip_check_ability = true
     s.save!
     s.reload
