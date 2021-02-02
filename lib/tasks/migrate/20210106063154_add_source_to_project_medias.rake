@@ -22,7 +22,7 @@ namespace :check do
           # Verify that source already exists in current team otherwise create a new one
           not_existins_sources = as_mapping.values - ts_mapping.values
           Source.where(id: not_existins_sources).find_each do |s|
-            puts '.'
+            print '.'
             new_source = Source.create_source(s.name, t)
             ts_mapping[s.id] = new_source.id
           end
@@ -44,6 +44,17 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
       RequestStore.store[:skip_notifications] = false
+    end
+    task fix_project_medias_source: :environment do
+      started = Time.now.to_i
+      Team.find_each do |t|
+        print '.'
+        t_sources = t.source_ids
+        s_ids = t.project_medias.where.not(source_id: t_sources).map(&:source_id)
+        Source.where(id: s_ids).update_all(team_id: t.id) unless s_ids.blank?
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
