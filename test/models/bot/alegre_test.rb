@@ -155,6 +155,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.extract_project_medias_from_context({"_score" => 2, "_source" => {"context" => {"project_media_id" => 1}}}), {1=>2}
   end
 
+  test "should update on alegre" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    assert_equal pm.save!, true
+  end
+
+  test "should delete from alegre" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm.save!
+    assert_equal pm.destroy, true
+  end
+
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
