@@ -10,20 +10,20 @@ class Bot::Alegre < BotUser
     after_destroy :delete_analysis_from_similarity_index, if: :can_be_sent_to_index?
     
     def self.save_analysis_to_similarity_index(pm_id)
-      pm = ProjectMedia.find(pm_id)
+      pm = ProjectMedia.find_by_id(pm_id)
       Bot::Alegre.send_title_to_similarity_index(pm)
       Bot::Alegre.send_description_to_similarity_index(pm)
     end
 
     def self.delete_analysis_from_similarity_index(pm_id)
-      pm = ProjectMedia.find(pm_id)
+      pm = ProjectMedia.find_by_id(pm_id)
       Bot::Alegre.delete_field_from_text_similarity_index(pm, 'title')
       Bot::Alegre.delete_field_from_text_similarity_index(pm, 'content')
     end
 
     private
 
-    def self.can_be_sent_to_index?
+    def can_be_sent_to_index?
       ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status'
     end
 
