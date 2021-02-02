@@ -1338,12 +1338,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media media: m, team: t, skip_autocreate_source: false
       assert_equal s.id, pm.source_id
     end
-    with_current_user_and_team(u, t2) do
-      pm = create_project_media media: m, team: t2, skip_autocreate_source: false
-      assert_not_nil pm.source_id
-      assert_not_equal s.id, pm.source_id
-      assert_equal m.account, pm.source.accounts.first
-    end
+    pm = create_project_media media: m, team: t2, skip_autocreate_source: false
+    s2 = pm.source
+    assert_not_nil pm.source_id
+    assert_not_equal s.id, s2.id
+    assert_equal t2.id, s2.team_id
+    assert_equal m.account, s2.accounts.first
   end
 
   test "should create media when normalized URL exists" do

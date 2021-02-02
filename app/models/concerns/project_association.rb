@@ -128,10 +128,10 @@ module ProjectAssociation
     def set_source
       a = self.media.account
       s = a.sources.first unless a.nil?
-      unless Team.current.nil? || s.nil? || s.team_id == Team.current.id
+      unless s.nil? || s.team_id == self.team_id
         # clone exiting source to current team
         # This case happens when add exiting media
-        s = Source.create_source(s.name)
+        s = Source.create_source(s.name, self.team)
         as = AccountSource.where(account_id: a.id, source_id: s.id).last
         a.create_account_source(s) if as.nil?
       end
