@@ -9,7 +9,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search media" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       u = create_user
       @team = create_team
       p = create_project team: @team
@@ -47,7 +47,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search media with multiple projects" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       @team = create_team
       u = create_user
       p = create_project team: @team
@@ -90,7 +90,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search by dynamic annotation" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       @team = create_team
       u = create_user
       p = create_project team: @team
@@ -158,7 +158,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search with keyword" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       t = create_team
       p = create_project team: t
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -221,7 +221,7 @@ class ElasticSearchTest < ActionController::TestCase
   test "should search with context" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       t = create_team
       p = create_project team: t
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'

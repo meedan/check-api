@@ -157,8 +157,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should update on alegre" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       create_verification_status_stuff
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"
@@ -169,8 +169,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should delete from alegre" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"
       pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
@@ -285,7 +285,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_verification_status_stuff
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"
       pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
@@ -318,7 +318,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar text when they are text-based" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       create_verification_status_stuff
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"
@@ -372,7 +372,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar description" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       create_verification_status_stuff
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"
@@ -407,7 +407,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar title" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       create_verification_status_stuff
       RequestStore.store[:skip_cached_field_update] = false
       pm = create_project_media quote: "Blah"

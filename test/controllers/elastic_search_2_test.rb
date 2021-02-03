@@ -19,7 +19,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should update elasticsearch after move project to other team" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       u = create_user
       t = create_team
       t2 = create_team
@@ -75,7 +75,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should destroy elasticseach project media" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       t = create_team
       p = create_project team: t
       m = create_valid_media
@@ -96,7 +96,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should update elasticsearch after refresh pender data" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
       create_verification_status_stuff
       RequestStore.store[:skip_cached_field_update] = false
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
