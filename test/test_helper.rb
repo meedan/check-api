@@ -166,9 +166,8 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' })
-    WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-    WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
+    Bot::Alegre.stubs(:request_api).with('post', '/text/similarity/', anything).returns({success: true})
+    Bot::Alegre.stubs(:request_api).with('delete', '/text/similarity/', anything).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
   end
 
   # This will run after any test
