@@ -7,129 +7,117 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search media" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
-      u = create_user
-      @team = create_team
-      p = create_project team: @team
-      m1 = create_valid_media
-      pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-      authenticate_with_user(u)
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m2 = create_media(account: create_valid_account, url: url)
-      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      sleep 10
-      query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
-      assert_response :success
-      ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        ids << id["node"]["dbid"]
-      end
-      assert_equal [pm2.id], ids
-      create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-      sleep 20
-      query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
-      assert_response :success
-      ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        ids << id["node"]["dbid"]
-      end
-      assert_equal [pm1.id, pm2.id], ids.sort
+    u = create_user
+    @team = create_team
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
     end
+    assert_equal [pm2.id], ids
+    create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
+    sleep 20
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id, pm2.id], ids.sort
   end
 
   test "should search media with multiple projects" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
-      @team = create_team
-      u = create_user
-      p = create_project team: @team
-      p2 = create_project team: @team
-      authenticate_with_user(u)
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      url2 = 'http://test2.com'
-      response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-      m = create_media(account: create_valid_account, url: url)
-      m2 = create_media(account: create_valid_account, url: url2)
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
-      sleep 10
-      query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
-      assert_response :success
-      m_ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        m_ids << id["node"]["dbid"]
-      end
-      assert_equal [pm.id, pm2.id], m_ids.sort
-      pm2.analysis = { content: 'new_description' }
-      sleep 10
-      query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
-      post :create, query: query
-      assert_response :success
-      result = {}
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        result[id["node"]["dbid"]] = id["node"]["description"]
-      end
-      assert_equal 'new_description', result[pm2.id]
-      assert_equal 'search_desc', result[pm.id]
+    @team = create_team
+    u = create_user
+    p = create_project team: @team
+    p2 = create_project team: @team
+    authenticate_with_user(u)
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    url2 = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    m2 = create_media(account: create_valid_account, url: url2)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    m_ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      m_ids << id["node"]["dbid"]
     end
+    assert_equal [pm.id, pm2.id], m_ids.sort
+    pm2.analysis = { content: 'new_description' }
+    sleep 10
+    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
+    post :create, query: query
+    assert_response :success
+    result = {}
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      result[id["node"]["dbid"]] = id["node"]["description"]
+    end
+    assert_equal 'new_description', result[pm2.id]
+    assert_equal 'search_desc', result[pm.id]
   end
 
   test "should search by dynamic annotation" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
-      @team = create_team
-      u = create_user
-      p = create_project team: @team
-      m1 = create_valid_media
-      pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
-      authenticate_with_user(u)
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m2 = create_media(account: create_valid_account, url: url)
-      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    @team = create_team
+    u = create_user
+    p = create_project team: @team
+    m1 = create_valid_media
+    pm1 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    authenticate_with_user(u)
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m2 = create_media(account: create_valid_account, url: url)
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
 
-      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
-      ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
-      fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
-      fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
-      a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
-      f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
-      f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
-      a.save!
-      sleep 20
-      query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
-      assert_response :success
-      ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        ids << id["node"]["dbid"]
-      end
-      assert_equal [pm1.id], ids
-      query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
-      assert_response :success
-      ids = []
-      JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-        ids << id["node"]["dbid"]
-      end
-      assert_equal [pm1.id], ids
+    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task Response Free Text', description: 'Free text response that can added to a task'
+    ft = create_field_type field_type: 'text_field', label: 'Text Field', description: 'A text field'
+    fi1 = create_field_instance name: 'response', label: 'Response', description: 'The response to a task', field_type_object: ft, optional: false, settings: {}
+    fi2 = create_field_instance name: 'note', label: 'Note', description: 'A note that explains a response to a task', field_type_object: ft, optional: true, settings: {}
+    a = create_dynamic_annotation annotation_type: 'task_response_free_text', annotated: pm1, disable_es_callbacks: false
+    f1 = create_field annotation_id: a.id, field_name: 'response', value: 'There is dynamic response here'
+    f2 = create_field annotation_id: a.id, field_name: 'note', value: 'This is a dynamic note'
+    a.save!
+    sleep 20
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
     end
+    assert_equal [pm1.id], ids
+    query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
+    post :create, query: query
+    assert_response :success
+    ids = []
+    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
+      ids << id["node"]["dbid"]
+    end
+    assert_equal [pm1.id], ids
   end
 
   test "should read first response from task" do
@@ -156,104 +144,96 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should search with keyword" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
-      t = create_team
-      p = create_project team: t
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      author_url = 'http://facebook.com/123456'
-      author_normal_url = 'http://www.facebook.com/meedan'
+    t = create_team
+    p = create_project team: t
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    author_url = 'http://facebook.com/123456'
+    author_normal_url = 'http://www.facebook.com/meedan'
 
-      data = { url: url, author_url: author_url, type: 'item', title: 'search_title', description: 'search_desc' }
-      response = '{"type":"media","data":' + data.to_json + '}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    data = { url: url, author_url: author_url, type: 'item', title: 'search_title', description: 'search_desc' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
-      data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
-      response = '{"type":"media","data":' + data.to_json + '}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
+    data = { url: author_normal_url, provider: 'facebook', picture: 'http://fb/p.png', username: 'username', title: 'Foo', description: 'Bar', type: 'profile' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: author_url } }).to_return(body: response)
 
-      m = create_media url: url, account_id: nil, user_id: nil, account: nil, user: nil
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      sleep 1
-      Team.current = t
-      result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
-      assert_empty result.medias
-      result = CheckSearch.new({keyword: "search_title"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # overide title then search
-      pm.analysis = { title: 'search_title_a' }
-      sleep 1
-      result = CheckSearch.new({keyword: "search_title_a"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # search with original title
-      result = CheckSearch.new({keyword: "search_title"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # search in description
-      result = CheckSearch.new({keyword: "search_desc"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # Search with account title
-      result = CheckSearch.new({keyword: "Foo"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # Search with account description
-      result = CheckSearch.new({keyword: "Bar"}.to_json)
-      assert_empty result.medias
-      # add keyword and same account to multiple medias
-      media_url = 'http://www.facebook.com/meedan/posts/456789'
-      data = { url: media_url, author_url: author_url, type: 'item', description: 'search_desc' }
-      response = '{"type":"media","data":' + data.to_json + '}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
-      m2 = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
-      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      sleep 1
-      result = CheckSearch.new({keyword: "search_desc"}.to_json)
-      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-      # search in quote (with and operator)
-      m = create_claim_media quote: 'keyworda and keywordb'
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      sleep 1
-      result = CheckSearch.new({keyword: "keyworda and keywordb"}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-    end
+    m = create_media url: url, account_id: nil, user_id: nil, account: nil, user: nil
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    Team.current = t
+    result = CheckSearch.new({keyword: "non_exist_title"}.to_json)
+    assert_empty result.medias
+    result = CheckSearch.new({keyword: "search_title"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # overide title then search
+    pm.analysis = { title: 'search_title_a' }
+    sleep 1
+    result = CheckSearch.new({keyword: "search_title_a"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search with original title
+    result = CheckSearch.new({keyword: "search_title"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # search in description
+    result = CheckSearch.new({keyword: "search_desc"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # Search with account title
+    result = CheckSearch.new({keyword: "Foo"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # Search with account description
+    result = CheckSearch.new({keyword: "Bar"}.to_json)
+    assert_empty result.medias
+    # add keyword and same account to multiple medias
+    media_url = 'http://www.facebook.com/meedan/posts/456789'
+    data = { url: media_url, author_url: author_url, type: 'item', description: 'search_desc' }
+    response = '{"type":"media","data":' + data.to_json + '}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: media_url } }).to_return(body: response)
+    m2 = create_media url: media_url, account_id: nil, user_id: nil, account: nil, user: nil
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({keyword: "search_desc"}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
+    # search in quote (with and operator)
+    m = create_claim_media quote: 'keyworda and keywordb'
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({keyword: "keyworda and keywordb"}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should search with context" do
-    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176}.to_json)
-      t = create_team
-      p = create_project team: t
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      url2 = 'http://test2.com'
-      response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-      m = create_media(account: create_valid_account, url: url)
-      m1 = create_media(account: create_valid_account, url: url2)
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      keyword = {projects: [rand(40000...50000)]}.to_json
-      sleep 1
-      Team.current = t
-      result = CheckSearch.new(keyword)
-      assert_empty result.medias
-      result = CheckSearch.new({projects: [p.id]}.to_json)
-      assert_equal [pm.id], result.medias.map(&:id)
-      # add a new context to existing media
-      p2 = create_project team: t
-      pm2 = create_project_media project: p2, media: m1, disable_es_callbacks: false
-      sleep 1
-      result = CheckSearch.new({projects: [p.id]}.to_json)
-      assert_equal [pm.id].sort, result.medias.map(&:id).sort
-      # add a new media to same context
-      m2 = create_valid_media
-      pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-      sleep 1
-      result = CheckSearch.new({projects: [p.id]}.to_json)
-      assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-    end
+    t = create_team
+    p = create_project team: t
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    url2 = 'http://test2.com'
+    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    m1 = create_media(account: create_valid_account, url: url2)
+    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    keyword = {projects: [rand(40000...50000)]}.to_json
+    sleep 1
+    Team.current = t
+    result = CheckSearch.new(keyword)
+    assert_empty result.medias
+    result = CheckSearch.new({projects: [p.id]}.to_json)
+    assert_equal [pm.id], result.medias.map(&:id)
+    # add a new context to existing media
+    p2 = create_project team: t
+    pm2 = create_project_media project: p2, media: m1, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({projects: [p.id]}.to_json)
+    assert_equal [pm.id].sort, result.medias.map(&:id).sort
+    # add a new media to same context
+    m2 = create_valid_media
+    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    sleep 1
+    result = CheckSearch.new({projects: [p.id]}.to_json)
+    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
   end
 
   test "should search with tags or status" do
