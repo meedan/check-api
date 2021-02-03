@@ -52,9 +52,14 @@ class TeamTask < ActiveRecord::Base
   end
 
   def add_teamwide_tasks_bg(_options, _projects, _keep_completed_tasks)
-    # items related to added projects
-    condition = self.project_ids.blank? ? { team_id: self.team_id } : { 'pmp.project_id': self.project_ids }
-    handle_add_projects(condition)
+    # add metadata to items or sources based on associated_type field
+    if self.fieldset == 'metadata' && self.associated_type == 'Source'
+      add_to_sources
+    else
+      # items related to added projects
+      condition = self.project_ids.blank? ? { team_id: self.team_id } : { 'pmp.project_id': self.project_ids }
+      handle_add_projects(condition)
+    end
   end
 
   def update_teamwide_tasks_bg(options, projects, keep_completed_tasks)
@@ -84,7 +89,7 @@ class TeamTask < ActiveRecord::Base
         self.destory_project_media_task(t)
       end
     else
-      Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
+      Task.where(annotation_type: 'task', annotated_type: ['ProjectMedia', 'Source'])
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', id).find_each do |t|
         self.destory_project_media_task(t)
       end
@@ -151,6 +156,16 @@ class TeamTask < ActiveRecord::Base
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
   end
 
+  def add_to_sources
+    Source.where(team_id: self.team_id).find_each do |s|
+      begin
+        s.create_auto_tasks(nil, [self])
+      rescue StandardError => e
+        team_task_notification_error(e, s)
+      end
+    end
+  end
+
   def handle_remove_projects(projects)
     condition, excluded_ids = build_add_remove_project_condition('remove', projects)
     unless condition.blank?
@@ -206,8 +221,7 @@ class TeamTask < ActiveRecord::Base
       begin
         pm.create_auto_tasks(nil, [self])
       rescue StandardError => e
-        TeamTask.notify_error(e, { team_task_id: self.id, project_media_id: pm.id }, RequestStore[:request] )
-        Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a media [#{pm.id}]: #{e.message} #{e.backtrace.join("\n")}"
+        team_task_notification_error(e, pm)
       end
     end
   end
@@ -250,6 +264,11 @@ class TeamTask < ActiveRecord::Base
     tasks = self.team.ordered_team_tasks(self.fieldset)
     tasks.each_with_index { |task, i| task.update_column(:order, i + 1) if task.order.to_i == 0 }
     tasks
+  end
+
+  def team_task_notification_error(e, obj)
+    TeamTask.notify_error(e, { team_task_id: self.id, item_type: obj.class.name, item_id: obj.id }, RequestStore[:request] )
+    Rails.logger.error "[Team Task] Could not add team task [#{self.id}] to a #{obj.class.name} [#{obj.id}]: #{e.message} #{e.backtrace.join("\n")}"
   end
 end
 

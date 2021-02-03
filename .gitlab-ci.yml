@@ -16,12 +16,13 @@ build_qa:
 
   script:
     - apk add --no-cache curl python3 py3-pip
-    - pip install awscli==1.18.188
+    - pip install awscli==1.18.194
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA" .
     - docker push "$ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
+    - use-exclusive-secrets
 
 deploy_qa:
   image: docker:latest
@@ -38,25 +39,28 @@ deploy_qa:
     GITHUB_TOKEN: $GITHUB_TOKEN
   script:
     - apk add --no-cache curl python3 py3-pip git
-    - pip install boto3==1.16.28
-    - pip install botocore==1.19.48
-    - pip install docutils==0.16
-    - pip install awscli==1.18.188
+    - pip install awscli==1.18.194
+    - pip install botocore==1.17.47
+    - pip install boto3==1.14.47
     - pip install ecs-deploy==1.11.0
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /qa/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/qa/check-api/##' > env.qa.names
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-migration $NAME /qa/check-api/$NAME " >> qa-check-api-migration.env.args; done
-    - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  `cat qa-check-api-migration.env.args`
+    - echo -n "-s qa-check-api-migration GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> qa-check-api-migration.env.args
+    - ecs update qa-check-api-migration --image qa-check-api-migration $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA --exclusive-env -e qa-check-api-migration APP check-api -e qa-check-api-migration DEPLOY_ENV qa -e qa-check-api-migration AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat qa-check-api-migration.env.args`
     - taskArn=$(aws ecs run-task --cluster ecs-qa --task-definition qa-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
     - aws ecs wait tasks-stopped --cluster ecs-qa --tasks $taskArn
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-c $NAME /qa/check-api/$NAME " >> qa-check-api-c.env.args; done
-    - ecs deploy ecs-qa qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 `cat qa-check-api-c.env.args`
+    - echo -n "-s qa-check-api-c GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> qa-check-api-c.env.args
+    - ecs deploy ecs-qa qa-check-api --image qa-check-api-c $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e qa-check-api-c APP check-api -e qa-check-api-c DEPLOY_ENV qa -e qa-check-api-c AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat qa-check-api-c.env.args`
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-background $NAME /qa/check-api/$NAME " >> qa-check-api-background.env.args; done
-    - ecs deploy ecs-qa qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 `cat qa-check-api-background.env.args`
+    - echo -n "-s qa-check-api-background GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> qa-check-api-background.env.args
+    - ecs deploy ecs-qa qa-check-api-background --image qa-check-api-background $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e qa-check-api-background APP check-api -e qa-check-api-background DEPLOY_ENV qa -e qa-check-api-background AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat qa-check-api-background.env.args`
     - echo "new Image was deployed $ECR_API_BASE_URL/qa/check/api:$CI_COMMIT_SHA"
   only:
     - develop
+    - use-exclusive-secrets
 
 build_live:
   image: docker:latest
@@ -71,8 +75,7 @@ build_live:
     AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
   script:
     - apk add --no-cache curl python3 py3-pip git
-    - pip install docutils==0.14
-    - pip install awscli==1.18.188
+    - pip install awscli==1.18.194
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
     - docker build -f production/Dockerfile -t "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA" .
     - docker push "$ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
@@ -95,24 +98,27 @@ deploy_live:
     GITHUB_TOKEN: $GITHUB_TOKEN
   script:
     - apk add --no-cache curl python3 py3-pip git
-    - pip install boto3==1.16.28
-    - pip install botocore==1.19.48
-    - pip install docutils==0.16
-    - pip install awscli==1.18.188
+    - pip install awscli==1.18.194
+    - pip install botocore==1.17.47
+    - pip install boto3==1.14.47
     - pip install ecs-deploy==1.11.0
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /live/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/live/check-api/##' > env.live.names
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-workbench $NAME /live/check-api/$NAME " >> live-check-api-workbench.env.args; done
-    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  `cat live-check-api-workbench.env.args`
+    - echo -n "-s live-check-api-workbench GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-workbench.env.args
+    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-env -e live-check-api-workbench APP check-api -e live-check-api-workbench DEPLOY_ENV live -e live-check-api-workbench AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-workbench.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-migration $NAME /live/check-api/$NAME " >> live-check-api-migration.env.args; done
-    - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  `cat live-check-api-migration.env.args`
+    - echo -n "-s live-check-api-migration GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-migration.env.args
+    - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-env -e live-check-api-migration APP check-api -e live-check-api-migration DEPLOY_ENV live -e live-check-api-migration AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-migration.env.args`
     - taskArn=$(aws ecs run-task --cluster ecs-live --task-definition live-check-api-migration --query 'tasks[].taskArn' --output text)
     - echo "Migration task started - $taskArn"
     - aws ecs wait tasks-stopped --cluster ecs-live --tasks $taskArn
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-c $NAME /live/check-api/$NAME " >> live-check-api-c.env.args; done
-    - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 `cat live-check-api-c.env.args`
+    - echo -n "-s live-check-api-c GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-c.env.args
+    - ecs deploy ecs-live  live-check-api --image live-check-api-c $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e live-check-api-c APP check-api -e live-check-api-c DEPLOY_ENV live -e live-check-api-c AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-c.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-background $NAME /live/check-api/$NAME " >> live-check-api-background.env.args; done
-    - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 `cat live-check-api-background.env.args`
+    - echo -n "-s live-check-api-background GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-background.env.args
+    - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e live-check-api-background APP check-api -e live-check-api-background DEPLOY_ENV live -e live-check-api-background AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-background.env.args`
     - echo "new Image was deployed $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
   only:
     - master

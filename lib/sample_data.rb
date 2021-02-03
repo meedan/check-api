@@ -325,9 +325,7 @@ module SampleData
               use_text_message: { type: 'boolean', default: false },
               title: { type: 'string', default: '' },
               text: { type: 'string', default: '' },
-              date: { type: 'string', default: '' },
-              use_disclaimer: { type: 'boolean', default: false },
-              disclaimer: { type: 'string', default: '' }
+              date: { type: 'string', default: '' }
             }
           }
         }

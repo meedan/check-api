@@ -181,7 +181,7 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'owner'
     s = create_source
-    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project"].sort
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project", "create Task", "create Dynamic"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
@@ -488,14 +488,23 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should relate source to project media" do
-     t = create_team
-     pm = create_project_media team: t
-     s = create_source team: t
-     assert_not_equal s.id, pm.reload.source_id
-     s.add_to_project_media_id = pm.id
-     s.save!
-     assert_equal s.project_media, pm
-     assert_equal s.id, pm.reload.source_id
+    setup_elasticsearch
+    t = create_team
+    pm = create_project_media team: t, disable_es_callbacks: false
+    id = get_es_id(pm)
+    s = create_source team: t
+    sleep 2
+    assert_not_equal s.id, pm.source_id
+    result = $repository.find(id)
+    assert_equal pm.source_id, result['source_id']
+    s.add_to_project_media_id = pm.id
+    s.disable_es_callbacks = false
+    s.save!
+    sleep 2
+    assert_equal s.project_media, pm
+    assert_equal s.id, pm.reload.source_id
+    result = $repository.find(id)
+    assert_equal pm.reload.source_id, result['source_id']
   end
 
   test "should create source accounts" do
@@ -518,5 +527,19 @@ class SourceTest < ActiveSupport::TestCase
       create_source  urls: [url].to_json
     end
     Team.unstub(:current)
+  end
+
+  test "should assign task to sources" do
+    create_task_stuff
+    team = create_team
+    tt = create_team_task team_id: team.id
+    s = create_source team: team
+    t = create_task annotated: s, type: 'multiple_choice', options: ['Apple', 'Orange', 'Banana'], label: 'Fruits you like', team_task_id: tt.id
+    t.response = { annotation_type: 'task_response_multiple_choice', set_fields: { response_multiple_choice: { selected: ['Apple', 'Orange'], other: nil }.to_json }.to_json }.to_json
+    t.save!
+    r = t.responses.first
+    assert_not_nil r
+    t.destroy
+    assert_nil Annotation.where(id: r.id).last
   end
 end

@@ -2806,7 +2806,8 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return list columns" do
     t = create_team
-    2.times { create_team_task(team_id: t.id, fieldset: 'metadata') }
+    2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'ProjectMedia') }
+    2.times { create_team_task(team_id: t.id, fieldset: 'metadata', associated_type: 'Source') }
     assert_equal 17, t.list_columns.size
   end
 

@@ -93,7 +93,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id associated_type published_at)
+      keys = %w(team_id archived sources_count read user_id associated_type published_at source_id)
       obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {
@@ -122,17 +122,21 @@ module ProjectAssociation
 
     def set_media_and_source
       self.set_media
-      if self.source_id.blank? && !self.media.nil?
-        a = self.media.account
-        s = a.sources.first unless a.nil?
-        unless Team.current.nil? || s.nil? || s.team_id == Team.current.id
-          # clone exiting source to current team
-          # This case happens when add exiting media
-          s = Source.create_source(s.name)
-          a.create_account_source(s)
-        end
-        self.source_id = s.id unless s.blank?
+      set_source if self.source_id.blank? && !self.media.nil?
+    end
+
+    def set_source
+      a = self.media.account
+      s = a.sources.first unless a.nil?
+      team = self.team || Team.current
+      unless team.nil? || s.nil? || s.team_id == team.id
+        # clone exiting source to current team
+        # This case happens when add exiting media
+        s = Source.create_source(s.name, team)
+        as = AccountSource.where(account_id: a.id, source_id: s.id).last
+        a.create_account_source(s) if as.nil?
       end
+      self.source_id = s.id unless s.blank?
     end
 
     def set_user

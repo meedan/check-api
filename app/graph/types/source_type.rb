@@ -15,16 +15,15 @@ SourceType = GraphqlCrudOperations.define_default_type do
   field :medias_count, types.Int
   field :accounts_count, types.Int
   field :overridden, JsonStringType
+  field :archived, types.Int
 
   connection :accounts, -> { AccountType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.accounts
-    }
+    resolve ->(source, _args, _ctx) { source.accounts }
   end
 
   connection :account_sources, -> { AccountSourceType.connection_type } do
     resolve ->(source, _args, _ctx) {
-      source.account_sources
+      source.account_sources.order(id: :asc)
     }
   end
 
@@ -41,12 +40,12 @@ SourceType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :collaborators, -> { UserType.connection_type } do
-    resolve ->(source, _args, _ctx) {
-      source.collaborators
-    }
+    resolve ->(source, _args, _ctx) { source.collaborators }
   end
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations
 
   instance_exec :source, &GraphqlCrudOperations.field_annotations_count
+
+  instance_exec :source, &GraphqlCrudOperations.field_tasks
 end

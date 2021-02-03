@@ -12,14 +12,31 @@ Dynamic.class_eval do
     end
   end
 
+  def report_design_team_setting_value(field, language)
+    self.annotated&.team&.get_report.to_h.with_indifferent_access.dig(language, field) if self.annotation_type == 'report_design'
+  end
+
+  def report_design_text_footer(language)
+    footer = []
+    signature = self.report_design_team_setting_value('signature', language)
+    whatsapp = self.report_design_team_setting_value('whatsapp', language)
+    facebook = self.report_design_team_setting_value('facebook', language)
+    twitter = self.report_design_team_setting_value('twitter', language)
+    footer << "_#{signature}_" unless signature.blank?
+    footer << "_WhatsApp: #{whatsapp}_" unless whatsapp.blank?
+    footer << "_FB Messenger: m.me/#{facebook}_" unless facebook.blank?
+    footer << "_Twitter: twitter.com/#{twitter}_" unless twitter.blank?
+    footer.join("\n")
+  end
+
   def report_design_text(language)
     if self.annotation_type == 'report_design'
       text = []
       title = self.report_design_field_value('title', language)
       text << "*#{title}*" unless title.blank?
-      text << self.report_design_field_value('text', language)
-      disclaimer = self.report_design_field_value('disclaimer', language)
-      text << "_#{disclaimer}_" unless disclaimer.blank?
+      text << Bot::Smooch.utmize_urls(self.report_design_field_value('text', language).to_s, 'report')
+      footer = self.report_design_text_footer(language)
+      text << footer if !footer.blank? && self.report_design_team_setting_value('use_signature', language)
       text.join("\n\n")
     end
   end
@@ -51,6 +68,20 @@ Dynamic.class_eval do
     I18n.l(date, locale: language.to_s.tr('_', '-'), format: :long)
   end
 
+  def report_design_placeholders(language)
+    facebook = self.report_design_team_setting_value('facebook', language)
+    twitter = self.report_design_team_setting_value('twitter', language)
+    {
+      title: self.report_design_field_value('headline', language),
+      status: self.report_design_field_value('status_label', language),
+      description: self.report_design_field_value('description', language),
+      url: self.report_design_field_value('url', language),
+      whatsapp: self.report_design_team_setting_value('whatsapp', language),
+      facebook: facebook.blank? ? nil : "m.me/#{facebook}",
+      twitter: twitter.blank? ? nil : "@#{twitter}"
+    }
+  end
+
   def report_image_generate_png(option_index)
     if self.annotation_type == 'report_design'
       team = self.annotated&.team
@@ -66,14 +97,9 @@ Dynamic.class_eval do
       body['class'] = ['report', language.to_s, overlay].join(' ')
       html = doc.at_css('html')
       html['lang'] = language.to_s
-      {
-        title: self.report_design_field_value('headline', language),
-        status: self.report_design_field_value('status_label', language),
-        description: self.report_design_field_value('description', language),
-        url: self.report_design_field_value('url', language)
-      }.each do |key, value|
+      self.report_design_placeholders(language).each do |key, value|
         el = doc.at_css('#' + key.to_s)
-        value.blank? ? el.remove : (el.content = value)
+        value.blank? ? el.remove : el.add_child(value)
       end
       date = self.report_design_field_value('date', language)
       doc.at_css('#date').content = date || self.report_design_date(self.updated_at.to_date, language)
