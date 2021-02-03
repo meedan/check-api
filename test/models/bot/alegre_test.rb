@@ -156,19 +156,27 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should update on alegre" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
-    assert_equal pm.save!, true
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      create_verification_status_stuff
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+      assert_equal pm.save!, true
+    end
   end
 
   test "should delete from alegre" do
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
-    pm.save!
-    assert_equal pm.destroy, true
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+      pm.save!
+      assert_equal pm.destroy, pm
+    end
   end
 
   test "should relate project media to similar items" do
@@ -275,62 +283,70 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should get similar items when they are text-based" do
     create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
-    pm.save!
-    pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
-    pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
-        "_index" => "alegre_similarity",
-        "_type" => "_doc",
-        "_id" => "tMXj53UB36CYclMPXp14",
-        "_score" => 0.9,
-        "_source" => {
-          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-          "context" => {
-            "team_id" => pm2.team.id.to_s,
-            "field" => "title",
-            "project_media_id" => pm2.id.to_s
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+      pm.save!
+      pm2 = create_project_media quote: "Blah2"
+      pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
+      pm2.save!
+      Bot::Alegre.stubs(:request_api).returns({"result" => [{
+          "_index" => "alegre_similarity",
+          "_type" => "_doc",
+          "_id" => "tMXj53UB36CYclMPXp14",
+          "_score" => 0.9,
+          "_source" => {
+            "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+            "context" => {
+              "team_id" => pm2.team.id.to_s,
+              "field" => "title",
+              "project_media_id" => pm2.id.to_s
+            }
           }
         }
-      }
-      ]
-    })
-    response = Bot::Alegre.get_similar_items(pm)
-    assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+        ]
+      })
+      response = Bot::Alegre.get_similar_items(pm)
+      assert_equal response.class, Hash
+      Bot::Alegre.unstub(:request_api)
+    end
   end
 
   test "should get items with similar text when they are text-based" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
-    pm.save!
-    pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
-    pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
-        "_index" => "alegre_similarity",
-        "_type" => "_doc",
-        "_id" => "tMXj53UB36CYclMPXp14",
-        "_score" => 0.9,
-        "_source" => {
-          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-          "context" => {
-            "team_id" => pm2.team.id.to_s,
-            "field" => "title",
-            "project_media_id" => pm2.id.to_s
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      create_verification_status_stuff
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+      pm.save!
+      pm2 = create_project_media quote: "Blah2"
+      pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
+      pm2.save!
+      Bot::Alegre.stubs(:request_api).returns({"result" => [{
+          "_index" => "alegre_similarity",
+          "_type" => "_doc",
+          "_id" => "tMXj53UB36CYclMPXp14",
+          "_score" => 0.9,
+          "_source" => {
+            "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+            "context" => {
+              "team_id" => pm2.team.id.to_s,
+              "field" => "title",
+              "project_media_id" => pm2.id.to_s
+            }
           }
         }
-      }
-      ]
-    })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
-    assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+        ]
+      })
+      response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
+      assert_equal response.class, Hash
+      Bot::Alegre.unstub(:request_api)
+    end
   end
 
 
@@ -354,64 +370,72 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should get items with similar description" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { content: 'Description 1' }
-    pm.save!
-    pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { content: 'Description 1' }
-    pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "_source" => {
-            "id" => 1,
-            "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
-            "phash" => 17399941807326929,
-            "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
-            "context" => [{
-              "team_id" => pm2.team.id.to_s,
-              "project_media_id" => pm2.id.to_s
-            }],
-          },
-          "_score" => 0.9
-        }
-      ]
-    })
-    response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
-    assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      create_verification_status_stuff
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { content: 'Description 1' }
+      pm.save!
+      pm2 = create_project_media quote: "Blah2"
+      pm2.analysis = { content: 'Description 1' }
+      pm2.save!
+      Bot::Alegre.stubs(:request_api).returns({
+        "result" => [
+          {
+            "_source" => {
+              "id" => 1,
+              "sha256" => "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+              "phash" => 17399941807326929,
+              "url" => "https:\/\/www.gstatic.com\/webp\/gallery3\/1.png",
+              "context" => [{
+                "team_id" => pm2.team.id.to_s,
+                "project_media_id" => pm2.id.to_s
+              }],
+            },
+            "_score" => 0.9
+          }
+        ]
+      })
+      response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
+      assert_equal response.class, Hash
+      Bot::Alegre.unstub(:request_api)
+    end
   end
 
   test "should get items with similar title" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
-    pm.analysis = { title: 'Title 1' }
-    pm.save!
-    pm2 = create_project_media quote: "Blah2"
-    pm2.analysis = { title: 'Title 1' }
-    pm2.save!
-    Bot::Alegre.stubs(:request_api).returns({"result" => [{
-        "_index" => "alegre_similarity",
-        "_type" => "_doc",
-        "_id" => "tMXj53UB36CYclMPXp14",
-        "_score" => 0.9,
-        "_source" => {
-          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
-          "context" => {
-            "team_id" => pm2.team.id.to_s,
-            "field" => "title",
-            "project_media_id" => pm2.id.to_s
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      create_verification_status_stuff
+      RequestStore.store[:skip_cached_field_update] = false
+      pm = create_project_media quote: "Blah"
+      pm.analysis = { title: 'Title 1' }
+      pm.save!
+      pm2 = create_project_media quote: "Blah2"
+      pm2.analysis = { title: 'Title 1' }
+      pm2.save!
+      Bot::Alegre.stubs(:request_api).returns({"result" => [{
+          "_index" => "alegre_similarity",
+          "_type" => "_doc",
+          "_id" => "tMXj53UB36CYclMPXp14",
+          "_score" => 0.9,
+          "_source" => {
+            "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+            "context" => {
+              "team_id" => pm2.team.id.to_s,
+              "field" => "title",
+              "project_media_id" => pm2.id.to_s
+            }
           }
         }
-      }
-      ]
-    })
-    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
-    assert_equal response.class, Hash
-    Bot::Alegre.unstub(:request_api)
+        ]
+      })
+      response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+      assert_equal response.class, Hash
+      Bot::Alegre.unstub(:request_api)
+    end
   end
 
   test "should respond to a media_file_url request" do

@@ -17,26 +17,30 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should update elasticsearch after move project to other team" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    u.is_admin = true; u.save!
-    p = create_project team: t
-    m = create_valid_media
-    User.stubs(:current).returns(u)
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
-      sleep 5
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
-      p.team_id = t2.id; p.save!
-      sleep 5
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.collect{|i| i['annotated_id']}
-      results = $repository.search(query: { match: { team_id: t2.id } }).results
-      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      u = create_user
+      t = create_team
+      t2 = create_team
+      u.is_admin = true; u.save!
+      p = create_project team: t
+      m = create_valid_media
+      User.stubs(:current).returns(u)
+      Sidekiq::Testing.inline! do
+        pm = create_project_media project: p, media: m, disable_es_callbacks: false
+        pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
+        pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
+        sleep 5
+        results = $repository.search(query: { match: { team_id: t.id } }).results
+        assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
+        p.team_id = t2.id; p.save!
+        sleep 5
+        results = $repository.search(query: { match: { team_id: t.id } }).results
+        assert_equal [], results.collect{|i| i['annotated_id']}
+        results = $repository.search(query: { match: { team_id: t2.id } }).results
+        assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
+      end
     end
   end
 
@@ -69,61 +73,69 @@ class ElasticSearch2Test < ActionController::TestCase
   end
 
   test "should destroy elasticseach project media" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    sleep 1
-    id = get_es_id(pm)
-    assert_not_nil $repository.find(id)
-    Sidekiq::Testing.inline! do
-      pm.destroy
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      t = create_team
+      p = create_project team: t
+      m = create_valid_media
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
       sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        result = $repository.find(id)
+      id = get_es_id(pm)
+      assert_not_nil $repository.find(id)
+      Sidekiq::Testing.inline! do
+        pm.destroy
+        sleep 1
+        assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+          result = $repository.find(id)
+        end
       end
     end
   end
 
   test "should update elasticsearch after refresh pender data" do
-    create_verification_status_stuff
-    RequestStore.store[:skip_cached_field_update] = false
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = random_url
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
-    t = create_team
-    t2 = create_team
-    p = create_project team: t
-    p2 = create_project team: t2
-    m = create_media url: url
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
-    sleep 1
-    ms = $repository.find(get_es_id(pm))
-    assert_equal 'org_title', pm.title
-    assert_equal 'org_title', ms['title']
-    ms2 = $repository.find(get_es_id(pm2))
-    assert_equal pm2.title, 'org_title'
-    assert_equal ms2['title'], 'org_title'
-    Sidekiq::Testing.inline! do
-      # Update title
-      pm2.reload; pm2.disable_es_callbacks = false
-      info = { title: 'overridden_title' }
-      pm2.analysis = info
-      pm.reload; pm.disable_es_callbacks = false
-      pm.refresh_media = true
-      pm.save!
-      pm2.reload; pm2.disable_es_callbacks = false
-      pm2.refresh_media = true
-      pm2.save!
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
+      create_verification_status_stuff
+      RequestStore.store[:skip_cached_field_update] = false
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      url = random_url
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"org_title"}}')
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","title":"new_title"}}')
+      t = create_team
+      t2 = create_team
+      p = create_project team: t
+      p2 = create_project team: t2
+      m = create_media url: url
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      pm2 = create_project_media project: p2, media: m, disable_es_callbacks: false
+      sleep 1
+      ms = $repository.find(get_es_id(pm))
+      assert_equal 'org_title', pm.title
+      assert_equal 'org_title', ms['title']
+      ms2 = $repository.find(get_es_id(pm2))
+      assert_equal pm2.title, 'org_title'
+      assert_equal ms2['title'], 'org_title'
+      Sidekiq::Testing.inline! do
+        # Update title
+        pm2.reload; pm2.disable_es_callbacks = false
+        info = { title: 'overridden_title' }
+        pm2.analysis = info
+        pm.reload; pm.disable_es_callbacks = false
+        pm.refresh_media = true
+        pm.save!
+        pm2.reload; pm2.disable_es_callbacks = false
+        pm2.refresh_media = true
+        pm2.save!
+      end
+      sleep 1
+      ms2 = $repository.find(get_es_id(pm2))
+      assert_equal 'overridden_title', ms2['title']
+      ms = $repository.find(get_es_id(pm))
+      assert_equal 'new_title', pm.title
+      assert_equal 'new_title', ms['title']
     end
-    sleep 1
-    ms2 = $repository.find(get_es_id(pm2))
-    assert_equal 'overridden_title', ms2['title']
-    ms = $repository.find(get_es_id(pm))
-    assert_equal 'new_title', pm.title
-    assert_equal 'new_title', ms['title']
   end
 
   test "should set elasticsearch data for media account" do
