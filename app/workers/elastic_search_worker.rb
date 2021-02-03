@@ -18,7 +18,8 @@ class ElasticSearchWorker
       'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
     }
     unless ops[type].nil?
-      model.send(ops[type], options) if model.respond_to?(ops[type])
+      # Verify that object still exists in PG
+      model.send(ops[type], options) if ProjectMedia.exists?(options[:obj].id) && model.respond_to?(ops[type])
     end
   end
 
