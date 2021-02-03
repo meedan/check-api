@@ -34,7 +34,7 @@ class Relationship < ActiveRecord::Base
   scope :default, -> { where('relationship_type = ?', Relationship.default_type.to_yaml) }
 
   def team
-    self.source.team
+    self.source&.team
   end
 
   def source_project_media
