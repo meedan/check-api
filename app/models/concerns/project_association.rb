@@ -93,7 +93,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id associated_type published_at source_id)
+      keys = %w(team_id archived sources_count read user_id published_at source_id)
       obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {
@@ -102,7 +102,6 @@ module ProjectAssociation
         'sources_count' => { method: 'sources_count', klass: 'ProjectMedia', id: obj.id, type: 'int' },
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
-        'associated_type' => obj.media.type,
         'published_at' => obj.published_at,
         'source_id' => obj.source_id
       }
