@@ -44,7 +44,7 @@ class Bot::Alegre < BotUser
 
     handled = false
     pm = nil
-    begin
+    # begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
@@ -55,10 +55,10 @@ class Bot::Alegre < BotUser
         self.relate_project_media_to_similar_items(pm)
         handled = true
       end
-    rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
-    end
+    # rescue StandardError => e
+    #   Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
+    #   self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
+    # end
 
     self.unarchive_if_archived(pm)
 
