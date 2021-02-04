@@ -18,7 +18,7 @@ class Bot::Alegre < BotUser
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
       Bot::Alegre.delete_field_from_text_similarity_index(pm, 'title')
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'content')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'description')
     end
 
     private
@@ -44,7 +44,7 @@ class Bot::Alegre < BotUser
 
     handled = false
     pm = nil
-    begin
+    # begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
@@ -55,10 +55,10 @@ class Bot::Alegre < BotUser
         self.relate_project_media_to_similar_items(pm)
         handled = true
       end
-    rescue StandardError => e
-      Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
-    end
+    # rescue StandardError => e
+      # Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
+      # self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
+    # end
 
     self.unarchive_if_archived(pm)
 
@@ -176,7 +176,7 @@ class Bot::Alegre < BotUser
 
   def self.send_description_to_similarity_index(pm)
     return if pm.description.blank?
-    self.send_to_text_similarity_index(pm, 'description', pm.description, self.item_doc_id(pm, 'title'))
+    self.send_to_text_similarity_index(pm, 'description', pm.description, self.item_doc_id(pm, 'description'))
   end
 
   def self.delete_field_from_text_similarity_index(pm, field)
