@@ -18,12 +18,22 @@ class ElasticSearchWorker
       'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
     }
     unless ops[type].nil?
-      # Verify that object still exists in PG
-      model.send(ops[type], options) if ProjectMedia.exists?(options[:obj].id) && model.respond_to?(ops[type])
+      model.send(ops[type], options) if should_perform_es_action?(type, options) && model.respond_to?(ops[type])
     end
   end
 
   private
+
+  def should_perform_es_action?(type, options)
+    # Verify that object still exists in PG (should skip destroy operation)
+    action = false
+    if type == 'destroy_doc' || type == 'update_doc_team'
+      action = true
+    elsif !options[:doc_id].blank? && options[:obj].class.name == 'ProjectMedia'
+      action = ProjectMedia.exists?(options[:obj].id)
+    end
+    action
+  end
 
   def set_options(model, options)
     options = YAML::load(options)
