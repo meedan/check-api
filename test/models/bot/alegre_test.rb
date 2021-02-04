@@ -71,7 +71,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
-      ENV["alegre_host"] = "http://alegre:3100"
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
@@ -104,7 +103,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
-      ENV["alegre_host"] = nil
     end
   end
 
