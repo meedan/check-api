@@ -71,6 +71,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+      CheckConfig.stubs(:get).with('alegre_host').returns("http://alegre:3100")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
@@ -103,6 +104,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
+      CheckConfig.unstub(:get)
     end
   end
 
@@ -350,7 +352,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
-    assert Bot::Alegre.send_to_description_similarity_index(pm)
+    assert Bot::Alegre.send_description_to_similarity_index(pm)
   end
 
   test "should get items with similar description" do
@@ -428,6 +430,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.run('test')
     end
     Bot::Alegre.any_instance.unstub(:get_language)
+    CheckConfig.stubs(:get).with('alegre_host').returns("http://alegre:3100")
     assert_nothing_raised do
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
     end
@@ -436,6 +439,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
     end
     Net::HTTP.any_instance.unstub(:request)
+    CheckConfig.unstub(:get)
   end
 
   test "should set user_id on relationships" do
