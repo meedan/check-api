@@ -126,7 +126,7 @@ class Bot::Alegre < BotUser
     lang = 'und'
     begin
       response = self.request_api('get', '/text/langid/', { text: text })
-      lang = response['result']['language']
+      lang = response['result']['language'] || lang
     rescue
     end
     lang
