@@ -55,7 +55,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
-
+    Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
@@ -424,21 +424,24 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should capture error when failing to call service" do
-    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-    Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
-    assert_nothing_raised do
-      Bot::Alegre.run('test')
-    end
-    Bot::Alegre.any_instance.unstub(:get_language)
-    ENV["alegre_host"] = "http://alegre:3100"
-    assert_nothing_raised do
-      assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
-    end
-    Net::HTTP.any_instance.stubs(:request).raises(StandardError)
-    assert_nothing_raised do
-      assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
-    end
-    Net::HTTP.any_instance.unstub(:request)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+       WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
+       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+       Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
+       assert_nothing_raised do
+         Bot::Alegre.run('test')
+       end
+       Bot::Alegre.any_instance.unstub(:get_language)
+       assert_nothing_raised do
+         assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
+       end
+       Net::HTTP.any_instance.stubs(:request).raises(StandardError)
+       assert_nothing_raised do
+         assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
+       end
+       Net::HTTP.any_instance.unstub(:request)
+     end
   end
 
   test "should set user_id on relationships" do
