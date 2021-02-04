@@ -117,7 +117,7 @@ class AnnotationTest < ActiveSupport::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: t, user: u2, role: 'editor'
     p = create_project team: t
     pm = create_project_media project: p
@@ -326,7 +326,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should save metadata in annotation" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t, status: 'member', role: 'owner'
+    tu = create_team_user user: u, team: t, status: 'member', role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     u1 = create_user name: 'Foo'

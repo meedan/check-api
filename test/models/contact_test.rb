@@ -16,7 +16,7 @@ class ContactTest < ActiveSupport::TestCase
   test "should update and destroy contact" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     c = create_contact team: t
     with_current_user_and_team(u, t) do
       c.location = 'location'; c.save!
@@ -38,7 +38,7 @@ class ContactTest < ActiveSupport::TestCase
     end
     Rails.cache.clear
     u2 = User.find(u2.id)
-    tu.role = 'journalist'; tu.save!
+    tu.role = 'editor'; tu.save!
     assert_raise RuntimeError do
       with_current_user_and_team(u2, t) do
         c.save!
@@ -49,11 +49,11 @@ class ContactTest < ActiveSupport::TestCase
   test "non members should not read contact in private team" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     c = create_contact team: t
     pu = create_user
     pt = create_team private: true
-    create_team_user team: pt, user: pu, role: 'owner'
+    create_team_user team: pt, user: pu, role: 'admin'
     pc = create_contact team: pt
     with_current_user_and_team(u, t) { Contact.find_if_can(c.id) }
     assert_raise CheckPermissions::AccessDenied do

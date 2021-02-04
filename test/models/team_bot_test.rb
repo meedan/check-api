@@ -64,7 +64,7 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should create team bot under team where user is owner" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
@@ -73,11 +73,11 @@ class TeamBotTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create team bot under team where user is contributor" do
+  test "should not create team bot under team where user is collaborator" do
     u = create_user
     t = create_team
     t2 = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
 
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
@@ -99,11 +99,11 @@ class TeamBotTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create team bot under team where user is journalist" do
+  test "should not create team bot under team where user is editor" do
     u = create_user
     t = create_team
     t2 = create_team
-    create_team_user user: u, team: t, role: 'journalist'
+    create_team_user user: u, team: t, role: 'collaborator'
 
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
@@ -116,7 +116,7 @@ class TeamBotTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     t2 = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     with_current_user_and_team(u, t2) do
       assert_raises RuntimeError do
@@ -456,7 +456,7 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should not approve bot if not admin" do
     u = create_user is_admin: false
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     tb = create_team_bot team_author_id: t.id
     assert !tb.get_approved
     User.current = u
@@ -506,16 +506,16 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should define bot role" do
-    tb = create_team_bot set_role: 'journalist', set_approved: true
+    tb = create_team_bot set_role: 'collaborator', set_approved: true
     tu1 = TeamUser.where(team_id: tb.team_author_id, user_id: tb.id).last
-    assert_equal 'journalist', tu1.role
+    assert_equal 'editor', tu1.role
     tbi = create_team_bot_installation user_id: tb.id
     tu2 = TeamUser.where(team_id: tbi.team_id, user_id: tb.id).last
-    assert_equal 'journalist', tu2.role
-    tb.set_role 'contributor'
+    assert_equal 'editor', tu2.role
+    tb.set_role 'collaborator'
     tb.save!
-    assert_equal 'contributor', tu1.reload.role
-    assert_equal 'contributor', tu2.reload.role
+    assert_equal 'collaborator', tu1.reload.role
+    assert_equal 'collaborator', tu2.reload.role
   end
 
   test "should return whether bot is installed under current team" do
@@ -576,7 +576,7 @@ class TeamBotTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team
     u = create_user
-    create_team_user team: t1, user: u, role: 'owner'
+    create_team_user team: t1, user: u, role: 'admin'
     create_team_user team: t2, user: u, role: 'editor'
     tb = nil
     assert_nothing_raised do

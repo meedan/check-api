@@ -19,10 +19,10 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create project by contributor" do
+  test "should not create project by collaborator" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u, role: 'collaborator'
     assert_raise RuntimeError do
       with_current_user_and_team(u, t) { create_project team: t }
     end
@@ -31,7 +31,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should update and destroy project" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     p = nil
     with_current_user_and_team(u, t) do
@@ -42,7 +42,7 @@ class ProjectTest < ActiveSupport::TestCase
     end
 
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'journalist'
+    tu = create_team_user team: t, user: u2, role: 'collaborator'
 
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
@@ -73,7 +73,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project team: t
     pu = create_user
     pt = create_team private: true
-    create_team_user team: pt, user: pu, role: 'owner'
+    create_team_user team: pt, user: pu, role: 'admin'
     pp = create_project team: pt
     with_current_user_and_team(u, t) { Project.find_if_can(p.id) }
     assert_raise CheckPermissions::AccessDenied do
@@ -185,7 +185,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should assign current team to project" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project current_user: nil
     assert_not_equal t, p.team
     p = create_project team: t, current_user: u
@@ -211,7 +211,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should set user" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t, user: nil
     assert_nil p.user
     with_current_user_and_team(u, t) do
@@ -237,7 +237,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       p = create_project team: t
       assert p.sent_to_slack
@@ -247,7 +247,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should not notify Slack when project is created if there are no settings" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project current_user: u, context_team: t, team: t
     assert_nil p.sent_to_slack
   end
@@ -256,7 +256,7 @@ class ProjectTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project context_team: t, team: t, current_user: u
     assert_nil p.sent_to_slack
   end
@@ -269,7 +269,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     perm_keys = ["read Project", "update Project", "destroy Project", "create ProjectMedia", "create Source", "create Media", "create Claim", "create Link"].sort
 
@@ -284,12 +284,12 @@ class ProjectTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(p.permissions).keys.sort }
 
     # load as authenticated
@@ -420,7 +420,7 @@ class ProjectTest < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       u = create_user
       t = create_team
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project user: u, team: t
       pm = create_project_media project: p
       n = Sidekiq::Extensions::DelayedClass.jobs.size
@@ -436,7 +436,7 @@ class ProjectTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       u = create_user
       t = create_team
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project user: u, team: t
       pm1 = create_project_media
       pm2 = create_project_media project: p
@@ -457,7 +457,7 @@ class ProjectTest < ActiveSupport::TestCase
   test "should not delete project later if doesn't have permission" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     p = create_project team: t
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
@@ -487,7 +487,7 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = Project.find(p.id)
     with_current_user_and_team(u, t) do
       assert !p.sent_to_slack

@@ -486,7 +486,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     query = "query GetById { team(id: \"#{t.id}\") { verification_statuses } }"
     post :create, query: query, team: 'team'
     assert_response :success
@@ -663,7 +663,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should not query invalid type" do
     u = create_user
     p = create_project team: @team
-    create_team_user user: u, team: @team, role: 'owner'
+    create_team_user user: u, team: @team, role: 'admin'
     authenticate_with_user(u)
     id = Base64.encode64("InvalidType/#{p.id}")
     query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
@@ -674,7 +674,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should reset password if email is found" do
     u = create_user email: 'foo@bar.com'
     p = create_project team: @team
-    create_team_user user: u, team: @team, role: 'owner'
+    create_team_user user: u, team: @team, role: 'admin'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -683,7 +683,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should not reset password if email is not found" do
     u = create_user email: 'test@bar.com'
     p = create_project team: @team
-    create_team_user user: u, team: @team, role: 'owner'
+    create_team_user user: u, team: @team, role: 'admin'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -706,7 +706,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     # send invitation
-    members = '[{\"role\":\"contributor\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"journalist\",\"email\":\"test3@local.com\"}]'
+    members = '[{\"role\":\"collaborator\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"editor\",\"email\":\"test3@local.com\"}]'
     query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
     post :create, query: query, team: @team.slug
     assert_response :success
@@ -843,7 +843,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team
     create_team_task label: 'A', team_id: t.id
     id = t.graphql_id
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     assert_equal ['A'], t.team_tasks.map(&:label)
     task = '{\"fieldset\":\"tasks\",\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
@@ -857,7 +857,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     id = t.graphql_id
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     # media verification status
     statuses = {
@@ -945,7 +945,7 @@ class GraphqlControllerTest < ActionController::TestCase
         2.times { publish_report(pm) }
       end
     end
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
     post :create, query: query, team: 'team'
     assert_response :success
@@ -981,7 +981,7 @@ class GraphqlControllerTest < ActionController::TestCase
         2.times { publish_report(pm) }
       end
     end
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     query = "query GetById { team(id: \"#{t.id}\") { verification_statuses(items_count: true, published_reports_count: true) } }"
     post :create, query: query, team: 'team'
     assert_response :success
@@ -997,7 +997,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     t = create_team slug: 'team'
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     value = {
       label: 'Field label',
       active: 'id1',

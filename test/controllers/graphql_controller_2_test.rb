@@ -59,7 +59,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should return 409 on conflict" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     s = create_source user: u, team: t
     s.name = 'Changed'
     s.save!
@@ -80,7 +80,7 @@ class GraphqlController2Test < ActionController::TestCase
 
       u = create_user
       t = create_team
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project team: t
       authenticate_with_user(u)
 
@@ -183,7 +183,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not create duplicated tag" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     p = create_project team: t
     pm = create_project_media project: p
@@ -195,12 +195,12 @@ class GraphqlController2Test < ActionController::TestCase
     assert_match /Tag already exists/, @response.body
   end
 
-  test "should not change status if contributor" do
+  test "should not change status if collaborator" do
     create_verification_status_stuff
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    create_team_user team: create_team, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: create_team, user: u, role: 'admin'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -218,14 +218,14 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response 400
   end
 
-  test "should not assign status if contributor" do
+  test "should not assign status if collaborator" do
     create_verification_status_stuff
     u = create_user
     u2 = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    create_team_user team: t, user: u2, role: 'contributor'
-    create_team_user team: create_team, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: t, user: u2, role: 'collaborator'
+    create_team_user team: create_team, user: u, role: 'admin'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -257,7 +257,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     authenticate_with_user(u)
     query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
     assert_difference 'Relationship.count' do
@@ -269,7 +269,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should return permissions of sibling report" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     pm1 = create_project_media project: p, user: u
@@ -290,7 +290,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
     query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
@@ -307,7 +307,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
 
@@ -359,7 +359,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should get bots installed in a team" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
     tb1 = create_team_bot set_approved: false, name: 'Custom Bot', team_author_id: t.id
@@ -378,7 +378,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should get bot installations in a team" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
     tb1 = create_team_bot set_approved: false, name: 'Custom Bot', team_author_id: t.id
@@ -397,7 +397,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should install bot using mutation" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     tb = create_team_bot set_approved: true
 
     authenticate_with_user(u)
@@ -418,7 +418,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should uninstall bot using mutation" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     tb = create_team_bot set_approved: true
     tbi = create_team_bot_installation team_id: t.id, user_id: tb.id
 
@@ -441,7 +441,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     tk = create_task annotated: pm
     c = nil
@@ -464,7 +464,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     create_tag_text text: 'foo', team_id: t.id
 
@@ -481,7 +481,7 @@ class GraphqlController2Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     tt = create_team_task team_id: t.id, order: 3
     tt2 = create_team_task team_id: t.id, order: 5
@@ -501,7 +501,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not import spreadsheet if URL is not present" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
 
@@ -517,7 +517,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not import spreadsheet if team_id is not present" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
 
@@ -534,7 +534,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not import spreadsheet if user_id is not present" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
 
@@ -551,7 +551,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not import spreadsheet if URL is invalid" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
 
@@ -570,7 +570,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not import spreadsheet if id not found" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
@@ -587,7 +587,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should import spreadsheet if inputs are valid" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     authenticate_with_user(u)
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
@@ -618,7 +618,7 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     create_team_user user: u2, team: t
     authenticate_with_user(u)
     p = create_project team: t
@@ -635,7 +635,7 @@ class GraphqlController2Test < ActionController::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     authenticate_with_user(u)
     p = create_project team: t
     pm = create_project_media project: p
@@ -652,7 +652,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
 
     authenticate_with_user(u1)
     post :create, query: 'query Team { team { team_users { edges { node { user { name } } } } } }', team: t.slug
@@ -666,7 +666,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
 
     authenticate_with_user(u2)
     post :create, query: 'query Team { team { team_users { edges { node { user { name } } } } } }', team: t.slug
@@ -679,7 +679,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -699,7 +699,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -719,7 +719,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -739,7 +739,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -758,7 +758,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk1 = create_task annotated: pm
@@ -780,7 +780,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk1 = create_task annotated: pm
@@ -802,7 +802,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk1 = create_task annotated: pm
@@ -823,7 +823,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk1 = create_task annotated: pm
@@ -843,7 +843,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p1 = create_project team: t, title: 'Annotator Project'
     p2 = create_project team: t
     pm = create_project_media project: p1
@@ -862,7 +862,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p1 = create_project team: t, title: 'Annotator Project'
     p2 = create_project team: t
     pm = create_project_media project: p1
@@ -880,7 +880,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -899,7 +899,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -917,7 +917,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -938,7 +938,7 @@ class GraphqlController2Test < ActionController::TestCase
     u2 = create_user name: 'Owner'
     t = create_team
     create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
+    create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tk = create_task annotated: pm
@@ -1038,7 +1038,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should not remove logo when update team" do
     u = create_user
     team = create_team
-    create_team_user team: team, user: u, role: 'owner'
+    create_team_user team: team, user: u, role: 'admin'
     id = team.graphql_id
 
     authenticate_with_user(u)
@@ -1058,7 +1058,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should update relationship" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -1081,7 +1081,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should destroy relationship" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -1119,7 +1119,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should empty trash" do
     u = create_user
     team = create_team
-    create_team_user team: team, user: u, role: 'owner'
+    create_team_user team: team, user: u, role: 'admin'
     p = create_project team: team
     create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, project: p
     assert_equal 1, team.reload.trash_count
@@ -1145,7 +1145,7 @@ class GraphqlController2Test < ActionController::TestCase
     t.save!
 
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
     pm = create_project_media project: nil, team: t
@@ -1167,7 +1167,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should duplicate when user is owner and not duplicate when not an owner" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     value = {
       label: 'Status',
       active: 'id',
@@ -1192,7 +1192,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should filter by link published date" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
 
     WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
     url = 'http://test.com'
@@ -1248,7 +1248,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should search for tags using operator" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     pm1 = create_project_media team: t, disable_es_callbacks: false
     create_tag annotated: pm1, tag: 'test tag 1', disable_es_callbacks: false
@@ -1281,7 +1281,7 @@ class GraphqlController2Test < ActionController::TestCase
   test "should search by user assigned to item" do
     u = create_user is_admin: true
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
     u1 = create_user

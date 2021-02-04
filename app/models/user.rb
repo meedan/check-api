@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
 
   include DeviseAsync
 
-  ROLES = %w[contributor journalist editor owner]
+  ROLES = %w[collaborator editor admin]
 
   def role?(base_role, team = nil)
     role = self.role(team)

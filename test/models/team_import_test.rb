@@ -13,7 +13,7 @@ class TeamImportTest < ActiveSupport::TestCase
     create_bot name: 'Check Bot'
     @team = create_team
     @user = create_user is_admin: true
-    @tu = create_team_user team: @team, user: @user, role: 'contributor'
+    @tu = create_team_user team: @team, user: @user, role: 'collaborator'
     @p = create_project team: @team
     create_test_worksheet if @@count.zero?
   end
@@ -212,7 +212,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row_with_email_annotator = add_data_on_spreadsheet(data1)
 
     team_owner = create_user
-    create_team_user team: @team, user: team_owner, role: 'owner'
+    create_team_user team: @team, user: team_owner, role: 'admin'
     data2 = data1.merge({ item: random_string, annotator: 'user@invalid.com', note1: 'Other note'})
     row_with_invalid_email_annotator = add_data_on_spreadsheet(data2)
 

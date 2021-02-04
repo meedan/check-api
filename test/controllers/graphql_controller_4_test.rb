@@ -14,7 +14,7 @@ class GraphqlController4Test < ActionController::TestCase
     create_verification_status_stuff
     @t = create_team
     @u = create_user
-    @tu = create_team_user team: @t, user: @u, role: 'owner'
+    @tu = create_team_user team: @t, user: @u, role: 'admin'
     @p1 = create_project team: @t
     @p2 = create_project team: @t
     @p3 = create_project team: @t
@@ -40,7 +40,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-send project medias to trash if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
     post :create, query: query, team: @t.slug
@@ -77,7 +77,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-restore project medias from trash if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
@@ -141,7 +141,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-create tags if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     inputs = '{ tag: "test", annotated_type: "ProjectMedia", annotated_id: "0" }'
     query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [' + inputs + '] }) { team { dbid } } }'
     assert_no_difference 'TagText.count' do
@@ -185,7 +185,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-add project medias to lists if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     query = "mutation { createProjectMediaProjects(input: { clientMutationId: \"1\", inputs: [{ project_id: 0, project_media_id: 0 }] }) { team { dbid } } }"
     assert_no_difference 'ProjectMediaProject.count' do
       post :create, query: query, team: @t.slug
@@ -232,7 +232,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-remove project medias from a list if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     query = 'mutation { destroyProjectMediaProjects(input: { clientMutationId: "1", ids: ' + @pmp_ids + ' }) { team { dbid } } }'
     assert_no_difference 'ProjectMediaProject.count' do
       post :create, query: query, team: @t.slug
@@ -275,7 +275,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should not bulk-move project medias from a list to another if not allowed" do
-    @tu.update_column(:role, 'contributor')
+    @tu.update_column(:role, 'collaborator')
     p4 = create_project team: @t
     query = 'mutation { updateProjectMediaProjects(input: { clientMutationId: "1", ids: ' + @pmp_ids + ', project_id: ' + p4.id.to_s + ' }) { team { dbid } } }'
     post :create, query: query, team: @t.slug

@@ -32,13 +32,13 @@ class MediaTest < ActiveSupport::TestCase
   test "non members should not read media in private team" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     m = create_media project_id: p.id
     pu = create_user
     pt = create_team private: true
     p2 = create_project team: pt
-    create_team_user user: pu, team: pt, role: 'owner'
+    create_team_user user: pu, team: pt, role: 'admin'
     pm = create_media project_id: p2
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckPermissions::AccessDenied do
@@ -55,7 +55,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should update and destroy media" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
 
     m = nil
@@ -67,7 +67,7 @@ class MediaTest < ActiveSupport::TestCase
     end
 
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'journalist'
+    tu = create_team_user team: t, user: u2, role: 'collaborator'
     with_current_user_and_team(u2, t) do
       assert_nothing_raised RuntimeError do
         m.save!
@@ -117,7 +117,7 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     p = create_project team: t
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     u2 = create_user
     m = nil
     with_current_user_and_team(u, t) do
@@ -188,7 +188,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should set user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     with_current_user_and_team(u, t) do
       m = create_media project_id: p.id
@@ -324,7 +324,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     m = create_valid_media project_id: p.id
     perm_keys = ["read Link", "update Link", "create Task", "destroy Link", "create ProjectMedia", "create Comment", "create Tag", "create Dynamic"].sort
@@ -340,12 +340,12 @@ class MediaTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(m.permissions).keys.sort }
 
     # load as authenticated

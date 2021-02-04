@@ -35,8 +35,8 @@ class TestController < ApplicationController
     u2 = create_user
     u1.accept_terms = true
     u2.accept_terms = true
-    create_team_user team: t, user: u1, role: 'owner'
-    create_team_user team: t, user: u2, role: 'contributor'
+    create_team_user team: t, user: u1, role: 'admin'
+    create_team_user team: t, user: u2, role: 'collaborator'
     pr = create_project team: t, current_user: u1
     ret = {:team =>t, :user1 => u1, :user2 => u2, :project => pr}
 

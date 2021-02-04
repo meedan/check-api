@@ -11,9 +11,9 @@ class TeamUserMailerTest < ActionMailer::TestCase
     o1 = create_user email: 'owner1@mail.com'
     o2 = create_user email: 'owner2@mail.com'
     u = create_user email: 'user@mail.com'
-    create_team_user team: t, user: o1, role: 'owner'
-    create_team_user team: t, user: o2, role: 'owner'
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: o1, role: 'admin'
+    create_team_user team: t, user: o2, role: 'admin'
+    create_team_user team: t, user: u, role: 'collaborator'
     r = create_user
 
     options = {
@@ -71,10 +71,10 @@ class TeamUserMailerTest < ActionMailer::TestCase
     o2 = create_user email: 'owner2@mail.com'
     o3 = create_user email: 'owner3@mail.com'
     u = create_user email: 'user@mail.com'
-    create_team_user team: t, user: o1, role: 'owner'
-    create_team_user team: t, user: o2, role: 'owner'
-    create_team_user team: t, user: o3, role: 'owner', status: 'banned'
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: o1, role: 'admin'
+    create_team_user team: t, user: o2, role: 'admin'
+    create_team_user team: t, user: o3, role: 'admin', status: 'banned'
+    create_team_user team: t, user: u, role: 'collaborator'
     r = create_user
     create_bounce email: o1.email
 

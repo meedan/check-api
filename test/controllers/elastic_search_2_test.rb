@@ -43,7 +43,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should update elasticsearch after move media to other projects" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     p2 = create_project team: t
     m = create_valid_media

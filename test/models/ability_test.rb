@@ -7,10 +7,10 @@ class AbilityTest < ActiveSupport::TestCase
     puts('If permissions changed, please remember to update config/permissions_info.yml') unless passed?
   end
 
-  test "contributor permissions for project" do
+  test "collaborator permissions for project" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'contributor'
+    tu = create_team_user user: u , team: t, role: 'collaborator'
     p = create_project
     own_project = create_project(user: u)
     with_current_user_and_team(u, t) do
@@ -20,25 +20,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, own_project)
       assert ability.cannot?(:destroy, p)
       assert ability.cannot?(:destroy, own_project)
-    end
-  end
-
-  test "journalist permissions for project" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'journalist'
-    p = create_project team: t
-    own_project = create_project team: t, user: u
-    p2 = create_project user: u
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Project)
-      assert ability.can?(:update, own_project)
-      assert ability.cannot?(:destroy, own_project)
-      assert ability.cannot?(:update, p)
-      assert ability.cannot?(:destroy, p)
-      assert ability.cannot?(:update, p2)
-      assert ability.cannot?(:destroy, p2)
     end
   end
 
@@ -61,10 +42,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for project" do
+  test "admin permissions for project" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'owner'
+    tu = create_team_user user: u , team: t, role: 'admin'
     p = create_project team: t
     own_project = create_project team: t, user: u
     p2 = create_project
@@ -80,10 +61,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for media" do
+  test "collaborator permissions for media" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u , role: 'contributor'
+    tu = create_team_user team: t, user: u , role: 'collaborator'
     m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
@@ -110,41 +91,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, own_media)
       assert ability.cannot?(:destroy, m2)
       assert ability.cannot?(:destroy, own_media)
-      assert ability.cannot?(:update, pm2)
-      assert ability.cannot?(:update, pm_own)
-      assert ability.cannot?(:destroy, pm2)
-      assert ability.cannot?(:destroy, pm_own)
-    end
-  end
-
-  test "journalist permissions for media" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u , role: 'journalist'
-    m = create_valid_media team: t
-    p = create_project team: t
-    pm = create_project_media project: p, media: m
-    own_media = create_valid_media user_id: u.id, team: t
-    own_pm = create_project_media project: p, media: own_media, user: u
-    m2 = create_valid_media team: t
-    pm2 = create_project_media media: m2
-    pm_own = create_project_media media: own_media, user: u
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Media)
-      assert ability.can?(:update, m)
-      assert ability.can?(:update, own_media)
-      assert ability.cannot?(:destroy, m)
-      assert ability.cannot?(:destroy, own_media)
-      assert ability.can?(:update, pm)
-      assert ability.can?(:update, own_pm)
-      assert ability.can?(:administer_content, pm)
-      assert ability.can?(:administer_content, own_pm)
-      assert ability.cannot?(:destroy, pm)
-      assert ability.cannot?(:destroy, own_pm)
-      assert ability.cannot?(:update, m2)
-      assert ability.can?(:update, own_media)
-      assert ability.cannot?(:destroy, m2)
       assert ability.cannot?(:update, pm2)
       assert ability.cannot?(:update, pm_own)
       assert ability.cannot?(:destroy, pm2)
@@ -183,10 +129,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for media" do
+  test "admin permissions for media" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u , role: 'owner'
+    tu = create_team_user team: t, user: u , role: 'admin'
     m = create_valid_media team: t
     p = create_project team: t
     pm = create_project_media project: p, media: m
@@ -225,22 +171,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for team" do
+  test "collaborator permissions for team" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'contributor'
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Team)
-      assert ability.cannot?(:update, t)
-      assert ability.cannot?(:destroy, t)
-    end
-  end
-
-  test "journalist permissions for team" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'journalist'
+    tu = create_team_user user: u, team: t , role: 'collaborator'
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Team)
@@ -265,12 +199,12 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for team" do
+  test "admin permissions for team" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
+    tu = create_team_user user: u, team: t , role: 'admin'
     t2 = create_team
-    tu_test = create_team_user team: t2, role: 'owner'
+    tu_test = create_team_user team: t2, role: 'admin'
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:create, Team)
@@ -281,10 +215,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner only can empty trash" do
+  test "admin only can empty trash" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t , role: 'owner'
+    create_team_user user: u, team: t , role: 'admin'
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:destroy, :trash)
@@ -307,25 +241,10 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:destroy, tu)
   end
 
-  test "contributor permissions for teamUser" do
+  test "collaborator permissions for teamUser" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'contributor'
-    tu2 = create_team_user
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, TeamUser)
-      assert ability.cannot?(:update, tu)
-      assert ability.can?(:destroy, tu)
-      assert ability.cannot?(:update, tu2)
-      assert ability.cannot?(:destroy, tu2)
-    end
-  end
-
-  test "journalist permissions for teamUser" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'journalist'
+    tu = create_team_user user: u, team: t , role: 'collaborator'
     tu2 = create_team_user
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -342,7 +261,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'editor'
     u2 = create_user
-    tu2 = create_team_user team: t, role: 'contributor'
+    tu2 = create_team_user team: t, role: 'collaborator'
     tu_other = create_team_user
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -350,7 +269,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:update, tu2)
       assert ability.cannot?(:destroy, tu2)
 
-      tu2.update_column(:role, 'owner')
+      tu2.update_column(:role, 'admin')
 
       assert ability.cannot?(:update, tu2)
       assert ability.cannot?(:destroy, tu2)
@@ -359,10 +278,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for teamUser" do
+  test "admin permissions for teamUser" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
+    tu = create_team_user user: u, team: t , role: 'admin'
     u2 = create_user
     tu2 = create_team_user team: t, role: 'editor'
     tu_other = create_team_user
@@ -389,24 +308,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for contact" do
+  test "collaborator permissions for contact" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'contributor'
-    c = create_contact team: t
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:create, Contact)
-      assert ability.cannot?(:update, c)
-      assert ability.cannot?(:destroy, c)
-    end
-  end
-
-  test "journalist permissions for contact" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'journalist'
+    tu = create_team_user user: u, team: t , role: 'collaborator'
     c = create_contact team: t
 
     with_current_user_and_team(u, t) do
@@ -433,10 +338,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for contact" do
+  test "admin permissions for contact" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
+    tu = create_team_user user: u, team: t , role: 'admin'
     c = create_contact team: t
     c1 = create_contact
 
@@ -450,46 +355,18 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for user" do
+  test "collaborator permissions for user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     u2_test = create_user
-    tu2_test = create_team_user user: u2_test , role: 'contributor'
+    tu2_test = create_team_user user: u2_test , role: 'collaborator'
     u_test1 = create_user
-    tu_test1 = create_team_user user: u_test1, role: 'owner'
+    tu_test1 = create_team_user user: u_test1, role: 'admin'
     u_test2 = create_user
     tu_test2 = create_team_user team: t, user: u_test2, role: 'editor'
     u_test3 = create_user
-    tu_test3 = create_team_user team: t, user: u_test3, role: 'journalist'
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, u)
-      assert ability.can?(:destroy, u)
-      assert ability.cannot?(:update, u_test1)
-      assert ability.cannot?(:destroy, u_test1)
-      assert ability.cannot?(:update, u_test2)
-      assert ability.cannot?(:destroy, u_test2)
-      assert ability.cannot?(:update, u_test3)
-      assert ability.cannot?(:destroy, u_test3)
-      assert ability.cannot?(:update, u2_test)
-      assert ability.cannot?(:destroy, u2_test)
-    end
-  end
-
-  test "journalist permissions for user" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    u2_test = create_user
-    tu2_test = create_team_user user: u2_test , role: 'contributor'
-    u_test1 = create_user
-    tu_test1 = create_team_user team: t, user: u_test1, role: 'owner'
-    u_test2 = create_user
-    tu_test2 = create_team_user team: t, user: u_test2, role: 'editor'
-    u_test3 = create_user
-    tu_test3 = create_team_user team: t, user: u_test3, role: 'contributor'
+    tu_test3 = create_team_user team: t, user: u_test3, role: 'collaborator'
 
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -511,13 +388,13 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user team: t, user: u, role: 'editor'
     u2_test = create_user
-    tu2_test = create_team_user user: u2_test , role: 'contributor'
+    tu2_test = create_team_user user: u2_test , role: 'collaborator'
     u_test1 = create_user
-    tu_test1 = create_team_user team: t, user: u_test1, role: 'owner'
+    tu_test1 = create_team_user team: t, user: u_test1, role: 'admin'
     u_test2 = create_user
-    tu_test2 = create_team_user team: t, user: u_test2, role: 'journalist'
+    tu_test2 = create_team_user team: t, user: u_test2, role: 'collaborator'
     u_test3 = create_user
-    tu_test3 = create_team_user team: t, user: u_test3, role: 'contributor'
+    tu_test3 = create_team_user team: t, user: u_test3, role: 'collaborator'
 
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -534,12 +411,12 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for user" do
+  test "admin permissions for user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     u2_test = create_user
-    tu2_test = create_team_user user: u2_test , role: 'contributor'
+    tu2_test = create_team_user user: u2_test , role: 'collaborator'
     u_test1 = create_user
     tu_test1 = create_team_user team: t, user: u_test1, role: 'editor'
 
@@ -550,12 +427,12 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
 
-      tu_test1.update_column(:role, 'journalist')
+      tu_test1.update_column(:role, 'editor')
 
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
 
-      tu_test1.update_column(:role, 'contributor')
+      tu_test1.update_column(:role, 'collaborator')
 
       assert ability.cannot?(:update, u_test1)
       assert ability.cannot?(:destroy, u_test1)
@@ -565,31 +442,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for comment" do
+  test "collaborator permissions for comment" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    p = create_project team: t
-    pm = create_project_media project: p
-    mc = create_comment
-    pm.add_annotation mc
-    own_comment = create_comment annotator: u
-    pm.add_annotation own_comment
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Comment)
-      assert ability.cannot?(:update, mc)
-      assert ability.cannot?(:destroy, mc)
-      assert ability.can?(:update, own_comment)
-      assert ability.can?(:destroy, own_comment)
-    end
-  end
-
-  test "journalist permissions for comment" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     mc = create_comment
@@ -624,10 +480,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for comment" do
+  test "admin permissions for comment" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     mc = create_comment
@@ -645,7 +501,7 @@ class AbilityTest < ActiveSupport::TestCase
     # test the create/update/destroy operations
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm
@@ -656,7 +512,7 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    tu.role = 'owner'; tu.save!
+    tu.role = 'admin'; tu.save!
 
     with_current_user_and_team(u, create_team) do
       assert_raise RuntimeError do
@@ -676,10 +532,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for status" do
+  test "collaborator permissions for status" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -688,27 +544,6 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert ability.cannot?(:create, s)
       assert ability.cannot?(:update, s)
-      assert ability.cannot?(:destroy, s)
-    end
-  end
-
-  test "journalist permissions for status" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    t2 = create_team
-    p = create_project team: t, user: u
-    pm = create_project_media project: p
-    s =  create_status status: 'verified', annotator: u, annotated: pm
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, s)
-      assert ability.can?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      Rails.cache.clear
-      pm.update_column(:team_id, t2.id)
-      assert ability.cannot?(:create, s)
       assert ability.cannot?(:destroy, s)
     end
   end
@@ -729,10 +564,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for status" do
+  test "admin permissions for status" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -745,10 +580,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for embed" do
+  test "admin permissions for embed" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     em = create_metadata annotated: pm
@@ -760,10 +595,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for tag" do
+  test "collaborator permissions for tag" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p, user: u
     tg = create_tag tag: 'media_tag', annotator: u, annotated: pm
@@ -782,27 +617,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist permissions for tag" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    t2 = create_team
-    p = create_project team: t, user: u
-    pm = create_project_media project: p
-    tg = create_tag tag: 'media_tag', context: p, annotator: u, annotated: pm
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, tg)
-      assert ability.can?(:update, tg)
-      assert ability.can?(:destroy, tg)
-      Rails.cache.clear
-      pm.update_column(:team_id, t2.id)
-      assert ability.cannot?(:create, tg)
-      assert ability.cannot?(:destroy, tg)
-    end
-  end
-
   test "editor permissions for tag" do
     u = create_user
     t = create_team
@@ -818,10 +632,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for tag" do
+  test "admin permissions for tag" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     tg = create_tag tag: 'media_tag', annotated: pm
@@ -937,31 +751,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist permissions for account source" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    t2 = create_team
-    a = create_valid_account
-    own_s = create_source user: u, team: t
-    s = create_source user: u2, team: t
-    s2 = create_source user: u, team: t2
-    tu = create_team_user user: u , team: t, role: 'journalist'
-    as = create_account_source source: s, account: a
-    own_as = create_account_source source: own_s, account: a
-    as2 = create_account_source source: s2, account: a
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, own_s)
-      assert ability.can?(:update, own_as)
-      assert ability.cannot?(:destroy, own_as)
-      assert ability.can?(:update, as)
-      assert ability.cannot?(:destroy, as)
-      assert ability.cannot?(:update, as2)
-      assert ability.cannot?(:destroy, as2)
-    end
-  end
-
   test "editor permissions for account source" do
     u = create_user
     u2 = create_user
@@ -987,7 +776,7 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for account source" do
+  test "admin permissions for account source" do
     u = create_user
     u2 = create_user
     t = create_team
@@ -996,7 +785,7 @@ class AbilityTest < ActiveSupport::TestCase
     own_s = create_source user: u, team: t
     s = create_source user: u2, team: t
     s2 = create_source user: u, team: t2
-    tu = create_team_user user: u , team: t, role: 'owner'
+    tu = create_team_user user: u , team: t, role: 'admin'
     as = create_account_source source: s, account: a
     own_as = create_account_source source: own_s, account: a
     as2 = create_account_source source: s2, account: a
@@ -1028,7 +817,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should read source without user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     s = create_source user: nil
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1039,7 +828,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should read own source" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     s = create_source user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1050,7 +839,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "should not read source from other user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     s = create_source user: create_user
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1068,10 +857,10 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:update, s)
   end
 
-  test "should owner destroy annotation from any project from his team" do
+  test "should admin destroy annotation from any project from his team" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p1 = create_project team: t
     p2 = create_project team: t
     pm1 = create_project_media project: p1
@@ -1106,10 +895,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not journalist destroy annotation from his project only" do
+  test "should not editor destroy annotation from his project only" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'journalist'
+    create_team_user user: u, team: t, role: 'collaborator'
     p1 = create_project team: t, current_user: u, user: nil
     p2 = create_project team: t
     pm1 = create_project_media project: p1
@@ -1126,10 +915,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not contributor destroy annotation from him only" do
+  test "should not collaborator destroy annotation from him only" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     p1 = create_project team: t
     p2 = create_project team: t
     pm1 = create_project_media project: p1
@@ -1159,11 +948,11 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should owner destroy annotation versions" do
+  test "should admin destroy annotation versions" do
     create_verification_status_stuff
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
@@ -1183,10 +972,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for task" do
+  test "admin permissions for task" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1213,10 +1002,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for task" do
+  test "collaborator permissions for task" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1237,7 +1026,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "annotator permissions" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1253,10 +1042,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor can manage own dynamic fields" do
+  test "collaborator can manage own dynamic fields" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -1278,28 +1067,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for dynamic annotation" do
+  test "collaborator permissions for dynamic annotation" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    p = create_project team: t
-    pm = create_project_media project: p
-    da = create_dynamic_annotation annotated: pm
-    own_da = create_dynamic_annotation annotated: pm, annotator: u
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Dynamic)
-      assert ability.cannot?(:update, da)
-      assert ability.cannot?(:destroy, da)
-      assert ability.can?(:update, own_da)
-      assert ability.can?(:destroy, own_da)
-    end
-  end
-
-  test "journalist permissions for dynamic annotation" do
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     da = create_dynamic_annotation annotated: pm
@@ -1332,10 +1103,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner permissions for dynamic annotation" do
+  test "admin permissions for dynamic annotation" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     da = create_dynamic_annotation annotated: pm
@@ -1368,7 +1139,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team private: true
     t2 = create_team
     u = create_bot_user api_key_id: a.id
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     u = User.find(u.id)
     ApiKey.current = a
     User.current = u
@@ -1389,7 +1160,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "bot user permissions" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     b = create_bot_user team_author_id: create_team.id
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1409,14 +1180,14 @@ class AbilityTest < ActiveSupport::TestCase
   test "annotation permissions" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm
 
     u2 = create_user
     t2 = create_team
-    tu2 = create_team_user team: t2, user: u2, role: 'owner'
+    tu2 = create_team_user team: t2, user: u2, role: 'admin'
     p2 = create_project team: t2
     pm2 = create_project_media project: p2
     c2 = create_comment annotated: pm2
@@ -1434,31 +1205,15 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor should not edit, send to trash or destroy report" do
+  test "collaborator should not edit, send to trash or destroy report" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:update, pm)
-      assert ability.cannot?(:destroy, pm)
-    end
-  end
-
-  test "journalist should send to trash and edit own report but should not destroy" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, pm)
-      assert ability.cannot?(:destroy, pm)
-      assert ability.can?(:update, pm2)
       assert ability.cannot?(:destroy, pm)
     end
   end
@@ -1479,10 +1234,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner should edit, send to trash and destroy any report" do
+  test "admin should edit, send to trash and destroy any report" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p, user: u
     pm2 = create_project_media project: p
@@ -1495,10 +1250,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor should edit and destroy own annotation from trash but should not destroy respective log entry" do
+  test "collaborator should edit and destroy own annotation from trash but should not destroy respective log entry" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
@@ -1515,10 +1270,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist should edit and destroy own annotation from trash but should not destroy respective log entry" do
+  test "editor should edit and destroy own annotation from trash but should not destroy respective log entry" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
@@ -1558,10 +1313,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
+  test "admin should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
@@ -1581,30 +1336,15 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor should not edit, send to trash or destroy project" do
+  test "collaborator should not edit, send to trash or destroy project" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t, user: u
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:update, p)
       assert ability.cannot?(:destroy, p)
-    end
-  end
-
-  test "journalist should edit and send to trash but not destroy own project" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'journalist'
-    p = create_project team: t, user: u
-    p2 = create_project team: t
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, p)
-      assert ability.cannot?(:destroy, p)
-      assert ability.cannot?(:update, p2)
-      assert ability.cannot?(:destroy, p2)
     end
   end
 
@@ -1623,10 +1363,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner should edit any project, destroy any project and send any project to trash" do
+  test "admin should edit any project, destroy any project and send any project to trash" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t, user: u
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
@@ -1638,21 +1378,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor should not send to trash, edit or destroy team" do
+  test "collaborator should not send to trash, edit or destroy team" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:update, t)
-      assert ability.cannot?(:destroy, t)
-    end
-  end
-
-  test "journalist should not send to trash, edit or destroy team" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'journalist'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:update, t)
@@ -1671,10 +1400,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "owner should send to trash, edit or destroy own team" do
+  test "admin should send to trash, edit or destroy own team" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     t2 = create_team
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1688,19 +1417,19 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "editor should not downgrade owner role" do
+  test "editor should not downgrade admin role" do
     t = create_team
     u = create_user
     u2 = create_user
     u3 = create_user
     tu1 = create_team_user team: t, user: u, role: 'editor'
-    tu2 = create_team_user team: t, user: u2, role: 'owner'
+    tu2 = create_team_user team: t, user: u2, role: 'admin'
     tu2 = TeamUser.find(tu2.id)
-    tu3 = create_team_user team: t, user: u3, role: 'contributor'
+    tu3 = create_team_user team: t, user: u3, role: 'collaborator'
     tu3 = TeamUser.find(tu3.id)
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        tu3.role = 'journalist'
+        tu3.role = 'editor'
         tu3.save!
       end
 
@@ -1711,28 +1440,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist permissions for verification status" do
+  test "collaborator permissions for verification status" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'journalist'
-    p = create_project team: t, user: u
-    pm = create_project_media user: u, project: p
-    s = create_status annotated: pm, status: 'verified'
-    s2 = create_status annotated: pm, status: 'verified', locked: true
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, s)
-      assert ability.can?(:update, s)
-      assert ability.cannot?(:destroy, s)
-      assert ability.cannot?(:update, s2)
-      assert ability.cannot?(:destroy, s2)
-    end
-  end
-
-  test "contributor permissions for verification status" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u , team: t, role: 'contributor'
+    tu = create_team_user user: u , team: t, role: 'collaborator'
     p = create_project team: t, user: u
     pm = create_project_media user: u, project: p
     s = create_status annotated: pm, status: 'verified'
@@ -1762,7 +1473,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "permissions for annotation type" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     at = create_annotation_type
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -1776,7 +1487,7 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team
     u = create_user
-    create_team_user team: t1, user: u, role: 'owner'
+    create_team_user team: t1, user: u, role: 'admin'
     tb1 = create_team_bot team_author_id: t1.id
     tb2 = create_team_bot team_author_id: t2.id
     with_current_user_and_team(u, t1) do
@@ -1797,7 +1508,7 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team
     u = create_user
-    create_team_user team: t1, user: u, role: 'owner'
+    create_team_user team: t1, user: u, role: 'admin'
     tbi1 = create_team_bot_installation team_id: t1.id
     tbi2 = create_team_bot_installation team_id: t2.id
     with_current_user_and_team(u, t1) do
@@ -1864,7 +1575,7 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team
     u = create_user
-    create_team_user team: t1, user: u, role: 'owner'
+    create_team_user team: t1, user: u, role: 'admin'
     ta1 = create_tag_text team_id: t1.id
     ta2 = create_tag_text team_id: t2.id
     with_current_user_and_team(u, t1) do
@@ -1880,7 +1591,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:destroy, ta2)
     end
 
-    ['contributor', 'journalist', 'editor'].each do |role|
+    ['collaborator', 'editor'].each do |role|
       u = create_user
       create_team_user team: t1, user: u, role: role
       ta1 = create_tag_text team_id: t1.id
@@ -1912,8 +1623,8 @@ class AbilityTest < ActiveSupport::TestCase
     c2.assign_user(u2.id)
     a2 = c2.assignments.last
 
-    # Owner, journalist and editor: can only assign/unassign annotations of same team
-    ['owner', 'editor', 'journalist'].each do |role|
+    # admin and editor can only assign/unassign annotations of same team
+    ['admin', 'editor'].each do |role|
       u = create_user
       create_team_user team_id: t.id, user_id: u.id, role: role
       with_current_user_and_team(u, t) do
@@ -1925,9 +1636,9 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    # Contributor: can only assign/unassign own annotations
+    # collaborator: can only assign/unassign own annotations
     u = create_user
-    create_team_user team_id: t.id, user_id: u.id, role: 'contributor'
+    create_team_user team_id: t.id, user_id: u.id, role: 'collaborator'
     c3 = create_comment annotated: pm, annotator: u
     c3.assign_user(u.id)
     a3 = c3.assignments.last
@@ -1959,11 +1670,11 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "team owner and editor can import spreadsheet" do
+  test "team admin and editor can import spreadsheet" do
     t1 = create_team
     t2 = create_team
     u1 = create_user
-    create_team_user team: t1, user: u1, role: 'owner'
+    create_team_user team: t1, user: u1, role: 'admin'
     create_team_user team: t2, user: u1, role: 'editor'
     with_current_user_and_team(u1, t1) do
       ability = Ability.new
@@ -1977,18 +1688,12 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "team contributor and journalist cannot import spreadsheet" do
+  test "team collaborator cannot import spreadsheet" do
     t1 = create_team
     t2 = create_team
     u1 = create_user
-    create_team_user team: t1, user: u1, role: 'contributor'
-    create_team_user team: t2, user: u1, role: 'journalist'
+    create_team_user team: t1, user: u1, role: 'collaborator'
     with_current_user_and_team(u1, t1) do
-      ability = Ability.new
-      assert ability.cannot?(:import_spreadsheet, t1)
-      assert ability.cannot?(:import_spreadsheet, t2)
-    end
-    with_current_user_and_team(u1, t2) do
       ability = Ability.new
       assert ability.cannot?(:import_spreadsheet, t1)
       assert ability.cannot?(:import_spreadsheet, t2)
@@ -2069,10 +1774,10 @@ class AbilityTest < ActiveSupport::TestCase
       tu = create_team_user user: u, team: t, status: 'member', role: role
       tu2 = create_team_user user: u, team: t2, status: 'requested', role: role
       with_current_user_and_team(u, t) do
-        if role != 'owner' && role != 'editor'
+        if role != 'admin' && role != 'editor'
           assert_raises RuntimeError do
             tu = TeamUser.find(tu.id)
-            tu.role = 'journalist'
+            tu.role = 'editor'
             tu.save!
           end
         end
@@ -2083,7 +1788,7 @@ class AbilityTest < ActiveSupport::TestCase
         end
       end
       with_current_user_and_team(u, t2) do
-        if role != 'owner' && role != 'editor'
+        if role != 'admin' && role != 'editor'
           assert_raises RuntimeError do
             tu2 = TeamUser.find(tu2.id)
             tu2.status = 'member'
@@ -2099,10 +1804,10 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor permissions for project media project" do
+  test "collaborator permissions for project media project" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u , team: t, role: 'contributor'
+    tu = create_team_user user: u , team: t, role: 'collaborator'
     p = create_project team: t
     pmp1 = create_project_media_project project: p
     pmp2 = create_project_media_project
@@ -2118,7 +1823,7 @@ class AbilityTest < ActiveSupport::TestCase
   test "restore and update project media permissions at team level" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     with_current_user_and_team(u, t) do
       assert JSON.parse(t.permissions)['restore ProjectMedia']
       assert JSON.parse(t.permissions)['update ProjectMedia']

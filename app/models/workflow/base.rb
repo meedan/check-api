@@ -34,12 +34,12 @@ module Workflow
     def self.workflow_permissions
       klass = self
       proc do
-        if @user.role?(:owner)
+        if @user.role?(:admin)
           instance_exec(&klass.workflow_permissions_for_owner)
-        elsif @user.role?(:journalist)
-          instance_exec(&klass.workflow_permissions_for_journalist)
-        elsif @user.role?(:contributor) || @user.role?(:annotator)
-          instance_exec(&klass.workflow_permissions_for_contributor)
+        elsif @user.role?(:editor)
+          instance_exec(&klass.workflow_permissions_for_editor)
+        elsif @user.role?(:collaborator) || @user.role?(:annotator)
+          instance_exec(&klass.workflow_permissions_for_collaborator)
         end
       end
     end
@@ -53,7 +53,7 @@ module Workflow
       end
     end
 
-    def self.workflow_permissions_for_journalist
+    def self.workflow_permissions_for_editor
       id = self.id
       proc do
         can [:create, :update], Dynamic, ['annotation_type = ?', id] do |obj|
@@ -65,7 +65,7 @@ module Workflow
       end
     end
 
-    def self.workflow_permissions_for_contributor
+    def self.workflow_permissions_for_collaborator
       id = self.id
       proc do
         cannot [:destroy, :update, :create], Dynamic, ['annotation_type = ?', id] do |obj|

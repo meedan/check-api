@@ -14,7 +14,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     m = create_valid_media
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)
@@ -30,10 +30,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
         create_project_media team: t, media: m
       end
     end
-    # journalist should assign any media
+    # editor should assign any media
     m2 = create_valid_media
     Rails.cache.clear
-    tu.update_column(:role, 'journalist')
+    tu.update_column(:role, 'editor')
     pm = nil
     assert_difference 'ProjectMedia.count' do
       pm = create_project_media team: t, media: m2
@@ -88,10 +88,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal m, pm.media
   end
 
-  test "should contributor add a new media" do
+  test "should collaborator add a new media" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     with_current_user_and_team(u, t) do
       assert_difference 'ProjectMedia.count' do
         create_project_media team: t, quote: 'Claim report'
@@ -245,7 +245,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should notify Slack when project media is created" do
     t = create_team slug: 'test'
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     with_current_user_and_team(u, t) do
       m = create_valid_media
@@ -265,7 +265,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     Sidekiq::Testing.fake! do
       with_current_user_and_team(u, t) do
-        create_team_user team: t, user: u, role: 'owner'
+        create_team_user team: t, user: u, role: 'admin'
         SlackNotificationWorker.drain
         assert_equal 0, SlackNotificationWorker.jobs.size
         create_project_media team: t
@@ -358,7 +358,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team current_user: u
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = [
@@ -376,11 +376,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # load as editor
     tu.update_column(:role, 'editor')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
-    # load as journalist
-    tu.update_column(:role, 'journalist')
+    # load as editor
+    tu.update_column(:role, 'editor')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
-    # load as contributor
-    tu.update_column(:role, 'contributor')
+    # load as collaborator
+    tu.update_column(:role, 'collaborator')
     assert_equal perm_keys, JSON.parse(pm.permissions).keys.sort
     # load as authenticated
     tu.update_column(:team_id, nil)
@@ -411,8 +411,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     u = create_user
     team = create_team slug: 'workspace-slug'
-    create_team_user team: team, user: bot, role: 'owner'
-    create_team_user team: team, user: u, role: 'owner'
+    create_team_user team: team, user: bot, role: 'admin'
+    create_team_user team: team, user: u, role: 'admin'
     create_verification_status_stuff
     # test with smooch user
     with_current_user_and_team(bot, team) do
@@ -469,11 +469,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should contributor create auto tasks" do
+  test "should collaborator create auto tasks" do
     t = create_team
     create_team_task team_id: t.id
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     Sidekiq::Testing.inline! do
       with_current_user_and_team(u, t) do
         assert_difference 'Task.length' do
@@ -552,7 +552,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     m = create_valid_media team: t
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     pm = nil
     User.current = u
     assert_difference 'PaperTrail::Version.count', 1 do
@@ -570,7 +570,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     p2 = create_project team: t
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     at = create_annotation_type annotation_type: 'response'
     ft2 = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text')
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
@@ -739,7 +739,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     u2 = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     tu = create_team_user team: t, user: u2
     pm = create_project_media team: t, quote: 'Claim', user: u2
     at = create_annotation_type annotation_type: 'test'
@@ -833,9 +833,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get author role for oEmbed" do
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'journalist'
+    create_team_user user: u, team: t, role: 'collaborator'
     pm = create_project_media team: t, user: u
-    assert_equal 'journalist', pm.author_role
+    assert_equal 'editor', pm.author_role
     pm.user = create_user
     assert_equal 'none', pm.author_role
     pm.user = nil
@@ -1123,8 +1123,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u1, role: 'owner'
-    create_team_user team: t, user: u2, role: 'owner'
+    create_team_user team: t, user: u1, role: 'admin'
+    create_team_user team: t, user: u2, role: 'admin'
     pm = nil
 
     with_current_user_and_team(u1, t) do
@@ -1327,8 +1327,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     t2 = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    create_team_user team: t2, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t2, user: u, role: 'admin'
     m = nil
     s = nil
     with_current_user_and_team(u, t) do
@@ -1473,7 +1473,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     pm = nil
     with_current_user_and_team(u, t) do
       pm = create_project_media project: p, media: m, user: u
@@ -1981,7 +1981,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p2 = create_project team: t
     p3 = create_project team: t
     u = create_user
-    create_team_user user: u, team: t, role: 'owner', is_admin: false
+    create_team_user user: u, team: t, role: 'admin', is_admin: false
     Sidekiq::Testing.inline! do
       # test restore
       pm = create_project_media project: p, disable_es_callbacks: false
@@ -2123,7 +2123,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_verification_status_stuff
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       old = create_project_media team: t, media: Blank.create!
       old_r = publish_report(old)
