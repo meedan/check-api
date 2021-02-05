@@ -12,7 +12,7 @@ class Team < ActiveRecord::Base
   include TeamImport
   include TeamRules
 
-  attr_accessor :affected_ids, :is_being_copied
+  attr_accessor :affected_ids, :is_being_copied, :is_being_created
 
   mount_uploader :logo, ImageUploader
 
