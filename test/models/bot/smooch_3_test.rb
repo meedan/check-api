@@ -200,6 +200,34 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_equal [p2.id], pm.project_ids
     assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
 
+    quote = 'The lazy dog jumped over the brown fox'
+    pm = create_project_media team: @team, quote: quote, media: nil
+    pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    pm.save!
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: quote
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    pm = ProjectMedia.find(pm.id)
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+
     messages = [
       {
         '_id': random_string,
@@ -1315,7 +1343,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot('2', uid)
     end
-    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, annotated.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
     assert_equal 2, annotated.reload.requests_count
     # Test resend same media (should not update archived cloumn)
     Sidekiq::Testing.fake! do
@@ -1327,7 +1355,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_no_difference 'ProjectMedia.count' do
       send_message_to_smooch_bot('2', uid)
     end
-    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, annotated.reload.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, annotated.reload.archived
     assert_equal 3, annotated.reload.requests_count
     Rails.cache.unstub(:read)
   end
