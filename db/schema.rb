@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210124161425) do
+ActiveRecord::Schema.define(version: 20210204213753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -330,13 +330,13 @@ ActiveRecord::Schema.define(version: 20210124161425) do
     t.text     "mapping"
     t.boolean  "required",                  default: false
     t.integer  "team_id",                                            null: false
+    t.integer  "order",                     default: 0
+    t.string   "associated_type",           default: "ProjectMedia", null: false
     t.datetime "created_at",                                         null: false
     t.datetime "updated_at",                                         null: false
     t.string   "json_schema"
-    t.integer  "order",                     default: 0
     t.string   "fieldset",                  default: "",             null: false
     t.boolean  "show_in_browser_extension", default: true,           null: false
-    t.string   "associated_type",           default: "ProjectMedia", null: false
   end
 
   add_index "team_tasks", ["associated_type"], name: "index_team_tasks_on_associated_type", using: :btree
