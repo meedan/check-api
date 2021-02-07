@@ -393,7 +393,7 @@ class Bot::Smooch < BotUser
       if has_main_menu
         sm.start
         main_message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
-        self.send_message_to_user(uid, main_message)
+        self.send_message_to_user(uid, utmize_urls(main_message, 'resource'))
       else
         self.clear_user_bundled_messages(uid)
         sm.go_to_query
@@ -402,7 +402,7 @@ class Bot::Smooch < BotUser
     when 'main', 'secondary'
       if !self.process_menu_option(message, state, app_id)
         no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], self.get_message_for_state(workflow, state, language)].join("\n\n")
-        self.send_message_to_user(uid, no_option_message)
+        self.send_message_to_user(uid, utmize_urls(no_option_message, 'resource'))
       end
     when 'query'
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
@@ -429,7 +429,7 @@ class Bot::Smooch < BotUser
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
-          self.send_message_to_user(uid, self.get_message_for_state(workflow, new_state, language))
+          self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language), 'resource'))
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -447,7 +447,7 @@ class Bot::Smooch < BotUser
           sm.send('go_to_main')
           workflow = self.get_workflow(option['smooch_menu_option_value'])
           self.bundle_message(message)
-          self.send_message_to_user(uid, self.get_message_for_state(workflow, 'main', option['smooch_menu_option_value']))
+          self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, 'main', option['smooch_menu_option_value']), 'resource'))
         end
         return true
       end
@@ -677,7 +677,7 @@ class Bot::Smooch < BotUser
   def self.save_message_later_and_reply_to_user(message, app_id)
     self.save_message_later(message, app_id)
     workflow = self.get_workflow(message['language'])
-    self.send_message_to_user(message['authorId'], workflow['smooch_message_smooch_bot_message_confirmed'])
+    self.send_message_to_user(message['authorId'], utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource'))
   end
 
   def self.get_text_from_message(message)
