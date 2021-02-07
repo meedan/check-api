@@ -336,7 +336,7 @@ class Bot::Smooch < BotUser
       when 'message:delivery:failure'
         self.resend_message(json)
         true
-      when 'message:delivery:user'
+      when 'message:delivery:channel'
         self.user_received_report(json)
         true
       else
@@ -515,7 +515,8 @@ class Bot::Smooch < BotUser
     unless original.blank?
       original = JSON.parse(original)
       if original['fallback_template'] =~ /report/
-        f = DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => original['project_media_id']).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).first
+        pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
+        f = DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).first
         unless f.nil?
           a = f.annotation.load
           a.set_fields = { smooch_report_received: Time.now.to_i }.to_json
