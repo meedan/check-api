@@ -39,10 +39,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm = create_project_media team: t, media: m2
     end
     m3 = create_valid_media user_id: u.id
-    m3.user_id = u.id; m3.save!
     assert_difference 'ProjectMedia.count' do
       pm = create_project_media team: t, media: m3
-      # pm.project = create_project team: t
       pm.save!
     end
     User.unstub(:current)
@@ -113,26 +111,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     with_current_user_and_team(u2, t) do
       pm.save!
     end
-    assert_raise RuntimeError do
+    assert_nothing_raised do
       with_current_user_and_team(u2, t) do
-        pm.destroy!
-      end
-    end
-    pm_own = nil
-    with_current_user_and_team(u2, t) do
-      own_media = create_valid_media user: u2
-      pm_own = create_project_media team: t, media: own_media, user: u2
-      pm_own.save!
-    end
-    assert_nothing_raised RuntimeError do
-      with_current_user_and_team(u2, t) do
-        pm_own.disable_es_callbacks = true
-        pm_own.destroy!
-      end
-    end
-    assert_raise RuntimeError do
-      with_current_user_and_team(u, t) do
-        pm_own.disable_es_callbacks = true
         pm.destroy!
       end
     end
@@ -305,8 +285,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    # TODO: Sawy fixme
-    # assert_equal 10, CheckPusher::Worker.jobs.size
+    assert_equal 8, CheckPusher::Worker.jobs.size
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -835,7 +814,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     u = create_user
     create_team_user user: u, team: t, role: 'collaborator'
     pm = create_project_media team: t, user: u
-    assert_equal 'editor', pm.author_role
+    assert_equal 'collaborator', pm.author_role
     pm.user = create_user
     assert_equal 'none', pm.author_role
     pm.user = nil

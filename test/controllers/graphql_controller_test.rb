@@ -306,7 +306,7 @@ class GraphqlControllerTest < ActionController::TestCase
     ret = { body: '{"type":"media","data":{"url":"' + url + '/","type":"profile"}}' }
     WebMock.stub_request(:get, pender_url).to_return(ret)
     WebMock.stub_request(:get, pender_refresh_url).to_return(ret)
-    a = create_account user: u, url: url
+    a = create_account user: u, url: url, team_id: @team.id
     PenderClient::Mock.mock_medias_returns_parsed_data(CheckConfig.get('pender_url_private')) do
       WebMock.disable_net_connect!
       id = a.graphql_id

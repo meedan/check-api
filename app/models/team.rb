@@ -105,7 +105,7 @@ class Team < ActiveRecord::Base
     contact.save!
   end
 
-  def recipients(requestor, role='owner')
+  def recipients(requestor, role='admin')
     owners = self.owners(role, ['member'])
     recipients = []
     if !owners.empty? && !owners.include?(requestor)

@@ -51,7 +51,7 @@ class TeamUserTest < ActiveSupport::TestCase
     tu = create_team_user
     tu.role = "invalid role"
     assert_not tu.save
-    tu.role = "owner"
+    tu.role = "admin"
     assert tu.save
   end
 
@@ -126,7 +126,7 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send e-mail to owners when user requests to join" do
+  test "should send e-mail to admins when user requests to join" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -161,7 +161,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_user
     tu = create_team_user team: t, user: u, role: 'collaborator', status: 'requested'
     assert_no_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size' do
-      tu.role = 'owner'
+      tu.role = 'admin'
       tu.save!
     end
   end

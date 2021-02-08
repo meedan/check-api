@@ -290,7 +290,7 @@ class GraphqlController3Test < ActionController::TestCase
     u1 = create_user name: 'Annotator'
     u2 = create_user name: 'Owner'
     t = create_team
-    create_team_user user: u1, team: t, role: 'annotator'
+    create_team_user user: u1, team: t, role: 'collaborator'
     create_team_user user: u2, team: t, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p, disable_es_callbacks: false ; sleep 1

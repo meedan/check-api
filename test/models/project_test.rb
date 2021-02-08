@@ -28,40 +28,46 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "should update and destroy project" do
-    u = create_user
+  ['editor', 'admin'].each do |role|
+    test "should update and destroy project by #{role}" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      p2 = create_project team: t2
+      create_team_user user: u, team: t, role: role
+      with_current_user_and_team(u, t) do
+        p = create_project team: t, user: u
+        p.title = 'Project A'; p.save!
+        assert_equal p.reload.title, 'Project A'
+        assert_raise RuntimeError do
+          create_project team: t2
+        end
+        assert_raise RuntimeError do
+          p2.title = 'Projcet B'; p2.save
+        end
+        assert_nothing_raised do
+          p.destroy
+        end
+        assert_raise RuntimeError do
+          p2.destroy
+        end
+      end
+    end
+  end
+
+  test "collaborator should not create update or destroy project" do
     t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-
-    p = nil
+    u = create_user
+    tu = create_team_user team: t, user: u, role: 'collaborator'
+    p = create_project team: t
     with_current_user_and_team(u, t) do
-      p = create_project team: t, user: u
-      p.title = 'Project A'; p.save!
-      p.reload
-      assert_equal p.title, 'Project A'
-    end
-
-    u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'collaborator'
-
-    with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
-        p.save!
+        create_project team: t
       end
       assert_raise RuntimeError do
-        p.destroy!
+        p.title = 'Project A'; p.save!
       end
-      own_project = create_project team: t, user: u2
-      own_project.title = 'Project A'
-      own_project.save!
-      assert_equal own_project.title, 'Project A'
       assert_raise RuntimeError do
-        own_project.destroy!
-      end
-    end
-
-    with_current_user_and_team(u, t) do
-      assert_nothing_raised RuntimeError do
         p.destroy!
       end
     end

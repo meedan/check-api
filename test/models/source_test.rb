@@ -166,7 +166,7 @@ class SourceTest < ActiveSupport::TestCase
   test "editor should edit any source" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: t, user: u, role: 'editor'
     with_current_user_and_team(u, t) do
       s = create_source user: create_user
       s.name = 'update source'

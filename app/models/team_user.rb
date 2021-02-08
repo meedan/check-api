@@ -23,7 +23,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, included: { values: self.status_types }
 
   def self.role_types
-    %w(admin editor collaborator annotator)
+    %w(admin editor collaborator)
   end
   validates :role, included: { values: self.role_types }
 
