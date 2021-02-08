@@ -4,7 +4,7 @@ module HasFile
   extend ActiveSupport::Concern
 
   def public_path
-    self.file&.file&.public_url&.to_s
+    self.file&.file&.public_url&.to_s if self.file&.file && self.file&.file.respond_to?(:public_url)
   end
 
   def file_mandatory?
