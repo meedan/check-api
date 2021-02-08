@@ -506,7 +506,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     assert_nil DynamicAnnotation::Field.where(field_name: 'smooch_report_received').last
     
     payload = {
-      trigger: 'message:delivery:user',
+      trigger: 'message:delivery:channel',
       app: {
         '_id': @app_id
       },
