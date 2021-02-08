@@ -40,7 +40,7 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm1.id, pm2.id], ids.sort
   end
 
-  test "zzz should search media with multiple projects" do
+  test "should search media with multiple projects" do
     @team = create_team
     u = create_user
     p = create_project team: @team

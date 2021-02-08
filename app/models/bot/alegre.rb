@@ -170,12 +170,12 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_title_to_similarity_index(pm)
-    return if pm.title.blank?
+    # return if pm.title.blank?
     self.send_to_text_similarity_index(pm, 'title', pm.title, self.item_doc_id(pm, 'title'))
   end
 
   def self.send_description_to_similarity_index(pm)
-    return if pm.description.blank?
+    # return if pm.description.blank?
     self.send_to_text_similarity_index(pm, 'description', pm.description, self.item_doc_id(pm, 'description'))
   end
 
@@ -196,19 +196,21 @@ class Bot::Alegre < BotUser
       context: {
         team_id: pm.team_id,
         field: field,
-        project_media_id: pm.id
+        project_media_id: pm.id,
+        has_custom_id: true
       }
     })
   end
 
   def self.send_to_image_similarity_index(pm)
-    return if !['uploadedimage', 'blank'].include?(pm.report_type)
+    return if pm.report_type != 'uploadedimage'
     self.request_api('post', '/image/similarity/', {
       doc_id: self.item_doc_id(pm, 'image'),
       url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
-        project_media_id: pm.id
+        project_media_id: pm.id,
+        has_custom_id: true
       }
     })
   end
@@ -279,7 +281,8 @@ class Bot::Alegre < BotUser
       text: text,
       context: {
         team_id: pm.team_id,
-        field: field
+        field: field,
+        has_custom_id: true
       },
       threshold: threshold
     }, pm)
@@ -290,6 +293,7 @@ class Bot::Alegre < BotUser
       url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
+        has_custom_id: true
       },
       threshold: threshold
     }, pm)
@@ -318,7 +322,10 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
-    if pm_id_scores[parent_id]
+    parent = ProjectMedia.find(parent_id)
+    if parent.is_blank?
+      parent.replace_by(pm)
+    elsif pm_id_scores[parent_id]
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = pm_id_scores[parent_id][:relationship_type]
