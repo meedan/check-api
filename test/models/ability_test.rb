@@ -7,6 +7,7 @@ class AbilityTest < ActiveSupport::TestCase
     puts('If permissions changed, please remember to update config/permissions_info.yml') unless passed?
   end
 
+  # Verify comman permisions for all roles ('collaborator', 'editor', 'admin')
   ['collaborator', 'editor', 'admin'].each do |role|
     test "#{role} permissions for media" do
       u = create_user
@@ -46,25 +47,23 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    # TODO: fix by Sawy
-    # test "#{role} permissions for status" do
-    #   u = create_user
-    #   t = create_team
-    #   t2 = create_team
-    #   tu = create_team_user team: t, user: u, role: role
-    #   pm = create_project_media team: t
-    #   pm2 = create_project_media team: t2
-    #   s = create_status status: 'verified', annotated: pm
-    #   s2 = create_status status: 'verified', annotated: pm2
-    #   with_current_user_and_team(u, t) do
-    #     ability = Ability.new
-    #     assert ability.can?(:create, s)
-    #     assert ability.can?(:update, s)
-    #     # assert ability.can?(:destroy, s)
-    #     assert ability.cannot?(:update, s2)
-    #     assert ability.cannot?(:destroy, s2)
-    #   end
-    # end
+    test "#{role} permissions for status" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user team: t, user: u, role: role
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t2
+      s = create_status status: 'verified', annotated: pm
+      s2 = create_status status: 'verified', annotated: pm2
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:create, s)
+        assert ability.can?(:update, s)
+        assert ability.cannot?(:update, s2)
+        assert ability.cannot?(:destroy, s2)
+      end
+    end
 
     test "#{role} permissions for task" do
       u = create_user
@@ -163,6 +162,204 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  # Verify comman permisions for  'editor' and 'admin'
+  ['editor', 'admin'].each do |role|
+    test "#{role} permissions for contact" do
+      u = create_user
+      t = create_team
+      tu = create_team_user user: u, team: t , role: role
+      c = create_contact team: t
+      c1 = create_contact
+
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:create, Contact)
+        assert ability.can?(:update, c)
+        assert ability.can?(:destroy, c)
+        assert ability.cannot?(:update, c1)
+        assert ability.cannot?(:destroy, c1)
+      end
+    end
+
+    test "#{role} permissions for list" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user user: u , team: t, role: role
+      p = create_project team: t
+      p2 = create_project team: t2
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:create, Project)
+        assert ability.can?(:update, p)
+        assert ability.can?(:destroy, p)
+        assert ability.cannot?(:update, p2)
+        assert ability.cannot?(:destroy, p2)
+      end
+    end
+
+    test "#{role} permissions for account source" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      a = create_valid_account team: t
+      a2 = create_valid_account team: t2
+      s = create_source team: t
+      s2 = create_source team: t2
+      tu = create_team_user user: u , team: t, role: role
+      as = create_account_source source: s, account: a
+      as2 = create_account_source source: s2, account: a2
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        # account permissions
+        assert ability.can?(:create, a)
+        assert ability.can?(:update, a)
+        assert ability.can?(:destroy, a)
+        assert ability.cannot?(:create, a2)
+        assert ability.cannot?(:update, a2)
+        assert ability.cannot?(:destroy, a2)
+        # source permissions
+        assert ability.can?(:create, s)
+        assert ability.can?(:update, s)
+        assert ability.can?(:destroy, s)
+        assert ability.cannot?(:create, s2)
+        assert ability.cannot?(:update, s2)
+        assert ability.cannot?(:destroy, s2)
+        # AccountSource permissions
+        assert ability.can?(:create, as)
+        assert ability.can?(:update, as)
+        assert ability.can?(:destroy, as)
+        assert ability.cannot?(:update, as2)
+        assert ability.cannot?(:destroy, as2)
+      end
+    end
+
+    test "#{role} permissions for tag text" do
+      t1 = create_team
+      t2 = create_team
+      u = create_user
+      create_team_user team: t1, user: u, role: role
+      ta1 = create_tag_text team_id: t1.id
+      ta2 = create_tag_text team_id: t2.id
+      with_current_user_and_team(u, t1) do
+        ability = Ability.new
+        assert ability.can?(:create, ta1)
+        assert ability.can?(:update, ta1)
+        assert ability.can?(:destroy, ta1)
+      end
+      with_current_user_and_team(u, t2) do
+        ability = Ability.new
+        assert ability.cannot?(:create, ta2)
+        assert ability.cannot?(:update, ta2)
+        assert ability.cannot?(:destroy, ta2)
+      end
+    end
+
+    test "#{role} should edit, send to trash and destroy any report" do
+      t = create_team
+      u = create_user
+      tu = create_team_user team: t, user: u, role: role
+      pm = create_project_media team: t
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:update, pm)
+        assert ability.can?(:destroy, pm)
+        pm.update_columns(archived: CheckArchivedFlags::FlagCodes::TRASHED)
+        pm = pm.reload
+        assert ability.can?(:update, pm)
+        assert ability.can?(:destroy, pm)
+      end
+    end
+
+    test "#{role} can empty trash" do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t , role: role
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:destroy, :trash)
+      end
+    end
+
+    test "#{role} permissions for ProjectMedia" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      tu = create_team_user team: t, user: u , role: role
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t2
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:create, ProjectMedia)
+        assert ability.can?(:update, pm)
+        assert ability.can?(:destroy, pm)
+        assert ability.can?(:administer_content, pm)
+        assert ability.cannot?(:update, pm2)
+        assert ability.cannot?(:destroy, pm2)
+        assert ability.cannot?(:administer_content, pm2)
+      end
+    end
+
+    test "should #{role} destroy annotation versions" do
+      create_verification_status_stuff
+      u = create_user
+      t = create_team
+      tu = create_team_user team: t, user: u, role: role
+      p = create_project team: t
+      pm = create_project_media project: p
+      with_current_user_and_team(u, t) do
+        s = create_status annotated: pm, status: 'verified'
+        em = create_metadata annotated: pm
+        s_v = s.versions.last
+        em_v = em.versions.last
+        ability = Ability.new
+        # Status versions
+        assert ability.can?(:create, s_v)
+        assert ability.cannot?(:update, s_v)
+        assert ability.can?(:destroy, s_v)
+        # Embed versions
+        assert ability.can?(:create, em_v)
+        assert ability.cannot?(:update, em_v)
+        assert ability.can?(:destroy, em_v)
+      end
+    end
+
+    test "team #{role} can import spreadsheet" do
+      t = create_team
+      t2 = create_team
+      u = create_user
+      create_team_user team: t, user: u, role: role
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:import_spreadsheet, t)
+        assert ability.cannot?(:import_spreadsheet, t2)
+      end
+    end
+
+    test "#{role} should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
+      t = create_team
+      u = create_user
+      tu = create_team_user team: t, user: u, role: role
+      p = create_project team: t
+      pm = create_project_media project: p
+      c = create_comment annotated: pm, annotator: u
+      c2 = create_comment annotated: pm
+      with_current_user_and_team(u, t) do
+        ability = Ability.new
+        assert ability.can?(:update, c)
+        assert ability.can?(:destroy, c)
+        assert ability.can?(:update, c2)
+        assert ability.can?(:destroy, c2)
+        c.destroy!
+        v = Version.last
+        assert ability.can?(:destroy, v)
+        c2.destroy!
+        v = Version.last
+        assert ability.can?(:destroy, v)
+      end
+    end
+  end
+
   test "authenticated permissions for team" do
     u = create_user
     t = create_team
@@ -255,9 +452,7 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:create, TeamUser)
       assert ability.can?(:update, tu2)
       assert ability.cannot?(:destroy, tu2)
-
       tu2.update_column(:role, 'admin')
-
       assert ability.cannot?(:update, tu2)
       assert ability.cannot?(:destroy, tu2)
       assert ability.cannot?(:update, tu_other)
@@ -306,146 +501,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, Contact)
       assert ability.cannot?(:update, c)
       assert ability.cannot?(:destroy, c)
-    end
-  end
-
-  ['editor', 'admin'].each do |role|
-    test "#{role} permissions for contact" do
-      u = create_user
-      t = create_team
-      tu = create_team_user user: u, team: t , role: role
-      c = create_contact team: t
-      c1 = create_contact
-
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, Contact)
-        assert ability.can?(:update, c)
-        assert ability.can?(:destroy, c)
-        assert ability.cannot?(:update, c1)
-        assert ability.cannot?(:destroy, c1)
-      end
-    end
-
-    test "#{role} permissions for list" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      tu = create_team_user user: u , team: t, role: role
-      p = create_project team: t
-      p2 = create_project team: t2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, Project)
-        assert ability.can?(:update, p)
-        assert ability.can?(:destroy, p)
-        assert ability.cannot?(:update, p2)
-        assert ability.cannot?(:destroy, p2)
-      end
-    end
-
-    test "#{role} permissions for account source" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      a = create_valid_account team: t
-      a2 = create_valid_account team: t2
-      s = create_source team: t
-      s2 = create_source team: t2
-      tu = create_team_user user: u , team: t, role: role
-      as = create_account_source source: s, account: a
-      as2 = create_account_source source: s2, account: a2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        # account permissions
-        assert ability.can?(:create, a)
-        assert ability.can?(:update, a)
-        assert ability.can?(:destroy, a)
-        assert ability.cannot?(:create, a2)
-        assert ability.cannot?(:update, a2)
-        assert ability.cannot?(:destroy, a2)
-        # source permissions
-        assert ability.can?(:create, s)
-        assert ability.can?(:update, s)
-        assert ability.can?(:destroy, s)
-        assert ability.cannot?(:create, s2)
-        assert ability.cannot?(:update, s2)
-        assert ability.cannot?(:destroy, s2)
-        # AccountSource permissions
-        assert ability.can?(:create, as)
-        assert ability.can?(:update, as)
-        assert ability.can?(:destroy, as)
-        # TODO: Sawy for review
-        # assert ability.cannot?(:create, as2)
-        # assert ability.cannot?(:update, as2)
-        # assert ability.cannot?(:destroy, as2)
-      end
-    end
-
-    test "#{role} permissions for tag text" do
-      t1 = create_team
-      t2 = create_team
-      u = create_user
-      create_team_user team: t1, user: u, role: role
-      ta1 = create_tag_text team_id: t1.id
-      ta2 = create_tag_text team_id: t2.id
-      with_current_user_and_team(u, t1) do
-        ability = Ability.new
-        assert ability.can?(:create, ta1)
-        assert ability.can?(:update, ta1)
-        assert ability.can?(:destroy, ta1)
-      end
-      with_current_user_and_team(u, t2) do
-        ability = Ability.new
-        assert ability.cannot?(:create, ta2)
-        assert ability.cannot?(:update, ta2)
-        assert ability.cannot?(:destroy, ta2)
-      end
-    end
-
-    test "#{role} should edit, send to trash and destroy any report" do
-      t = create_team
-      u = create_user
-      tu = create_team_user team: t, user: u, role: role
-      pm = create_project_media team: t
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:update, pm)
-        assert ability.can?(:destroy, pm)
-        pm.update_columns(archived: CheckArchivedFlags::FlagCodes::TRASHED)
-        pm = pm.reload
-        assert ability.can?(:update, pm)
-        assert ability.can?(:destroy, pm)
-      end
-    end
-
-    test "#{role} can empty trash" do
-      u = create_user
-      t = create_team
-      create_team_user user: u, team: t , role: role
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:destroy, :trash)
-      end
-    end
-
-    test "#{role} permissions for ProjectMedia" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      tu = create_team_user team: t, user: u , role: role
-      pm = create_project_media team: t
-      pm2 = create_project_media team: t2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, ProjectMedia)
-        assert ability.can?(:update, pm)
-        assert ability.can?(:destroy, pm)
-        assert ability.can?(:administer_content, pm)
-        assert ability.cannot?(:update, pm2)
-        assert ability.cannot?(:destroy, pm2)
-        assert ability.cannot?(:administer_content, pm2)
-      end
     end
   end
 
@@ -791,31 +846,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy: verify other roles
-  test "should admin destroy annotation versions" do
-    create_verification_status_stuff
-    u = create_user
-    t = create_team
-    tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    with_current_user_and_team(u, t) do
-      s = create_status annotated: pm, status: 'verified'
-      em = create_metadata annotated: pm
-      s_v = s.versions.last
-      em_v = em.versions.last
-      ability = Ability.new
-      # Status versions
-      assert ability.can?(:create, s_v)
-      assert ability.cannot?(:update, s_v)
-      assert ability.can?(:destroy, s_v)
-      # Embed versions
-      assert ability.can?(:create, em_v)
-      assert ability.cannot?(:update, em_v)
-      assert ability.can?(:destroy, em_v)
-    end
-  end
-
   test "collaborator can manage own dynamic fields" do
     u = create_user
     t = create_team
@@ -957,73 +987,6 @@ class AbilityTest < ActiveSupport::TestCase
       c.destroy!
       v = PaperTrail::Version.last
       assert ability.cannot?(:destroy, v)
-    end
-  end
-
-  test "editor should edit and destroy own annotation from trash but should not destroy respective log entry" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm, annotator: u
-    c2 = create_comment annotated: pm
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, c)
-      assert ability.can?(:destroy, c)
-      assert ability.can?(:update, c2)
-      assert ability.can?(:destroy, c2)
-      c.destroy!
-      v = PaperTrail::Version.last
-      assert ability.cannot?(:destroy, v)
-    end
-  end
-
-  # TODO: Sawy fix
-  # test "editor should edit any annotation and destroy any annotation from trash and destroy respective log entry" do
-  #   t = create_team
-  #   u = create_user
-  #   tu = create_team_user team: t, user: u, role: 'editor'
-  #   p = create_project team: t
-  #   pm = create_project_media project: p
-  #   c = create_comment annotated: pm, annotator: u
-  #   c2 = create_comment annotated: pm
-  #   with_current_user_and_team(u, t) do
-  #     ability = Ability.new
-  #     assert ability.can?(:update, c)
-  #     assert ability.can?(:destroy, c)
-  #     assert ability.can?(:update, c2)
-  #     assert ability.can?(:destroy, c2)
-  #     c.destroy!
-  #     v = PaperTrail::Version.last
-  #     assert ability.can?(:destroy, v)
-  #     c2.destroy!
-  #     v = PaperTrail::Version.last
-  #     assert ability.can?(:destroy, v)
-  #   end
-  # end
-
-  test "admin should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
-    t = create_team
-    u = create_user
-    tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm, annotator: u
-    c2 = create_comment annotated: pm
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:update, c)
-      assert ability.can?(:destroy, c)
-      assert ability.can?(:update, c2)
-      assert ability.can?(:destroy, c2)
-      c.destroy!
-      v = Version.last
-      assert ability.can?(:destroy, v)
-      c2.destroy!
-      v = Version.last
-      assert ability.can?(:destroy, v)
     end
   end
 
@@ -1241,7 +1204,7 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "admin permissions for import spreadsheet" do
+  test "super admin permissions for import spreadsheet" do
     t = create_team
     u = create_user
 
@@ -1249,30 +1212,11 @@ class AbilityTest < ActiveSupport::TestCase
       ability = Ability.new
       assert !ability.can?(:import, t)
     end
-
     u.is_admin = true
     u.save
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:import, t)
-    end
-  end
-
-  test "team admin and editor can import spreadsheet" do
-    t1 = create_team
-    t2 = create_team
-    u1 = create_user
-    create_team_user team: t1, user: u1, role: 'admin'
-    create_team_user team: t2, user: u1, role: 'editor'
-    with_current_user_and_team(u1, t1) do
-      ability = Ability.new
-      assert ability.can?(:import_spreadsheet, t1)
-      assert ability.cannot?(:import_spreadsheet, t2)
-    end
-    with_current_user_and_team(u1, t2) do
-      ability = Ability.new
-      assert ability.cannot?(:import_spreadsheet, t1)
-      assert ability.can?(:import_spreadsheet, t2)
     end
   end
 

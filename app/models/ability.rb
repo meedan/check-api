@@ -57,7 +57,6 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
     can [:update, :destroy], TeamUser, team_id: @context_team.id
-    can :preview_rss_feed, Team, :id => @context_team.id
     can :duplicate, Team, :id => @context_team.id
   end
 
@@ -68,6 +67,7 @@ class Ability
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
     can [:cud], Contact, :team_id => @context_team.id
     can :import_spreadsheet, Team, :id => @context_team.id
+    can :preview_rss_feed, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
     can [:cud], Project, :team_id => @context_team.id
     can :destroy, ProjectMedia do |obj|
@@ -87,12 +87,9 @@ class Ability
     can [:cud], [Account, Source], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
     %w(annotation comment dynamic task tag).each do |annotation_type|
-      can [:cud], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+      can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id
       end
-    end
-    can [:cud], [Dynamic, Annotation], ['annotation_type = ?', 'verification_status'] do |obj|
-      obj.team&.id == @context_team.id
     end
     can :destroy, Version do |obj|
       teams = []
@@ -117,19 +114,24 @@ class Ability
       obj.project && obj.project.team_id == @context_team.id
     end
     can :destroy, TeamUser, user_id: @user.id
+    can [:create, :update], Source do |obj|
+      obj.team_id == @context_team.id && obj.user_id == @user.id
+    end
+    can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
+    can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
     %w(annotation comment dynamic task tag).each do |annotation_type|
-      can [:cud], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
+      can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end
     end
-    can [:cud], [Dynamic, Annotation], ['annotation_type = ?', 'verification_status'] do |obj|
-      obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
-    end
-    can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
     can [:create, :destroy], Assignment do |obj|
       type = obj.assigned_type
       obj = obj.assigned
       obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_trashed?) || (type == 'Project' && obj.archived == CheckArchivedFlags::FlagCodes::NONE))
+    end
+    can [:cud], DynamicAnnotation::Field do |obj|
+      obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
     end
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id and !obj.annotation.annotated_is_trashed?
@@ -144,6 +146,10 @@ class Ability
     end
     can [:administer_content, :bulk_update], ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
+    end
+    can :destroy, Version do |obj|
+      v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
+      !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
   end
 

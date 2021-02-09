@@ -286,25 +286,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm2[1].id, pm2[0].id], results
   end
 
-  test "should filter search results for annotators" do
-    u1 = create_user name: 'Annotator'
-    u2 = create_user name: 'Owner'
-    t = create_team
-    create_team_user user: u1, team: t, role: 'collaborator'
-    create_team_user user: u2, team: t, role: 'admin'
-    p = create_project team: t
-    pm1 = create_project_media project: p, disable_es_callbacks: false ; sleep 1
-    pm2 = create_project_media project: p, disable_es_callbacks: false ; sleep 1
-    tk = create_task annotated: pm1, disable_es_callbacks: false ; sleep 1
-    tk.assign_user(u1.id)
-    authenticate_with_user(u1)
-    query = 'query CheckSearch { search(query: "{\"eslimit\":1}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1.id], results
-  end
-
   test "should filter by date range" do
     u = create_user
     t = create_team

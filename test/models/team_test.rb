@@ -1019,35 +1019,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy review the test 
-  # test "should refresh permissions when loading a team" do
-  #   u1 = create_user
-  #   t1 = create_team
-  #   u2 = create_user
-  #   t2 = create_team
-  #   create_team_user user: u1, team: t1, status: 'member', role: 'admin'
-  #   create_team_user user: u2, team: t1, status: 'member', role: 'annotator'
-  #   sleep 1
-  #   create_team_user user: u1, team: t2, status: 'member', role: 'annotator'
-  #   create_team_user user: u2, team: t2, status: 'member', role: 'admin'
-
-  #   assert_equal 2, t1.members_count
-  #   assert_equal 2, t2.members_count
-
-  #   User.current = u1
-  #   Team.current = t2
-  #   assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
-  #   Team.current = t1
-  #   assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
-
-  #   User.current = u2
-  #   Team.current = t1
-  #   assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
-  #   Team.current = t2
-  #   assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
-  #   Team.current = nil
-  # end
-
   test "should get dynamic fields schema" do
     create_flag_annotation_type
     t = create_team slug: 'team'
