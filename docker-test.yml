@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   api:
-    build: check-api
+    build: .
     ports:
       - "3000:3000"
     volumes:
