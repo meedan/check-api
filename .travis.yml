@@ -36,7 +36,7 @@ addons:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
-- docker-compose build
+- docker-compose -f docker-test.yml build
 - docker-compose -f docker-test.yml up -d
 - docker-compose exec api test/setup-parallel-env.sh
 - docker-compose exec api bundle exec rake assets:precompile
