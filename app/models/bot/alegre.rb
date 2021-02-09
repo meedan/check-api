@@ -307,6 +307,7 @@ class Bot::Alegre < BotUser
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
+
     parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
     if source_ids.length > 0
@@ -322,8 +323,8 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
-    parent = ProjectMedia.find(parent_id)
-    if parent.is_blank?
+    parent = ProjectMedia.find_by_id(parent_id)
+    if parent && parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
       r = Relationship.new

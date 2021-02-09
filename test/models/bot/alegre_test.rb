@@ -205,6 +205,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:media_file_url)
   end
 
+  test "should replace_by when parent is blank" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media project: p, media: Blank.new
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_equal response, true
+  end
+
   test "should add relationships" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
