@@ -1527,7 +1527,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
-    tu = create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     authenticate_with_user(u)
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"

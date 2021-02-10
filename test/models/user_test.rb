@@ -283,7 +283,7 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     tu = create_team_user user: u, team: t , role: 'admin'
     Team.stubs(:current).returns(t)
-    assert_equal u.role, 'owner'
+    assert_equal u.role, 'admin'
     Team.unstub(:current)
   end
 
@@ -885,7 +885,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'collaborator', email: 'test2@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'editor', email: 'test2@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
@@ -904,13 +904,13 @@ class UserTest < ActiveSupport::TestCase
     assert_equal tu2.invited_by_id, u.id
     # test invited multiple emails
     with_current_user_and_team(u, t) do
-      members = [{role: 'collaborator', email: 'test3@local.com,test4@local.com'}]
+      members = [{role: 'editor', email: 'test3@local.com,test4@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
     end
     # invite existing user
-    members = [{role: 'collaborator', email: u1.email}]
+    members = [{role: 'editor', email: u1.email}]
     # A) for same team
     with_current_user_and_team(u, t) do
       assert_no_difference ['User.count', 'TeamUser.count'] do
@@ -1183,7 +1183,7 @@ class UserTest < ActiveSupport::TestCase
     u = create_omniauth_user provider: 'twitter', email: 'test@local.com'
     u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
     create_team_user team: t, user: u, role: 'collaborator'
-    create_team_user team: t, user: u2, role: 'collaborator'
+    create_team_user team: t, user: u2, role: 'editor'
     assert_equal 2, t.team_users.count
     create_omniauth_user provider: 'slack', email: 'test@local.com', current_user: u2
     assert_equal 1, t.team_users.count
@@ -1265,7 +1265,7 @@ class UserTest < ActiveSupport::TestCase
       create_team_user team: t, user: u2, status: 'requested'
     end
     tu = u2.team_users.where(team_id: t.id).last
-    assert_equal 'owner', tu.role
+    assert_equal 'admin', tu.role
     assert_equal 'member', tu.status
     # request to join team with expired invitaion
     t2 = create_team
@@ -1282,7 +1282,7 @@ class UserTest < ActiveSupport::TestCase
       create_team_user team: t2, user: u2, status: 'requested'
     end
     tu = u2.team_users.where(team_id: t2.id).last
-    assert_equal 'owner', tu.role
+    assert_equal 'admin', tu.role
     assert_equal 'requested', tu.status
   end
 

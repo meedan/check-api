@@ -195,7 +195,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_match /Tag already exists/, @response.body
   end
 
-  test "should not change status if collaborator" do
+  test "should change status if collaborator" do
     create_verification_status_stuff
     u = create_user
     t = create_team
@@ -213,12 +213,11 @@ class GraphqlController2Test < ActionController::TestCase
     id = Base64.encode64("Dynamic/#{s.id}")
     query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", set_fields: "{\"verification_status_status\":\"verified\"}" }) { project_media { id } } }'
     post :create, query: query, team: t.slug
-    assert_match /No permission to update Dynamic/, @response.body
-    assert_equal 'undetermined', f.reload.value
-    assert_response 400
+    assert_response :success
+    assert_equal 'verified', f.reload.value
   end
 
-  test "should not assign status if collaborator" do
+  test "should assign status if collaborator" do
     create_verification_status_stuff
     u = create_user
     u2 = create_user
@@ -238,9 +237,8 @@ class GraphqlController2Test < ActionController::TestCase
     id = Base64.encode64("Dynamic/#{s.id}")
     query = 'mutation update { updateDynamic(input: { clientMutationId: "1", id: "' + id + '", assigned_to_ids: "' + u2.id.to_s + '" }) { project_media { id } } }'
     post :create, query: query, team: t.slug
-    assert_match /No permission to update Dynamic/, @response.body
+    assert_response :success
     assert_equal 'undetermined', f.reload.value
-    assert_response 400
   end
 
   test "should get relationship from global id" do

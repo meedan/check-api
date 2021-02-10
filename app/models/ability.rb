@@ -147,6 +147,9 @@ class Ability
     can [:administer_content, :bulk_update], ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
+    can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
+      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived?
+    end
     can :destroy, Version do |obj|
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id

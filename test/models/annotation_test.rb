@@ -124,10 +124,10 @@ class AnnotationTest < ActiveSupport::TestCase
     s = create_status annotated: pm, locked: true, status: 'undetermined'
     c = create_comment annotated: pm, locked: true
     with_current_user_and_team(u, t) do
-      assert_raise RuntimeError do
+      assert_nothing_raised do
         s.status = 'false'; s.save!
       end
-      assert_raise RuntimeError do
+      assert_nothing_raised do
         c.text = 'update comment'; c.save!
       end
     end
