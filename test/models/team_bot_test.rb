@@ -61,7 +61,7 @@ class TeamBotTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create team bot under team where user is owner" do
+  test "should create team bot under team where user is admin" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
@@ -73,41 +73,16 @@ class TeamBotTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create team bot under team where user is collaborator" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
-
-    with_current_user_and_team(u, t) do
-      assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id
-      end
-    end
-  end
-
-  test "should not create team bot under team where user is editor" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    create_team_user user: u, team: t, role: 'editor'
-
-    with_current_user_and_team(u, t) do
-      assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id
-      end
-    end
-  end
-
-  test "should not create team bot under team where user is editor" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
-
-    with_current_user_and_team(u, t) do
-      assert_raises RuntimeError do
-        create_team_bot team_author_id: t.id
+  ['editor', 'collaborator'].each do |role|
+    test "should not create team bot under team where user is #{role}" do
+      u = create_user
+      t = create_team
+      t2 = create_team
+      create_team_user user: u, team: t, role: role
+      with_current_user_and_team(u, t) do
+        assert_raises RuntimeError do
+          create_team_bot team_author_id: t.id
+        end
       end
     end
   end
@@ -506,7 +481,7 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should define bot role" do
-    tb = create_team_bot set_role: 'collaborator', set_approved: true
+    tb = create_team_bot set_role: 'editor', set_approved: true
     tu1 = TeamUser.where(team_id: tb.team_author_id, user_id: tb.id).last
     assert_equal 'editor', tu1.role
     tbi = create_team_bot_installation user_id: tb.id

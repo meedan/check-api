@@ -107,6 +107,7 @@ class Ability
       obj.related_to_team?(@context_team)
     end
     can :create, [Media, Link, Claim]
+    can :update, [Media, Link, Claim], { user_id: @user.id }
     can [:update, :destroy], [Media, Link, Claim] do |obj|
       obj.team_ids.include?(@context_team.id)
     end
