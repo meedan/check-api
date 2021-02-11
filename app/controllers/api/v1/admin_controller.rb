@@ -1,5 +1,5 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_filter :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot]
+  before_filter :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
 
   # GET /api/admin/project/add_publisher?token=:project-token
   def add_publisher_to_project
@@ -31,6 +31,7 @@ class Api::V1::AdminController < Api::V1::BaseApiController
   def save_twitter_credentials_for_smooch_bot
     tbi = TeamBotInstallation.find(params[:id])
     auth = session['check.twitter.authdata']
+    status = nil
     if params[:token].to_s == tbi.get_smooch_authorization_token
       app_id = tbi.get_smooch_app_id
       Bot::Smooch.get_installation('smooch_app_id', app_id)
@@ -48,9 +49,47 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       }
       body = SmoochApi::IntegrationCreate.new(params)
       api_instance.create_integration(app_id, body)
-      render text: I18n.t(:smooch_twitter_success)
+      @message = I18n.t(:smooch_twitter_success)
+      status = 200
     else
-      render text: I18n.t(:invalid_token), status: 401
+      @message = I18n.t(:invalid_token)
+      status = 401
     end
+    render template: 'message', formats: :html, status: status
+  end
+
+  # GET /api/admin/smooch_bot/:bot-installation-id/authorize/facebook?token=:bot-installation-token
+  def save_facebook_credentials_for_smooch_bot
+    tbi = TeamBotInstallation.find(params[:id])
+    auth = session['check.facebook.authdata']
+    status = nil
+    if params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
+      response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?client_id=#{CheckConfig.get('facebook_app_id')}&client_secret=#{CheckConfig.get('facebook_app_secret')}&access_token=#{auth['token']}&limit=100"))
+      pages = JSON.parse(response.body)['data']
+      if pages.size != 1
+        @message = I18n.t(:must_select_exactly_one_facebook_page)
+        status = 400
+      else
+        app_id = tbi.get_smooch_app_id
+        Bot::Smooch.get_installation('smooch_app_id', app_id)
+        api_client = Bot::Smooch.smooch_api_client
+        api_instance = SmoochApi::IntegrationApi.new(api_client)
+        params = {
+          'type' => 'messenger',
+          'displayName' => 'Facebook',
+          'appId' => CheckConfig.get('facebook_app_id'),
+          'appSecret' => CheckConfig.get('facebook_app_secret'),
+          'pageAccessToken' => pages[0]['access_token']
+        }
+        body = SmoochApi::IntegrationCreate.new(params)
+        api_instance.create_integration(app_id, body)
+        @message = I18n.t(:smooch_facebook_success)
+        status = 200
+      end
+    else
+      @message = I18n.t(:invalid_token)
+      status = 401
+    end
+    render template: 'message', formats: :html, status: status
   end
 end

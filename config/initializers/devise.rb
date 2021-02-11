@@ -39,7 +39,7 @@ Devise.setup do |config|
   config.sign_in_after_reset_password = false
   config.sign_out_via = :delete
   config.omniauth :twitter, setup: true
-  config.omniauth :facebook, CheckConfig.get('facebook_app_id'), CheckConfig.get('facebook_app_secret'), scope: 'email,public_profile', info_fields: 'name,email,picture'
+  config.omniauth :facebook, CheckConfig.get('facebook_app_id'), CheckConfig.get('facebook_app_secret'), scope: 'email,public_profile', info_fields: 'name,email,picture', setup: true
   config.omniauth :slack, CheckConfig.get('slack_app_id'), CheckConfig.get('slack_app_secret'), scope: 'identify,users:read'
   google_auth_config = { access_type: 'offline', approval_prompt: '' }
   google_auth_config[:redirect_uri] = CheckConfig.get('google_auth_redirect_uri') unless CheckConfig.get('google_auth_redirect_uri').blank?

@@ -219,7 +219,13 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   end
 
   test "should setup Twitter authentication" do
-    request.env['omniauth.strategy'] = OpenStruct.new(options: {})
+    request.env['omniauth.strategy'] = OmniAuth::Strategies::Twitter.new({})
+    get :setup
+    assert_response 404
+  end
+
+  test "should setup Facebook authentication" do
+    request.env['omniauth.strategy'] = OmniAuth::Strategies::Facebook.new({})
     get :setup
     assert_response 404
   end
