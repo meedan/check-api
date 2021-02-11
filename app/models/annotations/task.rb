@@ -140,13 +140,7 @@ class Task < ActiveRecord::Base
 
   def first_response_obj
     return @response if @response
-    user = User.current
     responses = self.responses
-    if !user.nil? && user.role?(:annotator)
-      responses = responses.where(annotator_id: user.id)
-    else
-      responses = responses.reject{ |r| r.annotator&.role?(:annotator) }
-    end
     @response = responses.first
     @response
   end

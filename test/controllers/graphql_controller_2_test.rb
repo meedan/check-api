@@ -474,6 +474,23 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal 'foo', data['tag_texts']['edges'][0]['node']['text']
   end
 
+  test "should get team team_users" do
+    t = create_team
+    u = create_user
+    u2 = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t, user: u2
+    authenticate_with_user(u)
+    query = "query GetById { team(id: \"#{t.id}\") { team_users { edges { node { user { dbid } } } } } }"
+    post :create, query: query, team: t.slug
+
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['team']['team_users']['edges']
+    ids = data.collect{ |i| i['node']['user']['dbid'] }
+    assert_equal 2, data.size
+    assert_equal [u.id, u2.id], ids.sort
+  end
+
   test "should get team tasks" do
     t = create_team
     p = create_project team: t
