@@ -30,12 +30,14 @@ Rails.application.routes.draw do
       match '/admin/project/:id/add_publisher/:provider' => 'admin#add_publisher_to_project', via: [:get]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
       match '/admin/smooch_bot/:id/authorize/twitter' => 'admin#save_twitter_credentials_for_smooch_bot', via: [:get]
+      match '/admin/smooch_bot/:id/authorize/facebook' => 'admin#save_facebook_credentials_for_smooch_bot', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
       match '/webhooks/:name' => 'webhooks#index', via: [:post], defaults: { format: :json }
       devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
         get '/users/auth/twitter/setup' => 'omniauth_callbacks#setup'
+        get '/users/auth/facebook/setup' => 'omniauth_callbacks#setup'
       end
     end
   end
