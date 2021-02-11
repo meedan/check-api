@@ -1,11 +1,6 @@
 version: "2.1"
 services:
   api:
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - ".:/app"
     environment:
       RAILS_ENV: test
       SERVER_PORT: 3000
