@@ -64,7 +64,7 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     auth = session['check.facebook.authdata']
     status = nil
     if params[:token].to_s.gsub('#_=_', '') == tbi.get_smooch_authorization_token
-      response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?client_id=#{CheckConfig.get('facebook_app_id')}&client_secret=#{CheckConfig.get('facebook_app_secret')}&access_token=#{auth['token']}&limit=100"))
+      response = Net::HTTP.get_response(URI("https://graph.facebook.com/me/accounts?client_id=#{CheckConfig.get('smooch_facebook_app_id')}&client_secret=#{CheckConfig.get('smooch_facebook_app_secret')}&access_token=#{auth['token']}&limit=100"))
       pages = JSON.parse(response.body)['data']
       if pages.size != 1
         @message = I18n.t(:must_select_exactly_one_facebook_page)
@@ -77,8 +77,8 @@ class Api::V1::AdminController < Api::V1::BaseApiController
         params = {
           'type' => 'messenger',
           'displayName' => 'Facebook',
-          'appId' => CheckConfig.get('facebook_app_id'),
-          'appSecret' => CheckConfig.get('facebook_app_secret'),
+          'appId' => CheckConfig.get('smooch_facebook_app_id'),
+          'appSecret' => CheckConfig.get('smooch_facebook_app_secret'),
           'pageAccessToken' => pages[0]['access_token']
         }
         body = SmoochApi::IntegrationCreate.new(params)
