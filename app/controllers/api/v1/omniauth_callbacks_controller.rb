@@ -19,6 +19,12 @@ module Api
         redirect_to '/close.html'
       end
 
+      def setup
+        setup_twitter if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Twitter)
+        setup_facebook if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Facebook)
+        render text: 'Setup complete.', status: 404
+      end
+
       private
 
       def store_request
@@ -32,20 +38,23 @@ module Api
         session['check.' + auth.provider.to_s + '.authdata'] = { token: auth.credentials.token, secret: auth.credentials.secret }
         user = nil
 
-        begin
-          user = User.from_omniauth(auth, current_api_user)
-        rescue ActiveRecord::RecordInvalid => e
-          session['check.error'] = e.message
-        rescue RuntimeError => e
-          session['check.warning'] = e.message
-        end
+        # Don't start a new session if we're just authorizing an account to be used with the tipline
+        unless params[:destination].to_s =~ /smooch_bot/
+          begin
+            user = User.from_omniauth(auth, current_api_user)
+          rescue ActiveRecord::RecordInvalid => e
+            session['check.error'] = e.message
+          rescue RuntimeError => e
+            session['check.warning'] = e.message
+          end
 
-        unless user.nil?
-          session['checkdesk.current_user_id'] = user.id
-          User.current = user
-          login_options = sign_in_options(user)
-          if login_options[:login]
-            login_options[:bypass] ? bypass_sign_in(user) : sign_in(user)
+          unless user.nil?
+            session['checkdesk.current_user_id'] = user.id
+            User.current = user
+            login_options = sign_in_options(user)
+            if login_options[:login]
+              login_options[:bypass] ? bypass_sign_in(user) : sign_in(user)
+            end
           end
         end
 
