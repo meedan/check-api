@@ -203,7 +203,7 @@ class Bot::Smooch < BotUser
   end
 
   TeamBotInstallation.class_eval do
-    # Save Twitter token and authorization URL
+    # Save Twitter/Facebook token and authorization URL
     after_create do
       if self.bot_user.identifier == 'smooch'
         self.reset_smooch_authorization_token
