@@ -24,8 +24,8 @@ addons:
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - docker-compose build
-- docker-compose -f docker-compose.yml -f docker-test.yml up -d
-- until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+- docker-compose -f docker-compose.yml -f docker-test.yml up
+# - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 - docker-compose exec api test/setup-parallel-env.sh
 - docker-compose exec api bundle exec rake assets:precompile
 - sleep 10
