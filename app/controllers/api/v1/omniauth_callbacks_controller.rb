@@ -16,6 +16,7 @@ module Api
       end
 
       def failure
+        # To debug the error, call failure_message.inspect
         redirect_to '/close.html'
       end
 
@@ -37,9 +38,10 @@ module Api
         auth = request.env['omniauth.auth']
         session['check.' + auth.provider.to_s + '.authdata'] = { token: auth.credentials.token, secret: auth.credentials.secret }
         user = nil
+        destination = get_check_destination
 
         # Don't start a new session if we're just authorizing an account to be used with the tipline
-        unless params[:destination].to_s =~ /smooch_bot/
+        unless destination =~ /smooch_bot/
           begin
             user = User.from_omniauth(auth, current_api_user)
           rescue ActiveRecord::RecordInvalid => e
@@ -57,8 +59,6 @@ module Api
             end
           end
         end
-
-        destination = get_check_destination
 
         redirect_to destination
       end
