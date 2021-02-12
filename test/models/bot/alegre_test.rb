@@ -359,7 +359,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
-    assert Bot::Alegre.send_description_to_similarity_index(pm)
+    assert Bot::Alegre.send_description_to_similarity_index(pm, 'original_description')
   end
 
   test "should get items with similar description" do
