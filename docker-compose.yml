@@ -31,12 +31,11 @@ services:
     volumes:
       - "./postgresql.conf:/etc/postgresql.conf"
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: check-api-tests
-      host: api
     networks:
       - dev
   redis:

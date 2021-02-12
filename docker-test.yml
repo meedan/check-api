@@ -3,4 +3,3 @@ services:
   api:
     environment:
       RAILS_ENV: test
-      SERVER_PORT: 3000
