@@ -5,11 +5,14 @@ class ApiVersionIntegrationTest < ActionDispatch::IntegrationTest
     super
   end
 
-  test "should get version" do
-    assert_recognizes({ controller: 'api/v1/base_api', action: 'version', format: 'json' }, { path: 'api/version', method: :get })
+  test "should get default version 1" do
+    get '/api/version'
+    assert_response 401
   end
 
-  test "should post log" do
-    assert_recognizes({ controller: 'api/v1/base_api', action: 'log', format: 'json' }, { path: 'api/log', method: :post })
+  test "should get version 2" do
+    headers = { 'Accept' => 'application/vnd.lapis.v2' }
+    get '/api/version', headers, headers
+    assert_response 200
   end
 end

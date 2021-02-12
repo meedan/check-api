@@ -15,6 +15,12 @@ Rails.application.routes.draw do
   end
 
   namespace :api, defaults: { format: 'json' } do
+    # Call v2 API by passing header: 'Accept: application/vnd.lapis.v2'
+    scope module: :v2, constraints: ApiConstraints.new(version: 2, default: false) do
+      match '/options' => 'base_api#options', via: [:options]
+      get 'version', to: 'base_api#version'
+      get 'ping', to: 'base_api#ping'
+    end
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       scope ':pattern', constraints: { pattern: /me|graphql|graphql\/batch|users\/sign_out|users\/sign_in|users/ } do
         match '/' => 'base_api#options', via: [:options]
@@ -26,7 +32,6 @@ Rails.application.routes.draw do
       match '/me' => 'base_api#me', via: [:get]
       match '/graphql' => 'graphql#create', via: [:post]
       match '/graphql/batch' => 'graphql#batch', via: [:post]
-      match '/search' => 'search#create', via: [:post]
       match '/admin/project/:id/add_publisher/:provider' => 'admin#add_publisher_to_project', via: [:get]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
       match '/admin/smooch_bot/:id/authorize/twitter' => 'admin#save_twitter_credentials_for_smooch_bot', via: [:get]
