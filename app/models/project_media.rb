@@ -339,6 +339,30 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
+  def has_analysis_title?
+    !self.analysis.dig('title').blank?
+  end
+
+  def original_title
+    (self.media&.metadata&.dig('title') || self.media.quote)
+  end
+
+  def analysis_title
+    self.analysis.dig('title')
+  end
+
+  def has_analysis_description?
+    !self.analysis.dig('content').blank?
+  end
+
+  def original_description
+    (self.media&.metadata&.dig('description') || (self.media.type == 'Claim' ? nil : self.text))
+  end
+
+  def analysis_description
+    self.analysis.dig('content')
+  end
+
   protected
 
   def set_es_account_data
