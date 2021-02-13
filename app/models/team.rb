@@ -278,6 +278,8 @@ class Team < ActiveRecord::Base
     perms = {}
     ability ||= Ability.new
     tmp = ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE)
+    tag_text = TagText.new(team_id: self.id)
+    team_task = TeamTask.new(team_id: self.id)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
@@ -286,6 +288,8 @@ class Team < ActiveRecord::Base
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    perms["mange TagText"] = ability.can?(:manage, tag_text)
+    perms["mange TeamTask"] = ability.can?(:manage, team_task)
     [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
