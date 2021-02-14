@@ -544,14 +544,12 @@ en:
     with new information"
   permissions_info:
     roles:
-      owner:
-        description: Owners control the workspace.
+      admin:
+        description: Admin control the workspace.
       editor:
         description: Editors manage the workspace and lists.
-      journalist:
-        description: Journalists verify information.
-      contributor:
-        description: Contributors can add new information to verify. They are often
+      collaborator:
+        description: Collaborator can add new information to verify. They are often
           members of the public.
       annotator:
         description: Annotators can only view and answer tasks that are assigned to
@@ -594,7 +592,7 @@ en:
             edit_tasks: Create and edit workspace tasks
             roles: Edit workspace roles
             third_party: Add third-party integrations
-            invite_owner: Invite, approve, and remove workspace owners
+            invite_admin: Invite, approve, and remove workspace admins
             invite_members: Invite, approve, and remove workspace members
   team_clone:
     user_not_authorized: Sorry, you are not allowed to duplicate this team.

@@ -54,7 +54,7 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
     m = create_valid_media
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     pm = create_project_media team: t
     p = create_project team: t
     pmp = nil
@@ -162,7 +162,7 @@ class ProjectMediaProjectTest < ActiveSupport::TestCase
   test "should notify Slack when project media project is created" do
     t = create_team slug: 'test'
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     p = create_project team: t
     pm = create_project_media team: t

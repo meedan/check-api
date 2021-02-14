@@ -24,7 +24,7 @@ class UserTest < ActiveSupport::TestCase
   test "should update and destroy user" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     u2 = create_user
     create_team_user team: t, user: u2, role: 'editor'
     u2.save!
@@ -281,9 +281,9 @@ class UserTest < ActiveSupport::TestCase
   test "should get user role" do
     u = create_user
     t = create_team
-    tu = create_team_user user: u, team: t , role: 'owner'
+    tu = create_team_user user: u, team: t , role: 'admin'
     Team.stubs(:current).returns(t)
-    assert_equal u.role, 'owner'
+    assert_equal u.role, 'admin'
     Team.unstub(:current)
   end
 
@@ -293,7 +293,7 @@ class UserTest < ActiveSupport::TestCase
     tu = create_team_user user: u, team: t , role: 'editor'
     Team.stubs(:current).returns(t)
     assert u.role? :editor
-    assert u.role? :journalist
+    assert u.role? :editor
     assert_not u.role? :owner
     Team.unstub(:current)
   end
@@ -391,7 +391,7 @@ class UserTest < ActiveSupport::TestCase
         assert_equal s.reload.name, 'update name'
       end
     end
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     # should edit own profile
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
@@ -399,13 +399,13 @@ class UserTest < ActiveSupport::TestCase
         assert_equal s.reload.name, 'update name'
       end
       # should remove accounts from own profile
-      a = create_account
-      as = create_account_source account: a, source: s
+      a = create_account source: s
+      as = AccountSource.where(account: a, source: s).last
       as.destroy
     end
     User.current = Team.current = nil
     # other roles should not edit user profile
-    create_team_user user: u2, team: t, role: 'journalist'
+    create_team_user user: u2, team: t, role: 'collaborator'
     js = u2.source
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
@@ -421,7 +421,7 @@ class UserTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     user = create_user
     perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team", "create Project"].sort
 
@@ -436,12 +436,12 @@ class UserTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }
 
     # load as authenticated
@@ -820,12 +820,12 @@ class UserTest < ActiveSupport::TestCase
   test "should invite and accept users with three cases" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     t2 = create_team
-    create_team_user team: t2, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'admin'
     # case A (non existing user to one team)
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: 'test1@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com'}]
       User.send_user_invitation(members)
       iu = User.where(email: 'test1@local.com').last
       assert iu.is_invited?
@@ -834,7 +834,7 @@ class UserTest < ActiveSupport::TestCase
     # case B (non existing user to multiple teams)
     u1 = User.where(email: 'test1@local.com').last
     with_current_user_and_team(u, t2) do
-      members = [{role: 'contributor', email: 'test1@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com'}]
       User.send_user_invitation(members)
       u1.reload
       assert u1.reload.is_invited?
@@ -845,7 +845,7 @@ class UserTest < ActiveSupport::TestCase
     u3 = create_user email: 'test3@local.com'
     with_current_user_and_team(u, t) do
       assert_not u3.is_invited?
-      members = [{role: 'contributor', email: 'test3@local.com'}]
+      members = [{role: 'collaborator', email: 'test3@local.com'}]
       User.send_user_invitation(members)
       u3.reload
       assert_nil u3.read_attribute(:raw_invitation_token)
@@ -854,7 +854,7 @@ class UserTest < ActiveSupport::TestCase
     end
     with_current_user_and_team(u, t2) do
       assert_not u3.is_invited?
-       members = [{role: 'contributor', email: 'test3@local.com'}]
+       members = [{role: 'collaborator', email: 'test3@local.com'}]
        User.send_user_invitation(members)
        u3.reload
        assert_nil u3.read_attribute(:raw_invitation_token)
@@ -883,9 +883,9 @@ class UserTest < ActiveSupport::TestCase
   test "should invite users" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'editor', email: 'test2@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
@@ -893,24 +893,24 @@ class UserTest < ActiveSupport::TestCase
     u1 = User.where(email: 'test1@local.com').last
     assert_equal u1.name, 'test1'
     tu1 = TeamUser.where(team_id: t.id, user_id: u1.id).last
-    assert_equal tu1.role, 'contributor'
+    assert_equal tu1.role, 'collaborator'
     assert_equal tu1.status, 'invited'
     assert_equal tu1.invited_by_id, u.id
     u2 = User.where(email: 'test2@local.com').last
     assert_equal u2.name, 'test2'
     tu2 = TeamUser.where(team_id: t.id, user_id: u2.id).last
-    assert_equal tu2.role, 'journalist'
+    assert_equal tu2.role, 'editor'
     assert_equal tu2.status, 'invited'
     assert_equal tu2.invited_by_id, u.id
     # test invited multiple emails
     with_current_user_and_team(u, t) do
-      members = [{role: 'journalist', email: 'test3@local.com,test4@local.com'}]
+      members = [{role: 'editor', email: 'test3@local.com,test4@local.com'}]
       assert_difference ['User.count', 'TeamUser.count'], 2 do
         User.send_user_invitation(members)
       end
     end
     # invite existing user
-    members = [{role: 'journalist', email: u1.email}]
+    members = [{role: 'editor', email: u1.email}]
     # A) for same team
     with_current_user_and_team(u, t) do
       assert_no_difference ['User.count', 'TeamUser.count'] do
@@ -924,7 +924,7 @@ class UserTest < ActiveSupport::TestCase
     # B)for new team
     User.current = Team.current = nil
     t2 = create_team
-    create_team_user team: t2, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'admin'
     with_current_user_and_team(u, t2) do
       User.any_instance.stubs(:invite_existing_user).raises(RuntimeError)
       assert_no_difference ['User.count', 'TeamUser.count'] do
@@ -937,17 +937,17 @@ class UserTest < ActiveSupport::TestCase
         end
       end
     end
-    assert_equal ['contributor', 'journalist'], u1.team_users.map(&:role).sort
+    assert_equal ['collaborator', 'editor'], u1.team_users.map(&:role).sort
   end
 
   test "should invite banned users" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u1 = create_user email: 'test1@local.com'
     create_team_user team: t, user: u1, status: 'banned'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: u1.email}]
+      members = [{role: 'collaborator', email: u1.email}]
       User.send_user_invitation(members)
     end
     tu1 = TeamUser.where(team_id: t.id, user_id: u1.id).last
@@ -957,17 +957,17 @@ class UserTest < ActiveSupport::TestCase
   test "should cancel user invitation" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u2 = create_user email: 'test2@local.com'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
     User.current = Team.current = nil
     t2 = create_team
-    create_team_user team: t2, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'admin'
     with_current_user_and_team(u, t2) do
-      members = [{role: 'contributor', email: 'test1@local.com, test2@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com, test2@local.com'}]
       User.send_user_invitation(members)
     end
     User.current = Team.current = nil
@@ -996,10 +996,10 @@ class UserTest < ActiveSupport::TestCase
   test "should not accept invalid invitation" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u2 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: 'test1@local.com'}]
+      members = [{role: 'collaborator', email: 'test1@local.com'}]
       User.send_user_invitation(members)
     end
     user = User.where(email: 'test1@local.com').last
@@ -1022,11 +1022,11 @@ class UserTest < ActiveSupport::TestCase
   test "should not send welcome email for invited user" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     stub_configs({ 'send_welcome_email_on_registration' => true }) do
       with_current_user_and_team(u, t) do
         assert_difference 'ActionMailer::Base.deliveries.size', 1 do
-          members = [{role: 'contributor', email: 'test1@local.com'}]
+          members = [{role: 'collaborator', email: 'test1@local.com'}]
           User.send_user_invitation(members)
         end
       end
@@ -1036,14 +1036,14 @@ class UserTest < ActiveSupport::TestCase
   test "should send invitaion using invitation emaill not primary email" do
     t = create_team
     u = create_user email: 'primary@local.com'
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     a = create_account source: u.source, user: u, provider: 'facebook', email: 'account@local.com'
     # create a new team and invite existing user with email of associated account
     t2 = create_team
     u2 = create_user
-    create_team_user team: t2, user: u2, role: 'owner'
+    create_team_user team: t2, user: u2, role: 'admin'
     # invite existing user
-    members = [{role: 'journalist', email: 'account@local.com'}]
+    members = [{role: 'collaborator', email: 'account@local.com'}]
     # A) for same team
     with_current_user_and_team(u2, t2) do
       assert_difference 'TeamUser.count', 1 do
@@ -1056,7 +1056,7 @@ class UserTest < ActiveSupport::TestCase
   test "should allow user to delete own account" do
     t = create_team
     user = create_user
-    tu = create_team_user team: t, user: user, role: 'contributor'
+    tu = create_team_user team: t, user: user, role: 'collaborator'
     s = user.source
     create_account source: s
     pm = create_project_media user: user
@@ -1182,12 +1182,12 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     u = create_omniauth_user provider: 'twitter', email: 'test@local.com'
     u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
-    create_team_user team: t, user: u, role: 'contributor'
-    create_team_user team: t, user: u2, role: 'journalist'
+    create_team_user team: t, user: u, role: 'collaborator'
+    create_team_user team: t, user: u2, role: 'editor'
     assert_equal 2, t.team_users.count
     create_omniauth_user provider: 'slack', email: 'test@local.com', current_user: u2
     assert_equal 1, t.team_users.count
-    assert_equal ['journalist'], t.team_users.map(&:role)
+    assert_equal ['editor'], t.team_users.map(&:role)
   end
 
   test "should merge two existing accounts" do
@@ -1232,9 +1232,9 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     email = 'test@local.com'
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: email}]
+      members = [{role: 'collaborator', email: email}]
       User.send_user_invitation(members)
     end
     Team.current = User.current = nil
@@ -1254,24 +1254,24 @@ class UserTest < ActiveSupport::TestCase
   test "should request to join invited team" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u2 = create_user
     # request to join team with invitation period
     with_current_user_and_team(u, t) do
-      members = [{role: 'owner', email: u2.email}]
+      members = [{role: 'admin', email: u2.email}]
       User.send_user_invitation(members)
     end
     with_current_user_and_team(u2, t) do
       create_team_user team: t, user: u2, status: 'requested'
     end
     tu = u2.team_users.where(team_id: t.id).last
-    assert_equal 'owner', tu.role
+    assert_equal 'admin', tu.role
     assert_equal 'member', tu.status
     # request to join team with expired invitaion
     t2 = create_team
-    create_team_user team: t2, user: u, role: 'owner'
+    create_team_user team: t2, user: u, role: 'admin'
     with_current_user_and_team(u, t2) do
-      members = [{role: 'owner', email: u2.email}]
+      members = [{role: 'admin', email: u2.email}]
       User.send_user_invitation(members)
     end
     tu = u2.team_users.where(team_id: t2.id).last
@@ -1282,7 +1282,7 @@ class UserTest < ActiveSupport::TestCase
       create_team_user team: t2, user: u2, status: 'requested'
     end
     tu = u2.team_users.where(team_id: t2.id).last
-    assert_equal 'owner', tu.role
+    assert_equal 'admin', tu.role
     assert_equal 'requested', tu.status
   end
 

@@ -7,9 +7,9 @@ class DeleteUserMailerTest < ActionMailer::TestCase
     o1 = create_user email: 'owner11@mail.com'
     o2 = create_user email: 'owner22@mail.com'
     u = create_user email: 'user@mail.com'
-    create_team_user team: t, user: o1, role: 'owner'
-    create_team_user team: t, user: o2, role: 'owner'
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: o1, role: 'admin'
+    create_team_user team: t, user: o2, role: 'admin'
+    create_team_user team: t, user: u, role: 'collaborator'
 
     stub_configs({ 'privacy_email' => 'privacy_email@local.com' }) do
       emails = DeleteUserMailer.send_notification(u, [t])
@@ -28,10 +28,10 @@ class DeleteUserMailerTest < ActionMailer::TestCase
     o2 = create_user email: 'owner2@mail.com'
     o3 = create_user email: 'owner3@mail.com'
     u = create_user email: 'user@mail.com'
-    create_team_user team: t, user: o1, role: 'owner'
-    create_team_user team: t, user: o2, role: 'owner'
-    create_team_user team: t, user: o3, role: 'owner', status: 'banned'
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: o1, role: 'admin'
+    create_team_user team: t, user: o2, role: 'admin'
+    create_team_user team: t, user: o3, role: 'admin', status: 'banned'
+    create_team_user team: t, user: u, role: 'collaborator'
 
     create_bounce email: o1.email
 

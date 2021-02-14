@@ -20,7 +20,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     create_team_task team_id: t.id, label: 'When?'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     p = create_project team: t
     pm = create_project_media project: p
@@ -41,7 +41,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     t.set_limits_slack_integration = false
     t.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
       pm = create_project_media team: t
@@ -53,7 +53,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     @bot.set_slack_notifications_enabled = 0; @bot.save!
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       p = create_project team: t
       @bot.notify_admin(p, t)
@@ -207,7 +207,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
   test "should notify about related claims" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
     with_current_user_and_team(u, t) do
       pmp = create_project_media team: t

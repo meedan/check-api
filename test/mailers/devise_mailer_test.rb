@@ -30,10 +30,10 @@ class DeviseMailerTest < ActionMailer::TestCase
   test "should send invitation email" do
     t = create_team
     u = create_user email: 'primary@local.com'
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u1 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: u1.email}]
+      members = [{role: 'collaborator', email: u1.email}]
       User.send_user_invitation(members)
     end
     tu = u1.reload.team_users.last
@@ -47,9 +47,9 @@ class DeviseMailerTest < ActionMailer::TestCase
     # should user invitation email for notification
     a = create_account source: u.source, user: u, provider: 'facebook', email: 'account@local.com'
     t2 = create_team
-    create_team_user user: u1, team: t2, role: 'owner'
+    create_team_user user: u1, team: t2, role: 'admin'
     # invite existing user
-    members = [{role: 'journalist', email: 'account@local.com'}]
+    members = [{role: 'collaborator', email: 'account@local.com'}]
     # A) for same team
     with_current_user_and_team(u1, t2) do
       User.send_user_invitation(members)

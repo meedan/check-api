@@ -10,10 +10,10 @@ class InvitationsControllerTest < ActionController::TestCase
   test "should accept invitation" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u1 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: u1.email}, {role: 'contributor', email: 'test2@local.com'}]
+      members = [{role: 'collaborator', email: u1.email}, {role: 'collaborator', email: 'test2@local.com'}]
       User.send_user_invitation(members)
     end
     tu =  u1.team_users.last
@@ -37,10 +37,10 @@ class InvitationsControllerTest < ActionController::TestCase
   test "should not accept invalid invitation" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u1 = create_user email: 'test1@local.com'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: u1.email}]
+      members = [{role: 'collaborator', email: u1.email}]
       User.send_user_invitation(members)
     end
     tu =  u1.team_users.last

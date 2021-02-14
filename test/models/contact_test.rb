@@ -13,35 +13,19 @@ class ContactTest < ActiveSupport::TestCase
     end
   end
 
-  test "should update and destroy contact" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'owner'
-    c = create_contact team: t
-    with_current_user_and_team(u, t) do
-      c.location = 'location'; c.save!
-    end
-    c.reload
-    assert_equal c.location, 'location'
-    # update contact as editor
-    u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'editor'
-    with_current_user_and_team(u2, t) do
-      c.location = 'location_mod'; c.save!
-    end
-    c.reload
-    assert_equal c.location, 'location_mod'
-    assert_raise RuntimeError do
-      with_current_user_and_team(u2, t) do
-        c.destroy
-      end
-    end
-    Rails.cache.clear
-    u2 = User.find(u2.id)
-    tu.role = 'journalist'; tu.save!
-    assert_raise RuntimeError do
-      with_current_user_and_team(u2, t) do
+  ['editor', 'admin'].each do |role|
+    test "should update and destroy contact by #{role}" do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: role
+      c = create_contact team: t
+      with_current_user_and_team(u, t) do
+        c.location = 'location'
         c.save!
+        assert_equal c.reload.location, 'location'  
+      end
+      assert_nothing_raised do
+        c.destroy
       end
     end
   end
@@ -49,11 +33,11 @@ class ContactTest < ActiveSupport::TestCase
   test "non members should not read contact in private team" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     c = create_contact team: t
     pu = create_user
     pt = create_team private: true
-    create_team_user team: pt, user: pu, role: 'owner'
+    create_team_user team: pt, user: pu, role: 'admin'
     pc = create_contact team: pt
     with_current_user_and_team(u, t) { Contact.find_if_can(c.id) }
     assert_raise CheckPermissions::AccessDenied do

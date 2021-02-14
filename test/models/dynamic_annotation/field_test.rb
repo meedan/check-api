@@ -46,7 +46,7 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     fi = create_field_instance name: 'response', field_type_object: ft
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     a = create_dynamic_annotation annotated: pm, annotator: u
