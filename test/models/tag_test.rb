@@ -14,7 +14,7 @@ class TagTest < ActiveSupport::TestCase
     end
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p, user: u
     assert_difference 'Tag.length' do
@@ -69,7 +69,7 @@ class TagTest < ActiveSupport::TestCase
   test "should create version when tag is created" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do

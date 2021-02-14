@@ -38,7 +38,7 @@ class VersionTest < ActiveSupport::TestCase
   test "should apply changes" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
@@ -79,7 +79,7 @@ class VersionTest < ActiveSupport::TestCase
   test "should get changes as JSON" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
@@ -94,7 +94,7 @@ class VersionTest < ActiveSupport::TestCase
   test "should set event type" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     u = User.find(u.id)
     p = create_project team: t
     pm = create_project_media project: p
@@ -139,7 +139,7 @@ class VersionTest < ActiveSupport::TestCase
   test "should get teams" do
     u = create_user is_admin: true
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     t2 = create_team
     with_current_user_and_team(u, t) do
       pm = create_project_media team: t
@@ -155,7 +155,7 @@ class VersionTest < ActiveSupport::TestCase
   test "should get projects" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     p2 = create_project team: t
     with_current_user_and_team(u, t) do
@@ -204,7 +204,7 @@ class VersionTest < ActiveSupport::TestCase
     })
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     author_id = random_string

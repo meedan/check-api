@@ -13,7 +13,7 @@ class CommentTest < ActiveSupport::TestCase
     end
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     with_current_user_and_team(u, t) do
@@ -23,24 +23,24 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
-  test "contributor should comment on other reports" do
+  test "collaborator should comment on other reports" do
     u = create_user
     t = create_team current_user: u
     p = create_project team: t
     pm = create_project_media project: p, user: u
     cu = create_user
-    create_team_user team: t, user: cu, role: 'contributor'
+    create_team_user team: t, user: cu, role: 'collaborator'
     ju = create_user
-    create_team_user team: t, user: ju, role: 'journalist'
+    create_team_user team: t, user: ju, role: 'collaborator'
 
-    # create a comment with contributor user
+    # create a comment with collaborator user
     with_current_user_and_team(cu, t) do
       assert_difference 'Comment.length' do
         create_comment annotated: pm, annotator: cu
       end
     end
 
-    # create a comment with journalist user
+    # create a comment with editor user
     with_current_user_and_team(ju, t) do
       assert_difference 'Comment.length' do
         create_comment annotated: pm, current_user: ju, annotator: ju
@@ -110,7 +110,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should create version when comment is created" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
@@ -124,7 +124,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should create version when comment is updated" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
@@ -179,7 +179,7 @@ class CommentTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     p = create_project team: t
-    create_team_user team: t, user: u2, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'collaborator'
     pm = create_project_media project: p
     u2 = User.find(u2.id)
 
@@ -193,7 +193,7 @@ class CommentTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u2, role: 'contributor'
+    create_team_user team: t, user: u2, role: 'collaborator'
     c = create_comment annotator: u1
     assert_equal u1, c.annotator
   end
@@ -201,7 +201,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should destroy comment" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
@@ -212,11 +212,11 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
-  test "journalist should destroy own notes" do
+  test "editor should destroy own notes" do
     u = create_user
     t = create_team
     p = create_project user: create_user, team: t
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u, role: 'collaborator'
     pm = create_project_media project: p
     c = create_comment annotated: pm, annotator: u
     with_current_user_and_team(u, t) do
@@ -229,7 +229,7 @@ class CommentTest < ActiveSupport::TestCase
   test "should not destroy comment" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'contributor'
+    create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
     c = create_comment annotated: pm, current_user: u, annotator: u
@@ -255,7 +255,7 @@ class CommentTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p

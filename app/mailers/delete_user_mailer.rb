@@ -9,7 +9,7 @@ class DeleteUserMailer < ApplicationMailer
       emails << CheckConfig.get('privacy_email')
     end
     teams.each do |team|
-      recipients = team.recipients(user, ['owner'])
+      recipients = team.recipients(user, ['admin'])
       recipients = Bounce.remove_bounces(recipients)
       subject = I18n.t("mails_notifications.delete_user.subject", team: team.name)
       recipients.each do |recipient|

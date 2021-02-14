@@ -37,7 +37,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should create version when source is created" do
     u = create_user
-    create_team_user user: u, role: 'contributor'
+    create_team_user user: u, role: 'collaborator'
     User.current = u
     s = create_source
     assert_equal 1, s.versions.size
@@ -47,7 +47,7 @@ class SourceTest < ActiveSupport::TestCase
   test "should create version when source is updated" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       s = create_source
       s.slogan = 'test'
@@ -75,7 +75,7 @@ class SourceTest < ActiveSupport::TestCase
   test "should set user and team" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     with_current_user_and_team(u, t) do
       s = create_source project_id: p.id
@@ -163,10 +163,10 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal s.id, s.dbid
   end
 
-  test "journalist should edit any source" do
+  test "editor should edit any source" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u, role: 'editor'
     with_current_user_and_team(u, t) do
       s = create_source user: create_user
       s.name = 'update source'
@@ -179,7 +179,7 @@ class SourceTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     s = create_source
     perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project", "create Task", "create Dynamic"].sort
 
@@ -194,12 +194,12 @@ class SourceTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }
 
     # load as authenticated

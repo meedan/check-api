@@ -64,7 +64,7 @@ class StatusTest < ActiveSupport::TestCase
     st = nil
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
@@ -156,7 +156,7 @@ class StatusTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       p = create_project team: t
       m = create_valid_media
@@ -223,10 +223,10 @@ class StatusTest < ActiveSupport::TestCase
     assert_equal 'undetermined', Workflow::Workflow.options(create_project_media, 'verification_status')[:default]
   end
 
-  test "journalist should change status of own report" do
+  test "editor should change status of own report" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -242,10 +242,10 @@ class StatusTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "journalist should change status of own project" do
+  test "editor should change status of own project" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     m = create_valid_media
     pm = create_project_media project: p, media: m
@@ -283,7 +283,7 @@ class StatusTest < ActiveSupport::TestCase
 
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u
@@ -310,7 +310,7 @@ class StatusTest < ActiveSupport::TestCase
     create_verification_status_stuff
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     User.current = u

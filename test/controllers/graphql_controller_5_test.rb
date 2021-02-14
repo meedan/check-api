@@ -27,7 +27,7 @@ class GraphqlController5Test < ActionController::TestCase
     @m3 = create_task annotated: @pm, fieldset: 'metadata' ; sleep 1
     [@t1, @t2, @t3, @m1, @m2, @m3].each { |t| t.order = nil ; t.save! }
     @u = create_user
-    @tu = create_team_user team: @t, user: @u, role: 'owner'
+    @tu = create_team_user team: @t, user: @u, role: 'admin'
     authenticate_with_user(@u)
   end
 
@@ -234,7 +234,7 @@ class GraphqlController5Test < ActionController::TestCase
     t = create_team
     pm = create_project_media team: t
     u = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation create { createSource(input: { name: "new source", slogan: "new source", clientMutationId: "1", add_to_project_media_id: ' + pm.id.to_s + ' }) { source { dbid } } }'
     post :create, query: query, team: t
@@ -246,7 +246,7 @@ class GraphqlController5Test < ActionController::TestCase
   test "should search team sources by keyword" do
     t = create_team slug: 'sawy'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     create_source team: t, name: 'keyword begining'
     create_source team: t, name: 'ending keyword'
     create_source team: t, name: 'in the KEYWORD middle'

@@ -172,7 +172,7 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     tb = create_team_bot set_approved: true
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     assert_difference 'Version.count' do
       with_current_user_and_team(u, t) do
         tb.install_to!(t)

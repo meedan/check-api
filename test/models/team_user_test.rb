@@ -44,25 +44,25 @@ class TeamUserTest < ActiveSupport::TestCase
  test "should set a default value for role if not exist" do
   tu = create_team_user
   tu.save!
-  assert_equal tu.role, 'contributor'
+  assert_equal tu.role, 'collaborator'
  end
 
   test "should prevent creating team user with invalid role" do
     tu = create_team_user
     tu.role = "invalid role"
     assert_not tu.save
-    tu.role = "owner"
+    tu.role = "admin"
     assert tu.save
   end
 
   test "non members should not read team user in private team" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: create_user, role: 'owner'
+    create_team_user team: t, user: create_user, role: 'admin'
     tu = t.team_users.last
     pu = create_user
     pt = create_team private: true
-    create_team_user team: pt, user: pu, role: 'owner'
+    create_team_user team: pt, user: pu, role: 'admin'
     ptu = pt.team_users.last
 
     with_current_user_and_team(u, t) { TeamUser.find_if_can(tu.id) }
@@ -98,15 +98,15 @@ class TeamUserTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'editor'
 
     with_current_user_and_team(u, t) do
-      tu = create_team_user team: t, status: 'invited', role: 'contributor'
+      tu = create_team_user team: t, status: 'invited', role: 'collaborator'
       assert_raise RuntimeError do
-        create_team_user team: t, status: 'invited', role: 'owner'
+        create_team_user team: t, status: 'invited', role: 'admin'
       end
       tu.status = 'member'; tu.save!
       assert_equal tu.status, 'member'
-      create_team_user team: t, status: 'member', role: 'journalist'
+      create_team_user team: t, status: 'member', role: 'collaborator'
       assert_raise RuntimeError do
-        create_team_user team: t, status: 'member', role: 'owner'
+        create_team_user team: t, status: 'member', role: 'admin'
       end
     end
   end
@@ -114,9 +114,9 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should not approve myself" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u2 = create_user
-    tu = create_team_user team: t, user: u2, status: 'requested', role: 'journalist'
+    tu = create_team_user team: t, user: u2, status: 'requested', role: 'collaborator'
 
     with_current_user_and_team(u2, t) do
       assert_raise RuntimeError do
@@ -126,10 +126,10 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send e-mail to owners when user requests to join" do
+  test "should send e-mail to admins when user requests to join" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     u2 = create_user
     assert_difference 'MailWorker.jobs.size', 1 do
       create_team_user team: t, user: u2, status: 'requested'
@@ -139,7 +139,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should send email to requestor when his request is accepted" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'collaborator', status: 'requested'
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       tu.status = 'member'
       tu.save!
@@ -149,7 +149,7 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should send email to requestor when his request is rejected" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'collaborator', status: 'requested'
     assert_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size', 1 do
       tu.status = 'banned'
       tu.save!
@@ -159,9 +159,9 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should not send email to requestor when there is no status change" do
     t = create_team
     u = create_user
-    tu = create_team_user team: t, user: u, role: 'contributor', status: 'requested'
+    tu = create_team_user team: t, user: u, role: 'collaborator', status: 'requested'
     assert_no_difference 'Sidekiq::Extensions::DelayedMailer.jobs.size' do
-      tu.role = 'owner'
+      tu.role = 'admin'
       tu.save!
     end
   end
@@ -169,13 +169,13 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should not downgrade higher roles" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'journalist'
+    create_team_user team: t, user: u, role: 'collaborator'
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'owner'
+    tu = create_team_user team: t, user: u2, role: 'admin'
 
     with_current_user_and_team(u, t) do
       assert_raise RuntimeError do
-        tu.role = 'journalist'
+        tu.role = 'editor'
         tu.save
       end
     end
@@ -184,9 +184,9 @@ class TeamUserTest < ActiveSupport::TestCase
   test "should not change own role" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     u2 = create_user
-    tu2 = create_team_user team: t, user: u2, role: 'owner'
+    tu2 = create_team_user team: t, user: u2, role: 'admin'
 
     assert_nothing_raised RuntimeError do
       with_current_user_and_team(u, t) do
@@ -196,7 +196,7 @@ class TeamUserTest < ActiveSupport::TestCase
     end
 
     u3 = create_user
-    tu3 = create_team_user team: t, user: u3, role: 'journalist'
+    tu3 = create_team_user team: t, user: u3, role: 'collaborator'
     assert_raise RuntimeError do
       with_current_user_and_team(u3, t) do
         tu.role = 'editor'
@@ -276,7 +276,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u = create_omniauth_user provider: 'slack', 'info': { 'team_id' => 'SlackTeamID' }
     tu = create_team_user team: t, user: u
     assert_equal 'member', tu.status
-    assert_equal 'contributor', tu.role
+    assert_equal 'collaborator', tu.role
   end
 
   test "should protect attributes from mass assignment" do

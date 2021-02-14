@@ -50,7 +50,7 @@ module TeamDuplication
       return nil if User.current.nil?
       TeamUser.new(
         skip_check_ability: true,
-        role: "owner",
+        role: "admin",
         status: "member",
         user_id: User.current.id,
         team_id: team.id
