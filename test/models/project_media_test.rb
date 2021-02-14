@@ -343,7 +343,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     perm_keys = [
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
       "create Tag", "create Task", "create Dynamic", "restore ProjectMedia", "confirm ProjectMedia",
-      "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship"
+      "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
+      "create Source", "update Source"
     ].sort
     User.stubs(:current).returns(u)
     Team.stubs(:current).returns(t)

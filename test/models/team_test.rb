@@ -302,7 +302,7 @@ class TeamTest < ActiveSupport::TestCase
       "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "create Contact", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
-      "duplicate Team"
+      "duplicate Team", "mange TagText", "mange TeamTask"
     ].sort
 
     # load permissions as owner

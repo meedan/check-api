@@ -783,10 +783,20 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team current_user: u
     p = create_project team: t
     a = create_account
+    team_perms = [
+      "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject",
+      "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project",
+      "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members",
+      "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "mange TagText", "mange TeamTask"
+    ]
+    project_perms = [
+      "read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia",
+      "create Claim","create Link"
+    ]
 
     with_current_user_and_team(u, t) do
-      assert_equal ["bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project", "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team"].sort, JSON.parse(t.permissions).keys.sort
-      assert_equal ["read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia", "create Claim", "create Link"].sort, JSON.parse(p.permissions).keys.sort
+      assert_equal team_perms.sort, JSON.parse(t.permissions).keys.sort
+      assert_equal project_perms.sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
   end
@@ -824,14 +834,15 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "should update own source with or without team" do
+  test "authenticated permissions for source" do
     u = create_user
     s = u.source
+    s2 = create_source team: create_team, user: u
     User.current = u
     ability = Ability.new
+    # auth users can only update own source with team nil [profile]
     assert ability.can?(:update, s)
-    s.team = create_team;s.save;s.reload
-    assert ability.can?(:update, s)
+    assert ability.cannot?(:update, s2)
   end
 
   test "should user destroy own request to join a team" do

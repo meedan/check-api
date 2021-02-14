@@ -77,9 +77,6 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can :lock_annotation, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
-    end
     can [:cud], BotResource, :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
@@ -115,8 +112,8 @@ class Ability
       obj.project && obj.project.team_id == @context_team.id
     end
     can :destroy, TeamUser, user_id: @user.id
-    can [:create, :update], Source do |obj|
-      obj.team_id == @context_team.id && obj.user_id == @user.id
+    can :lock_annotation, ProjectMedia do |obj|
+      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
