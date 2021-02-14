@@ -63,8 +63,9 @@ class AccountTest < ActiveSupport::TestCase
   test "should create version when account is created" do
     u = create_user
     create_team_user user: u
+    s = create_source
     User.current = u
-    a = create_account
+    a = create_account source: s
     assert_equal 2, a.versions.size
     User.current = nil
   end

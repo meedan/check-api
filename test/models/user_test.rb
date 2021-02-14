@@ -399,8 +399,8 @@ class UserTest < ActiveSupport::TestCase
         assert_equal s.reload.name, 'update name'
       end
       # should remove accounts from own profile
-      a = create_account
-      as = create_account_source account: a, source: s
+      a = create_account source: s
+      as = AccountSource.where(account: a, source: s).last
       as.destroy
     end
     User.current = Team.current = nil

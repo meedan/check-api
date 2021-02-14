@@ -89,6 +89,7 @@ class TestController < ApplicationController
     source = Source.new
     source.name = params[:name]
     source.slogan = params[:slogan]
+    source.skip_check_ability = true
     source.save!
     User.current = nil
     Team.current = nil
