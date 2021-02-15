@@ -26,6 +26,7 @@ module CheckBasicAbilities
     end
 
     # Permissions for registration and login
+    can :read, Source, team_id: @context_team.id
     can :create, Source, :user_id => @user.id, team_id: nil
     can :update, Source, :id => @user.source_id, team_id: nil
     can :read, AccountSource, source: { user_id: @user.id }
