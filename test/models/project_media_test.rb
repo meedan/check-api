@@ -2259,4 +2259,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal 0, pm1.related_count }
     assert_queries(0, '=') { assert_equal 0, pm2.related_count }
   end
+
+  test "should cache type of media" do
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media
+    assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
+    Rails.cache.clear
+    assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
+    assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
+  end
 end

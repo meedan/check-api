@@ -23,10 +23,26 @@ class Workflow::VerificationStatus < Workflow::Base
       perms
     end
 
+    def self.core_status_ids
+      YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)['MEDIA_CORE_VERIFICATION_STATUSES'].collect{ |st| st[:id] }
+    end
+
+    def custom_statuses
+      self.team.settings.to_h.with_indifferent_access['media_verification_statuses'].to_h.with_indifferent_access['statuses'].to_a
+    end
+
+    def custom_status_ids
+      self.custom_statuses.collect{ |st| st[:id] }
+    end
+
+    def status_ids
+      self.custom_status_ids.blank? ? ProjectMedia.core_status_ids : self.custom_status_ids
+    end
+
     def status_i18n(key = nil, options = {})
       key ||= self.last_status
-      core_status_ids = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)['MEDIA_CORE_VERIFICATION_STATUSES'].collect{ |st| st[:id] }
-      custom_statuses = self.team.settings.to_h.with_indifferent_access['media_verification_statuses'].to_h.with_indifferent_access['statuses'].to_a
+      core_status_ids = ProjectMedia.core_status_ids
+      custom_statuses = self.custom_statuses
       if core_status_ids.include?(key.to_s) && custom_statuses.blank?
         I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.label', options)
       else

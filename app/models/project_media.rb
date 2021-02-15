@@ -306,10 +306,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def type_of_media
-    self.media.type
-  end
-
   def list_columns_values
     values = {}
     columns = self.team.list_columns || Team.default_list_columns

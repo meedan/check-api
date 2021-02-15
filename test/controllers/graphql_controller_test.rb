@@ -15,6 +15,77 @@ class GraphqlControllerTest < ActionController::TestCase
     @team = create_team
   end
 
+  test "should delete custom status" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_user user: u, team: t, role: 'admin'
+    value = {
+      label: 'Field label',
+      active: 'id1',
+      default: 'id1',
+      statuses: [
+        { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
+        { id: 'id3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    pm1 = create_project_media project: nil, team: t
+    s = pm1.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id1'
+    s.disable_es_callbacks = false
+    s.save!
+    r1 = publish_report(pm1)
+    pm2 = create_project_media project: nil, team: t
+    s = pm2.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'id2'
+    s.disable_es_callbacks = false
+    s.save!
+    r2 = publish_report(pm2)
+
+    assert_equal 'id1', pm1.reload.last_status
+    assert_equal 'id2', pm2.reload.last_status
+    assert_queries(0, '=') do
+      assert_equal 'id1', pm1.status
+      assert_equal 'id2', pm2.status
+    end
+    assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
+    sleep 5
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
+    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'published', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
+
+    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
+    post :create, query: query, team: 'team'
+    assert_response :success
+
+    assert_equal 'id1', pm1.reload.last_status
+    assert_equal 'id3', pm2.reload.last_status
+    assert_queries(0, '=') do
+      assert_equal 'id1', pm1.status
+      assert_equal 'id3', pm2.status
+    end
+    sleep 5
+    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
+    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
+    assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
+    assert_equal 'published', r1.reload.get_field_value('state')
+    assert_equal 'paused', r2.reload.get_field_value('state')
+    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
+    assert_equal 'green', r2.reload.report_design_field_value('theme_color', 'en')
+    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
+    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
+  end
+
   test "should access GraphQL query if not authenticated" do
     post :create, query: 'query Query { about { name, version } }'
     assert_response 200
@@ -990,76 +1061,6 @@ class GraphqlControllerTest < ActionController::TestCase
       assert_equal (status.to_i * 2), data.select{ |s| s['id'] == status }[0]['items_count']
       assert_equal (status.to_i * 2 * 2), data.select{ |s| s['id'] == status }[0]['published_reports_count']
     end
-  end
-
-  test "should delete custom status" do
-    RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t, role: 'admin'
-    value = {
-      label: 'Field label',
-      active: 'id1',
-      default: 'id1',
-      statuses: [
-        { id: 'id1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
-        { id: 'id2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } },
-        { id: 'id3', locales: { en: { label: 'Custom Status 3', description: 'The meaning of that status' } }, style: { color: 'green' } }
-      ]
-    }
-    t.set_media_verification_statuses(value)
-    t.save!
-    pm1 = create_project_media project: nil, team: t
-    s = pm1.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'id1'
-    s.disable_es_callbacks = false
-    s.save!
-    r1 = publish_report(pm1)
-    pm2 = create_project_media project: nil, team: t
-    s = pm2.annotations.where(annotation_type: 'verification_status').last.load
-    s.status = 'id2'
-    s.disable_es_callbacks = false
-    s.save!
-    r2 = publish_report(pm2)
-
-    assert_equal 'id1', pm1.reload.last_status
-    assert_equal 'id2', pm2.reload.last_status
-    assert_queries(0, '=') do
-      assert_equal 'id1', pm1.status
-      assert_equal 'id2', pm2.status
-    end
-    assert_not_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    sleep 2
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
-    assert_equal [], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
-    assert_equal 'published', r1.reload.get_field_value('state')
-    assert_equal 'published', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'blue', r2.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
-    assert_not_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
-
-    query = "mutation deleteTeamStatus { deleteTeamStatus(input: { clientMutationId: \"1\", team_id: \"#{t.graphql_id}\", status_id: \"id2\", fallback_status_id: \"id3\" }) { team { id, verification_statuses(items_count: true) } } }"
-    post :create, query: query, team: 'team'
-    assert_response :success
-
-    assert_equal 'id1', pm1.reload.last_status
-    assert_equal 'id3', pm2.reload.last_status
-    assert_queries(0, '=') do
-      assert_equal 'id1', pm1.status
-      assert_equal 'id3', pm2.status
-    end
-    sleep 2
-    assert_equal [], CheckSearch.new({ verification_status: ['id2'] }.to_json).medias.map(&:id)
-    assert_equal [pm2.id], CheckSearch.new({ verification_status: ['id3'] }.to_json).medias.map(&:id)
-    assert_equal [], t.reload.get_media_verification_statuses[:statuses].select{ |s| s[:id] == 'id2' }
-    assert_equal 'published', r1.reload.get_field_value('state')
-    assert_equal 'paused', r2.reload.get_field_value('state')
-    assert_not_equal 'red', r1.reload.report_design_field_value('theme_color', 'en')
-    assert_equal 'green', r2.reload.report_design_field_value('theme_color', 'en')
-    assert_not_equal 'Custom Status 1', r1.reload.report_design_field_value('status_label', 'en')
-    assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label', 'en')
   end
 
   # Please add new tests to test/controllers/graphql_controller_2_test.rb
