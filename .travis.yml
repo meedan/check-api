@@ -8,7 +8,7 @@ before_install:
 - export LC_ALL=C.UTF-8
 - export LANG=C.UTF-8
 - export LANGUAGE=C.UTF-8
-- export CONFIGURATOR_BRANCH=$((git ls-remote --exit-code --heads https://github.com/meedan/configurator.git $TRAVIS_BRANCH >/dev/null && echo $TRAVIS_BRANCH) || echo 'develop')
+- export CONFIGURATOR_BRANCH=$((git ls-remote --exit-code --heads https://github.com/meedan/configurator.git $TRAVIS_BRANCH >/dev/null && echo $TRAVIS_BRANCH) || echo 'master')
 - echo "Using branch $CONFIGURATOR_BRANCH for configurator"
 - git clone --branch=$CONFIGURATOR_BRANCH https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/
