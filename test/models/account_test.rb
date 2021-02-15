@@ -37,7 +37,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should set user" do
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       a = create_account
       assert_equal u, a.user
@@ -63,8 +63,9 @@ class AccountTest < ActiveSupport::TestCase
   test "should create version when account is created" do
     u = create_user
     create_team_user user: u
+    s = create_source
     User.current = u
-    a = create_account
+    a = create_account source: s
     assert_equal 2, a.versions.size
     User.current = nil
   end
@@ -72,7 +73,7 @@ class AccountTest < ActiveSupport::TestCase
   test "should create version when account is updated" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       a = create_account
       a.team = create_team
@@ -206,14 +207,14 @@ class AccountTest < ActiveSupport::TestCase
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) do
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) do
       assert_equal perm_keys, JSON.parse(a.permissions).keys.sort
     end

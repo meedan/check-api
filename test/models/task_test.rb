@@ -116,7 +116,7 @@ class TaskTest < ActiveSupport::TestCase
   test "should set assigner when task assigned" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
@@ -133,7 +133,7 @@ class TaskTest < ActiveSupport::TestCase
   test "should notify on Slack when task is updated" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
@@ -155,7 +155,7 @@ class TaskTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
@@ -199,7 +199,7 @@ class TaskTest < ActiveSupport::TestCase
   test "should notify on Slack when task is created" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
@@ -233,7 +233,7 @@ class TaskTest < ActiveSupport::TestCase
   test "should send Slack notification in background" do
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media project: p
@@ -358,8 +358,8 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 0, pm.completed_tasks_count
     u1 = create_user
     u2 = create_user
-    create_team_user team: t, user: u1, role: 'annotator'
-    create_team_user team: t, user: u2, role: 'annotator'
+    create_team_user team: t, user: u1, role: 'collaborator'
+    create_team_user team: t, user: u2, role: 'collaborator'
     tk.assign_user(u1.id)
     tk.assign_user(u2.id)
     User.current = u1
@@ -381,33 +381,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_equal 2, pm.completed_tasks_count
   end
 
-  test "should get first response" do
-    at = create_annotation_type annotation_type: 'task_response'
-    create_field_instance annotation_type_object: at, name: 'response_test'
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    u1 = create_user
-    u2 = create_user
-    create_team_user team: t, user: u1, role: 'annotator'
-    create_team_user team: t, user: u2
-    User.current = u1
-    tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'foo' }.to_json }.to_json
-    tk.save!
-    User.current = nil
-    tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response', set_fields: { response_test: 'bar' }.to_json }.to_json
-    tk.save!
-    User.current = u1
-    tk = Task.find(tk.id)
-    assert_equal 'foo', tk.first_response
-    User.current = u2
-    tk = Task.find(tk.id)
-    assert_equal 'bar', tk.first_response
-  end
-
   test "should respect task state transition roles" do
     t = create_team
     p = create_project team: t
@@ -417,7 +390,7 @@ class TaskTest < ActiveSupport::TestCase
     tk.status = 'resolved'
     tk.save!
     u = create_user
-    create_team_user team: t, user: u, role: 'annotator'
+    create_team_user team: t, user: u, role: 'collaborator'
     assert_equal 'resolved', tk.reload.status
     with_current_user_and_team(u ,t) do
       a = Annotation.where(annotation_type: 'task_status', annotated_type: 'Task', annotated_id: tk.id).last.load
@@ -708,7 +681,7 @@ class TaskTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media team: t
     create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json

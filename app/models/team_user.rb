@@ -23,7 +23,7 @@ class TeamUser < ActiveRecord::Base
   validates :status, included: { values: self.status_types }
 
   def self.role_types
-    %w(owner editor journalist contributor annotator)
+    %w(admin editor collaborator)
   end
   validates :role, included: { values: self.role_types }
 
@@ -146,7 +146,7 @@ class TeamUser < ActiveRecord::Base
   end
 
   def set_role_default_value
-    self.role = 'contributor' if self.role.nil?
+    self.role = 'collaborator' if self.role.nil?
   end
 
   # Validate that a Slack user is part of the team's `slack_teams` setting.

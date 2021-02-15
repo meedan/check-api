@@ -62,6 +62,6 @@ class TeamBotInstallation < TeamUser
   end
 
   def set_role
-    self.role = self.bot_user&.get_role || 'contributor'
+    self.role = self.bot_user&.get_role || 'collaborator'
   end
 end

@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
 
   include DeviseAsync
 
-  ROLES = %w[contributor journalist editor owner]
+  ROLES = %w[collaborator editor admin]
 
   def role?(base_role, team = nil)
     role = self.role(team)
@@ -368,14 +368,6 @@ class User < ActiveRecord::Base
       low_role.destroy
     end
     merged_tu
-  end
-
-  def cached_assignments
-    Rails.cache.fetch("annotator-allowed-ids-#{self.id}", expires_in: 45.seconds, race_condition_ttl: 45.seconds) do
-      pms = Annotation.project_media_assigned_to_user(self, 'id').to_a
-      pids = ProjectMediaProject.where(project_media_id: pms.map(&:id)).map(&:project_id)
-      { pids: pids, pmids: pms.map(&:id).uniq }
-    end
   end
 
   def self.get_duplicate_user(email, id=0)

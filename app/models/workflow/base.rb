@@ -34,17 +34,15 @@ module Workflow
     def self.workflow_permissions
       klass = self
       proc do
-        if @user.role?(:owner)
-          instance_exec(&klass.workflow_permissions_for_owner)
-        elsif @user.role?(:journalist)
-          instance_exec(&klass.workflow_permissions_for_journalist)
-        elsif @user.role?(:contributor) || @user.role?(:annotator)
-          instance_exec(&klass.workflow_permissions_for_contributor)
+        if @user.role?(:admin)
+          instance_exec(&klass.workflow_permissions_for_admin)
+        elsif @user.role?(:editor) || @user.role?(:collaborator)
+          instance_exec(&klass.workflow_permissions_for_editor)
         end
       end
     end
 
-    def self.workflow_permissions_for_owner
+    def self.workflow_permissions_for_admin
       id = self.id
       proc do
         can [:destroy, :update], Dynamic, ['annotation_type = ?', id] do |obj|
@@ -53,22 +51,13 @@ module Workflow
       end
     end
 
-    def self.workflow_permissions_for_journalist
+    def self.workflow_permissions_for_editor
       id = self.id
       proc do
         can [:create, :update], Dynamic, ['annotation_type = ?', id] do |obj|
-          obj.team&.id == @context_team.id && !obj.annotated_is_archived? && obj.annotation_type == id && (@user.role?(:editor) || !obj.locked?)
+          obj.team&.id == @context_team.id && !obj.annotated_is_trashed? && obj.annotation_type == id && (@user.role?(:editor) || !obj.locked?)
         end
         cannot [:destroy], Dynamic, ['annotation_type = ?', id] do |obj|
-          obj.annotation_type == id
-        end
-      end
-    end
-
-    def self.workflow_permissions_for_contributor
-      id = self.id
-      proc do
-        cannot [:destroy, :update, :create], Dynamic, ['annotation_type = ?', id] do |obj|
           obj.annotation_type == id
         end
       end

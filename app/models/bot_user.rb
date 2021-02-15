@@ -401,7 +401,7 @@ class BotUser < User
     if self.team_author_id
       team_user = TeamUser.new
       team_user.type = 'TeamBotInstallation'
-      team_user.role = self.get_role || 'contributor'
+      team_user.role = self.get_role || 'collaborator'
       team_user.status = 'member'
       team_user.user_id = self.id
       team_user.team_id = self.team_author_id || Team.current.id

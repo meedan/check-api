@@ -13,7 +13,7 @@ class TeamImportTest < ActiveSupport::TestCase
     create_bot name: 'Check Bot'
     @team = create_team
     @user = create_user is_admin: true
-    @tu = create_team_user team: @team, user: @user, role: 'contributor'
+    @tu = create_team_user team: @team, user: @user, role: 'collaborator'
     @p = create_project team: @team
     create_test_worksheet if @@count.zero?
   end
@@ -212,7 +212,7 @@ class TeamImportTest < ActiveSupport::TestCase
     row_with_email_annotator = add_data_on_spreadsheet(data1)
 
     team_owner = create_user
-    create_team_user team: @team, user: team_owner, role: 'owner'
+    create_team_user team: @team, user: team_owner, role: 'admin'
     data2 = data1.merge({ item: random_string, annotator: 'user@invalid.com', note1: 'Other note'})
     row_with_invalid_email_annotator = add_data_on_spreadsheet(data2)
 
@@ -337,14 +337,14 @@ class TeamImportTest < ActiveSupport::TestCase
   end
 
   test "should add first team owner if user email does not exist" do
-    @tu.role = 'owner'; @tu.save!
+    @tu.role = 'admin'; @tu.save!
     data = { item: random_string, user: 'invalid@user.com', projects: @p.url }
     row = add_data_on_spreadsheet(data)
 
     result = @team.import_spreadsheet(@@spreadsheet_id, @@worksheet.title, @user.id)
     pm = Media.find_by_quote(data[:item]).project_medias.first
     assert_equal pm.full_url, result[row].join(', ')
-    assert_equal @team.owners('owner').first, pm.user
+    assert_equal @team.owners('admin').first, pm.user
   end
 
   protected
