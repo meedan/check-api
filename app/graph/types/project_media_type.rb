@@ -39,7 +39,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :type, types.String  do
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.type
+      project_media.type_of_media
     }
   end
 
