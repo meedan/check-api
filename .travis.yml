@@ -8,7 +8,7 @@ before_install:
 - export LC_ALL=C.UTF-8
 - export LANG=C.UTF-8
 - export LANGUAGE=C.UTF-8
-- git clone --branch==test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+- git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
