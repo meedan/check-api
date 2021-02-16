@@ -340,7 +340,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def has_analysis_title?
-    !self.analysis.dig('title').blank?
+    !self.analysis_title.blank?
   end
 
   def original_title
@@ -352,7 +352,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def has_analysis_description?
-    !self.analysis.dig('content').blank?
+    !self.analysis_description.blank?
   end
 
   def original_description
