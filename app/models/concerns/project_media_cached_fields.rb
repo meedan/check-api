@@ -139,15 +139,17 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| !pm.analysis.dig('content').blank? ? pm.analysis.dig('content') : (pm.media&.metadata&.dig('description') || (pm.media.type == 'Claim' ? nil : pm.text)) },
+      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description},
       update_on: analysis_update('content')
 
     cached_field :title,
-      recalculate: proc { |pm| !pm.analysis.dig('title').blank? ? pm.analysis.dig('title') : (pm.media&.metadata&.dig('title') || pm.media.quote) },
+      recalculate: proc { |pm| pm.has_analysis_title? ? pm.analysis_title : pm.original_title },
       update_on: analysis_update('title')
 
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
+      update_es: proc { |pm, value| pm.status_ids.index(value) },
+      es_field_name: :status_index,
       update_on: [
         {
           model: DynamicAnnotation::Field,
@@ -178,7 +180,7 @@ module ProjectMediaCachedFields
 
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
-      update_es: proc { |value| ['unpublished', 'paused', 'published'].index(value) },
+      update_es: proc { |_pm, value| ['unpublished', 'paused', 'published'].index(value) },
       recalculate: proc { |pm| pm.get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
       update_on: [
         {
@@ -193,7 +195,7 @@ module ProjectMediaCachedFields
 
     cached_field :tags_as_sentence,
       start_as: proc { |_pm| '' },
-      update_es: proc { |value| value.split(', ').size },
+      update_es: proc { |_pm, value| value.split(', ').size },
       recalculate: proc { |pm| pm.get_annotations('tag').map(&:load).map(&:tag_text).join(', ') },
       update_on: [
         {
@@ -219,5 +221,11 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :type_of_media,
+      start_as: proc { |pm| pm.media.type },
+      update_es: proc { |_pm, value| Media.types.index(value) },
+      recalculate: proc { |pm| pm.media.type },
+      update_on: [] # Should never change
   end
 end

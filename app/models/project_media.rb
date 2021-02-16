@@ -306,10 +306,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def type_of_media
-    self.media.type
-  end
-
   def list_columns_values
     values = {}
     columns = self.team.list_columns || Team.default_list_columns
@@ -340,6 +336,30 @@ class ProjectMedia < ActiveRecord::Base
         disable_es_callbacks: self.disable_es_callbacks
       ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
     end
+  end
+
+  def has_analysis_title?
+    !self.analysis_title.blank?
+  end
+
+  def original_title
+    (self.media&.metadata&.dig('title') || self.media.quote)
+  end
+
+  def analysis_title
+    self.analysis.dig('title')
+  end
+
+  def has_analysis_description?
+    !self.analysis_description.blank?
+  end
+
+  def original_description
+    (self.media&.metadata&.dig('description') || (self.media.type == 'Claim' ? nil : self.text))
+  end
+
+  def analysis_description
+    self.analysis.dig('content')
   end
 
   protected

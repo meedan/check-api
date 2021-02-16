@@ -25,7 +25,7 @@ class CheckSearch
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
     'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
-    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count'
+    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index', 'type_of_media' => 'type_of_media'
   }
 
   def pusher_channel
