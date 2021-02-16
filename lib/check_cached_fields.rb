@@ -17,7 +17,7 @@ module CheckCachedFields
           return if self.class.skip_cached_field_update?
           value = options[:start_as].is_a?(Proc) ? options[:start_as].call(obj) : options[:start_as]
           Rails.cache.write(self.class.check_cache_key(self.class, self.id, name), value)
-          klass.index_cached_field(options[:update_es], value, name, obj) unless Rails.env == 'test'
+          klass.index_cached_field(options[:update_es], value, name, obj, options[:es_field_name]) unless Rails.env == 'test'
         end
       end
 
@@ -43,11 +43,12 @@ module CheckCachedFields
       "check_cached_field:#{klass}:#{id}:#{name}"
     end
 
-    def index_cached_field(update_es, value, name, target)
+    def index_cached_field(update_es, value, name, target, es_field_name)
       update_index = update_es || false
       if update_index
         value = update_index.call(target, value) if update_index.is_a?(Proc)
-        options = { keys: [name], data: { name => value }, obj: target }
+        field_name = es_field_name || name
+        options = { keys: [field_name], data: { field_name => value }, obj: target }
         ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
       end
     end
@@ -65,7 +66,7 @@ module CheckCachedFields
         target.disable_es_callbacks = true
         ActiveRecord::Base.connection_pool.with_connection { target.save! }
         # update es index
-        self.index_cached_field(options[:update_es], value, name, target)
+        self.index_cached_field(options[:update_es], value, name, target, options[:es_field_name])
       end
     end
   end

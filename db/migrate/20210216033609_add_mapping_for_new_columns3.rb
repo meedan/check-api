@@ -7,7 +7,7 @@ class AddMappingForNewColumns3 < ActiveRecord::Migration
       index: index_alias,
       body: {
         properties: {
-          status: { type: 'long' },
+          status_index: { type: 'long' },
           type_of_media: { type: 'long' }
         }
       }
@@ -18,9 +18,9 @@ class AddMappingForNewColumns3 < ActiveRecord::Migration
     ProjectMedia.select(:id).find_in_batches(batch_size: 3000) do |pms|
       i += 1
       puts "#{i * 3000} / #{total}"
-      p = { status: 0, type_of_media: 0 }
+      p = { status_index: 0, type_of_media: 0 }
       body = {
-        script: { source: "ctx._source.status = params.status ; ctx._source.type_of_media = params.type_of_media", params: p },
+        script: { source: "ctx._source.status_index = params.status_index ; ctx._source.type_of_media = params.type_of_media", params: p },
         query: { terms: { annotated_id: pms.map(&:id) } }
       }
       options[:body] = body

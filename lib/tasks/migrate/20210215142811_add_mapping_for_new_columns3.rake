@@ -18,7 +18,7 @@ namespace :check do
           begin
             doc_id = pm.get_es_doc_id(pm)
             fields = {
-              'status' => pm.status_ids.index(pm.status),
+              'status_index' => pm.status_ids.index(pm.status),
               'type_of_media' => Media.types.index(pm.type_of_media),
             }
             es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: fields } } }
