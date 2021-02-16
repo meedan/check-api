@@ -6,7 +6,7 @@ class Bot::Alegre < BotUser
   end
 
   DynamicAnnotation::Field.class_eval do
-    after_save :save_analysis_to_similarity_index, if: :can_be_sent_to_index?
+    after_commit :save_analysis_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
     after_destroy :delete_analysis_from_similarity_index, if: :can_be_sent_to_index?
     
     def self.save_analysis_to_similarity_index(pm_id)
@@ -249,11 +249,15 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
-    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'title', threshold, pm.title) : {}
+    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
   end
 
   def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
-    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_items_with_similar_text(pm, 'description', threshold, pm.description) : {}
+    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
+  end
+
+  def self.get_merged_similar_items(pm, threshold, fields, value)
+    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge)
   end
 
   def self.extract_project_medias_from_context(search_result)
