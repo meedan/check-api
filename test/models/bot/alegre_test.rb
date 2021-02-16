@@ -430,15 +430,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
-  test "should capture error when failing to call service" do
+  test "zzz should capture error when failing to call service" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
        WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
        WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
        Bot::Alegre.any_instance.stubs(:get_language).raises(RuntimeError)
-       # assert_nothing_raised do
-       #   Bot::Alegre.run('test')
-       # end
+       assert_nothing_raised do
+         Bot::Alegre.run('test')
+       end
        Bot::Alegre.any_instance.unstub(:get_language)
        assert_nothing_raised do
          assert Bot::Alegre.run({ data: { dbid: @pm.id }, event: 'create_project_media' })
