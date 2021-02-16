@@ -149,6 +149,7 @@ module ProjectMediaCachedFields
     cached_field :status,
       recalculate: proc { |pm| pm.last_verification_status },
       update_es: proc { |pm, value| pm.status_ids.index(value) },
+      es_field_name: :status_index,
       update_on: [
         {
           model: DynamicAnnotation::Field,
