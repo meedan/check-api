@@ -256,10 +256,8 @@ en:
     by %{team} as of %{date}
   oembed_source_date: "%{date} on %{provider}"
   role_editor: editor
-  role_owner: owner
-  role_contributor: contributor
-  role_journalist: journalist
-  role_annotator: annotator
+  role_admin: admin
+  role_collaborator: collaborator
   role_none: member
   role_: sysadmin
   oembed_credit: Added by %{user} (%{role}) %{date}
@@ -551,9 +549,6 @@ en:
       collaborator:
         description: Collaborator can add new information to verify. They are often
           members of the public.
-      annotator:
-        description: Annotators can only view and answer tasks that are assigned to
-          them.
     permissions:
       sections:
         project_management:
