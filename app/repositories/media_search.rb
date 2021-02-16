@@ -108,8 +108,8 @@ class MediaSearch
 
     indexes :source_id, { type: 'integer' }
 
-    indexes :status, { type: 'integer' } # For sorting - indexes the status index in the list of status ids
+    indexes :status, { type: 'long' } # For sorting - indexes the status index in the list of status ids
 
-    indexes :type_of_media, { type: 'integer' } # For sorting - indexes the type index in the list of media types
+    indexes :type_of_media, { type: 'long' } # For sorting - indexes the type index in the list of media types
   end
 end
