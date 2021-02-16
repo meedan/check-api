@@ -1,9 +1,8 @@
 namespace :check do
   namespace :migrate do
-    task update_alegre_stored_project_media: :environment do |_t, args|
+    task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
-      last_id = args.extras.last.to_i rescue 0
-      running_bucket = []
+      last_id = Rails.cache.read('check:migrate:update_alegre_stored_project_media:pm_id') || 0
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         # Handle ProjectMedia of Claim, Image, Video and Audio types as all data stored in verification status
         # related to Project Media
@@ -14,21 +13,22 @@ namespace :check do
           ids = pms.map(&:id)
           # add pm_data to collect the following keys
           # project_media: ProjectMedia Object
-          # title: ProjectMedia title
-          # description: ProjectMedia description
-          # metadata_title: true/false ( True: if title value from metadata and default false)
-          # metadata_description: true/false ( True: if description value from metadata and default false)
+          # analysis_title: ProjectMedia analysis title
+          # analysis_description: ProjectMedia analysis description
+          # origina_title: ProjectMedia analysis title
+          # origina_description: ProjectMedia analysis description
+          # is_link: Boolean type
           pm_data = {}
-          pms.each{ |pm| pm_data[pm.id] = { project_media: pm, metadata_title: false, metadata_description: false } }
+          pms.each{ |pm| pm_data[pm.id] = { 'project_media' => pm, 'is_link' => false } }
           DynamicAnnotation::Field.select('dynamic_annotation_fields.id, field_name, value, a.annotated_id as pm_id').where(
             field_name: ['title', 'content'], annotation_type: 'verification_status')
           .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia'")
           .where('a.annotated_id IN (?)', ids).find_each do |df|
             print '.'
             if df.field_name == 'title'
-              pm_data[df.pm_id][:title] = df.value
+              pm_data[df.pm_id]['analysis_title'] = df.value
             else
-              pm_data[df.pm_id][:description] = df.value
+              pm_data[df.pm_id]['analysis_description'] = df.value
             end
           end
           # Get metadata for Link types
@@ -44,51 +44,34 @@ namespace :check do
             .where('a.annotated_id IN (?)', m_ids).find_each do |df|
               print '.'
               pm_id = m_mapping[df.m_id]
-              if pm_data[pm_id][:title].blank?
-                pm_data[pm_id][:metadata_title] = true
-                pm_data[pm_id][:title] = df.value_json['title']
-              end
-              if pm_data[pm_id][:description].blank?
-                pm_data[pm_id][:metadata_description] = true
-                pm_data[pm_id][:description] = df.value_json['description']
-              end
+              pm_data[pm_id]['is_link'] = true
+              pm_data[pm_id]['original_title'] = df.value_json['title']
+              pm_data[pm_id]['original_description'] = df.value_json['description']
             end
           end
 
           pm_data.each do |_k, data|
-            unless data[:title].blank?
-              running_bucket << Bot::Alegre.send_to_text_similarity_index_package(
-                data[:project_media],
-                'original_title',
-                data[:title],
-                Bot::Alegre.item_doc_id(data[:project_media], 'original_title')
-              )
-              running_bucket << Bot::Alegre.send_to_text_similarity_index_package(
-                data[:project_media],
-                'analysis_title',
-                data[:title],
-                Bot::Alegre.item_doc_id(data[:project_media], 'analysis_title')
-              ) unless data[:metadata_title]
-            end
-            unless data[:description].blank?
-              running_bucket << Bot::Alegre.send_to_text_similarity_index_package(
-                data[:project_media],
-                'original_description',
-                data[:description],
-                Bot::Alegre.item_doc_id(data[:project_media], 'original_description')
-              )
-              running_bucket << Bot::Alegre.send_to_text_similarity_index_package(
-                data[:project_media],
-                'analysis_description',
-                data[:description],
-                Bot::Alegre.item_doc_id(data[:project_media], 'analysis_description')
-              ) unless data[:metadata_description]
-            end
-          end
-          if running_bucket.length > 50
-            # Bot::Alegre.request_api('post', '/text/bulk_similarity', {documents: running_bucket})
             running_bucket = []
+            ['original_title', 'original_description', 'analysis_title', 'analysis_description'].each do |field|
+              field_value = data[field]
+              # Replace original values for non link type to be same as analysis values
+              if !data['is_link'] && field =~ /^original_/
+                new_field = field.gsub('original_', 'analysis_')
+                field_value = data[new_field]
+              end
+              unless field_value.blank?
+                running_bucket << Bot::Alegre.send_to_text_similarity_index_package(
+                  data['project_media'],
+                  field,
+                  field_value,
+                  Bot::Alegre.item_doc_id(data['project_media'], field)
+                )
+              end
+            end
+            Bot::Alegre.request_api('post', '/text/bulk_similarity', {documents: running_bucket}) if running_bucket.length > 50
           end
+          # log last project media id
+          Rails.cache.write("check:migrate:update_alegre_stored_project_media:pm_id", ids.max)
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
