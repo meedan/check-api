@@ -166,6 +166,8 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
+    Bot::Alegre.stubs(:request_api).returns({"success" => true})
+    Bot::Alegre.stubs(:request_api).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
   end
 
   # This will run after any test

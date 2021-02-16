@@ -139,11 +139,11 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| !pm.analysis.dig('content').blank? ? pm.analysis.dig('content') : (pm.media&.metadata&.dig('description') || (pm.media.type == 'Claim' ? nil : pm.text)) },
+      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description},
       update_on: analysis_update('content')
 
     cached_field :title,
-      recalculate: proc { |pm| !pm.analysis.dig('title').blank? ? pm.analysis.dig('title') : (pm.media&.metadata&.dig('title') || pm.media.quote) },
+      recalculate: proc { |pm| pm.has_analysis_title? ? pm.analysis_title : pm.original_title },
       update_on: analysis_update('title')
 
     cached_field :status,

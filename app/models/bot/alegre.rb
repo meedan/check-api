@@ -5,6 +5,37 @@ class Bot::Alegre < BotUser
     attr_accessor :alegre_similarity_thresholds
   end
 
+  DynamicAnnotation::Field.class_eval do
+    after_save :save_analysis_to_similarity_index, if: :can_be_sent_to_index?
+    after_destroy :delete_analysis_from_similarity_index, if: :can_be_sent_to_index?
+    
+    def self.save_analysis_to_similarity_index(pm_id)
+      pm = ProjectMedia.find_by_id(pm_id)
+      Bot::Alegre.send_title_to_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.send_description_to_similarity_index(pm, 'analysis_description')
+    end
+
+    def self.delete_analysis_from_similarity_index(pm_id)
+      pm = ProjectMedia.find_by_id(pm_id)
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description')
+    end
+
+    private
+
+    def can_be_sent_to_index?
+      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status'
+    end
+
+    def save_analysis_to_similarity_index
+      self.class.delay.save_analysis_to_similarity_index(self.annotation.annotated_id)
+    end
+
+    def delete_analysis_from_similarity_index
+      self.class.delay.delete_analysis_from_similarity_index(self.annotation.annotated_id)
+    end
+  end  
+
   def self.run(body)
     if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
@@ -18,8 +49,8 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
-        self.send_to_title_similarity_index(pm)
-        self.send_to_description_similarity_index(pm)
+        self.send_title_to_similarity_index(pm, 'original_title')
+        self.send_description_to_similarity_index(pm, 'original_description')
         self.get_flags(pm)
         self.relate_project_media_to_similar_items(pm)
         handled = true
@@ -95,7 +126,7 @@ class Bot::Alegre < BotUser
     lang = 'und'
     begin
       response = self.request_api('get', '/text/langid/', { text: text })
-      lang = response['result']['language']
+      lang = response['result']['language'] || lang
     rescue
     end
     lang
@@ -134,36 +165,70 @@ class Bot::Alegre < BotUser
     ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}"
   end
 
-  def self.send_to_title_similarity_index(pm)
+  def self.item_doc_id(object, field_name)
+    Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip
+  end
+
+  def self.send_title_to_similarity_index(pm, field)
     return if pm.title.blank?
-    self.send_to_text_similarity_index(pm, 'title', pm.title)
+    self.send_to_text_similarity_index(pm, field, pm.title, self.item_doc_id(pm, field))
   end
 
-  def self.send_to_description_similarity_index(pm)
+  def self.send_description_to_similarity_index(pm, field)
     return if pm.description.blank?
-    self.send_to_text_similarity_index(pm, 'description', pm.description)
+    self.send_to_text_similarity_index(pm, field, pm.description, self.item_doc_id(pm, field))
   end
 
-  def self.send_to_text_similarity_index(pm, field, text)
-    self.request_api('post', '/text/similarity/', {
+  def self.delete_field_from_text_similarity_index(pm, field)
+    self.delete_from_text_similarity_index(self.item_doc_id(pm, field))
+  end
+
+  def self.delete_from_text_similarity_index(doc_id)
+    self.request_api('delete', '/text/similarity/', {
+      doc_id: doc_id
+    })
+  end
+
+  def self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+    {
+      doc_id: doc_id,
       text: text,
       context: {
         team_id: pm.team_id,
         field: field,
-        project_media_id: pm.id
+        project_media_id: pm.id,
+        has_custom_id: true
       }
-    })
+    }
+  end
+
+  def self.send_to_text_similarity_index(pm, field, text, doc_id)
+    self.request_api(
+      'post',
+      '/text/similarity/',
+      self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+    )
+  end
+
+  def self.send_to_image_similarity_index_package(pm)
+    {
+      doc_id: self.item_doc_id(pm, 'image'),
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+        project_media_id: pm.id,
+        has_custom_id: true
+      }
+    }
   end
 
   def self.send_to_image_similarity_index(pm)
     return if pm.report_type != 'uploadedimage'
-    self.request_api('post', '/image/similarity/', {
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id
-      }
-    })
+    self.request_api(
+      'post',
+      '/image/similarity/',
+      self.send_to_image_similarity_index_package(pm)
+    )
   end
 
   def self.request_api(method, path, params = {})
@@ -232,7 +297,8 @@ class Bot::Alegre < BotUser
       text: text,
       context: {
         team_id: pm.team_id,
-        field: field
+        field: field,
+        has_custom_id: true
       },
       threshold: threshold
     }, pm)
@@ -243,6 +309,7 @@ class Bot::Alegre < BotUser
       url: self.media_file_url(pm),
       context: {
         team_id: pm.team_id,
+        has_custom_id: true
       },
       threshold: threshold
     }, pm)
@@ -256,6 +323,7 @@ class Bot::Alegre < BotUser
     # - If it's a child, get its parent.
     # - If it's a parent, use it.
     # - If it has no existing relationship, use it.
+
     parent_id = pm_id_scores.keys.sort[0]
     source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
     if source_ids.length > 0
@@ -271,7 +339,10 @@ class Bot::Alegre < BotUser
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
-    if pm_id_scores[parent_id]
+    parent = ProjectMedia.find_by_id(parent_id)
+    if parent && parent.is_blank?
+      parent.replace_by(pm)
+    elsif pm_id_scores[parent_id]
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = pm_id_scores[parent_id][:relationship_type]
