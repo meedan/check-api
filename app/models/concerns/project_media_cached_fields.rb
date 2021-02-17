@@ -227,5 +227,45 @@ module ProjectMediaCachedFields
       update_es: proc { |_pm, value| Media.types.index(value) },
       recalculate: proc { |pm| pm.media.type },
       update_on: [] # Should never change
+
+    cached_field :added_as_similar_by_name,
+      start_as: nil,
+      update_es: false,
+      recalculate: proc { |pm|
+        user = Relationship.confirmed.where(target_id: pm.id).last&.user
+        user && user == BotUser.alegre_user ? 'Check' : user&.name
+      },
+      update_on: [
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.target_id] },
+          events: {
+            create: proc { |_pm, r| r.user&.name },
+            destroy: proc { |_pm, _r| nil }
+          }
+        }
+      ]
+
+    cached_field :confirmed_as_similar_by_name,
+      start_as: nil,
+      update_es: false,
+      recalculate: proc { |pm| Relationship.confirmed.where(target_id: pm.id).last&.versions&.where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'")&.last&.user&.name },
+      update_on: [
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.target_id] },
+          if: proc { |r| r.relationship_type_was.to_json == Relationship.suggested_type.to_json && r.relationship_type.to_json == Relationship.confirmed_type.to_json },
+          events: {
+            save: proc { |_pm, _r| User.current&.name },
+          }
+        },
+        {
+          model: Relationship,
+          affected_ids: proc { |r| [r.target_id] },
+          events: {
+            destroy: proc { |_pm, _r| nil }
+          }
+        }
+      ]
   end
 end
