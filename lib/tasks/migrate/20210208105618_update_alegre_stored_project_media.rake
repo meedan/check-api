@@ -1,5 +1,6 @@
 namespace :check do
   namespace :migrate do
+    desc "Updates ProjectMedia titles and descriptions on alegre's index"
     task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
       running_bucket = []
