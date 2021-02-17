@@ -1,4 +1,4 @@
-language: ruby
+language: minimal
 dist: bionic
 before_install:
 - export APP=check
@@ -18,16 +18,10 @@ cache:
   - "/tmp/bundler"
   - "/tmp/downloads"
   - "/usr/local/lib/python2.7/dist-packages/pip"
-addons:
-  hosts:
-  - api
-bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - docker-compose build
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
-# - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-- sleep 20
-- docker ps
+- until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 - docker-compose exec api test/setup-parallel-env.sh
 - docker-compose exec api bundle exec rake assets:precompile
 - sleep 10
@@ -40,8 +34,6 @@ after_script:
   -e GIT_COMMITTED_AT=$GIT_COMMITTED_AT
   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
   api test/test-coverage.sh
-rvm:
-- 2.4
 jobs:
   include:
     - stage: test
