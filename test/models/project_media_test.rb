@@ -24,7 +24,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert_equal u, pm.user
       end
     end
-    # should be uinq
+    # should be unique
     assert_no_difference 'ProjectMedia.count' do
       assert_raises RuntimeError do
         create_project_media team: t, media: m
