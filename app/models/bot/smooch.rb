@@ -998,6 +998,7 @@ class Bot::Smooch < BotUser
   def self.send_message_on_status_change(pm_id, status)
     pm = ProjectMedia.find_by_id(pm_id)
     return if pm.nil?
+    requestors_count = 0
     parent = Relationship.where(target_id: pm.id).last&.source || pm
     ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
       pm2.get_annotations('smooch').find_each do |annotation|
@@ -1007,9 +1008,11 @@ class Bot::Smooch < BotUser
         unless message.blank?
           response = self.send_message_to_user(data['authorId'], message)
           self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+          requestors_count += 1
         end
       end
     end
+    CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
   end
 
   def self.refresh_smooch_slack_timeout(uid, slack_data = {})

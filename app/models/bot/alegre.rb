@@ -355,6 +355,7 @@ class Bot::Alegre < BotUser
       r.target_id = pm.id
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
+      CheckNotification::InfoMessages.send(r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar', item_title: pm.title, similar_item_title: ProjectMedia.find(parent_id).title)
     else
       return false
     end

@@ -320,4 +320,39 @@ class RelationshipTest < ActiveSupport::TestCase
       r.reload.send :update_counters
     end
   end
+
+  test "should cache the name of who created a similar item" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user is_admin: true
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = nil
+    with_current_user_and_team(u, t) do
+      r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, user: nil
+    end
+    assert_queries(0, '=') { assert_equal u.name, pm2.added_as_similar_by_name }
+    Rails.cache.delete("check_cached_field:ProjectMedia:#{pm2.id}:added_as_similar_by_name")
+    assert_queries(0, '>') { assert_equal u.name, pm2.added_as_similar_by_name }
+    r.destroy!
+    assert_queries(0, '=') { assert_nil pm2.added_as_similar_by_name }
+  end
+
+  test "should cache the name of who confirmed a similar item" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user is_admin: true
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type, user: create_user(is_admin: true)
+    with_current_user_and_team(u, t) do
+      r.relationship_type = Relationship.confirmed_type
+      r.save!
+    end
+    assert_queries(0, '=') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
+    Rails.cache.delete("check_cached_field:ProjectMedia:#{pm2.id}:confirmed_as_similar_by_name")
+    assert_queries(0, '>') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
+    r.destroy!
+    assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
+  end
 end
