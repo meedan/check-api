@@ -166,7 +166,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.item_doc_id(object, field_name)
-    Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip
+    Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip.delete("\n").delete("=")
   end
 
   def self.send_title_to_similarity_index(pm, field)

@@ -1,10 +1,11 @@
 namespace :check do
   namespace :migrate do
+    desc "Updates ProjectMedia titles and descriptions on alegre's index"
     task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
       running_bucket = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
-        last_id = 0 # Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
+        last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         # Handle ProjectMedia of Claim, Image, Video and Audio types as all data stored in verification status
         # related to Project Media
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
