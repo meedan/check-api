@@ -2,8 +2,9 @@ namespace :check do
   namespace :migrate do
     task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
-      last_id = Rails.cache.read('check:migrate:update_alegre_stored_project_media:pm_id') || 0
+      running_bucket = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
+        last_id = 0 # Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         # Handle ProjectMedia of Claim, Image, Video and Audio types as all data stored in verification status
         # related to Project Media
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
@@ -49,9 +50,8 @@ namespace :check do
               pm_data[pm_id]['original_description'] = df.value_json['description']
             end
           end
-
-          pm_data.each do |_k, data|
-            running_bucket = []
+          # loap through ProjectMedia data and send to Alegre when running_bucket.length > 50
+          pm_data.each do |k, data|
             ['original_title', 'original_description', 'analysis_title', 'analysis_description'].each do |field|
               field_value = data[field]
               # Replace original values for non link type to be same as analysis values
@@ -68,12 +68,18 @@ namespace :check do
                 )
               end
             end
-            Bot::Alegre.request_api('post', '/text/bulk_similarity', {documents: running_bucket}) if running_bucket.length > 50
+            if running_bucket.length > 50
+              Bot::Alegre.request_api('post', '/text/bulk_similarity', { documents: running_bucket })
+              running_bucket = []
+              # log last project media id
+              Rails.cache.write("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id", k)
+            end
           end
-          # log last project media id
-          Rails.cache.write("check:migrate:update_alegre_stored_project_media:pm_id", ids.max)
         end
+
       end
+      # send latest running_bucket even lenght < 50
+      Bot::Alegre.request_api('post', '/text/bulk_similarity', { documents: running_bucket }) if running_bucket.length > 0
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
