@@ -29,7 +29,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libsqlite3-dev \
     lz4 \
     nodejs \
-    sqlite3
+    sqlite3 \
+    lsof
 
 # install our app
 WORKDIR /app
