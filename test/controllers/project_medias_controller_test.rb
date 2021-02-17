@@ -76,6 +76,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
     pm = create_project_media
     pattern = /oembed\.html\?hide_notes=1/
     RequestStore.stubs(:[]).with(:task_comment).returns(nil)
+    RequestStore.stubs(:[]).with(:actor_session_id).returns(nil)
     RequestStore.stubs(:[]).with(:request).returns(OpenStruct.new({ query_string: 'hide_notes=1', headers: { 'X-Check-Client' => 'test' } }))
     get :oembed, id: pm.id, format: :json, hide_notes: 1
     body = @response.body
