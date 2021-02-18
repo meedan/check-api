@@ -4,6 +4,8 @@ namespace :check do
     task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
       running_bucket = []
+      log_errors = []
+      temp_ids = []
       team_total = BotUser.alegre_user.team_bot_installations.count
       counter = 0
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
@@ -56,6 +58,7 @@ namespace :check do
           end
           # loap through ProjectMedia data and send to Alegre when running_bucket.length > 50
           pm_data.each do |k, data|
+            temp_ids << k
             ['original_title', 'original_description', 'analysis_title', 'analysis_description'].each do |field|
               field_value = data[field]
               # Replace original values for non link type to be same as analysis values
@@ -73,8 +76,12 @@ namespace :check do
               end
             end
             if running_bucket.length > 500
-              Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket })
+              output = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket })
+              if output.class.name == 'Hash' && output['type'] == 'error'
+                log_errors << { message: output['data'], ids: temp_ids }
+              end
               running_bucket = []
+              temp_ids = []
               # log last project media id
               Rails.cache.write("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id", k)
             end
@@ -83,7 +90,14 @@ namespace :check do
 
       end
       # send latest running_bucket even lenght < 50
-      Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket }) if running_bucket.length > 0
+      output = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket }) if running_bucket.length > 0
+      if output.class.name == 'Hash' && output['type'] == 'error'
+        log_errors << { message: output['data'], ids: temp_ids }
+      end
+      unless log_errors.empty?
+        puts "[#{Time.now}] #{log_errors.size} project medias couldn't be updated:"
+        puts log_errors
+      end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
