@@ -115,6 +115,7 @@ class Ability
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
+    can :create, Source, :team_id => @context_team.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }

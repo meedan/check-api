@@ -845,6 +845,25 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, s2)
   end
 
+  test "collaborator permissions for source" do
+    u = create_user
+    t = create_team
+    t2 = create_team
+    create_team_user team: t, user: u, role: 'collaborator'
+    s = create_source team: t
+    s2 = create_source team: t2
+    s2 = create_source team: create_team, user: u
+    with_current_user_and_team(u, t) do
+    ability = Ability.new
+      assert ability.can?(:create, s)
+      assert ability.cannot?(:update, s)
+      assert ability.cannot?(:destroy, s)
+      assert ability.cannot?(:create, s2)
+      assert ability.cannot?(:update, s2)
+      assert ability.cannot?(:destroy, s2)
+    end
+  end
+
   test "should user destroy own request to join a team" do
     u = create_user
     t = create_team
