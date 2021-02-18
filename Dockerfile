@@ -31,8 +31,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     nodejs \
     sqlite3 \
     lsof \
-    python2.7 \
     python-pip
+
+RUN python -m pip install -U setuptools wheel
 
 # install our app
 WORKDIR /app
