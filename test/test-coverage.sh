@@ -1,7 +1,6 @@
 #!/bin/bash
 
-touch tmp/parallel_runtime_test.log
-chmod +w tmp/parallel_runtime_test.log
+apt-get install -y golang-go golang-glide
 printf '#!/bin/bash\ngo run /tmp/go/src/github.com/codeclimate/test-reporter/main.go $@\n' > test/cc-test-reporter && chmod +x test/cc-test-reporter
 export GOPATH=/tmp/go
 mkdir -p /tmp/go/src/github.com/codeclimate

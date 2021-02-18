@@ -26,6 +26,8 @@ before_script:
 - docker-compose exec api bundle exec rake assets:precompile
 - sleep 10
 - chmod +x job-script-one.sh && chmod +x job-script-two.sh
+- touch tmp/parallel_runtime_test.log
+- chmod +w tmp/parallel_runtime_test.log
 after_script:
 - chmod +x test/test-coverage.sh
 - docker-compose exec
