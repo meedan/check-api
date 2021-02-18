@@ -4,14 +4,19 @@ namespace :check do
     task update_alegre_stored_project_media: :environment do
       started = Time.now.to_i
       running_bucket = []
+      team_total = BotUser.alegre_user.team_bot_installations.count
+      counter = 0
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
-        # Handle ProjectMedia of Claim, Image, Video and Audio types as all data stored in verification status
-        # related to Project Media
+        pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
+        .where("project_medias.created_at > ?", Time.parse("2020-01-01")).count
+        total = (pm_all_count/2500.to_f).ceil
+        counter += 1
+        progressbar = ProgressBar.create(:title => "Update team [#{tb.team_id}]: #{counter}/#{team_total}", :total => total)
         ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
         .where("project_medias.created_at > ?", Time.parse("2020-01-01"))
         .find_in_batches(:batch_size => 2500) do |pms|
-          print '.'
+          progressbar.increment
           ids = pms.map(&:id)
           # add pm_data to collect the following keys
           # project_media: ProjectMedia Object
@@ -26,7 +31,6 @@ namespace :check do
             field_name: ['title', 'content'], annotation_type: 'verification_status')
           .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia'")
           .where('a.annotated_id IN (?)', ids).find_each do |df|
-            print '.'
             if df.field_name == 'title'
               pm_data[df.pm_id]['analysis_title'] = df.value
             else
@@ -44,7 +48,6 @@ namespace :check do
             .where(field_name: 'metadata_value', annotation_type: 'metadata')
             .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'Media'")
             .where('a.annotated_id IN (?)', m_ids).find_each do |df|
-              print '.'
               pm_id = m_mapping[df.m_id]
               pm_data[pm_id]['is_link'] = true
               pm_data[pm_id]['original_title'] = df.value_json['title']
@@ -69,7 +72,7 @@ namespace :check do
                 )
               end
             end
-            if running_bucket.length > 50
+            if running_bucket.length > 500
               Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket })
               running_bucket = []
               # log last project media id
