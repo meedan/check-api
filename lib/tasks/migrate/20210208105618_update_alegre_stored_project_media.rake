@@ -8,6 +8,8 @@ namespace :check do
       temp_ids = []
       team_total = BotUser.alegre_user.team_bot_installations.count
       counter = 0
+      sent_cases = []
+      received_cases = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
@@ -76,7 +78,10 @@ namespace :check do
               end
             end
             if running_bucket.length > 500
+              running_bucket.collect{|x| sent_cases << x}
               output = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket })
+              output.collect{|x| received_cases << x}
+              puts received_cases.length
               if output.class.name == 'Hash' && output['type'] == 'error'
                 log_errors << { message: output['data'], ids: temp_ids }
               end
@@ -87,10 +92,12 @@ namespace :check do
             end
           end
         end
-
       end
       # send latest running_bucket even lenght < 50
+      running_bucket.collect{|x| sent_cases << x}
       output = Bot::Alegre.request_api('post', '/text/bulk_similarity/', { documents: running_bucket }) if running_bucket.length > 0
+      output.collect{|x| received_cases << x}
+      puts received_cases.length
       if output.class.name == 'Hash' && output['type'] == 'error'
         log_errors << { message: output['data'], ids: temp_ids }
       end
@@ -98,6 +105,12 @@ namespace :check do
         puts "[#{Time.now}] #{log_errors.size} project medias couldn't be updated:"
         puts log_errors
       end
+      f = File.open("sent_documents.json", "w")
+      f.write(sent_cases.to_json)
+      f.close
+      f = File.open("received_documents.json", "w")
+      f.write(received_cases.to_json)
+      f.close
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
