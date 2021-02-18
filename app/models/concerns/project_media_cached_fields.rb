@@ -240,7 +240,7 @@ module ProjectMediaCachedFields
           model: Relationship,
           affected_ids: proc { |r| [r.target_id] },
           events: {
-            create: proc { |_pm, r| r.user&.name },
+            create: proc { |_pm, r| r.user && r.user == BotUser.alegre_user ? 'Check' : r.user&.name },
             destroy: proc { |_pm, _r| nil }
           }
         }
@@ -249,7 +249,7 @@ module ProjectMediaCachedFields
     cached_field :confirmed_as_similar_by_name,
       start_as: nil,
       update_es: false,
-      recalculate: proc { |pm| Relationship.confirmed.where(target_id: pm.id).last&.versions&.where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'")&.last&.user&.name },
+      recalculate: proc { |pm| Relationship.confirmed.where(target_id: pm.id).last&.versions&.from_partition(pm.team_id)&.where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'")&.last&.user&.name },
       update_on: [
         {
           model: Relationship,
