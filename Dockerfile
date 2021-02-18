@@ -30,7 +30,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     lz4 \
     nodejs \
     sqlite3 \
-    lsof
+    lsof \
+    python2.7 \
+    python-pip
 
 # install our app
 WORKDIR /app
