@@ -15,6 +15,7 @@ module CheckNotification
 
     def self.send(info, args={})
       begin
+        args.each_pair { |key, value| args[key] = value.truncate(25) if value.is_a?(String) && !key.match(/link|url/) }
         info_message = { message: I18n.t("info.messages.#{info}".to_sym, args), code: "CheckNotification::InfoCodes::#{info.upcase}".constantize }
         CheckPusher::Worker.perform_async(["check-api-session-channel-#{actor_session_id}"], 'info_message', info_message.to_json, actor_session_id)
       rescue StandardError => e
