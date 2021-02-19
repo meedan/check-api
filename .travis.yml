@@ -30,7 +30,8 @@ before_script:
 - chmod +w tmp/parallel_runtime_test.log
 after_script:
 - chmod +x test/test-coverage.sh
-- echo $GEM_PATH && echo $PATH
+- echo $GEM_PATH 
+- echo $PATH
 - docker-compose exec
   -e TRAVIS_BRANCH=$TRAVIS_BRANCH
   -e TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
