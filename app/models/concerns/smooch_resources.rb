@@ -51,13 +51,13 @@ module SmoochResources
           next if resource['smooch_custom_resource_feed_url'].blank?
           begin
             content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
-            Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content)
+            Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content, expires_in: 1.hour)
           rescue StandardError => e
             self.notify_error(e, { bot: 'Smooch', operation: 'RSS Feed Update', team: tbi.team.slug }.merge(resource))
           end
         end
       end
-      self.delay_for(15.minutes, retry: 0).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop
+      self.delay_for(15.minutes, retry: 5).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop
     end
 
     def save_resources(team_id, settings)
