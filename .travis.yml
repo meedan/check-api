@@ -1,11 +1,11 @@
 language: minimal
 dist: bionic
 before_install:
-# - export APP=check
-# - export RECORD_RUNTIME=true
-# - export LC_ALL=C.UTF-8
-# - export LANG=C.UTF-8
-# - export LANGUAGE=C.UTF-8
+- export APP=check
+- export RECORD_RUNTIME=true
+- export LC_ALL=C.UTF-8
+- export LANG=C.UTF-8
+- export LANGUAGE=C.UTF-8
 - git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
