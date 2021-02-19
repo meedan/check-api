@@ -1,13 +1,11 @@
 language: minimal
 dist: bionic
 before_install:
-- export APP=check
-- export RECORD_RUNTIME=true
-- export PATH=/tmp/bundler/ruby/2.4.0/bin:$PATH
-- export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
-- export LC_ALL=C.UTF-8
-- export LANG=C.UTF-8
-- export LANGUAGE=C.UTF-8
+# - export APP=check
+# - export RECORD_RUNTIME=true
+# - export LC_ALL=C.UTF-8
+# - export LANG=C.UTF-8
+# - export LANGUAGE=C.UTF-8
 - git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
@@ -39,6 +37,8 @@ after_script:
   -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA
   -e GIT_COMMITTED_AT=$GIT_COMMITTED_AT
   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
+  -e PATH=/tmp/bundler/ruby/2.4.0/bin:$PATH
+  -e GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
   api test/test-coverage.sh
 jobs:
   include:
