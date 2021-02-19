@@ -25,7 +25,6 @@ before_script:
 - docker-compose exec api test/setup-parallel-env.sh
 - docker-compose exec api bundle exec rake assets:precompile
 - sleep 10
-- chmod +x functional-tests.sh && chmod +x unit-tests.sh
 - touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
 after_script:
