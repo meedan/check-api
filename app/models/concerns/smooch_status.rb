@@ -23,6 +23,7 @@ module SmoochStatus
     end
 
     ::DynamicAnnotation::Field.class_eval do
+      include CheckPusher
       after_save do
         if self.field_name == 'smooch_user_slack_channel_url'
           smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user', annotation_id: self.annotation.id).last
@@ -43,7 +44,7 @@ module SmoochStatus
       def send_message
         pm = self.annotation.annotated
         return unless Bot::Smooch.team_has_smooch_bot_installed(pm)
-        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_message_on_status_change(pm.id, self.value)
+        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).send_message_on_status_change(pm.id, self.value, self.class.actor_session_id)
       end
     end
   end
