@@ -329,6 +329,23 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 2, p4.reload.medias_count
   end
 
+  test "should bulk-move project medias to a list even the item already exists" do
+    inputs = []
+    p = create_project team: @t
+    create_project_media_project project: p, project_media: @pm1
+    assert_equal 1, @p1.reload.medias_count
+    assert_equal 1, p.reload.medias_count
+    ids = []
+    [@pmp1.graphql_id].each { |id| ids << id }
+    query = "mutation { updateProjectMediaProjects(input: { clientMutationId: \"1\", ids: #{ids.to_json}, project_id: #{p.id} }) { team { dbid } } }"
+    assert_difference 'ProjectMediaProject.count', -1 do
+      post :create, query: query, team: @t.slug
+      assert_response :success
+    end
+    assert_equal 0, @p1.reload.medias_count
+    assert_equal 1, p.reload.medias_count
+  end
+
   test "should update archived media by owner" do
     pm = create_project_media team: @t, archived: CheckArchivedFlags::FlagCodes::TRASHED
     query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
