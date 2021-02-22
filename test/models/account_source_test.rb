@@ -45,7 +45,7 @@ class AccountSourceTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
     u = create_user
     t = create_team
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     Team.stubs(:current).returns(t)
     s = create_source
     assert_difference 'AccountSource.count' do

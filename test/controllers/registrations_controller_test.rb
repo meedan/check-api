@@ -26,9 +26,9 @@ class RegistrationsControllerTest < ActionController::TestCase
     t = create_team
     u = create_user
     email = 'test@local.com'
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      members = [{role: 'contributor', email: email}]
+      members = [{role: 'collaborator', email: email}]
       User.send_user_invitation(members)
     end
     User.current = Team.current = nil

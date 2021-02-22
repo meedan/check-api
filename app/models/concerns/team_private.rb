@@ -12,7 +12,7 @@ module TeamPrivate
       tu = TeamUser.new
       tu.user = user
       tu.team = self
-      tu.role = 'owner'
+      tu.role = 'admin'
       tu.save!
 
       user.current_team_id = self.id

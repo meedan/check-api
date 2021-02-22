@@ -182,7 +182,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     t =  create_team
     u = create_user
     u2 = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2
     p = create_project team: t
     p2 = create_project team: t
@@ -242,7 +242,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     t =  create_team
     u = create_user
     u2 = create_user
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     create_team_user user: u2, team: t
     Sidekiq::Testing.inline! do
       tt = nil

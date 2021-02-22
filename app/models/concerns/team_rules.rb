@@ -144,10 +144,12 @@ module TeamRules
       pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
       pm.skip_check_ability = true
       pm.save!
+      CheckNotification::InfoMessages.send('sent_to_trash_by_rule', item_title: pm.title)
     end
 
     def ban_submitter(pm, _value, _rule_id)
       ::Bot::Smooch.ban_user(pm.smooch_message)
+      CheckNotification::InfoMessages.send('banned_submitter_by_rule', item_title: pm.title)
     end
 
     def move_to_project(pm, value, _rule_id)
@@ -156,12 +158,16 @@ module TeamRules
         pm = ProjectMedia.where(id: pm.id).last
         ProjectMediaProject.where(project_media_id: pm.id).destroy_all
         ProjectMediaProject.create!(project: project, project_media: pm, skip_check_ability: true)
+        CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
       end
     end
 
     def copy_to_project(pm, value, _rule_id)
       project = Project.where(team_id: self.id, id: value.to_i).last
-      ProjectMediaProject.create!(project: project, project_media: pm) if !project.nil? && ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
+      unless project.nil? || !ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
+        ProjectMediaProject.create!(project: project, project_media: pm)
+        CheckNotification::InfoMessages.send('copied_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
+      end
     end
   end
 

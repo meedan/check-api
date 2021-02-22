@@ -6,6 +6,7 @@ module ActiveRecordExtensions
     include CheckPusher
     include CheckSettings
     include CheckCachedFields
+    include CheckNotification
 
     attr_accessor :no_cache, :skip_check_ability, :skip_notifications, :disable_es_callbacks, :client_mutation_id, :skip_clear_cache, :keep_file, :version_object
 

@@ -25,6 +25,8 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :share_count, types.Int
   field :list_columns_values, JsonStringType
   field :report_status, types.String
+  field :confirmed_as_similar_by_name, types.String
+  field :added_as_similar_by_name, types.String
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 
@@ -39,7 +41,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
 
   field :type, types.String  do
     resolve -> (project_media, _args, _ctx) {
-      project_media.media.type
+      project_media.type_of_media
     }
   end
 

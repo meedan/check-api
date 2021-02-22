@@ -79,7 +79,7 @@ class MetadataTest < ActiveSupport::TestCase
     u1 = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u2, role: 'owner'
+    create_team_user team: t, user: u2, role: 'admin'
     p = create_project team: t
     with_current_user_and_team(u2, t) do
       em = create_metadata annotated: p, annotator: nil

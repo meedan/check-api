@@ -286,29 +286,10 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm2[1].id, pm2[0].id], results
   end
 
-  test "should filter search results for annotators" do
-    u1 = create_user name: 'Annotator'
-    u2 = create_user name: 'Owner'
-    t = create_team
-    create_team_user user: u1, team: t, role: 'annotator'
-    create_team_user user: u2, team: t, role: 'owner'
-    p = create_project team: t
-    pm1 = create_project_media project: p, disable_es_callbacks: false ; sleep 1
-    pm2 = create_project_media project: p, disable_es_callbacks: false ; sleep 1
-    tk = create_task annotated: pm1, disable_es_callbacks: false ; sleep 1
-    tk.assign_user(u1.id)
-    authenticate_with_user(u1)
-    query = 'query CheckSearch { search(query: "{\"eslimit\":1}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1.id], results
-  end
-
   test "should filter by date range" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     p = create_project team: t
 
     Time.stubs(:now).returns(Time.new(2019, 05, 18, 13, 00))
@@ -473,7 +454,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     id = Base64.encode64("TeamUser/#{i.id}")
-    query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "journalist" }) { team_user { id } } }'
+    query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "editor" }) { team_user { id } } }'
     post :create, query: query, team: i.team.slug
     assert_response :success
   end
@@ -516,7 +497,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should update tag" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'journalist'
+    create_team_user user: u, team: t, role: 'collaborator'
     authenticate_with_user(u)
     p = create_project team: t
     pm = create_project_media project: p
@@ -787,7 +768,7 @@ class GraphqlController3Test < ActionController::TestCase
         })
         u = create_user
         t = create_team
-        create_team_user team: t, user: u, role: 'owner'
+        create_team_user team: t, user: u, role: 'admin'
         p = create_project team: t
         author_id = random_string
         set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
@@ -830,7 +811,7 @@ class GraphqlController3Test < ActionController::TestCase
     })
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
     u2 = create_user
@@ -843,7 +824,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should delete tag" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     p = create_project team: t
     pm = create_project_media project: p
@@ -857,7 +838,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should create relationship" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'owner'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
@@ -1473,7 +1454,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should replace blank project media by another" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     old = create_project_media team: t, media: Blank.create!
     r = publish_report(old)
     new = create_project_media team: t
@@ -1492,7 +1473,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should get and set Slack settings for project" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     authenticate_with_user(u)
     query = 'mutation { updateProject(input: { clientMutationId: "1", id: "' + p.graphql_id + '", slack_events: "[{\"event\":\"item_added\",\"slack_channel\":\"#list\"}]" }) { project { get_slack_events } } }'
@@ -1530,7 +1511,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     url = random_url
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
@@ -1546,7 +1527,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
-    tu = create_team_user team: t, user: u, role: 'editor'
+    tu = create_team_user team: t, user: u, role: 'collaborator'
     authenticate_with_user(u)
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
@@ -1560,7 +1541,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(create_user)
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
@@ -1574,7 +1555,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     tbi = create_team_bot_installation team_id: t.id, user_id: b.id
-    tu = create_team_user team: t, user: u, role: 'owner'
+    tu = create_team_user team: t, user: u, role: 'admin'
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
@@ -1585,7 +1566,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should return similar items" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     p = create_project team: t
     p1 = create_project_media project: p
@@ -1605,7 +1586,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should return suggested similar items count" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     p = create_project team: t
     p1 = create_project_media project: p
@@ -1625,7 +1606,7 @@ class GraphqlController3Test < ActionController::TestCase
   test "should return confirmed similar items count" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     p = create_project team: t
     p1 = create_project_media project: p

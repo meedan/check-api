@@ -140,7 +140,7 @@ module PgExport
       end
 
       # SQL query (to be used as subquery) for user IDs that are either members of
-      # `team_id` or are outside contributors.
+      # `team_id` or are outside collaborators.
       def user_ids_sql
         "#{member_user_ids_sql} UNION SELECT user_id FROM project_medias WHERE team_id = #{team_id}"
       end

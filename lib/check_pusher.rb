@@ -38,6 +38,10 @@ module CheckPusher
 
       send :include, InstanceMethods
     end
+
+    def actor_session_id
+      RequestStore[:actor_session_id] ||= RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
+    end
   end
 
   module InstanceMethods
@@ -61,11 +65,11 @@ module CheckPusher
     end
 
     def actor_session_id
-      RequestStore[:request].blank? ? '' : RequestStore[:request].headers['X-Check-Client'].to_s
+      self.class.actor_session_id
     end
 
     def parse_data(data)
-      whitelist = [:annotation_type, :annotated_id, :id, :source_id, :lock_version, :class_name, :user_id, :annotator_id, :target_id]
+      whitelist = [:annotation_type, :annotated_id, :id, :source_id, :lock_version, :class_name, :user_id, :annotator_id, :target_id, :info]
       JSON.parse(data).reject{ |k, _v| !whitelist.include?(k.to_sym) }
     end
 

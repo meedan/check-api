@@ -23,7 +23,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     pu = create_user
     pt = create_team private: true
-    create_team_user team: pt, user: pu, role: 'owner'
+    create_team_user team: pt, user: pu, role: 'admin'
     with_current_user_and_team(u, t) { Team.find_if_can(t.id) }
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Team.find_if_can(pt.id) }
@@ -41,25 +41,20 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should update and destroy team" do
     u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'owner'
-    t.name = 'meedan'; t.save!
-    t.reload
-    assert_equal t.name, 'meedan'
+    t = create_team name: 'meedan'
+    create_team_user team: t, user: u, role: 'admin'
     # update team as owner
     u2 = create_user
-    tu = create_team_user team: t, user: u2, role: 'owner'
-    with_current_user_and_team(u2, t) { t.name = 'meedan_mod'; t.save! }
-    t.reload
-    assert_equal t.name, 'meedan_mod'
+    tu = create_team_user team: t, user: u2, role: 'editor'
+    with_current_user_and_team(u, t) { t.name = 'meedan_mod'; t.save! }
+    assert_equal t.reload.name, 'meedan_mod'
+    with_current_user_and_team(u2, t) { t.name = 'meedan_mod2'; t.save! }
+    assert_equal t.reload.name, 'meedan_mod2'
     assert_raise RuntimeError do
       with_current_user_and_team(u2, t) { t.destroy }
     end
-    Rails.cache.clear
-    u2 = User.find(u2.id)
-    tu.role = 'journalist'; tu.save!
-    assert_raise RuntimeError do
-      with_current_user_and_team(u2, t) { t.save! }
+    assert_nothing_raised do
+      with_current_user_and_team(u, t) { t.destroy }
     end
   end
 
@@ -300,14 +295,14 @@ class TeamTest < ActiveSupport::TestCase
   test "should get permissions" do
     u = create_user
     t = create_team
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     team = create_team
     perm_keys = [
       "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject",
       "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "create Contact", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
-      "duplicate Team"
+      "duplicate Team", "mange TagText", "mange TeamTask"
     ].sort
 
     # load permissions as owner
@@ -321,12 +316,12 @@ class TeamTest < ActiveSupport::TestCase
     tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
 
-    # load as journalist
-    tu = u.team_users.last; tu.role = 'journalist'; tu.save!
+    # load as editor
+    tu = u.team_users.last; tu.role = 'editor'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
 
-    # load as contributor
-    tu = u.team_users.last; tu.role = 'contributor'; tu.save!
+    # load as collaborator
+    tu = u.team_users.last; tu.role = 'collaborator'; tu.save!
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(team.permissions).keys.sort }
 
     # load as authenticated
@@ -605,7 +600,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.fake! do
       t = create_team
       u = create_user
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project team: t
       pm = create_project_media project: p
       n = Sidekiq::Extensions::DelayedClass.jobs.size
@@ -621,7 +616,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p1 = create_project
       p2 = create_project team: t
       s1 = create_source
@@ -649,7 +644,7 @@ class TeamTest < ActiveSupport::TestCase
   test "should not delete team later if doesn't have permission" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     with_current_user_and_team(u, t) do
       assert_raises RuntimeError do
         t.destroy_later
@@ -663,7 +658,7 @@ class TeamTest < ActiveSupport::TestCase
       p = create_project team: t
       3.times { create_project_media(project: p, archived: true) }
       u = create_user
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       with_current_user_and_team(u, t) do
@@ -677,7 +672,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project team: t
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
@@ -697,7 +692,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
-      create_team_user user: u, team: t, role: 'contributor'
+      create_team_user user: u, team: t, role: 'collaborator'
       p = create_project team: t
       3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
       2.times { create_project_media(project: p) }
@@ -715,7 +710,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline!
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -760,7 +755,7 @@ class TeamTest < ActiveSupport::TestCase
 
     u1 = create_user
     u2 = create_user
-    create_team_user team: team, user: u1, role: 'owner', status: 'member'
+    create_team_user team: team, user: u1, role: 'admin', status: 'member'
     create_team_user team: team, user: u2, role: 'editor', status: 'invited'
     create_contact team: team
 
@@ -810,7 +805,7 @@ class TeamTest < ActiveSupport::TestCase
     create_slack_bot
     team = create_team
     user = create_user
-    create_team_user team: team, user: user, role: 'owner'
+    create_team_user team: team, user: user, role: 'admin'
     project = create_project team: team, title: 'Project'
     pm = create_project_media project: project
     source = create_source user: user
@@ -938,20 +933,20 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     u2 = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2, role: 'editor'
-    assert_equal [u.id], t.owners('owner').map(&:id)
+    assert_equal [u.id], t.owners('admin').map(&:id)
     assert_equal [u2.id], t.owners('editor').map(&:id)
-    assert_equal [u.id, u2.id].sort, t.owners(['owner', 'editor']).map(&:id).sort
+    assert_equal [u.id, u2.id].sort, t.owners(['admin', 'editor']).map(&:id).sort
   end
 
   test "should get uniq owners by team_users relation" do
     t = create_team
     other_t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
-    create_team_user team: other_t, user: u, role: 'owner'
-    assert_equal [u.id], t.owners('owner').map(&:id)
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: other_t, user: u, role: 'admin'
+    assert_equal [u.id], t.owners('admin').map(&:id)
   end
 
   test "should be related to bots" do
@@ -972,7 +967,7 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     Team.stubs(:current).returns(t)
-    members = [{role: 'contributor', email: 'test1@local.com'}, {role: 'journalist', email: 'test2@local.com'}]
+    members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'collaborator', email: 'test2@local.com'}]
     User.send_user_invitation(members)
     assert_equal ['test1@local.com', 'test2@local.com'].sort, t.invited_mails.sort
     u = User.where(email: 'test1@local.com').last
@@ -1024,34 +1019,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should refresh permissions when loading a team" do
-    u1 = create_user
-    t1 = create_team
-    u2 = create_user
-    t2 = create_team
-    create_team_user user: u1, team: t1, status: 'member', role: 'owner'
-    create_team_user user: u2, team: t1, status: 'member', role: 'annotator'
-    sleep 1
-    create_team_user user: u1, team: t2, status: 'member', role: 'annotator'
-    create_team_user user: u2, team: t2, status: 'member', role: 'owner'
-
-    assert_equal 2, t1.members_count
-    assert_equal 2, t2.members_count
-
-    User.current = u1
-    Team.current = t2
-    assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
-    Team.current = t1
-    assert_equal [2, 1], u1.team_users.order('id ASC').collect{ |x| x.team.members_count }
-
-    User.current = u2
-    Team.current = t1
-    assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
-    Team.current = t2
-    assert_equal [1, 2], u2.team_users.order('id ASC').collect{ |x| x.team.members_count }
-    Team.current = nil
-  end
-
   test "should get dynamic fields schema" do
     create_flag_annotation_type
     t = create_team slug: 'team'
@@ -1082,7 +1049,7 @@ class TeamTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
-      create_team_user user: u, team: t, role: 'owner'
+      create_team_user user: u, team: t, role: 'admin'
       p = create_project team: t
       pm = create_project_media project: p
       tk = create_task annotated: pm
@@ -1264,7 +1231,7 @@ class TeamTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     t = create_team
     u = create_user
-    create_team_user user: u, team: t, role: 'contributor'
+    create_team_user user: u, team: t, role: 'collaborator'
     p0 = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t

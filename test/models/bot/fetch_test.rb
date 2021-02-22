@@ -84,6 +84,28 @@ class Bot::FetchTest < ActiveSupport::TestCase
     assert_equal "Earth isn't flat", ProjectMedia.last.title
   end
 
+  # This test to reproduce errbit error #CHECK-166
+  test "should handle es error" do
+    setup_elasticsearch
+    create_report_design_annotation_type
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Worker.drain_all
+    Sidekiq::Testing.fake! do
+      claim_review = @claim_review.clone
+      claim_review['identifier'] = random_string
+      request = OpenStruct.new(query_parameters: { 'team' => 'fetch' }, params: { 'claim_review' => claim_review })
+      assert Bot::Fetch.webhook(request)
+      assert_difference "ProjectMedia.where(team_id: #{@team.id}).count" do
+        Sidekiq::Worker.drain_all
+      end
+    end
+    pm = ProjectMedia.last
+    result = $repository.find(get_es_id(pm))
+    assert_equal pm.media.type, result['associated_type']
+    assert_equal pm.title, result['title']
+    assert_equal "Earth isn't flat", pm.title
+  end
+
   test "should not process webhook if an exception happens" do
     claim_review = @claim_review.clone
     claim_review['identifier'] = random_string

@@ -256,10 +256,8 @@ en:
     by %{team} as of %{date}
   oembed_source_date: "%{date} on %{provider}"
   role_editor: editor
-  role_owner: owner
-  role_contributor: contributor
-  role_journalist: journalist
-  role_annotator: annotator
+  role_admin: admin
+  role_collaborator: collaborator
   role_none: member
   role_: sysadmin
   oembed_credit: Added by %{user} (%{role}) %{date}
@@ -544,18 +542,13 @@ en:
     with new information"
   permissions_info:
     roles:
-      owner:
-        description: Owners control the workspace.
+      admin:
+        description: Admin control the workspace.
       editor:
         description: Editors manage the workspace and lists.
-      journalist:
-        description: Journalists verify information.
-      contributor:
-        description: Contributors can add new information to verify. They are often
+      collaborator:
+        description: Collaborator can add new information to verify. They are often
           members of the public.
-      annotator:
-        description: Annotators can only view and answer tasks that are assigned to
-          them.
     permissions:
       sections:
         project_management:
@@ -594,7 +587,7 @@ en:
             edit_tasks: Create and edit workspace tasks
             roles: Edit workspace roles
             third_party: Add third-party integrations
-            invite_owner: Invite, approve, and remove workspace owners
+            invite_admin: Invite, approve, and remove workspace admins
             invite_members: Invite, approve, and remove workspace members
   team_clone:
     user_not_authorized: Sorry, you are not allowed to duplicate this team.
@@ -758,3 +751,19 @@ en:
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
   go_back_to_check: Go back to Check
+  info:
+    messages:
+      sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
+        rule.'
+      moved_to_project_by_rule: '"%{item_title}" has been moved to the list "[%{list_name}](%{list_link})"
+        by an automation rule.'
+      banned_submitter_by_rule: The requestor of "%{item_title}" has been banned by
+        an automation rule
+      copied_to_project_by_rule: '"%{item_title}" has been copied to the list "[%{list_name}](%{list_link})"
+        by an automation rule.'
+      related_to_confirmed_similar: '"%{item_title}" has been confirmed similar to
+        "%{similar_item_title}"'
+      related_to_suggested_similar: '"%{item_title}" has been suggested similar to
+        "%{similar_item_title}"'
+      sent_message_to_requestors_on_status_change: '"%{status}" messages have been
+        sent to %{requestors_count} users'

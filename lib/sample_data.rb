@@ -403,11 +403,12 @@ module SampleData
     end
     account.disable_es_callbacks = options[:disable_es_callbacks]
     account.skip_pender = options[:skip_pender] if options.has_key?(:skip_pender)
-    account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team])
+    account.source = options.has_key?(:source) ? options[:source] : create_source(team: options[:team], skip_check_ability: options[:skip_check_ability])
     account.provider = options[:provider]
     account.uid = options[:uid]
     account.email = options[:email]
     account.omniauth_info = options[:omniauth_info]
+    account.skip_check_ability = options[:skip_check_ability]
     account.save!
     account.reload
   end
@@ -538,6 +539,7 @@ module SampleData
         source.file = f
       end
     end
+    source.skip_check_ability = options[:skip_check_ability]
     source.save!
     source.reload
   end
@@ -570,7 +572,7 @@ module SampleData
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
     options[:skip_autocreate_source] = true unless options.has_key?(:skip_autocreate_source)
-    pm.source = create_source({team: options[:team]}) if options[:skip_autocreate_source]
+    pm.source = create_source({ team: options[:team], skip_check_ability: true }) if options[:skip_autocreate_source]
     pm.save!
     pm.reload
   end
@@ -601,7 +603,7 @@ module SampleData
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
-    create_media({ account: create_valid_account({team: options[:team]}) }.merge(options).merge({ url: url }))
+    create_media({ account: create_valid_account({team: options[:team], skip_check_ability: true}) }.merge(options).merge({ url: url }))
   end
 
   def create_valid_account(options = {})
