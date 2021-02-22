@@ -181,10 +181,13 @@ class ProjectMedia < ActiveRecord::Base
     perms = {}
     perms["embed ProjectMedia"] = self.archived == CheckArchivedFlags::FlagCodes::NONE
     ability ||= Ability.new
+    temp = Source.new(team_id: self.team_id)
     perms["restore ProjectMedia"] = ability.can?(:restore, self)
     perms["confirm ProjectMedia"] = ability.can?(:confirm, self)
     perms["lock Annotation"] = ability.can?(:lock_annotation, self)
     perms["administer Content"] = ability.can?(:administer_content, self)
+    perms["create Source"] = ability.can?(:create, temp)
+    perms["update Source"] = ability.can?(:create, temp)
     perms
   end
 
@@ -303,10 +306,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def type_of_media
-    self.media.type
-  end
-
   def list_columns_values
     values = {}
     columns = self.team.list_columns || Team.default_list_columns
@@ -339,6 +338,30 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
+  def has_analysis_title?
+    !self.analysis_title.blank?
+  end
+
+  def original_title
+    (self.media&.metadata&.dig('title') || self.media.quote)
+  end
+
+  def analysis_title
+    self.analysis.dig('title')
+  end
+
+  def has_analysis_description?
+    !self.analysis_description.blank?
+  end
+
+  def original_description
+    (self.media&.metadata&.dig('description') || (self.media.type == 'Claim' ? nil : self.text))
+  end
+
+  def analysis_description
+    self.analysis.dig('content')
+  end
+
   protected
 
   def set_es_account_data
@@ -352,14 +375,12 @@ class ProjectMedia < ActiveRecord::Base
 
   def add_extra_elasticsearch_data(ms)
     m = self.media
-    unless m.nil?
-      ms.attributes[:associated_type] = m.type
-      ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
-      data = self.analysis || {}
-      ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
-      ms.attributes[:description] = data['content'].blank? ? m.metadata['description'] : data['content']
-      ms.attributes[:quote] = m.quote
-    end
+    ms.attributes[:associated_type] = m.type
+    ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
+    data = self.analysis || {}
+    ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
+    ms.attributes[:description] = data['content'].blank? ? m.metadata['description'] : data['content']
+    ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     # set fields with integer value
     fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']

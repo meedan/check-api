@@ -166,6 +166,8 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     WebMock.stub_request(:get, /api\.smooch\.io/)
     RequestStore.store[:skip_cached_field_update] = true
+    Bot::Alegre.stubs(:request_api).returns({"success" => true})
+    Bot::Alegre.stubs(:request_api).returns({"_index"=>"alegre_similarity", "_type"=>"_doc", "_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0xOTUwLWRlc2NyaXB0aW9u", "_version"=>3, "result"=>"deleted", "_shards"=>{"total"=>2, "successful"=>1, "failed"=>0}, "_seq_no"=>39, "_primary_term"=>176})
   end
 
   # This will run after any test
@@ -238,7 +240,7 @@ class ActiveSupport::TestCase
 
   def authenticate_with_user(user = nil)
     user ||= create_user
-    create_team_user(user: user, team: @team, role: 'owner') if user.current_team.nil?
+    create_team_user(user: user, team: @team, role: 'admin') if user.current_team.nil?
     @request.env['devise.mapping'] = Devise.mappings[:api_user]
     sign_in user
   end
@@ -248,9 +250,9 @@ class ActiveSupport::TestCase
     u2 = create_user name: 'User 2'
     u3 = create_user name: 'User 3'
     t = create_team
-    create_team_user user: u1, team: t, role: 'owner'
-    create_team_user user: u2, team: t, role: 'owner'
-    create_team_user user: u3, team: t, role: 'owner'
+    create_team_user user: u1, team: t, role: 'admin'
+    create_team_user user: u2, team: t, role: 'admin'
+    create_team_user user: u3, team: t, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
 
@@ -326,7 +328,7 @@ class ActiveSupport::TestCase
   def assert_graphql_update(type, attr, from, to)
     obj = send("create_#{type}", { team: @team }.merge({ attr => from }))
     user = obj.is_a?(User) ? obj : create_user
-    create_team_user(user: user, team: obj, role: 'owner') if obj.is_a?(Team)
+    create_team_user(user: user, team: obj, role: 'admin') if obj.is_a?(Team)
     authenticate_with_user(user)
 
     klass = obj.class.to_s

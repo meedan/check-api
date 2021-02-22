@@ -18,20 +18,14 @@ class Ability
       if @user.id
         authenticated_perms
       end
-      if @user.role?(:annotator, @context_team)
-        annotator_perms
-      end
-      if @user.role?(:contributor, @context_team)
-        contributor_perms
-      end
-      if @user.role?(:journalist, @context_team)
-        journalist_perms
+      if @user.role?(:collaborator, @context_team)
+        collaborator_perms
       end
       if @user.role?(:editor, @context_team)
         editor_perms
       end
-      if @user.role?(:owner, @context_team)
-        owner_perms
+      if @user.role?(:admin, @context_team)
+        admin_perms
       end
       unless @api_key.nil?
         api_key_perms
@@ -59,61 +53,40 @@ class Ability
     can :update, [Dynamic, DynamicAnnotation::Field], annotation_type: 'smooch_user'
   end
 
-  def annotator_perms
-    cannot [:read, :manage], DynamicAnnotation::Field do |obj|
-      obj.annotation.annotator_id != @user.id
-    end
-    can [:read, :manage], DynamicAnnotation::Field, annotation: { annotator_id: @user.id }
-    can [:update, :destroy], DynamicAnnotation::Field do |obj|
-      obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
-    end
-
-    assignments = @user.cached_assignments
-    pids = assignments[:pids]
-    pmids = assignments[:pmids]
-
-    cannot :read, [User, ProjectMedia, Project, Task]
-    can :read, User, id: @user.id
-    can :read, ProjectMedia, id: pmids
-    can :read, Project, id: pids
-    can :read, Task do |task|
-      task.assigned_users.include?(@user)
-    end
-
-    can_list [TeamUser, Assignment], user_id: @user.id
-    can_list Version, whodunnit: @user.id.to_s
-    can_list User, id: @user.id
-    can_list Task, { 'joins' => :assignments, 'assignments.user_id' => @user.id }
-    can_list ProjectMedia, id: pmids
-    can_list Project, id: pids
-    can_list [Annotation, Dynamic], { annotator_id: @user.id }
-
-    contributor_and_annotator_perms
+  def admin_perms
+    can :destroy, Team, :id => @context_team.id
+    can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
+    can [:update, :destroy], TeamUser, team_id: @context_team.id
+    can :duplicate, Team, :id => @context_team.id
   end
 
-  def owner_perms
+  def editor_perms
     can :destroy, :trash
-
-    can :destroy, Team, :id => @context_team.id
-    can :create, TeamUser, :team_id => @context_team.id, role: ['owner']
-    can :update, TeamUser, team_id: @context_team.id
-    can :destroy, Contact, :team_id => @context_team.id
-    can :destroy, Project, :team_id => @context_team.id
-    can :destroy, [Media, Link, Claim] do |obj|
-      obj.team_ids.include?(@context_team.id)
-    end
+    can :update, Team, :id => @context_team.id
+    can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'collaborator']
+    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
+    can [:cud], Contact, :team_id => @context_team.id
+    can :import_spreadsheet, Team, :id => @context_team.id
+    can :preview_rss_feed, Team, :id => @context_team.id
+    can :invite_members, Team, :id => @context_team.id
+    can [:cud], Project, :team_id => @context_team.id
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
-    can :destroy, [Account, Source], :team_id => @context_team.id
-    can :destroy, AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
-    %w(annotation comment tag dynamic task).each do |annotation_type|
-      can :destroy, annotation_type.classify.constantize do |obj|
+    can :manage, [TagText, TeamTask], team_id: @context_team.id
+    can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
+      obj.team == @context_team
+    end
+    can [:cud], BotResource, :team_id => @context_team.id
+    can [:cud], DynamicAnnotation::Field do |obj|
+      obj.annotation.team&.id == @context_team.id
+    end
+    can [:cud], [Account, Source], :team_id => @context_team.id
+    can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
+    %w(annotation comment dynamic task tag).each do |annotation_type|
+      can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id
       end
-    end
-    can :destroy, DynamicAnnotation::Field do |obj|
-      obj.annotation.team&.id == @context_team.id
     end
     can :destroy, Version do |obj|
       teams = []
@@ -123,154 +96,71 @@ class Ability
       teams << v_obj_parent.team&.id if v_obj_parent
       teams.include?(@context_team.id)
     end
-    can :manage, [TagText, TeamTask], team_id: @context_team.id
-    can :import_spreadsheet, Team, :id => @context_team.id
-    can :preview_rss_feed, Team, :id => @context_team.id
-    can :duplicate, Team, :id => @context_team.id
   end
 
-  def editor_perms
-    can :update, Team, :id => @context_team.id
-    can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
-    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
-    can [:create, :update], Contact, :team_id => @context_team.id
-    can :update, Project, :team_id => @context_team.id
-    can [:update, :destroy], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
-    can :destroy, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.user_id == @user.id
+  def collaborator_perms
+    can [:cud], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
+    can [:create, :update], ProjectMedia do |obj|
+      obj.related_to_team?(@context_team)
     end
-    %w(annotation comment dynamic task).each do |annotation_type|
-      can [:destroy, :update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.team&.id == @context_team.id && !obj.annotated_is_archived?
-      end
+    can :create, [Media, Link, Claim]
+    can :update, [Media, Link, Claim], { user_id: @user.id }
+    can [:update, :destroy], [Media, Link, Claim] do |obj|
+      obj.team_ids.include?(@context_team.id)
     end
-    can :destroy, DynamicAnnotation::Field do |obj|
-      annotated_type = obj.annotation&.annotated_type
-      annotated_type == 'Task' && obj.annotation.team&.id == @context_team.id
+    can [:cud], ProjectMediaProject do |obj|
+      obj.project && obj.project.team_id == @context_team.id
     end
+    can :destroy, TeamUser, user_id: @user.id
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
     end
-    can :import_spreadsheet, Team, :id => @context_team.id
-    can :invite_members, Team, :id => @context_team.id
-    can [:create, :update, :destroy], BotResource, :team_id => @context_team.id
-  end
-
-  def journalist_perms
-    can :create, TeamUser, :team_id => @context_team.id, role: ['journalist', 'contributor']
-    can :create, Project, :team_id => @context_team.id
-    can :update, Project, :team_id => @context_team.id, :user_id => @user.id
-    can :update, [Media, Link, Claim] do |obj|
-      obj.team_ids.include?(@context_team.id)
-    end
-    can [:update, :administer_content, :bulk_update], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team)
-    end
-    can :update, ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id && obj.project_media.archived == CheckArchivedFlags::FlagCodes::NONE
-    end
-    can [:create, :update], [Account, Source], :team_id => @context_team.id
-    can [:create, :destroy], Relationship, { user_id: @user.id, source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
-    can [:create, :update], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
-    can [:create, :update], Tag, ['annotation_type = ?', 'tag'] do |obj|
-      obj.team&.id == @context_team.id && !obj.annotated_is_archived?
-    end
-    %w(annotation comment).each do |annotation_type|
-      can :destroy, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        obj.annotation_type == 'comment' && obj.user_id == @user.id && obj.team&.id == @context_team.id && !obj.annotated_is_archived? && !obj.locked?
+    can :create, Source, :team_id => @context_team.id
+    can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
+    can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
+    can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
+    %w(annotation comment dynamic task tag).each do |annotation_type|
+      can [:cud], annotation_type.classify.constantize do |obj|
+        obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end
     end
-    can [:create, :update], Task, ['annotation_type = ?', 'task'] do |task|
-      task.team&.id == @context_team.id && !task.annotated_is_archived?
+    can [:create, :destroy], Assignment do |obj|
+      type = obj.assigned_type
+      obj = obj.assigned
+      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_trashed?) || (type == 'Project' && obj.archived == CheckArchivedFlags::FlagCodes::NONE))
     end
-    can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
-      obj.team == @context_team
+    can [:cud], DynamicAnnotation::Field do |obj|
+      obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
+    end
+    can [:cud], DynamicAnnotation::Field do |obj|
+      obj.annotation.team&.id == @context_team.id and !obj.annotation.annotated_is_trashed?
+    end
+    can :update, Task, ['annotation_type = ?', 'task'] do |obj|
+      before, after = obj.data_change
+      changes = (after.to_a - before.to_a).to_h
+      obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_trashed?
     end
     can [:bulk_create, :bulk_update, :bulk_destroy], ProjectMediaProject do |obj|
       obj.team == @context_team
     end
-    can [:destroy, :create], Assignment do |obj|
-      type = obj.assigned_type
-      obj = obj.assigned
-      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && obj.archived == CheckArchivedFlags::FlagCodes::NONE))
+    can [:administer_content, :bulk_update], ProjectMedia do |obj|
+      obj.related_to_team?(@context_team)
     end
-  end
-
-  def contributor_perms
-    can :create, [Media, Link, Claim]
-    can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
-    can :update, [Media, Link, Claim], { user_id: @user.id }
-    can :update, [Media, Link, Claim] do |obj|
-      obj.team_ids.include?(@context_team.id) and (obj.user_id == @user.id)
-    end
-    can [:create, :update], Source do |obj|
-      obj.team_id == @context_team.id && obj.user_id == @user.id
-    end
-    can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
-    can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
-    can :create, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
-    end
-    can :update, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.user_id == @user.id
-    end
-    can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
-      obj.team&.id == @context_team.id and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived? && !obj.locked?
-    end
-    can :create, Tag, ['annotation_type = ?', 'tag'] do |obj|
-      obj.team&.id == @context_team.id and (obj.annotated.user_id.to_i === @user.id) and !obj.annotated_is_archived?
-    end
-    can :destroy, TeamUser, user_id: @user.id
-    can :destroy, Tag, ['annotation_type = ?', 'tag'] do |obj|
-      obj.team&.id == @context_team.id and !obj.annotated_is_archived?
-    end
-    can [:destroy, :update], [Dynamic, Annotation, Task] do |obj|
-      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived? and !obj.locked?
-    end
-    can [:destroy, :create], Assignment do |obj|
-      type = obj.assigned_type
-      obj = obj.assigned
-      (type == 'Annotation' && obj.annotator_id.to_i == @user.id && !obj.annotated_is_archived? && !obj.locked?) || (type == 'Project' && obj.user_id == @user.id && obj.archived == CheckArchivedFlags::FlagCodes::NONE)
-    end
-    can [:create, :update, :destroy], DynamicAnnotation::Field do |obj|
-      obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?
-    end
-    can :update, DynamicAnnotation::Field do |obj|
-      obj.annotation.team&.id == @context_team.id and !obj.annotation.annotated_is_archived?
+    can [:destroy, :update], [Dynamic, Annotation] do |obj|
+      obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived?
     end
     can :destroy, Version do |obj|
       v_obj = obj.item_type.constantize.find(obj.item_id) if obj.item_type == 'ProjectMedia'
       !v_obj.nil? and v_obj.team_id == @context_team.id and v_obj.media.user_id = @user.id
     end
-    contributor_and_annotator_perms
-  end
-
-  def contributor_and_annotator_perms
-    can :update, Task, ['annotation_type = ?', 'task'] do |obj|
-      before, after = obj.data_change
-      changes = (after.to_a - before.to_a).to_h
-      obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_archived?
-    end
-    %w(comment dynamic).each do |annotation_type|
-      can :create, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
-        (([obj.team&.id] & @user.cached_teams).any? || (obj.annotated.present? && obj.annotated.user_id.to_i == @user.id)) && !obj.annotated_is_archived?
-      end
-    end
-    can :update, [Dynamic, Annotation] do |obj|
-      obj.team&.id == @context_team.id and !obj.annotated_is_archived? and !obj.locked? and obj.annotator_id == @user.id
-    end
-    can [:create, :destroy], ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id
-    end
-    cannot :bulk_update, ProjectMedia
   end
 
   def bot_permissions
     # Bots are usually out of a team context, so we need to check based on the attribute values
-    can [:create, :update, :destroy], BotUser do |obj|
+    can [:cud], BotUser do |obj|
       is_owner_of_bot_team(obj.team_author_id)
     end
-    can [:create, :update, :destroy], TeamBotInstallation do |obj|
+    can [:cud], TeamBotInstallation do |obj|
       is_owner_of_bot_team(obj.team_id)
     end
     can :destroy, BotUser do |obj|
@@ -283,6 +173,6 @@ class Ability
 
   def is_owner_of_bot_team(team_id)
     return false if team_id.blank?
-    !TeamUser.where(user_id: @user.id, team_id: team_id, role: 'owner').last.nil?
+    !TeamUser.where(user_id: @user.id, team_id: team_id, role: 'admin').last.nil?
   end
 end

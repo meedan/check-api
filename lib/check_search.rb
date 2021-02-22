@@ -25,7 +25,7 @@ class CheckSearch
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
     'published_at' => 'published_at', 'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
     'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
-    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count'
+    'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index', 'type_of_media' => 'type_of_media'
   }
 
   def pusher_channel
@@ -88,9 +88,7 @@ class CheckSearch
   def number_of_items(collection, associated_type)
     return collection.size if collection.is_a?(Array)
     return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
-    user = User.current
     collection = collection.unscope(where: :id)
-    collection = collection.where(id: user.cached_assignments[:pmids]) if associated_type == 'ProjectMedia' && user && user.role?(:annotator)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
 
@@ -188,8 +186,6 @@ class CheckSearch
       conditions << { term: { archived: archived } }
       conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
       conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
-      user = User.current
-      conditions << { terms: { annotated_id: user.cached_assignments[:pmids] } } if user&.role?(:annotator)
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions

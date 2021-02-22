@@ -269,7 +269,7 @@ class ElasticSearch7Test < ActionController::TestCase
   test "should search by task responses" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
     tt2 = create_team_task team_id: t.id, type: 'multiple_choice', options: ['ans_a', 'ans_b', 'ans_c']
     tt3 = create_team_task team_id: t.id, type: 'free_text'
@@ -350,7 +350,7 @@ class ElasticSearch7Test < ActionController::TestCase
   test "should update and destroy responses in es" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
     tt2 = create_team_task team_id: t.id, type: 'multiple_choice', options: ['choice_a', 'choice_b', 'choice_c']
     with_current_user_and_team(u ,t) do
@@ -466,7 +466,7 @@ class ElasticSearch7Test < ActionController::TestCase
   test "should filter keyword by fields group b" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     tt = create_team_task team_id: t.id, type: 'single_choice', options: ['Foo', 'Bar', 'ans_c']
     tt2 = create_team_task team_id: t.id, type: 'free_text'
     tt3 = create_team_task team_id: t.id, type: 'free_text', fieldset: 'metadata'
@@ -532,7 +532,7 @@ class ElasticSearch7Test < ActionController::TestCase
   test "should search by non or any for choices tasks" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
     with_current_user_and_team(u ,t) do
       pm = create_project_media team: t, disable_es_callbacks: false
@@ -558,7 +558,7 @@ class ElasticSearch7Test < ActionController::TestCase
     pm = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
     pm2 = create_project_media team: t, quote: 'claim b', disable_es_callbacks: false
     sleep 2
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
       # Hit ES with option id
       # A) id is array (should ignore)
@@ -624,7 +624,7 @@ class ElasticSearch7Test < ActionController::TestCase
     u = create_user
     pm = create_project_media quote: 'claim a', disable_es_callbacks: false
     sleep 2
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
       assert_nothing_raised do
         query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":20000,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'

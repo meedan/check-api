@@ -51,7 +51,7 @@ class ElasticSearchTest < ActionController::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     url2 = 'http://test2.com'
-    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
+    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "title_a", "description":"new_description"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     m2 = create_media(account: create_valid_account, url: url2)

@@ -1,5 +1,6 @@
 class BotUser < User
   include ErrorNotification
+  include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
   if ActiveRecord::Base.connection.table_exists?(:dynamic_annotation_annotation_types)
@@ -298,12 +299,13 @@ class BotUser < User
 
   def self.trigger_events
     RequestStore.store[:bot_events].uniq{|e| [e[:event], e[:team_id], e[:object].id]}.each do |e|
-      BotUser.delay_for(1.second).notify_bots(e[:event], e[:team_id], e[:object].class.to_s, e[:object].id, e[:bot]) unless e[:object].skip_notifications
+      BotUser.delay_for(1.second).notify_bots(e[:event], e[:team_id], e[:object].class.to_s, e[:object].id, e[:bot], actor_session_id) unless e[:object].skip_notifications
     end
     RequestStore.store[:bot_events].clear
   end
 
-  def self.notify_bots(event, team_id, object_class, object_id, target_bot)
+  def self.notify_bots(event, team_id, object_class, object_id, target_bot, request_actor_session_id = nil)
+    RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
     object = object_class.constantize.where(id: object_id).first
     team = Team.where(id: team_id).last
     return if object.nil? || team.nil?
@@ -401,7 +403,7 @@ class BotUser < User
     if self.team_author_id
       team_user = TeamUser.new
       team_user.type = 'TeamBotInstallation'
-      team_user.role = self.get_role || 'contributor'
+      team_user.role = self.get_role || 'collaborator'
       team_user.status = 'member'
       team_user.user_id = self.id
       team_user.team_id = self.team_author_id || Team.current.id

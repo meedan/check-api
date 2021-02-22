@@ -12,7 +12,7 @@ if File.exist?(file)
 
   SIDEKIQ_CONFIG = YAML.load_file(file)
 
-  redis_config = { url: "redis://#{SIDEKIQ_CONFIG[:redis_host]}:#{SIDEKIQ_CONFIG[:redis_port]}/#{SIDEKIQ_CONFIG[:redis_database]}", namespace: "sidekiq_checkapi_#{Rails.env}" }
+  redis_config = { url: "redis://#{SIDEKIQ_CONFIG[:redis_host]}:#{SIDEKIQ_CONFIG[:redis_port]}/#{SIDEKIQ_CONFIG[:redis_database]}", namespace: "sidekiq_checkapi_#{Rails.env}", network_timeout: 5 }
   REDIS_CONFIG.merge!(redis_config)
 
   Sidekiq.configure_server do |config|

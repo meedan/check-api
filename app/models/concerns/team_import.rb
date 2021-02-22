@@ -125,7 +125,7 @@ module TeamImport
       if (match = pattern.match(user))
         u = User.find_by_id(match[1].to_i)
       else
-        u = User.find_by_email(user) || self.owners('owner').first
+        u = User.find_by_email(user) || self.owners('admin').first
       end
       @result[row] << I18n.t("team_import.invalid_#{column}", user: user) if u.nil?
       u

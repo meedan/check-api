@@ -10,6 +10,7 @@ module UserPrivate
     source.user = self
     source.name = self.name
     source.slogan = self.name
+    source.skip_check_ability = true
     source.save!
     self.update_columns(source_id: source.id)
   end

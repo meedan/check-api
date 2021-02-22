@@ -330,7 +330,7 @@ class DynamicTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'response_test'
     t = create_team slug: 'test'
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
     pm = create_project_media team: t
     create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json

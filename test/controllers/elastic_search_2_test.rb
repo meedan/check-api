@@ -28,11 +28,11 @@ class ElasticSearch2Test < ActionController::TestCase
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
       pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
-      sleep 5
+      sleep 2
       results = $repository.search(query: { match: { team_id: t.id } }).results
       assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
       p.team_id = t2.id; p.save!
-      sleep 5
+      sleep 2
       results = $repository.search(query: { match: { team_id: t.id } }).results
       assert_equal [], results.collect{|i| i['annotated_id']}
       results = $repository.search(query: { match: { team_id: t2.id } }).results
@@ -43,7 +43,7 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should update elasticsearch after move media to other projects" do
     t = create_team
     u = create_user
-    create_team_user team: t, user: u, role: 'owner'
+    create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     p2 = create_project team: t
     m = create_valid_media
