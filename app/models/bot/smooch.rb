@@ -995,7 +995,8 @@ class Bot::Smooch < BotUser
     Team.current = nil
   end
 
-  def self.send_message_on_status_change(pm_id, status)
+  def self.send_message_on_status_change(pm_id, status, request_actor_session_id = nil)
+    RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
     pm = ProjectMedia.find_by_id(pm_id)
     return if pm.nil?
     requestors_count = 0
