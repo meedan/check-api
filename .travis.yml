@@ -28,7 +28,7 @@ before_script:
 - touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
 after_script:
-- docker-compose exec api echo $TRAVIS_BUILD_STAGE_NAME
+- docker-compose exec api echo $TRAVIS_JOB_NAME
 - docker-compose exec
   -e TRAVIS_BRANCH=$TRAVIS_BRANCH
   -e TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
@@ -39,7 +39,7 @@ after_script:
   -e GIT_COMMITTED_AT=$GIT_COMMITTED_AT
   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
   -e PATH=$PATH
-  -e TRAVIS_BUILD_STAGE_NAME=$TRAVIS_BUILD_STAGE_NAME
+  -e TRAVIS_JOB_NAME=$TRAVIS_JOB_NAME
   api test/test-coverage.sh
 jobs:
   include:
