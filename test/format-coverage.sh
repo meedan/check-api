@@ -2,8 +2,6 @@
 
 pip install --user awscli
 
-echo "$TRAVIS_JOB_NAME"
-
 if [ "$TRAVIS_JOB_NAME" == "unit-tests" ] ; then
   PATTERN='controllers';
 else

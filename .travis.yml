@@ -9,7 +9,7 @@ before_install:
 - export PATH=/root/.local/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
 - git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-- mkdir -p ~/.aws && cp configurator/$APP/travis/credentials ~/.aws/
+- cd configurator/$APP/travis && ./credentials.sh && cd -
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
@@ -28,7 +28,6 @@ before_script:
 - touch tmp/parallel_runtime_test.log
 - chmod +w tmp/parallel_runtime_test.log
 after_script:
-- docker-compose exec api echo $TRAVIS_JOB_NAME
 - docker-compose exec
   -e TRAVIS_BRANCH=$TRAVIS_BRANCH
   -e TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
@@ -40,6 +39,8 @@ after_script:
   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
   -e PATH=$PATH
   -e TRAVIS_JOB_NAME=$TRAVIS_JOB_NAME
+  -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
   api test/test-coverage.sh
 jobs:
   include:
