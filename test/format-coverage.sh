@@ -1,8 +1,9 @@
 #!/bin/bash
 
 pip install --user awscli
+echo "$TRAVIS_BUILD_STAGE_NAME"
 
-if [ $TRAVIS_BUILD_STAGE_NAME == "unit-tests" ] ; then
+if [ "$TRAVIS_BUILD_STAGE_NAME" == "unit-tests" ] ; then
   PATTERN='controllers';
 else
   PATTERN='models mailers integration workers lib'
