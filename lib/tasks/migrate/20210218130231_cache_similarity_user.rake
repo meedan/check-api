@@ -15,6 +15,8 @@ namespace :check do
         pms.each do |pm|
           begin
             # Just calling the methods is enough to cache the value
+            Rails.cache.delete "check_cached_field:ProjectMedia:#{pm.id}:confirmed_as_similar_by_name"
+            Rails.cache.delete "check_cached_field:ProjectMedia:#{pm.id}:added_as_similar_by_name"
             puts "Confirmed by: #{pm.confirmed_as_similar_by_name}"
             puts "Added by: #{pm.added_as_similar_by_name}"
           rescue
