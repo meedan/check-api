@@ -2,6 +2,12 @@
 
 pip install --user awscli
 
+if [ $TRAVIS_BUILD_STAGE_NAME == "unit-tests" ] ; then
+  PATTERN='controllers';
+else
+  PATTERN='models mailers integration workers lib'
+fi
+
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
   name=$(echo $PATTERN | sed 's/ /-/g')
