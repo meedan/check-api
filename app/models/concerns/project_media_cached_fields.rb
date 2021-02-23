@@ -249,7 +249,10 @@ module ProjectMediaCachedFields
     cached_field :confirmed_as_similar_by_name,
       start_as: nil,
       update_es: false,
-      recalculate: proc { |pm| Relationship.confirmed.where(target_id: pm.id).last&.versions&.from_partition(pm.team_id)&.where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'")&.last&.user&.name },
+      recalculate: proc { |pm|
+        r = Relationship.confirmed.where(target_id: pm.id).last
+        r.nil? ? nil : Version.from_partition(pm.team_id).where(item_type: 'Relationship', item_id: r.id.to_s).where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'").last&.user&.name
+      },
       update_on: [
         {
           model: Relationship,
