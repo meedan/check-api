@@ -36,6 +36,14 @@ class Bot::Alegre < BotUser
     end
   end  
 
+  def self.default_model
+    'xlm-r-bert-base-nli-stsb-mean-tokens'
+  end
+
+  def self.indian_model
+    'indian-sbert'
+  end
+
   def self.run(body)
     if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
@@ -189,10 +197,11 @@ class Bot::Alegre < BotUser
     })
   end
 
-  def self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+  def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=self.default_model)
     {
       doc_id: doc_id,
       text: text,
+      model: model,
       context: {
         team_id: pm.team_id,
         field: field,
