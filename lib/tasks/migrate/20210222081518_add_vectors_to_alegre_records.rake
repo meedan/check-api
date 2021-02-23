@@ -14,9 +14,9 @@ namespace :check do
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         settings = tb.json_settings
         if indian_teams.include?(tb.team_id)
-          settings["alegre_model_in_use"] = Bot::Alegre.indian_model
+          settings["alegre_model_in_use"] = CheckConfig.get("alegre_indian_model")
         else
-          settings["alegre_model_in_use"] = Bot::Alegre.default_model
+          settings["alegre_model_in_use"] = CheckConfig.get("alegre_default_model")
         end
         tb.json_settings = settings
         tb.save!
