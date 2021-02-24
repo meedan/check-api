@@ -9,7 +9,7 @@ before_install:
 - export PATH=/root/.local/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
 - git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-- cd configurator/$APP/travis && ./credentials.sh && cd -
+- cp configurator/$APP/travis/credentials .
 - d=configurator/$APP/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
@@ -39,8 +39,7 @@ after_script:
   -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
   -e PATH=$PATH
   -e TRAVIS_JOB_NAME=$TRAVIS_JOB_NAME
-  -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+  -e AWS_CONFIG_FILE=/app/credentials
   api test/test-coverage.sh
 jobs:
   include:
