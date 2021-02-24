@@ -1,5 +1,7 @@
 class Bot::Alegre < BotUser
   check_settings
+  ALEGRE_DEFAULT_MODEL = "xlm-r-bert-base-nli-stsb-mean-tokens"
+  ALEGRE_INDIAN_MODEL = "indian-sbert"
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds
@@ -179,6 +181,12 @@ class Bot::Alegre < BotUser
     self.send_to_text_similarity_index(pm, field, pm.description, self.item_doc_id(pm, field))
   end
 
+  def self.model_to_use(pm)
+    bot = BotUser.alegre_user
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot.id
+    tbi.get_alegre_model_in_use || Bot::Alegre.ALEGRE_DEFAULT_MODEL
+  end
+
   def self.delete_field_from_text_similarity_index(pm, field)
     self.delete_from_text_similarity_index(self.item_doc_id(pm, field))
   end
@@ -189,7 +197,8 @@ class Bot::Alegre < BotUser
     })
   end
 
-  def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=CheckConfig.get("alegre_default_model"))
+  def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
+    model ||= self.model_to_use(pm)
     {
       doc_id: doc_id,
       text: text,
