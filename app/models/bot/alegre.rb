@@ -183,7 +183,8 @@ class Bot::Alegre < BotUser
 
   def self.model_to_use(pm)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot.id
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    return Bot::Alegre.ALEGRE_DEFAULT_MODEL if tbi.nil?
     tbi.get_alegre_model_in_use || Bot::Alegre.ALEGRE_DEFAULT_MODEL
   end
 
