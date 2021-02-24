@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
-    desc "Updates ProjectMedia titles and descriptions on alegre's index"
-    task update_alegre_stored_project_media: :environment do
+    desc "Updates ProjectMedia titles and descriptions on alegre's index with vectors"
+    task add_vectors_to_alegre_records: :environment do
       started = Time.now.to_i
       running_bucket = []
       log_errors = []
@@ -12,13 +12,12 @@ namespace :check do
       received_cases = []
       indian_teams = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
-        settings = tb.json_settings
+        binding.pry
         if indian_teams.include?(tb.team_id)
-          settings["alegre_model_in_use"] = CheckConfig.get("alegre_indian_model")
+          tb.set_alegre_model_in_use = CheckConfig.get("alegre_indian_model")
         else
-          settings["alegre_model_in_use"] = CheckConfig.get("alegre_default_model")
+          tb.set_alegre_model_in_use = CheckConfig.get("alegre_default_model")
         end
-        tb.json_settings = settings
         tb.save!
         last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
@@ -83,7 +82,7 @@ namespace :check do
                   field,
                   field_value,
                   Bot::Alegre.item_doc_id(data['project_media'], field),
-                  tb.json_settings["alegre_model_in_use"]
+                  tb.settings[:alegre_model_in_use]
                 )
               end
             end
