@@ -149,7 +149,19 @@ class Source < ActiveRecord::Base
     unless self.team.nil? || self.name.blank?
       s = Source.get_duplicate(self.name, self.team)
       unless s.nil?
-        errors.add(:base, I18n.t(:duplicate_source)) if self.id.nil? || s.id != self.id
+        if self.id.nil? || s.id != self.id
+          error = {
+            message: I18n.t(:source_exists),
+            code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
+            data: {
+              team_id: s.team_id,
+              type: 'source',
+              id: s.id,
+              name: s.name
+            }
+          }
+          raise error.to_json
+        end
       end
     end
   end
