@@ -29,7 +29,7 @@ class SourceTest < ActiveSupport::TestCase
       create_source team: nil
     end
     assert_no_difference 'Source.count' do
-      assert_raises ActiveRecord::RecordInvalid do
+      assert_raises RuntimeError do
         create_source team: t, name: name.upcase
       end
     end
