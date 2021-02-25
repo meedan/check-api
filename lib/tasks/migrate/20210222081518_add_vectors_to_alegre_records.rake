@@ -12,12 +12,12 @@ namespace :check do
       received_cases = []
       indian_teams = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
-        binding.pry
         if indian_teams.include?(tb.team_id)
-          tb.set_alegre_model_in_use = CheckConfig.get("alegre_indian_model")
+          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_INDIAN_MODEL
         else
-          tb.set_alegre_model_in_use = CheckConfig.get("alegre_default_model")
+          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_DEFAULT_MODEL
         end
+        
         tb.save!
         last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
         pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
