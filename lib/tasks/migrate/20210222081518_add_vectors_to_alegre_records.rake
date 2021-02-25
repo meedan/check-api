@@ -13,9 +13,9 @@ namespace :check do
       indian_teams = []
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         if indian_teams.include?(tb.team_id)
-          tb.set_alegre_model_in_use = Bot::Alegre.ALEGRE_INDIAN_MODEL
+          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_INDIAN_MODEL
         else
-          tb.set_alegre_model_in_use = Bot::Alegre.ALEGRE_DEFAULT_MODEL
+          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_DEFAULT_MODEL
         end
         
         tb.save!
