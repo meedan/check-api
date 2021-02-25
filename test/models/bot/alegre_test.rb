@@ -430,6 +430,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
+  test "should return an alegre model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah"
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    BotUser.stubs(:alegre_user).returns(User.new)
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
+    assert_equal Bot::Alegre.model_to_use(pm), Bot::Alegre::ALEGRE_DEFAULT_MODEL
+    BotUser.unstub(:alegre_user)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
+  end
+
   test "should capture error when failing to call service" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
        WebMock.stub_request(:get, 'http://alegre/text/langid/').to_return(body: 'bad JSON response')
