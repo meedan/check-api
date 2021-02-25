@@ -12,5 +12,5 @@ Part of the [Check platform](https://meedan.com/check). Refer to the [main repos
 
 To update a given Team of `ID` to use a model of `MODEL_NAME` when storing and marking content as similar within the `Alegre` service:
 ```
-bundle exec rake check:set_language_model_for_alegre_team_bot_installation['team_id:[ID]','model_name:[MODEL_NAME]']
+bundle exec rake check:set_language_model_for_alegre_team_bot_installation['[ID]','[MODEL_NAME]']
 ```
