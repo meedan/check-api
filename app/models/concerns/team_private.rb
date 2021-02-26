@@ -59,8 +59,13 @@ module TeamPrivate
     end
   end
 
-  def destroy_versions
-    Version.from_partition(self.id).where(team_id: self.id).destroy_all
+  def anonymize_sources_and_accounts
+    Source.where(team_id: self.id).update_all(team_id: nil)
+    Account.where(team_id: self.id).update_all(team_id: nil)
+  end
+
+  def delete_team_partition
+   ActiveRecord::Base.connection.execute("DROP TABLE \"versions_partitions\".\"p#{self.id}\"") if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
   end
 
   def set_default_language
