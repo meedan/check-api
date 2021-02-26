@@ -612,7 +612,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should delete sources, projects and project medias when team is deleted" do
+  test "should anonymize sources and delete projects and project medias when team is deleted" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -636,7 +636,7 @@ class TeamTest < ActiveSupport::TestCase
       assert_not_nil Project.where(id: p1.id).last
       assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
-      assert_nil Source.where(id: s2.id).last
+      assert_nil Source.where(id: s2.id).last.team_id
       assert_nil Comment.where(id: c.id).last
     end
   end
@@ -957,7 +957,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, t.reload.team_bot_installations.count
     assert_equal [tb1, tb2].sort, t.reload.team_bots.sort
     assert_equal [tb2], t.team_bots_created
-    t.destroy
+    t.destroy!
     assert_nil TeamBotInstallation.where(id: tbi.id).last
     assert_nil BotUser.where(id: tb2.id).last
     assert_not_nil BotUser.where(id: tb1.id).last
@@ -2898,6 +2898,13 @@ class TeamTest < ActiveSupport::TestCase
     setup_smooch_bot(true)
     assert_nothing_raised do
       Team.duplicate(@team)
+    end
+  end
+
+  test "should delete team and partition" do
+    t = create_team
+    assert_difference 'Team.count', -1 do
+      t.destroy_partition_and_team!
     end
   end
 end
