@@ -65,7 +65,7 @@ module TeamPrivate
   end
 
   def delete_team_partition
-   ActiveRecord::Base.connection.execute("DROP TABLE \"versions_partitions\".\"p#{self.id}\"") if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
+    ActiveRecord::Base.connection.execute("DROP TABLE \"versions_partitions\".\"p#{self.id}\"") if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
   end
 
   def set_default_language
