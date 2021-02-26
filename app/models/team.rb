@@ -83,11 +83,13 @@ class Team < ActiveRecord::Base
   end
 
   def destroy_partition_and_team!
+    RequestStore.store[:skip_cached_field_update] = true
     # Destroy the whole partition first, in a separate transaction
     # Re-create an empty partition before destroying the rest, to avoid errors
     self.send :delete_team_partition
     self.send :create_team_partition
     ActiveRecord::Base.connection_pool.with_connection { self.destroy! }
+    RequestStore.store[:skip_cached_field_update] = false
   end
 
   # FIXME Source should be using concern HasImage
