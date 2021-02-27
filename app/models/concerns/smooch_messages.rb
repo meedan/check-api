@@ -91,7 +91,7 @@ module SmoochMessages
         text << message['mediaUrl'].to_s
         text << message['text'].to_s
       end
-      bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
+      bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
       if type == 'default_requests'
         self.process_message(bundle, app_id)
       elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
