@@ -180,6 +180,14 @@ class Bot::Smooch < BotUser
       end
     end
 
+    def smooch_user_request_language
+      Concurrent::Future.execute(executor: POOL) do
+        object_after = JSON.parse(self.object_after)
+        return '' unless object_after['field_name'] == 'smooch_data'
+        JSON.parse(object_after['value'])['language'].to_s
+      end
+    end
+
     private
 
     def get_slack_channel_url(obj, data)
