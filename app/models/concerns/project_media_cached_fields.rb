@@ -251,13 +251,15 @@ module ProjectMediaCachedFields
       update_es: false,
       recalculate: proc { |pm|
         r = Relationship.confirmed.where(target_id: pm.id).last
-        r.nil? ? nil : Version.from_partition(pm.team_id).where(item_type: 'Relationship', item_id: r.id.to_s).where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'").last&.user&.name
+        r.nil? ? nil : User.find_by_id(r.confirmed_by.to_i)&.name
+        # Could also get it from version:
+        # Version.from_partition(pm.team_id).where(item_type: 'Relationship', item_id: r.id.to_s).where("object_changes LIKE '%suggested_sibling%confirmed_sibling%'").last&.user&.name
       },
       update_on: [
         {
           model: Relationship,
           affected_ids: proc { |r| [r.target_id] },
-          if: proc { |r| r.relationship_type_was.to_json == Relationship.suggested_type.to_json && r.relationship_type.to_json == Relationship.confirmed_type.to_json },
+          if: proc { |r| r.is_being_confirmed? },
           events: {
             save: proc { |_pm, _r| User.current&.name },
           }
