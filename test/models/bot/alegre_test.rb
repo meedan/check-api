@@ -438,7 +438,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.model_to_use(pm), Bot::Alegre.defaultmodel
+    assert_equal Bot::Alegre.model_to_use(pm), Bot::Alegre.default_model
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
