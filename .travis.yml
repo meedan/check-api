@@ -13,9 +13,6 @@ before_install:
 - d=configurator/check/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-cache:
-  directories:
-  - "/var/lib/docker"
 before_script:
 - docker-compose build
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
