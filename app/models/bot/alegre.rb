@@ -1,7 +1,8 @@
 class Bot::Alegre < BotUser
   check_settings
-  ALEGRE_DEFAULT_MODEL = "xlm-r-bert-base-nli-stsb-mean-tokens"
-  ALEGRE_INDIAN_MODEL = "indian-sbert"
+  MEAN_TOKENS_MODEL = "xlm-r-bert-base-nli-stsb-mean-tokens"
+  INDIAN_MODEL = "indian-sbert"
+  ELASTICSEARCH_MODEL = "elasticsearch"
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds
@@ -36,7 +37,11 @@ class Bot::Alegre < BotUser
     def delete_analysis_from_similarity_index
       self.class.delay.delete_analysis_from_similarity_index(self.annotation.annotated_id)
     end
-  end  
+  end
+
+  def self.default_model
+    CheckConfig.get('alegre_default_model') || Bot::Alegre::ELASTICSEARCH_MODEL
+  end
 
   def self.run(body)
     if CheckConfig.get('alegre_host').blank?
@@ -184,8 +189,8 @@ class Bot::Alegre < BotUser
   def self.model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
-    return Bot::Alegre::ALEGRE_DEFAULT_MODEL if tbi.nil?
-    tbi.get_alegre_model_in_use || Bot::Alegre::ALEGRE_DEFAULT_MODEL
+    return self.default_model if tbi.nil?
+    tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field)
