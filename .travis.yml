@@ -7,6 +7,7 @@ before_install:
 - export LANGUAGE=C.UTF-8
 - export PATH=/root/.local/bin:$PATH
 - export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
+- export BUNDLE_PATH=/app/bundler
 - git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - cp configurator/check/travis/credentials .
 - d=configurator/check/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
@@ -14,9 +15,7 @@ before_install:
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 cache:
   directories:
-  - "/tmp/bundler"
-  - "/tmp/downloads"
-  - "/usr/local/lib/python2.7/dist-packages/pip"
+  - "/var/lib/docker"
 before_script:
 - docker-compose build
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
