@@ -1,6 +1,6 @@
 class Team < ActiveRecord::Base
-  after_create :create_team_partition, :add_user_to_team, :add_default_bots_to_team
-
+  # These two callbacks must be in the top
+  after_create :create_team_partition
   before_destroy :delete_created_bots
 
   include ValidationsHelper
@@ -16,18 +16,18 @@ class Team < ActiveRecord::Base
 
   mount_uploader :logo, ImageUploader
 
-  before_validation :normalize_slug, on: :create
-  before_validation :set_default_language, on: :create
-  before_validation :set_default_fieldsets, on: :create
-
   after_find do |team|
     if User.current
       Team.current ||= team
       Ability.new(User.current, team)
     end
   end
+  before_validation :normalize_slug, on: :create
+  before_validation :set_default_language, on: :create
+  before_validation :set_default_fieldsets, on: :create
+  after_create :add_user_to_team, :add_default_bots_to_team
   after_update :archive_or_restore_projects_if_needed
-  before_destroy :destroy_versions
+  before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 
   check_settings
@@ -80,6 +80,16 @@ class Team < ActiveRecord::Base
 
   def team_graphql_id
     Base64.encode64("Team/#{self.id}")
+  end
+
+  def destroy_partition_and_team!
+    RequestStore.store[:skip_cached_field_update] = true
+    # Destroy the whole partition first, in a separate transaction
+    # Re-create an empty partition before destroying the rest, to avoid errors
+    self.send :delete_team_partition
+    self.send :create_team_partition
+    ActiveRecord::Base.connection_pool.with_connection { self.destroy! }
+    RequestStore.store[:skip_cached_field_update] = false
   end
 
   # FIXME Source should be using concern HasImage

@@ -180,6 +180,14 @@ class Bot::Smooch < BotUser
       end
     end
 
+    def smooch_user_request_language
+      Concurrent::Future.execute(executor: POOL) do
+        object_after = JSON.parse(self.object_after)
+        return '' unless object_after['field_name'] == 'smooch_data'
+        JSON.parse(object_after['value'])['language'].to_s
+      end
+    end
+
     private
 
     def get_slack_channel_url(obj, data)
@@ -454,33 +462,6 @@ class Bot::Smooch < BotUser
     end
     self.bundle_message(message)
     return false
-  end
-
-  def self.clear_user_bundled_messages(uid)
-    Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
-  end
-
-  def self.handle_bundle_messages(type, list, last, app_id, annotated)
-    bundle = last.clone
-    text = []
-    media = nil
-    list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-      next unless self.supported_message?(message)[:type]
-      if media.nil?
-        media = message['mediaUrl']
-        bundle['type'] = message['type']
-        bundle['mediaUrl'] = media
-      end
-      text << message['mediaUrl'].to_s
-      text << message['text'].to_s
-    end
-    bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-    if type == 'default_requests'
-      self.process_message(bundle, app_id)
-    elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
-      key = "smooch:banned:#{bundle['authorId']}"
-      self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
-    end
   end
 
   def self.template_locale_options(team_slug = nil)
