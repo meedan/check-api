@@ -669,7 +669,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_error_message(message, is_supported)
-    max_size = "Uploaded#{is_supported[:m_type].camelize}".constantize.max_size_readable
+    m_type = is_supported[:m_type] || 'file'
+    max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)
