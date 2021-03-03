@@ -10,16 +10,15 @@ namespace :check do
       counter = 0
       sent_cases = []
       received_cases = []
-      indian_teams = []
+      indian_teams = [1793]
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         if indian_teams.include?(tb.team_id)
-          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_INDIAN_MODEL
+          tb.set_alegre_model_in_use = Bot::Alegre::INDIAN_MODEL
         else
-          tb.set_alegre_model_in_use = Bot::Alegre::ALEGRE_DEFAULT_MODEL
+          tb.set_alegre_model_in_use = Bot::Alegre.default_model
         end
-        
         tb.save!
-        last_id = Rails.cache.read("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id") || 0
+        last_id = Rails.cache.read("check:migrate:add_vectors_to_alegre_records#{tb.team_id}:pm_id") || 0
         pm_all_count = ProjectMedia.where(team_id: tb.team_id).where("project_medias.id > ? ", last_id)
         .where("project_medias.created_at > ?", Time.parse("2020-01-01")).count
         total = (pm_all_count/2500.to_f).ceil
@@ -97,7 +96,7 @@ namespace :check do
               running_bucket = []
               temp_ids = []
               # log last project media id
-              Rails.cache.write("check:migrate:update_alegre_stored_team_#{tb.team_id}:pm_id", k)
+              Rails.cache.write("check:migrate:add_vectors_to_alegre_records#{tb.team_id}:pm_id", k)
             end
           end
         end
