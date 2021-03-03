@@ -1,0 +1,5 @@
+version: "2.2"
+services:
+  api:
+    environment:
+      RAILS_ENV: test
