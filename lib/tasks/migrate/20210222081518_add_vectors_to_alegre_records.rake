@@ -85,7 +85,7 @@ namespace :check do
                 )
               end
             end
-            if running_bucket.length > 500
+            if running_bucket.length > 10
               running_bucket.collect{|x| sent_cases << x}
               output = Bot::Alegre.request_api('post', '/text/bulk_update_similarity/', { documents: running_bucket })
               output.collect{|x| received_cases << x}
