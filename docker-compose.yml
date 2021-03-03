@@ -1,0 +1,74 @@
+version: "2.2"
+volumes:
+  elasticsearch:
+  postgres11:
+  redis:
+  minio:
+networks:
+  dev:
+services:
+  elasticsearch:
+    build: elasticsearch
+    environment:
+      discovery.type: single-node
+      transport.host: 127.0.0.1
+      xpack.security.enabled: "false"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m -Dlog4j2.disable.jmx=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "elasticsearch:/usr/share/elasticsearch/data"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - dev
+  postgres:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: check-api-tests
+    networks:
+      - dev
+  redis:
+    image: redis:5
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis:/data"
+    networks:
+      - dev
+  minio:
+    image: minio/minio
+    command: server /data
+    ports:
+      - "9000:9000"
+    volumes:
+      - "minio:/data"
+    environment:
+      MINIO_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
+      MINIO_SECRET_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    networks:
+      - dev
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - elasticsearch
+      - postgres
+      - redis
+      - minio
+    volumes:
+      - ".:/app"
+    environment:
+      RAILS_ENV: development
+      SERVER_PORT: 3000
+    networks:
+      - dev
