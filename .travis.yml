@@ -6,9 +6,7 @@ before_install:
 - export LANG=C.UTF-8
 - export LANGUAGE=C.UTF-8
 - export PATH=/root/.local/bin:$PATH
-- export GEM_PATH=/tmp/bundler/ruby/2.4.0/gems:$GEM_PATH
-- export BUNDLE_PATH=/app/bundler
-- git clone --branch test/253-run-tests-on-docker https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
+- git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
 - cp configurator/check/travis/credentials .
 - d=configurator/check/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
