@@ -63,7 +63,7 @@ module SmoochMessages
       pm_id = Rails.cache.read("smooch:message:#{hash}")
       if pm_id.nil?
         is_supported = self.supported_message?(message)
-        if is_supported.slice(:type, :size).all?{|_k, v| v}
+        if is_supported.slice(:type, :size).all?{ |_k, v| v }
           self.save_message_later_and_reply_to_user(message, app_id)
         else
           self.send_error_message(message, is_supported)
@@ -82,7 +82,6 @@ module SmoochMessages
       text = []
       media = nil
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-        next unless self.supported_message?(message)[:type]
         if media.nil?
           media = message['mediaUrl']
           bundle['type'] = message['type']
