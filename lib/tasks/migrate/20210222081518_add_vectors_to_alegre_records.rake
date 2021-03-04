@@ -10,7 +10,7 @@ namespace :check do
       counter = 0
       sent_cases = []
       received_cases = []
-      indian_teams = [1793]
+      indian_teams = [1793, 1798, 1817, 2080, 1601, 2079]
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         if indian_teams.include?(tb.team_id)
           tb.set_alegre_model_in_use = Bot::Alegre::INDIAN_MODEL
