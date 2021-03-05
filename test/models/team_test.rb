@@ -264,17 +264,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set contact" do
-    t = create_team
-    assert_difference 'Contact.count' do
-      t.contact = { location: 'Salvador', phone: '557133330101', web: 'http://meedan.com' }.to_json
-    end
-    assert_no_difference 'Contact.count' do
-      t.contact = { location: 'Bahia' }.to_json
-    end
-    assert_equal 'Bahia', t.reload.contacts.first.location
-  end
-
   test "should validate Slack webhook" do
     t = create_team
     assert_raises ActiveRecord::RecordInvalid do
@@ -301,7 +290,7 @@ class TeamTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject",
       "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
-      "create User", "create Contact", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
+      "create User", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "mange TagText", "mange TeamTask"
     ].sort
 
@@ -475,13 +464,11 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     a = create_account team: t
-    c = create_contact team: t
     RequestStore.store[:disable_es_callbacks] = true
     t.destroy
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
-    assert_equal 0, Contact.where(team_id: id).count
     assert_equal 0, ProjectMediaProject.where(project_id: p.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
@@ -750,14 +737,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t.avatar, pt.avatar
   end
 
-  test "should duplicate a team and copy team users and contacts" do
+  test "should duplicate a team and copy team users" do
     team = create_team name: 'Team A', logo: 'rails.png'
 
     u1 = create_user
     u2 = create_user
     create_team_user team: team, user: u1, role: 'admin', status: 'member'
     create_team_user team: team, user: u2, role: 'editor', status: 'invited'
-    create_contact team: team
 
     RequestStore.store[:disable_es_callbacks] = true
     team.set_languages = ["en", "pt", "es"]
@@ -765,7 +751,6 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 0, TeamUser.where(team_id: copy.id).count
-    assert_equal 1, Contact.where(team_id: copy.id).count
     assert_equal team.get_languages, copy.get_languages
     # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
@@ -774,14 +759,10 @@ class TeamTest < ActiveSupport::TestCase
       assert_equal team.send(att), copy.send(att)
     end
 
-    # contacts
-    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
-
     assert_difference 'Team.count', -1 do
       copy.destroy
     end
     assert_equal 2, TeamUser.where(team_id: team.id).count
-    assert_equal 1, Contact.where(team_id: team.id).count
   end
 
   test "should generate slug for copy based on original" do
@@ -1763,9 +1744,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get team URL" do
     t = create_team slug: 'test'
     assert_match /^http.*test/, t.reload.url
-    t.contact = { web: 'http://meedan.com' }.to_json
     t.save!
-    assert_equal 'http://meedan.com', t.reload.url
+    assert_equal "#{CheckConfig.get('checkdesk_client')}/#{t.slug}", t.reload.url
   end
 
   test "should define report settings" do

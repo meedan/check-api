@@ -43,8 +43,7 @@ class Team < ActiveRecord::Base
   end
 
   def url
-    url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
-    url || CheckConfig.get('checkdesk_client') + '/' + self.slug
+    CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
   def team
@@ -103,16 +102,6 @@ class Team < ActiveRecord::Base
   # which already include this method
   def should_generate_thumbnail?
     true
-  end
-
-  def contact=(info)
-    contact = self.contacts.first || Contact.new
-    info = JSON.parse(info)
-    contact.web = info['web']
-    contact.phone = info['phone']
-    contact.location = info['location']
-    contact.team = self
-    contact.save!
   end
 
   def recipients(requestor, role='admin')

@@ -111,15 +111,6 @@ ActiveRecord::Schema.define(version: 20210303070517) do
 
   add_index "bounces", ["email"], name: "index_bounces_on_email", unique: true, using: :btree
 
-  create_table "contacts", force: :cascade do |t|
-    t.integer  "team_id"
-    t.string   "location"
-    t.string   "phone"
-    t.string   "web"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", force: :cascade do |t|
     t.string   "label",                      null: false
     t.text     "description"

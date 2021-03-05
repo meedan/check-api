@@ -164,23 +164,6 @@ class AbilityTest < ActiveSupport::TestCase
 
   # Verify comman permisions for  'editor' and 'admin'
   ['editor', 'admin'].each do |role|
-    test "#{role} permissions for contact" do
-      u = create_user
-      t = create_team
-      tu = create_team_user user: u, team: t , role: role
-      c = create_contact team: t
-      c1 = create_contact
-
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, Contact)
-        assert ability.can?(:update, c)
-        assert ability.can?(:destroy, c)
-        assert ability.cannot?(:update, c1)
-        assert ability.cannot?(:destroy, c1)
-      end
-    end
-
     test "#{role} permissions for list" do
       u = create_user
       t = create_team
@@ -478,32 +461,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "authenticated permissions for contact" do
-    u = create_user
-    c = create_contact
-
-    with_current_user_and_team(u, nil) do
-      ability = Ability.new
-      assert ability.cannot?(:create, Contact)
-      assert ability.cannot?(:update, c)
-      assert ability.cannot?(:destroy, c)
-    end
-  end
-
-  test "collaborator permissions for contact" do
-    u = create_user
-    t = create_team
-    tu = create_team_user user: u, team: t , role: 'collaborator'
-    c = create_contact team: t
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:create, Contact)
-      assert ability.cannot?(:update, c)
-      assert ability.cannot?(:destroy, c)
-    end
-  end
-
   test "collaborator permissions for list" do
     u = create_user
     t = create_team
@@ -786,7 +743,7 @@ class AbilityTest < ActiveSupport::TestCase
     team_perms = [
       "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject",
       "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project",
-      "create Account", "create TeamUser", "create User", "create Contact", "create ProjectMedia", "invite Members",
+      "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "mange TagText", "mange TeamTask"
     ]
     project_perms = [

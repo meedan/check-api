@@ -10,7 +10,6 @@ module TeamAssociations
     has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
     has_many :users, through: :team_users
-    has_many :contacts, dependent: :destroy
     has_many :sources # No "dependent: :destroy" because they will be anonymized
     has_many :tag_texts, dependent: :destroy
     has_many :team_tasks, dependent: :destroy

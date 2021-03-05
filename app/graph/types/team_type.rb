@@ -78,10 +78,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :contacts, -> { ContactType.connection_type } do
-    resolve -> (team, _args, _ctx) { team.contacts }
-  end
-
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(team, _args, _ctx) {
       team.recent_projects

@@ -387,18 +387,6 @@ class GraphqlControllerTest < ActionController::TestCase
     end
   end
 
-  test "should create contact" do
-    assert_graphql_create('contact', { location: 'my location', phone: '00201099998888', team_id: @team.id })
-  end
-
-  test "should update contact" do
-    assert_graphql_update('contact', :location, 'foo', 'bar')
-  end
-
-  test "should destroy contact" do
-    assert_graphql_destroy('contact')
-  end
-
   test "should get access denied on source by id" do
     authenticate_with_user
     s = create_source user: create_user

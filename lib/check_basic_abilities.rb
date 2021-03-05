@@ -65,11 +65,11 @@ module CheckBasicAbilities
     can :read, [User, BotUser], teams: { private: false }
     can :read, [User, BotUser], team_users: { status: ['member', 'requested'], team_id: @user.cached_teams }
 
-    # A @user can read contact, project or team user if:
+    # A @user can read project or team user if:
     # 1) team is private and @user is a member of that team
     # 2) team user is not private
-    can :read, [Contact, Project, TeamUser], team_id: @user.cached_teams
-    can :read, [Contact, Project, TeamUser], team: { private: false }
+    can :read, [Project, TeamUser], team_id: @user.cached_teams
+    can :read, [Project, TeamUser], team: { private: false }
 
     # A @user can read any of those objects if:
     # 1) it's a source related to him/her or not related to any user
