@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210216033609) do
+ActiveRecord::Schema.define(version: 20210303070517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -276,6 +276,8 @@ ActiveRecord::Schema.define(version: 20210216033609) do
     t.datetime "updated_at",                      null: false
     t.integer  "user_id"
     t.float    "weight",            default: 0.0
+    t.integer  "confirmed_by"
+    t.datetime "confirmed_at"
   end
 
   add_index "relationships", ["relationship_type"], name: "index_relationships_on_relationship_type", using: :btree
