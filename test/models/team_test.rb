@@ -769,7 +769,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal team.get_languages, copy.get_languages
     # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
-    
+
     %w(archived private description).each do |att|
       assert_equal team.send(att), copy.send(att)
     end
@@ -961,19 +961,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil TeamBotInstallation.where(id: tbi.id).last
     assert_nil BotUser.where(id: tb2.id).last
     assert_not_nil BotUser.where(id: tb1.id).last
-  end
-
-  test "should get invited mails" do
-    t = create_team
-    u = create_user
-    Team.stubs(:current).returns(t)
-    members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'collaborator', email: 'test2@local.com'}]
-    User.send_user_invitation(members)
-    assert_equal ['test1@local.com', 'test2@local.com'].sort, t.invited_mails.sort
-    u = User.where(email: 'test1@local.com').last
-    User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
-    assert_equal ['test2@local.com'], t.invited_mails
-    Team.unstub(:current)
   end
 
   test "should return team tasks" do
@@ -2067,7 +2054,7 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'foo', annotated: pm1
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2113,7 +2100,7 @@ class TeamTest < ActiveSupport::TestCase
 
     publish_report(pm1)
     publish_report(pm2)
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2164,7 +2151,7 @@ class TeamTest < ActiveSupport::TestCase
     create_flag set_fields: data.to_json, annotated: pm2
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm3
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2360,7 +2347,7 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    
+
     I18n.locale = 'pt'
     assert_equal 'Estamos trabalhando nisso', pm.status_i18n(:in_progress)
     I18n.locale = 'en'
