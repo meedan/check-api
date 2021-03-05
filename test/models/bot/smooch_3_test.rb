@@ -850,50 +850,81 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Time.unstub(:now)
   end
 
-  test "should resend report after window" do
-    msgid = random_string
-    pm = create_project_media
-    publish_report(pm)
-    response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
-    Bot::Smooch.save_smooch_response(response, pm, random_string, 'report', 'en')
-    message = {
-      app: {
-        '_id': @app_id
-      },
-      appUser: {
-        '_id': random_string,
-      },
-      message: {
-        '_id': msgid
-      }
-    }.to_json
-    assert Bot::Smooch.resend_message_after_window(message)
-    pm.destroy!
-    assert !Bot::Smooch.resend_message_after_window(message)
+  ['whatsapp', 'messenger'].each do |platform|
+    test "should resend status message after #{platform} window" do
+      msgid = random_string
+      pm = create_project_media
+      publish_report(pm)
+      response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+      Bot::Smooch.save_smooch_response(response, pm, random_string, 'fact_check_status', 'en', { message: random_string })
+      message = {
+        app: {
+          '_id': @app_id
+        },
+        appUser: {
+          '_id': random_string,
+        },
+        message: {
+          '_id': msgid
+        },
+        destination: {
+          type: platform
+        }
+      }.to_json
+      assert Bot::Smooch.resend_message_after_window(message)
+    end
+
+    test "should resend report after #{platform} window" do
+      msgid = random_string
+      pm = create_project_media
+      publish_report(pm)
+      response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
+      Bot::Smooch.save_smooch_response(response, pm, random_string, 'report', 'en')
+      message = {
+        app: {
+          '_id': @app_id
+        },
+        appUser: {
+          '_id': random_string,
+        },
+        message: {
+          '_id': msgid
+        },
+        destination: {
+          type: platform
+        }
+      }.to_json
+      assert Bot::Smooch.resend_message_after_window(message)
+      pm.destroy!
+      assert !Bot::Smooch.resend_message_after_window(message)
+    end
+
+    test "should resend Slack message after #{platform} window" do
+      msgid = random_string
+      result = OpenStruct.new({ messages: [OpenStruct.new({ source: OpenStruct.new(type: 'slack'), id: msgid, text: random_string })]})
+      SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+      message = {
+        app: {
+          '_id': @app_id
+        },
+        appUser: {
+          '_id': random_string,
+        },
+        message: {
+          '_id': msgid
+        },
+        destination: {
+          type: platform
+        }
+      }.to_json
+      assert Bot::Smooch.resend_message_after_window(message)
+      result = OpenStruct.new({ messages: [] })
+      SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
+      assert !Bot::Smooch.resend_message_after_window(message)
+    end
   end
 
-  test "should resend Slack message after window" do
-    msgid = random_string
-    result = OpenStruct.new({ messages: [OpenStruct.new({ source: OpenStruct.new(type: 'slack'), id: msgid, text: random_string })]})
-    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
-    message = {
-      app: {
-        '_id': @app_id
-      },
-      appUser: {
-        '_id': random_string,
-      },
-      message: {
-        '_id': msgid
-      }
-    }.to_json
-    assert Bot::Smooch.resend_message_after_window(message)
-    result = OpenStruct.new({ messages: [] })
-    SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
-    assert !Bot::Smooch.resend_message_after_window(message)
-  end
-
-  test "should store smooch conversation id" do
+  test "should store Smooch conversation id" do
     create_annotation_type_and_fields('Smooch', { 'Conversation Id' => ['Text', true] })
     conversation_id = random_string
     result = OpenStruct.new({ conversation: OpenStruct.new({ id: conversation_id })})
@@ -959,26 +990,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       end
     end
     SmoochApi::ConversationApi.any_instance.unstub(:get_messages)
-  end
-
-  test "should resend rules action message after window" do
-    msgid = random_string
-    pm = create_project_media
-    publish_report(pm)
-    response = OpenStruct.new({ message: OpenStruct.new({ id: msgid }) })
-    Bot::Smooch.save_smooch_response(response, pm, random_string, 'fact_check_status', 'en', { message: random_string })
-    message = {
-      app: {
-        '_id': @app_id
-      },
-      appUser: {
-        '_id': random_string,
-      },
-      message: {
-        '_id': msgid
-      }
-    }.to_json
-    assert Bot::Smooch.resend_message_after_window(message)
   end
 
   test "should get locales" do

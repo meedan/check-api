@@ -204,12 +204,6 @@ module SmoochMessages
       request_type == 'default_requests' && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
     end
 
-    def resend_message(message)
-      code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
-      self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) if code == 470
-      self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
-    end
-
     def utmize_urls(text, source)
       entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)
       Twitter::TwitterText::Rewriter.rewrite_entities(text, entities) do |entity, _codepoints|
