@@ -10,12 +10,15 @@ class Api::V1::InvitationsController < Devise::InvitationsController
              if token.nil?
                url = "/?invitation_response=success&msg=no"
              else
-               url = "/check/user/password-change?reset_password_token=#{token}"
+               user = User.find(resource.id)
+               sign_in user
+               # url = "/check/user/password-change?reset_password_token=#{token}"
+               url = "/check/signup/#{slug}"
              end
              url
            else
              error_key = resource.errors.messages.keys[0].to_s
-             error_key == 'invitation_accepted' ? "/#{slug}" : "/?invitation_response=#{error_key}"
+             error_key == 'invitation_accepted' ? "/check/signup/#{slug}" : "/?invitation_response=#{error_key}"
            end
     redirect_to CheckConfig.get('checkdesk_client') + path
   end
