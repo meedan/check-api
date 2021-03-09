@@ -29,7 +29,7 @@ class InvitationsControllerTest < ActionController::TestCase
     tu =  u2.team_users.last
     token = tu.raw_invitation_token
     get :edit, invitation_token: token, slug: t.slug
-    assert_equal "#{CheckConfig.get('checkdesk_client')}/check/user/password-change", @response.location.split("?").first
+    assert_equal "#{CheckConfig.get('checkdesk_client')}/#{t.slug}", @response.location.split("?").first
     assert_equal 'member', tu.reload.status
     assert_nil tu.reload.raw_invitation_token
   end

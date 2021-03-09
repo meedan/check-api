@@ -1346,12 +1346,6 @@ class UserTest < ActiveSupport::TestCase
     options[:current_password] = 'test1234'
     User.reset_change_password(options)
     assert u.reload.valid_password?('test5678')
-    # test reset password
-    token = User.generate_password_token(u.id)
-    options[:reset_password_token] = token
-    options[:password] = options[:password_confirmation] = 'test1289'
-    User.reset_change_password(options)
-    assert u.reload.valid_password?('test1289')
     User.unstub(:current)
   end
 
