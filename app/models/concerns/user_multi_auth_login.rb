@@ -140,8 +140,6 @@ module UserMultiAuthLogin
             info = a.omniauth_info.dig('info')
             if a.provider == 'slack'
               name = "#{info['nickname']} at #{info['team']}"
-            elsif a.provider == 'twitter'
-              name = "@#{info['nickname']}"
             else
               name = info['name']
             end
