@@ -1120,14 +1120,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
     assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
     providers = u.providers
-    assert_equal 4, providers.count
-    assert_equal ['facebook', 'twitter', 'slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 2, providers.count
+    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
     # connect using FB
-    create_account source: s, user: u, provider: 'facebook', uid: '987654', omniauth_info: omniauth_info
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    create_account source: s, user: u, provider: 'google_oauth2', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'google_oauth2'}).count
     providers = u.providers
-    assert_equal 4, providers.count
-    assert_equal ['facebook', 'twitter', 'slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 2, providers.count
+    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
   end
 
   test "should disconnect social account" do
