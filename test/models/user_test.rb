@@ -870,6 +870,8 @@ class UserTest < ActiveSupport::TestCase
     assert u1.is_invited?(t2)
     User.accept_team_invitation(u1_token, t2.slug)
     assert_not u1.is_invited?(t2)
+    # Verify that compeleted_signup is false
+    assert_not u1.completed_signup?
     # Accept invitation for case C
     u3_token = u3.team_users.where(team_id: t.id).last.raw_invitation_token
     User.accept_team_invitation(u3_token, t.slug)

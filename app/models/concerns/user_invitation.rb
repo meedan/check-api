@@ -136,7 +136,7 @@ module UserInvitation
       password = options[:password] || Devise.friendly_token.first(8)
       unless user.nil?
         invitable = User.accept_invitation!(:invitation_token => token, :password => password)
-        user.update_columns(raw_invitation_token: nil, completed_signup: true)
+        user.update_columns(raw_invitation_token: nil, completed_signup: false)
       end
       invitable
     end
