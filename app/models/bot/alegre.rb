@@ -27,7 +27,7 @@ class Bot::Alegre < BotUser
     private
 
     def can_be_sent_to_index?
-      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status'
+      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status' && Bot::Alegre.team_has_alegre_bot_installed?(self.annotation.annotated.team)
     end
 
     def save_analysis_to_similarity_index
