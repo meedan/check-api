@@ -9,7 +9,7 @@ module Api
 
       before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]
-      before_action :set_current_user, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events, :update_last_active_at
+      before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
