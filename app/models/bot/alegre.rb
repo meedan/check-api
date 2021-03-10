@@ -27,7 +27,7 @@ class Bot::Alegre < BotUser
     private
 
     def can_be_sent_to_index?
-      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status' && Bot::Alegre.team_has_alegre_bot_installed?(self.annotation.annotated.team)
+      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status' && Bot::Alegre.team_has_alegre_bot_installed?(self.annotation.annotated.team.id)
     end
 
     def save_analysis_to_similarity_index
@@ -184,6 +184,12 @@ class Bot::Alegre < BotUser
   def self.send_description_to_similarity_index(pm, field)
     return if pm.description.blank?
     self.send_to_text_similarity_index(pm, field, pm.description, self.item_doc_id(pm, field))
+  end
+
+  def self.team_has_alegre_bot_installed?(team_id)
+    bot = BotUser.alegre_user
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id team_id, bot&&bot.id
+    !tbi.nil?
   end
 
   def self.model_to_use(pm)
