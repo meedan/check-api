@@ -769,6 +769,13 @@ class GraphqlControllerTest < ActionController::TestCase
     query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
     post :create, query: query, team: @team.slug
     assert_response :success
+    # check invited by
+    u = User.find_by_email 'test1@local.com'
+    query = "query GetById { user(id: \"#{u.id}\") { team_user(team_slug: \"#{@team.slug}\") { invited_by { dbid } } } }"
+    post :create, query: query, team: @team.slug
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['user']['team_user']
+    assert_equal User.current.id, data['invited_by']['dbid']
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
     post :create, query: query, team: @team.slug
