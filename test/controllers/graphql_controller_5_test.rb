@@ -270,7 +270,7 @@ class GraphqlController5Test < ActionController::TestCase
     post :create, query: query
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['user']['last_active_at']
-    assert_not_nil @u.last_active_at
+    assert_not_nil @u.reload.last_active_at
   end
 
   protected
