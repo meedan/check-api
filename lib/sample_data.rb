@@ -649,7 +649,7 @@ module SampleData
   end
 
   def create_alegre_bot(_options = {})
-    Bot::Alegre.new
+    Bot::Alegre.new(_options)
   end
 
   def create_slack_bot(_options = {})
