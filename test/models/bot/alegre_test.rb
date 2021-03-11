@@ -490,4 +490,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
     end
   end
+
+  test "should correctly assert has alegre bot installed" do
+    t = create_team
+    TeamUser.where(team_id: t.id).delete_all
+    assert !Bot::Alegre.team_has_alegre_bot_installed?(t)
+    @bot.install_to!(t)
+    assert Bot::Alegre.team_has_alegre_bot_installed?(t)
+  end
 end
