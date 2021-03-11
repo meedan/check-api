@@ -17,6 +17,7 @@ module Api
 
       def failure
         # To debug the error, call failure_message.inspect
+        Rails.logger.info "SawyDebugging :: failure :: #{failure_message.inspect}"
         redirect_to '/close.html'
       end
 
