@@ -9,7 +9,7 @@ module Api
 
       before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]
-      before_action :set_current_user, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
+      before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
@@ -173,6 +173,11 @@ module Api
 
       def trigger_bot_events
         BotUser.trigger_events
+      end
+
+      def update_last_active_at
+        user = User.current
+        user.update_column(:last_active_at, Time.now) if user
       end
     end
   end

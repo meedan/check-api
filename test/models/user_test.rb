@@ -1035,7 +1035,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send invitaion using invitation emaill not primary email" do
+  test "should send invitation using invitation email not primary email" do
     t = create_team
     u = create_user email: 'primary@local.com'
     create_team_user team: t, user: u, role: 'admin'
@@ -1052,7 +1052,7 @@ class UserTest < ActiveSupport::TestCase
         User.send_user_invitation(members)
       end
     end
-    assert_equal ['account@local.com'], t2.invited_mails(t2)
+    assert_equal 'account@local.com', TeamUser.where(user: u, team: t2).first.invitation_email
   end
 
   test "should allow user to delete own account" do
