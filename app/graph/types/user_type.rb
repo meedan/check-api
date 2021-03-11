@@ -28,7 +28,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :last_accepted_terms_at, types.String
   field :team_ids, types[types.Int]
   field :user_teams, types.String
-  field :last_active_at, types.String
+  field :last_active_at, types.Int
   field :completed_signup, types.Boolean
 
   field :source_id do
