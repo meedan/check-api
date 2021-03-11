@@ -467,8 +467,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should set user_id on relationships" do
-    b = create_bot(name: 'Alegre')
-    b.update_column(:login, 'alegre')
     p = create_project
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -479,7 +477,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm1, r.target
     assert_equal pm3, r.source
     assert_not_nil r.user_id
-    assert_equal b.id, r.user_id
+    assert_equal @bot.id, r.user_id
   end
 
   test "should unarchive item after running" do
