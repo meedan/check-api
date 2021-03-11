@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
     desc "Updates ProjectMedia titles and descriptions on alegre's index with vectors"
-    task add_vectors_to_alegre_records: :environment do
+    task :add_vectors_to_alegre_records, [:slugs] => :environment do |t, args|
       started = Time.now.to_i
       running_bucket = []
       log_errors = []
@@ -10,7 +10,7 @@ namespace :check do
       counter = 0
       sent_cases = []
       received_cases = []
-      indian_teams = [1793]
+      indian_teams = Team.where(slug: args[:slugs].split(",")).collect(&:id)
       BotUser.alegre_user.team_bot_installations.find_each do |tb|
         if indian_teams.include?(tb.team_id)
           tb.set_alegre_model_in_use = Bot::Alegre::INDIAN_MODEL
