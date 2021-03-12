@@ -11,6 +11,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project
     p.team.set_languages = ['en','pt','es']
     p.team.save!
+    @team = p.team
     @bot.install_to!(p.team)
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
@@ -160,14 +161,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should update on alegre" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     assert_equal pm.save!, true
   end
 
   test "should delete from alegre" do
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
     assert_equal pm.destroy, pm
@@ -287,10 +288,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items when they are text-based" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -317,10 +318,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar text when they are text-based" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -357,7 +358,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should pass through the send to description similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
@@ -367,10 +368,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar description" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { content: 'Description 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
@@ -398,10 +399,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar title" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'Title 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -435,7 +436,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return an alegre model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
