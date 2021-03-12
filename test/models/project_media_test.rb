@@ -1752,7 +1752,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     create_project_media_project project_media: pm, project: p2
     sleep 2
-    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 4, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
