@@ -28,7 +28,7 @@ class Bot::Alegre < BotUser
 
     def can_be_sent_to_index?
       first = ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status'
-      second = self.annotation && self.annotation.annotated.team && Bot::Alegre.team_has_alegre_bot_installed?(self.annotation.annotated.team.id)
+      second = self.annotation && self.annotation.annotated && self.annotation.annotated.team && Bot::Alegre.team_has_alegre_bot_installed?(self.annotation.annotated.team.id)
       return first && second
     end
 
