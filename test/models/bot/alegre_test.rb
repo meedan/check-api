@@ -11,11 +11,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project
     p.team.set_languages = ['en','pt','es']
     p.team.save!
-    @team = p.team
     @bot.install_to!(p.team)
+    @team = p.team
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
     create_flag_annotation_type
+    Sidekiq::Testing.inline!
   end
 
   test "should return language" do
