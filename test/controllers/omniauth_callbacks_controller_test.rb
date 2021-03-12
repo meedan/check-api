@@ -92,7 +92,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should redirect to root after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
     get :twitter
-    assert_redirected_to '/api'
+    assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Twitter authentication" do
@@ -118,7 +118,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should redirect to API page after Facebook authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     get :facebook
-    assert_redirected_to '/api'
+    assert_redirected_to '/close.html'
   end
 
   test "should redirect to destination after Facebook authentication" do
@@ -131,7 +131,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should redirect to root after Slack authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     get :slack
-    assert_redirected_to '/api'
+    assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Slack authentication" do
@@ -202,7 +202,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should redirect to root after Google authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
     get :google_oauth2
-    assert_redirected_to '/api'
+    assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Google authentication" do

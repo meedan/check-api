@@ -17,7 +17,6 @@ module Api
 
       def failure
         # To debug the error, call failure_message.inspect
-        Rails.logger.info "SawyDebugging :: failure :: #{failure_message.inspect}"
         redirect_to '/close.html'
       end
 
@@ -75,7 +74,7 @@ module Api
       end
 
       def get_check_destination
-        destination = params[:destination] || '/api'
+        destination = params[:destination] || '/close.html'
         if request.env.has_key?('omniauth.params')
           destination = request.env['omniauth.params']['destination'] unless request.env['omniauth.params']['destination'].blank?
         end
