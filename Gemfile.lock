@@ -32,6 +32,15 @@ GIT
       rails
 
 GIT
+  remote: https://github.com/meedan/omniauth-google-oauth2.git
+  revision: e39e2d26877c1046385ef7f23eadd10fdb1feeaa
+  ref: e39e2d2
+  specs:
+    omniauth-google-oauth2 (0.2.6)
+      omniauth (> 1.0)
+      omniauth-oauth2 (~> 1.1)
+
+GIT
   remote: https://github.com/meedan/partitioned.git
   revision: 48c952171472f7e5c608ab1e0adfacf3f97a4320
   branch: rails-4-2
@@ -403,9 +412,6 @@ GEM
       rack (>= 1.6.2, < 3)
     omniauth-facebook (8.0.0)
       omniauth-oauth2 (~> 1.2)
-    omniauth-google-oauth2 (0.2.6)
-      omniauth (> 1.0)
-      omniauth-oauth2 (~> 1.1)
     omniauth-oauth (1.1.0)
       oauth
       omniauth (~> 1.0)
@@ -764,7 +770,7 @@ DEPENDENCIES
   multi_json (= 1.12.2)
   nokogiri (= 1.10.8)
   omniauth-facebook
-  omniauth-google-oauth2
+  omniauth-google-oauth2!
   omniauth-slack
   omniauth-twitter
   open_uri_redirections
