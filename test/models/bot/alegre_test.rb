@@ -168,6 +168,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should delete from alegre" do
+    create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
