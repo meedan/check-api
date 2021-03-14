@@ -299,5 +299,17 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :is_main, types.Boolean do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.linked_items_count > 0 || project_media.suggestions_count > 0
+    }
+  end
+
+  field :is_secondary, types.Boolean do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.sources_count > 0
+    }
+  end
+
   # End of fields
 end
