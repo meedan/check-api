@@ -22,4 +22,11 @@ class SecurityMailer < ApplicationMailer
     mail(to: email, subject: subject)
   end
 
+  def custom_notification(user, data)
+    subject = data[:subject]
+    @user = user
+    @data = data
+    mail(to: user.email, subject: subject)
+  end
+
 end
