@@ -33,6 +33,10 @@ addons:
   postgresql: '11'
   hosts:
   - api
+  - minio
+  - redis
+  - elasticsearch
+  - postgres
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
 - cd test && ./setup-parallel-env.sh && cd -
