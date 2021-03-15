@@ -167,14 +167,17 @@ class CheckSearch
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options['archived'].to_i
-    filters = filters.merge({
-      archived: archived,
-      sources_count: 0
-    })
+    filters = filters.merge({ archived: archived })
+    filters = filters.merge({ sources_count: 0 }) unless should_include_related_items?
     build_search_range_filter(:pg, filters)
     relation = ProjectMedia.where(filters).distinct('project_medias.id').includes(:media)
     relation = relation.joins(:project_media_projects) unless @options['projects'].blank?
     relation
+  end
+
+  def should_include_related_items?
+    all_items = (@options['projects'].blank? && @options['archived'].to_i == 0)
+    @options['include_related_items'] || all_items
   end
 
   def medias_build_search_query(associated_type = 'ProjectMedia')
@@ -185,7 +188,7 @@ class CheckSearch
       archived = @options['archived'].to_i
       conditions << { term: { archived: archived } }
       conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
-      conditions << { term: { sources_count: 0 } } unless @options['include_related_items']
+      conditions << { term: { sources_count: 0 } } unless should_include_related_items?
     end
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
