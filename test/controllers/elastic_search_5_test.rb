@@ -24,8 +24,10 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     sleep 2
-    result = CheckSearch.new({}.to_json)
+    result = CheckSearch.new({ projects: [p.id] }.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
+    result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     # detach and assign to specific list
     r.add_to_project_id = p2.id
     r.destroy

@@ -229,7 +229,7 @@ class Team < ActiveRecord::Base
   end
 
   def medias_count
-    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE, sources_count: 0 }).count
+    ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE }).count
   end
 
   def check_search_team
