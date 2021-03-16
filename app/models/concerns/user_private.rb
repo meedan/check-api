@@ -30,7 +30,8 @@ module UserPrivate
   end
 
   def send_welcome_email
-    RegistrationMailer.delay.welcome_email(self) if self.encrypted_password? && CheckConfig.get('send_welcome_email_on_registration') && !self.is_invited?
+    config_value = JSON.parse(CheckConfig.get('send_welcome_email_on_registration').to_s)
+    RegistrationMailer.delay.welcome_email(self) if self.encrypted_password? && config_value && !self.is_invited?
   end
 
   def user_is_member_in_current_team
