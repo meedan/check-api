@@ -22,10 +22,9 @@ class SecurityMailer < ApplicationMailer
     mail(to: email, subject: subject)
   end
 
-  def custom_notification(user, data)
-    subject = data[:subject]
+  def custom_notification(user, subject)
     @user = user
-    @data = data
+    attachments.inline['signup.png'] = File.read('public/images/signup.png')
     mail(to: user.email, subject: subject)
   end
 
