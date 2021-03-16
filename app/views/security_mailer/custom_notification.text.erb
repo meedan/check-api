@@ -1,9 +1,19 @@
 <%= I18n.t("mails_notifications.greeting", username: @user.name) %>
 =======================================================
-<%= @data[:main_title] %>
+For security reasons, as of March 15 2021, all users will no longer be able to signup or login using their Facebook, Slack or Twitter account.
 =======================================================
+You are receiving this email because your Check account is linked to one of these social media platforms. Nothing to worry about! The process to update your account is simple: 
+=======================================================
+Starting on March 15, you can log in using the following email:
+=======================================================
+<%= @user.email %>
+=======================================================
+On the Sign in page, please click the ‘Forgot your password?’ button and simply follow the step to create a new password. This should take no more than a minute or two. 
+=======================================================
+If you are experiencing any difficulties, please email fiona@meedan.com.
+=======================================================
+Thank you,
 
-<%= @data[:content] %>
 ...
 
 <%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CheckConfig.get('app_name')) %>
