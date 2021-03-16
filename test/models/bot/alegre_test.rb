@@ -6,13 +6,17 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-    @bot = create_alegre_bot
+    @bot = create_alegre_bot(name: "alegre", login: "alegre")
+    @bot.approve!
     p = create_project
     p.team.set_languages = ['en','pt','es']
     p.team.save!
+    @bot.install_to!(p.team)
+    @team = p.team
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
     create_flag_annotation_type
+    Sidekiq::Testing.inline!
   end
 
   test "should return language" do
@@ -158,14 +162,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should update on alegre" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     assert_equal pm.save!, true
   end
 
   test "should delete from alegre" do
+    create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
     assert_equal pm.destroy, pm
@@ -285,10 +290,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items when they are text-based" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -315,10 +320,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar text when they are text-based" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -355,7 +360,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should pass through the send to description similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
@@ -365,10 +370,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar description" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { content: 'Description 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({
@@ -396,10 +401,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get items with similar title" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { title: 'Title 1' }
     pm.save!
-    pm2 = create_project_media quote: "Blah2"
+    pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'Title 1' }
     pm2.save!
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
@@ -433,7 +438,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should return an alegre model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah"
+    pm = create_project_media quote: "Blah", team: @team
     pm.analysis = { content: 'Description 1' }
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
@@ -465,8 +470,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should set user_id on relationships" do
-    b = create_bot(name: 'Alegre')
-    b.update_column(:login, 'alegre')
     p = create_project
     pm1 = create_project_media project: p
     pm2 = create_project_media project: p
@@ -477,7 +480,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm1, r.target
     assert_equal pm3, r.source
     assert_not_nil r.user_id
-    assert_equal b.id, r.user_id
+    assert_equal @bot.id, r.user_id
   end
 
   test "should unarchive item after running" do
@@ -489,5 +492,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.run({ data: { dbid: pm.id }, event: 'create_project_media' })
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived
     end
+  end
+
+  test "should correctly assert has alegre bot installed" do
+    t = create_team
+    TeamUser.where(team_id: t.id).delete_all
+    assert !Bot::Alegre.team_has_alegre_bot_installed?(t)
+    @bot.install_to!(t)
+    assert Bot::Alegre.team_has_alegre_bot_installed?(t)
   end
 end

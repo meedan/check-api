@@ -373,10 +373,10 @@ class User < ActiveRecord::Base
   def self.get_duplicate_user(email, id=0)
     ret = { user: nil, type: nil }
     unless email.blank?
-      u = User.where(email: email).where.not(id: id).last
+      u = User.where('lower(email) = ?', email.downcase).where.not(id: id).last
       if u.nil?
         # check email in social accounts
-        a = Account.where(email: email).where.not(user_id: id).last
+        a = Account.where('lower(email) = ?', email.downcase).where.not(user_id: id).last
         ret = { user: a.user, type: a.class_name } unless a.nil?
       else
         ret = { user: u, type: u.class_name }
