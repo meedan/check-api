@@ -596,4 +596,32 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     s.save!
     Bot::Smooch.unstub(:send_message_to_user)
   end
+
+  test "should return user request language" do
+    uid = random_string
+    messages = [
+      {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        text: random_string
+      }
+    ]
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: messages,
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }.to_json
+    assert Bot::Smooch.run(payload)
+    pm = ProjectMedia.last
+    v = Version.where("object_after LIKE '%smooch_data%'").last
+    assert_equal 'en', v.smooch_user_request_language
+  end
 end

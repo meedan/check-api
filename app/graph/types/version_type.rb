@@ -17,6 +17,7 @@ VersionType = GraphqlCrudOperations.define_default_type do
   field :smooch_user_external_identifier, types.String
   field :smooch_report_received_at, types.Int
   field :smooch_report_update_received_at, types.Int
+  field :smooch_user_request_language, types.String
 
   field :user do
     type -> { UserType }

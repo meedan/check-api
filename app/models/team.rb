@@ -1,6 +1,6 @@
 class Team < ActiveRecord::Base
-  after_create :create_team_partition, :add_user_to_team, :add_default_bots_to_team
-
+  # These two callbacks must be in the top
+  after_create :create_team_partition
   before_destroy :delete_created_bots
 
   include ValidationsHelper
@@ -16,18 +16,18 @@ class Team < ActiveRecord::Base
 
   mount_uploader :logo, ImageUploader
 
-  before_validation :normalize_slug, on: :create
-  before_validation :set_default_language, on: :create
-  before_validation :set_default_fieldsets, on: :create
-
   after_find do |team|
     if User.current
       Team.current ||= team
       Ability.new(User.current, team)
     end
   end
+  before_validation :normalize_slug, on: :create
+  before_validation :set_default_language, on: :create
+  before_validation :set_default_fieldsets, on: :create
+  after_create :add_user_to_team, :add_default_bots_to_team
   after_update :archive_or_restore_projects_if_needed
-  before_destroy :destroy_versions
+  before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 
   check_settings
@@ -43,8 +43,7 @@ class Team < ActiveRecord::Base
   end
 
   def url
-    url = self.contacts.map(&:web).select{ |w| !w.blank? }.first
-    url || CheckConfig.get('checkdesk_client') + '/' + self.slug
+    CheckConfig.get('checkdesk_client') + '/' + self.slug
   end
 
   def team
@@ -82,6 +81,16 @@ class Team < ActiveRecord::Base
     Base64.encode64("Team/#{self.id}")
   end
 
+  def destroy_partition_and_team!
+    RequestStore.store[:skip_cached_field_update] = true
+    # Destroy the whole partition first, in a separate transaction
+    # Re-create an empty partition before destroying the rest, to avoid errors
+    self.send :delete_team_partition
+    self.send :create_team_partition
+    ActiveRecord::Base.connection_pool.with_connection { self.destroy! }
+    RequestStore.store[:skip_cached_field_update] = false
+  end
+
   # FIXME Source should be using concern HasImage
   # which automatically adds a member attribute `file`
   # which is used by GraphqlCrudOperations
@@ -93,16 +102,6 @@ class Team < ActiveRecord::Base
   # which already include this method
   def should_generate_thumbnail?
     true
-  end
-
-  def contact=(info)
-    contact = self.contacts.first || Contact.new
-    info = JSON.parse(info)
-    contact.web = info['web']
-    contact.phone = info['phone']
-    contact.location = info['location']
-    contact.team = self
-    contact.save!
   end
 
   def recipients(requestor, role='admin')
@@ -288,7 +287,9 @@ class Team < ActiveRecord::Base
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    # FIXME fix typo
     perms["mange TagText"] = ability.can?(:manage, tag_text)
+    # FIXME fix typo
     perms["mange TeamTask"] = ability.can?(:manage, team_task)
     [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
@@ -296,11 +297,6 @@ class Team < ActiveRecord::Base
 
   def permissions_info
     YAML.load(ERB.new(File.read("#{Rails.root}/config/permission_info.yml")).result)
-  end
-
-  def invited_mails(team=nil)
-    team ||= Team.current
-    TeamUser.where(team_id: team.id, status: 'invited').where.not(invitation_token: nil).map(&:invitation_email) unless team.nil?
   end
 
   def dynamic_search_fields_json_schema

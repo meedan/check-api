@@ -165,6 +165,10 @@ class ProjectMediaProject < ActiveRecord::Base
     ids, pids, pmids, _pairs = self.filter_ids_by_team(input_ids, team)
     pm_graphql_ids = pmids.collect{ |pmid| Base64.encode64("ProjectMedia/#{pmid}") }
 
+    # Bulk-destroy existing records
+    destroy_ids = ProjectMediaProject.where(project_id: updates[:project_id], project_media_id: pmids).map(&:id)
+    ProjectMediaProject.bulk_destroy(destroy_ids, {}, team)
+
     # Bulk-update in a single SQL
     ProjectMediaProject.where(id: ids).update_all(project_id: updates[:project_id])
 

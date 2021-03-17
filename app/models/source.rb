@@ -149,7 +149,7 @@ class Source < ActiveRecord::Base
     unless self.team.nil? || self.name.blank?
       s = Source.get_duplicate(self.name, self.team)
       unless s.nil?
-        errors.add(:base, I18n.t(:duplicate_source)) if self.id.nil? || s.id != self.id
+        raise_source_error(s) if self.id.nil? || s.id != self.id
       end
     end
   end
@@ -227,20 +227,22 @@ class Source < ActiveRecord::Base
       a.valid?
       a = Account.where(url: a.url).last
       s = a.sources.where(team_id: Team.current.id).last unless a.nil?
-      unless s.nil?
-        error = {
-          message: I18n.t(:source_exists),
-          code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
-          data: {
-            team_id: s.team_id,
-            type: 'source',
-            id: s.id,
-            name: s.name
-          }
-        }
-        raise error.to_json
-      end
+      raise_source_error(s) unless s.nil?
     end
+  end
+
+  def raise_source_error(s)
+    error = {
+      message: I18n.t(:source_exists),
+      code: LapisConstants::ErrorCodes::const_get('DUPLICATED'),
+      data: {
+        team_id: s.team_id,
+        type: 'source',
+        id: s.id,
+        name: s.name
+      }
+    }
+    raise error.to_json
   end
 
   def create_related_accounts

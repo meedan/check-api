@@ -4,8 +4,7 @@ module TeamMutations
     private: 'bool',
     name: '!str',
     slug: '!str',
-    description: 'str',
-    contact: 'str'
+    description: 'str'
   }
 
   update_fields = {
@@ -21,7 +20,6 @@ module TeamMutations
     set_team_tasks: 'json',
     rules: 'str',
     remove_auto_task: 'str', # label
-    contact: 'str',
     empty_trash: 'int',
     report: 'json',
     language: 'str',

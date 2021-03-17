@@ -338,18 +338,22 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_nil pm2.added_as_similar_by_name }
   end
 
-  test "should cache the name of who confirmed a similar item" do
+  test "should cache the name of who confirmed a similar item and store confirmation information" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     u = create_user is_admin: true
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type, user: create_user(is_admin: true)
+    assert_nil r.reload.confirmed_at
+    assert_nil r.reload.confirmed_by
     with_current_user_and_team(u, t) do
       r.relationship_type = Relationship.confirmed_type
       r.save!
     end
     assert_queries(0, '=') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
+    assert_not_nil r.reload.confirmed_at
+    assert_equal u.id, r.reload.confirmed_by
     Rails.cache.delete("check_cached_field:ProjectMedia:#{pm2.id}:confirmed_as_similar_by_name")
     assert_queries(0, '>') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
     r.destroy!

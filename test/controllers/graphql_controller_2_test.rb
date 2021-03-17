@@ -801,7 +801,7 @@ class GraphqlController2Test < ActionController::TestCase
     v = create_version
     t = Team.last
     id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 10 do
+    q = assert_queries 11 do
       post :create, query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug
     end
     assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')

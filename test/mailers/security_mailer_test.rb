@@ -35,4 +35,13 @@ class SecurityMailerTest < ActionMailer::TestCase
       email.deliver_now
     end
   end
+
+  test "should send custom notification" do
+    user = create_user
+    subject = 'email subject'
+    email = SecurityMailer.custom_notification(user, subject)
+    assert_emails 1 do
+      email.deliver_now
+    end
+  end
 end

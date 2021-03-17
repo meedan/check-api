@@ -9,7 +9,8 @@ class Relationship < ActiveRecord::Base
 
   serialize :relationship_type
 
-  before_validation :set_user
+  before_validation :set_user, on: :create
+  before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
   validate :relationship_type_is_valid
   validate :items_are_from_the_same_team
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
@@ -117,6 +118,10 @@ class Relationship < ActiveRecord::Base
     pm.create_project_media_project
   end
 
+  def is_being_confirmed?
+    self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
+  end
+
   protected
 
   def update_counters
@@ -178,6 +183,13 @@ class Relationship < ActiveRecord::Base
       new_relationship = Relationship.new(source_id: self.source_id, target_id: old_relationship.target_id, relationship_type: old_relationship.relationship_type, user_id: old_relationship.user_id, weight: old_relationship.weight)
       new_relationship.skip_check_ability = true
       new_relationship.save!
+    end
+  end
+
+  def set_confirmed
+    if User.current
+      self.confirmed_at = Time.now
+      self.confirmed_by = User.current.id
     end
   end
 end

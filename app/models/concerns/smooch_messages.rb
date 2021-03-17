@@ -63,13 +63,39 @@ module SmoochMessages
       pm_id = Rails.cache.read("smooch:message:#{hash}")
       if pm_id.nil?
         is_supported = self.supported_message?(message)
-        if is_supported.slice(:type, :size).all?{|_k, v| v}
+        if is_supported.slice(:type, :size).all?{ |_k, v| v }
           self.save_message_later_and_reply_to_user(message, app_id)
         else
           self.send_error_message(message, is_supported)
         end
       else
         self.save_message_later_and_reply_to_user(message, app_id)
+      end
+    end
+
+    def clear_user_bundled_messages(uid)
+      Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
+    end
+
+    def handle_bundle_messages(type, list, last, app_id, annotated)
+      bundle = last.clone
+      text = []
+      media = nil
+      list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
+        if media.nil?
+          media = message['mediaUrl']
+          bundle['type'] = message['type']
+          bundle['mediaUrl'] = media
+        end
+        text << message['mediaUrl'].to_s
+        text << message['text'].to_s
+      end
+      bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
+      if type == 'default_requests'
+        self.process_message(bundle, app_id)
+      elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
+        key = "smooch:banned:#{bundle['authorId']}"
+        self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
       end
     end
 
@@ -176,12 +202,6 @@ module SmoochMessages
 
     def should_try_to_send_report?(request_type, annotated)
       request_type == 'default_requests' && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
-    end
-
-    def resend_message(message)
-      code = begin message['error']['underlyingError']['errors'][0]['code'] rescue 0 end
-      self.delay_for(1.second, { queue: 'smooch', retry: 0 }).resend_message_after_window(message.to_json) if code == 470
-      self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent'] && code != 470
     end
 
     def utmize_urls(text, source)

@@ -18,7 +18,6 @@ module TeamDuplication
         Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
         team = t.deep_clone include: [
           :projects,
-          :contacts,
           :tag_texts,
           :team_tasks
         ] do |original, copy|
