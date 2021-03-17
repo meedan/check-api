@@ -74,7 +74,7 @@ module Api
       end
 
       def get_check_destination
-        destination = params[:destination] || '/api'
+        destination = params[:destination] || '/close.html'
         if request.env.has_key?('omniauth.params')
           destination = request.env['omniauth.params']['destination'] unless request.env['omniauth.params']['destination'].blank?
         end

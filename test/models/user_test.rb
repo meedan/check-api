@@ -870,6 +870,8 @@ class UserTest < ActiveSupport::TestCase
     assert u1.is_invited?(t2)
     User.accept_team_invitation(u1_token, t2.slug)
     assert_not u1.is_invited?(t2)
+    # Verify that compeleted_signup is false
+    assert_not u1.completed_signup?
     # Accept invitation for case C
     u3_token = u3.team_users.where(team_id: t.id).last.raw_invitation_token
     User.accept_team_invitation(u3_token, t.slug)
@@ -1033,7 +1035,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should send invitaion using invitation emaill not primary email" do
+  test "should send invitation using invitation email not primary email" do
     t = create_team
     u = create_user email: 'primary@local.com'
     create_team_user team: t, user: u, role: 'admin'
@@ -1050,7 +1052,7 @@ class UserTest < ActiveSupport::TestCase
         User.send_user_invitation(members)
       end
     end
-    assert_equal ['account@local.com'], t2.invited_mails(t2)
+    assert_equal 'account@local.com', TeamUser.where(user: u, team: t2).first.invitation_email
   end
 
   test "should allow user to delete own account" do
@@ -1120,14 +1122,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
     assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
     providers = u.providers
-    assert_equal 4, providers.count
-    assert_equal ['facebook', 'twitter', 'slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 2, providers.count
+    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
     # connect using FB
-    create_account source: s, user: u, provider: 'facebook', uid: '987654', omniauth_info: omniauth_info
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    create_account source: s, user: u, provider: 'google_oauth2', uid: '987654', omniauth_info: omniauth_info
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'google_oauth2'}).count
     providers = u.providers
-    assert_equal 4, providers.count
-    assert_equal ['facebook', 'twitter', 'slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 2, providers.count
+    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
   end
 
   test "should disconnect social account" do
@@ -1286,14 +1288,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'requested', tu.status
   end
 
-  test "should generate password token" do
-    token = User.generate_password_token(nil)
-    assert_nil token
-    u = create_user
-    token = User.generate_password_token(u.id)
-    assert_not_nil token
-  end
-
   test "should have 2FA for email based user" do
     u = create_user password: 'test1234'
     assert_nil u.otp_secret
@@ -1354,12 +1348,6 @@ class UserTest < ActiveSupport::TestCase
     options[:current_password] = 'test1234'
     User.reset_change_password(options)
     assert u.reload.valid_password?('test5678')
-    # test reset password
-    token = User.generate_password_token(u.id)
-    options[:reset_password_token] = token
-    options[:password] = options[:password_confirmation] = 'test1289'
-    User.reset_change_password(options)
-    assert u.reload.valid_password?('test1289')
     User.unstub(:current)
   end
 

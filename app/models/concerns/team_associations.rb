@@ -7,11 +7,10 @@ module TeamAssociations
     has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
 
     has_many :projects, dependent: :destroy
-    has_many :accounts, dependent: :destroy
+    has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
     has_many :users, through: :team_users
-    has_many :contacts, dependent: :destroy
-    has_many :sources, dependent: :destroy
+    has_many :sources # No "dependent: :destroy" because they will be anonymized
     has_many :tag_texts, dependent: :destroy
     has_many :team_tasks, dependent: :destroy
     has_many :project_medias, dependent: :destroy

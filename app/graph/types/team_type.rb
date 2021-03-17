@@ -28,7 +28,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :trash_size, JsonStringType
   field :public_team_id, types.String
   field :permissions_info, JsonStringType
-  field :invited_mails, JsonStringType
   field :dynamic_search_fields_json_schema, JsonStringType
   field :get_rules, JsonStringType
   field :rules_json_schema, types.String
@@ -61,8 +60,11 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :team_users, -> { TeamUserType.connection_type } do
-    resolve -> (team, _args, _ctx) {
-      team.team_users.where({ status: 'member' }).order('id ASC')
+    argument :status, types[types.String]
+
+    resolve -> (team, args, _ctx) {
+      status = args['status'] || 'member'
+      team.team_users.where({ status: status }).order('id ASC')
     }
   end
 
@@ -74,10 +76,6 @@ TeamType = GraphqlCrudOperations.define_default_type do
     resolve -> (team, _args, _ctx) {
       team.users
     }
-  end
-
-  connection :contacts, -> { ContactType.connection_type } do
-    resolve -> (team, _args, _ctx) { team.contacts }
   end
 
   connection :projects, -> { ProjectType.connection_type } do

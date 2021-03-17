@@ -1,5 +1,8 @@
 class Bot::Alegre < BotUser
   check_settings
+  MEAN_TOKENS_MODEL = "xlm-r-bert-base-nli-stsb-mean-tokens"
+  INDIAN_MODEL = "indian-sbert"
+  ELASTICSEARCH_MODEL = "elasticsearch"
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds
@@ -24,7 +27,9 @@ class Bot::Alegre < BotUser
     private
 
     def can_be_sent_to_index?
-      ['content', 'title'].include?(self.field_name) && self.annotation.annotation_type == 'verification_status'
+      ['content', 'title'].include?(self.field_name) &&
+      self.annotation.annotation_type == 'verification_status' &&
+      Bot::Alegre.team_has_alegre_bot_installed?(self.annotation&.annotated&.team&.id&.to_i)
     end
 
     def save_analysis_to_similarity_index
@@ -34,7 +39,11 @@ class Bot::Alegre < BotUser
     def delete_analysis_from_similarity_index
       self.class.delay.delete_analysis_from_similarity_index(self.annotation.annotated_id)
     end
-  end  
+  end
+
+  def self.default_model
+    CheckConfig.get('alegre_default_model') || Bot::Alegre::ELASTICSEARCH_MODEL
+  end
 
   def self.run(body)
     if CheckConfig.get('alegre_host').blank?
@@ -179,6 +188,19 @@ class Bot::Alegre < BotUser
     self.send_to_text_similarity_index(pm, field, pm.description, self.item_doc_id(pm, field))
   end
 
+  def self.team_has_alegre_bot_installed?(team_id)
+    bot = BotUser.alegre_user
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id team_id, bot&&bot.id
+    !tbi.nil?
+  end
+
+  def self.model_to_use(pm)
+    bot = BotUser.alegre_user
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    return self.default_model if tbi.nil?
+    tbi.get_alegre_model_in_use || self.default_model
+  end
+
   def self.delete_field_from_text_similarity_index(pm, field)
     self.delete_from_text_similarity_index(self.item_doc_id(pm, field))
   end
@@ -189,10 +211,12 @@ class Bot::Alegre < BotUser
     })
   end
 
-  def self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+  def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
+    model ||= self.model_to_use(pm)
     {
       doc_id: doc_id,
       text: text,
+      model: model,
       context: {
         team_id: pm.team_id,
         field: field,
@@ -202,11 +226,11 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.send_to_text_similarity_index(pm, field, text, doc_id)
+  def self.send_to_text_similarity_index(pm, field, text, doc_id, model=nil)
     self.request_api(
       'post',
       '/text/similarity/',
-      self.send_to_text_similarity_index_package(pm, field, text, doc_id)
+      self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
     )
   end
 

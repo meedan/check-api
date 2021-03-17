@@ -24,4 +24,12 @@ TeamUserType = GraphqlCrudOperations.define_default_type do
       team_user.user
     }
   end
+
+  field :invited_by do
+    type UserType
+
+    resolve -> (team_user, _args, _ctx) {
+      User.find_by_id(team_user.invited_by_id)
+    }
+  end
 end

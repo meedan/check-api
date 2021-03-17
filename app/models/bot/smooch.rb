@@ -13,6 +13,7 @@ class Bot::Smooch < BotUser
   include SmoochResources
   include SmoochTos
   include SmoochStatus
+  include SmoochResend
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -177,6 +178,14 @@ class Bot::Smooch < BotUser
         rescue
           nil
         end
+      end
+    end
+
+    def smooch_user_request_language
+      Concurrent::Future.execute(executor: POOL) do
+        object_after = JSON.parse(self.object_after)
+        return '' unless object_after['field_name'] == 'smooch_data'
+        JSON.parse(object_after['value'])['language'].to_s
       end
     end
 
@@ -456,33 +465,6 @@ class Bot::Smooch < BotUser
     return false
   end
 
-  def self.clear_user_bundled_messages(uid)
-    Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
-  end
-
-  def self.handle_bundle_messages(type, list, last, app_id, annotated)
-    bundle = last.clone
-    text = []
-    media = nil
-    list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-      next unless self.supported_message?(message)[:type]
-      if media.nil?
-        media = message['mediaUrl']
-        bundle['type'] = message['type']
-        bundle['mediaUrl'] = media
-      end
-      text << message['mediaUrl'].to_s
-      text << message['text'].to_s
-    end
-    bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
-    if type == 'default_requests'
-      self.process_message(bundle, app_id)
-    elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
-      key = "smooch:banned:#{bundle['authorId']}"
-      self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
-    end
-  end
-
   def self.template_locale_options(team_slug = nil)
     team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
     languages = team&.get_languages
@@ -524,68 +506,6 @@ class Bot::Smooch < BotUser
         end
       end
     end
-  end
-
-  def self.resend_message_after_window(message)
-    message = JSON.parse(message)
-    self.get_installation('smooch_app_id', message['app']['_id'])
-
-    # Exit if there is no template namespace
-    return false if self.config['smooch_template_namespace'].blank?
-
-    original = Rails.cache.read('smooch:original:' + message['message']['_id'])
-
-    # This is a report that was created or updated, or a message send by a rule action
-    unless original.blank?
-      original = JSON.parse(original)
-      return self.resend_report_after_window(message, original) if original['fallback_template'] =~ /report/
-      return self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
-    end
-
-    # A message sent from Slack
-    return self.resend_slack_message_after_window(message)
-  end
-
-  def self.resend_rules_message_after_window(message, original)
-    template = original['fallback_template']
-    language = self.get_user_language(message)
-    query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-    placeholders = [query_date, original['message']]
-    fallback = original['message']
-    self.send_message_to_user(message['appUser']['_id'], self.format_template_message(template, placeholders, nil, fallback, language))
-    true
-  end
-
-  def self.resend_report_after_window(message, original)
-    pm = ProjectMedia.where(id: original['project_media_id']).last
-    report = pm&.get_dynamic_annotation('report_design')
-    if report&.get_field_value('state') == 'published'
-      template = original['fallback_template']
-      language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
-      query_date = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
-      text = report.report_design_field_value('use_text_message', language) ? report.report_design_text(language).to_s : nil
-      image = report.report_design_field_value('use_visual_card', language) ? report.report_design_image_url(language).to_s : nil
-      last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
-      last_smooch_response = self.send_message_to_user(message['appUser']['_id'], self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
-      self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
-      return true
-    end
-    false
-  end
-
-  def self.resend_slack_message_after_window(message)
-    result = self.smooch_api_get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
-    return if result.nil?
-    result.messages.each do |m|
-      if m.source&.type == 'slack' && m.id == message['message']['_id']
-        language = self.get_user_language({ 'authorId' => message['appUser']['_id'] })
-        date = Rails.cache.read("smooch:last_message_from_user:#{message['appUser']['_id']}").to_i || Time.now.to_i
-        query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        self.send_message_to_user(message['appUser']['_id'], self.format_template_message('more_information_needed_text_only', [query_date, m.text], nil, m.text, language))
-        return true
-      end
-    end
-    false
   end
 
   def self.smooch_api_get_messages(app_id, user_id, opts = {})
@@ -688,7 +608,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.send_error_message(message, is_supported)
-    max_size = "Uploaded#{is_supported[:m_type].camelize}".constantize.max_size_readable
+    m_type = is_supported[:m_type] || 'file'
+    max_size = "Uploaded#{m_type.camelize}".constantize.max_size_readable
     workflow = self.get_workflow(message['language'])
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)

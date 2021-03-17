@@ -618,20 +618,6 @@ module SampleData
     create_account(options)
   end
 
-  def create_contact(options = {})
-    contact = Contact.new
-    contact.location = options[:location] || random_string
-    contact.phone = options[:phone] || random_valid_phone
-    contact.web = options[:web] || random_url
-    if options.has_key?(:team_id)
-      contact.team_id = options[:team_id]
-    else
-      contact.team = options[:team] || create_team
-    end
-    contact.save!
-    contact.reload
-  end
-
   def create_bot(options = {})
     bot = BotUser.new
     bot.name = options[:name] || random_string
@@ -649,7 +635,7 @@ module SampleData
   end
 
   def create_alegre_bot(_options = {})
-    Bot::Alegre.new
+    Bot::Alegre.new(_options)
   end
 
   def create_slack_bot(_options = {})

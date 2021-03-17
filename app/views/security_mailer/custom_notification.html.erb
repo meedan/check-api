@@ -1,0 +1,143 @@
+<%= render "shared/header" %>
+
+          <style>
+            @media only screen and (max-width: 601px) {
+              .notify-title__content {
+                padding: 0 30px;
+              }
+            }
+
+
+            @media only screen and (max-width: 481px) {
+              .notify-title__content {
+                padding: 0 !important;
+              }
+            }
+          </style>
+
+          <!--~~// Notify-title module start \\~~-->
+          <!--————————————————————————————-->
+          <div class="notify-title" style="text-align: <%= @direction[:align] %> !important; direction: <%= @direction[:dir] %>">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+              <tr>
+                <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+              </tr>
+            </table>
+            <div class="container " width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
+              <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
+                <tr>
+                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" text-align: <%= @direction[:align] %>>
+                    <div class="notify-title__content" style="text-align:<%= @direction[:align] %>;">
+                      <div class="h3 notify-title__greeting" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;"><%= I18n.t("mails_notifications.greeting", username: @user.name) %></div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          For security reasons, as of March 15 2021, all users will no longer be able to signup or login using their Facebook, Slack or Twitter account.
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          You are receiving this email because your Check account is linked to one of these social media platforms. Nothing to worry about! The process to update your account is simple:
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          Starting on March 15, you can log in using the following email:
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          <%= @user.email %>
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          On the Sign in page, please click the ‘Forgot your password?’ button and simply follow the step to create a new password. This should take no more than a minute or two. 
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          If you are experiencing any difficulties, please email fiona@meedan.com.
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;">
+                          Thanks you,
+                        </div>
+                      </div>
+                    </div>
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tr>
+                          <td style="border-collapse: collapse; font-size: 12px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <div class="text-gray" style="color: #757575 !important;">
+                        <div class="h3" style="font-size: 21px; letter-spacing: -0.2px; line-height: 30px;text-align: 'center'">
+                          <%= image_tag attachments['signup.png'].url %>
+                        </div>
+                      </div>
+                    </div>
+                    <!--————————————————————————————-->
+                    <!--~~\\ Notify-title module end //~~-->
+
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                      <tr>
+                        <td style="border-collapse: collapse; font-size: 28px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                      </tr>
+                    </table>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                      <tr>
+                        <td style="border-collapse: collapse; font-size: 23px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                      </tr>
+                    </table>
+                    <style>
+                      @media only screen and (max-width: 601px) {
+                        th.footer {
+                          padding: 0 30px !important;
+                        }
+                      }
+
+
+                      @media only screen and (max-width: 481px) {
+                        th.footer {
+                          padding: 0 !important;
+                        }
+                      }
+                    </style>
+
+<%= render "shared/footer" %>
+

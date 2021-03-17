@@ -108,19 +108,6 @@ module UserInvitation
       !tu.nil?
     end
 
-    def self.generate_password_token(id)
-      begin
-        user = User.find id
-        token, enc = Devise.token_generator.generate(user.class, :reset_password_token)
-        user.reset_password_token = enc
-        user.reset_password_sent_at = Time.now.utc
-        user.save!(:validate => false)
-      rescue
-        token = nil
-      end
-      token
-    end
-
     private
 
     def create_team_user_invitation(options = {})
@@ -149,7 +136,7 @@ module UserInvitation
       password = options[:password] || Devise.friendly_token.first(8)
       unless user.nil?
         invitable = User.accept_invitation!(:invitation_token => token, :password => password)
-        user.update_column(:raw_invitation_token, nil)
+        user.update_columns(raw_invitation_token: nil, completed_signup: false)
       end
       invitable
     end

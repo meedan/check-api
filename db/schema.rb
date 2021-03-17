@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210216033609) do
+ActiveRecord::Schema.define(version: 20210309223958) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -110,15 +110,6 @@ ActiveRecord::Schema.define(version: 20210216033609) do
   end
 
   add_index "bounces", ["email"], name: "index_bounces_on_email", unique: true, using: :btree
-
-  create_table "contacts", force: :cascade do |t|
-    t.integer  "team_id"
-    t.string   "location"
-    t.string   "phone"
-    t.string   "web"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", force: :cascade do |t|
     t.string   "label",                      null: false
@@ -276,6 +267,8 @@ ActiveRecord::Schema.define(version: 20210216033609) do
     t.datetime "updated_at",                      null: false
     t.integer  "user_id"
     t.float    "weight",            default: 0.0
+    t.integer  "confirmed_by"
+    t.datetime "confirmed_at"
   end
 
   add_index "relationships", ["relationship_type"], name: "index_relationships_on_relationship_type", using: :btree
@@ -427,6 +420,8 @@ ActiveRecord::Schema.define(version: 20210216033609) do
     t.boolean  "otp_required_for_login"
     t.string   "otp_backup_codes",                                       array: true
     t.boolean  "default",                   default: false
+    t.boolean  "completed_signup",          default: true
+    t.datetime "last_active_at"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

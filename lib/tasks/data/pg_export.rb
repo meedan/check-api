@@ -240,12 +240,6 @@ module PgExport
       end
     end
 
-    class Contact < Base
-      def where_clause
-        "WHERE team_id = #{team_id}"
-      end
-    end
-
     class Project < Base
       def where_clause
         "WHERE team_id = #{team_id}"
@@ -448,7 +442,6 @@ module PgExport
             TableStrategies::Assignment,
             TableStrategies::BotResource,
             TableStrategies::Bounce,
-            TableStrategies::Contact,
             TableStrategies::DynamicAnnotationAnnotationType,
             TableStrategies::DynamicAnnotationField,
             TableStrategies::DynamicAnnotationFieldInstance,

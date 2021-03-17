@@ -264,17 +264,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set contact" do
-    t = create_team
-    assert_difference 'Contact.count' do
-      t.contact = { location: 'Salvador', phone: '557133330101', web: 'http://meedan.com' }.to_json
-    end
-    assert_no_difference 'Contact.count' do
-      t.contact = { location: 'Bahia' }.to_json
-    end
-    assert_equal 'Bahia', t.reload.contacts.first.location
-  end
-
   test "should validate Slack webhook" do
     t = create_team
     assert_raises ActiveRecord::RecordInvalid do
@@ -301,7 +290,7 @@ class TeamTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject",
       "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
-      "create User", "create Contact", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
+      "create User", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "mange TagText", "mange TeamTask"
     ].sort
 
@@ -475,13 +464,11 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     a = create_account team: t
-    c = create_contact team: t
     RequestStore.store[:disable_es_callbacks] = true
     t.destroy
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
-    assert_equal 0, Contact.where(team_id: id).count
     assert_equal 0, ProjectMediaProject.where(project_id: p.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
@@ -612,7 +599,7 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should delete sources, projects and project medias when team is deleted" do
+  test "should anonymize sources and delete projects and project medias when team is deleted" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -636,7 +623,7 @@ class TeamTest < ActiveSupport::TestCase
       assert_not_nil Project.where(id: p1.id).last
       assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
-      assert_nil Source.where(id: s2.id).last
+      assert_nil Source.where(id: s2.id).last.team_id
       assert_nil Comment.where(id: c.id).last
     end
   end
@@ -750,14 +737,13 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal t.avatar, pt.avatar
   end
 
-  test "should duplicate a team and copy team users and contacts" do
+  test "should duplicate a team and copy team users" do
     team = create_team name: 'Team A', logo: 'rails.png'
 
     u1 = create_user
     u2 = create_user
     create_team_user team: team, user: u1, role: 'admin', status: 'member'
     create_team_user team: team, user: u2, role: 'editor', status: 'invited'
-    create_contact team: team
 
     RequestStore.store[:disable_es_callbacks] = true
     team.set_languages = ["en", "pt", "es"]
@@ -765,23 +751,18 @@ class TeamTest < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 0, TeamUser.where(team_id: copy.id).count
-    assert_equal 1, Contact.where(team_id: copy.id).count
     assert_equal team.get_languages, copy.get_languages
     # team attributes
     assert_equal "#{team.slug}-copy-1", copy.slug
-    
+
     %w(archived private description).each do |att|
       assert_equal team.send(att), copy.send(att)
     end
-
-    # contacts
-    assert_equal team.contacts.map(&:web), copy.contacts.map(&:web)
 
     assert_difference 'Team.count', -1 do
       copy.destroy
     end
     assert_equal 2, TeamUser.where(team_id: team.id).count
-    assert_equal 1, Contact.where(team_id: team.id).count
   end
 
   test "should generate slug for copy based on original" do
@@ -957,23 +938,10 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, t.reload.team_bot_installations.count
     assert_equal [tb1, tb2].sort, t.reload.team_bots.sort
     assert_equal [tb2], t.team_bots_created
-    t.destroy
+    t.destroy!
     assert_nil TeamBotInstallation.where(id: tbi.id).last
     assert_nil BotUser.where(id: tb2.id).last
     assert_not_nil BotUser.where(id: tb1.id).last
-  end
-
-  test "should get invited mails" do
-    t = create_team
-    u = create_user
-    Team.stubs(:current).returns(t)
-    members = [{role: 'collaborator', email: 'test1@local.com'}, {role: 'collaborator', email: 'test2@local.com'}]
-    User.send_user_invitation(members)
-    assert_equal ['test1@local.com', 'test2@local.com'].sort, t.invited_mails.sort
-    u = User.where(email: 'test1@local.com').last
-    User.accept_team_invitation(u.read_attribute(:raw_invitation_token), t.slug)
-    assert_equal ['test2@local.com'], t.invited_mails
-    Team.unstub(:current)
   end
 
   test "should return team tasks" do
@@ -1776,9 +1744,8 @@ class TeamTest < ActiveSupport::TestCase
   test "should get team URL" do
     t = create_team slug: 'test'
     assert_match /^http.*test/, t.reload.url
-    t.contact = { web: 'http://meedan.com' }.to_json
     t.save!
-    assert_equal 'http://meedan.com', t.reload.url
+    assert_equal "#{CheckConfig.get('checkdesk_client')}/#{t.slug}", t.reload.url
   end
 
   test "should define report settings" do
@@ -2067,7 +2034,7 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'foo', annotated: pm1
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2113,7 +2080,7 @@ class TeamTest < ActiveSupport::TestCase
 
     publish_report(pm1)
     publish_report(pm2)
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2164,7 +2131,7 @@ class TeamTest < ActiveSupport::TestCase
     create_flag set_fields: data.to_json, annotated: pm2
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm3
-    
+
     assert_equal [p2], pm1.reload.projects
     assert_equal [p1], pm2.reload.projects
     assert_equal [p1], pm3.reload.projects
@@ -2360,7 +2327,7 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    
+
     I18n.locale = 'pt'
     assert_equal 'Estamos trabalhando nisso', pm.status_i18n(:in_progress)
     I18n.locale = 'en'
@@ -2898,6 +2865,13 @@ class TeamTest < ActiveSupport::TestCase
     setup_smooch_bot(true)
     assert_nothing_raised do
       Team.duplicate(@team)
+    end
+  end
+
+  test "should delete team and partition" do
+    t = create_team
+    assert_difference 'Team.count', -1 do
+      t.destroy_partition_and_team!
     end
   end
 end
