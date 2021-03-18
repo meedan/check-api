@@ -368,7 +368,8 @@ class Bot::Alegre < BotUser
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
     parent = ProjectMedia.find_by_id(parent_id)
-    if parent && parent.is_blank?
+    return false if parent.nil?
+    if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
       r = Relationship.new
@@ -379,7 +380,11 @@ class Bot::Alegre < BotUser
       r.target_id = pm.id
       r.user_id ||= BotUser.alegre_user&.id
       r.save!
-      CheckNotification::InfoMessages.send(r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar', item_title: pm.title, similar_item_title: ProjectMedia.find(parent_id).title)
+      CheckNotification::InfoMessages.send(
+        r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
+        item_title: pm.title,
+        similar_item_title: parent.title
+      )
     else
       return false
     end
