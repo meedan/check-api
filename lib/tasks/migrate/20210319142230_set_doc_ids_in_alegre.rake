@@ -17,9 +17,11 @@ namespace :check do
           klass = Bot::Alegre
           ['analysis_title', 'analysis_description', 'original_title', 'original_description'].each do |field|
             threads << Thread.new do
-              text = pm.send(field)
-              doc_id = klass.item_doc_id(pm, field)
-              klass.send_to_text_similarity_index(pm, field, text, doc_id, klass::ELASTICSEARCH_MODEL)
+              text = pm.send(field).to_s
+              unless text.blank?
+                doc_id = klass.item_doc_id(pm, field)
+                klass.send_to_text_similarity_index(pm, field, text, doc_id, klass::ELASTICSEARCH_MODEL)
+              end
             end
           end
           threads.map(&:join)
