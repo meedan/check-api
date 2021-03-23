@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -759,12 +759,12 @@ en:
       moved_to_project_by_rule: '"%{item_title}" has been moved to the list "[%{list_name}](%{list_link})"
         by an automation rule.'
       banned_submitter_by_rule: The requestor of "%{item_title}" has been banned by
-        an automation rule
+        an automation rule.
       copied_to_project_by_rule: '"%{item_title}" has been copied to the list "[%{list_name}](%{list_link})"
         by an automation rule.'
       related_to_confirmed_similar: '"%{item_title}" has been confirmed similar to
-        "%{similar_item_title}"'
+        "%{similar_item_title}".'
       related_to_suggested_similar: '"%{item_title}" has been suggested similar to
-        "%{similar_item_title}"'
+        "%{similar_item_title}".'
       sent_message_to_requestors_on_status_change: '"%{status}" messages have been
-        sent to %{requestors_count} users'
+        sent to %{requestors_count} users.'
