@@ -118,10 +118,10 @@ class Bot::Alegre < BotUser
     end]
   end
 
-  def self.relate_project_media_to_similar_items(pm, model=nil)
+  def self.relate_project_media_to_similar_items(pm)
     self.add_relationships(
       pm,
-      Bot::Alegre.get_similar_items(pm, model)
+      Bot::Alegre.get_similar_items(pm)
     )
   end
 
