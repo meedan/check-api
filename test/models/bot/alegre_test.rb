@@ -423,7 +423,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_title(pm, nil, 0.1)
+    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
