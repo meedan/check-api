@@ -324,7 +324,7 @@ class Bot::Alegre < BotUser
     model ||= self.model_to_use(pm)
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
-      model: model
+      model: model,
       context: {
         team_id: pm.team_id,
         field: field,
