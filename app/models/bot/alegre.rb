@@ -272,11 +272,11 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"), model=nil)
+  def self.get_items_with_similar_title(pm, threshold, model=nil, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
     pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title, model) : {}
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"), model=nil)
+  def self.get_items_with_similar_description(pm, threshold, model=nil, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
     pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description, model) : {}
   end
 
