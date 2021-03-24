@@ -385,8 +385,6 @@ class Bot::Alegre < BotUser
         item_title: pm.title,
         similar_item_title: parent.title
       )
-    else
-      return false
     end
   end
 end
