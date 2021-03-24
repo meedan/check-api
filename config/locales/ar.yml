@@ -252,6 +252,8 @@ ar:
   oembed_disclaimer_not_applicable: لم يتمكن %{team} من التحقق من هذا العنصر منذ %{date}
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
+  role_admin: المسؤول
+  role_collaborator: الشركاء
   role_none: عضو
   role_: مسؤول النظام
   oembed_credit: تمت الإضافة بواسطة %{user} (%{role}) في %{date}
@@ -544,8 +546,13 @@ ar:
   smooch_bot_result_changed: "❗️تم *تحديث* تقصي الحقائق الذي أرسلناه لك بمعلومات جديدة"
   permissions_info:
     roles:
+      admin:
+        description: يتحكم المسؤول في مساحة العمل.
       editor:
         description: يدير المحرّرون مساحة العمل والقوائم.
+      collaborator:
+        description: بإمكان المشاركين إضافة عناصر جديدة للتحقق منها. وهم في الغالب
+          من الجمهور.
     permissions:
       sections:
         project_management:
@@ -584,7 +591,11 @@ ar:
             edit_tasks: إنشاء وتحرير مهام مساحة العمل
             roles: تحرير الأدوار فى مساحة العمل
             third_party: إضافة التكامل مع أطراف ثالثة
+            invite_admin: 'دعوة المسؤولين على مساحة العمل أو الموافقة علبهم أو إزالتهم
+              منها '
             invite_members: دعوة أعضاء مساحة العمل، الموافقة عليهم، أو إزالتهم
+  team_clone:
+    user_not_authorized: للأسف، لا يُسمَح لك تكرار هذا الفريق.
   team_import:
     invalid_google_spreadsheet_url: رابط جدول البيانات غير صالح %{spreadsheet_url}
     not_found_google_spreadsheet_url: جدول بيانات غير موجود في %{spreadsheet_url}
@@ -616,6 +627,16 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: رابط البوت غير صالح
+  smooch_facebook_success: |
+    نجح !
+    أصبح خطك الساخن متصلا اﻵن بمِرْسال فيسبوك (Facebook Messenger).
+    سيتكلف الخط الساخن بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
+  smooch_twitter_success: |
+    نجح !
+    لقد أصبح خطك الساخن متصلا بتويتر.
+    سيتكلف الخط الساخن بمعالجة أي رسالة مباشرة مُستلَمة من حسابك في تويتر,
+  must_select_exactly_one_facebook_page: يُرجى التحديد، بالضبط، الصفحة المنفردة في
+    فيسبوك التي لديك النية في إدماجها في الخط الساخن.
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
   team_rule_name: اسم فريد يصف ما تفعله القاعدة
   team_rule_project_ids: تطبيق على القائمة
@@ -625,6 +646,8 @@ ar:
   team_rule_conditions: إذا
   team_rule_condition: إذا
   team_rule_condition_definition: تحديد الشرط
+  team_rule_has_less_than_x_words: يتضمن نص الطلب بالضبط عدد الكلمات التالية (أو عددا
+    أقل منها)
   team_rule_title_matches_regexp: عنوان العنصر يوافق التعبير القياسي الآتي
   team_rule_request_matches_regexp: الطلب يوافق التعبير القياسي الآتي
   team_rule_type_is: نوع العنصر هو
@@ -734,3 +757,11 @@ ar:
   list_column_media_published_at: تاريخ نشر المادة الإعلامية
   list_column_related_count: ذات صلة
   list_column_suggestions_count: المتطابقات المقترحة
+  go_back_to_check: العودة إلى Check
+  info:
+    messages:
+      sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.
+      moved_to_project_by_rule: نُقل "%{item_title}" إلى القائمة "[%{list_name}](%{list_link})"
+        بواسطة قاعدة آلية.
+      copied_to_project_by_rule: لقد نُسخ"%{item_title}" في القائمة "[%{list_name}](%{list_link})"
+        بواسطة قاعدة آلية.
