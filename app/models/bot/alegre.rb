@@ -96,10 +96,10 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.get_similar_items(pm)
+  def self.get_similar_items(pm, model=nil)
     if pm.is_text?
-      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('text_similarity_threshold'))
-      confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('automatic_text_similarity_threshold'))
+      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('text_similarity_threshold'), model)
+      confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('automatic_text_similarity_threshold'), model)
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold'))
@@ -110,18 +110,18 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_merged_items_with_similar_text(pm, threshold)
-    by_title = self.get_items_with_similar_title(pm, threshold)
-    by_description = self.get_items_with_similar_description(pm, threshold)
+  def self.get_merged_items_with_similar_text(pm, threshold, model=nil)
+    by_title = self.get_items_with_similar_title(pm, threshold, model)
+    by_description = self.get_items_with_similar_description(pm, threshold, model)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|
       [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].sort.last]
     end]
   end
 
-  def self.relate_project_media_to_similar_items(pm)
+  def self.relate_project_media_to_similar_items(pm, model=nil)
     self.add_relationships(
       pm,
-      Bot::Alegre.get_similar_items(pm)
+      Bot::Alegre.get_similar_items(pm, model)
     )
   end
 
@@ -272,16 +272,16 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
-    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
+  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"), model=nil)
+    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title, model) : {}
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
-    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
+  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"), model=nil)
+    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description, model) : {}
   end
 
-  def self.get_merged_similar_items(pm, threshold, fields, value)
-    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge)
+  def self.get_merged_similar_items(pm, threshold, fields, value, model=nil)
+    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value, model)}.reduce({}, :merge)
   end
 
   def self.extract_project_medias_from_context(search_result)
@@ -320,9 +320,11 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_text(pm, field, threshold, text)
+  def self.get_items_with_similar_text(pm, field, threshold, text, model=nil)
+    model ||= self.model_to_use(pm)
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
+      model: model
       context: {
         team_id: pm.team_id,
         field: field,
