@@ -230,7 +230,7 @@ class Bot::Alegre < BotUser
     self.request_api(
       'post',
       '/text/similarity/',
-      self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
+      self.send_to_text_similarity_index_package(pm, field, text, doc_id, model)
     )
   end
 
