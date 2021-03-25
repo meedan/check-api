@@ -45,6 +45,10 @@ class Bot::Alegre < BotUser
     CheckConfig.get('alegre_default_model') || Bot::Alegre::ELASTICSEARCH_MODEL
   end
 
+  def self.default_matching_model
+    Bot::Alegre::ELASTICSEARCH_MODEL
+  end
+
   def self.run(body)
     if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
@@ -194,11 +198,18 @@ class Bot::Alegre < BotUser
     !tbi.nil?
   end
 
-  def self.model_to_use(pm)
+  def self.indexing_model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
     return self.default_model if tbi.nil?
     tbi.get_alegre_model_in_use || self.default_model
+  end
+
+  def self.matching_model_to_use(pm)
+    bot = BotUser.alegre_user
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    return self.default_matching_model if tbi.nil?
+    tbi.get_alegre_matching_model_in_use || self.default_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field)
@@ -212,7 +223,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
-    model ||= self.model_to_use(pm)
+    model ||= self.indexing_model_to_use(pm)
     {
       doc_id: doc_id,
       text: text,
@@ -320,9 +331,11 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_text(pm, field, threshold, text)
+  def self.get_items_with_similar_text(pm, field, threshold, text, model=nil)
+    model ||= self.matching_model_to_use(pm)
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
+      model: model,
       context: {
         team_id: pm.team_id,
         field: field,

@@ -435,7 +435,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
-  test "should return an alegre model" do
+  test "should return an alegre indexing model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
@@ -443,7 +443,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.model_to_use(pm), Bot::Alegre.default_model
+    assert_equal Bot::Alegre.indexing_model_to_use(pm), Bot::Alegre.default_model
+    BotUser.unstub(:alegre_user)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
+  end
+
+  test "should return an alegre matching model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    BotUser.stubs(:alegre_user).returns(User.new)
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
+    assert_equal Bot::Alegre.matching_model_to_use(pm), Bot::Alegre.default_matching_model
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
