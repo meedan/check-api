@@ -209,7 +209,7 @@ class Bot::Alegre < BotUser
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
     return self.default_matching_model if tbi.nil?
-    tbi.get_alegre_matching_model_in_use || self.default_model
+    tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field)
