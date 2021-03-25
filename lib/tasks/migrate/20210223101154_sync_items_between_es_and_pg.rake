@@ -1,6 +1,6 @@
 namespace :check do
   namespace :migrate do
-    task sync_check_items: :environment do
+    task sync_check_items_es_and_pg: :environment do
       started = Time.now.to_i
       client = $repository.client
       index_alias = CheckElasticSearchModel.get_index_alias
@@ -12,13 +12,13 @@ namespace :check do
         query = { bool: { must: [ { term: { team_id: { value: t.id } } } ] } }
         es_count = $repository.client.count(index: index_alias, body: { query: query })['count'].to_i
         if es_count > pg_count
+          puts "Processing team [#{t.slug}]: [#{es_count}|#{pg_count}]"
           query = { term: { team_id: { value: t.id } } }
-          from = 0
-          size = 5000
-          while from <= es_count  do
-            print '.'
-            result = $repository.search(query: query, sort: sort, from: from, size: size)
+          search_after = [0]
+          while true
+            result = $repository.search(query: query, sort: sort, search_after: search_after, size: 5000)
             es_ids = result.collect{ |i| i['annotated_id'] }.uniq
+            break if es_ids.empty?
             pg_ids = ProjectMedia.where(id: es_ids).map(&:id)
             diff = es_ids - pg_ids
             if diff.count
@@ -26,7 +26,7 @@ namespace :check do
               options[:body] = { query: query }
               client.delete_by_query options
             end
-            from += size
+            search_after = [es_ids.max]
           end
         end
       end
