@@ -111,5 +111,7 @@ class MediaSearch
     indexes :status_index, { type: 'long' } # For sorting - indexes the status index in the list of status ids
 
     indexes :type_of_media, { type: 'long' } # For sorting - indexes the type index in the list of media types
+
+    indexes :url, { type: 'text', analyzer: 'check' }
   end
 end

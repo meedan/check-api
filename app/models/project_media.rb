@@ -376,6 +376,7 @@ class ProjectMedia < ActiveRecord::Base
   def add_extra_elasticsearch_data(ms)
     m = self.media
     ms.attributes[:associated_type] = m.type
+    ms.attributes[:url] = m.url
     ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     data = self.analysis || {}
     ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
