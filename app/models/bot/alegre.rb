@@ -319,13 +319,13 @@ class Bot::Alegre < BotUser
 
   def self.get_similar_items_from_api(path, conditions, pm)
     response = {}
-    self.request_api('get', path, conditions).dig('result')&.collect{ |r|
-      self.extract_project_medias_from_context(r) 
-    }.each do |request_response|
+    result = self.request_api('get', path, conditions).dig('result')
+    project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
+    project_medias.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score
       end
-    end
+    end unless project_medias.nil?
     response.reject{ |id, score| 
       id.blank? || pm.id == id
     }
