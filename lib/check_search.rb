@@ -269,7 +269,7 @@ class CheckSearch
   def build_keyword_conditions_media_fields
     es_fields = []
     conditions = []
-    %w(title description quote analysis_title analysis_description).each do |f|
+    %w(title description quote analysis_title analysis_description url).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
     conditions << { simple_query_string: { query: @options["keyword"], fields: es_fields, default_operator: "AND" } } unless es_fields.blank?

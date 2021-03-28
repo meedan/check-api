@@ -636,4 +636,28 @@ class ElasticSearch7Test < ActionController::TestCase
       end
     end
   end
+
+  test "should search by media url" do
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","type":"item","title": "media_title"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, url: url, disable_es_callbacks: false
+      sleep 2
+      result = $repository.find(get_es_id(pm))['url']
+      assert_equal result, url
+      results = CheckSearch.new({ keyword: 'test.com' }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ keyword: 'test2.com' }.to_json)
+      assert_empty results.medias.map(&:id)
+      results = CheckSearch.new({keyword: 'test.com', keyword_fields: {fields: ['url']}}.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({keyword: 'test.com', keyword_fields: {fields: ['title']}}.to_json)
+      assert_empty results.medias.map(&:id)
+    end
+  end
 end
