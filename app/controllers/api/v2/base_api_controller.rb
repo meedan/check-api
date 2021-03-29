@@ -1,6 +1,6 @@
 module Api
   module V2
-    class BaseApiController < ApplicationController
+    class BaseApiController < Api::V1::BaseApiController
       respond_to :json
 
       def version

@@ -317,7 +317,7 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.get_similar_items_from_api(path, conditions, pm)
+  def self.get_similar_items_from_api(path, conditions)
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
@@ -326,23 +326,28 @@ class Bot::Alegre < BotUser
         response[pmid] = score
       end
     end unless project_medias.nil?
-    response.reject{ |id, score| 
-      id.blank? || pm.id == id
-    }
+    response.reject{ |id, _score| id.blank? }
   end
 
-  def self.get_items_with_similar_text(pm, field, threshold, text, model=nil)
+  def self.get_items_with_similar_text(pm, field, threshold, text, model = nil)
     model ||= self.matching_model_to_use(pm)
+    self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
+  end
+
+  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil)
+    field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
+    threshold ||= CheckConfig.get('automatic_text_similarity_threshold')
+    model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       model: model,
       context: {
-        team_id: pm.team_id,
+        team_id: team_id,
         field: field,
         has_custom_id: true
       },
       threshold: threshold
-    }, pm)
+    })
   end
 
   def self.get_items_with_similar_image(pm, threshold)
@@ -353,7 +358,7 @@ class Bot::Alegre < BotUser
         has_custom_id: true
       },
       threshold: threshold
-    }, pm)
+    }).reject{ |id, _score| pm.id == id }
   end
 
   def self.add_relationships(pm, pm_id_scores)

@@ -342,6 +342,10 @@ GEM
     json (2.4.1)
     json-schema (2.5.0)
       addressable (~> 2.3)
+    jsonapi-resources (0.10.4)
+      activerecord (>= 4.1)
+      concurrent-ruby
+      railties (>= 4.1)
     jsonpath (0.8.12)
       multi_json
       to_regexp (~> 0.2.1)
@@ -759,6 +763,7 @@ DEPENDENCIES
   jquery-rails
   json (>= 2.3.0)
   json-schema (= 2.5.0)
+  jsonapi-resources
   jsonpath (~> 0.8.8)
   jwt
   lograge

@@ -119,8 +119,28 @@ class ProjectMedia < ActiveRecord::Base
 
   def picture
     Concurrent::Future.execute(executor: POOL) do
-      self.media&.picture&.to_s
+      self.lead_image
     end
+  end
+
+  def lead_image
+    self.media&.picture&.to_s
+  end
+
+  def link
+    self.media&.url&.to_s
+  end
+
+  def uploaded_file_url
+    self.media&.file_path
+  end
+
+  def source_name
+    self.source&.name&.to_s
+  end
+
+  def team_name
+    self.team&.name&.to_s
   end
 
   def get_annotations(type = nil)
@@ -360,6 +380,14 @@ class ProjectMedia < ActiveRecord::Base
 
   def analysis_description
     self.analysis.dig('content')
+  end
+
+  def analysis_published_article_url
+    self.analysis.dig('published_article_url')
+  end
+
+  def analysis_published_date
+    self.analysis.dig('date_published')
   end
 
   protected
