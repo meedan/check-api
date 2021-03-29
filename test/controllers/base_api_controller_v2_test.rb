@@ -11,6 +11,7 @@ class BaseApiControllerV2Test < ActionController::TestCase
   end
 
   test "should get version" do
+    authenticate_with_token
     get :version
     assert_response :success
   end

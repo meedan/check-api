@@ -13,6 +13,6 @@ class ApiVersionIntegrationTest < ActionDispatch::IntegrationTest
   test "should get version 2" do
     headers = { 'Accept' => 'application/vnd.lapis.v2' }
     get '/api/version', headers, headers
-    assert_response 200
+    assert_response 401
   end
 end
