@@ -133,6 +133,11 @@ module SmoochMessages
       SmoochWorker.set(queue: queue).perform_in(1.second, message.to_json, type, app_id, request_type, YAML.dump(annotated))
     end
 
+    def default_archived_flag
+      team_id = self.config['team_id'].to_i
+      Bot::Alegre.team_has_alegre_bot_installed?(team_id) ? CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS : CheckArchivedFlags::FlagCodes::NONE
+    end
+
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', annotated_obj = nil)
       message = JSON.parse(message_json)
       self.get_installation('smooch_app_id', app_id)
@@ -140,7 +145,7 @@ module SmoochMessages
       annotated = nil
       if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
         message['project_id'] = self.get_project_id(message)
-        message['archived'] = request_type == 'default_requests' ? CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS : CheckArchivedFlags::FlagCodes::UNCONFIRMED
+        message['archived'] = request_type == 'default_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
       elsif 'menu_options_requests' == request_type
         annotated = annotated_obj
