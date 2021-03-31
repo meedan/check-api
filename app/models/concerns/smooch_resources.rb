@@ -14,11 +14,10 @@ module SmoochResources
       end
     end
 
-    def send_resource_to_user(uid, workflow, option)
+    def send_rss_to_user(uid, resource)
       message = []
-      resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
       unless resource.blank?
-        message << "*#{resource['smooch_custom_resource_title']}*"
+        message << "*#{resource['smooch_custom_resource_title']}*" unless resource['smooch_custom_resource_title'].to_s.strip.blank?
         message << resource['smooch_custom_resource_body'] unless resource['smooch_custom_resource_body'].to_s.strip.blank?
         unless resource['smooch_custom_resource_feed_url'].blank?
           message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}") do
@@ -28,7 +27,17 @@ module SmoochResources
       end
       message = self.utmize_urls(message.join("\n\n"), 'resource')
       self.send_message_to_user(uid, message) unless message.blank?
+    end
+
+    def send_resource_to_user(uid, workflow, option)
+      resource = workflow['smooch_custom_resources'].to_a.find{ |r| r['smooch_custom_resource_id'] == option['smooch_menu_custom_resource_id'] }
+      self.send_rss_to_user(uid, resource)
       resource.blank? ? nil : BotResource.find_by_uuid(resource['smooch_custom_resource_id'])
+    end
+
+    def send_resource_to_user_on_timeout(uid, workflow)
+      resource = workflow['smooch_message_smooch_bot_no_action']
+      self.send_rss_to_user(uid, resource) unless resource.blank?
     end
 
     def render_articles_from_rss_feed(url, count = 3)
@@ -47,7 +56,7 @@ module SmoochResources
     def refresh_rss_feeds_cache
       bot = BotUser.smooch_user
       TeamBotInstallation.where(user_id: bot.id).each do |tbi|
-        tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
+        tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a + w['smooch_message_smooch_bot_no_action'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
           next if resource['smooch_custom_resource_feed_url'].blank?
           begin
             content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
