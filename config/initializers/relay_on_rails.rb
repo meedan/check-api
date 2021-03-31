@@ -39,7 +39,7 @@ RelayOnRailsSchema = GraphQL::Schema.define do
   end
 
   rescue_from CheckPermissions::AccessDenied do |err, _obj, _args, _ctx, _field|
-    raise GraphQL::ExecutionError.new(err.message, options: { code: ::LapisConstants::ErrorCodes::UNAUTHORIZED })
+    raise GraphQL::ExecutionError.new(err.message, options: { code: ::LapisConstants::ErrorCodes::ID_NOT_FOUND })
   end
 end
 

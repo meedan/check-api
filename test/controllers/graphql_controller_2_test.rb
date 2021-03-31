@@ -146,7 +146,7 @@ class GraphqlController2Test < ActionController::TestCase
     create_team slug: 'team', name: 'Team', private: true
     post :create, query: 'query Team { team(slug: "team") { name, public_team { id } } }'
     assert_response 200
-    assert_equal "Sorry, you can't read this team", JSON.parse(@response.body)['errors'][0]['message']
+    assert_equal "Not Found", JSON.parse(@response.body)['errors'][0]['message']
   end
 
   test "should start Apollo if not running" do
