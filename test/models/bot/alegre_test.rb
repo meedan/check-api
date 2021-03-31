@@ -281,7 +281,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
            "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
          "context"=>{"team_id"=>1692, "field"=>"title", "project_media_id"=>1932}
     }}]})
-    response = Bot::Alegre.get_similar_items_from_api("blah", {}, ProjectMedia.new)
+    response = Bot::Alegre.get_similar_items_from_api("blah", {})
     assert_equal response.class, Hash
     assert_equal response, {1932=>100.60148}
     Bot::Alegre.unstub(:request_api)
@@ -435,7 +435,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
 
-  test "should return an alegre model" do
+  test "should return an alegre indexing model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
@@ -443,7 +443,20 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
-    assert_equal Bot::Alegre.model_to_use(pm), Bot::Alegre.default_model
+    assert_equal Bot::Alegre.indexing_model_to_use(pm), Bot::Alegre.default_model
+    BotUser.unstub(:alegre_user)
+    TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
+  end
+
+  test "should return an alegre matching model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { content: 'Description 1' }
+    pm.save!
+    BotUser.stubs(:alegre_user).returns(User.new)
+    TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(TeamBotInstallation.new)
+    assert_equal Bot::Alegre.matching_model_to_use(pm), Bot::Alegre.default_matching_model
     BotUser.unstub(:alegre_user)
     TeamBotInstallation.unstub(:find_by_team_id_and_user_id)
   end
@@ -500,5 +513,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert !Bot::Alegre.team_has_alegre_bot_installed?(t)
     @bot.install_to!(t)
     assert Bot::Alegre.team_has_alegre_bot_installed?(t)
+  end
+
+  test "should not add relationship" do
+    assert !Bot::Alegre.add_relationship(create_project_media, {}, create_project_media)
   end
 end

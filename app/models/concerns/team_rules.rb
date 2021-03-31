@@ -157,7 +157,11 @@ module TeamRules
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
         ProjectMediaProject.where(project_media_id: pm.id).destroy_all
-        ProjectMediaProject.create!(project: project, project_media: pm, skip_check_ability: true)
+        ProjectMediaProject.create!(
+          project_id: project.id,
+          project_media_id: pm.id,
+          skip_check_ability: true
+        ) unless ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).exists?
         CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
       end
     end

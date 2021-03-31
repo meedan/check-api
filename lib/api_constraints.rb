@@ -9,6 +9,6 @@ class ApiConstraints
   end
 
   def self.accept(version = 1)
-    "application/vnd.lapis.v#{version}"
+    version == 1 ? 'application/vnd.lapis.v1' : 'application/vnd.api+json'
   end
 end

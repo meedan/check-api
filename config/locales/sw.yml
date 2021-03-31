@@ -316,8 +316,6 @@ sw:
     failure:
       unconfirmed: Tafadhali angalia barua pepe yako kuhakiki akaunti yako.
   user_invitation:
-    invited: Mtumiaji huyu tayari amealikwa kwenye ulingo huu wa kazi
-    member: Mtumiaji tayari ni mwanachama.
     team_found: Ulingo wa kazi haupatikani.
     invalid: Nambari batili ya mwaliko.
     no_invitation: Hakuna mialiko iliyopo kwenye ulingo huu wa kazi %{name}

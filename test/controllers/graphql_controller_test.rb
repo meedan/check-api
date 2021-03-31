@@ -766,7 +766,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     # send invitation
     members = '[{\"role\":\"collaborator\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"editor\",\"email\":\"test3@local.com\"}]'
-    query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
+    query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { errors } }'
     post :create, query: query, team: @team.slug
     assert_response :success
     # check invited by

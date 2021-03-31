@@ -263,6 +263,8 @@ fr:
     par %{team} au sujet de cet élément
   oembed_source_date: "%{date} sur %{provider}"
   role_editor: rédacteur
+  role_admin: administrateur
+  role_collaborator: collaborateur
   role_none: membre
   role_: administrateur système
   oembed_credit: Ajouté par %{user} (%{role}) %{date}
@@ -335,8 +337,6 @@ fr:
     failure:
       unconfirmed: Veuillez consulter vos courriels afin de confirmer votre compte.
   user_invitation:
-    invited: Cet utilisateur a déjà été invité dans cet espace de travail.
-    member: Cet utilisateur est déjà membre.
     team_found: L’espace de travail est introuvable.
     invalid: Le code d’invitation est invalide.
     no_invitation: Il n’existe aucune invitation pour l’espace de travail %{name}
@@ -575,8 +575,13 @@ fr:
     a été *mise à jour* avec de nouveaux renseignements"
   permissions_info:
     roles:
+      admin:
+        description: L’administrateur gère l’espace de travail.
       editor:
         description: Les rédacteurs gèrent l’espace de travail et les listes.
+      collaborator:
+        description: Le collaborateur peut ajouter de nouveaux renseignements à vérifier.
+          Il est souvent un membre du public.
     permissions:
       sections:
         project_management:
@@ -615,8 +620,12 @@ fr:
             edit_tasks: Créer et modifier les tâches de l’espace de travail
             roles: Modifier les rôles des membres de l’espace de travail
             third_party: Ajouter des intégrations à des tiers
+            invite_admin: Inviter, approuver et supprimer les administrateurs de l’espace
+              de travail
             invite_members: Inviter, approuver et supprimer les membres de l’espace
               de travail
+  team_clone:
+    user_not_authorized: Désolé, vous n’êtes pas autorisé à dupliquer cette équipe.
   team_import:
     invalid_google_spreadsheet_url: L’URL de la feuille de calcul est invalide %{spreadsheet_url}
     not_found_google_spreadsheet_url: La feuille de calcul est introuvable sur %{spreadsheet_url}
@@ -650,6 +659,16 @@ fr:
   smooch_requests_asc: Les moins demandés
   smooch_requests_desc: Les plus demandés
   bot_request_url_invalid: L’URL du robot est invalide
+  smooch_facebook_success: |
+    C’est réussi !
+    Votre ligne de signalement est désormais connectée à Facebook Messenger.
+    Tout message reçu par cette page Facebook sera traité par la ligne de signalement.
+  smooch_twitter_success: |
+    C’est réussi !
+    Votre ligne de signalement est désormais connectée à Twitter.
+    Tout message direct reçu par ce profil Twitter sera traité par la ligne de signalement.
+  must_select_exactly_one_facebook_page: Veuillez exactement sélectionner la page
+    unique de Facebook que vous voulez intégrer à la ligne de signalement.
   invalid_task_answer: Le format de réponse de la tâche est invalide
   team_rule_name: Un nom unique qui décrit ce que cette règle fait
   team_rule_project_ids: Appliquer à la liste
@@ -660,6 +679,8 @@ fr:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Sélectionner une condition
+  team_rule_has_less_than_x_words: Le texte de la demande comporte moins de (ou exactement)
+    le nombre de mots suivant
   team_rule_title_matches_regexp: Le titre de l’élément correspond à cette expression
     rationnelle
   team_rule_request_matches_regexp: La demande correspond à cette expression rationnelle
@@ -774,3 +795,12 @@ fr:
   list_column_media_published_at: Média publié
   list_column_related_count: Associés
   list_column_suggestions_count: Correspondances suggérées
+  go_back_to_check: Retourner à Check
+  info:
+    messages:
+      sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
+        règle d’automatisation."
+      moved_to_project_by_rule: "« %{item_title} » a été déplacé dans la liste « [%{list_name}](%{list_link}) »
+        par une règle d’automatisation."
+      copied_to_project_by_rule: "« %{item_title} » a été copié dans la liste « [%{list_name}](%{list_link}) »
+        par une règle d’automatisation."
