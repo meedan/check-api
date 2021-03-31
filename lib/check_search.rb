@@ -65,10 +65,11 @@ class CheckSearch
   def medias
     return [] unless !media_types_filter.blank? && index_exists?
     return @medias if @medias
-    if should_hit_elasticsearch?('ProjectMedia')
+    if should_hit_elasticsearch?
       query = medias_build_search_query
       result = medias_get_search_result(query)
-      @ids = result.collect{ |i| i['annotated_id'] }.uniq
+      key = show_parent? ? 'parent_id' : 'annotated_id'
+      @ids = result.collect{ |i| i[key] }.uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
     else
@@ -82,25 +83,23 @@ class CheckSearch
   end
 
   def number_of_results
-    number_of_items(medias, 'ProjectMedia')
+    number_of_items(medias)
   end
 
-  def number_of_items(collection, associated_type)
+  def number_of_items(collection)
     return collection.size if collection.is_a?(Array)
-    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query(associated_type) })['count'].to_i if self.should_hit_elasticsearch?(associated_type)
+    return $repository.client.count(index: CheckElasticSearchModel.get_index_alias, body: { query: medias_build_search_query })['count'].to_i if self.should_hit_elasticsearch?
     collection = collection.unscope(where: :id)
     collection.limit(nil).reorder(nil).offset(nil).count
   end
 
-  def should_hit_elasticsearch?(associated_type)
+  def should_hit_elasticsearch?
     status_blank = true
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
     query_all_types = true
-    if associated_type == 'ProjectMedia'
-      query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
-    end
+    query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to'].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -133,8 +132,8 @@ class CheckSearch
     sort_type = @options['sort_type'].to_s.downcase.to_sym
     pm = ProjectMedia.where(id: @options['id']).last
     return -1 if pm.nil?
-    if should_hit_elasticsearch?('ProjectMedia')
-      query = medias_build_search_query('ProjectMedia')
+    if should_hit_elasticsearch?
+      query = medias_build_search_query
       conditions = query[:bool][:must]
       es_id = @options['es_id']
       offset_c = item_navigation_offset_condition(sort_type, sort_key)
@@ -177,19 +176,22 @@ class CheckSearch
 
   def should_include_related_items?
     all_items = (@options['projects'].blank? && @options['archived'].to_i == 0)
-    @options['include_related_items'] || all_items
+    @options['include_related_items'] || all_items || show_parent?
   end
 
-  def medias_build_search_query(associated_type = 'ProjectMedia')
+  def show_parent?
+    Rails.logger.info "SawyDebugging :: #{@options.inspect}"
+    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to']
+    (search_keys & @options.keys).blank?
+  end
+
+  def medias_build_search_query
     conditions = []
-    conditions << { term: { annotated_type: associated_type.downcase } }
     conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
-    if associated_type == 'ProjectMedia'
-      archived = @options['archived'].to_i
-      conditions << { term: { archived: archived } }
-      conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
-      conditions << { term: { sources_count: 0 } } unless should_include_related_items?
-    end
+    archived = @options['archived'].to_i
+    conditions << { term: { archived: archived } }
+    conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
+    conditions << { term: { sources_count: 0 } } unless should_include_related_items? && show_parent?
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_assignment_conditions
