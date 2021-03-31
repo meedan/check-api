@@ -337,8 +337,6 @@ fr:
     failure:
       unconfirmed: Veuillez consulter vos courriels afin de confirmer votre compte.
   user_invitation:
-    invited: Cet utilisateur a déjà été invité dans cet espace de travail.
-    member: Cet utilisateur est déjà membre.
     team_found: L’espace de travail est introuvable.
     invalid: Le code d’invitation est invalide.
     no_invitation: Il n’existe aucune invitation pour l’espace de travail %{name}
@@ -681,7 +679,7 @@ fr:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Sélectionner une condition
-  team_rule_has_less_than_x_words: La demande texte comporte moins de (ou exactement)
+  team_rule_has_less_than_x_words: Le texte de la demande comporte moins de (ou exactement)
     le nombre de mots suivant
   team_rule_title_matches_regexp: Le titre de l’élément correspond à cette expression
     rationnelle

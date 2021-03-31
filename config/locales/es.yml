@@ -323,8 +323,6 @@ es:
     failure:
       unconfirmed: Por favor consulta tu correo electrónico para verificar tu cuenta.
   user_invitation:
-    invited: Este usuario ya ha sido invitado a esta área de trabajo.
-    member: Este usuario ya es miembro.
     team_found: Área de trabajo no encontrada.
     invalid: Código de invitación inválido.
     no_invitation: No existe invitación para el área de trabajo %{name}
