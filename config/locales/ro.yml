@@ -325,8 +325,6 @@ ro:
     failure:
       unconfirmed: Vă rugăm să vă accesați emailul pentru a verifica contul Dvs.
   user_invitation:
-    invited: Utilizatorul a fost deja invitat în acest spațiu de lucru.
-    member: Utilizatorul este deja membru.
     team_found: Spațiul de lucru nu a fost găsit.
     invalid: Cod de invitare nevalid.
     no_invitation: Nu există nicio invitație pentru spațiul de lucru %{name}
