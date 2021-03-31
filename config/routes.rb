@@ -15,11 +15,16 @@ Rails.application.routes.draw do
   end
 
   namespace :api, defaults: { format: 'json' } do
-    # Call v2 API by passing header: 'Accept: application/vnd.lapis.v2'
+    # Call v2 API by passing header: 'Accept: application/vnd.api+json'
     scope module: :v2, constraints: ApiConstraints.new(version: 2, default: false) do
       match '/options' => 'base_api#options', via: [:options]
       get 'version', to: 'base_api#version'
       get 'ping', to: 'base_api#ping'
+
+      namespace :v2, module: false do
+        jsonapi_resources :workspaces, only: [:index, :show]
+        jsonapi_resources :reports, only: [:index, :show]
+      end
     end
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       scope ':pattern', constraints: { pattern: /me|graphql|graphql\/batch|users\/sign_out|users\/sign_in|users/ } do

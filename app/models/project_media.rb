@@ -119,8 +119,28 @@ class ProjectMedia < ActiveRecord::Base
 
   def picture
     Concurrent::Future.execute(executor: POOL) do
-      self.media&.picture&.to_s
+      self.lead_image
     end
+  end
+
+  def lead_image
+    self.media&.picture&.to_s
+  end
+
+  def link
+    self.media&.url&.to_s
+  end
+
+  def uploaded_file_url
+    self.media&.file_path
+  end
+
+  def source_name
+    self.source&.name&.to_s
+  end
+
+  def team_name
+    self.team&.name&.to_s
   end
 
   def get_annotations(type = nil)
@@ -362,6 +382,14 @@ class ProjectMedia < ActiveRecord::Base
     self.analysis.dig('content')
   end
 
+  def analysis_published_article_url
+    self.analysis.dig('published_article_url')
+  end
+
+  def analysis_published_date
+    self.analysis.dig('date_published')
+  end
+
   protected
 
   def set_es_account_data
@@ -376,6 +404,7 @@ class ProjectMedia < ActiveRecord::Base
   def add_extra_elasticsearch_data(ms)
     m = self.media
     ms.attributes[:associated_type] = m.type
+    ms.attributes[:url] = m.url
     ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     data = self.analysis || {}
     ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']

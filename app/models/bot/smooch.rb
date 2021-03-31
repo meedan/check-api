@@ -552,20 +552,7 @@ class Bot::Smooch < BotUser
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
 
-      # This identifier is used on the Slack side in order to connect a Slack conversation to a Smooch user
-
-      identifier = case user[:clients][0][:platform]
-                   when 'whatsapp'
-                     user[:clients][0][:displayName]
-                   when 'messenger'
-                     user[:clients][0][:info][:avatarUrl].match(/psid=([0-9]+)/)[1]
-                   when 'twitter'
-                     user[:clients][0][:info][:avatarUrl].match(/profile_images\/([0-9]+)\//)[1]
-                   else
-                     uid
-                   end
-
-      identifier = Digest::MD5.hexdigest(identifier)
+      identifier = self.get_identifier(user, uid)
 
       data = {
         id: uid,
@@ -593,6 +580,22 @@ class Bot::Smooch < BotUser
         Rails.cache.write(cache_slack_key, slack_channel_url) unless slack_channel_url.blank?
       end
     end
+  end
+
+  def self.get_identifier(user, uid)
+    # This identifier is used on the Slack side in order to connect a Slack conversation to a Smooch user
+    identifier = case user.dig(:clients, 0, :platform)
+                 when 'whatsapp'
+                   user.dig(:clients, 0, :displayName)
+                 when 'messenger'
+                   messenger_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)
+                   messenger_match.nil? ? nil : messenger_match[1]
+                 when 'twitter'
+                   twitter_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)
+                   twitter_match.nil? ? nil : twitter_match[1]
+                 end
+      identifier ||= uid
+      Digest::MD5.hexdigest(identifier)
   end
 
   def self.save_message_later_and_reply_to_user(message, app_id)
@@ -970,6 +973,9 @@ class Bot::Smooch < BotUser
   end
 
   def self.timeout_smooch_menu(time, message, app_id)
+    self.get_installation('smooch_app_id', app_id) if self.config.blank?
+    language = self.get_user_language(message)
+    workflow = self.get_workflow(language)
     uid = message['authorId']
     stored_time = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i
     return if stored_time > time
@@ -977,6 +983,7 @@ class Bot::Smooch < BotUser
     unless sm.state.value == 'human_mode'
       sm.reset
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
+      self.send_resource_to_user_on_timeout(uid, workflow)
     end
   end
 

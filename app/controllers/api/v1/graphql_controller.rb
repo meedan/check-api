@@ -105,7 +105,7 @@ module Api
 
       def format_error_message(e)
         mapping = {
-          CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::UNAUTHORIZED,
+          CheckPermissions::AccessDenied => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::RecordNotFound => ::LapisConstants::ErrorCodes::ID_NOT_FOUND,
           ActiveRecord::StaleObjectError => ::LapisConstants::ErrorCodes::CONFLICT
         }

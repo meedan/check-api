@@ -48,9 +48,9 @@ module UserInvitation
           options[:email] = email
           create_team_user_invitation(options)
         elsif tu.status == 'invited'
-          msg << { email: tu.invitation_email, error: I18n.t(:"user_invitation.invited") }
+          msg << { email: email, error: I18n.t(:"user_invitation.invited", { email: email }) }
         else
-          msg << { email: tu.invitation_email, error: I18n.t(:"user_invitation.member") }
+          msg << { email: email, error: I18n.t(:"user_invitation.member", { email: email }) }
         end
       end
       msg

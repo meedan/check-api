@@ -320,8 +320,8 @@ en:
     failure:
       unconfirmed: Please check your email to verify your account.
   user_invitation:
-    invited: This user was already invited to this workspace.
-    member: This user is already a member.
+    invited: "%{email} : was already invited to this workspace."
+    member: "%{email} : is already a member."
     team_found: Workspace not found.
     invalid: Invalid invitation code.
     no_invitation: No invitation exists for workspace %{name}
@@ -758,12 +758,12 @@ en:
       moved_to_project_by_rule: '"%{item_title}" has been moved to the list "[%{list_name}](%{list_link})"
         by an automation rule.'
       banned_submitter_by_rule: The requestor of "%{item_title}" has been banned by
-        an automation rule
+        an automation rule.
       copied_to_project_by_rule: '"%{item_title}" has been copied to the list "[%{list_name}](%{list_link})"
         by an automation rule.'
       related_to_confirmed_similar: '"%{item_title}" has been confirmed similar to
-        "%{similar_item_title}"'
+        "%{similar_item_title}".'
       related_to_suggested_similar: '"%{item_title}" has been suggested similar to
-        "%{similar_item_title}"'
+        "%{similar_item_title}".'
       sent_message_to_requestors_on_status_change: '"%{status}" messages have been
-        sent to %{requestors_count} users'
+        sent to %{requestors_count} users.'

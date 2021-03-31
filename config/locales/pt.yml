@@ -328,8 +328,6 @@ pt:
     failure:
       unconfirmed: Por favor, consulte seu e-mail para verificar sua conta.
   user_invitation:
-    invited: Esta pessoa já foi convidada a esse espaço de trabalho.
-    member: Esta pessoa já é um membro.
     team_found: Espaço de trabalho não encontrado.
     invalid: Código de convite inválido.
     no_invitation: Não há convite para o espaço de trabalho %{name}

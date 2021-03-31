@@ -76,6 +76,10 @@ class ActiveSupport::TestCase
   include SampleData
   include Minitest::Hooks
 
+  def json_response
+    JSON.parse(@response.body)
+  end
+
   def stub_configs(configs, must_unstub = true)
     CONFIG.stubs(:[]).returns(nil)
     CONFIG.stubs(:has_key?).returns(false)

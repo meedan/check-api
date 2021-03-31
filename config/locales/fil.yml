@@ -336,8 +336,6 @@ fil:
     failure:
       unconfirmed: Mangyaring tingnan ang iyong email para maberipika ang iyong account.
   user_invitation:
-    invited: Naanyayahan na ang user sa workspace na ito.
-    member: Miyembro na ang user na ito.
     team_found: Hindi matagpuan ang workspace.
     invalid: Hindi wastong code ng paanyaya.
     no_invitation: Wala pang paanyaya para sa workspace na %{name}

@@ -47,7 +47,7 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_error_message "can't read"
+    assert_error_message "Not Found"
   end
 
   test "should not move team task down" do
@@ -56,7 +56,7 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_error_message "can't read"
+    assert_error_message "Not Found"
   end
 
   test "should move team task up" do
@@ -134,7 +134,7 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_error_message "can't read"
+    assert_error_message "Not Found"
   end
 
   test "should not move task down" do
@@ -144,7 +144,7 @@ class GraphqlController5Test < ActionController::TestCase
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_error_message "can't read"
+    assert_error_message "Not Found"
   end
 
   test "should move task up" do

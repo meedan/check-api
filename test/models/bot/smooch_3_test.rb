@@ -148,7 +148,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [@project.id], pm.project_ids
-    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     messages = [
       {
@@ -173,7 +173,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p1.id], pm.project_ids
-    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     messages = [
       {
@@ -198,7 +198,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
     assert_equal [p2.id], pm.project_ids
-    assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.archived
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     quote = 'The lazy dog jumped over the brown fox'
     pm = create_project_media team: @team, quote: quote, media: nil
