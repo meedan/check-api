@@ -22,7 +22,7 @@ module CheckPermissions
       if ability.can?(:read, model)
         model
       else
-        raise AccessDenied, "Sorry, you can't read this #{model.class.name.downcase}"
+        raise AccessDenied, "Not Found"
       end
     end
 
