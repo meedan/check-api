@@ -36,8 +36,10 @@ module SmoochResources
     end
 
     def send_resource_to_user_on_timeout(uid, workflow)
+      redis = Redis.new(REDIS_CONFIG)
+      user_messages_count = redis.llen("smooch:bundle:#{uid}")
       resource = workflow['smooch_message_smooch_bot_no_action']
-      self.send_rss_to_user(uid, resource) unless resource.blank?
+      self.send_rss_to_user(uid, resource) if !resource.blank? && user_messages_count > 0
     end
 
     def render_articles_from_rss_feed(url, count = 3)

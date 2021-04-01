@@ -982,8 +982,8 @@ class Bot::Smooch < BotUser
     sm = CheckStateMachine.new(uid)
     unless sm.state.value == 'human_mode'
       sm.reset
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
       self.send_resource_to_user_on_timeout(uid, workflow)
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id, 'timeout_requests')
     end
   end
 
