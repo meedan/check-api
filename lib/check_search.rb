@@ -98,7 +98,6 @@ class CheckSearch
     status_search_fields.each do |field|
       status_blank = false unless @options[field].blank?
     end
-    query_all_types = true
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
     ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to'].each do |filter|
