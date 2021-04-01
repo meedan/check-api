@@ -212,8 +212,11 @@ class CheckSearch
   end
 
   def medias_get_search_result(query)
+    # use collapse to return uniq results
+    field = show_parent? ? 'parent_id' : 'annotated_id'
+    collapse = { field: field }
     sort = build_search_sort
-    @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
+    @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
 
   private
