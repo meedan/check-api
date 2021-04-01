@@ -180,9 +180,8 @@ class CheckSearch
   end
 
   def show_parent?
-    Rails.logger.info "SawyDebugging :: #{@options.inspect}"
     search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to']
-    (search_keys & @options.keys).blank?
+    !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
   def medias_build_search_query
@@ -191,7 +190,7 @@ class CheckSearch
     archived = @options['archived'].to_i
     conditions << { term: { archived: archived } }
     conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
-    conditions << { term: { sources_count: 0 } } unless should_include_related_items? && show_parent?
+    conditions << { term: { sources_count: 0 } } unless should_include_related_items?
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
     conditions.concat build_search_assignment_conditions
