@@ -263,7 +263,9 @@ class User < ActiveRecord::Base
       privacy_policy: 'privacy_policy_url'
     }.with_indifferent_access
     return 0 unless mapping.has_key?(page)
-    Time.parse(open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+    Rails.cache.fetch("last_updated_at:#{page}", expires_in: 24.hours) do
+      Time.parse(open(CheckConfig.get(mapping[page], nil, :json), read_timeout: 5, open_timeout: 5).read.gsub(/\R+/, ' ').gsub(/<[^>]+>/, ' ').gsub(/\s+/, ' ').gsub(/.*Last modified: ([^<]+).*/, '\1')).to_i
+    end
   end
 
   def self.terms_last_updated_at
