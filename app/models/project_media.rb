@@ -309,9 +309,11 @@ class ProjectMedia < ActiveRecord::Base
         # All annotations from the old item should point to the new item
         Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
         # Destroy the old item
+        self.skip_check_ability = true
         self.destroy!
         # Save the new item
         new_project_media.updated_at = Time.now
+        new_project_media.skip_check_ability = true
         new_project_media.save!
       end
     end
