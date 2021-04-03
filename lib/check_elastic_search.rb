@@ -11,6 +11,7 @@ module CheckElasticSearch
     ms.attributes[:project_id] = self.project_ids
     ms.attributes[:annotated_type] = self.class.name
     ms.attributes[:annotated_id] = self.id
+    ms.attributes[:parent_id] = self.id
     ms.attributes[:created_at] = self.created_at.utc
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:published_at] = self.published_at
