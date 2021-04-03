@@ -36,6 +36,29 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal [p.id, p2.id], result['project_id'].sort
   end
 
+  test "should match secondary items but surface the main ones" do
+    # This case only happen when browsing a list and seach by keyword
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media disable_es_callbacks: false, project: p
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media quote: 'target_media', disable_es_callbacks: false, project: p
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id] }.to_json)
+    assert_equal [pm.id, pm1.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media' }.to_json)
+    assert_equal [pm1.id], result.medias.map(&:id)
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media', tags: ['test'] }.to_json)
+    assert_empty result.medias.map(&:id)
+    # detach and assign to specific list
+    r.add_to_project_id = p.id
+    r.destroy
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id] }.to_json)
+    assert_equal [pm.id, pm1.id, pm2.id], result.medias.map(&:id).sort
+  end
+
   test "should reindex data" do
     # Test raising error for re-index
     MediaSearch.stubs(:migrate_es_data).raises(StandardError)

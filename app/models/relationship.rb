@@ -20,7 +20,8 @@ class Relationship < ActiveRecord::Base
   after_update :propagate_inversion
   before_destroy :detach_to_list
   after_destroy :update_counters, prepend: true
-  after_commit :update_counters
+  after_commit :update_counters, :update_elasticsearch_parent, on: [:create, :update]
+  after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
 
@@ -191,5 +192,16 @@ class Relationship < ActiveRecord::Base
       self.confirmed_at = Time.now
       self.confirmed_by = User.current.id
     end
+  end
+
+  def destroy_elasticsearch_relation
+    update_elasticsearch_parent('destroy')
+  end
+
+  def update_elasticsearch_parent(action = 'create_or_update')
+    return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    parent_id = action == 'destroy' ? self.target_id : self.source_id
+    options = { keys: ['parent_id'], data: { 'parent_id' => parent_id }, obj: self.target }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
   end
 end

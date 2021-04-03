@@ -8,6 +8,7 @@ class MediaSearch
     indexes :project_id, { type: 'integer' }
     indexes :annotated_type, { type: 'text' }
     indexes :annotated_id, { type: 'integer' }
+    indexes :parent_id, { type: 'integer' }
     indexes :associated_type, { type: 'keyword' }
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
