@@ -64,7 +64,7 @@ module SmoochResources
             content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
             Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content, expires_in: 1.hour)
           rescue StandardError => e
-            self.notify_error(e, { bot: 'Smooch', operation: 'RSS Feed Update', team: tbi.team.slug }.merge(resource))
+            self.notify_error(e, { bot: 'Smooch', operation: 'RSS Feed Update', team: tbi.team.slug, resource: resource })
           end
         end
       end
