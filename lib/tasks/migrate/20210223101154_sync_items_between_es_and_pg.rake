@@ -19,7 +19,7 @@ namespace :check do
             result = $repository.search(query: query, sort: sort, search_after: search_after, size: 5000)
             es_ids = result.collect{ |i| i['annotated_id'] }.uniq
             break if es_ids.empty?
-            pg_ids = ProjectMedia.where(id: es_ids).map(&:id)
+            pg_ids = ProjectMedia.where(team_id: t.id, id: es_ids).map(&:id)
             diff = es_ids - pg_ids
             if diff.count
               query = { bool: { must: [{ term: { team_id: { value: t.id } } }, { terms: { annotated_id: diff } }] } }
