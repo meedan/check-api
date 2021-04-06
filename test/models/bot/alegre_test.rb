@@ -398,11 +398,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "should get items with similar title when using non-elasticsearch matching model" do
+  test "zzz should get items with similar title when using non-elasticsearch matching model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
-    pm.analysis = { title: 'Title 1' }
+    pm.analysis = { title: 'This is some more longer title that has enough text to be worth checking Title 1' }
     pm.save!
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'Title 1' }
