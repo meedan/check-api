@@ -2874,4 +2874,38 @@ class TeamTest < ActiveSupport::TestCase
       t.destroy_partition_and_team!
     end
   end
+
+  test "should match rule and add tag" do
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "Foo"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm = create_project_media team: t, media: nil, quote: 'Foo'
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 end
