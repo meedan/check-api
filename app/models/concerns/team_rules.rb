@@ -7,7 +7,7 @@ module TeamRules
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
            'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project', 'add_tag']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
@@ -172,6 +172,13 @@ module TeamRules
         ProjectMediaProject.create!(project: project, project_media: pm)
         CheckNotification::InfoMessages.send('copied_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
       end
+    end
+
+    def add_tag(pm, value, _rule_id)
+      tag = TagText.where(text: value, team_id: pm.team_id).last
+      return if tag.nil?
+      Tag.create! annotated: pm, tag: tag.id
+      CheckNotification::InfoMessages.send('tagged_by_rule', item_title: pm.title, tag: tag.text)
     end
   end
 

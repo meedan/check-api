@@ -702,6 +702,7 @@ en:
   team_rule_select_field_tasks: Select task
   team_rule_select_field_value_tasks: Select answer
   team_rule_item_is_assigned_to_user: Item is assigned to
+  team_rule_add_tag: Add tag
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -767,3 +768,4 @@ en:
         "%{similar_item_title}".'
       sent_message_to_requestors_on_status_change: '"%{status}" messages have been
         sent to %{requestors_count} users.'
+      tagged_by_rule: '"%{item_title}" has been tagged as "%{tag}" by an automation rule.'
