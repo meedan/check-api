@@ -208,8 +208,8 @@ class Bot::Alegre < BotUser
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
-    return self.default_matching_model if tbi.nil?
-    tbi.get_alegre_matching_model_in_use || self.default_matching_model
+    return Bot::Alegre.default_matching_model if tbi.nil?
+    tbi.get_alegre_matching_model_in_use || Bot::Alegre.default_matching_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field)
@@ -292,7 +292,9 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
-    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge)
+    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge).merge(
+      fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)}.reduce({}, :merge)
+    )
   end
 
   def self.extract_project_medias_from_context(search_result)
