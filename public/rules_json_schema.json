@@ -305,6 +305,10 @@
                     {
                       "key": "ban_submitter",
                       "value": "<%= I18n.t(:team_rule_ban_submitter) %>"
+                    },
+                    {
+                      "key": "add_tag",
+                      "value": "<%= I18n.t(:team_rule_add_tag) %>"
                     }
                   ]
                 }
@@ -316,6 +320,14 @@
                   },
                   "then": {
                     "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_destination) %>", "type": "integer", "enum": <%= projects.to_json %> } }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": { "action_definition": { "const": "add_tag" } }
+                  },
+                  "then": {
+                    "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_select_tag) %>", "type": "string", "enum": <%= tags.to_json %> } }
                   }
                 }
               ]
