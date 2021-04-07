@@ -20,6 +20,7 @@ namespace :check do
         end
         client.bulk body: es_body unless es_body.blank?
       end
+      ProjectMediaProject.delete_all
       minutes = (Time.now.to_i - started) / 60
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end

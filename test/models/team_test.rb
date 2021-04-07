@@ -1120,8 +1120,8 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
     sleep 5
-    assert_equal [p1.id], pm1.reload.project_ids
-    assert_equal [p0.id], pm2.reload.project_ids
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p0.id, pm2.reload.project_id
   end
 
   test "should match rule based on tag" do
@@ -1186,9 +1186,9 @@ class TeamTest < ActiveSupport::TestCase
     create_tag tag: 'bar', annotated: pm2
     pm3 = create_project_media project: p0
     create_tag tag: 'test', annotated: pm2
-    assert_equal [p1.id], pm1.reload.project_ids
-    assert_equal [p2.id], pm2.reload.project_ids
-    assert_equal [p0.id], pm3.reload.project_ids
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p0.id, pm3.reload.project_id
   end
 
   test "should match rule based on item type" do
@@ -1246,10 +1246,10 @@ class TeamTest < ActiveSupport::TestCase
     end
     Airbrake.unstub(:configured?)
     Airbrake.unstub(:notify)
-    assert_equal [p1.id], pm1.reload.project_ids
-    assert_equal [p2.id], pm2.reload.project_ids
-    assert_equal [p3.id], pm3.reload.project_ids
-    assert_equal [p4.id], pm4.reload.project_ids
+    assert_equal p1.id, pm1.reload.project_id
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p3.id, pm3.reload.project_id
+    assert_equal p4.id, pm4.reload.project_id
   end
 
   test "should return number of items in trash, unconfirmed and outside trash" do
@@ -1490,11 +1490,11 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p0, quote: 'start_with_title match title'
-    assert_equal [p1.id], pm1.reload.project_ids
+    assert_equal p1.id, pm1.reload.project_id
     pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal [p2.id], pm2.reload.project_ids
+    assert_equal p2.id, pm2.reload.project_id
     pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
-    assert_equal [p0.id], pm3.reload.project_ids
+    assert_equal p0.id, pm3.reload.project_id
   end
 
   test "should skip permission when applying action" do

@@ -38,7 +38,7 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_ids.include?(pid) || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      if obj && (obj.project_id == pid || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
         obj = ProjectMedia.where("project_medias.project_id = ? AND project_medias.media_id = ?", pid, objid).last
@@ -98,7 +98,8 @@ module ProjectAssociation
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
         'published_at' => obj.published_at,
-        'source_id' => obj.source_id
+        'source_id' => obj.source_id,
+        'project_id' => obj.project_id,
       }
       options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')

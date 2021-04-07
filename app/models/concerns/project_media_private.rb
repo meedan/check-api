@@ -77,4 +77,13 @@ module ProjectMediaPrivate
   def source_belong_to_team
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
   end
+
+  def add_remove_team_tasks
+    # TODO: Sawy : review the code
+    # self.add_destination_team_tasks(self.project, false)
+  end
+
+  def project_is_not_archived
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
+  end
 end

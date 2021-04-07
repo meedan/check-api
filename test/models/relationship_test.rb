@@ -294,10 +294,10 @@ class RelationshipTest < ActiveSupport::TestCase
     pm_s = create_project_media team: t
     pm_t = create_project_media project: p
     r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
-    assert_equal [p.id], pm_t.project_ids
+    assert_equal p.id, pm_t.project_id
     r.add_to_project_id = p2.id
     r.destroy
-    assert_equal [p.id, p2.id], pm_t.reload.project_ids.sort
+    assert_equal p2.id, pm_t.reload.project_id.sort
 
   end
 

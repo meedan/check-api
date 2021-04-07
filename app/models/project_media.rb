@@ -16,6 +16,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
+  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
   after_create :set_quote_metadata, :create_annotation, :create_metrics_annotation
@@ -27,6 +28,7 @@ class ProjectMedia < ActiveRecord::Base
   after_commit :notify_team_bots_create, on: [:create]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
+  after_commit :add_remove_team_tasks, on: [:create, :update]
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
@@ -283,7 +285,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def add_destination_team_tasks(project, only_selected)
-    tasks = project.team.auto_tasks(project.id, only_selected)
+    tasks = self.team.auto_tasks(project.id, only_selected)
     existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id)) unless tasks.blank?
     unless existing_tasks.blank?

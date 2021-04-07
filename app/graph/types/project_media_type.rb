@@ -27,6 +27,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :report_status, types.String
   field :confirmed_as_similar_by_name, types.String
   field :added_as_similar_by_name, types.String
+  field :project_id, types.Int
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 
@@ -104,9 +105,11 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  connection :projects, -> { ProjectType.connection_type } do
+  field :project do
+    type -> { ProjectType }
+
     resolve -> (project_media, _args, _ctx) {
-      project_media.projects
+      RecordLoader.for(Project).load(project_media.project_id)
     }
   end
 
@@ -235,8 +238,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
       resolve -> (project_media, _args, _ctx) { project_media.get_dynamic_annotation(type) }
     end
   end
-
-  field :project_ids, JsonStringType
 
   connection :suggested_similar_relationships, -> { RelationshipType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
