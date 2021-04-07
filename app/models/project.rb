@@ -210,7 +210,7 @@ class Project < ActiveRecord::Base
 
   def propagate_assignment_to(user = nil)
     targets = []
-    ProjectMedia.where(project_id:, self.id).find_each do |pm|
+    ProjectMedia.where(project_id: self.id).find_each do |pm|
       status = pm.last_status_obj
       unless status.nil?
         targets << status
