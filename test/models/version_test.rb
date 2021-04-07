@@ -152,23 +152,6 @@ class VersionTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get projects" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    p2 = create_project team: t
-    with_current_user_and_team(u, t) do
-      pm = create_project_media project: p
-      pmp = pm.project_media_projects.last
-      assert_not_nil pmp
-      pmp.project_id = p2.id
-      pmp.save!
-      log = pm.get_versions_log(['update_projectmediaproject']).last
-      assert_equal [p, p2], log.projects
-    end
-  end
-
   test "should get source" do
     v = create_version
     assert_nil v.source

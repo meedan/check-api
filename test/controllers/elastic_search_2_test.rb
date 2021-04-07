@@ -27,16 +27,15 @@ class ElasticSearch2Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
       pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      pids = ProjectMediaProject.where(project_id: p.id).map(&:project_media_id)
       sleep 2
       results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
+      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
       p.team_id = t2.id; p.save!
       sleep 2
       results = $repository.search(query: { match: { team_id: t.id } }).results
       assert_equal [], results.collect{|i| i['annotated_id']}
       results = $repository.search(query: { match: { team_id: t2.id } }).results
-      assert_equal pids.sort, results.collect{|i| i['annotated_id']}.sort
+      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
     end
   end
 
@@ -58,8 +57,7 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal ms['project_id'].last.to_i, p.id
     assert_equal ms['team_id'].to_i, t.id
     pm = ProjectMedia.find pm.id
-    pmp = pm.project_media_projects.last
-    pmp.project_id = p2.id; pmp.save!
+    pm.project_id = p2.id; pmp.save!
     # confirm annotations log
     sleep 1
     ms = $repository.find(id)

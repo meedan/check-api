@@ -161,10 +161,6 @@ class GraphqlController3Test < ActionController::TestCase
               description
               is_read
               list_columns_values
-              project_media_project(project_id: #{p.id}) {
-                dbid
-                id
-              }
               team {
                 verification_statuses
               }
@@ -586,13 +582,8 @@ class GraphqlController3Test < ActionController::TestCase
     p3 = create_project team: t
 
     pm1 = create_project_media project: p1, disable_es_callbacks: false
-    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
-
     pm2 = create_project_media project: p2, disable_es_callbacks: false
-    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
-
     pm3 = create_project_media project: p1, disable_es_callbacks: false
-    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
 
     sleep 10
 
@@ -630,13 +621,8 @@ class GraphqlController3Test < ActionController::TestCase
     p3 = create_project team: t
 
     pm1 = create_project_media project: p1, media: create_claim_media(quote: 'test 1'), disable_es_callbacks: false
-    create_project_media_project project_media: pm1, project: p2, disable_es_callbacks: false
-
     pm2 = create_project_media project: p2, media: create_claim_media(quote: 'test 2'), disable_es_callbacks: false
-    create_project_media_project project_media: pm2, project: p3, disable_es_callbacks: false
-
     pm3 = create_project_media project: p1, media: create_claim_media(quote: 'test 3'), disable_es_callbacks: false
-    create_project_media_project project_media: pm3, project: p3, disable_es_callbacks: false
 
     sleep 10
 
@@ -663,41 +649,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
     assert_equal [pm2.id, pm3.id].sort, results
-  end
-
-  test "should create project media project" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p1
-
-    query = 'mutation addToList { createProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
-    assert_difference 'ProjectMediaProject.count' do
-      post :create, query: query, team: t
-    end
-    assert_response :success
-    assert_equal [p1.id, p2.id].sort, pm.reload.project_ids.sort
-  end
-
-  test "should destroy project media project" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    pmp = pm.project_media_projects.last
-    assert_not_nil pmp
-
-    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", id: "' + pmp.graphql_id + '" }) { deletedId } }'
-    assert_difference 'ProjectMediaProject.count', -1 do
-      post :create, query: query, team: t
-    end
-    assert_response :success
-    assert_empty pm.reload.project_ids
   end
 
   test "should return cached value for dynamic annotation" do
@@ -1104,45 +1055,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_match /rails\.png/, d[:options][0]['image']
     assert_match /^http/, d[:options][1]['image']
     assert_match /rails2\.png/, d[:options][2]['image']
-  end
-
-  test "should update project media project without an id" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p1
-    assert_not_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
-    assert_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
-
-    query = 'mutation { updateProjectMediaProject(input: { clientMutationId: "1", previous_project_id: ' + p1.id.to_s + ', project_id: ' + p2.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { project_media_project { id } } }'
-    assert_no_difference 'ProjectMediaProject.count' do
-      post :create, query: query, team: t
-      assert_response :success
-    end
-
-    assert_nil ProjectMediaProject.where(project_id: p1.id, project_media_id: pm.id).last
-    assert_not_nil ProjectMediaProject.where(project_id: p2.id, project_media_id: pm.id).last
-  end
-
-  test "should destroy project media project without an id" do
-    u = create_user is_admin: true
-    authenticate_with_user(u)
-
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_not_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
-
-    query = 'mutation { destroyProjectMediaProject(input: { clientMutationId: "1", project_id: ' + p.id.to_s + ', project_media_id: ' + pm.id.to_s + ' }) { deletedId } }'
-    assert_difference 'ProjectMediaProject.count', -1 do
-      post :create, query: query, team: t
-      assert_response :success
-    end
-
-    assert_nil ProjectMediaProject.where(project_id: p.id, project_media_id: pm.id).last
   end
 
   test "should define team languages settings" do

@@ -291,7 +291,6 @@ class Team < ActiveRecord::Base
     perms["mange TagText"] = ability.can?(:manage, tag_text)
     # FIXME fix typo
     perms["mange TeamTask"] = ability.can?(:manage, team_task)
-    [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
 

@@ -150,9 +150,7 @@ module TeamImport
       uri = URI.parse(URI.encode(item))
       params = uri.host.nil? ? {quote: item} : {url: item}
       media = Media.where(params).first
-      pm = ProjectMedia.where(media_id: media.id)
-      .joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
-      .where("pmp.project_id = ?", project).first if media
+      pm = ProjectMedia.where(media_id: media.id, project_id: project).first if media
       project_obj = Project.find_by_id project
       {params: params, project_media: pm, team_id: project_obj&.team&.id}
     end

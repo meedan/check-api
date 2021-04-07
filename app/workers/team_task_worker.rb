@@ -15,8 +15,6 @@ class TeamTaskWorker
         fun = "#{action}_teamwide_tasks_bg"
         team_task.send(fun, options, projects, keep_completed_tasks) if team_task.respond_to?(fun)
       end
-    elsif action == 'remove_from'
-      handle_remove_from(id, options)
     elsif action == 'destroy'
       RequestStore.store[:skip_check_ability] = true
       TeamTask.destroy_teamwide_tasks_bg(id, keep_completed_tasks)
@@ -24,12 +22,5 @@ class TeamTaskWorker
     end
     Team.current = team_current
     User.current = user_current
-  end
-
-  private
-
-  def handle_remove_from(pid, options)
-    pm = ProjectMedia.find_by_id(options[:project_media_id])
-    ProjectMediaProject.remove_related_team_tasks_bg(pid, pm.id) unless pm.nil?
   end
 end

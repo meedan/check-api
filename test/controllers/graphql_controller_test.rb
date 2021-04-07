@@ -271,9 +271,8 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, query: query, team: @team.slug
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    pmp = pm.project_media_projects.last
-    pmp.project_id = p2.id
-    pmp.save!
+    pm.project_id = p2.id
+    pm.save!
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, query: query, team: @team.slug
     assert_response :success

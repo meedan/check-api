@@ -7,8 +7,7 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  has_many :project_media_projects, dependent: :destroy
-  has_many :project_medias, through: :project_media_projects
+  has_many :project_medias
 
   mount_uploader :lead_image, ImageUploader
 
@@ -31,25 +30,17 @@ class Project < ActiveRecord::Base
 
   check_settings
 
+  # TODO: Sawy - review
   cached_field :medias_count,
     start_as: 0,
     update_es: false,
     recalculate: proc { |p|
-      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
+      ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: p.id, sources_count: 0 }).count
     },
     update_on: [
       {
-        model: ProjectMediaProject,
-        affected_ids: proc { |pmp| [pmp.project_id, pmp.previous_project_id] },
-        events: {
-          create: :recalculate,
-          update: :recalculate,
-          destroy: :recalculate
-        }
-      },
-      {
         model: Relationship,
-        affected_ids: proc { |r| ProjectMediaProject.where(project_media_id: r.target_id).map(&:project_id) },
+        affected_ids: proc { |r| ProjectMedia.where(id: r.target_id).map(&:project_id) },
         events: {
           save: :recalculate,
           destroy: :recalculate
@@ -58,7 +49,7 @@ class Project < ActiveRecord::Base
       {
         model: ProjectMedia,
         if: proc { |pm| pm.archived_changed? },
-        affected_ids: proc { |pm| ProjectMediaProject.where(project_media_id: pm.id).map(&:project_id) },
+        affected_ids: proc { |pm| ProjectMedia.where(id: pm.id).map(&:project_id) },
         events: {
           update: :recalculate
         }
@@ -219,8 +210,7 @@ class Project < ActiveRecord::Base
 
   def propagate_assignment_to(user = nil)
     targets = []
-    ProjectMedia.joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
-    .where("pmp.project_id = ?", self.id).find_each do |pm|
+    ProjectMedia.where(project_id:, self.id).find_each do |pm|
       status = pm.last_status_obj
       unless status.nil?
         targets << status
@@ -240,12 +230,11 @@ class Project < ActiveRecord::Base
   end
 
   def self.bulk_update_medias_count(pids)
+    # TODO: Sawy review the logic
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
-    ProjectMediaProject
-      .joins(:project_media)
-      .where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
-      .group('project_media_projects.project_id')
-      .count.to_h.each do |pid, count|
+    ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: pids, sources_count: 0})
+    .group('project_id')
+    .count.to_h.each do |pid, count|
       pids_count[pid.to_i] = count.to_i
     end
     pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }

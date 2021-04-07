@@ -18,7 +18,7 @@ class ProjectMedia < ActiveRecord::Base
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :create_metrics_annotation
+  after_create :set_quote_metadata, :create_annotation, :create_metrics_annotation
   after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
   after_create :create_relationship
   after_commit :apply_rules_and_actions_on_create, on: [:create]
@@ -31,7 +31,7 @@ class ProjectMedia < ActiveRecord::Base
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.media, pm.team].concat(pm.projects) },
+                  targets: proc { |pm| [pm.media, pm.team, pm.project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -282,10 +282,6 @@ class ProjectMedia < ActiveRecord::Base
     User.current = previous_user
   end
 
-  def project_ids
-    self.projects.map(&:id)
-  end
-
   def add_destination_team_tasks(project, only_selected)
     tasks = project.team.auto_tasks(project.id, only_selected)
     existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
@@ -348,17 +344,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def updated_at_timestamp
     self.updated_at.to_i
-  end
-
-  def create_project_media_project
-    unless self.add_to_project_id.blank?
-      ProjectMediaProject.create!(
-        project_media_id: self.id,
-        project_id: self.add_to_project_id,
-        set_tasks_responses: self.set_tasks_responses,
-        disable_es_callbacks: self.disable_es_callbacks
-      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
-    end
   end
 
   def has_analysis_title?

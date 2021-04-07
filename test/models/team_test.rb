@@ -287,8 +287,7 @@ class TeamTest < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     team = create_team
     perm_keys = [
-      "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject",
-      "bulk_destroy ProjectMediaProject", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
+      "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "mange TagText", "mange TeamTask"
@@ -469,7 +468,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
-    assert_equal 0, ProjectMediaProject.where(project_id: p.id).count
     RequestStore.store[:disable_es_callbacks] = false
   end
 
@@ -1302,12 +1300,12 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     m = create_claim_media quote: 'start_with_title match title'
     create_project_media project: p0, media: m, smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should match rule by title" do
@@ -1341,15 +1339,15 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     create_project_media project: p0, media: nil, url: url
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should match rule by number of words and type" do
@@ -1387,14 +1385,14 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     m = create_claim_media quote: 'test'
     create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
     m = create_link team: t
     create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
-    assert_equal 2, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 2, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should match rule by number of words" do
@@ -1428,11 +1426,11 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     create_project_media project: p0, media: create_claim_media, smooch_message: { 'text' => 'test' }
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should match with regexp" do
@@ -1650,12 +1648,12 @@ class TeamTest < ActiveSupport::TestCase
     assert_nothing_raised do
       t.save!
     end
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     m = create_claim_media quote: '😊'
     create_project_media project: p0, media: m, smooch_message: { 'text' => '😊' }
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should not crash if rules throw exception" do
@@ -1663,11 +1661,11 @@ class TeamTest < ActiveSupport::TestCase
     t = create_team
     p0 = create_project team: t
     p1 = create_project team: t
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     create_project_media project: p0
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     Team.any_instance.unstub(:apply_rules)
   end
 
@@ -1727,18 +1725,18 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     pm = create_project_media project: p0
     data = valid_flags_data
     data[:flags]['spam'] = 2
     create_flag set_fields: data.to_json, annotated: pm
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     data[:flags]['spam'] = 3
     create_flag set_fields: data.to_json, annotated: pm
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should get team URL" do
@@ -1784,8 +1782,8 @@ class TeamTest < ActiveSupport::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     pm3 = create_project_media team: t
-    assert_equal 0, p1.reload.project_media_projects.count
-    assert_equal 1, p2.reload.project_media_projects.count
+    assert_equal 0, p1.reload.project_medias.count
+    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -1815,11 +1813,11 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     publish_report(pm1)
     publish_report(pm2)
-    assert_equal 2, p1.reload.project_media_projects.count
-    assert_equal 0, p2.reload.project_media_projects.count
+    assert_equal 2, p1.reload.project_medias.count
+    assert_equal 0, p2.reload.project_medias.count
     create_report(pm3, { state: 'published' }, 'publish')
-    assert_equal 3, p1.reload.project_media_projects.count
-    assert_equal 0, p2.reload.project_media_projects.count
+    assert_equal 3, p1.reload.project_medias.count
+    assert_equal 0, p2.reload.project_medias.count
   end
 
   test "should match rule when report is paused" do
@@ -1828,8 +1826,8 @@ class TeamTest < ActiveSupport::TestCase
     p2 = create_project team: t
     pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
-    assert_equal 0, p1.reload.project_media_projects.count
-    assert_equal 1, p2.reload.project_media_projects.count
+    assert_equal 0, p1.reload.project_medias.count
+    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -1859,12 +1857,12 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     r1 = create_report(pm1, { state: 'published' }, 'publish')
     r2 = create_report(pm2, { state: 'published' }, 'publish')
-    assert_equal 0, p1.reload.project_media_projects.count
-    assert_equal 1, p2.reload.project_media_projects.count
+    assert_equal 0, p1.reload.project_medias.count
+    assert_equal 1, p2.reload.project_medias.count
     r1.set_fields = { state: 'paused' }.to_json ; r1.action = 'pause' ; r1.save!
     r2.set_fields = { state: 'paused' }.to_json ; r2.action = 'pause' ; r2.save!
-    assert_equal 2, p1.reload.project_media_projects.count
-    assert_equal 0, p2.reload.project_media_projects.count
+    assert_equal 2, p1.reload.project_medias.count
+    assert_equal 0, p2.reload.project_medias.count
   end
 
   test "should match rules with operators" do
@@ -2169,15 +2167,14 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     pm1 = create_project_media project: p1, quote: 'foo test'
-    assert_equal [p2], pm1.reload.projects
-    pmp = pm1.project_media_projects.last
-    pmp.project_id = p1.id
-    pmp.save!
-    assert_equal [p1], pm1.reload.projects
+    assert_equal p2, pm1.reload.project
+    pm1.project_id = p1.id
+    pm1.save!
+    assert_equal p1, pm1.reload.project
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    assert_equal [p1], pm1.reload.projects
+    assert_equal p1, pm1.reload.project
   end
 
   test "should not have rules with blank names or duplicated names" do
@@ -2233,8 +2230,8 @@ class TeamTest < ActiveSupport::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media project: p2
     pm3 = create_project_media team: t
-    assert_equal 0, p1.reload.project_media_projects.count
-    assert_equal 1, p2.reload.project_media_projects.count
+    assert_equal 0, p1.reload.project_medias.count
+    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -2265,13 +2262,13 @@ class TeamTest < ActiveSupport::TestCase
     create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
     create_dynamic_annotation annotated: pm2, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
     a = create_dynamic_annotation annotated: pm3, annotation_type: 'language', set_fields: { language: 'es' }.to_json
-    assert_equal 2, p1.reload.project_media_projects.count
-    assert_equal 0, p2.reload.project_media_projects.count
+    assert_equal 2, p1.reload.project_medias.count
+    assert_equal 0, p2.reload.project_medias.count
     a = Dynamic.find(a.id)
     a.set_fields = { language: 'pt' }.to_json
     a.save!
-    assert_equal 3, p1.reload.project_media_projects.count
-    assert_equal 0, p2.reload.project_media_projects.count
+    assert_equal 3, p1.reload.project_medias.count
+    assert_equal 0, p2.reload.project_medias.count
   end
 
   test "should get custom status" do
@@ -2400,7 +2397,7 @@ class TeamTest < ActiveSupport::TestCase
     p = create_project team: t
     u = create_user
     create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
@@ -2432,7 +2429,7 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media team: t, user: u
     create_project_media team: t
     create_project_media user: u
-    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.project_medias.count
     assert_equal 1, p.reload.medias_count
   end
 
@@ -2449,7 +2446,7 @@ class TeamTest < ActiveSupport::TestCase
     u = create_user
     u2 = create_user
     create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
@@ -2512,7 +2509,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, pm1.reload.archived
     assert_equal 0, pm2.reload.archived
     assert_equal 0, pm3.reload.archived
-    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.project_medias.count
     assert_equal 1, p.reload.medias_count
   end
 
@@ -2546,7 +2543,7 @@ class TeamTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, task_type: 'single_choice'
     p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
@@ -2578,12 +2575,12 @@ class TeamTest < ActiveSupport::TestCase
     tk = pm.get_annotations('task').first.load
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
     tk.save!
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
     tk.save!
-    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.project_medias.count
     assert_equal 1, p.reload.medias_count
   end
 
@@ -2595,7 +2592,7 @@ class TeamTest < ActiveSupport::TestCase
     create_team_user team: t, user: u
     p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
@@ -2625,7 +2622,7 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
-    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.project_medias.count
     assert_equal 1, p.reload.medias_count
   end
 
@@ -2636,7 +2633,7 @@ class TeamTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, task_type: 'free_text'
     p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     rules = []
     rules << {
@@ -2668,12 +2665,12 @@ class TeamTest < ActiveSupport::TestCase
     tk = pm.get_annotations('task').first.load
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
     tk.save!
-    assert_equal 0, p.reload.project_media_projects.count
+    assert_equal 0, p.reload.project_medias.count
     assert_equal 0, p.reload.medias_count
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
     tk.save!
-    assert_equal 1, p.reload.project_media_projects.count
+    assert_equal 1, p.reload.project_medias.count
     assert_equal 1, p.reload.medias_count
   end
 
@@ -2776,15 +2773,15 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"Bar Foo","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     create_project_media project: p0, media: nil, url: url
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 1, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
   end
 
   test "should not match rule by number of words if request is empty" do
@@ -2818,11 +2815,11 @@ class TeamTest < ActiveSupport::TestCase
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
     create_project_media project: p0
-    assert_equal 1, Project.find(p0.id).project_media_projects.count
-    assert_equal 0, Project.find(p1.id).project_media_projects.count
+    assert_equal 1, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
   end
 
   test "should duplicate team with rules" do

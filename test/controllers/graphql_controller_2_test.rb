@@ -629,22 +629,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
   end
 
-  test "should read project media project" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    pmp = pm.project_media_projects.last
-    assert_not_nil pmp
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal pmp.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
-  end
-
   test "should get project assignments" do
     u = create_user is_admin: true
     u2 = create_user name: 'Assigned to Project'

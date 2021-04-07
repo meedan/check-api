@@ -97,14 +97,6 @@ class Version < Partitioned::ByForeignKey
     self.meta = item.version_metadata(self.object_changes) if !item.nil? && item.respond_to?(:version_metadata)
   end
 
-  def projects
-    ret = []
-    if (self.item_type == 'ProjectMediaProject' && self.event == 'update') || self.event_type == 'copy_projectmedia'
-      ret = get_from_object_changes(:project)
-    end
-    ret
-  end
-
   def teams
     ret = []
     ret = get_from_object_changes(:team) if self.event_type == 'copy_projectmedia'
@@ -163,8 +155,6 @@ class Version < Partitioned::ByForeignKey
       self.get_associated_from_relationship
     when 'create_assignment', 'destroy_assignment'
       self.get_associated_from_assignment
-    when 'create_projectmediaproject', 'update_projectmediaproject'
-      self.get_associated_from_projectmediaproject
     end
   end
 
@@ -200,11 +190,6 @@ class Version < Partitioned::ByForeignKey
 
   def get_associated_from_assignment
     self.get_associated_from_core_annotation(self.item.assigned) if self.item.assigned_type == 'Annotation'
-  end
-
-  def get_associated_from_projectmediaproject
-    pmp = self.item
-    pmp.nil? ? [nil, nil] : ['ProjectMedia', pmp.project_media_id]
   end
 
   def set_project_association

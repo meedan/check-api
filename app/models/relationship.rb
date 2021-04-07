@@ -115,8 +115,8 @@ class Relationship < ActiveRecord::Base
 
   def detach_to_list
     pm = self.target
-    pm.add_to_project_id = self.add_to_project_id
-    pm.create_project_media_project
+    pm.project_id = self.add_to_project_id
+    pm.save!
   end
 
   def is_being_confirmed?

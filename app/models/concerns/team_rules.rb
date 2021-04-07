@@ -7,7 +7,7 @@ module TeamRules
            'flagged_as', 'status_is', 'title_contains_keyword', 'item_titles_are_similar', 'item_images_are_similar', 'report_is_published',
            'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'copy_to_project']
+  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
@@ -156,21 +156,9 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        ProjectMediaProject.where(project_media_id: pm.id).destroy_all
-        ProjectMediaProject.create!(
-          project_id: project.id,
-          project_media_id: pm.id,
-          skip_check_ability: true
-        ) unless ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).exists?
+        pm.project_id = project.id
+        pm.save!
         CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
-      end
-    end
-
-    def copy_to_project(pm, value, _rule_id)
-      project = Project.where(team_id: self.id, id: value.to_i).last
-      unless project.nil? || !ProjectMediaProject.where(project_id: project.id, project_media_id: pm.id).last.nil?
-        ProjectMediaProject.create!(project: project, project_media: pm)
-        CheckNotification::InfoMessages.send('copied_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
       end
     end
   end

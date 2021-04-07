@@ -34,7 +34,7 @@ class GraphqlCrudOperations
       parent = obj.version_object if parent_name == 'version'
       unless parent.nil?
         parent.no_cache = true if parent.respond_to?(:no_cache)
-        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version'].include?(parent_name) && !child.is_a?(ProjectMediaProject)
+        ret["#{name}Edge".to_sym] = GraphQL::Relay::Edge.between(child, parent) if !['related_to', 'public_team', 'version'].include?(parent_name)
         ret[parent_name.to_sym] = parent
       end
     end
@@ -99,7 +99,7 @@ class GraphqlCrudOperations
   end
 
   def self.update(type, inputs, ctx, parents = [])
-    obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : self.load_project_media_project_without_id(type, inputs)
+    obj = self.object_from_id_and_context(inputs[:id], ctx)
     returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', obj, inputs, ctx, parents, returns)
   end
@@ -133,15 +133,9 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.load_project_media_project_without_id(type, inputs)
-    ProjectMediaProject.where(project_id: inputs[:previous_project_id] || inputs[:project_id], project_media_id: inputs[:project_media_id]).last if type.to_s == 'project_media_project'
-  end
-
   def self.destroy(type, inputs, ctx, parents = [])
     returns = {}
-    obj = nil
-    obj = self.object_from_id(inputs[:id]) if inputs[:id]
-    obj = self.load_project_media_project_without_id(type, inputs) if obj.nil?
+    obj = self.object_from_id(inputs[:id])
     unless obj.nil?
       parents.each do |parent|
         parent_obj = obj.send(parent)
@@ -281,11 +275,6 @@ class GraphqlCrudOperations
       name "Destroy#{type.camelize}"
 
       input_field :id, types.ID
-
-      if type == 'project_media_project'
-        input_field :project_id, types.Int
-        input_field :project_media_id, types.Int
-      end
 
       input_field(:keep_completed_tasks, types.Boolean) if type == 'team_task'
 

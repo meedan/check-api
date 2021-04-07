@@ -104,13 +104,6 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  field :project_media_project, ProjectMediaProjectType do
-    argument :project_id, !types.Int
-    resolve -> (project_media, args, _ctx) {
-      ProjectMediaProject.where(project_media_id: project_media.id, project_id: args['project_id']).last
-    }
-  end
-
   connection :projects, -> { ProjectType.connection_type } do
     resolve -> (project_media, _args, _ctx) {
       project_media.projects

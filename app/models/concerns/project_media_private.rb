@@ -37,15 +37,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    if self.archived_changed?
-      ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id)
-      if self.archived_was == CheckArchivedFlags::FlagCodes::NONE
-        # Remove related ProjectMediaProject
-        self.project_media_projects.destroy_all
-      elsif self.archived == CheckArchivedFlags::FlagCodes::NONE
-        self.create_project_media_project
-      end
-    end
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
   end
 
   def destroy_related_medias
