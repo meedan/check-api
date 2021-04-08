@@ -292,7 +292,14 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
-    fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge)
+    es_matches = fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)}.reduce({}, :merge)
+    if self.matching_model_to_use(pm) == self.default_matching_model
+      es_matches
+    else
+      fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge).merge(
+        es_matches
+      )
+    end
   end
 
   def self.extract_project_medias_from_context(search_result)
