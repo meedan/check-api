@@ -100,10 +100,18 @@ class Bot::Alegre < BotUser
     )
   end
 
+  def self.get_threshold_for_text_query(pm, automatic=false)
+    model = self.matching_model_to_use(pm)
+    key = "text_similarity_threshold"
+    key = "automatic_#{key}" if automatic
+    key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
+    return CheckConfig.get(key)
+  end
+
   def self.get_similar_items(pm)
     if pm.is_text?
-      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('text_similarity_threshold'))
-      confirmed = self.get_merged_items_with_similar_text(pm, CheckConfig.get('automatic_text_similarity_threshold'))
+      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm))
+      confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold'))
@@ -343,7 +351,7 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
-    threshold ||= CheckConfig.get('automatic_text_similarity_threshold')
+    threshold ||= self.get_threshold_for_text_query(pm, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
