@@ -41,7 +41,7 @@ module ProjectAssociation
       if obj && (obj.project_id == pid || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        obj = ProjectMedia.where("project_medias.project_id = ? AND project_medias.media_id = ?", pid, objid).last
+        obj = ProjectMedia.where(project_id: pid, media_id: objid).last
         return obj.id if obj
       end
     end
@@ -88,7 +88,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id published_at source_id)
+      keys = %w(team_id archived sources_count read user_id published_at source_id project_id)
       obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {

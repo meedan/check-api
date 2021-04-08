@@ -107,7 +107,7 @@ module TeamImport
       media = get_item(item, project)
       pm = media[:project_media]
       if pm.nil?
-        pm = ProjectMedia.create!({ add_to_project_id: project, user_id: user_id, team_id: media[:team_id] }.merge(media[:params]))
+        pm = ProjectMedia.create!({ project_id: project, user_id: user_id, team_id: media[:team_id] }.merge(media[:params]))
       end
       pm
     end

@@ -67,8 +67,8 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    if self.team_id.blank? && !self.add_to_project_id.blank?
-      project = Project.find_by_id self.add_to_project_id
+    if self.team_id.blank? && !self.project_id.blank?
+      project = Project.find_by_id self.project_id
       self.team_id = project.team_id unless project.nil?
     end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
@@ -80,7 +80,7 @@ module ProjectMediaPrivate
 
   def add_remove_team_tasks
     # TODO: Sawy : review the code
-    # self.add_destination_team_tasks(self.project, false)
+    self.add_destination_team_tasks(self.project, false) unless self.project.nil?
   end
 
   def project_is_not_archived

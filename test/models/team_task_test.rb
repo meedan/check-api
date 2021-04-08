@@ -472,7 +472,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, project_ids: [p2.id]
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
+    tt.send(:handle_add_projects, { 'project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
     # Source error
     tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'

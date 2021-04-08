@@ -48,10 +48,9 @@ class Project < ActiveRecord::Base
       },
       {
         model: ProjectMedia,
-        if: proc { |pm| pm.archived_changed? },
         affected_ids: proc { |pm| ProjectMedia.where(id: pm.id).map(&:project_id) },
         events: {
-          update: :recalculate
+          save: :recalculate
         }
       },
     ]
@@ -271,5 +270,16 @@ class Project < ActiveRecord::Base
 
   def reset_current_project
     User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
+    # reset ProjectMedia.project_id in PG & ES
+    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
+    client = $repository.client
+    options = {
+      index: CheckElasticSearchModel.get_index_alias,
+      body: {
+        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: 0 } },
+        query: { term: { project_id: { value: self.id } } }
+      }
+    }
+    client.update_by_query options
   end
 end

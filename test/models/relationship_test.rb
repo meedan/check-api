@@ -297,7 +297,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal p.id, pm_t.project_id
     r.add_to_project_id = p2.id
     r.destroy
-    assert_equal p2.id, pm_t.reload.project_id.sort
+    assert_equal p2.id, pm_t.reload.project_id
 
   end
 

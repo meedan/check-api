@@ -772,7 +772,7 @@ class Bot::Smooch < BotUser
 
   def self.create_project_media(message, type, extra)
     extra.merge!({ archived: message['archived'] })
-    pm = ProjectMedia.create!({ add_to_project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
+    pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
   end
@@ -821,7 +821,7 @@ class Bot::Smooch < BotUser
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(add_to_project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.create!(project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
       FileUtils.rm_f filepath

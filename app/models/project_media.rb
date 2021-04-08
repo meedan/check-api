@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -20,8 +20,8 @@ class ProjectMedia < ActiveRecord::Base
 
   before_validation :set_team_id, on: :create
   after_create :set_quote_metadata, :create_annotation, :create_metrics_annotation
-  after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
-  after_create :create_relationship
+  after_create :create_auto_tasks_for_team_item, if: proc { |pm| pm.project_id.nil? }
+  after_create :send_slack_notification, :create_relationship
   after_commit :apply_rules_and_actions_on_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_commit :set_quote_metadata, on: [:create]
@@ -193,7 +193,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}/media/#{self.id}"
+    project_prefix = self.project_id.nil? ? '' : "/project/#{self.project_id}" 
+    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}#{project_prefix}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)

@@ -5,10 +5,10 @@ module ProjectMediaBulk
 
   module ClassMethods
     def bulk_update(ids, updates, team)
-      self.bulk_archive(ids, updates[:archived], updates[:previous_project_id], updates[:add_to_project_id], team) if updates.keys.map(&:to_sym).include?(:archived)
+      self.bulk_archive(ids, updates[:archived], updates[:previous_project_id], updates[:project_id], team) if updates.keys.map(&:to_sym).include?(:archived)
     end
 
-    def bulk_archive(ids, archived, previous_project_id, add_to_project_id, team)
+    def bulk_archive(ids, archived, previous_project_id, project_id, team)
       # Include related items
       ids.concat(Relationship.where(source_id: ids).select(:target_id).map(&:target_id))
 
@@ -19,7 +19,7 @@ module ProjectMediaBulk
       # TODO: Sawy - review
 
       # Get a project, if any
-      project_id = previous_project_id || add_to_project_id
+      project_id = previous_project_id || project_id
       project = Project.where(id: project_id.to_i, team_id: team.id).last
 
       # Pusher
@@ -28,7 +28,7 @@ module ProjectMediaBulk
 
       # ElasticSearch
       updates = { archived: archived.to_i }
-      updates.merge!({ project_id: [add_to_project_id]}) unless add_to_project_id.blank?
+      updates.merge!({ project_id: [project_id]}) unless project_id.blank?
       self.bulk_reindex(ids.to_json, updates)
 
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }

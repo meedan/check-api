@@ -285,7 +285,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     create_project_media project: p
-    assert_equal 8, CheckPusher::Worker.jobs.size
+    assert_equal 7, CheckPusher::Worker.jobs.size
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
     Rails.unstub(:env)
@@ -430,24 +430,25 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create auto tasks" do
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    create_team_task team_id: t.id
-    create_team_task team_id: t.id, project_ids: [p2.id]
-    Sidekiq::Testing.inline! do
-      assert_difference 'Task.length', 1 do
-        pm1 = create_project_media team: t
-      end
-      assert_difference 'Task.length', 1 do
-        pm1 = create_project_media project: p1
-      end
-      assert_difference 'Task.length', 2 do
-        pm2 = create_project_media project: p2
-      end
-    end
-  end
+  # TODO: Sawy fix
+  # test "should create auto tasks" do
+  #   t = create_team
+  #   p1 = create_project team: t
+  #   p2 = create_project team: t
+  #   create_team_task team_id: t.id
+  #   create_team_task team_id: t.id, project_ids: [p2.id]
+  #   Sidekiq::Testing.inline! do
+  #     assert_difference 'Task.length', 1 do
+  #       pm1 = create_project_media team: t
+  #     end
+  #     assert_difference 'Task.length', 1 do
+  #       pm1 = create_project_media project: p1
+  #     end
+  #     assert_difference 'Task.length', 2 do
+  #       pm2 = create_project_media project: p2
+  #     end
+  #   end
+  # end
 
   test "should collaborator create auto tasks" do
     t = create_team
@@ -472,11 +473,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
   #   tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
   #   Team.stubs(:current).returns(t)
   #   Sidekiq::Testing.inline! do
-  #     pm = create_project_media team: t, add_to_project_id: p.id
+  #     pm = create_project_media team: t, project_id: p.id
   #     assert_equal 1, pm.annotations('task').count
   #     create_project_media_project project: p2, project_media: pm
   #     assert_equal 2, pm.annotations('task').count
-  #     pm2 = create_project_media team: t, add_to_project_id: p.id
+  #     pm2 = create_project_media team: t, project_id: p.id
   #     assert_equal 1, pm2.annotations('task').count
   #     pmp = ProjectMediaProject.where(project_id: p.id, project_media_id: pm2.id).last
   #     pmp.project_id = p2.id
@@ -494,40 +495,40 @@ class ProjectMediaTest < ActiveSupport::TestCase
   #   Team.unstub(:current)
   # end
 
-  test "should remove opened team tasks when remove_from project" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    tt = create_team_task team_id: t.id, project_ids: []
-    tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
-    tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = nil
-      assert_difference 'Task.length', 3 do
-        pm = create_project_media team: t, add_to_project_id: p2.id
-      end
-      pmp = pm.project_media_projects.where(project_id: p2.id).last
-      assert_difference 'Task.length', -2 do
-        pmp.destroy
-      end
-      # should keep completed tasks (task with answer)
-      assert_difference 'Task.length', 3 do
-        pm = create_project_media team: t, add_to_project_id: p2.id
-      end
-      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-      pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      pm_tt2.save!
-      pmp = pm.project_media_projects.where(project_id: p2.id).last
-      assert_difference 'Task.length', -1 do
-        pmp.destroy
-      end
-    end
-    Team.unstub(:current)
-  end
+  # test "should remove opened team tasks when remove_from project" do
+  #   t =  create_team
+  #   p = create_project team: t
+  #   p2 = create_project team: t
+  #   tt = create_team_task team_id: t.id, project_ids: []
+  #   tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
+  #   tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
+  #   Team.stubs(:current).returns(t)
+  #   Sidekiq::Testing.inline! do
+  #     pm = nil
+  #     assert_difference 'Task.length', 3 do
+  #       pm = create_project_media team: t, project_id: p2.id
+  #     end
+  #     pmp = pm.project_media_projects.where(project_id: p2.id).last
+  #     assert_difference 'Task.length', -2 do
+  #       pmp.destroy
+  #     end
+  #     # should keep completed tasks (task with answer)
+  #     assert_difference 'Task.length', 3 do
+  #       pm = create_project_media team: t, project_id: p2.id
+  #     end
+  #     pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+  #     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+  #     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+  #     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+  #     pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+  #     pm_tt2.save!
+  #     pmp = pm.project_media_projects.where(project_id: p2.id).last
+  #     assert_difference 'Task.length', -1 do
+  #       pmp.destroy
+  #     end
+  #   end
+  #   Team.unstub(:current)
+  # end
 
   test "should have versions" do
     t = create_team
@@ -566,7 +567,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       s.status = 'In Progress'; s.save!
       info = { title: 'Foo' }; pm.analysis = info; pm.save!
       info = { title: 'Bar' }; pm.analysis = info; pm.save!
-      create_project_media_project project: p2, project_media: pm
       t = create_task annotated: pm, annotator: u
       t = Task.find(t.id); t.response = { annotation_type: 'response', set_fields: { response: 'Test', note: 'Test' }.to_json }.to_json; t.save!
       t = Task.find(t.id); t.label = 'Test?'; t.save!
@@ -580,13 +580,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
         "create_dynamicannotationfield", "create_dynamicannotationfield", "create_tag", "create_task", "update_dynamicannotationfield",
         "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_dynamicannotationfield", "update_task"
       ].sort, pm.get_versions_log.map(&:event_type).sort
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 12, pm.get_versions_log_count
       c.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 12, pm.get_versions_log_count
       tg.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 12, pm.get_versions_log_count
       f.destroy
-      assert_equal 14, pm.get_versions_log_count
+      assert_equal 12, pm.get_versions_log_count
     end
   end
 
@@ -1076,7 +1076,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should not create project media under archived project" do
     p = create_project archived: 1
     assert_raises ActiveRecord::RecordInvalid do
-      create_project_media add_to_project_id: p.id
+      create_project_media project_id: p.id
     end
   end
 
@@ -1154,7 +1154,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
     p = create_project team: t
-    pm = create_project_media media: l, team: t, add_to_project_id: p.id
+    pm = create_project_media media: l, team: t, project_id: p.id
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -1550,12 +1550,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     team = create_team
     p = create_project team: team
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
-    pm = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_dynamic_annotation annotation_type: 'smooch', annotated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
+    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2) }
@@ -1574,7 +1574,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 2, pm2.reload.requests_count
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
-    pm3 = create_project_media team: team, add_to_project_id: p.id
+    pm3 = create_project_media team: team, project_id: p.id
     ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_dynamic_annotation(annotation_type: 'smooch', annotated: pm3) }
@@ -1725,7 +1725,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     team = create_team
     p = create_project team: team
-    pm = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     sleep 3
     result = $repository.find(get_es_id(pm))
     assert_equal 0, result['linked_items_count']
@@ -1734,7 +1734,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
 
-    pm2 = create_project_media team: team, add_to_project_id: p.id, disable_es_callbacks: false
+    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
     sleep 3
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
@@ -1773,25 +1773,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     p1 = create_project team: t
     p2 = create_project team: t
-    pm = create_project_media team: t, add_to_project_id: p.id, disable_es_callbacks: false
-    create_project_media team: t, add_to_project_id: p1.id, disable_es_callbacks: false
-    create_project_media team: t, archived: 1, add_to_project_id: p.id, disable_es_callbacks: false
-    pm = create_project_media team: t, add_to_project_id: p1.id, disable_es_callbacks: false
-    create_relationship source_id: pm.id, target_id: create_project_media(team: t, add_to_project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
-    create_project_media_project project_media: pm, project: p2
+    pm = create_project_media team: t, project_id: p.id, disable_es_callbacks: false
+    create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
+    create_project_media team: t, archived: 1, project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
+    create_relationship source_id: pm.id, target_id: create_project_media(team: t, project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     sleep 2
     assert_equal 4, CheckSearch.new({ team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
-    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
+    assert_equal 0, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
-  end
-
-  test "should get project ids" do
-    p1 = create_project
-    p2 = create_project
-    pm = create_project_media project: p1
-    create_project_media_project project_media: pm, project: p2
-    assert_equal [p1.id, p2.id].sort, pm.project_ids.sort
   end
 
   test "should handle indexing conflicts" do
@@ -1966,7 +1957,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     # Create item in a list then try to add it via all items(with no list)
     m2 = create_valid_media
-    create_project_media team:t, add_to_project_id: p.id, media: m2
+    create_project_media team:t, project_id: p.id, media: m2
     assert_raises RuntimeError do
       create_project_media team: t, url: m2.url
     end
@@ -1976,7 +1967,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     # create item in a list then try to add it to all items in different team
     m3 = create_valid_media
-    create_project_media team: t, add_to_project_id: p.id, media: m3
+    create_project_media team: t, project_id: p.id, media: m3
     assert_nothing_raised RuntimeError do
       create_project_media team: t2, url: m3.url
     end
@@ -1986,63 +1977,53 @@ class ProjectMediaTest < ActiveSupport::TestCase
     setup_elasticsearch
     t = create_team
     p = create_project team: t
-    p2 = create_project team: t
     p3 = create_project team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin', is_admin: false
     Sidekiq::Testing.inline! do
       # test restore
       pm = create_project_media project: p, disable_es_callbacks: false
-      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
       sleep 1
-      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id).sort
       result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal [p.id, p2.id], result.sort
+      assert_equal p.id, result
       pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
       pm.save!
       pm = pm.reload
-      assert_empty pm.project_media_projects
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_empty result
       assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
         pm.disable_es_callbacks = false
-        pm.add_to_project_id = p3.id
+        pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      assert_equal p3.id, pm.project_id
       sleep 1
       result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal [p3.id], result
+      assert_equal p3.id, result
       # test confirm
       pm = create_project_media project: p, disable_es_callbacks: false
-      create_project_media_project project: p2, project_media: pm, disable_es_callbacks: false
       sleep 1
-      assert_equal [p.id, p2.id], pm.project_media_projects.map(&:project_id)
+      assert_equal p.id, pm.project_id
       result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal [p.id, p2.id], result.sort
+      assert_equal p.id, result
       pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
       pm.save!
       pm = pm.reload
-      assert_empty pm.project_media_projects
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_empty result
       assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
         pm.disable_es_callbacks = false
-        pm.add_to_project_id = p3.id
+        pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-      assert_equal [p3.id], pm.project_media_projects.map(&:project_id)
+      assert_equal p3.id, pm.project_id
       sleep 1
       result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal [p3.id], result
+      assert_equal p3.id, result
     end
   end
 
