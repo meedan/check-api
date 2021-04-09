@@ -105,8 +105,8 @@ class Bot::Alegre < BotUser
     key = "text_similarity_threshold"
     key = "automatic_#{key}" if automatic
     key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
-    return CheckConfig.get(key)
-  end
+    return CheckConfig.get(key).to_f
+  end  
 
   def self.get_similar_items(pm)
     if pm.is_text?
@@ -114,8 +114,8 @@ class Bot::Alegre < BotUser
       confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     elsif pm.is_image?
-      suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold'))
-      confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold'))
+      suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold').to_f)
+      confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold').to_f)
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
     else
       {}
@@ -291,11 +291,15 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
+  def self.similarity_text_length_threshold
+    CheckConfig.get("similarity_text_length_threshold").to_f
+  end
+
+  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
     pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=CheckConfig.get("similarity_text_length_threshold"))
+  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
     pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
   end
 
