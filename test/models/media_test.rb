@@ -253,18 +253,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal author_normal_url, m.reload.account.url
   end
 
-  test "should not create media that is not an item" do
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = 'http://test.com'
-    data = { url: url, author_url: url, type: 'profile' }
-    response = '{"type":"media","data":' + data.to_json + '}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-
-    assert_raises ActiveRecord::RecordInvalid do
-      create_media(url: url)
-    end
-  end
-
   test "should not create media with duplicated URL" do
     m = create_valid_media
     a = create_valid_account
@@ -588,17 +576,6 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal url2, l.reload.url
   end
 
-  test "should not use normalized URL from Pender" do
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = random_url
-    response = { 'type' => 'media' }.to_json
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_raises ActiveRecord::RecordInvalid do
-      l = create_link url: url
-      assert_equal url, l.reload.url
-    end
-  end
-
   test "should create blank media" do
     assert_difference 'Blank.count', 2 do
       2.times do
@@ -619,5 +596,10 @@ class MediaTest < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       Blank.create! file: random_string
     end
+  end
+
+  test "should keep original URL if Pender doesn't return a normalized one" do
+    url = random_url
+    assert_equal url, Link.new(url: url).get_url_from_result(nil)
   end
 end
