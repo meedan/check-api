@@ -19,7 +19,7 @@ class Task < ActiveRecord::Base
 
   field :type
   def self.task_types
-    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload']
+    ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number']
   end
   validates :type, included: { values: self.task_types }
 
