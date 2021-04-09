@@ -98,7 +98,7 @@ class GraphqlCrudOperations
     self.safe_save(obj, attrs, parents, inputs)
   end
 
-  def self.update(type, inputs, ctx, parents = [])
+  def self.update(_type, inputs, ctx, parents = [])
     obj = self.object_from_id_and_context(inputs[:id], ctx)
     returns = obj.nil? ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', obj, inputs, ctx, parents, returns)
@@ -133,7 +133,7 @@ class GraphqlCrudOperations
     obj
   end
 
-  def self.destroy(type, inputs, ctx, parents = [])
+  def self.destroy(_type, inputs, ctx, parents = [])
     returns = {}
     obj = self.object_from_id(inputs[:id])
     unless obj.nil?

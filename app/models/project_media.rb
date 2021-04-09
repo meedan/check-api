@@ -193,7 +193,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    project_prefix = self.project_id.nil? ? '' : "/project/#{self.project_id}" 
+    project_prefix = self.project_id.nil? ? '' : "/project/#{self.project_id}"
     "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}#{project_prefix}/media/#{self.id}"
   end
 
