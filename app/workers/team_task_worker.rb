@@ -2,6 +2,7 @@ class TeamTaskWorker
   include Sidekiq::Worker
 
   def perform(action, id, author, options = YAML::dump({}), projects = YAML::dump({}), keep_completed_tasks = false)
+    RequestStore.store[:skip_notifications] = true
     user_current = User.current
     team_current = Team.current
     options = YAML::load(options)
@@ -24,6 +25,7 @@ class TeamTaskWorker
     end
     Team.current = team_current
     User.current = user_current
+    RequestStore.store[:skip_notifications] = false
   end
 
   private
