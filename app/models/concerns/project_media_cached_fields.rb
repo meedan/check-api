@@ -46,7 +46,7 @@ module ProjectMediaCachedFields
           {
             model: Relationship,
             if: proc { |r| !r.is_default? },
-            affected_ids: proc { |r| [r.source_id] },
+            affected_ids: proc { |r| [r.source_id, r.target_id] },
             events: {
               save: :recalculate,
               destroy: :recalculate
