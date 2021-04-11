@@ -2504,8 +2504,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, pm2.reload.archived
     assert_equal 0, pm3.reload.archived
     assert_equal 1, p.reload.project_medias.count
-    # TODO: Sawy fix
-    # assert_equal 1, p.reload.medias_count
+    assert_equal 1, p.reload.medias_count
   end
 
   test "should create default fieldsets when team is created" do

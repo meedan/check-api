@@ -430,25 +430,24 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy fix
-  # test "should create auto tasks" do
-  #   t = create_team
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
-  #   create_team_task team_id: t.id
-  #   create_team_task team_id: t.id, project_ids: [p2.id]
-  #   Sidekiq::Testing.inline! do
-  #     assert_difference 'Task.length', 1 do
-  #       pm1 = create_project_media team: t
-  #     end
-  #     assert_difference 'Task.length', 1 do
-  #       pm1 = create_project_media project: p1
-  #     end
-  #     assert_difference 'Task.length', 2 do
-  #       pm2 = create_project_media project: p2
-  #     end
-  #   end
-  # end
+  test "should create auto tasks" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    create_team_task team_id: t.id
+    create_team_task team_id: t.id, project_ids: [p2.id]
+    Sidekiq::Testing.inline! do
+      assert_difference 'Task.length', 1 do
+        pm1 = create_project_media team: t
+      end
+      assert_difference 'Task.length', 1 do
+        pm1 = create_project_media project: p1
+      end
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media project: p2
+      end
+    end
+  end
 
   test "should collaborator create auto tasks" do
     t = create_team
@@ -464,71 +463,84 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy fix
-  # test "should add team tasks when adding or moving items" do
-  #   t =  create_team
-  #   p = create_project team: t
-  #   p2 = create_project team: t
-  #   tt = create_team_task team_id: t.id, project_ids: []
-  #   tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
-  #   Team.stubs(:current).returns(t)
-  #   Sidekiq::Testing.inline! do
-  #     pm = create_project_media team: t, project_id: p.id
-  #     assert_equal 1, pm.annotations('task').count
-  #     create_project_media_project project: p2, project_media: pm
-  #     assert_equal 2, pm.annotations('task').count
-  #     pm2 = create_project_media team: t, project_id: p.id
-  #     assert_equal 1, pm2.annotations('task').count
-  #     pmp = ProjectMediaProject.where(project_id: p.id, project_media_id: pm2.id).last
-  #     pmp.project_id = p2.id
-  #     pmp.save!
-  #     assert_equal 2, pm2.annotations('task').count
-  #     pm3 = create_project_media team: t
-  #     assert_equal 1, pm3.annotations('task').count
-  #     assert_no_difference 'Task.length' do
-  #       create_project_media_project project: p, project_media: pm3
-  #     end
-  #     assert_difference 'Task.length', 1 do
-  #       create_project_media_project project: p2, project_media: pm3
-  #     end
-  #   end
-  #   Team.unstub(:current)
-  # end
+  test "should add or remove team tasks when moving items" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: []
+    tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t, project_id: p.id
+      end
+      assert_difference 'Task.length', 1 do
+        pm.project_id = p2.id
+        pm.save!
+      end
+      pm2 = nil
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media team: t, project_id: p2.id
+      end
+      assert_difference 'Task.length', -1 do
+        pm2.project_id = p.id
+        pm2.save!
+      end
+      pm3 = nil
+      assert_difference 'Task.length', 1 do
+        pm3 = create_project_media team: t
+      end
+      assert_no_difference 'Task.length' do
+        pm3.project_id = p.id
+        pm3.save!
+      end
+      pm4 = nil
+      assert_difference 'Task.length', 1 do
+        pm4 = create_project_media team: t
+      end
+      assert_difference 'Task.length', 1 do
+        pm4.project_id = p2.id
+        pm4.save!
+      end
+    end
+    Team.unstub(:current)
+  end
 
-  # test "should remove opened team tasks when remove_from project" do
-  #   t =  create_team
-  #   p = create_project team: t
-  #   p2 = create_project team: t
-  #   tt = create_team_task team_id: t.id, project_ids: []
-  #   tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
-  #   tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
-  #   Team.stubs(:current).returns(t)
-  #   Sidekiq::Testing.inline! do
-  #     pm = nil
-  #     assert_difference 'Task.length', 3 do
-  #       pm = create_project_media team: t, project_id: p2.id
-  #     end
-  #     pmp = pm.project_media_projects.where(project_id: p2.id).last
-  #     assert_difference 'Task.length', -2 do
-  #       pmp.destroy
-  #     end
-  #     # should keep completed tasks (task with answer)
-  #     assert_difference 'Task.length', 3 do
-  #       pm = create_project_media team: t, project_id: p2.id
-  #     end
-  #     pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-  #     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-  #     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-  #     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-  #     pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-  #     pm_tt2.save!
-  #     pmp = pm.project_media_projects.where(project_id: p2.id).last
-  #     assert_difference 'Task.length', -1 do
-  #       pmp.destroy
-  #     end
-  #   end
-  #   Team.unstub(:current)
-  # end
+  test "should remove opened team tasks when remove_from project" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: []
+    tt2 = create_team_task team_id: t.id, project_ids: [p2.id]
+    tt3 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 3 do
+        pm = create_project_media team: t, project_id: p2.id
+      end
+      assert_difference 'Task.length', -2 do
+        pm.project_id = nil
+        pm.save!
+      end
+      # should keep completed tasks (task with answer)
+      assert_difference 'Task.length', 3 do
+        pm = create_project_media team: t, project_id: p2.id
+      end
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
+      ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
+      fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+      pm_tt2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      pm_tt2.save!
+      assert_difference 'Task.length', -1 do
+        pm.project_id = nil
+        pm.save!
+      end
+    end
+    Team.unstub(:current)
+  end
 
   test "should have versions" do
     t = create_team

@@ -30,7 +30,6 @@ class Project < ActiveRecord::Base
 
   check_settings
 
-  # TODO: Sawy - review
   cached_field :medias_count,
     start_as: 0,
     update_es: false,
@@ -50,7 +49,8 @@ class Project < ActiveRecord::Base
         model: ProjectMedia,
         affected_ids: proc { |pm| ProjectMedia.where(id: pm.id).map(&:project_id) },
         events: {
-          save: :recalculate
+          save: :recalculate,
+          destroy: :recalculate
         }
       },
     ]
@@ -229,7 +229,6 @@ class Project < ActiveRecord::Base
   end
 
   def self.bulk_update_medias_count(pids)
-    # TODO: Sawy review the logic
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
     ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: pids, sources_count: 0})
     .group('project_id')
@@ -270,5 +269,16 @@ class Project < ActiveRecord::Base
 
   def reset_current_project
     User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
+    # reset ProjectMedia.project_id in PG & ES
+    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
+    client = $repository.client
+    options = {
+      index: CheckElasticSearchModel.get_index_alias,
+      body: {
+        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: 0 } },
+        query: { term: { project_id: { value: self.id } } }
+      }
+    }
+    client.update_by_query options
   end
 end

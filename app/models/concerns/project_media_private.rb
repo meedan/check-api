@@ -79,7 +79,12 @@ module ProjectMediaPrivate
   end
 
   def add_remove_team_tasks
-    self.add_destination_team_tasks(self.project_id, false)
+    if self.project_id_changed?
+      # add new team tasks based on new project_id
+      self.add_destination_team_tasks(self.project_id)
+      # remove existing team tasks based on old project_id
+      TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id_was, YAML::dump(User.current), YAML::dump({ project_media_id: self.id }))
+    end
   end
 
   def project_is_not_archived

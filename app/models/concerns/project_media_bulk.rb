@@ -9,7 +9,8 @@ module ProjectMediaBulk
       if keys.include?(:archived)
         self.bulk_archive(ids, updates[:archived], updates[:previous_project_id], updates[:project_id], team)
       elsif keys.include?(:move_to)
-        self.bulk_move(ids, updates[:move_to], updates[:previous_project_id], team)
+        project = Project.where(team_id: team&.id, id: updates[:move_to]).last
+        self.bulk_move(ids, project, updates[:previous_project_id], team) unless project.nil?
       end
     end
 
@@ -18,10 +19,13 @@ module ProjectMediaBulk
       ids.concat(Relationship.where(source_id: ids).select(:target_id).map(&:target_id))
 
       # SQL bulk-update
-      ProjectMedia.where(id: ids, team_id: team&.id).update_all({ archived: archived })
+      update_columns = { archived: archived }
+      update_columns[:project_id] = project_id if archived == CheckArchivedFlags::FlagCodes::NONE && !project_id.blank?
+      ProjectMedia.where(id: ids, team_id: team&.id).update_all(update_columns)
 
       # Update "medias_count" cache of each list
-      # TODO: Sawy - review
+      pids = ProjectMedia.where(id: ids).map(&:project_id).uniq
+      Project.bulk_update_medias_count(pids)
 
       # Get a project, if any
       project_id = previous_project_id || project_id
@@ -32,49 +36,43 @@ module ProjectMediaBulk
       project&.notify_pusher_channel
 
       # ElasticSearch
-      updates = { archived: archived.to_i }
-      updates.merge!({ project_id: [project_id]}) unless project_id.blank?
-      self.bulk_reindex(ids.to_json, updates)
+      script = { source: "ctx._source.archived = params.archived", params: { archived: archived.to_i } }
+      self.bulk_reindex(ids.to_json, script)
 
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
 
-    def bulk_move(ids, project_id, previous_project_id, team)
+    def bulk_move(ids, project, previous_project_id, team)
+      pids = ProjectMedia.where(id: ids).map(&:project_id).uniq
       # SQL bulk-update
-      ProjectMedia.where(id: ids, team_id: team&.id).update_all({ project_id: project_id })
+      ProjectMedia.where(id: ids, team_id: team&.id).update_all({ project_id: project.id })
 
       # Update "medias_count" cache of each list
-      # TODO: Sawy - review
-
-      # Get a project, if any
-      project = Project.where(id: project_id.to_i, team_id: team.id).last
+      pids << project.id
+      Project.bulk_update_medias_count(pids)
 
       # Pusher
       team.notify_pusher_channel
-      project&.notify_pusher_channel
+      project.notify_pusher_channel
 
       # ElasticSearch
-      updates = { project_id: project_id.to_i }
-      self.bulk_reindex(ids.to_json, updates)
+      script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
+      self.bulk_reindex(ids.to_json, script)
 
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
 
-    def bulk_reindex(ids_json, updates)
+    def bulk_reindex(ids_json, script)
       ids = JSON.parse(ids_json)
       client = $repository.client
-      index_alias = CheckElasticSearchModel.get_index_alias
-      es_body = []
-      ids.each do |id|
-        model = ProjectMedia.new(id: id)
-        doc_id = model.get_es_doc_id(model)
-        if $repository.exists?(doc_id)
-          es_body << { update: { _index: index_alias, _id: doc_id, data: { doc: updates } } }
-        else
-          model.create_elasticsearch_doc_bg(nil)
-        end
-      end
-      client.bulk body: es_body unless es_body.blank?
+      options = {
+        index: CheckElasticSearchModel.get_index_alias,
+        body: {
+          script: script,
+          query: { terms: { annotated_id: ids } }
+        }
+      }
+      client.update_by_query options
     end
   end
 end

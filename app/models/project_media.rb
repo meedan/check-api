@@ -22,8 +22,8 @@ class ProjectMedia < ActiveRecord::Base
   after_create :create_annotation, :create_metrics_annotation
   after_create :send_slack_notification, :create_relationship
   after_commit :create_team_tasks, :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
-  after_commit :create_relationship, :add_remove_team_tasks, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
+  after_commit :create_relationship, on: [:update]
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
@@ -281,9 +281,8 @@ class ProjectMedia < ActiveRecord::Base
     User.current = previous_user
   end
 
-  def add_destination_team_tasks(project_id, only_selected)
-
-    tasks = self.team.auto_tasks(project_id, only_selected)
+  def add_destination_team_tasks(project_id)
+    tasks = self.team.auto_tasks(project_id)
     existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id)) unless tasks.blank?
     unless existing_tasks.blank?
@@ -376,6 +375,22 @@ class ProjectMedia < ActiveRecord::Base
 
   def analysis_published_date
     self.analysis.dig('date_published')
+  end
+
+  def remove_related_team_tasks_bg(pid)
+    # Get team tasks that assigned to target list (pid)
+    tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
+    # Get tasks with zero answer (should keep completed tasks)
+    Task.where('annotations.annotation_type' => 'task', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => self.id)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id))
+    .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+    .where('responses.id' => nil).find_each do |t|
+      t.skip_check_ability = true
+      t.destroy
+    end
   end
 
   protected

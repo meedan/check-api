@@ -134,14 +134,10 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
-  def auto_tasks(project_id, only_selected = false, associated_type = 'ProjectMedia')
+  def auto_tasks(project_id, associated_type = 'ProjectMedia')
     tasks = []
     self.team_tasks.where(associated_type: associated_type).order(order: :asc, id: :asc).each do |task|
-      if only_selected
-        tasks << task if task.project_ids.include?(project_id)
-      else
-        tasks << task if task.project_ids.include?(project_id) || task.project_ids.blank?
-      end
+      tasks << task if task.project_ids.include?(project_id) || task.project_ids.blank?
     end
     tasks
   end

@@ -54,24 +54,23 @@ class GraphqlController4Test < ActionController::TestCase
     assert_error_message 'maximum'
   end
 
-  # TODO: Sawy fix
-  # test "should bulk-send project medias to trash" do
-  #   @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
-  #   @ps.each { |p| assert_equal 1, p.reload.medias_count }
-  #   assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
-  #   assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-  #   assert_equal 0, CheckPusher::Worker.jobs.size
+  test "should bulk-send project medias to trash" do
+    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
+    @ps.each { |p| assert_equal 1, p.reload.medias_count }
+    assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
+    assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
+    assert_equal 0, CheckPusher::Worker.jobs.size
     
-  #   query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
-  #   post :create, query: query, team: @t.slug
-  #   assert_response :success
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
+    post :create, query: query, team: @t.slug
+    assert_response :success
     
-  #   @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-  #   @ps.each { |p| assert_equal 0, p.reload.medias_count }
-  #   assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-  #   assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
-  #   assert_equal 2, CheckPusher::Worker.jobs.size
-  # end
+    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
+    @ps.each { |p| assert_equal 0, p.reload.medias_count }
+    assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
+    assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
+    assert_equal 1, CheckPusher::Worker.jobs.size
+  end
 
   test "should not bulk-restore project medias from trash if not allowed" do
     u = create_user
@@ -132,11 +131,10 @@ class GraphqlController4Test < ActionController::TestCase
 
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
     @ps.each { |p| assert_equal 0, p.reload.medias_count }
-    # TODO: Sawy fix
-    # assert_equal @pms.length, add_to.reload.medias_count
+    assert_equal @pms.length, add_to.reload.medias_count
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    # assert_equal 4, CheckPusher::Worker.jobs.size
+    assert_equal 2, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-create tags if not allowed" do
@@ -183,139 +181,46 @@ class GraphqlController4Test < ActionController::TestCase
     end
   end
 
-  # TODO: Sawy re-wirte tests
-  # test "should not bulk-add project medias to lists if not allowed" do
-  #   u = create_user
-  #   authenticate_with_user(u)
-  #   query = "mutation { createProjectMediaProjects(input: { clientMutationId: \"1\", inputs: [{ project_id: 0, project_media_id: 0 }] }) { team { dbid } } }"
-  #   assert_no_difference 'ProjectMediaProject.count' do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response :success
-  #     assert_error_message 'allowed'
-  #   end
-  # end
+  test "should not bulk-move project medias from a list to another if not allowed" do
+    u = create_user
+    authenticate_with_user(u)
+    p4 = create_project team: @t
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    post :create, query: query, team: @t.slug
+    assert_response :success
+    assert_error_message 'allowed'
+  end
 
-  # test "should not bulk-add project medias to lists if there are more than 10.000 inputs" do
-  #   inputs = '{ project_id: 0, project_media_id: 0 }, ' * 10001
-  #   query = 'mutation { createProjectMediaProjects(input: { clientMutationId: "1", inputs: [' + inputs.gsub(/, $/, '') + '] }) { team { dbid } } }'
-  #   assert_no_difference 'ProjectMediaProject.count' do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response 400
-  #     assert_error_message 'maximum'
-  #   end
-  # end
+  test "should not bulk-move project medias from a list to another if there are more than 10.000 ids" do
+    ids = []
+    10001.times { ids << random_string }
+    p4 = create_project team: @t
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    post :create, query: query, team: @t.slug
+    assert_response 400
+    assert_error_message 'maximum'
+  end
 
-  # test "should not bulk-remove project medias from a list if not allowed" do
-  #   u = create_user
-  #   authenticate_with_user(u)
-  #   query = 'mutation { destroyProjectMediaProjects(input: { clientMutationId: "1", ids: ' + @pmp_ids + ' }) { team { dbid } } }'
-  #   assert_no_difference 'ProjectMediaProject.count' do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response :success
-  #     assert_error_message 'allowed'
-  #   end
-  # end
-
-  # test "should not bulk-remove project medias from a list if there are more than 10.000 ids" do
-  #   ids = []
-  #   10001.times { ids << random_string }
-  #   query = 'mutation { destroyProjectMediaProjects(input: { clientMutationId: "1", ids: ' + ids.to_json + ' }) { team { dbid } } }'
-  #   assert_no_difference 'ProjectMediaProject.count' do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response 400
-  #     assert_error_message 'maximum'
-  #   end
-  # end
-
-  # test "should bulk-remove project medias from a list" do
-  #   inputs = []
-  #   pmp1 = create_project_media_project project: create_project, project_media: @pm1
-  #   pmp2 = create_project_media_project project: @p1, project_media: create_project_media
-  #   invalid_id_1 = Base64.encode64("ProjectMediaProject/0")
-  #   invalid_id_2 = Base64.encode64("Project/#{pmp1.id}")
-  #   invalid_id_3 = random_string
-  #   assert_equal 2, @p1.reload.medias_count
-  #   assert_equal 1, @p2.reload.medias_count
-  #   ids = []
-  #   [@pmp1.graphql_id, @pmp2.graphql_id, pmp1.graphql_id, pmp2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
-  #   query = "mutation { destroyProjectMediaProjects(input: { clientMutationId: \"1\", ids: #{ids.to_json} }) { team { dbid } } }"
-  #   assert_difference 'ProjectMediaProject.count', -2 do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response :success
-  #   end
-  #   assert_nil ProjectMediaProject.where(project_id: @p1.id, project_media_id: @pm1.id).last
-  #   assert_nil ProjectMediaProject.where(project_id: @p2.id, project_media_id: @pm2.id).last
-  #   assert_equal 1, @p1.reload.medias_count
-  #   assert_equal 0, @p2.reload.medias_count
-  # end
-
-  # test "should not bulk-move project medias from a list to another if not allowed" do
-  #   u = create_user
-  #   authenticate_with_user(u)
-  #   p4 = create_project team: @t
-  #   query = 'mutation { updateProjectMediaProjects(input: { clientMutationId: "1", ids: ' + @pmp_ids + ', project_id: ' + p4.id.to_s + ' }) { team { dbid } } }'
-  #   post :create, query: query, team: @t.slug
-  #   assert_response :success
-  #   assert_error_message 'allowed'
-  # end
-
-  # test "should not bulk-move project medias from a list to another if there are more than 10.000 ids" do
-  #   ids = []
-  #   10001.times { ids << random_string }
-  #   p4 = create_project team: @t
-  #   query = 'mutation { updateProjectMediaProjects(input: { clientMutationId: "1", ids: ' + ids.to_json + ', project_id: ' + p4.id.to_s + ' }) { team { dbid } } }'
-  #   post :create, query: query, team: @t.slug
-  #   assert_response 400
-  #   assert_error_message 'maximum'
-  # end
-
-  # test "should bulk-move project medias from a list to another" do
-  #   inputs = []
-  #   p4 = create_project team: @t
-  #   pmp1 = create_project_media_project project: create_project, project_media: @pm1
-  #   pmp2 = create_project_media_project project: @p1, project_media: create_project_media
-  #   invalid_id_1 = Base64.encode64("ProjectMediaProject/0")
-  #   invalid_id_2 = Base64.encode64("Project/#{pmp1.id}")
-  #   invalid_id_3 = random_string
-  #   assert_equal 2, @p1.reload.medias_count
-  #   assert_equal 1, @p2.reload.medias_count
-  #   assert_equal 0, p4.reload.medias_count
-  #   assert_not_nil ProjectMediaProject.where(project_id: @p1.id, project_media_id: @pm1.id).last
-  #   assert_not_nil ProjectMediaProject.where(project_id: @p2.id, project_media_id: @pm2.id).last
-  #   assert_nil ProjectMediaProject.where(project_id: p4.id, project_media_id: @pm1.id).last
-  #   assert_nil ProjectMediaProject.where(project_id: p4.id, project_media_id: @pm2.id).last
-  #   ids = []
-  #   [@pmp1.graphql_id, @pmp2.graphql_id, pmp1.graphql_id, pmp2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
-  #   query = "mutation { updateProjectMediaProjects(input: { clientMutationId: \"1\", ids: #{ids.to_json}, project_id: #{p4.id} }) { team { dbid } } }"
-  #   assert_no_difference 'ProjectMediaProject.count' do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response :success
-  #   end
-  #   assert_nil ProjectMediaProject.where(project_id: @p1.id, project_media_id: @pm1.id).last
-  #   assert_nil ProjectMediaProject.where(project_id: @p2.id, project_media_id: @pm2.id).last
-  #   assert_not_nil ProjectMediaProject.where(project_id: p4.id, project_media_id: @pm1.id).last
-  #   assert_not_nil ProjectMediaProject.where(project_id: p4.id, project_media_id: @pm2.id).last
-  #   assert_equal 1, @p1.reload.medias_count
-  #   assert_equal 0, @p2.reload.medias_count
-  #   assert_equal 2, p4.reload.medias_count
-  # end
-
-  # test "should bulk-move project medias to a list even the item already exists" do
-  #   inputs = []
-  #   p = create_project team: @t
-  #   create_project_media_project project: p, project_media: @pm1
-  #   assert_equal 1, @p1.reload.medias_count
-  #   assert_equal 1, p.reload.medias_count
-  #   ids = []
-  #   [@pmp1.graphql_id].each { |id| ids << id }
-  #   query = "mutation { updateProjectMediaProjects(input: { clientMutationId: \"1\", ids: #{ids.to_json}, project_id: #{p.id} }) { team { dbid } } }"
-  #   assert_difference 'ProjectMediaProject.count', -1 do
-  #     post :create, query: query, team: @t.slug
-  #     assert_response :success
-  #   end
-  #   assert_equal 0, @p1.reload.medias_count
-  #   assert_equal 1, p.reload.medias_count
-  # end
+  test "should bulk-move project medias from a list to another" do
+    inputs = []
+    p4 = create_project team: @t
+    pm1 = create_project_media project: create_project
+    pm2 = create_project_media project: @p1
+    invalid_id_1 = Base64.encode64("ProjectMediaProject/0")
+    invalid_id_2 = Base64.encode64("Project/#{pm1.id}")
+    invalid_id_3 = random_string
+    assert_equal 2, @p1.reload.medias_count
+    assert_equal 1, @p2.reload.medias_count
+    assert_equal 0, p4.reload.medias_count
+    ids = []
+    [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
+    query = "mutation { updateProjectMedias(input: { clientMutationId: \"1\", ids: #{ids.to_json}, move_to: #{p4.id} }) { team { dbid } } }"
+    post :create, query: query, team: @t.slug
+    assert_response :success
+    assert_equal 0, @p1.reload.medias_count
+    assert_equal 0, @p2.reload.medias_count
+    assert_equal 3, p4.reload.medias_count
+  end
 
   test "should update archived media by owner" do
     pm = create_project_media team: @t, archived: CheckArchivedFlags::FlagCodes::TRASHED
