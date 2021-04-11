@@ -79,8 +79,7 @@ module ProjectMediaPrivate
   end
 
   def add_remove_team_tasks
-    # TODO: Sawy : review the code
-    self.add_destination_team_tasks(self.project, false) unless self.project.nil?
+    self.add_destination_team_tasks(self.project_id, false)
   end
 
   def project_is_not_archived
