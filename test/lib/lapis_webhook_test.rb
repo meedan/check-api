@@ -15,8 +15,7 @@ class LapisWebhookTest < ActiveSupport::TestCase
     assert_kind_of String, @lw.notification_signature({ foo: 'bar' }.to_json)
   end
 
-  # TODO: Sawy fix
-  # test "should notify" do
-  #   assert_kind_of Net::HTTPOK, @lw.notify
-  # end
+  test "should notify" do
+    assert_kind_of Net::HTTPOK, @lw.notify
+  end
 end
