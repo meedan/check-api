@@ -378,8 +378,8 @@ class Team < ActiveRecord::Base
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
-    updates = { 'verification_status' => fallback_status_id }
-    ProjectMedia.bulk_reindex(ids_json, updates)
+    script = { source: "ctx._source.verification_status = params.status", params: { status: fallback_status_id } }
+    ProjectMedia.bulk_reindex(ids_json, script)
   end
 
   def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
