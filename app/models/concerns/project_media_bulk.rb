@@ -51,6 +51,9 @@ module ProjectMediaBulk
       pids << project.id
       Project.bulk_update_medias_count(pids)
 
+      # Get previous_project
+      project_was = Project.find_by_id previous_project_id unless previous_project_id.blank?
+
       # Pusher
       team.notify_pusher_channel
       project.notify_pusher_channel
@@ -59,7 +62,7 @@ module ProjectMediaBulk
       script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
       self.bulk_reindex(ids.to_json, script)
 
-      { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
+      { team: team, project: project, check_search_project: project&.check_search_project, project_was: project_was, check_search_project_was: project_was&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
 
     def bulk_reindex(ids_json, script)
