@@ -58,6 +58,22 @@ class VersionTest < ActiveSupport::TestCase
     assert_not_nil v.whodunnit
   end
 
+  test "should get projects" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    m = create_valid_media
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    with_current_user_and_team(u, t) do
+      pm = create_project_media project: p1, media: m, user: u
+      pm.project_id = p2.id
+      pm.save!
+      log = pm.get_versions_log(['update_projectmedia']).last
+      assert_equal [p1, p2], log.projects
+    end
+  end
+
   test "should get task" do
     Version.delete_all
     v = create_version

@@ -235,10 +235,6 @@ class GraphqlCrudOperations
     self.define_bulk_update_or_destroy(:update, klass, fields, parents)
   end
 
-  def self.define_bulk_destroy(klass, fields, parents)
-    self.define_bulk_update_or_destroy(:destroy, klass, fields, parents)
-  end
-
   def self.define_bulk_create(klass, fields, parents)
     input_type = "Create#{klass.name.pluralize}BulkInput"
     definition = GraphQL::InputObjectType.define do
