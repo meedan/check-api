@@ -14,6 +14,7 @@ class Bot::Smooch < BotUser
   include SmoochTos
   include SmoochStatus
   include SmoochResend
+  include SmoochTeamBotInstallation
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -208,16 +209,6 @@ class Bot::Smooch < BotUser
         slack_channel_url = field_value.value unless field_value.nil?
       end
       slack_channel_url
-    end
-  end
-
-  TeamBotInstallation.class_eval do
-    # Save Twitter/Facebook token and authorization URL
-    after_create do
-      if self.bot_user.identifier == 'smooch'
-        self.reset_smooch_authorization_token
-        self.save!
-      end
     end
   end
 
