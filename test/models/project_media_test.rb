@@ -1994,13 +1994,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'admin', is_admin: false
     Sidekiq::Testing.inline! do
       # test restore
-      pm = create_project_media project: p, disable_es_callbacks: false
+      pm = create_project_media project: p, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::TRASHED
       sleep 1
       result = $repository.find(get_es_id(pm))['project_id']
       assert_equal p.id, result
-      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-      pm.save!
-      pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
@@ -2015,14 +2012,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       result = $repository.find(get_es_id(pm))['project_id']
       assert_equal p3.id, result
       # test confirm
-      pm = create_project_media project: p, disable_es_callbacks: false
+      pm = create_project_media project: p, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
       sleep 1
       assert_equal p.id, pm.project_id
       result = $repository.find(get_es_id(pm))['project_id']
       assert_equal p.id, result
-      pm.archived = CheckArchivedFlags::FlagCodes::UNCONFIRMED
-      pm.save!
-      pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE

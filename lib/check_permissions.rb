@@ -109,9 +109,9 @@ module CheckPermissions
     return :create if self.new_record?
     changes = self.changes.to_json
     op = :update
-    if changes == '{"archived":[1,0]}'
+    if changes.include?('"archived":[1,0]')
       op = :restore
-    elsif changes == '{"archived":[2,0]}'
+    elsif changes.include?('"archived":[2,0]')
       op = :confirm
     end
     op
