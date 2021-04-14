@@ -202,8 +202,8 @@ class Bot::Smooch < BotUser
       tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
       pid =  tbi.get_smooch_project_id unless tbi.nil?
       pid ||= obj.project_id
-      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_data', annotation_type: 'smooch_user')
-      .where("value_json ->> 'id' = ?", data['authorId'])
+      smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', annotation_type: 'smooch_user')
+      .where(value: data['authorId'])
       .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
       .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
       unless smooch_user_data.nil?
