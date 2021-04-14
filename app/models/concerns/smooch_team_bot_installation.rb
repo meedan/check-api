@@ -5,7 +5,7 @@ module SmoochTeamBotInstallation
 
   module ClassMethods
     TeamBotInstallation.class_eval do
-      
+
       # Save Twitter/Facebook token and authorization URL
       after_create do
         if self.bot_user.identifier == 'smooch'
