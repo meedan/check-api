@@ -1016,20 +1016,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Sawy fix
-  # test "permissions for annotation type" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   at = create_annotation_type
-  #   with_current_user_and_team(u, t) do
-  #     ability = Ability.new
-  #     assert ability.can?(:create, DynamicAnnotation::AnnotationType)
-  #     assert ability.cannot?(:update, at)
-  #     assert ability.can?(:destroy, at)
-  #   end
-  # end
-
   test "permissions for team bot" do
     t1 = create_team
     t2 = create_team

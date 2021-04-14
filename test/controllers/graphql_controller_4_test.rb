@@ -108,8 +108,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
     
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
-    # TODO: Sawy fix
-    # @ps.each { |p| assert_equal 0, p.reload.medias_count }
+    @ps.each { |p| assert_equal 1, p.reload.medias_count }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 1, CheckPusher::Worker.jobs.size

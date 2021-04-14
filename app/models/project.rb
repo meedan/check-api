@@ -47,10 +47,19 @@ class Project < ActiveRecord::Base
       },
       {
         model: ProjectMedia,
-        affected_ids: proc { |pm| ProjectMedia.where(id: pm.id).map(&:project_id) },
+        if: proc { |pm| !pm.project_id.nil? },
+        affected_ids: proc { |pm| [pm.project_id] },
         events: {
-          save: :recalculate,
+          create: :recalculate,
           destroy: :recalculate
+        }
+      },
+      {
+        model: ProjectMedia,
+        if: proc { |pm| pm.archived_changed? || pm.project_id_changed? },
+        affected_ids: proc { |pm| [pm.project_id, pm.project_id_was] },
+        events: {
+          update: :recalculate,
         }
       },
     ]

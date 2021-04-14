@@ -1116,8 +1116,7 @@ class TeamTest < ActiveSupport::TestCase
     sleep 5
     result = $repository.find(get_es_id(pm1))
     assert_equal p1.id, result['project_id']
-    # TODO: Sawy fix
-    # assert_equal 0, p0.reload.medias_count
+    assert_equal 0, p0.reload.medias_count
     assert_equal 1, p1.reload.medias_count
     pm2 = create_project_media project: p0, disable_es_callbacks: false
     sleep 5
