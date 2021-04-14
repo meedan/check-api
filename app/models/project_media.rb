@@ -301,7 +301,13 @@ class ProjectMedia < ActiveRecord::Base
       id = new_project_media.id
       ProjectMedia.transaction do
         # Remove any status and report from the new item
-        Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_project_media.id).destroy_all
+        Annotation.where(
+          annotation_type: ['verification_status', 'report_design'],
+          annotated_type: 'ProjectMedia', annotated_id: new_project_media.id
+        ).find_each do |a|
+          a.skip_check_ability = true
+          a.destroy!
+        end
         # All annotations from the old item should point to the new item
         Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
         # Destroy the old item

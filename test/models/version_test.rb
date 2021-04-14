@@ -199,7 +199,8 @@ class VersionTest < ActiveSupport::TestCase
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch User', {
       'Data' => ['JSON', false],
-      'Slack Channel Url' => ['Text', true]
+      'Slack Channel Url' => ['Text', true],
+      'ID' => ['Text', false]
     })
     u = create_user
     t = create_team
@@ -208,7 +209,7 @@ class VersionTest < ActiveSupport::TestCase
     pm = create_project_media project: p
     author_id = random_string
     url = random_url
-    set_fields = { smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
+    set_fields = { smooch_user_id: author_id, smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
     d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
     tb = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_project_id: p.id }
     with_current_user_and_team(u, t) do
