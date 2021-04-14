@@ -7,6 +7,8 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
+  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter)
+
   check_settings
 
   include SmoochMessages
