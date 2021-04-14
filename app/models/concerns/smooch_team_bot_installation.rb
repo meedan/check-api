@@ -23,8 +23,7 @@ module SmoochTeamBotInstallation
 
       def smooch_integrations_api_client
         bot = Bot::Smooch
-        app_id = self.get_smooch_app_id
-        bot.get_installation('smooch_app_id', app_id) if bot.config.blank?
+        bot.get_installation('smooch_app_id', self.get_smooch_app_id) if bot.config.blank?
         SmoochApi::IntegrationApi.new(bot.smooch_api_client)
       end
 
@@ -32,7 +31,7 @@ module SmoochTeamBotInstallation
       def smooch_enabled_integrations
         api_instance = self.smooch_integrations_api_client
         integrations = {}
-        begin api_instance.list_integrations(app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
+        begin api_instance.list_integrations(self.get_smooch_app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
         integrations.with_indifferent_access
       end
 
