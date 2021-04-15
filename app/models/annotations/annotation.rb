@@ -15,8 +15,10 @@ class Annotation < ActiveRecord::Base
 
   def destroy
     dec = self.disable_es_callbacks
+    skip_ability = self.skip_check_ability
     a = self.load
     a.disable_es_callbacks = dec
+    a.skip_check_ability = skip_ability
     a.destroy
   end
 

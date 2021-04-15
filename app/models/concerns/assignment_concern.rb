@@ -72,8 +72,7 @@ module AssignmentConcern
           pids << a.assigned_id
         end
       end
-      pms = ProjectMedia.joins("LEFT JOIN project_media_projects pmp ON pmp.project_media_id = project_medias.id")
-      .where('project_medias.id IN (?) OR pmp.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
+      pms = ProjectMedia.where('project_medias.id IN (?) OR project_medias.project_id IN (?)', pmids.uniq.reject{ |pmid| pmid.blank? }, pids)
       pms = pms.select(select) unless select.nil?
       pms
     end

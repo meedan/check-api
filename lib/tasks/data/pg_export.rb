@@ -283,13 +283,6 @@ module PgExport
       end
     end
 
-    class ProjectMediaProject < Base
-      def where_clause
-        project_ids_in_team = Project.new(team_id).select_ids_in_team
-        "WHERE project_id IN (#{project_ids_in_team})"
-      end
-    end
-
     class User < Base
       def where_clause
         "WHERE id IN (#{user_ids_sql})"
@@ -334,6 +327,9 @@ module PgExport
         project_media_ids_in_team_sql = ProjectMedia.new(team_id).select_ids_in_team
         "WHERE id IN (SELECT media_id FROM project_medias WHERE id IN (#{project_media_ids_in_team_sql}))"
       end
+    end
+
+    class ProjectMediaProject < Base
     end
 
     class Relationship < Base

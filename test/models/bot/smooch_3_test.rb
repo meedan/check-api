@@ -147,7 +147,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal [@project.id], pm.project_ids
+    assert_equal @project.id, pm.project_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     messages = [
@@ -172,7 +172,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal [p1.id], pm.project_ids
+    assert_equal p1.id, pm.project_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     messages = [
@@ -197,7 +197,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal [p2.id], pm.project_ids
+    assert_equal p2.id, pm.project_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     quote = 'The lazy dog jumped over the brown fox'
