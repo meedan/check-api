@@ -329,6 +329,9 @@ module PgExport
       end
     end
 
+    class ProjectMediaProject < Base
+    end
+
     class Relationship < Base
       def where_clause
         project_media_ids_in_team_sql = ProjectMedia.new(team_id).select_ids_in_team
