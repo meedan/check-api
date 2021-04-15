@@ -75,13 +75,13 @@ module CheckBasicAbilities
     # 1) it's a source related to him/her or not related to any user
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
-    can :read, [Account, ProjectMedia, ProjectMediaProject, Source], user_id: [@user.id, nil]
+    can :read, [Account, ProjectMedia, Source], user_id: [@user.id, nil]
     can :read, [Media, Link, Claim], project_medias: { team: { private: false } }
     can :read, [Media, Link, Claim], project_medias: { team_id: @user.cached_teams }
 
     can :read, Account, source: { user_id: [@user.id, nil] }
     can :read, Relationship, { source: { team_id: @user.cached_teams }, target: { team_id: @user.cached_teams } }
-    can :read, [ProjectMedia, ProjectMediaProject] do |obj|
+    can :read, ProjectMedia do |obj|
       !obj.team.private || @user.cached_teams.include?(obj.team.id)
     end
 

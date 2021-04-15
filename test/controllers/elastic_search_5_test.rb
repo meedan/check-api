@@ -33,7 +33,7 @@ class ElasticSearch5Test < ActionController::TestCase
     r.destroy
     sleep 2
     result = $repository.find(get_es_id(pm2))
-    assert_equal [p.id, p2.id], result['project_id'].sort
+    assert_equal p2.id, result['project_id']
   end
 
   test "should match secondary items but surface the main ones" do
@@ -120,7 +120,7 @@ class ElasticSearch5Test < ActionController::TestCase
       sleep 1
       result = $repository.find(get_es_id(pm))
       p.destroy
-      assert_equal 0, ProjectMediaProject.where(project_id: id).count
+      assert_equal 0, ProjectMedia.where(project_id: id).count
       assert_equal 1, ProjectMedia.where(id: pm.id).count
       assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
       assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count

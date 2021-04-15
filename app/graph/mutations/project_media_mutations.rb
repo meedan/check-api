@@ -8,7 +8,7 @@ module ProjectMediaMutations
     url: 'str',
     quote: 'str',
     quote_attributions: 'str',
-    add_to_project_id: 'int',
+    project_id: 'int',
     set_annotation: 'str',
     set_tasks_responses: 'json',
     media_type: 'str'
@@ -18,7 +18,7 @@ module ProjectMediaMutations
     refresh_media: 'int',
     archived: 'int',
     previous_project_id: 'int',
-    add_to_project_id: 'int',
+    project_id: 'int',
     source_id: 'int',
     read: 'bool'
   })
@@ -42,5 +42,5 @@ module ProjectMediaMutations
     }
   end
 
-  BulkUpdate = GraphqlCrudOperations.define_bulk_update(ProjectMedia, { archived: 'int', previous_project_id: 'int', add_to_project_id: 'int' }, ['team', 'project', 'check_search_project', 'check_search_team', 'check_search_trash', 'check_search_unconfirmed'])
+  BulkUpdate = GraphqlCrudOperations.define_bulk_update(ProjectMedia, { archived: 'int', move_to: 'int', previous_project_id: 'int', project_id: 'int' }, ['team', 'project', 'check_search_project', 'project_was', 'check_search_project_was', 'check_search_team', 'check_search_trash', 'check_search_unconfirmed'])
 end

@@ -4,10 +4,6 @@ require 'error_codes'
 module ProjectAssociation
   extend ActiveSupport::Concern
 
-  def project
-    Project.find_by_id(self.add_to_project_id) unless self.add_to_project_id.nil?
-  end
-
   def check_search_project
     self.project.check_search_project unless self.project.nil?
   end
@@ -42,11 +38,10 @@ module ProjectAssociation
   module ClassMethods
     def belonged_to_project(objid, pid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_ids.include?(pid) || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      if obj && (obj.project_id == pid || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
         return obj.id
       else
-        obj = ProjectMedia.joins("INNER JOIN project_media_projects pmp ON pmp.project_media_id = project_medias.id")
-        .where("pmp.project_id = ? AND project_medias.media_id = ?", pid, objid).last
+        obj = ProjectMedia.where(project_id: pid, media_id: objid).last
         return obj.id if obj
       end
     end
@@ -93,7 +88,7 @@ module ProjectAssociation
 
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-      keys = %w(team_id archived sources_count read user_id published_at source_id)
+      keys = %w(team_id archived sources_count read user_id published_at source_id project_id)
       obj = self.class.find_by_id(self.id)
       return if obj.nil?
       data = {
@@ -103,7 +98,8 @@ module ProjectAssociation
         'user_id' => obj.user_id,
         'read' => obj.read.to_i,
         'published_at' => obj.published_at,
-        'source_id' => obj.source_id
+        'source_id' => obj.source_id,
+        'project_id' => obj.project_id,
       }
       options = { keys: keys, data: data, obj: obj }
       ElasticSearchWorker.perform_in(1.second, YAML::dump(obj), YAML::dump(options), 'update_doc')

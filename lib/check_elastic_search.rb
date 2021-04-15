@@ -8,7 +8,7 @@ module CheckElasticSearch
     # TODO: Sawy remove annotation_type field
     ms.attributes[:annotation_type] = 'mediasearch'
     ms.attributes[:team_id] = self.team_id
-    ms.attributes[:project_id] = self.project_ids
+    ms.attributes[:project_id] = self.project_id
     ms.attributes[:annotated_type] = self.class.name
     ms.attributes[:annotated_id] = self.id
     ms.attributes[:parent_id] = self.id

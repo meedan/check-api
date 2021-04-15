@@ -11,8 +11,8 @@ module ProjectMediaCreators
 
   private
 
-  def create_auto_tasks_for_team_item
-    self.create_auto_tasks
+  def create_team_tasks
+    self.create_auto_tasks(self.project_id)
   end
 
   def create_annotation

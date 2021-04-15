@@ -202,15 +202,6 @@ ActiveRecord::Schema.define(version: 20210408225651) do
 
   add_index "pghero_query_stats", ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at", using: :btree
 
-  create_table "project_media_projects", force: :cascade do |t|
-    t.integer "project_media_id"
-    t.integer "project_id"
-  end
-
-  add_index "project_media_projects", ["project_id"], name: "index_project_media_projects_on_project_id", using: :btree
-  add_index "project_media_projects", ["project_media_id", "project_id"], name: "index_project_media_projects_on_project_media_id_and_project_id", unique: true, using: :btree
-  add_index "project_media_projects", ["project_media_id"], name: "index_project_media_projects_on_project_media_id", using: :btree
-
   create_table "project_media_users", force: :cascade do |t|
     t.integer "project_media_id"
     t.integer "user_id"
@@ -233,10 +224,12 @@ ActiveRecord::Schema.define(version: 20210408225651) do
     t.integer  "team_id"
     t.boolean  "read",                     default: false, null: false
     t.integer  "source_id"
+    t.integer  "project_id"
   end
 
   add_index "project_medias", ["id"], name: "index_project_medias_on_id", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
+  add_index "project_medias", ["project_id"], name: "index_project_medias_on_project_id", using: :btree
   add_index "project_medias", ["source_id"], name: "index_project_medias_on_source_id", using: :btree
   add_index "project_medias", ["team_id"], name: "index_project_medias_on_team_id", using: :btree
   add_index "project_medias", ["user_id"], name: "index_project_medias_on_user_id", using: :btree

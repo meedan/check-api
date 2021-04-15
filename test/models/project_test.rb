@@ -575,27 +575,27 @@ class ProjectTest < ActiveSupport::TestCase
     pm2 = create_project_media team: t, project: nil
     pm3 = create_project_media team: t, project: nil
     assert_equal 0, p.reload.medias_count
-    create_project_media_project project: p, project_media: pm1
+    pm1.project_id = p.id; pm1.save!
     assert_equal 1, p.reload.medias_count
-    create_project_media_project project: p, project_media: pm2
+    pm2.project_id = p.id; pm2.save!
     assert_equal 2, p.reload.medias_count
-    pmp = create_project_media_project project: p, project_media: pm3
+    pm3.project_id = p.id; pm3.save!
     assert_equal 3, p.reload.medias_count
-    pmp.destroy!
+    pm3.destroy!
     assert_equal 2, p.reload.medias_count
     assert_equal 0, pm2.reload.sources_count
     r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, pm2.reload.sources_count
     assert_equal 1, p.reload.medias_count
+    r.add_to_project_id = p.id
     r.destroy!
     assert_equal 2, p.reload.medias_count
     pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm1.save!
     assert_equal 1, p.reload.medias_count
-    assert_equal 1, p.reload.medias_count
     pm1.archived = CheckArchivedFlags::FlagCodes::NONE
     pm1.save!
-    assert_equal 1, p.reload.medias_count
+    assert_equal 2, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
 end

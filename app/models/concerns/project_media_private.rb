@@ -37,15 +37,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    if self.archived_changed?
-      ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id)
-      if self.archived_was == CheckArchivedFlags::FlagCodes::NONE
-        # Remove related ProjectMediaProject
-        self.project_media_projects.destroy_all
-      elsif self.archived == CheckArchivedFlags::FlagCodes::NONE
-        self.create_project_media_project
-      end
-    end
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
   end
 
   def destroy_related_medias
@@ -75,8 +67,8 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    if self.team_id.blank? && !self.add_to_project_id.blank?
-      project = Project.find_by_id self.add_to_project_id
+    if self.team_id.blank? && !self.project_id.blank?
+      project = Project.find_by_id self.project_id
       self.team_id = project.team_id unless project.nil?
     end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
@@ -84,5 +76,18 @@ module ProjectMediaPrivate
 
   def source_belong_to_team
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
+  end
+
+  def add_remove_team_tasks
+    if self.project_id_changed?
+      # add new team tasks based on new project_id
+      self.add_destination_team_tasks(self.project_id)
+      # remove existing team tasks based on old project_id
+      TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id_was, YAML::dump(User.current), YAML::dump({ project_media_id: self.id }))
+    end
+  end
+
+  def project_is_not_archived
+    parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end
 end
