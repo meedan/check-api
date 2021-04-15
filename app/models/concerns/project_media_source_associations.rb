@@ -8,7 +8,7 @@ module ProjectMediaSourceAssociations
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     if tasks.blank?
-      tasks = self.team.auto_tasks(project_id, false, self.class.name)
+      tasks = self.team.auto_tasks(project_id, self.class.name)
     end
     created = []
     tasks.each do |task|

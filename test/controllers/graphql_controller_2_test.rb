@@ -629,22 +629,6 @@ class GraphqlController2Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
   end
 
-  test "should read project media project" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    pmp = pm.project_media_projects.last
-    assert_not_nil pmp
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal pmp.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
-  end
-
   test "should get project assignments" do
     u = create_user is_admin: true
     u2 = create_user name: 'Assigned to Project'
@@ -789,11 +773,11 @@ class GraphqlController2Test < ActionController::TestCase
     # detach to specific list
     p2 = create_project team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
-    assert_equal [p.id], pm2.project_ids
+    assert_equal p.id, pm2.project_id
     query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", add_to_project_id: ' + p2.id.to_s + ' }) { deletedId, source_project_media { id }, target_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal [p.id, p2.id], pm2.reload.project_ids.sort
+    assert_equal p2.id, pm2.reload.project_id
   end
 
   test "should get version from global id" do

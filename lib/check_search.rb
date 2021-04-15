@@ -161,7 +161,7 @@ class CheckSearch
   def get_pg_results_for_media
     filters = {}
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    filters['project_media_projects.project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options['archived'].to_i
@@ -169,7 +169,6 @@ class CheckSearch
     filters = filters.merge({ sources_count: 0 }) unless should_include_related_items?
     build_search_range_filter(:pg, filters)
     relation = ProjectMedia.where(filters).distinct('project_medias.id').includes(:media)
-    relation = relation.joins(:project_media_projects) unless @options['projects'].blank?
     relation
   end
 
