@@ -115,7 +115,7 @@ class Relationship < ActiveRecord::Base
 
   def detach_to_list
     pm = self.target
-    pm.project_id = self.add_to_project_id unless self.add_to_project_id.nil?
+    pm.project_id = self.add_to_project_id unless self.add_to_project_id.blank?
     pm.save!
   end
 

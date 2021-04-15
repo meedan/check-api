@@ -20,7 +20,17 @@ namespace :check do
         end
         client.bulk body: es_body unless es_body.blank?
       end
-      ProjectMediaProject.delete_all
+      # replace `copy_to_project` action with `move_to_project`
+      Team.find_each do |t|
+        if t.settings && t.settings.keys.include?(:rules)
+          print '.'
+          new_settings = t.settings
+          rules_json = t.settings[:rules].to_json
+          rules_json.gsub!('copy_to_project', 'move_to_project')
+          new_settings[:rules] = JSON.parse(rules_json)
+          t.update_columns(settings: new_settings)
+        end
+      end
       minutes = (Time.now.to_i - started) / 60
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end

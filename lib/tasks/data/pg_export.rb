@@ -443,6 +443,7 @@ module PgExport
             TableStrategies::Media,
             TableStrategies::Project,
             TableStrategies::ProjectMedia,
+            TableStrategies::ProjectMediaProject,
             TableStrategies::Relationship,
             TableStrategies::Source,
             TableStrategies::TagText,
