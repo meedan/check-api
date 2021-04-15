@@ -77,10 +77,12 @@ module ProjectMediaBulk
       User.current = User.find_by_id(user_id.to_i)
       ids.each do |id|
         pm = ProjectMedia.find(id)
-        # add new team tasks based on new project_id
-        pm.add_destination_team_tasks(pm.project_id)
-        # remove existing team tasks based on old project_id
-        pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
+        if pm.project_id != pmp_mapping[pm.id]
+          # remove existing team tasks based on old project_id
+          pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
+          # add new team tasks based on new project_id
+          pm.add_destination_team_tasks(pm.project_id)
+        end
       end
       User.current = current_user
     end
