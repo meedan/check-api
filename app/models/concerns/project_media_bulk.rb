@@ -43,13 +43,18 @@ module ProjectMediaBulk
     end
 
     def bulk_move(ids, project, previous_project_id, team)
-      pids = ProjectMedia.where(id: ids).map(&:project_id).uniq
+      pmp_mapping = {}
+      ProjectMedia.where(id: ids).collect{ |pm| pmp_mapping[pm.id] = pm.project_id }
       # SQL bulk-update
       ProjectMedia.where(id: ids, team_id: team&.id).update_all({ project_id: project.id })
 
       # Update "medias_count" cache of each list
+      pids = pmp_mapping.values.uniq.reject{ |v| v.nil? }
       pids << project.id
       Project.bulk_update_medias_count(pids)
+
+      # Other callbacks to run in background
+      ProjectMedia.delay.run_bulk_update_team_tasks(pmp_mapping, User.current&.id)
 
       # Get previous_project
       project_was = Project.find_by_id previous_project_id unless previous_project_id.blank?
@@ -57,12 +62,27 @@ module ProjectMediaBulk
       # Pusher
       team.notify_pusher_channel
       project.notify_pusher_channel
+      project_was&.notify_pusher_channel
 
       # ElasticSearch
       script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
       self.bulk_reindex(ids.to_json, script)
 
       { team: team, project: project, check_search_project: project&.check_search_project, project_was: project_was, check_search_project_was: project_was&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
+    end
+
+    def run_bulk_update_team_tasks(pmp_mapping, user_id)
+      ids = pmp_mapping.keys
+      current_user = User.current
+      User.current = User.find_by_id(user_id.to_i)
+      ids.each do |id|
+        pm = ProjectMedia.find(id)
+        # add new team tasks based on new project_id
+        pm.add_destination_team_tasks(pm.project_id)
+        # remove existing team tasks based on old project_id
+        pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
+      end
+      User.current = current_user
     end
 
     def bulk_reindex(ids_json, script)

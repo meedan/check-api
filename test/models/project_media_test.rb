@@ -507,6 +507,41 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should add or remove team tasks when bulk-move items" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: []
+    tt2 = create_team_task team_id: t.id, project_ids: [p.id]
+    tt3 = create_team_task team_id: t.id, project_ids: [p2.id]
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t
+      end
+      pm2 = nil
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media team: t, project_id: p.id
+      end
+      ids = [pm.id, pm2.id]
+      ProjectMedia.bulk_move(ids, p2, nil, t)
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm_tt3
+      assert_nil pm_tt2
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      pm2_tt3 = pm2.annotations('task').select{|t| t.team_task_id == tt3.id}.last
+      assert_not_nil pm2_tt
+      assert_not_nil pm2_tt3
+      assert_nil pm2_tt2
+    end
+    Team.unstub(:current)
+  end
+
   test "should remove opened team tasks when remove_from project" do
     t =  create_team
     p = create_project team: t

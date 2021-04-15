@@ -295,10 +295,6 @@
                       "value": "<%= I18n.t(:team_rule_move_to_project) %>"
                     },
                     {
-                      "key": "copy_to_project",
-                      "value": "<%= I18n.t(:team_rule_copy_to_project) %>"
-                    },
-                    {
                       "key": "send_to_trash",
                       "value": "<%= I18n.t(:team_rule_send_to_trash) %>"
                     },
@@ -316,7 +312,7 @@
               "allOf": [
                 {
                   "if": {
-                    "properties": { "action_definition": { "enum": ["move_to_project", "copy_to_project"] } }
+                    "properties": { "action_definition": { "enum": ["move_to_project"] } }
                   },
                   "then": {
                     "properties": { "action_value": { "title": "<%= I18n.t(:team_rule_destination) %>", "type": "integer", "enum": <%= projects.to_json %> } }
