@@ -22,10 +22,12 @@ Dynamic.class_eval do
     whatsapp = self.report_design_team_setting_value('whatsapp', language)
     facebook = self.report_design_team_setting_value('facebook', language)
     twitter = self.report_design_team_setting_value('twitter', language)
-    footer << "_#{signature}_" unless signature.blank?
-    footer << "_WhatsApp: #{whatsapp}_" unless whatsapp.blank?
-    footer << "_FB Messenger: m.me/#{facebook}_" unless facebook.blank?
-    footer << "_Twitter: twitter.com/#{twitter}_" unless twitter.blank?
+    telegram = self.report_design_team_setting_value('telegram', language)
+    footer << signature unless signature.blank?
+    footer << "WhatsApp: #{whatsapp}" unless whatsapp.blank?
+    footer << "FB Messenger: m.me/#{facebook}" unless facebook.blank?
+    footer << "Twitter: twitter.com/#{twitter}" unless twitter.blank?
+    footer << "Telegram: t.me/#{telegram}" unless telegram.blank?
     footer.join("\n")
   end
 
@@ -71,6 +73,7 @@ Dynamic.class_eval do
   def report_design_placeholders(language)
     facebook = self.report_design_team_setting_value('facebook', language)
     twitter = self.report_design_team_setting_value('twitter', language)
+    telegram = self.report_design_team_setting_value('telegram', language)
     {
       title: self.report_design_field_value('headline', language),
       status: self.report_design_field_value('status_label', language),
@@ -78,7 +81,8 @@ Dynamic.class_eval do
       url: self.report_design_field_value('url', language),
       whatsapp: self.report_design_team_setting_value('whatsapp', language),
       facebook: facebook.blank? ? nil : "m.me/#{facebook}",
-      twitter: twitter.blank? ? nil : "@#{twitter}"
+      twitter: twitter.blank? ? nil : "@#{twitter}",
+      telegram: telegram.blank? ? nil : "t.me/#{telegram}"
     }
   end
 

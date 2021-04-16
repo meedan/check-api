@@ -7,7 +7,7 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
-  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter)
+  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter telegram)
 
   check_settings
 
@@ -154,6 +154,10 @@ class Bot::Smooch < BotUser
           case user[:platform]
           when 'whatsapp'
             user[:displayName]
+          when 'telegram'
+            '@' + user[:raw][:username].to_s
+          when 'messenger'
+            user[:externalId]
           when 'twitter'
             '@' + user[:raw][:screen_name]
           else
@@ -585,6 +589,9 @@ class Bot::Smooch < BotUser
                  when 'twitter'
                    twitter_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)
                    twitter_match.nil? ? nil : twitter_match[1]
+                 when 'telegram'
+                   # The message on Slack side doesn't contain a unique Telegram identifier
+                   nil
                  end
       identifier ||= uid
       Digest::MD5.hexdigest(identifier)
