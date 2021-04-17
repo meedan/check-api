@@ -23,11 +23,13 @@ Dynamic.class_eval do
     facebook = self.report_design_team_setting_value('facebook', language)
     twitter = self.report_design_team_setting_value('twitter', language)
     telegram = self.report_design_team_setting_value('telegram', language)
+    viber = self.report_design_team_setting_value('viber', language)
     footer << signature unless signature.blank?
     footer << "WhatsApp: #{whatsapp}" unless whatsapp.blank?
     footer << "FB Messenger: m.me/#{facebook}" unless facebook.blank?
     footer << "Twitter: twitter.com/#{twitter}" unless twitter.blank?
     footer << "Telegram: t.me/#{telegram}" unless telegram.blank?
+    footer << "Viber: #{viber}" unless viber.blank?
     footer.join("\n")
   end
 
@@ -74,6 +76,7 @@ Dynamic.class_eval do
     facebook = self.report_design_team_setting_value('facebook', language)
     twitter = self.report_design_team_setting_value('twitter', language)
     telegram = self.report_design_team_setting_value('telegram', language)
+    viber = self.report_design_team_setting_value('viber', language)
     {
       title: self.report_design_field_value('headline', language),
       status: self.report_design_field_value('status_label', language),
@@ -82,7 +85,8 @@ Dynamic.class_eval do
       whatsapp: self.report_design_team_setting_value('whatsapp', language),
       facebook: facebook.blank? ? nil : "m.me/#{facebook}",
       twitter: twitter.blank? ? nil : "@#{twitter}",
-      telegram: telegram.blank? ? nil : "t.me/#{telegram}"
+      telegram: telegram.blank? ? nil : "t.me/#{telegram}",
+      viber: viber.blank? ? nil : "@#{viber}"
     }
   end
 

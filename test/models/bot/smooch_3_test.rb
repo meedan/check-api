@@ -1137,6 +1137,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       'surname' => 'Bar',
       'signedUpAt' => '2019-09-07T14:54:39.429Z',
       'properties' => {},
+      'externalId' => '123456',
       'conversationStarted' => true,
       'clients' => [{
         'id' => random_string,
@@ -1186,7 +1187,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => twitter_uid }.to_json }.to_json
       assert_equal '@foobar', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
-      assert_equal '', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      assert_equal '123456', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
     end
   end
 
