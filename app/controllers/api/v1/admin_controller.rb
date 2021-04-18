@@ -33,22 +33,15 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     auth = session['check.twitter.authdata']
     status = nil
     if params[:token].to_s == tbi.get_smooch_authorization_token
-      app_id = tbi.get_smooch_app_id
-      Bot::Smooch.get_installation('smooch_app_id', app_id)
-      api_client = Bot::Smooch.smooch_api_client
-      api_instance = SmoochApi::IntegrationApi.new(api_client)
       params = {
-        'type' => 'twitter',
         'tier' => CheckConfig.get('smooch_twitter_tier'),
         'envName' => CheckConfig.get('smooch_twitter_env_name'),
         'consumerKey' => CheckConfig.get('smooch_twitter_consumer_key'),
         'consumerSecret' => CheckConfig.get('smooch_twitter_consumer_secret'),
         'accessTokenKey' => auth['token'],
-        'accessTokenSecret' => auth['secret'],
-        'displayName' => 'Twitter'
+        'accessTokenSecret' => auth['secret']
       }
-      body = SmoochApi::IntegrationCreate.new(params)
-      api_instance.create_integration(app_id, body)
+      tbi.smooch_add_integration('twitter', params)
       @message = I18n.t(:smooch_twitter_success)
       status = 200
     else
@@ -70,19 +63,12 @@ class Api::V1::AdminController < Api::V1::BaseApiController
         @message = I18n.t(:must_select_exactly_one_facebook_page)
         status = 400
       else
-        app_id = tbi.get_smooch_app_id
-        Bot::Smooch.get_installation('smooch_app_id', app_id)
-        api_client = Bot::Smooch.smooch_api_client
-        api_instance = SmoochApi::IntegrationApi.new(api_client)
         params = {
-          'type' => 'messenger',
-          'displayName' => 'Facebook',
           'appId' => CheckConfig.get('smooch_facebook_app_id'),
           'appSecret' => CheckConfig.get('smooch_facebook_app_secret'),
           'pageAccessToken' => pages[0]['access_token']
         }
-        body = SmoochApi::IntegrationCreate.new(params)
-        api_instance.create_integration(app_id, body)
+        tbi.smooch_add_integration('messenger', params)
         @message = I18n.t(:smooch_facebook_success)
         status = 200
       end

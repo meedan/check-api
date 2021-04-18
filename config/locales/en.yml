@@ -627,10 +627,12 @@ en:
     Success!
     Your tipline is now connected to Facebook Messenger.
     Any message received by this Facebook Page will be handled by the tipline.
+    Please reload your tipline settings page to see the new changes.    
   smooch_twitter_success: |
     Success!
     Your tipline is now connected to Twitter.
     Any direct message received by this Twitter profile will be handled by the tipline.
+    Please reload your tipline settings page to see the new changes.    
   must_select_exactly_one_facebook_page: Please select exactly the one Facebook page
     you want to integrate with the tipline.
   invalid_task_answer: Invalid task answer format
