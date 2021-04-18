@@ -584,11 +584,9 @@ class Bot::Smooch < BotUser
                  when 'whatsapp'
                    user.dig(:clients, 0, :displayName)
                  when 'messenger'
-                   messenger_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)
-                   messenger_match.nil? ? nil : messenger_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)&.to_a&.at(1)
                  when 'twitter'
-                   twitter_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)
-                   twitter_match.nil? ? nil : twitter_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)&.to_a&.at(1)
                  when 'telegram'
                    # The message on Slack side doesn't contain a unique Telegram identifier
                    nil
@@ -596,8 +594,7 @@ class Bot::Smooch < BotUser
                    viber_match = user.dig('raw', 'avatar')&.match(/dlid=([^&]+)/)
                    viber_match.nil? ? nil : viber_match[1][0..26]
                  when 'line'
-                   line_match = user.dig('raw', 'clients', 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)
-                   line_match.nil? ? nil : line_match[1]
+                   user.dig('raw', 'clients', 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)&.to_a&.at(1)
                  end
       identifier ||= uid
       Digest::MD5.hexdigest(identifier)

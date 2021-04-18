@@ -18,20 +18,18 @@ Dynamic.class_eval do
 
   def report_design_text_footer(language)
     footer = []
-    signature = self.report_design_team_setting_value('signature', language)
-    whatsapp = self.report_design_team_setting_value('whatsapp', language)
-    facebook = self.report_design_team_setting_value('facebook', language)
-    twitter = self.report_design_team_setting_value('twitter', language)
-    telegram = self.report_design_team_setting_value('telegram', language)
-    viber = self.report_design_team_setting_value('viber', language)
-    line = self.report_design_team_setting_value('line', language)
-    footer << signature unless signature.blank?
-    footer << "WhatsApp: #{whatsapp}" unless whatsapp.blank?
-    footer << "FB Messenger: m.me/#{facebook}" unless facebook.blank?
-    footer << "Twitter: twitter.com/#{twitter}" unless twitter.blank?
-    footer << "Telegram: t.me/#{telegram}" unless telegram.blank?
-    footer << "Viber: #{viber}" unless viber.blank?
-    footer << "LINE: #{line}" unless line.blank?
+    prefixes = {
+      whatsapp: 'WhatsApp: ',
+      facebook: 'FB Messenger: m.me/',
+      twitter: 'Twitter: twitter.com/',
+      telegram: 'Telegram: t.me/',
+      viber: 'Viber: ',
+      line: 'LINE: '
+    }
+    [:signature, :whatsapp, :facebook, :twitter, :telegram, :viber, :line].each do |field|
+      value = self.report_design_team_setting_value(field.to_s, language)
+      footer << "#{prefixes[field]}#{value}" unless value.blank?
+    end
     footer.join("\n")
   end
 
