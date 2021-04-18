@@ -1198,6 +1198,18 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       }]
     }
     create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: telegram_uid, smooch_user_data: { raw: telegram_data }.to_json }.to_json
+    other_uid = random_string
+    other_data = {
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'platform' => 'other',
+        'raw' => {
+          'id' => random_string
+        }
+      }]
+    }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: other_uid, smooch_user_data: { raw: other_data }.to_json }.to_json
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
@@ -1209,6 +1221,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal '123456', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => telegram_uid }.to_json }.to_json
       assert_equal '@barfoo', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => other_uid }.to_json }.to_json
+      assert_equal '', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
     end
   end
 
