@@ -544,7 +544,7 @@ class Bot::Smooch < BotUser
       api_client = self.smooch_api_client
       app_id = self.config['smooch_app_id']
       api_instance = SmoochApi::AppUserApi.new(api_client)
-      user = api_instance.get_app_user(app_id, uid).appUser.to_hash
+      user = api_instance.get_app_user(app_id, uid).appUser.to_hash.with_indifferent_access
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
 
@@ -591,10 +591,10 @@ class Bot::Smooch < BotUser
                    # The message on Slack side doesn't contain a unique Telegram identifier
                    nil
                  when 'viber'
-                   viber_match = user.dig('raw', 'avatar')&.match(/dlid=([^&]+)/)
+                   viber_match = user.dig(:clients, 0, 'raw', 'avatar')&.match(/dlid=([^&]+)/)
                    viber_match.nil? ? nil : viber_match[1][0..26]
                  when 'line'
-                   user.dig('raw', 'clients', 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)&.to_a&.at(1)
+                   user.dig(:clients, 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)&.to_a&.at(1)
                  end
       identifier ||= uid
       Digest::MD5.hexdigest(identifier)
