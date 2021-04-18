@@ -1230,8 +1230,8 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     uid = random_string
     id = Digest::MD5.hexdigest(uid)
     assert_equal id, Bot::Smooch.get_identifier({ clients: [{ platform: 'telegram' }] }, uid)
-    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ 'raw' => { 'avatar' => 'http://viber/dlid=123456&foo=bar' }, clients: [{ platform: 'viber' }] }, uid)
-    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ 'raw' => { 'clients' => [{ 'raw' => { 'pictureUrl' => 'https://sprofile.line-scdn.net/123456' } }] }, clients: [{ platform: 'line' }] }, uid)
+    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ clients: [{ platform: 'viber', 'raw' => { 'avatar' => 'http://viber/dlid=123456&foo=bar' }}] }, uid)
+    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ clients: [{ platform: 'line', 'raw' => { 'pictureUrl' => 'https://sprofile.line-scdn.net/123456' }}] }, uid)
   end
 
   test "should load articles from RSS feed" do
