@@ -1137,7 +1137,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       'surname' => 'Bar',
       'signedUpAt' => '2019-09-07T14:54:39.429Z',
       'properties' => {},
-      'externalId' => '123456',
       'conversationStarted' => true,
       'clients' => [{
         'id' => random_string,
@@ -1145,6 +1144,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
         'lastSeen' => '2020-10-02T16:37:13.721Z',
         'platform' => 'messenger',
         'displayName' => 'Foo Bar',
+        'externalId' => '123456',
         'info' => {
           'avatarUrl' => random_url
         },
@@ -1179,6 +1179,25 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       }]
     }
     create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: twitter_uid, smooch_user_data: { raw: twitter_data }.to_json }.to_json
+    telegram_uid = random_string
+    telegram_data = {
+      'clients' => [{
+        'id' => random_string,
+        'active' => true,
+        'lastSeen' => '2020-10-02T16:55:59.211Z',
+        'platform' => 'telegram',
+        'displayName' => 'Bar Foo',
+        'info' => {
+          'avatarUrl' => random_url
+        },
+        'raw' => {
+          'name' => 'Bar Foo',
+          'username' => 'barfoo',
+          'id' => random_string
+        }
+      }]
+    }
+    create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_id: telegram_uid, smooch_user_data: { raw: telegram_data }.to_json }.to_json
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
@@ -1188,7 +1207,17 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal '@foobar', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
       d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => facebook_uid }.to_json }.to_json
       assert_equal '123456', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
+      d = create_dynamic_annotation annotation_type: 'smooch', set_fields: { smooch_data: { 'authorId' => telegram_uid }.to_json }.to_json
+      assert_equal '@barfoo', d.get_field('smooch_data').versions.last.smooch_user_external_identifier
     end
+  end
+
+  test "should get external Smooch identifier" do
+    uid = random_string
+    id = Digest::MD5.hexdigest(uid)
+    assert_equal id, Bot::Smooch.get_identifier({ clients: [{ platform: 'telegram' }] }, uid)
+    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ 'raw' => { 'avatar' => 'http://viber/dlid=123456&foo=bar' }, clients: [{ platform: 'viber' }] }, uid)
+    assert_equal Digest::MD5.hexdigest('123456'), Bot::Smooch.get_identifier({ 'raw' => { 'clients' => [{ 'raw' => { 'pictureUrl' => 'https://sprofile.line-scdn.net/123456' } }] }, clients: [{ platform: 'line' }] }, uid)
   end
 
   test "should load articles from RSS feed" do
