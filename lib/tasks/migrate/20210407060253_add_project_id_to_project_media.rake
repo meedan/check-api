@@ -20,6 +20,12 @@ namespace :check do
         end
         client.bulk body: es_body unless es_body.blank?
       end
+      # Update "medias_count" cache of each list
+      ProjectMediaProject.find_in_batches(:batch_size => 5000) do |pmps|
+        print '.'
+        pids = pmps.map(&:project_id).uniq
+        Project.bulk_update_medias_count(pids)
+      end
       # replace `copy_to_project` action with `move_to_project`
       Team.find_each do |t|
         if t.settings && t.settings.keys.include?(:rules)
