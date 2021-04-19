@@ -261,6 +261,22 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get slack channel" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    assert_nil pm.slack_channel('item_added')
+    p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}, {event: 'item_deleted', slack_channel: '#test2'}]
+    p.save!
+    pm = pm.reload
+    assert_equal '#test', pm.slack_channel(nil)
+    assert_equal '#test', pm.slack_channel('item_added')
+    assert_equal '#test2', pm.slack_channel('item_deleted')
+    assert_nil pm.slack_channel('non_exist_event')
+    pm2 = create_project_media team: t
+    assert_nil pm2.slack_channel(nil)
+  end
+
   test "should notify Pusher when project media is created" do
     pm = create_project_media
     assert pm.sent_to_pusher

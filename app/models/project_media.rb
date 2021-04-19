@@ -19,9 +19,8 @@ class ProjectMedia < ActiveRecord::Base
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_annotation, :create_metrics_annotation
-  after_create :send_slack_notification, :create_relationship
-  after_commit :create_team_tasks, :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
+  after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
@@ -97,8 +96,6 @@ class ProjectMedia < ActiveRecord::Base
   def should_send_slack_notification_message_for_card?(event = nil)
     # Should always render a card if there is no slack_message annotation
     return true if Annotation.where(annotation_type: 'slack_message', annotated_type: 'ProjectMedia', annotated_id: self.id).last.nil?
-    # Should always render a card if the item was added/moved to a list that has a specific Slack channel
-    return true if event == 'item_added'
     Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
   end
 
@@ -108,6 +105,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def slack_notification_message(update = false)
+    Rails.logger.info "SawyDebugging :: PM slack_notification_message --- #{update}"
     params = self.slack_params
     event = update ? 'update' : 'create'
     related = params[:related_to].blank? ? '' : '_related'
@@ -397,6 +395,16 @@ class ProjectMedia < ActiveRecord::Base
       t.skip_check_ability = true
       t.destroy
     end
+  end
+
+  def slack_channel(event)
+    return nil if self.project_id.nil?
+    event ||= 'item_added'
+    slack_events = self.project.setting(:slack_events)
+    slack_events ||= []
+    slack_events.map!(&:with_indifferent_access)
+    selected_event = slack_events.select{|i| i['event'] == event }.last
+    selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
   protected
