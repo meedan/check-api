@@ -3,7 +3,7 @@ module Api
     class ReportResource < BaseResource
       model_name 'ProjectMedia'
 
-      attributes :title, :description, :lead_image
+      attributes :title, :description, :lead_image, :archived, :created_at, :media_id
       attribute :workspace_id, delegate: :team_id
       attribute :report_title, delegate: :analysis_title
       attribute :report_body, delegate: :analysis_description
@@ -19,13 +19,20 @@ module Api
       attribute :requests, delegate: :requests_count
       attribute :check_url, delegate: :full_url
       attribute :organization, delegate: :team_name
+      attribute :tags, delegate: :tags_as_sentence
+      attribute :media_type, delegate: :type_of_media
 
       def self.records(options = {})
         team_ids = self.workspaces(options).map(&:id)
         conditions = { team_id: team_ids }
-
-        # Filtering by similar items
+        result = ProjectMedia
         filters = options[:filters] || {}
+
+        # Check filters
+        conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
+        result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
+
+        # Filtering by similar items, from Alegre
         text = filters[:similar_to_text]
         unless text.blank?
           ids = begin
@@ -40,10 +47,16 @@ module Api
           conditions[:id] = ids || [0]
         end
 
-        ProjectMedia.where(conditions)
+        result.where(conditions)
       end
 
-      # Just declare the filters used for similarity - the logic is above in the "records" method definition
+      def self.count(filters, options = {})
+        self.records(options.merge(filters: filters)).count
+      end
+
+      # Just declaring the filters used for similarity - the logic is above in the "records" method definition
+      filter :media_type, apply: ->(records, _value, _options) { records }
+      filter :archived, apply: ->(records, _value, _options) { records }
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
       filter :similarity_fields, apply: ->(records, _value, _options) { records }
       filter :similarity_threshold, apply: ->(records, _value, _options) { records }
