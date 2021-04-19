@@ -7,6 +7,8 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
+  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter telegram viber line)
+
   check_settings
 
   include SmoochMessages
@@ -14,6 +16,7 @@ class Bot::Smooch < BotUser
   include SmoochTos
   include SmoochStatus
   include SmoochResend
+  include SmoochTeamBotInstallation
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -151,6 +154,10 @@ class Bot::Smooch < BotUser
           case user[:platform]
           when 'whatsapp'
             user[:displayName]
+          when 'telegram'
+            '@' + user[:raw][:username].to_s
+          when 'messenger', 'viber', 'line'
+            user[:externalId]
           when 'twitter'
             '@' + user[:raw][:screen_name]
           else
@@ -208,16 +215,6 @@ class Bot::Smooch < BotUser
         slack_channel_url = field_value.value unless field_value.nil?
       end
       slack_channel_url
-    end
-  end
-
-  TeamBotInstallation.class_eval do
-    # Save Twitter/Facebook token and authorization URL
-    after_create do
-      if self.bot_user.identifier == 'smooch'
-        self.reset_smooch_authorization_token
-        self.save!
-      end
     end
   end
 
@@ -547,7 +544,7 @@ class Bot::Smooch < BotUser
       api_client = self.smooch_api_client
       app_id = self.config['smooch_app_id']
       api_instance = SmoochApi::AppUserApi.new(api_client)
-      user = api_instance.get_app_user(app_id, uid).appUser.to_hash
+      user = api_instance.get_app_user(app_id, uid).appUser.to_hash.with_indifferent_access
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
 
@@ -587,11 +584,17 @@ class Bot::Smooch < BotUser
                  when 'whatsapp'
                    user.dig(:clients, 0, :displayName)
                  when 'messenger'
-                   messenger_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)
-                   messenger_match.nil? ? nil : messenger_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)&.to_a&.at(1)
                  when 'twitter'
-                   twitter_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)
-                   twitter_match.nil? ? nil : twitter_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)&.to_a&.at(1)
+                 when 'telegram'
+                   # The message on Slack side doesn't contain a unique Telegram identifier
+                   nil
+                 when 'viber'
+                   viber_match = user.dig(:clients, 0, 'raw', 'avatar')&.match(/dlid=([^&]+)/)
+                   viber_match.nil? ? nil : viber_match[1][0..26]
+                 when 'line'
+                   user.dig(:clients, 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)&.to_a&.at(1)
                  end
       identifier ||= uid
       Digest::MD5.hexdigest(identifier)
