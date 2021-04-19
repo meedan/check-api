@@ -28,10 +28,6 @@ module Api
         result = ProjectMedia
         filters = options[:filters] || {}
 
-        # Check filters
-        conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
-        result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
-
         # Filtering by similar items, from Alegre
         text = filters[:similar_to_text]
         unless text.blank?
@@ -47,7 +43,15 @@ module Api
           conditions[:id] = ids || [0]
         end
 
-        result.where(conditions)
+        self.apply_check_filters(conditions, filters)
+      end
+
+      def self.apply_check_filters(conditions, filters)
+        new_conditions = conditions.clone
+        result = ProjectMedia
+        new_conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
+        result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
+        result.where(new_conditions)
       end
 
       def self.count(filters, options = {})
