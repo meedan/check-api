@@ -93,7 +93,7 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
-  def should_send_slack_notification_message_for_card?(event = nil)
+  def should_send_slack_notification_message_for_card?
     # Should always render a card if there is no slack_message annotation
     return true if Annotation.where(annotation_type: 'slack_message', annotated_type: 'ProjectMedia', annotated_id: self.id).last.nil?
     Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
@@ -105,13 +105,12 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def slack_notification_message(update = false)
-    Rails.logger.info "SawyDebugging :: PM slack_notification_message --- #{update}"
     params = self.slack_params
     event = update ? 'update' : 'create'
     related = params[:related_to].blank? ? '' : '_related'
     pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
     # Either render a card or update an existing one
-    self.should_send_slack_notification_message_for_card?(update) ? self.slack_notification_message_for_card(pretext) : nil
+    self.should_send_slack_notification_message_for_card? ? self.slack_notification_message_for_card(pretext) : nil
   end
 
   def picture
