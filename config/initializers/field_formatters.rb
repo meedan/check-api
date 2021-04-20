@@ -7,10 +7,6 @@ DynamicAnnotation::Field.class_eval do
     CheckCldr.language_code_to_name(code)
   end
 
-  def field_formatter_name_response_single_choice
-    response_value(self.value)
-  end
-
   def field_formatter_name_response_multiple_choice
     response_value(self.value)
   end
