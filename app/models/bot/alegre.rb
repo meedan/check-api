@@ -353,13 +353,14 @@ class Bot::Alegre < BotUser
     self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
   end
 
-  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil)
+  def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
     threshold ||= self.get_threshold_for_text_query(pm, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       model: model,
+      fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
       context: {
         team_id: team_id,
         field: field,

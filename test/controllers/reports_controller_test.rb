@@ -27,19 +27,23 @@ class ReportsControllerTest < ActionController::TestCase
   end
 
   test "should return similar items" do
+    create_report_design_annotation_type
     authenticate_with_token @a
+    create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: @pm
     pm = create_project_media team: @t, archived: 1
     pm2 = create_project_media team: @t, quote: random_string, media: nil
+    pm3 = create_project_media team: @t
+    create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'paused', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: pm3
     create_project_media team: @t
 
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2)] })
+    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3)] })
 
     get :index
     assert_response :success
-    assert_equal 4, json_response['data'].size
-    assert_equal 4, json_response['meta']['record-count']
+    assert_equal 5, json_response['data'].size
+    assert_equal 5, json_response['meta']['record-count']
 
-    get :index, filter: { similar_to_text: 'Test', similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link' }
+    get :index, filter: { similar_to_text: 'Test', similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
