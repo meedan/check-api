@@ -687,6 +687,7 @@ sw:
   team_rule_select_field_tasks: Chagua kazi
   team_rule_select_field_value_tasks: Chagua jibu
   team_rule_item_is_assigned_to_user: Kitu kimepangiwa
+  team_rule_add_tag: Ongeza lebo
   flag_adult: 'Mtu  mzima '
   flag_spoof: Hadaa
   flag_medical: Matibabu
