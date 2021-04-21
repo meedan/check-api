@@ -21,6 +21,11 @@ module Api
       attribute :organization, delegate: :team_name
       attribute :tags, delegate: :tags_as_sentence
       attribute :media_type, delegate: :type_of_media
+      attribute :score
+
+      def score
+        RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil
+      end
 
       def self.records(options = {})
         team_ids = self.workspaces(options).map(&:id)
@@ -35,7 +40,10 @@ module Api
                   threshold = filters[:similarity_threshold] ? filters[:similarity_threshold][0].to_f : nil
                   organization_ids = filters[:similarity_organization_ids].blank? ? team_ids : filters[:similarity_organization_ids].flatten.map(&:to_i)
                   fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-                  Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, threshold).keys.uniq
+                  ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, threshold, nil, filters.dig(:fuzzy, 0))
+                  # Store the scores so we can return them
+                  RequestStore.store[:scores] = ids_and_scores
+                  ids_and_scores.keys.uniq
                 rescue StandardError => e
                   Bot::Alegre.notify_error(e, options, RequestStore[:request])
                   nil
@@ -51,6 +59,8 @@ module Api
         result = ProjectMedia
         new_conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
         result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
+        # FIXME: Not the best way to check for the report state
+        result = result.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.data LIKE ?', "%state: #{filters[:report_state][0]}%") if filters.has_key?(:report_state)
         result.where(new_conditions)
       end
 
@@ -59,6 +69,8 @@ module Api
       end
 
       # Just declaring the filters used for similarity - the logic is above in the "records" method definition
+      filter :report_state, apply: ->(records, _value, _options) { records } # 'paused' or 'published'
+      filter :fuzzy, apply: ->(records, _value, _options) { records }
       filter :media_type, apply: ->(records, _value, _options) { records }
       filter :archived, apply: ->(records, _value, _options) { records }
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
