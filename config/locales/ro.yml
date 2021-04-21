@@ -256,6 +256,8 @@ ro:
     privind acest element la %{date}"
   oembed_source_date: "%{date} pe %{provider}"
   role_editor: redactor
+  role_admin: admin
+  role_collaborator: colaborator
   role_none: membru
   role_: administrator de sistem
   oembed_credit: Adăugat de %{user} (%{role}) %{date}
@@ -559,8 +561,13 @@ ro:
     transmis a fost *actualizat* cu informații noi"
   permissions_info:
     roles:
+      admin:
+        description: Administratorii controlează spațiul de lucru.
       editor:
         description: Editorii gestionează spațiul de lucru și listele.
+      collaborator:
+        description: Colaboratorii pot adăuga informații noi de verificat. Sunt adesea
+          persoane din publicul larg.
     permissions:
       sections:
         project_management:
@@ -599,6 +606,8 @@ ro:
             edit_tasks: Creează și editează sarcini în spațiul de lucru
             roles: Editează rolurile din spațiul de lucru
             third_party: Adaugă integrare a terților
+            invite_admin: Invită, aprobă și elimină administratori ai spațiului de
+              lucru
             invite_members: Invită, aprobă și elimină membri ai spațiului de lucru
   team_clone:
     user_not_authorized: Ne pare rău, nu aveți permisiunea să duplicați această echipă.
@@ -636,6 +645,8 @@ ro:
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
   bot_request_url_invalid: URL robot nevalid
+  must_select_exactly_one_facebook_page: Selectați exact pagina Facebook pe care vreți
+    să o integrați cu linia de ponturi.
   invalid_task_answer: Format nevalid de răspuns la sarcină
   team_rule_name: O denumire unică ce identifică ce face această regulă
   team_rule_project_ids: Aplică pe listă
@@ -646,6 +657,8 @@ ro:
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
   team_rule_condition_definition: Selectați condiția
+  team_rule_has_less_than_x_words: Cererea de text conține mai puțin de (sau exact)
+    următorul număr de cuvinte
   team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
     regulată
   team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
@@ -708,6 +721,7 @@ ro:
   team_rule_select_field_tasks: Selectează sarcina
   team_rule_select_field_value_tasks: Selectează răspunsul
   team_rule_item_is_assigned_to_user: Elementul este alocat lui
+  team_rule_add_tag: Adaugă eticheta
   flag_adult: Adult
   flag_spoof: Înșelătorie
   flag_medical: Medical
@@ -759,3 +773,20 @@ ro:
   list_column_media_published_at: Medii publicate
   list_column_related_count: Asociate
   list_column_suggestions_count: Potriviri sugerate
+  go_back_to_check: Întoarcere la Check
+  info:
+    messages:
+      sent_to_trash_by_rule: "„%{item_title}” a fost pus la coșul de gunoi de o regulă
+        automată."
+      moved_to_project_by_rule: "„%{item_title}” a fost mutat în lista „[%{list_name}](%{list_link})”
+        de o regulă automată."
+      banned_submitter_by_rule: Cererea de la „%{item_title}” a fost interzisă de
+        o regulă automată.
+      copied_to_project_by_rule: "„%{item_title}” a fost copiat în lista „[%{list_name}](%{list_link})”
+        de o regulă automată."
+      related_to_confirmed_similar: "„%{item_title}” a fost confirmat ca similar cu
+        „%{similar_item_title}”."
+      related_to_suggested_similar: "„%{item_title}” a fost sugerat ca similar cu
+        „%{similar_item_title}”."
+      sent_message_to_requestors_on_status_change: Mesajele „%{status}” au fost trimise
+        la %{requestors_count} (de) utilizatori.

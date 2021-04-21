@@ -625,14 +625,6 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: رابط البوت غير صالح
-  smooch_facebook_success: |
-    نجح !
-    أصبح خطك الساخن متصلا اﻵن بمِرْسال فيسبوك (Facebook Messenger).
-    سيتكلف الخط الساخن بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
-  smooch_twitter_success: |
-    نجح !
-    لقد أصبح خطك الساخن متصلا بتويتر.
-    سيتكلف الخط الساخن بمعالجة أي رسالة مباشرة مُستلَمة من حسابك في تويتر,
   must_select_exactly_one_facebook_page: يُرجى التحديد، بالضبط، الصفحة المنفردة في
     فيسبوك التي لديك النية في إدماجها في الخط الساخن.
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
@@ -706,6 +698,7 @@ ar:
   team_rule_select_field_tasks: اختيار مهمة
   team_rule_select_field_value_tasks: اختيار إجابة
   team_rule_item_is_assigned_to_user: العنصر مُكَلَّف إلى
+  team_rule_add_tag: إضافة الوسم
   flag_adult: إباحي
   flag_spoof: متلاعب بها
   flag_medical: طبي
