@@ -404,7 +404,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     ntlm-http (0.1.1)
     numerizer (0.1.1)
-    oauth (0.5.4)
+    oauth (0.5.6)
     oauth2 (1.4.4)
       faraday (>= 0.8, < 2.0)
       jwt (>= 1.0, < 3.0)
