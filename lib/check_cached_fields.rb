@@ -48,16 +48,18 @@ module CheckCachedFields
       if update_index
         value = update_index.call(target, value) if update_index.is_a?(Proc)
         field_name = options[:es_field_name] || name
-        options = { keys: [field_name], data: { field_name => value }, obj: target }
-        ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(options), 'update_doc')
+        es_options = { keys: [field_name], data: { field_name => value }, obj: target }
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(target), YAML::dump(es_options), 'update_doc')
       end
       update_pg = options[:update_pg] || false
-      if update_pg
-        table_name = target.class.name.tableize
-        if ActiveRecord::Base.connection.table_exists?(table_name)
-          column_name = options[:pg_field_name] || name
-          target.update_column(column_name, value) if ActiveRecord::Base.connection.column_exists?(table_name, column_name)
-        end
+      update_pg_cache_field(options, value, name, target) if update_pg
+    end
+
+    def update_pg_cache_field(options, value, name, target)
+      table_name = target.class.name.tableize
+      if ActiveRecord::Base.connection.table_exists?(table_name)
+        column_name = options[:pg_field_name] || name
+        target.update_column(column_name, value) if ActiveRecord::Base.connection.column_exists?(table_name, column_name)
       end
     end
 
