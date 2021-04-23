@@ -177,7 +177,7 @@ module Api
 
       def update_last_active_at
         user = User.current
-        user.update_column(:last_active_at, Time.now) if user
+        user.update_column(:last_active_at, Time.now) if user && user.last_active_at.to_i < Time.now.ago(1.day).to_i
       end
     end
   end
