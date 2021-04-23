@@ -30,7 +30,6 @@ module Api
       def self.records(options = {})
         team_ids = self.workspaces(options).map(&:id)
         conditions = { team_id: team_ids }
-        result = ProjectMedia
         filters = options[:filters] || {}
 
         # Filtering by similar items, from Alegre
