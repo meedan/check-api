@@ -155,6 +155,7 @@ class CheckSearch
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
+    filters['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options['archived'].to_i
     filters = filters.merge({ archived: archived })
