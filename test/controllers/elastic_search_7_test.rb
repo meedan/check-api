@@ -596,7 +596,7 @@ class ElasticSearch7Test < ActionController::TestCase
     pm = create_project_media team: t, source: s, disable_es_callbacks: false, skip_autocreate_source: false
     pm2 = create_project_media team: t, source: s, disable_es_callbacks: false, skip_autocreate_source: false
     pm3 = create_project_media team: t, source: s2, disable_es_callbacks: false, skip_autocreate_source: false
-    sleep 5
+    sleep 2
     result = CheckSearch.new({ sources: [s.id] }.to_json)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ sources: [s2.id] }.to_json)
@@ -605,6 +605,8 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ sources: [s3.id] }.to_json)
     assert_empty result.medias
+    result = CheckSearch.new({ sources: [s2.id], show: ['links'] }.to_json)
+    assert_equal [pm3.id], result.medias.map(&:id)
   end
 
   test "should search trash and unconfirmed items" do
