@@ -256,6 +256,8 @@ es:
     ítem por parte de %{team} a partir de%{date}
   oembed_source_date: "%{date} en %{provider}"
   role_editor: editor
+  role_admin: admin
+  role_collaborator: colaborador(a)
   role_none: miembro
   role_: sysadmin
   oembed_credit: Añadido por %{user} (%{role}) %{date}
@@ -553,8 +555,13 @@ es:
     con nueva información"
   permissions_info:
     roles:
+      admin:
+        description: Administradore(a)s controlan el espacio de trabajo.
       editor:
         description: Los editores administran el área de trabajo y las listas.
+      collaborator:
+        description: Colaborador(a) puede añadir nueva información para verificar.
+          Usualmente son miembros del público.
     permissions:
       sections:
         project_management:
@@ -593,6 +600,8 @@ es:
             edit_tasks: Crear y editar tareas del área de trabajo
             roles: Editar roles del área de trabajo
             third_party: Añadir integraciones de terceros
+            invite_admin: Invitar, aprobar y eliminar administradore(a)s de área de
+              trabajo
             invite_members: Invitar, aprobar y eliminar miembros de área de trabajo
   team_clone:
     user_not_authorized: Lo sentimos, no tienes permitido duplicar este equipo.
@@ -632,6 +641,8 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  must_select_exactly_one_facebook_page: Por favor selecciona exactamente la página
+    de Facebook que querés integrar con la línea de información.
   invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
   team_rule_project_ids: Aplicar a la lista
@@ -642,6 +653,8 @@ es:
   team_rule_conditions: Si
   team_rule_condition: Si
   team_rule_condition_definition: Seleccionar condición
+  team_rule_has_less_than_x_words: La solicitud tiene menos que (o exactamente) el
+    siguiente número de palabras
   team_rule_title_matches_regexp: El título del ítem coincide con esta expresión regular
   team_rule_request_matches_regexp: La solicitud coincide con esta expresión regular
   team_rule_type_is: El tipo de ítem es
@@ -703,6 +716,7 @@ es:
   team_rule_select_field_tasks: Seleccionar tarea
   team_rule_select_field_value_tasks: Seleccionar respuesta
   team_rule_item_is_assigned_to_user: Ítem es asignado a
+  team_rule_add_tag: Añadir etiqueta
   flag_adult: Adulto
   flag_spoof: Suplantación
   flag_medical: Médico
@@ -755,3 +769,20 @@ es:
   list_column_media_published_at: Media published
   list_column_related_count: Relacionado(s)
   list_column_suggestions_count: Suggested matches
+  go_back_to_check: Regresar a Check
+  info:
+    messages:
+      sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una
+        regla de automatización.'
+      moved_to_project_by_rule: '%{item_title}" ha sido movido a la lista "[%{list_name}](%{list_link})"
+        por una regla de automatización.'
+      banned_submitter_by_rule: El/la solicitante de %{item_title} " ha sido prohibido(a)
+        por una regla de automatización.
+      copied_to_project_by_rule: '"%{item_title}" ha sido copiado a la lista "[%{list_name}](%{list_link}"
+        por una regla de automatización.'
+      related_to_confirmed_similar: '"%{item_title}" se ha confirmado que es similar
+        a "%{similar_item_title}". '
+      related_to_suggested_similar: '"%{item_title}" se ha sugerido como similar a
+        "%{similar_item_title}".'
+      sent_message_to_requestors_on_status_change: '"%{status}" mensajes han sido
+        enviados a %{requestors_count}usuario(a)s.'

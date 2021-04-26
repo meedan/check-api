@@ -159,7 +159,7 @@ class ElasticSearch2Test < ActionController::TestCase
     # update title or description
     ElasticSearchWorker.clear
     pm.analysis = { title: 'title', content: 'description' }
-    assert_equal 2, ElasticSearchWorker.jobs.size
+    assert_equal 4, ElasticSearchWorker.jobs.size
     # destroy media
     ElasticSearchWorker.clear
     assert_equal 0, ElasticSearchWorker.jobs.size

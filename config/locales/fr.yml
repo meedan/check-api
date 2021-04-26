@@ -659,14 +659,6 @@ fr:
   smooch_requests_asc: Les moins demandés
   smooch_requests_desc: Les plus demandés
   bot_request_url_invalid: L’URL du robot est invalide
-  smooch_facebook_success: |
-    C’est réussi !
-    Votre ligne de signalement est désormais connectée à Facebook Messenger.
-    Tout message reçu par cette page Facebook sera traité par la ligne de signalement.
-  smooch_twitter_success: |
-    C’est réussi !
-    Votre ligne de signalement est désormais connectée à Twitter.
-    Tout message direct reçu par ce profil Twitter sera traité par la ligne de signalement.
   must_select_exactly_one_facebook_page: Veuillez exactement sélectionner la page
     unique de Facebook que vous voulez intégrer à la ligne de signalement.
   invalid_task_answer: Le format de réponse de la tâche est invalide
@@ -743,6 +735,7 @@ fr:
   team_rule_select_field_tasks: Sélectionner la tâche
   team_rule_select_field_value_tasks: Sélectionner la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
+  team_rule_add_tag: Ajouter une balise
   flag_adult: Adulte
   flag_spoof: Pastiche
   flag_medical: Médical
@@ -802,5 +795,13 @@ fr:
         règle d’automatisation."
       moved_to_project_by_rule: "« %{item_title} » a été déplacé dans la liste « [%{list_name}](%{list_link}) »
         par une règle d’automatisation."
+      banned_submitter_by_rule: Le demandeur de « %{item_title} » a été banni par
+        une règle d’automatisation.
       copied_to_project_by_rule: "« %{item_title} » a été copié dans la liste « [%{list_name}](%{list_link}) »
         par une règle d’automatisation."
+      related_to_confirmed_similar: "« %{item_title} » a été confirmé comme semblable
+        à « %{similar_item_title} »."
+      related_to_suggested_similar: "« %{item_title} » a été suggéré comme semblable
+        à « %{similar_item_title} »."
+      sent_message_to_requestors_on_status_change: Des messages « %{status} » ont
+        été envoyés à %{requestors_count} utilisateurs.

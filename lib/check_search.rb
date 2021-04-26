@@ -10,7 +10,7 @@ class CheckSearch
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
     # set show options
-    @options['show'] ||= media_default_types_to_show # FIXME: Refactor CheckSearch to avoid special cases
+    @options['show'] ||= MEDIA_TYPES
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
@@ -104,19 +104,11 @@ class CheckSearch
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
-    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added'].include?(@options['sort']))
+    !(query_all_types && status_blank && filters_blank && !range_filter && ['recent_activity', 'recent_added', 'last_seen'].include?(@options['sort']))
   end
 
   def media_types_filter
     MEDIA_TYPES & @options['show']
-  end
-
-  def media_default_types_to_show
-    # FIXME: In an upcoming refactoring types to show should be defined from the query only
-    # in order to define this kind of handling based on special conditions.
-    # Currently each query encodes to a different GraphQL ID making it difficult to do
-    # Relay updates on the frontend side.
-    (@options['projects'] || @options['archived']) ? MEDIA_TYPES : (MEDIA_TYPES - ['blank'])
   end
 
   def get_pg_results
@@ -163,6 +155,7 @@ class CheckSearch
     filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
     filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
     filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
+    filters['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
     filters['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options['archived'].to_i
     filters = filters.merge({ archived: archived })
