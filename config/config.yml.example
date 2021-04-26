@@ -238,6 +238,8 @@ test:
   <<: *default
   checkdesk_base_url: 'http://api:3000'
   checkdesk_client: 'http://web:3333'
+  pender_url: 'http://pender:3200'
+  app_url: 'http://localhost:3000'
   pender_key: 'test'
   alegre_token: 'test'
   elasticsearch_index: 'check_test<%= ENV["TEST_ENV_NUMBER"] %>'
