@@ -702,6 +702,7 @@ ru:
   team_rule_select_field_tasks: Выберите вопрос
   team_rule_select_field_value_tasks: Выберите ответ
   team_rule_item_is_assigned_to_user: Материал назначен на
+  team_rule_add_tag: Добавить тэг
   flag_adult: Не для детей
   flag_spoof: Пародия
   flag_medical: Медицинский

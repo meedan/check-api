@@ -724,6 +724,7 @@ fil:
   team_rule_select_field_tasks: Mamili ng gawain
   team_rule_select_field_value_tasks: Mamili ng sagot
   team_rule_item_is_assigned_to_user: Itinalaga ang item kay
+  team_rule_add_tag: Magdagdag ng tag
   flag_adult: Hindi angkop sa bata
   flag_spoof: Katatawanan
   flag_medical: Pang-medikal

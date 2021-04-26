@@ -117,9 +117,9 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
-    airbrake (9.4.4)
-      airbrake-ruby (~> 4.6)
-    airbrake-ruby (4.15.0)
+    airbrake (11.0.1)
+      airbrake-ruby (~> 5.1)
+    airbrake-ruby (5.2.0)
       rbtree3 (~> 0.5)
     ansi (1.5.0)
     apollo-tracing (1.5.0)
@@ -404,7 +404,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     ntlm-http (0.1.1)
     numerizer (0.1.1)
-    oauth (0.5.4)
+    oauth (0.5.6)
     oauth2 (1.4.4)
       faraday (>= 0.8, < 2.0)
       jwt (>= 1.0, < 3.0)
@@ -714,7 +714,7 @@ DEPENDENCIES
   activejob (= 4.2.11.1)
   activerecord-import
   activerecord-redshift-adapter!
-  airbrake (= 9.4.4)
+  airbrake (= 11.0.1)
   apollo-tracing (= 1.5.0)
   authtrail
   awesome_print

@@ -702,6 +702,7 @@ pt:
   team_rule_select_field_tasks: Selecionar tarefa
   team_rule_select_field_value_tasks: Selecionar resposta
   team_rule_item_is_assigned_to_user: O item está atribuído a
+  team_rule_add_tag: Adicionar tag
   flag_adult: Adulto
   flag_spoof: Falsificação
   flag_medical: Médico

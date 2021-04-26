@@ -273,6 +273,103 @@ class GraphqlController5Test < ActionController::TestCase
     assert_not_nil @u.reload.last_active_at
   end
 
+  test "should not get Smooch integrations if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
+  test "should get Smooch integrations if permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_enabled_integrations')
+  end
+
+  test "should remove Smooch integration if permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'smoochBotRemoveIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
+  end
+
+  test "should not remove Smooch integration if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
+    
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
+  test "should add Smooch integration if permissioned" do
+    SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).returns(nil)
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'smoochBotAddIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
+  end
+
+  test "should not add Smooch integration if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
+
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
   protected
 
   def assert_error_message(expected)

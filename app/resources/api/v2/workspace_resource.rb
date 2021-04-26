@@ -3,6 +3,7 @@ module Api
     class WorkspaceResource < BaseResource
       model_name 'Team'
       attributes :name, :slug
+      paginator :none
 
       def self.records(options = {})
         self.workspaces(options)
