@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       namespace :v2, module: false do
         jsonapi_resources :workspaces, only: [:index, :show]
         jsonapi_resources :reports, only: [:index, :show]
+        post :reports, to: 'reports#index' # For the case we want to upload an image
       end
     end
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
