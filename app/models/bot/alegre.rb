@@ -371,14 +371,18 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_with_similar_image(pm, threshold)
+    self.get_items_from_similar_image(pm.team_id, self.media_file_url(pm), threshold).reject{ |id, _score| pm.id == id }
+  end
+
+  def self.get_items_from_similar_image(team_id, image_url, threshold)
     self.get_similar_items_from_api('/image/similarity/', {
-      url: self.media_file_url(pm),
+      url: image_url,
       context: {
-        team_id: pm.team_id,
+        team_id: team_id,
         has_custom_id: true
       },
       threshold: threshold
-    }).reject{ |id, _score| pm.id == id }
+    })
   end
 
   def self.add_relationships(pm, pm_id_scores)

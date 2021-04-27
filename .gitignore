@@ -11,6 +11,8 @@ config/clean_db.yml
 *~
 public/assets
 public/uploads
+public/uploads/tmp
+!public/uploads/tmp/.gitkeep
 /.project
 db/data
 .DS_Store
