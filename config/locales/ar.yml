@@ -328,6 +328,8 @@ ar:
     failure:
       unconfirmed: يرجى مراجعة بريدك الالكتروني لتأكيد حسابك.
   user_invitation:
+    invited: تمت دعوة %{email} لمساحة العمل هذه من قبل.
+    member: "%{email} عضو بالفعل."
     team_found: مساحة العمل غير موجودة.
     invalid: رمز الدعوة غير صالح.
     no_invitation: لا توجد دعوة لمساحة العمل %{name}
@@ -625,8 +627,18 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: رابط البوت غير صالح
-  must_select_exactly_one_facebook_page: يُرجى التحديد، بالضبط، الصفحة المنفردة في
-    فيسبوك التي لديك النية في إدماجها في الخط الساخن.
+  smooch_facebook_success: |
+    تم بنجاح!
+    أصبح خطك الساخن (Tipline) متصلا اﻵن بمِرْسال فيسبوك Facebook Messenger.
+    سيقوم الخط الساخن بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
+    يرجى إعادة تحميل صفحة إعدادات خطك الساخن لمشاهدة التغييرات الجديدة.
+  smooch_twitter_success: |
+    تم بنجاح!
+    لقد أصبح خطك الساخن (Tipline) الآن متصلا بتويتر.
+    سيقوم الخط الساخن بمعالجة أي رسالة مباشرة مُستلَمة من هذا الحساب على تويتر.
+    يرجى إعادة تحميل صفحة إعدادات خطك الساخن لمشاهدة التغييرات الجديدة.
+  must_select_exactly_one_facebook_page: يُرجى تحديد صفحة واحدة من الفيسبوك لكي يتم
+    وصلها بالخط الساخن (Tipline).
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
   team_rule_name: اسم فريد يصف ما تفعله القاعدة
   team_rule_project_ids: تطبيق على القائمة
@@ -754,5 +766,11 @@ ar:
       sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.
       moved_to_project_by_rule: نُقل "%{item_title}" إلى القائمة "[%{list_name}](%{list_link})"
         بواسطة قاعدة آلية.
+      banned_submitter_by_rule: لقد تم منع طالب "%{item_title}" بواسطة قاعدة آلية.
       copied_to_project_by_rule: لقد نُسخ"%{item_title}" في القائمة "[%{list_name}](%{list_link})"
         بواسطة قاعدة آلية.
+      related_to_confirmed_similar: لقد تم تأكيد أن "%{item_title}" مشابه لـ "%{similar_item_title}".
+      related_to_suggested_similar: لقد تم اقتراح "%{item_title}" كمتشابه مع "%{similar_item_title}".
+      sent_message_to_requestors_on_status_change: لقد تم إرسال رسائل "%{status}"
+        إلى %{requestors_count} مستخدم.
+      tagged_by_rule: لقد تم وضع علامة "%{tag}" على "%{item_title}" بواسطة قاعدة آلية.
