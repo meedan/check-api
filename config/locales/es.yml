@@ -325,6 +325,8 @@ es:
     failure:
       unconfirmed: Por favor consulta tu correo electrónico para verificar tu cuenta.
   user_invitation:
+    invited: "%{email} : ya ha sido invitado(a) a esta área de trabajo."
+    member: "%{email} : ya es miembro."
     team_found: Área de trabajo no encontrada.
     invalid: Código de invitación inválido.
     no_invitation: No existe invitación para el área de trabajo %{name}
@@ -556,7 +558,7 @@ es:
   permissions_info:
     roles:
       admin:
-        description: Administradore(a)s controlan el espacio de trabajo.
+        description: Administradores(as) controlan el área de trabajo.
       editor:
         description: Los editores administran el área de trabajo y las listas.
       collaborator:
@@ -600,8 +602,8 @@ es:
             edit_tasks: Crear y editar tareas del área de trabajo
             roles: Editar roles del área de trabajo
             third_party: Añadir integraciones de terceros
-            invite_admin: Invitar, aprobar y eliminar administradore(a)s de área de
-              trabajo
+            invite_admin: Invitar, aprobar y eliminar administradores(as) de área
+              de trabajo
             invite_members: Invitar, aprobar y eliminar miembros de área de trabajo
   team_clone:
     user_not_authorized: Lo sentimos, no tienes permitido duplicar este equipo.
@@ -641,8 +643,17 @@ es:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Más solicitados
   bot_request_url_invalid: El URL del bot es inválido
+  smooch_facebook_success: |
+    ¡Éxito!
+    Tu línea de ayuda está ahora connectada a Facebook Messenger.
+    Cualquier mensaje recibido por esta Página de Facebook va a ser manejado por la línea de ayuda.
+  smooch_twitter_success: |
+    ¡Éxito!
+    Tu línea de ayuda está ahora connectada a Twitter.
+    Cualquier mensaje recibido por este perfil de Twitter va a ser manejado por la línea de ayuda.
+    Por favor vuelve a cargar la página de configuración de tu línea de ayuda para ver cambios nuevos
   must_select_exactly_one_facebook_page: Por favor selecciona exactamente la página
-    de Facebook que querés integrar con la línea de información.
+    de Facebook que quieres integrar con la línea de información.
   invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
   team_rule_project_ids: Aplicar a la lista
@@ -758,17 +769,17 @@ es:
   list_column_share_count: Compartidas en FB
   list_column_reaction_count: Reacciones en FB
   list_column_comment_count: Comentarios en FB
-  list_column_linked_items_count: Similar media
+  list_column_linked_items_count: Medios similares
   list_column_type: Tipo
   list_column_status: Estado
   list_column_created_at: Presentado
   list_column_last_seen: Presentado por última vez
   list_column_updated_at: Actualizada
-  list_column_report_status: Report status
+  list_column_report_status: Reportar estado
   list_column_tags_as_sentence: Etiquetas
-  list_column_media_published_at: Media published
+  list_column_media_published_at: Medios publicados
   list_column_related_count: Relacionado(s)
-  list_column_suggestions_count: Suggested matches
+  list_column_suggestions_count: Coincidencias sugeridas
   go_back_to_check: Regresar a Check
   info:
     messages:
@@ -786,3 +797,5 @@ es:
         "%{similar_item_title}".'
       sent_message_to_requestors_on_status_change: '"%{status}" mensajes han sido
         enviados a %{requestors_count}usuario(a)s.'
+      tagged_by_rule: '"%{item_title}" ha sido etiquetado como "%{tag}" por una regla
+        de automatización.'
