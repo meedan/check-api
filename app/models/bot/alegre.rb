@@ -90,14 +90,19 @@ class Bot::Alegre < BotUser
     Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
   end
 
-  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
-    self.translate_similar_items(
+  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+    suggested_or_confirmed_results = self.translate_similar_items(
       suggested_or_confirmed, Relationship.suggested_type
-    ).merge(
-      self.translate_similar_items(
-        confirmed, Relationship.confirmed_type
-      )
     )
+    if pm.is_link?
+      suggested_or_confirmed_results
+    else
+      suggested_or_confirmed_results.merge(
+        self.translate_similar_items(
+          confirmed, Relationship.confirmed_type
+        )
+      )
+    end
   end
 
   def self.get_threshold_for_text_query(pm, automatic=false)
@@ -112,11 +117,11 @@ class Bot::Alegre < BotUser
     if pm.is_text?
       suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm))
       confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold').to_f)
       confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold').to_f)
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
     end
