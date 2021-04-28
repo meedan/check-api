@@ -118,7 +118,7 @@ fr:
       project_source: Source
     attributes:
       tag:
-        data: La balise
+        data: L’étiquette
       uploaded_file:
         file: Le fichier
       uploaded_image:
@@ -195,21 +195,23 @@ fr:
         %{answer}"
       metadata_answer_edit: "%{user} a modifié la valeur des métadonnées %{title} :
         %{answer}"
-      project_media_comment: "%{user} (%{role} de %{team}) a ajouté une note à un.e%{parent_type}"
+      project_media_comment: "%{user} (%{role} de %{team}) a ajouté une note à un
+        ou une%{parent_type}"
       project_media_create: "%{user} (%{role} de %{team}) a envoyé un nouvel élément"
-      project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un.e %{type}
-        associé.e"
+      project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un ou une
+        %{type} associé.e"
       project_media_update: "%{user} (%{role} de %{team}) a mis un élément à jour"
       project_media_added_to_list: "%{user} (%{role} de %{team}) a ajouté un élément
         à la liste %{list_name}"
       project_media_status: "%{user} (%{role} de%{team}) a changé l’état %{workflow}
         d’un/d’une %{type}"
-      project_media_assign: "%{user} (%{role} de %{team}) a attribué un.e %{type}"
+      project_media_assign: "%{user} (%{role} de %{team}) a attribué un ou une %{type}"
       project_media_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution
-        d’un.e %{type}"
-      project_source_comment: "%{user} (%{role} de %{team}) a ajouté une note à un.e%{parent_type}"
-      project_source_create: "%{user} (%{role} de %{team}) a ajouté un.e %{type}"
-      project_source_update: "%{user} (%{role} de %{team}) a modifié un.e %{type}"
+        d’un ou une %{type}"
+      project_source_comment: "%{user} (%{role} de %{team}) a ajouté une note à un
+        ou une%{parent_type}"
+      project_source_create: "%{user} (%{role} de %{team}) a ajouté un ou une %{type}"
+      project_source_update: "%{user} (%{role} de %{team}) a modifié un ou une %{type}"
       project_create: "%{user} (%{role} de %{team}) a créé une liste"
       project_assign: "%{user} (%{role} de %{team}) a attribué une liste"
       project_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution d’une
@@ -219,7 +221,7 @@ fr:
       user_invited: "%{user} a été invité à se joindre à l’espace de travail %{team}"
       user_banned: "%{user} a été banni de l’espace de travail %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
-  mail_view_register: 'Vous n’êtes qu’à une étape pour de pouvoir utiliser %{app_name} !
+  mail_view_register: 'Vous n’êtes qu’à une étape pour de pouvoir utiliser %{app_name}.
     Veuillez confirmer votre courriel en cliquant le lien suivant :'
   mail_confirm_button: Confirmer mon compte
   slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à %{team_name},
@@ -337,6 +339,8 @@ fr:
     failure:
       unconfirmed: Veuillez consulter vos courriels afin de confirmer votre compte.
   user_invitation:
+    invited: "%{email} a déjà été invité dans cet espace de travail."
+    member: "%{email} est déjà membre."
     team_found: L’espace de travail est introuvable.
     invalid: Le code d’invitation est invalide.
     no_invitation: Il n’existe aucune invitation pour l’espace de travail %{name}
@@ -538,7 +542,7 @@ fr:
   task_suggestion_invalid_value: La suggestion de la tâche est invalide. Un objet
     JSON avec les attributs `suggestion` (la valeur qui est copiée dans la réponse
     de la tâche une fois acceptée) et `comment` (montré aux utilisateurs) est attendu.
-  tag_text_id_not_found: La balise est introuvable
+  tag_text_id_not_found: L’étiquette est introuvable
   annotation_type_language_label: Langue
   smooch_bot_message_confirmed: |-
     Merci. Votre demande est en attente de vérification.
@@ -559,7 +563,7 @@ fr:
 
     Pour confirmer, *veuillez répondre par 1*. Toute autre réponse mettra fin à notre conversation.
   smooch_bot_ask_for_tos: |-
-    Nous vous remercions d’avoir contacté Check Message !
+    Nous vous remercions d’avoir contacté Check Message.
 
     Vous pouvez utiliser ce service pour demander une vérification, une vérification de faits ou une enquête sur des nouvelles et des renseignements. Check Message vous est offert en vertu de ces Conditions générales d’utilisation : %{tos}. En poursuivant votre utilisation de ce service, *vous acceptez les modalités de ces conditions*. Si vous ne les acceptez pas, vous devriez cesser d’utiliser Check Message.
   smooch_bot_window_closing: Le volume de demandes sur ce canal est très élevé et
@@ -598,7 +602,7 @@ fr:
             move: Transférer un élément
             change_status: Modifier l’état de l’élément
             lock_unlock_status: Verrouiller/déverrouiller l’état
-            add_remove_tag: Ajouter/supprimer des balise
+            add_remove_tag: Ajouter/supprimer des étiquettes
             send_to_trash: Déplacer l’élément ou la source vers la corbeille
             empty_trash: Vider la corbeille
         task_management:
@@ -659,6 +663,16 @@ fr:
   smooch_requests_asc: Les moins demandés
   smooch_requests_desc: Les plus demandés
   bot_request_url_invalid: L’URL du robot est invalide
+  smooch_facebook_success: |
+    C’est réussi !
+    Votre ligne de signalement est désormais connectée à Facebook Messenger.
+    Tout message reçu par cette page Facebook sera traité par la ligne de signalement.
+    Veuillez recharger la page des paramètres de votre ligne de signalement pour voir les nouveaux changements.
+  smooch_twitter_success: |
+    C’est réussi !
+    Votre ligne de signalement est désormais connectée à Twitter.
+    Tout message direct reçu par ce profil Twitter sera traité par la ligne de signalement.
+    Veuillez recharger la page des paramètres de votre ligne de signalement pour voir les nouveaux changements.
   must_select_exactly_one_facebook_page: Veuillez exactement sélectionner la page
     unique de Facebook que vous voulez intégrer à la ligne de signalement.
   invalid_task_answer: Le format de réponse de la tâche est invalide
@@ -687,8 +701,8 @@ fr:
   team_rule_select_type: Sélectionner un type
   team_rule_select_language: Sélectionner la langue
   team_rule_select_user: Sélectionner un collaborateur
-  team_rule_tagged_as: L’élément est balisé
-  team_rule_select_tag: Sélectionner une balise
+  team_rule_tagged_as: L’élément est étiqueté
+  team_rule_select_tag: Sélectionner une étiquette
   team_rule_select_status: Sélectionner l’état
   team_rule_status_is: Le état de l’élément est
   team_rule_type_regexp: Saisissez une expression rationnelle
@@ -735,7 +749,7 @@ fr:
   team_rule_select_field_tasks: Sélectionner la tâche
   team_rule_select_field_value_tasks: Sélectionner la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
-  team_rule_add_tag: Ajouter une balise
+  team_rule_add_tag: Ajouter une étiquette
   flag_adult: Adulte
   flag_spoof: Pastiche
   flag_medical: Médical
@@ -784,7 +798,7 @@ fr:
   list_column_last_seen: Dernier envoi
   list_column_updated_at: Mis à jour
   list_column_report_status: État du rapport
-  list_column_tags_as_sentence: Balises
+  list_column_tags_as_sentence: Étiquettes
   list_column_media_published_at: Média publié
   list_column_related_count: Associés
   list_column_suggestions_count: Correspondances suggérées
@@ -805,3 +819,4 @@ fr:
         à « %{similar_item_title} »."
       sent_message_to_requestors_on_status_change: Des messages « %{status} » ont
         été envoyés à %{requestors_count} utilisateurs.
+      tagged_by_rule: "« %{item_title} » a été étiqueté « %{tag} » par une règle d’automatisation."
