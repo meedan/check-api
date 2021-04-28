@@ -41,7 +41,7 @@ class Bot::Smooch < BotUser
           s.status = status
           s.save!
         end
-        ::Bot::Smooch.delay_for(1.second).send_report_from_parent_to_child(parent.id, target.id)
+        ::Bot::Smooch.delay_for(3.seconds).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
@@ -870,19 +870,23 @@ class Bot::Smooch < BotUser
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
     parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
+    Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
     if report&.get_field_value('state') == 'published' && parent.archived == CheckArchivedFlags::FlagCodes::NONE
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction', lang)
         introduction = report.report_design_introduction(data, lang)
         last_smooch_response = self.send_message_to_user(uid, introduction)
+        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
         sleep 1
       end
       if report.report_design_field_value('use_visual_card', lang)
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
+        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
         sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
         last_smooch_response = self.send_message_to_user(uid, report.report_design_text(lang))
+        Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end
