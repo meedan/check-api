@@ -252,7 +252,7 @@ class User < ActiveRecord::Base
   end
 
   def accepted_terms
-    self.last_accepted_terms_at.to_i >= User.terms_last_updated_at
+    self.last_accepted_terms_at.to_i > User.terms_last_updated_at
   end
 
   def self.terms_last_updated_at_by_page(page)
