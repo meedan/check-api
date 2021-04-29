@@ -254,7 +254,7 @@ fr:
       oembed: "%d %B %Y"
       task: "%d %B %Y à %H h %M [TZ] (%z TUC)"
       email: "%d %B %Y %H h %M %p %Z"
-  oembed_disclaimer_undetermined: Cet élément n’a pas été vérifié par %{team}
+  oembed_disclaimer_undetermined: Cet élément n’a pas été confirmé par %{team}
   oembed_disclaimer_in_progress: Cet élément est en cours de vérification par %{team}
     en date du %{date}
   oembed_disclaimer_verified: Il a été déterminé que cet élément a été vérifié par
