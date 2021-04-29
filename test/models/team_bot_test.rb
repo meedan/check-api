@@ -578,7 +578,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should have settings" do
     tb = create_team_bot set_settings: [{ name: 'foo', label: 'Foo', type: 'string', default: 'Bar' }]
-    assert_equal 4, tb.get_settings[0].keys.size
+    assert_equal 5, tb.get_settings[0].keys.size
     assert_nothing_raised do
       JSON.parse(tb.settings_as_json_schema)
     end
