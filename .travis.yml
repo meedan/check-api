@@ -12,6 +12,7 @@ before_script:
 - cp config/config.yml.example config/config.yml
 - cp config/database.yml.example config/database.yml
 - cp config/sidekiq.yml.example config/sidekiq.yml
+- cp config/credentials.json.example config/credentials.json
 - cp config/sidekiq-test.yml.example config/sidekiq-test.yml
 - docker-compose build
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
