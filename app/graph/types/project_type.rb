@@ -18,6 +18,8 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :auto_tasks, JsonStringType
   field :team, TeamType
   field :get_slack_events, JsonStringType
+  field :parent_id, types.Int
+  field :parent, ProjectType
 
   field :assignments_count, types.Int do
     resolve ->(project, _args, _ctx) {
@@ -36,4 +38,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
       project.assigned_users
     }
   end
+  
+  connection :children, -> { ProjectType.connection_type }
 end

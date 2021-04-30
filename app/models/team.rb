@@ -480,6 +480,11 @@ class Team < ActiveRecord::Base
         key: 'suggestions_count',
         label: I18n.t(:list_column_suggestions_count),
         show: false
+      },
+      {
+        key: 'folder',
+        label: I18n.t(:list_column_folder),
+        show: false
       }
     ]
   end

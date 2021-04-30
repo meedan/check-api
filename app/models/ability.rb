@@ -76,7 +76,7 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can [:cud], BotResource, :team_id => @context_team.id
+    can [:cud], [BotResource, SavedSearch], :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end

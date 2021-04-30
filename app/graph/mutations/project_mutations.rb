@@ -3,7 +3,8 @@ module ProjectMutations
     lead_image: 'str',
     description: 'str',
     title: '!str',
-    team_id: 'int'
+    team_id: 'int',
+    parent_id: 'int'
   }
 
   update_fields = {
@@ -14,7 +15,8 @@ module ProjectMutations
     information: 'str',
     assigned_to_ids: 'str',
     assignment_message: 'str',
-    slack_events: 'str'
+    slack_events: 'str',
+    parent_id: 'int'
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('project', create_fields, update_fields, ['team', 'check_search_team'])
