@@ -244,6 +244,17 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
   end
 
+  test "resets relationship transitively" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1, relationship_type: Relationship.confirmed_type), Relationship.new(source_id: 2)])
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_equal response, false
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
+  end
+
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
