@@ -236,8 +236,7 @@ development: &default
 
 test:
   <<: *default
-  checkdesk_base_url: 'http://api:3000'
-  checkdesk_client: 'http://web:3333'
+  checkdesk_base_url_private: http://api:3000
   pender_url: 'http://pender:3200'
   pender_key: 'test'
   alegre_token: 'test'

@@ -28,6 +28,7 @@ class CcDevilleTest < ActiveSupport::TestCase
       mocked_method.verify
     end
 
+    WebMock.stub_request(:post, /api\.cloudflare\.com/).to_return(body: { "success": true }.to_json)
     mocked_method = MiniTest::Mock.new
     mocked_method.expect :call, :return_value, [String]
     Rails.logger.stub :error, mocked_method do
