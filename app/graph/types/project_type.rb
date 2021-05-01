@@ -38,6 +38,6 @@ ProjectType = GraphqlCrudOperations.define_default_type do
       project.assigned_users
     }
   end
-  
+
   connection :children, -> { ProjectType.connection_type }
 end
