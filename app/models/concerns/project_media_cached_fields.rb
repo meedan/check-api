@@ -281,13 +281,14 @@ module ProjectMediaCachedFields
         {
           model: ProjectMedia,
           affected_ids: proc { |pm| [pm.id] },
+          if: proc { |pm| pm.project_id_changed? },
           events: {
             save: :recalculate,
           }
         },
         {
           model: Project,
-          affected_ids: proc { |p| p.project_media_ids },
+          affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
           events: {
             save: proc { |_pm, p| p.title },
             destroy: proc { |_pm, _p| '' }

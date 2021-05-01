@@ -5,6 +5,8 @@ class Project < ActiveRecord::Base
   include AssignmentConcern
   include AnnotationBase::Association
 
+  attr_accessor :project_media_ids_were
+
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
@@ -20,14 +22,15 @@ class Project < ActiveRecord::Base
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
+  before_destroy :store_project_media_ids
   after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
-  validate :child_cant_have_children, unless: proc { |p| p.parent&.nil? }
-  validate :parent_is_under_same_team, unless: proc { |p| p.parent&.nil? }
+  validate :child_cant_have_children
+  validate :parent_is_under_same_team
 
   has_annotations
 
@@ -297,10 +300,14 @@ class Project < ActiveRecord::Base
   end
 
   def child_cant_have_children
-    raise I18n.t(:project_cant_have_children_if_has_parent) unless self.parent.parent_id.nil?
+    errors.add(:base, I18n.t(:project_cant_have_children_if_has_parent)) if self.parent && self.parent.parent
   end
 
   def parent_is_under_same_team
-    raise I18n.t(:parent_must_be_under_same_team) unless self.parent.team_id == self.team_id
+    errors.add(:base, I18n.t(:parent_must_be_under_same_team)) if self.parent && self.parent.team_id != self.team_id
+  end
+
+  def store_project_media_ids
+    self.project_media_ids_were = self.project_media_ids
   end
 end

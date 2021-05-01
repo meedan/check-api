@@ -40,6 +40,18 @@ module SampleData
     a.reload
   end
 
+  def create_saved_search(options = {})
+    ss = SavedSearch.new
+    ss.team = create_team
+    ss.title = random_string
+    ss.filters = '{}'
+    options.each do |key, value|
+      ss.send("#{key}=", value) if ss.respond_to?("#{key}=")
+    end
+    ss.save!
+    ss.reload
+  end
+
   def create_bot_user(options = {})
     u = BotUser.new
     u.name = options[:name] || random_string

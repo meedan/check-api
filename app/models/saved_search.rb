@@ -1,4 +1,5 @@
 class SavedSearch < ActiveRecord::Base
-  serialize :filters, JSON
+  validates_presence_of :title, :team_id
+  
   belongs_to :team
 end

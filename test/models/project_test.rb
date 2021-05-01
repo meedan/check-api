@@ -598,4 +598,39 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 2, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
+
+  test "should have parent" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    assert_nil p1.parent
+    assert_nothing_raised do
+      p1.parent_id = p2.id
+      p1.save!
+    end
+    assert_equal p2, p1.reload.parent
+    assert_equal [p1], p2.reload.children
+  end
+
+  test "should not have a parent in another team" do
+    p1 = create_project
+    p2 = create_project
+    assert_raises ActiveRecord::RecordInvalid do
+      p1.parent_id = p2.id
+      p1.save!
+    end
+  end
+
+  test "should not have a parent that already has a parent" do
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    p3 = create_project team: t
+    p2.parent_id = p1.id
+    p2.save!
+    assert_raises ActiveRecord::RecordInvalid do
+      p3.parent_id = p2.id
+      p3.save!
+    end
+  end
 end
