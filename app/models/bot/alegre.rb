@@ -400,12 +400,22 @@ class Bot::Alegre < BotUser
     # - If it has no existing relationship, use it.
 
     parent_id = pm_id_scores.keys.sort[0]
-    source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
-    if source_ids.length > 0
+    parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
+    if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}") if source_ids.length > 1
-      # Take the first source as the parent.
-      parent_id = source_ids[0].source_id
+      self.notify_error(StandardError.new("[Alegre Bot] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
+      # Take the first source as the parent (A).
+      # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
+      # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
+      # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: suggested
+      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: suggested
+      parent_relationship = parent_relationships.first
+      new_type = Relationship.suggested_type
+      if parent_relationship.is_confirmed? && pm_id_scores[parent_id][:relationship_type] == Relationship.confirmed_type
+        new_type = Relationship.confirmed_type
+      end
+      parent_id = parent_relationship.source_id
+      pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
 
     # Better be safe than sorry.

@@ -238,10 +238,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    Relationship::ActiveRecord_Relation.any_instance.stubs(:distinct).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
     response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     assert_equal response, false
-    Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
+  end
+
+  test "resets relationship transitively" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1, relationship_type: Relationship.confirmed_type), Relationship.new(source_id: 2)])
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_equal response, false
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
   end
 
   test "should get similar items" do
@@ -398,7 +409,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:request_api)
   end
 
-  test "zzz should get items with similar title when using non-elasticsearch matching model" do
+  test "should get items with similar title when using non-elasticsearch matching model" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media quote: "Blah", team: @team
