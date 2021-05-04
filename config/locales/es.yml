@@ -795,7 +795,5 @@ es:
         a "%{similar_item_title}". '
       related_to_suggested_similar: '"%{item_title}" se ha sugerido como similar a
         "%{similar_item_title}".'
-      sent_message_to_requestors_on_status_change: '"%{status}" mensajes han sido
-        enviados a %{requestors_count}usuario(a)s.'
       tagged_by_rule: '"%{item_title}" ha sido etiquetado como "%{tag}" por una regla
         de automatización.'
