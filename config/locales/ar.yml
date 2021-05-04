@@ -771,6 +771,4 @@ ar:
         بواسطة قاعدة آلية.
       related_to_confirmed_similar: لقد تم تأكيد أن "%{item_title}" مشابه لـ "%{similar_item_title}".
       related_to_suggested_similar: لقد تم اقتراح "%{item_title}" كمتشابه مع "%{similar_item_title}".
-      sent_message_to_requestors_on_status_change: لقد تم إرسال رسائل "%{status}"
-        إلى %{requestors_count} مستخدم.
       tagged_by_rule: لقد تم وضع علامة "%{tag}" على "%{item_title}" بواسطة قاعدة آلية.

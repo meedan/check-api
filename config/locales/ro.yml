@@ -788,5 +788,3 @@ ro:
         „%{similar_item_title}”."
       related_to_suggested_similar: "„%{item_title}” a fost sugerat ca similar cu
         „%{similar_item_title}”."
-      sent_message_to_requestors_on_status_change: Mesajele „%{status}” au fost trimise
-        la %{requestors_count} (de) utilizatori.

@@ -665,16 +665,16 @@ fr:
   bot_request_url_invalid: L’URL du robot est invalide
   smooch_facebook_success: |
     C’est réussi !
-    Votre ligne de signalement est désormais connectée à Facebook Messenger.
-    Tout message reçu par cette page Facebook sera traité par la ligne de signalement.
-    Veuillez recharger la page des paramètres de votre ligne de signalement pour voir les nouveaux changements.
+    Votre ligne info est désormais connectée à Facebook Messenger.
+    Tout message reçu par cette page Facebook sera traité par la ligne info.
+    Veuillez recharger la page des paramètres de votre ligne info pour voir les nouveaux changements.
   smooch_twitter_success: |
     C’est réussi !
-    Votre ligne de signalement est désormais connectée à Twitter.
-    Tout message direct reçu par ce profil Twitter sera traité par la ligne de signalement.
-    Veuillez recharger la page des paramètres de votre ligne de signalement pour voir les nouveaux changements.
+    Votre ligne info est désormais connectée à Twitter.
+    Tout message direct reçu par ce profil Twitter sera traité par la ligne info.
+    Veuillez recharger la page des paramètres de votre ligne info pour voir les nouveaux changements.
   must_select_exactly_one_facebook_page: Veuillez exactement sélectionner la page
-    unique de Facebook que vous voulez intégrer à la ligne de signalement.
+    unique de Facebook que vous voulez intégrer à la ligne info.
   invalid_task_answer: Le format de réponse de la tâche est invalide
   team_rule_name: Un nom unique qui décrit ce que cette règle fait
   team_rule_project_ids: Appliquer à la liste
@@ -817,6 +817,4 @@ fr:
         à « %{similar_item_title} »."
       related_to_suggested_similar: "« %{item_title} » a été suggéré comme semblable
         à « %{similar_item_title} »."
-      sent_message_to_requestors_on_status_change: Des messages « %{status} » ont
-        été envoyés à %{requestors_count} utilisateurs.
       tagged_by_rule: "« %{item_title} » a été étiqueté « %{tag} » par une règle d’automatisation."
