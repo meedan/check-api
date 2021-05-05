@@ -259,6 +259,8 @@ pt:
     %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor(a)
+  role_admin: administrador(a)
+  role_collaborator: colaborador(a)
   role_none: membro
   role_: administrador(a) de sistemas
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
@@ -328,6 +330,8 @@ pt:
     failure:
       unconfirmed: Por favor, consulte seu e-mail para verificar sua conta.
   user_invitation:
+    invited: "%{email} já foi convidado(a) a esse espaço de trabalho."
+    member: "%{email} já é membro."
     team_found: Espaço de trabalho não encontrado.
     invalid: Código de convite inválido.
     no_invitation: Não há convite para o espaço de trabalho %{name}
@@ -559,8 +563,13 @@ pt:
     novas informações"
   permissions_info:
     roles:
+      admin:
+        description: O(A) administrador(a) controla o espaço de trabalho.
       editor:
         description: Editore(a)s gerenciam o espaço de trabalho e as listas.
+      collaborator:
+        description: O(A) colaborador(a) pode adicionar novas informações a serem
+          verificadas. Geralmente são pessoas do público.
     permissions:
       sections:
         project_management:
@@ -599,7 +608,11 @@ pt:
             edit_tasks: Criar e editar tarefas do espaço de trabalho
             roles: Editar papéis no espaço de trabalho
             third_party: Adicionar integrações externas
+            invite_admin: Convidar, aprovar e remover administradores(as) do espaço
+              de trabalho
             invite_members: Convidar, aprovar e excluir membros do espaço de trabalho
+  team_clone:
+    user_not_authorized: Desculpe, você não tem permissão para duplicar esta equipe.
   team_import:
     invalid_google_spreadsheet_url: A URL da planilha %{spreadsheet_url} é inválida
     not_found_google_spreadsheet_url: A planilha não foi encontrada em %{spreadsheet_url}
@@ -633,6 +646,18 @@ pt:
   smooch_requests_asc: Menos solicitados
   smooch_requests_desc: Mais solicitados
   bot_request_url_invalid: A URL do bot é inválida
+  smooch_facebook_success: |
+    Sucesso!
+    Sua linha direta agora está conectada ao Facebook Messenger.
+    Todas as mensagens recebidas por esta página do Facebook será gerenciada pela linha direta.
+    Por favor, recarregue a página de configurações da sua linha direta para ver as novas mudanças.
+  smooch_twitter_success: |
+    Sucesso!
+    Sua linha direta agora está conectada ao Twitter.
+    Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela linha direta.
+    Por favor, recarregue a página de configurações da sua linha direta para ver as novas mudanças.
+  must_select_exactly_one_facebook_page: Por favor, selecione a página exata do Facebook
+    que você deseja integrar com a linha direta.
   invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
   team_rule_project_ids: Aplicar à lista
@@ -643,6 +668,8 @@ pt:
   team_rule_conditions: Se
   team_rule_condition: Se
   team_rule_condition_definition: Selecionar condição
+  team_rule_has_less_than_x_words: A solicitação contém menos que (ou exatamente)
+    o seguinte número de palavras
   team_rule_title_matches_regexp: O título do item corresponde a esta expressão regular
   team_rule_request_matches_regexp: A solicitação corresponde a esta expressão regular
   team_rule_type_is: O tipo do item é
@@ -744,7 +771,7 @@ pt:
   list_column_share_count: Compartilhamentos do Facebook
   list_column_reaction_count: Reações no Facebook
   list_column_comment_count: Comentários no Facebook
-  list_column_linked_items_count: Similar media
+  list_column_linked_items_count: Mídia semelhante
   list_column_type: Tipo
   list_column_status: Status
   list_column_created_at: Enviado
@@ -755,3 +782,20 @@ pt:
   list_column_media_published_at: Mídia publicada
   list_column_related_count: Relacionado
   list_column_suggestions_count: Coincidências sugeridas
+  go_back_to_check: Voltar ao Check
+  info:
+    messages:
+      sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo
+        uma regra automática.
+      moved_to_project_by_rule: O item "%{item_title}" foi movido para a lista "[%{list_name}](%{list_link})",
+        seguindo uma regra automática.
+      banned_submitter_by_rule: O(A) solicitante do item "%{item_title}" foi banido(a),
+        seguindo uma regra automática.
+      copied_to_project_by_rule: O item "%{item_title}" foi copiado para a lista "[%{list_name}](%{list_link})",
+        seguindo uma regra automática.
+      related_to_confirmed_similar: O item "%{item_title}" foi confirmado como semelhante
+        ao item "%{similar_item_title}".
+      related_to_suggested_similar: O item "%{item_title}" foi sugerido como semelhante
+        ao item "%{similar_item_title}".
+      tagged_by_rule: O item "%{item_title}" foi marcado como "%{tag}", seguindo uma
+        regra automática.

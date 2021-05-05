@@ -769,7 +769,7 @@ en:
         "%{similar_item_title}".'
       related_to_suggested_similar: '"%{item_title}" has been suggested similar to
         "%{similar_item_title}".'
-      sent_message_to_requestors_on_status_change: '"%{status}" messages have been
-        sent to %{requestors_count} users.'
+      sent_message_to_requestors_on_status_change: '"An update with %{status}" status
+        has been sent to %{requestors_count} requestors.'
       tagged_by_rule: '"%{item_title}" has been tagged as "%{tag}" by an automation
         rule.'
