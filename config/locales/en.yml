@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out Of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -769,7 +769,7 @@ en:
         "%{similar_item_title}".'
       related_to_suggested_similar: '"%{item_title}" has been suggested similar to
         "%{similar_item_title}".'
-      sent_message_to_requestors_on_status_change: '"An update with %{status}" status
+      sent_message_to_requestors_on_status_change: 'An update with "%{status}" status
         has been sent to %{requestors_count} requestors.'
       tagged_by_rule: '"%{item_title}" has been tagged as "%{tag}" by an automation
         rule.'
