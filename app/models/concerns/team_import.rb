@@ -1,8 +1,8 @@
-require 'active_support/concern'
-require 'google_drive'
+# require 'active_support/concern'
+# require 'google_drive'
 
-module TeamImport
-  extend ActiveSupport::Concern
+# module TeamImport
+#   extend ActiveSupport::Concern
 
   # module ClassMethods
 
@@ -29,16 +29,16 @@ module TeamImport
 
   # end
 
-  included do
-    # FLEXIBLE_COLS = 9
+  # included do
+  #   # FLEXIBLE_COLS = 9
 
-    notifies_pusher on: :touch,
-                    event: proc { |t| t.import_status },
-                    targets: proc { |t| [t] },
-                    if: proc { |t| !t.import_status.blank? },
-                    data: proc { |t| {message: t.import_status}.to_json }
+  #   notifies_pusher on: :touch,
+  #                   event: proc { |t| t.import_status },
+  #                   targets: proc { |t| [t] },
+  #                   if: proc { |t| !t.import_status.blank? },
+  #                   data: proc { |t| {message: t.import_status}.to_json }
 
-    attr_accessor :spreadsheet, :import_status
+  #   attr_accessor :spreadsheet, :import_status
 
     # def import_spreadsheet(spreadsheet_id, title = '', user_id)
     #   @result = {}
@@ -103,77 +103,77 @@ module TeamImport
     #   end
     # end
 
-    def create_item(project, item, user_id)
-      media = get_item(item, project)
-      pm = media[:project_media]
-      if pm.nil?
-        pm = ProjectMedia.create!({ project_id: project, user_id: user_id, team_id: media[:team_id] }.merge(media[:params]))
-      end
-      pm
-    end
+    # def create_item(project, item, user_id)
+    #   media = get_item(item, project)
+    #   pm = media[:project_media]
+    #   if pm.nil?
+    #     pm = ProjectMedia.create!({ project_id: project, user_id: user_id, team_id: media[:team_id] }.merge(media[:params]))
+    #   end
+    #   pm
+    # end
 
     # def update_worksheet(worksheet, row)
     #   worksheet[row, 1] = @result[row].join(', ')
     #   worksheet.save if row == worksheet.num_rows
     # end
 
-    protected
+    # protected
 
-    def get_user(user, row, column = 'user')
-      @result[row] << I18n.t("team_import.blank_#{column}") and return if user.blank?
-      pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/check\/user\/([0-9]+)")
-      if (match = pattern.match(user))
-        u = User.find_by_id(match[1].to_i)
-      else
-        u = User.find_by_email(user) || self.owners('admin').first
-      end
-      @result[row] << I18n.t("team_import.invalid_#{column}", user: user) if u.nil?
-      u
-    end
+    # def get_user(user, row, column = 'user')
+    #   @result[row] << I18n.t("team_import.blank_#{column}") and return if user.blank?
+    #   pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/check\/user\/([0-9]+)")
+    #   if (match = pattern.match(user))
+    #     u = User.find_by_id(match[1].to_i)
+    #   else
+    #     u = User.find_by_email(user) || self.owners('admin').first
+    #   end
+    #   @result[row] << I18n.t("team_import.invalid_#{column}", user: user) if u.nil?
+    #   u
+    # end
 
-    def get_projects(projects, row = nil)
-      projects = projects.split(',').map { |p| p.strip }
-      @result[row] << I18n.t("team_import.blank_project") and return projects if projects.empty?
-      pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/#{self.slug}\/project\/([0-9]+)")
-      ids = []
-      projects.each do |p|
-        if (match = pattern.match(p))
-          ids << match[1].to_i
-        else
-          @result[row] << I18n.t('team_import.invalid_project', project: p) if @result
-        end
-      end
-      ids
-    end
+    # def get_projects(projects, row = nil)
+    #   projects = projects.split(',').map { |p| p.strip }
+    #   @result[row] << I18n.t("team_import.blank_project") and return projects if projects.empty?
+    #   pattern = Regexp.new(CheckConfig.get('checkdesk_client') + "/#{self.slug}\/project\/([0-9]+)")
+    #   ids = []
+    #   projects.each do |p|
+    #     if (match = pattern.match(p))
+    #       ids << match[1].to_i
+    #     else
+    #       @result[row] << I18n.t('team_import.invalid_project', project: p) if @result
+    #     end
+    #   end
+    #   ids
+    # end
 
-    def get_item(item, project)
-      uri = URI.parse(URI.encode(item))
-      params = uri.host.nil? ? {quote: item} : {url: item}
-      media = Media.where(params).first
-      pm = ProjectMedia.where(media_id: media.id, project_id: project).first if media
-      project_obj = Project.find_by_id project
-      {params: params, project_media: pm, team_id: project_obj&.team&.id}
-    end
+    # def get_item(item, project)
+    #   uri = URI.parse(URI.encode(item))
+    #   params = uri.host.nil? ? {quote: item} : {url: item}
+    #   media = Media.where(params).first
+    #   pm = ProjectMedia.where(media_id: media.id, project_id: project).first if media
+    #   project_obj = Project.find_by_id project
+    #   {params: params, project_media: pm, team_id: project_obj&.team&.id}
+    # end
 
-    def assign_to_user(pm, assigned_to, row)
-      return if assigned_to.blank?
-      user = get_user(assigned_to, row, 'assignee')
-      if user
-        status = pm.last_status_obj
-        status.assigned_to_ids = user.id
-        status.save!
-      end
-    end
+    # def assign_to_user(pm, assigned_to, row)
+    #   return if assigned_to.blank?
+    #   user = get_user(assigned_to, row, 'assignee')
+    #   if user
+    #     status = pm.last_status_obj
+    #     status.assigned_to_ids = user.id
+    #     status.save!
+    #   end
+    # end
 
-    def add_tags(pm, tags)
-      return if tags.blank?
-      tags = tags.split(',').map { |t| t.strip }
-      tags.each do |tag|
-        unless pm.annotations('tag').map(&:tag_text).include?(tag)
-          Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
-        end
-      end
-    end
+    # def add_tags(pm, tags)
+    #   return if tags.blank?
+    #   tags = tags.split(',').map { |t| t.strip }
+    #   tags.each do |tag|
+    #     unless pm.annotations('tag').map(&:tag_text).include?(tag)
+    #       Tag.create!(tag: tag, annotator: pm.user, annotated: pm)
+    #     end
+    #   end
+    # end
 
     # def get_flexible_columns(worksheet)
     #   @notes = []
@@ -188,48 +188,48 @@ module TeamImport
     #   end
     # end
 
-    def add_notes(pm, worksheet, row)
-      annotator = worksheet[row, 8]
-      @notes.each do |col|
-        note = worksheet[row, col]
-        next if note.blank?
-        user = annotator.blank? ? pm.user : get_user(annotator, row, 'annotator')
-        if user
-          User.current = pm.user
-          Comment.create!(annotator: user, text: note, annotated: pm)
-          User.current = nil
-        end
-      end
-    end
+    # def add_notes(pm, worksheet, row)
+    #   annotator = worksheet[row, 8]
+    #   @notes.each do |col|
+    #     note = worksheet[row, col]
+    #     next if note.blank?
+    #     user = annotator.blank? ? pm.user : get_user(annotator, row, 'annotator')
+    #     if user
+    #       User.current = pm.user
+    #       Comment.create!(annotator: user, text: note, annotated: pm)
+    #       User.current = nil
+    #     end
+    #   end
+    # end
 
-    def add_tasks_answers(pm, worksheet, row)
-      tasks_responses = {}
-      @tasks.each_pair do |col, slug|
-        answer = worksheet[row, col]
-        tasks_responses[slug] = answer unless answer.blank?
-      end
-      pm.set_tasks_responses = tasks_responses.with_indifferent_access
+    # def add_tasks_answers(pm, worksheet, row)
+    #   tasks_responses = {}
+    #   @tasks.each_pair do |col, slug|
+    #     answer = worksheet[row, col]
+    #     tasks_responses[slug] = answer unless answer.blank?
+    #   end
+    #   pm.set_tasks_responses = tasks_responses.with_indifferent_access
 
-      User.current = pm.user
-      pm.send(:respond_to_auto_tasks, pm.annotations('task'))
-      User.current = nil
-    end
+    #   User.current = pm.user
+    #   pm.send(:respond_to_auto_tasks, pm.annotations('task'))
+    #   User.current = nil
+    # end
 
-    def add_status(pm, status, row)
-      return if status.blank?
-      begin
-        s = pm.last_status_obj
-        s.status = status
-        s.save!
-      rescue
-        @result[row] << I18n.t('team_import.invalid_status', status: status) if @result
-      end
-    end
+    # def add_status(pm, status, row)
+    #   return if status.blank?
+    #   begin
+    #     s = pm.last_status_obj
+    #     s.status = status
+    #     s.save!
+    #   rescue
+    #     @result[row] << I18n.t('team_import.invalid_status', status: status) if @result
+    #   end
+    # end
 
     # def update_import_status(status)
     #   self.import_status = "spreadsheet_import_#{status}"
     #   self.touch
     # end
-  end
+#   end
 
-end
+# end
