@@ -30,7 +30,8 @@ module CheckPermissions
       if self.name == 'Project'
         self.joins(:team).where('teams.inactive' => false).where(id: id)[0]
       elsif self.name == 'Team'
-        self.where(id: id, inactive: false).last
+        team = self.find(id)
+        team.inactive? ? nil : team
       elsif self.name == 'ProjectMedia'
         pm = self.find(id)
         pm.team&.inactive ? nil : pm
