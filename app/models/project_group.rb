@@ -3,4 +3,8 @@ class ProjectGroup < ActiveRecord::Base
 
   belongs_to :team
   has_many :projects
+
+  def medias_count
+    self.projects.map(&:medias_count).sum
+  end
 end

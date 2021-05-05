@@ -757,7 +757,7 @@ en:
   list_column_folder: Folder
   go_back_to_check: Go back to Check
   project_cant_have_children_if_has_parent: This folder has a parent folder, so it can't have a child folder
-  project_group_must_be_under_same_team: The parent folder should be under the same workspace
+  project_group_must_be_under_same_team: The collection should be under the same workspace
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation

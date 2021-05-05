@@ -14,6 +14,7 @@ class CheckSearch
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
+    adjust_project_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -216,6 +217,13 @@ class CheckSearch
     window_size = 10000
     current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
     @options['eslimit'] = window_size - @options['esoffset'].to_i if  current_size > window_size
+  end
+
+  def adjust_project_filter
+    if @options['project_group_id']
+      pg = ProjectGroup.where(team_id: @options['team_id'], id: @options['project_group_id']).last
+      @options['projects'] = @options['projects'].to_a.map(&:to_i).concat(pg&.project_ids&.to_a).uniq
+    end
   end
 
   def index_exists?

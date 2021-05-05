@@ -1,6 +1,7 @@
 module ProjectGroupMutations
   update_fields = {
-    title: 'str'
+    title: 'str',
+    description: 'str'
   }
 
   create_fields = update_fields.merge({

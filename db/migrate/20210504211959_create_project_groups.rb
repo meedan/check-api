@@ -2,6 +2,7 @@ class CreateProjectGroups < ActiveRecord::Migration
   def change
     create_table :project_groups do |t|
       t.string :title, null: false
+      t.text :description
       t.integer :team_id, null: false
       t.timestamps null: false
     end
