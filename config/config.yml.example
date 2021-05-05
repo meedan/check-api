@@ -65,7 +65,8 @@ development: &default
   # 2FA/OTP settings
   #
   # OPTIONAL
-  # Generate a key with SecureRandom to enable 2FA `SecureRandom.hex(20)`
+  # Generate a key with SecureRandom to enable two-factor authentication (2FA) `SecureRandom.hex(20)`
+  # If blank the QRCode won't be generated and the 2FA can't be enabled
   #
   two_factor_key: # '<Google two factor key>'
 
