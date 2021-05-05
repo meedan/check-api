@@ -1,4 +1,4 @@
-class AddIndexesToProjectMedias < ActiveRecord::Migration
+class AddExtraIndexes < ActiveRecord::Migration
   def change
     # Team
     remove_index :teams, name: "index_teams_on_id"
