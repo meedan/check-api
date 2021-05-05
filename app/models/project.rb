@@ -10,9 +10,8 @@ class Project < ActiveRecord::Base
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
+  belongs_to :project_group
   has_many :project_medias
-  belongs_to :parent, class_name: 'Project', inverse_of: :children
-  has_many :children, class_name: 'Project', foreign_key: 'parent_id', inverse_of: :parent
 
   mount_uploader :lead_image, ImageUploader
 
@@ -29,8 +28,7 @@ class Project < ActiveRecord::Base
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
-  validate :child_cant_have_children
-  validate :parent_is_under_same_team
+  validate :project_group_is_under_same_team
 
   has_annotations
 
@@ -299,12 +297,8 @@ class Project < ActiveRecord::Base
     client.update_by_query options
   end
 
-  def child_cant_have_children
-    errors.add(:base, I18n.t(:project_cant_have_children_if_has_parent)) if self.parent && self.parent.parent
-  end
-
-  def parent_is_under_same_team
-    errors.add(:base, I18n.t(:parent_must_be_under_same_team)) if self.parent && self.parent.team_id != self.team_id
+  def project_group_is_under_same_team
+    errors.add(:base, I18n.t(:project_group_must_be_under_same_team)) if self.project_group && self.project_group.team_id != self.team_id
   end
 
   def store_project_media_ids

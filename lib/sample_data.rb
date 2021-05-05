@@ -52,6 +52,17 @@ module SampleData
     ss.reload
   end
 
+  def create_project_group(options = {})
+    pg = ProjectGroup.new
+    pg.team = create_team
+    pg.title = random_string
+    options.each do |key, value|
+      pg.send("#{key}=", value) if pg.respond_to?("#{key}=")
+    end
+    pg.save!
+    pg.reload
+  end
+
   def create_bot_user(options = {})
     u = BotUser.new
     u.name = options[:name] || random_string

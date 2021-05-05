@@ -124,4 +124,5 @@ TeamType = GraphqlCrudOperations.define_default_type do
   end
 
   connection :saved_searches, SavedSearchType.connection_type
+  connection :project_groups, ProjectGroupType.connection_type
 end

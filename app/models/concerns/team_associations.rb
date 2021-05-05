@@ -16,6 +16,7 @@ module TeamAssociations
     has_many :project_medias, dependent: :destroy
     has_many :bot_resources, dependent: :destroy
     has_many :saved_searches, dependent: :destroy
+    has_many :project_groups, dependent: :destroy
 
     has_annotations
   end
