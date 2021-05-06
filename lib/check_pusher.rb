@@ -8,7 +8,7 @@ module CheckPusher
   end
 
   def notify_pusher_channel
-    CheckPusher::Worker.perform_async(['check-api-global-channel'], 'update', { pusherChannels: [self.pusher_channel], pusherEvent: 'media_updated' }.to_json, self.actor_session_id)
+    CheckPusher::Worker.perform_async(['check-api-global-channel'], 'update', { pusherChannels: [self.pusher_channel], pusherEvent: 'media_updated' }.to_json, self.class.actor_session_id)
   end
 
   module ClassMethods

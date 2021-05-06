@@ -19,22 +19,24 @@ class CcDevilleTest < ActiveSupport::TestCase
   end
 
   test "should clear cache from Cloudflare" do
-    mocked_method = MiniTest::Mock.new
-    mocked_method.expect :call, :return_value, [String]
-    Rails.logger.stub :error, mocked_method do
-      CcDeville.clear_cache_for_url('http://test.com')
-    end
-    assert_nothing_raised do
-      mocked_method.verify
-    end
-
-    mocked_method = MiniTest::Mock.new
-    mocked_method.expect :call, :return_value, [String]
-    Rails.logger.stub :error, mocked_method do
-      CcDeville.clear_cache_for_url('http://qa.checkmedia.org')
-    end
-    assert_raises MockExpectationError do
-      mocked_method.verify
+    stub_configs({ 'cloudflare_auth_email' => 'foo.com', 'cloudflare_auth_key' => 'bar', 'cloudflare_zone' => 'baz' }) do
+      mocked_method = MiniTest::Mock.new
+      mocked_method.expect :call, :return_value, [String]
+      Rails.logger.stub :error, mocked_method do
+        CcDeville.clear_cache_for_url('http://test.com')
+      end
+      assert_nothing_raised do
+        mocked_method.verify
+      end
+      WebMock.stub_request(:post, /api\.cloudflare\.com/).to_return(body: { "success": true }.to_json)
+      mocked_method = MiniTest::Mock.new
+      mocked_method.expect :call, :return_value, [String]
+      Rails.logger.stub :error, mocked_method do
+        CcDeville.clear_cache_for_url('http://qa.checkmedia.org')
+      end
+      assert_raises MockExpectationError do
+        mocked_method.verify
+      end
     end
   end
 
