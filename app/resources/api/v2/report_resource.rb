@@ -22,6 +22,7 @@ module Api
       attribute :tags, delegate: :tags_as_sentence
       attribute :media_type, delegate: :type_of_media
       attribute :score
+      attribute :report_image
 
       def score
         RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil
@@ -74,7 +75,14 @@ module Api
         new_conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
         result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
         # FIXME: Not the best way to check for the report state
-        result = result.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.data LIKE ?', "%state: #{filters[:report_state][0]}%") if filters.has_key?(:report_state)
+        if filters.has_key?(:report_state)
+          value = filters[:report_state][0]
+          if value == 'unpublished'
+            result = result.joins("LEFT OUTER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.annotated_id' => nil)
+          else
+            result = result.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.data LIKE ?', "%state: #{value}%")
+          end
+        end
         result.where(new_conditions)
       end
 
