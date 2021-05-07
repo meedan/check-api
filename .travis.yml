@@ -6,12 +6,14 @@ before_install:
 - export LANG=C.UTF-8
 - export LANGUAGE=C.UTF-8
 - export PATH=/root/.local/bin:$PATH
-- git clone https://${TOKEN}:x-oauth-basic@github.com/meedan/configurator ./configurator
-- cp configurator/check/travis/credentials .
-- d=configurator/check/travis/check-api/; for f in $(find $d -type f); do cp "$f" "${f/$d/}"; done
 - rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1
   tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 before_script:
+- cp config/config.yml.example config/config.yml
+- cp config/database.yml.example config/database.yml
+- cp config/sidekiq.yml.example config/sidekiq.yml
+- cp config/credentials.json.example config/credentials.json
+- cp config/sidekiq-test.yml.example config/sidekiq-test.yml
 - docker-compose build
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
 - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done

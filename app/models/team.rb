@@ -9,7 +9,7 @@ class Team < ActiveRecord::Base
   include TeamAssociations
   include TeamPrivate
   include TeamDuplication
-  include TeamImport
+  # include TeamImport
   include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
