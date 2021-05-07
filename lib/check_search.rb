@@ -222,7 +222,9 @@ class CheckSearch
   def adjust_project_filter
     if @options['project_group_id']
       pg = ProjectGroup.where(team_id: @options['team_id'], id: @options['project_group_id']).last
-      @options['projects'] = @options['projects'].to_a.map(&:to_i).concat(pg&.project_ids&.to_a).uniq
+      projects = @options['projects'].to_a.map(&:to_i).concat(pg&.project_ids&.to_a).uniq
+      # Invalidate the search if the group has no project
+      @options['projects'] = projects.empty? ? [0] : []
     end
   end
 
