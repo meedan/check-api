@@ -224,7 +224,7 @@ class CheckSearch
       pg = ProjectGroup.where(team_id: @options['team_id'], id: @options['project_group_id']).last
       projects = @options['projects'].to_a.map(&:to_i).concat(pg&.project_ids&.to_a).uniq
       # Invalidate the search if the group has no project
-      @options['projects'] = projects.empty? ? [0] : []
+      @options['projects'] = projects.empty? ? [0] : projects
     end
   end
 

@@ -7,4 +7,8 @@ class ProjectGroup < ActiveRecord::Base
   def medias_count
     self.projects.map(&:medias_count).sum
   end
+
+  def project_medias
+    ProjectMedia.joins(:project).where('projects.project_group_id' => self.id)
+  end
 end
