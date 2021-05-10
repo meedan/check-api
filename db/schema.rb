@@ -211,15 +211,6 @@ ActiveRecord::Schema.define(version: 20210504211959) do
 
   add_index "project_groups", ["team_id"], name: "index_project_groups_on_team_id", using: :btree
 
-  create_table "project_media_projects", force: :cascade do |t|
-    t.integer "project_media_id"
-    t.integer "project_id"
-  end
-
-  add_index "project_media_projects", ["project_id"], name: "index_project_media_projects_on_project_id", using: :btree
-  add_index "project_media_projects", ["project_media_id", "project_id"], name: "index_project_media_projects_on_project_media_id_and_project_id", unique: true, using: :btree
-  add_index "project_media_projects", ["project_media_id"], name: "index_project_media_projects_on_project_media_id", using: :btree
-
   create_table "project_media_users", force: :cascade do |t|
     t.integer "project_media_id"
     t.integer "user_id"
@@ -265,12 +256,10 @@ ActiveRecord::Schema.define(version: 20210504211959) do
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
-    t.integer  "parent_id"
     t.integer  "project_group_id"
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
-  add_index "projects", ["parent_id"], name: "index_projects_on_parent_id", using: :btree
   add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
