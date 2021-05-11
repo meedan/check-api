@@ -57,4 +57,15 @@ class ProjectGroupTest < ActiveSupport::TestCase
     assert_equal 1, p2.medias_count
     assert_equal 3, pg.reload.medias_count
   end
+
+  test "should have project medias" do
+    t = create_team
+    pg = create_project_group team: t
+    p = create_project team: t
+    pm = ProjectMedia.create! team: t, project: p, quote: random_string
+    create_project_media
+    p.project_group = pg
+    p.save!
+    assert_equal [pm], pg.reload.project_medias
+  end
 end
