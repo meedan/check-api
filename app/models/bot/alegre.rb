@@ -220,7 +220,7 @@ class Bot::Alegre < BotUser
 
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id if pm
     return self.default_matching_model if tbi.nil?
     tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
@@ -358,19 +358,22 @@ class Bot::Alegre < BotUser
     self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
   end
 
+  def self.build_context(team_id=nil, field=nil)
+    context = {has_custom_id: true}
+    context[:field] = field if field && field != []
+    context[:team_id] = team_id if team_id && team_id != []
+    context
+  end
+
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
-    threshold ||= self.get_threshold_for_text_query(pm, true)
+    threshold ||= self.get_threshold_for_text_query(nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
-      context: {
-        team_id: team_id,
-        field: field,
-        has_custom_id: true
-      },
+      context: self.build_context(team_id, field),
       threshold: threshold
     })
   end
@@ -382,10 +385,7 @@ class Bot::Alegre < BotUser
   def self.get_items_from_similar_image(team_id, image_url, threshold)
     self.get_similar_items_from_api('/image/similarity/', {
       url: image_url,
-      context: {
-        team_id: team_id,
-        has_custom_id: true
-      },
+      context: self.build_context(team_id),
       threshold: threshold
     })
   end
