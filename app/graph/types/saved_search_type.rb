@@ -9,4 +9,10 @@ SavedSearchType = GraphqlCrudOperations.define_default_type do
   field :filters, JsonStringType
   field :team_id, types.Int
   field :team, TeamType
+
+  field :filters, types.String do
+    resolve -> (saved_search, _args, _ctx) {
+      saved_search.filters ? saved_search.filters.to_json : '{}'
+    }
+  end
 end
