@@ -620,4 +620,11 @@ class ProjectTest < ActiveSupport::TestCase
       p.save!
     end
   end
+
+  test "should have previous project group" do
+    p = create_project
+    pg = create_project_group
+    p.previous_project_group_id = pg.id
+    assert_equal pg, p.project_group_was
+  end
 end

@@ -5,7 +5,7 @@ class Project < ActiveRecord::Base
   include AssignmentConcern
   include AnnotationBase::Association
 
-  attr_accessor :project_media_ids_were
+  attr_accessor :project_media_ids_were, :previous_project_group_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
@@ -76,6 +76,10 @@ class Project < ActiveRecord::Base
 
   def check_search_project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+  end
+
+  def project_group_was
+    ProjectGroup.find_by_id(self.previous_project_group_id) unless self.previous_project_group_id.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)
