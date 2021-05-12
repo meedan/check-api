@@ -2337,4 +2337,26 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
   end
+
+  test "should cache project title" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p1 = create_project title: 'Foo', team: t
+    p2 = create_project title: 'Bar', team: t
+    pm = create_project_media project: nil, project_id: nil, team: t
+    assert_queries(0, '=') { assert_equal '', pm.folder }
+    pm.project_id = p1.id
+    pm.save!
+    assert_queries(0, '=') { assert_equal 'Foo', pm.folder }
+    p1.title = 'Test'
+    p1.save!
+    assert_queries(0, '=') { assert_equal 'Test', pm.folder }
+    pm.project_id = p2.id
+    pm.save!
+    assert_queries(0, '=') { assert_equal 'Bar', pm.folder }
+    assert_equal p2.id, pm.reload.project_id
+    p2.destroy!
+    assert_nil pm.reload.project_id
+    assert_queries(0, '=') { assert_equal '', pm.folder }
+  end
 end

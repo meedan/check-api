@@ -28,6 +28,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
   field :confirmed_as_similar_by_name, types.String
   field :added_as_similar_by_name, types.String
   field :project_id, types.Int
+  field :project_group, ProjectGroupType
   field :is_read, types.Boolean do
     argument :by_me, types.Boolean
 

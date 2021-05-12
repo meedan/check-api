@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 202010161522429) do
+ActiveRecord::Schema.define(version: 20210504211959) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 202010161522429) do
 
   add_index "accounts", ["uid", "provider", "token", "email"], name: "index_accounts_on_uid_and_provider_and_token_and_email", using: :btree
   add_index "accounts", ["url"], name: "index_accounts_on_url", unique: true, using: :btree
+  add_index "accounts", ["user_id"], name: "index_accounts_on_user_id", using: :btree
 
   create_table "annotations", force: :cascade do |t|
     t.string   "annotation_type",                 null: false
@@ -129,9 +130,9 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.text     "description"
     t.boolean  "optional",        default: true
     t.text     "settings"
+    t.string   "default_value"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
-    t.string   "default_value"
   end
 
   create_table "dynamic_annotation_field_types", primary_key: "field_type", force: :cascade do |t|
@@ -152,8 +153,7 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.datetime "updated_at",                   null: false
   end
 
-  add_index "dynamic_annotation_fields", ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id", using: :btree
-  add_index "dynamic_annotation_fields", ["field_name"], name: "index_dynamic_annotation_fields_on_field_name", using: :btree
+  add_index "dynamic_annotation_fields", ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name", using: :btree
   add_index "dynamic_annotation_fields", ["field_type"], name: "index_dynamic_annotation_fields_on_field_type", using: :btree
   add_index "dynamic_annotation_fields", ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)", using: :btree
   add_index "dynamic_annotation_fields", ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin
@@ -187,7 +187,6 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.string   "file"
   end
 
-  add_index "medias", ["id"], name: "index_medias_on_id", using: :btree
   add_index "medias", ["url"], name: "index_medias_on_url", unique: true, using: :btree
 
   create_table "pghero_query_stats", force: :cascade do |t|
@@ -202,14 +201,15 @@ ActiveRecord::Schema.define(version: 202010161522429) do
 
   add_index "pghero_query_stats", ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at", using: :btree
 
-  create_table "project_media_projects", force: :cascade do |t|
-    t.integer "project_media_id"
-    t.integer "project_id"
+  create_table "project_groups", force: :cascade do |t|
+    t.string   "title",       null: false
+    t.text     "description"
+    t.integer  "team_id",     null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
-  add_index "project_media_projects", ["project_id"], name: "index_project_media_projects_on_project_id", using: :btree
-  add_index "project_media_projects", ["project_media_id", "project_id"], name: "index_project_media_projects_on_project_media_id_and_project_id", unique: true, using: :btree
-  add_index "project_media_projects", ["project_media_id"], name: "index_project_media_projects_on_project_media_id", using: :btree
+  add_index "project_groups", ["team_id"], name: "index_project_groups_on_team_id", using: :btree
 
   create_table "project_media_users", force: :cascade do |t|
     t.integer "project_media_id"
@@ -234,13 +234,14 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.boolean  "read",                     default: false, null: false
     t.integer  "source_id"
     t.integer  "project_id"
+    t.integer  "last_seen"
   end
 
-  add_index "project_medias", ["id"], name: "index_project_medias_on_id", using: :btree
+  add_index "project_medias", ["last_seen"], name: "index_project_medias_on_last_seen", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
   add_index "project_medias", ["project_id"], name: "index_project_medias_on_project_id", using: :btree
   add_index "project_medias", ["source_id"], name: "index_project_medias_on_source_id", using: :btree
-  add_index "project_medias", ["team_id"], name: "index_project_medias_on_team_id", using: :btree
+  add_index "project_medias", ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count", using: :btree
   add_index "project_medias", ["user_id"], name: "index_project_medias_on_user_id", using: :btree
 
   create_table "projects", force: :cascade do |t|
@@ -255,9 +256,11 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
+    t.integer  "project_group_id"
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
+  add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
 
@@ -275,6 +278,16 @@ ActiveRecord::Schema.define(version: 202010161522429) do
 
   add_index "relationships", ["relationship_type"], name: "index_relationships_on_relationship_type", using: :btree
   add_index "relationships", ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true, using: :btree
+
+  create_table "saved_searches", force: :cascade do |t|
+    t.string   "title",      null: false
+    t.integer  "team_id",    null: false
+    t.json     "filters"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "saved_searches", ["team_id"], name: "index_saved_searches_on_team_id", using: :btree
 
   create_table "shortened_urls", force: :cascade do |t|
     t.integer  "owner_id"
@@ -325,35 +338,33 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.text     "mapping"
     t.boolean  "required",                  default: false
     t.integer  "team_id",                                            null: false
+    t.integer  "order",                     default: 0
+    t.string   "associated_type",           default: "ProjectMedia", null: false
     t.datetime "created_at",                                         null: false
     t.datetime "updated_at",                                         null: false
     t.string   "json_schema"
-    t.integer  "order",                     default: 0
     t.string   "fieldset",                  default: "",             null: false
     t.boolean  "show_in_browser_extension", default: true,           null: false
-    t.string   "associated_type",           default: "ProjectMedia", null: false
   end
 
-  add_index "team_tasks", ["associated_type"], name: "index_team_tasks_on_associated_type", using: :btree
-  add_index "team_tasks", ["fieldset"], name: "index_team_tasks_on_fieldset", using: :btree
+  add_index "team_tasks", ["team_id", "fieldset", "associated_type"], name: "index_team_tasks_on_team_id_and_fieldset_and_associated_type", using: :btree
 
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
+    t.string   "type"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
     t.string   "role"
     t.string   "status",                 default: "member"
+    t.text     "settings"
     t.integer  "invited_by_id"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_accepted_at"
-    t.text     "settings"
-    t.string   "type"
     t.string   "invitation_email"
   end
 
-  add_index "team_users", ["id"], name: "index_team_users_on_id", using: :btree
   add_index "team_users", ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true, using: :btree
   add_index "team_users", ["type"], name: "index_team_users_on_type", using: :btree
   add_index "team_users", ["user_id", "team_id"], name: "index_team_users_on_user_id_and_team_id", using: :btree
@@ -371,7 +382,6 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.boolean  "inactive",    default: false
   end
 
-  add_index "teams", ["id"], name: "index_teams_on_id", using: :btree
   add_index "teams", ["inactive"], name: "index_teams_on_inactive", using: :btree
   add_index "teams", ["slug"], name: "index_teams_on_slug", using: :btree
   add_index "teams", ["slug"], name: "unique_team_slugs", unique: true, using: :btree
@@ -406,7 +416,6 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.string   "unconfirmed_email"
     t.integer  "current_project_id"
     t.boolean  "is_active",                 default: true
-    t.datetime "last_accepted_terms_at"
     t.string   "invitation_token"
     t.string   "raw_invitation_token"
     t.datetime "invitation_created_at"
@@ -415,6 +424,7 @@ ActiveRecord::Schema.define(version: 202010161522429) do
     t.integer  "invitation_limit"
     t.integer  "invited_by_id"
     t.string   "invited_by_type"
+    t.datetime "last_accepted_terms_at"
     t.string   "encrypted_otp_secret"
     t.string   "encrypted_otp_secret_iv"
     t.string   "encrypted_otp_secret_salt"
@@ -428,8 +438,8 @@ ActiveRecord::Schema.define(version: 202010161522429) do
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["email"], name: "index_users_on_email", using: :btree
-  add_index "users", ["id"], name: "index_users_on_id", using: :btree
   add_index "users", ["invitation_token"], name: "index_users_on_invitation_token", unique: true, using: :btree
+  add_index "users", ["login"], name: "index_users_on_login", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["source_id"], name: "index_users_on_source_id", using: :btree
   add_index "users", ["token"], name: "index_users_on_token", unique: true, using: :btree
@@ -456,8 +466,4 @@ ActiveRecord::Schema.define(version: 202010161522429) do
   add_index "versions", ["item_type", "item_id", "whodunnit"], name: "index_versions_on_item_type_and_item_id_and_whodunnit", using: :btree
   add_index "versions", ["team_id"], name: "index_versions_on_team_id", using: :btree
 
-  add_foreign_key "accounts", "teams"
-  add_foreign_key "project_medias", "users"
-  add_foreign_key "sources", "teams"
-  add_foreign_key "users", "sources"
 end

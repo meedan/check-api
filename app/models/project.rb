@@ -3,10 +3,14 @@ class Project < ActiveRecord::Base
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
+  include AnnotationBase::Association
+
+  attr_accessor :project_media_ids_were, :previous_project_group_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
+  belongs_to :project_group
   has_many :project_medias
 
   mount_uploader :lead_image, ImageUploader
@@ -17,12 +21,14 @@ class Project < ActiveRecord::Base
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
+  before_destroy :store_project_media_ids
   after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
+  validate :project_group_is_under_same_team
 
   has_annotations
 
@@ -70,6 +76,10 @@ class Project < ActiveRecord::Base
 
   def check_search_project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+  end
+
+  def project_group_was
+    ProjectGroup.find_by_id(self.previous_project_group_id) unless self.previous_project_group_id.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -289,5 +299,13 @@ class Project < ActiveRecord::Base
       }
     }
     client.update_by_query options
+  end
+
+  def project_group_is_under_same_team
+    errors.add(:base, I18n.t(:project_group_must_be_under_same_team)) if self.project_group && self.project_group.team_id != self.team_id
+  end
+
+  def store_project_media_ids
+    self.project_media_ids_were = self.project_media_ids
   end
 end

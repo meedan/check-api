@@ -598,4 +598,33 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 2, p.reload.medias_count
     RequestStore.store[:skip_cached_field_update] = true
   end
+
+  test "should have a project group" do
+    t = create_team
+    p = create_project team: t
+    pg = create_project_group team: t
+    assert_nil p.project_group
+    assert_nothing_raised do
+      p.project_group_id = pg.id
+      p.save!
+    end
+    assert_equal pg, p.reload.project_group
+    assert_equal [p], pg.reload.projects
+  end
+
+  test "should not have a project group in another team" do
+    p = create_project
+    pg = create_project_group
+    assert_raises ActiveRecord::RecordInvalid do
+      p.project_group_id = pg.id
+      p.save!
+    end
+  end
+
+  test "should have previous project group" do
+    p = create_project
+    pg = create_project_group
+    p.previous_project_group_id = pg.id
+    assert_equal pg, p.project_group_was
+  end
 end

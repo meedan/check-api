@@ -113,7 +113,7 @@ en:
       comment: Note
       project_media: Item
       media: Item
-      project: List
+      project: Folder
       team: Workspace
       user: User
       source: Source
@@ -171,7 +171,7 @@ en:
     fields:
       assigned: Assigned to
       unassigned: Unassigned from
-      project: List
+      project: Folder
       source: Source
       status: Status
       status_previous: Previous status
@@ -198,7 +198,7 @@ en:
         %{type}"
       project_media_update: "%{user} (%{role} at %{team}) updated an item"
       project_media_added_to_list: "%{user} (%{role} at %{team}) added an item to
-        list %{list_name}"
+        folder %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow}
         status of a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
@@ -206,9 +206,9 @@ en:
       project_source_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
       project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"
-      project_create: "%{user} (%{role} at %{team}) created a List"
-      project_assign: "%{user} (%{role} at %{team}) assigned a List"
-      project_unassign: "%{user} (%{role} at %{team}) unassigned a List"
+      project_create: "%{user} (%{role} at %{team}) created a folder"
+      project_assign: "%{user} (%{role} at %{team}) assigned a folder"
+      project_unassign: "%{user} (%{role} at %{team}) unassigned a folder"
       user_member: "%{user} joined workspace %{team}"
       user_requested: "%{user} requested to join workspace %{team}"
       user_invited: "%{user} was invited to join workspace %{team}"
@@ -280,8 +280,8 @@ en:
   geolocation_invalid_value: Invalid location. Expecting a valid GeoJSON structure
     (http://geojson.org/)
   datetime_invalid_date: Invalid date
-  error_team_archived: Sorry, you can't add a list to a trashed workspace
-  error_project_archived: Sorry, you can't add an item to a trashed list
+  error_team_archived: Sorry, you can't add a folder to a trashed workspace
+  error_project_archived: Sorry, you can't add an item to a trashed folder
   error_team_archived_for_source: Sorry, you can't add a source to a trashed workspace
   permission_error: Sorry, you are not allowed to perform this operation
   error_annotated_archived: Sorry, you can't add a note to a trashed item
@@ -333,7 +333,7 @@ en:
   mails_notifications:
     greeting: Hello %{username},
     greeting_anonymous: Hello!
-    project_view: View list
+    project_view: View folder
     unsubscribe: Unsubscribe
     unsubscribe_link: "%{unsubscribe} from these notifications"
     copyright_html: '%{app_name} by <a href="https://meedan.com">Meedan</a>'
@@ -382,15 +382,15 @@ en:
       decompress_text: The %{type} will download as a compressed, encrypted file.
         To decompress it, please use the password %{password}.
       expire_note: Please note that this link will expire in %{days} days.
-      project_export_csv_subject: "[%{team} - %{project}] List report is ready to
+      project_export_csv_subject: "[%{team} - %{project}] Folder report is ready to
         be downloaded"
-      project_export_images_subject: "[%{team} - %{project}] List image archive is
+      project_export_images_subject: "[%{team} - %{project}] Folder image archive is
         ready to be downloaded"
-      project_export_title: List Data
-      project_export_button: Download list data
-      project_export_csv_text: 'You''ve requested a report for list %{project} - here''s
+      project_export_title: Folder Data
+      project_export_button: Download folder data
+      project_export_csv_text: 'You''ve requested a report for folder %{project} - here''s
         a link to download it: %{link}'
-      project_export_images_text: 'You''ve requested an archive of images for list
+      project_export_images_text: 'You''ve requested an archive of images for folder
         %{project} - here''s a link to download it: %{link}'
       team_import_subject: Your data import has completed
       team_import_title: Data Import
@@ -401,7 +401,7 @@ en:
     task_resolved:
       subject: "[%{team} - %{project}] Task Answered"
       header_title: Task Answered
-      header_text: " %{author} answered a task in list %{project} in %{team}."
+      header_text: " %{author} answered a task in folder %{project} in %{team}."
       section_title: Who or what is the source of the item?
       status: Status
       media_h: Item
@@ -409,7 +409,7 @@ en:
       label: item
       subject: "[%{team} - %{project}] An item status was marked as %{status}"
       header_title: Item Status Updated
-      header_text: " %{author} updated the status of an item in list %{project} in
+      header_text: " %{author} updated the status of an item in folder %{project} in
         %{team}."
       section_title: Marked as %{status}.
       added_to: Added to %{app_name}
@@ -418,29 +418,29 @@ en:
     assignment:
       assign_task_subject: "[%{team} - %{project}] A task was assigned to you"
       unassign_task_subject: "[%{team} - %{project}] A task was unassigned from you"
-      assign_project_subject: "[%{team} - %{project}] A list was assigned to you"
-      unassign_project_subject: "[%{team} - %{project}] A list was unassigned from
+      assign_project_subject: "[%{team} - %{project}] A folder was assigned to you"
+      unassign_project_subject: "[%{team} - %{project}] A folder was unassigned from
         you"
       assign_media_subject: "[%{team} - %{project}] An item was assigned to you"
       unassign_media_subject: "[%{team} - %{project}] An item was unassigned from
         you"
-      assign_project_title: List Assigned
-      unassign_project_title: List Unassigned
-      assign_project_text: "%{author} assigned list %{project} in %{team}."
-      unassign_project_text: "%{author} unassigned list %{project} in %{team}."
+      assign_project_title: Folder Assigned
+      unassign_project_title: Folder Unassigned
+      assign_project_text: "%{author} assigned folder %{project} in %{team}."
+      unassign_project_text: "%{author} unassigned folder %{project} in %{team}."
       assign_task_title: Task Assigned
       unassign_task_title: Task Unassigned
-      assign_task_text: "%{author} assigned a task in list %{project} in %{team}."
-      unassign_task_text: "%{author} unassigned a task in list %{project} in %{team}."
+      assign_task_text: "%{author} assigned a task in folder %{project} in %{team}."
+      unassign_task_text: "%{author} unassigned a task in folder %{project} in %{team}."
       assign_media_title: Item Assigned
       unassign_media_title: Item Unassigned
-      assign_media_text: "%{author} assigned an item in list %{project} in %{team}."
-      unassign_media_text: "%{author} unassigned an item in list %{project} in %{team}."
+      assign_media_text: "%{author} assigned an item in folder %{project} in %{team}."
+      unassign_media_text: "%{author} unassigned an item in folder %{project} in %{team}."
       assign_log: "%{author} assigned %{model} to %{username}"
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
-      project_button: Go to the list page
+      project_button: Go to the folder page
     request_to_join:
       subject: Request to join workspace %{team}
       team_page: workspace page
@@ -545,19 +545,19 @@ en:
       admin:
         description: Admin control the workspace.
       editor:
-        description: Editors manage the workspace and lists.
+        description: Editors manage the workspace and folders.
       collaborator:
         description: Collaborator can add new information to verify. They are often
           members of the public.
     permissions:
       sections:
         project_management:
-          name: List management
+          name: Folder management
           permissions:
-            create: Create list
-            edit: Edit list
-            delete: Delete list
-            add_item: Add item to list
+            create: Create folder
+            edit: Edit folder
+            delete: Delete folder
+            add_item: Add item to folder
         item_page_management:
           name: Item management
           permissions:
@@ -602,12 +602,12 @@ en:
     user_not_present: Current user not found during data import. Please notify the
       support team of this incident.
     user_not_authorized: Sorry, you are not allowed to import data into this workspace.
-    invalid_project: Invalid list %{project}
+    invalid_project: Invalid folder %{project}
     invalid_user: Invalid author %{user}
     invalid_status: Invalid status %{status}
     blank_user: Invalid blank author field
     blank_annotator: Invalid blank annotator field
-    blank_project: Invalid blank list field
+    blank_project: Invalid blank folder field
     invalid_annotator: Invalid annotator %{user}
     invalid_assignee: Invalid assignee %{user}
   cant_mutate_inactive_object: Sorry, there is an operation pending for this item,
@@ -637,8 +637,8 @@ en:
     you want to integrate with the tipline.
   invalid_task_answer: Invalid task answer format
   team_rule_name: A unique name that identifies what this rule does
-  team_rule_project_ids: Apply to list
-  team_rule_destination: Select destination list
+  team_rule_project_ids: Apply to folder
+  team_rule_destination: Select destination folder
   team_rule_names_invalid: Rule names can't be blank and must be unique
   team_rules: Rules
   team_rule_conditions: If
@@ -670,8 +670,8 @@ en:
   team_rule_action: Then
   team_rule_action_definition: Select action
   team_rule_send_to_trash: Send to trash
-  team_rule_move_to_project: Move item to list
-  team_rule_copy_to_project: Add item to list
+  team_rule_move_to_project: Move item to folder
+  team_rule_copy_to_project: Add item to folder
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
   team_rule_all_items: All items
   team_rule_send_message_to_user: Send message to user
@@ -754,16 +754,19 @@ en:
   list_column_media_published_at: Media published
   list_column_related_count: Related
   list_column_suggestions_count: Suggested matches
+  list_column_folder: Folder
   go_back_to_check: Go back to Check
+  project_cant_have_children_if_has_parent: This folder has a parent folder, so it can't have a child folder
+  project_group_must_be_under_same_team: The collection should be under the same workspace
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
         rule.'
-      moved_to_project_by_rule: '"%{item_title}" has been moved to the list "[%{list_name}](%{list_link})"
+      moved_to_project_by_rule: '"%{item_title}" has been moved to the folder "[%{list_name}](%{list_link})"
         by an automation rule.'
       banned_submitter_by_rule: The requestor of "%{item_title}" has been banned by
         an automation rule.
-      copied_to_project_by_rule: '"%{item_title}" has been copied to the list "[%{list_name}](%{list_link})"
+      copied_to_project_by_rule: '"%{item_title}" has been copied to the folder "[%{list_name}](%{list_link})"
         by an automation rule.'
       related_to_confirmed_similar: '"%{item_title}" has been confirmed similar to
         "%{similar_item_title}".'

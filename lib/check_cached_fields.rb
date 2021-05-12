@@ -70,12 +70,7 @@ module CheckCachedFields
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
         Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)
-        target.updated_at = Time.now
-        target.skip_check_ability = true
-        target.skip_notifications = true
-        target.disable_es_callbacks = true
-        ActiveRecord::Base.connection_pool.with_connection { target.save! }
-        # update es index and pg
+        # Update ES index and PG, if needed
         self.index_and_pg_cached_field(options, value, name, target)
       end
     end

@@ -273,5 +273,27 @@ module ProjectMediaCachedFields
           }
         }
       ]
+
+    cached_field :folder,
+      start_as: proc { |pm| pm.project&.title.to_s },
+      recalculate: proc { |pm| pm.project&.title.to_s },
+      update_on: [
+        {
+          model: ProjectMedia,
+          affected_ids: proc { |pm| [pm.id] },
+          if: proc { |pm| pm.project_id_changed? },
+          events: {
+            save: :recalculate,
+          }
+        },
+        {
+          model: Project,
+          affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
+          events: {
+            save: proc { |_pm, p| p.title },
+            destroy: proc { |_pm, _p| '' }
+          }
+        }
+      ]
   end
 end
