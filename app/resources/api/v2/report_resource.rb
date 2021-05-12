@@ -29,8 +29,13 @@ module Api
       end
 
       def self.records(options = {})
-        team_ids = self.workspaces(options).map(&:id)
+        teams = self.workspaces(options)
+        team_ids = teams.map(&:id)
         conditions = { team_id: team_ids }
+        if team_ids.size == Team.count
+          team_ids = []
+          conditions = {}
+        end
         filters = options[:filters] || {}
 
         organization_ids = filters[:similarity_organization_ids].blank? ? team_ids : filters[:similarity_organization_ids].flatten.map(&:to_i)
