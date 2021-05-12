@@ -1,6 +1,5 @@
 module ProjectMutations
   create_fields = {
-    lead_image: 'str',
     description: 'str',
     title: '!str',
     team_id: 'int',
@@ -8,11 +7,9 @@ module ProjectMutations
   }
 
   update_fields = {
-    lead_image: 'str',
     description: 'str',
     title: 'str',
     set_slack_channel: 'str',
-    information: 'str',
     assigned_to_ids: 'str',
     assignment_message: 'str',
     slack_events: 'str',
