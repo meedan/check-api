@@ -285,18 +285,6 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    test "team #{role} can import spreadsheet" do
-      t = create_team
-      t2 = create_team
-      u = create_user
-      create_team_user team: t, user: u, role: role
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:import_spreadsheet, t)
-        assert ability.cannot?(:import_spreadsheet, t2)
-      end
-    end
-
     test "#{role} should edit own annotation and destroy any annotation from trash and should destroy respective log entry" do
       t = create_team
       u = create_user

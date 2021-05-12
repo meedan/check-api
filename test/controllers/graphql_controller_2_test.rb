@@ -1003,4 +1003,33 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
   end
+
+  test "should search by project group" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    pg = create_project_group team: t
+    p1 = create_project team: t
+    p1.project_group = pg
+    p1.save!
+    create_project_media project: p1
+    p2 = create_project team: t
+    p2.project_group = pg
+    p2.save!
+    create_project_media project: p2
+    p3 = create_project team: t
+    create_project_media project: p3
+
+    query = 'query CheckSearch { search(query: "{}") { number_of_results } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 3, JSON.parse(@response.body)['data']['search']['number_of_results']
+
+    query = 'query CheckSearch { search(query: "{\"project_group_id\":' + pg.id.to_s + '}") { number_of_results } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+  end
 end

@@ -370,6 +370,15 @@ class GraphqlController5Test < ActionController::TestCase
     assert_error_message 'Not Found'
   end
 
+  test "should get saved search filters" do
+    t = create_team
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters } } } } }"
+    post :create, query: query
+    assert_equal '{"foo":"bar"}', JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node', 'filters')
+    assert_response :success
+  end
+
   protected
 
   def assert_error_message(expected)
