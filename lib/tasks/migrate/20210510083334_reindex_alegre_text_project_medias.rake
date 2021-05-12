@@ -1,7 +1,7 @@
 namespace :check do
   namespace :migrate do
-    desc "Updates ProjectMedia doc IDs and fields in Alegre. Example: bundle exec rake check:migrate:set_doc_ids_in_alegre['team-slug',last-project-media-id]"
-    task :set_doc_ids_in_alegre, [:slugs, :last] => :environment do |_task, args|
+    desc "Forces re-index of ProjectMedias associated with a set of team_ids and optionally a start position for ProjectMedia IDs. Example: bundle exec rake check:migrate:reindex_alegre_text_project_medias['team-slug',last-project-media-id,model-name]"
+    task :reindex_alegre_text_project_medias, [:slugs, :last, :model_name] => :environment do |_task, args|
       started = Time.now.to_i
       team_ids = BotUser.alegre_user.team_bot_installations.map(&:team_id).uniq.sort
       if args[:slugs]
@@ -9,6 +9,7 @@ namespace :check do
       end
       i = 0
       last = args[:last].to_i
+      model_name = args[:model_name]
       total = ProjectMedia.where(team_id: team_ids).where('created_at > ?', Time.parse('2020-01-01')).where('id > ?', last).count
       ProjectMedia.where(team_id: team_ids).where('created_at > ?', Time.parse('2020-01-01')).where('id > ?', last).order('id ASC').find_each do |pm|
         i += 1
@@ -20,7 +21,7 @@ namespace :check do
               text = pm.send(field).to_s
               unless text.blank?
                 doc_id = klass.item_doc_id(pm, field)
-                klass.send_to_text_similarity_index(pm, field, text, doc_id, klass::ELASTICSEARCH_MODEL)
+                klass.send_to_text_similarity_index(pm, field, text, doc_id, model_name)
               end
             end
           end
