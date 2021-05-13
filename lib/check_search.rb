@@ -221,9 +221,13 @@ class CheckSearch
   end
 
   def adjust_project_filter
-    if @options['project_group_id']
-      pg = ProjectGroup.where(team_id: @options['team_id'], id: @options['project_group_id']).last
-      projects = @options['projects'].to_a.map(&:to_i).concat(pg&.project_ids&.to_a).uniq
+    project_group_ids = [@options['project_group_id']].flatten.reject{ |pgid| pgid.blank? }.map(&:to_i)
+    unless project_group_ids.empty?
+      projects = @options['projects'].to_a.map(&:to_i)
+      project_group_ids.each do |pgid|
+        pg = ProjectGroup.where(team_id: @options['team_id'], id: pgid).last
+        projects.concat(pg&.project_ids&.to_a).uniq!
+      end
       # Invalidate the search if the group has no project
       @options['projects'] = projects.empty? ? [0] : projects
     end
