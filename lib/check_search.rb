@@ -1,6 +1,6 @@
 class CheckSearch
   def initialize(options)
-    # options include keywords, projects, tags, status
+    # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
@@ -101,7 +101,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -172,7 +172,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to']
+    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -185,6 +185,7 @@ class CheckSearch
     conditions << { term: { sources_count: 0 } } unless should_include_related_items?
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
+    conditions.concat build_search_report_status_conditions
     conditions.concat build_search_assignment_conditions
     conditions.concat build_search_doc_conditions
     conditions.concat build_search_range_filter(:es)
@@ -461,6 +462,16 @@ class CheckSearch
       tags_c << { terms: { "tags.tag": tags } }
       { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
     end
+  end
+
+  def build_search_report_status_conditions
+    return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
+    statuses = []
+    @options['report_status'].each do |status_name|
+      status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
+      statuses << status_id
+    end
+    [{ terms: { report_status: statuses } }]
   end
 
   def build_search_doc_conditions
