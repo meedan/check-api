@@ -379,6 +379,40 @@ class GraphqlController5Test < ActionController::TestCase
     assert_response :success
   end
 
+  test "should search by report status" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    # Published
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    r1 = publish_report(pm1)
+    r1 = Dynamic.find(r1.id)
+    r1.disable_es_callbacks = false
+    r1.set_fields = { state: 'published' }.to_json
+    r1.save!
+
+    # Paused
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    r2 = publish_report(pm2)
+    r2 = Dynamic.find(r2.id)
+    r2.disable_es_callbacks = false
+    r2.set_fields = { state: 'paused' }.to_json
+    r2.save!
+
+    # Not published
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+
+    # Published
+    query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+  end
+
   protected
 
   def assert_error_message(expected)
