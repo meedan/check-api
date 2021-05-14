@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
-        label: Out Of Scope
-        description: 
+        label: Out of Scope
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -441,7 +441,7 @@ en:
       assign_by: Assigned by
       unassign_by: Unassigned by
       project_button: Go to the folder page
-    request_to_join:
+    request_to_join: # Is this set of strings still relevant?
       subject: Request to join workspace %{team}
       team_page: workspace page
       team_button: Go to the workspace page
@@ -566,7 +566,7 @@ en:
             change_status: Change item status
             lock_unlock_status: Lock/unlock status
             add_remove_tag: Add/remove tags
-            send_to_trash: Send item or source to trash
+            send_to_trash: Move item or source to Trash
             empty_trash: Empty trash
         task_management:
           name: Task management
@@ -669,7 +669,7 @@ en:
   team_rule_actions: Then
   team_rule_action: Then
   team_rule_action_definition: Select action
-  team_rule_send_to_trash: Send to trash
+  team_rule_send_to_trash: Move to Trash
   team_rule_move_to_project: Move item to folder
   team_rule_copy_to_project: Add item to folder
   team_rule_ban_submitter: Ban submitter (their future messages won't appear in Check)
