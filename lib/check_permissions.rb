@@ -27,18 +27,20 @@ module CheckPermissions
     end
 
     def get_object(id)
-      if self.name == 'Project'
-        self.joins(:team).where('teams.inactive' => false).where(id: id)[0]
-      elsif self.name == 'Team'
-        self.where(id: id, inactive: false).last
-      elsif self.name == 'ProjectMedia'
-        pm = self.find(id)
-        pm.team&.inactive ? nil : pm
-      elsif self.name == 'Version'
+      obj = nil
+      if self.name == 'Version'
         tid = Team.current&.id.to_i
-        self.from_partition(tid).where(id: id).last
+        obj = self.from_partition(tid).where(id: id).last
       else
-        self.find(id)
+        obj = self.find_by_id(id)
+      end
+      return nil if obj.nil?
+      if self.name == 'Project' || self.name == 'ProjectMedia'
+        obj.team&.inactive ? nil : obj
+      elsif self.name == 'Team'
+        obj.inactive? ? nil : obj
+      else
+        obj
       end
     end
 

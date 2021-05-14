@@ -9,7 +9,7 @@ class Team < ActiveRecord::Base
   include TeamAssociations
   include TeamPrivate
   include TeamDuplication
-  include TeamImport
+  # include TeamImport
   include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
@@ -70,11 +70,11 @@ class Team < ActiveRecord::Base
   end
 
   def owners(role, statuses = TeamUser.status_types)
-    self.users.where({'team_users.role': role, 'team_users.status': statuses})
+    self.users.where({ 'team_users.role': role, 'team_users.status': statuses })
   end
 
   def recent_projects
-    self.projects.order('title ASC')
+    self.projects
   end
 
   def team_graphql_id
@@ -479,6 +479,11 @@ class Team < ActiveRecord::Base
       {
         key: 'suggestions_count',
         label: I18n.t(:list_column_suggestions_count),
+        show: false
+      },
+      {
+        key: 'folder',
+        label: I18n.t(:list_column_folder),
         show: false
       }
     ]

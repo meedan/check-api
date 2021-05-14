@@ -1,6 +1,6 @@
 class CheckSearch
   def initialize(options)
-    # options include keywords, projects, tags, status
+    # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
@@ -14,6 +14,7 @@ class CheckSearch
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
+    adjust_project_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -100,7 +101,7 @@ class CheckSearch
     end
     query_all_types = (MEDIA_TYPES.size == media_types_filter.size)
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to'].each do |filter|
+    ['tags', 'keyword', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status'].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
     range_filter = hit_es_for_range_filter
@@ -171,7 +172,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to']
+    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -184,6 +185,7 @@ class CheckSearch
     conditions << { term: { sources_count: 0 } } unless should_include_related_items?
     conditions.concat build_search_keyword_conditions
     conditions.concat build_search_tags_conditions
+    conditions.concat build_search_report_status_conditions
     conditions.concat build_search_assignment_conditions
     conditions.concat build_search_doc_conditions
     conditions.concat build_search_range_filter(:es)
@@ -216,6 +218,19 @@ class CheckSearch
     window_size = 10000
     current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
     @options['eslimit'] = window_size - @options['esoffset'].to_i if  current_size > window_size
+  end
+
+  def adjust_project_filter
+    project_group_ids = [@options['project_group_id']].flatten.reject{ |pgid| pgid.blank? }.map(&:to_i)
+    unless project_group_ids.empty?
+      project_ids = @options['projects'].to_a.map(&:to_i)
+      project_groups_project_ids = Project.where(project_group_id: project_group_ids, team: @options['team_id']).map(&:id)
+
+      project_ids = project_ids.blank? ? project_groups_project_ids : (project_ids & project_groups_project_ids)
+
+      # Invalidate the search if empty... otherwise, adjust the projects filter
+      @options['projects'] = project_ids.empty? ? [0] : project_ids
+    end
   end
 
   def index_exists?
@@ -451,6 +466,16 @@ class CheckSearch
       tags_c << { terms: { "tags.tag": tags } }
       { nested: { path: 'tags', query: { bool: { should: tags_c } } } }
     end
+  end
+
+  def build_search_report_status_conditions
+    return [] if @options['report_status'].blank? || !@options['report_status'].is_a?(Array)
+    statuses = []
+    @options['report_status'].each do |status_name|
+      status_id = ['unpublished', 'paused', 'published'].index(status_name) || -1 # Invalidate the query if an invalid status is passed
+      statuses << status_id
+    end
+    [{ terms: { report_status: statuses } }]
   end
 
   def build_search_doc_conditions
