@@ -47,8 +47,6 @@ ml:
         label: തെറ്റിദ്ധാരണാജനകം
       disputed:
         label: തര്‍ക്കവിഷയം
-      out_of_scope:
-        label: സാധ്യതയില്ല
       junk:
         label: ഉപയോഗശൂന്യം
       unstarted:

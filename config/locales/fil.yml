@@ -49,8 +49,6 @@ fil:
         label: Mapanlinlang
       disputed:
         label: Pinagtatalunan
-      out_of_scope:
-        label: Labas sa Saklaw
       junk:
         label: Junk
       unstarted:
@@ -112,7 +110,6 @@ fil:
       comment: Note
       project_media: Item
       media: Item
-      project: Listahan
       team: Workspace
       user: User
       source: Source
@@ -172,7 +169,6 @@ fil:
     fields:
       assigned: Itinalaga kay
       unassigned: Inalis sa pagkakatalaga kay
-      project: Listahan
       source: Source
       status: Status
       status_previous: Ang nakaraang status
@@ -203,8 +199,6 @@ fil:
       project_media_create_related: Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay
         na %{type}
       project_media_update: Nag-update si %{user} (%{role} sa %{team}) ng item
-      project_media_added_to_list: Nagdagdag si %{user} (%{role} sa %{team}) ng item
-        sa listahang %{list_name}
       project_media_status: Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow}
         status ng isang %{type}
       project_media_assign: Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}
@@ -214,10 +208,6 @@ fil:
         %{parent_type}
       project_source_create: Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}
       project_source_update: Nag-edit si %{user} (%{role} sa %{team}) ng %{type}
-      project_create: Gumawa si %{user} (%{role} sa %{team}) ng Listahan
-      project_assign: Nagtalaga si %{user} (%{role} ng %{team}) ng Listahan
-      project_unassign: Inalis ni %{user} (%{role} ng %{team}) ang pagkakatalaga ng
-        Listahan
       user_member: Sumali si %{user} sa workspace na %{team}
       user_requested: Humiling si %{user} na sumali sa workspace na %{team}
       user_invited: Inanyayahan si %{user} na sumali sa workspace na %{team}
@@ -288,9 +278,6 @@ fil:
   geolocation_invalid_value: Hindi wastong lokasyon. Ang inaasahan ay wastong GeoJSON
     structure (http://geojson.org/)
   datetime_invalid_date: Hindi wastong petsa
-  error_team_archived: Paumanhin, hindi pwede magdagdag ng listahan sa binasurang
-    workspace
-  error_project_archived: Paumanhin, hindi pwede magdagdag ng item sa binasurang listahan
   error_team_archived_for_source: Paumanhin, hindi pwede magdagdag ng source sa binasurang
     workspace
   permission_error: Paumanhin, hindi ka pinahihintulutang gawin ang operasyon na ito
@@ -349,7 +336,6 @@ fil:
   mails_notifications:
     greeting: Kumusta, %{username}?
     greeting_anonymous: Kumusta?
-    project_view: Tingnan ang listahan
     unsubscribe: Mag-unsubscribe
     unsubscribe_link: "%{unsubscribe} mula sa mga abisong ito"
     copyright_html: '%{app_name} ng <a href="https://meedan.com">Meedan</a>'
@@ -399,16 +385,6 @@ fil:
       decompress_text: Ang %{type} ay mada-download bilang compressed at encrypted
         na file. Para ma-decompress ito, mangyaring gamitin ang password na %{password}.
       expire_note: Pakitandaan na lilipas ang link na ito sa loob ng %{days} araw.
-      project_export_csv_subject: "[%{team} - %{project}] Handa nang ma-download ang
-        ulat ng listahan"
-      project_export_images_subject: "[%{team} - %{project}] Handa nang ma-download
-        ang artsibo ng mga larawan ng listahan"
-      project_export_title: Datos ng Listahan
-      project_export_button: I-download ang datos ng listahan
-      project_export_csv_text: 'Humingi ka ng ulat para sa listahang %{project} -
-        narito ang link para ma-download ito: %{link}'
-      project_export_images_text: 'Humingi ka ng artsibo ng mga larawan para sa listahang
-        %{project} - narito ang link para ma-download ito: %{link}'
       team_import_subject: Nakumpleto ang iyong pag-angkat ng datos
       team_import_title: Pag-angkat ng Datos
       team_import_text: "<p>Natapos na ang iyong pag-angkat ng datos papasok sa %{app_name}.
@@ -419,8 +395,6 @@ fil:
     task_resolved:
       subject: "[%{team} - %{project}] Nasagutan ang Gawain"
       header_title: Nasagutan ang Gawain
-      header_text: Sinagutan ni %{author} ang isang gawain sa listahang %{project}
-        sa %{team}.
       section_title: Sino o ano ang source ng item?
       status: Status
       media_h: Item
@@ -428,8 +402,6 @@ fil:
       label: item
       subject: "[%{team} - %{project}] May status ng item na minarkahan bilang %{status}"
       header_title: Na-update ang Status ng Item
-      header_text: In-update ni %{author} ang status ng isang item sa listahang %{project}
-        sa %{team}.
       section_title: Minarkahan bilang %{status}.
       added_to: Idinagdag sa %{app_name}
       update_h: Huling Update
@@ -438,34 +410,17 @@ fil:
       assign_task_subject: "[%{team} - %{project}] May gawaing itinalaga sa iyo"
       unassign_task_subject: "[%{team} - %{project}]  May gawaing inalis ang pagkakatalaga
         sa iyo"
-      assign_project_subject: "[%{team} - %{project}] May listahang itinalaga sa iyo"
-      unassign_project_subject: "[%{team} - %{project}] May listahan na inalis ang
-        pagkakatalaga sa iyo"
       assign_media_subject: "[%{team} - %{project}] May item na itinalaga sa iyo"
       unassign_media_subject: "[%{team} - %{project}] May item na inalis ang pagkakatalaga
         sa iyo"
-      assign_project_title: Listahang Nakatalaga
-      unassign_project_title: Listahang Inalis sa Pagkakatalaga
-      assign_project_text: 'Itinalaga ni %{author} ang listahang %{project} sa %{team}. '
-      unassign_project_text: Inalis ni %{author} ang pagkakatalaga ng listahang %{project}
-        sa %{team}.
       assign_task_title: Gawaing Nakatalaga
       unassign_task_title: Gawaing Inalis sa Pagkakatalaga
-      assign_task_text: Nagtalaga si %{author} ng isang gawain sa listahang %{project}
-        sa %{team}.
-      unassign_task_text: Inalis ni %{author} ang pagkakatalaga ng isang gawain sa
-        listahang %{project} sa %{team}.
       assign_media_title: Item na Nakatalaga
       unassign_media_title: Item na Inalis sa Pagkakatalaga
-      assign_media_text: Itinalaga ni %{author} ang isang item sa listahang %{project}
-        sa %{team}.
-      unassign_media_text: Inalis ni %{author} ang pagkakatalaga ng isang item sa
-        listahang %{project} sa %{team}.
       assign_log: Itinalaga ni %{author} ang %{model} kay %{username}
       unassign_log: Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}
       assign_by: Itinalaga ni
       unassign_by: Inalis sa pagkakatalaga ni
-      project_button: Pumunta sa pahina ng listahan
     request_to_join:
       subject: Kahilingang sumali sa workspace na %{team}
       team_page: pahina ng workspace
@@ -575,18 +530,8 @@ fil:
   smooch_bot_result_changed: "❗️Ang ipinadala naming fact-check sa iyo ay *in-update*
     ng bagong impormasyon"
   permissions_info:
-    roles:
-      editor:
-        description: Ang mga tagapag-edit ang namamahala sa workspace at mga listahan.
     permissions:
       sections:
-        project_management:
-          name: Pamamahala ng listahan
-          permissions:
-            create: Gumawa ng listahan
-            edit: I-edit ang listahan
-            delete: Burahin ang listahan
-            add_item: Idagdag ang item sa listahan
         item_page_management:
           name: Pamamahala ng item
           permissions:
@@ -595,7 +540,6 @@ fil:
             change_status: Palitan ang status ng item
             lock_unlock_status: I-lock/i-unlock ang status
             add_remove_tag: Magdagdag/magtanggal ng mga tag
-            send_to_trash: Ipadala ang item o source sa basurahan
             empty_trash: Ubusin ang laman ng basurahan
         task_management:
           name: Pamamahala ng gawain
@@ -630,12 +574,10 @@ fil:
       datos. Mangyaring ipagbigay-alam sa support team ang insidenteng ito.
     user_not_authorized: Paumanhin, hindi ka pinahihintulutang mag-angkat ng datos
       sa workspace na ito.
-    invalid_project: Hindi wastong listahan %{project}
     invalid_user: Hindi wastong may-akda %{user}
     invalid_status: Hindi wastong status %{status}
     blank_user: Hindi maaaring blangko ang patlang para sa may-akda
     blank_annotator: Hindi maaaring blangko ang patlang para sa anotador
-    blank_project: Hindi maaaring blangko ang patlang para sa listahan
     invalid_annotator: Hindi wastong anotador %{user}
     invalid_assignee: Hindi wastong assignee %{user}
   cant_mutate_inactive_object: 'Paumanhin, may nakabinbin na operasyon para sa item
@@ -653,8 +595,6 @@ fil:
   bot_request_url_invalid: Hindi wastong bot URL
   invalid_task_answer: Hindi wastong format para sa sagot sa gawaing ito
   team_rule_name: Kakaibang pangalan na nagtutukoy sa ginagawa nitong panuntunan
-  team_rule_project_ids: I-apply sa listahan
-  team_rule_destination: Mamili ng listahang patutunguhan
   team_rule_names_invalid: Ang mga pangalan ng panuntunan ay hindi maaaring blangko
     at dapat kakaiba
   team_rules: Mga panuntunan
@@ -687,9 +627,6 @@ fil:
   team_rule_actions: Samakatuwid
   team_rule_action: Samakatuwid
   team_rule_action_definition: Mamili ng gagawin
-  team_rule_send_to_trash: Ipadala sa basurahan
-  team_rule_move_to_project: Ilipat ang item sa listahan
-  team_rule_copy_to_project: Idagdag ang item sa listahan
   team_rule_ban_submitter: Ipagbawal ang nagsumite (hindi na lalabas ang mga susunod
     nilang mensahe sa Check)
   team_rule_all_items: Lahat ng mga item

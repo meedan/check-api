@@ -49,8 +49,6 @@ es:
         label: Engañoso
       disputed:
         label: En conflicto
-      out_of_scope:
-        label: Fuera de ámbito
       junk:
         label: Basura
       unstarted:
@@ -107,7 +105,6 @@ es:
       comment: Nota
       project_media: Ítem
       media: Ítem
-      project: Lista
       team: Área de trabajo
       user: Usuario
       source: Fuente
@@ -166,7 +163,6 @@ es:
     fields:
       assigned: Asignado a
       unassigned: Desasignado de
-      project: Lista
       source: Fuente
       status: Estado
       status_previous: Estado anterior
@@ -193,8 +189,6 @@ es:
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type}
         relacionado"
       project_media_update: "%{user}(%{role} en %{team}) actualizó un ítem"
-      project_media_added_to_list: "%{user}(%{role} en %{team}) añadió un ítem a la
-        lista %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) cambiar el %{workflow} del
         estado a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
@@ -203,9 +197,6 @@ es:
         %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
-      project_create: "%{user} (%{role} en %{team}) creó una Lista"
-      project_assign: "%{user} (%{role} en %{team}) asignó una Lista"
-      project_unassign: "%{user} (%{role} en %{team}) desasignó una Lista"
       user_member: "%{user} se unió al área de trabajo %{team}"
       user_requested: "%{user} solicitó unirse al área de trabajo %{team}"
       user_invited: "%{user} fue invitado a unirse al área de trabajo %{team}"
@@ -280,9 +271,6 @@ es:
   geolocation_invalid_value: Ubicación inválida. Se espera una estructura GeoJSON
     válida (http://geojson.org/)
   datetime_invalid_date: Fecha inválida
-  error_team_archived: Lo sentimos, no puedes añadir una lista a una área de trabajo
-    eliminada
-  error_project_archived: Lo sentimos, no puedes añadir un ítem a una lista eliminada
   error_team_archived_for_source: Lo sentimos, no puedes añadir una fuente a una área
     de trabajo eliminada
   permission_error: Lo sentimos, no tienes autorización para realizar esta operación
@@ -340,7 +328,6 @@ es:
   mails_notifications:
     greeting: Hola %{username},
     greeting_anonymous: "¡Hola!"
-    project_view: Ver lista
     unsubscribe: 'Cancelar suscripción '
     unsubscribe_link: "%{unsubscribe} de estas notificaciones"
     copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
@@ -389,16 +376,6 @@ es:
       decompress_text: El %{type} se descargará como un archivo comprimido y cifrado.
         Para descomprimirlo, usa esta contraseña %{password}.
       expire_note: Ten en cuenta que este enlace caducará en %{days} días.
-      project_export_csv_subject: El informe de lista [%{team} - %{project}] está
-        listo para ser descargado
-      project_export_images_subject: El archivo de imágenes de lista [%{team}- %{project}]
-        está listo para ser descargado
-      project_export_title: Datos de la lista
-      project_export_button: Descargar los datos de la lista
-      project_export_csv_text: 'Solicitaste descargar un informe de la lista %{project}
-        - aquí está el enlace para descargarlo: %{link}'
-      project_export_images_text: 'Solicitaste descargar el archivo de imágenes de
-        la lista %{project} - aquí está el enlace para descargarlo: %{link}'
       team_import_subject: Tu importación de datos se ha completado
       team_import_title: Importación de datos
       team_import_text: "<p>Se ha completado la importación de datos en %{app_name}.
@@ -409,7 +386,6 @@ es:
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
       header_title: Tarea respondida
-      header_text: " %{author} respondió una tarea en la lista %{project} en %{team}."
       section_title: "¿Quién o cuál es la fuente del ítem?"
       status: Estado
       media_h: Ítem
@@ -417,8 +393,6 @@ es:
       label: ítem
       subject: "[%{team} - %{project}] El estado del ítem fue marcado como %{status}"
       header_title: El estado del ítem ha sido actualizado
-      header_text: " %{author} actualizó el estado de un ítem de la lista %{project}
-        en %{team}."
       section_title: Marcado como %{status}.
       added_to: Añadido a %{app_name}
       update_h: Última actualización
@@ -426,29 +400,16 @@ es:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
-      assign_project_subject: "[%{team} - %{project}] Se te ha asignado una lista"
-      unassign_project_subject: "[%{team} - %{project}] Se te ha desasignado una lista"
       assign_media_subject: "[%{team} - %{project}] Se te ha asignado un ítem"
       unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
-      assign_project_title: 'Lista asignada '
-      unassign_project_title: Lista sin asignar
-      assign_project_text: "%{author} asignó una lista %{project} en %{team}."
-      unassign_project_text: "%{author} desasignó una lista %{project} en %{team}. "
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
-      assign_task_text: "%{author} asignó una tarea en la lista %{project} en %{team}."
-      unassign_task_text: "%{author} desasignó una tarea de la lista %{project} en
-        %{team}. "
       assign_media_title: Ítem Asignado
       unassign_media_title: Ítem Desasignado
-      assign_media_text: "%{author} asignó un ítem de la lista %{project} en %{team}."
-      unassign_media_text: "%{author} desasignó un ítem de la lista %{project} en
-        %{team}. "
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
-      project_button: Ir a la página de la lista
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo
@@ -559,20 +520,11 @@ es:
     roles:
       admin:
         description: Administradores(as) controlan el área de trabajo.
-      editor:
-        description: Los editores administran el área de trabajo y las listas.
       collaborator:
         description: Colaborador(a) puede añadir nueva información para verificar.
           Usualmente son miembros del público.
     permissions:
       sections:
-        project_management:
-          name: Gestión de la lista
-          permissions:
-            create: Crear lista
-            edit: Editar lista
-            delete: Eliminar lista
-            add_item: Añadir ítem a la lista
         item_page_management:
           name: Gestión del ítem
           permissions:
@@ -581,7 +533,6 @@ es:
             change_status: Cambiar el estado del ítem
             lock_unlock_status: Bloquear/desbloquear estado
             add_remove_tag: Añadir/eliminar etiquetas
-            send_to_trash: Envia ítem o fuente a la papelera
             empty_trash: 'Papelera vacía '
         task_management:
           name: Gestor de tareas
@@ -621,12 +572,10 @@ es:
       este incidente.
     user_not_authorized: Lo sentimos, no tienes permitido importar data dentro de
       esta área de trabajo.
-    invalid_project: Lista inválida %{project}
     invalid_user: Autor inválido %{user}
     invalid_status: Estado inválido %{status}
     blank_user: El campo Autor no puede estar en blanco
     blank_annotator: El campo de anotación no puede estar en blanco
-    blank_project: Lista en blanco inválida
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
   cant_mutate_inactive_object: Lo sentimos, hay una operación pendiente para este
@@ -645,19 +594,17 @@ es:
   bot_request_url_invalid: El URL del bot es inválido
   smooch_facebook_success: |
     ¡Éxito!
-    Tu línea de ayuda está ahora connectada a Facebook Messenger.
-    Cualquier mensaje recibido por esta Página de Facebook va a ser manejado por la línea de ayuda.
+    Tu Tipline está ahora connectada a Facebook Messenger.
+    Cualquier mensaje recibido por esta Página de Facebook va a ser manejado por la Tipline.
   smooch_twitter_success: |
     ¡Éxito!
-    Tu línea de ayuda está ahora connectada a Twitter.
-    Cualquier mensaje recibido por este perfil de Twitter va a ser manejado por la línea de ayuda.
-    Por favor vuelve a cargar la página de configuración de tu línea de ayuda para ver cambios nuevos
+    Tu Tipline está ahora connectada a Twitter.
+    Cualquier mensaje recibido por este perfil de Twitter va a ser manejado por la Tipline.
+    Por favor vuelve a cargar la página de configuración de tu Tipline para ver cambios nuevos
   must_select_exactly_one_facebook_page: Por favor selecciona exactamente la página
-    de Facebook que quieres integrar con la línea de información.
+    de Facebook que quieres integrar con la Tipline.
   invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
-  team_rule_project_ids: Aplicar a la lista
-  team_rule_destination: Seleccionar lista de destino
   team_rule_names_invalid: Los nombres de las reglas no pueden estar en blanco y deben
     ser únicos
   team_rules: Reglas
@@ -690,9 +637,6 @@ es:
   team_rule_actions: Entonces
   team_rule_action: Entonces
   team_rule_action_definition: Seleccionar acción
-  team_rule_send_to_trash: Enviar a la papelera
-  team_rule_move_to_project: Mover ítem a la lista
-  team_rule_copy_to_project: Añadir ítem a la lista
   team_rule_ban_submitter: Prohibir el remitente (sus futuros mensajes no aparecerán
     en Check)
   team_rule_all_items: Todos los ítems
@@ -785,15 +729,13 @@ es:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una
         regla de automatización.'
-      moved_to_project_by_rule: '%{item_title}" ha sido movido a la lista "[%{list_name}](%{list_link})"
-        por una regla de automatización.'
       banned_submitter_by_rule: El/la solicitante de %{item_title} " ha sido prohibido(a)
         por una regla de automatización.
-      copied_to_project_by_rule: '"%{item_title}" ha sido copiado a la lista "[%{list_name}](%{list_link}"
-        por una regla de automatización.'
       related_to_confirmed_similar: '"%{item_title}" se ha confirmado que es similar
         a "%{similar_item_title}". '
       related_to_suggested_similar: '"%{item_title}" se ha sugerido como similar a
         "%{similar_item_title}".'
+      sent_message_to_requestors_on_status_change: "“Una actualización con estado%{status}”
+        \ ha sido enviada a %{requestors_count} solicitantes."
       tagged_by_rule: '"%{item_title}" ha sido etiquetado como "%{tag}" por una regla
         de automatización.'

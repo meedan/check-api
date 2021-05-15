@@ -34,8 +34,6 @@ te:
         label: తప్పుదొవ పట్టించడం
       disputed:
         label: వివాదస్పదం
-      out_of_scope:
-        label: పరిధిలొ లేదు
       junk:
         label: అప్రయోజనం
       unstarted:

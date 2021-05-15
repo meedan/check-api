@@ -49,8 +49,6 @@ ru:
         label: Вводит в заблуждение
       disputed:
         label: Под сомнением
-      out_of_scope:
-        label: Не принят
       junk:
         label: Мусор
       unstarted:
@@ -107,7 +105,6 @@ ru:
       comment: Заметка
       project_media: Материал
       media: Материал
-      project: Список задач
       team: Группа
       user: Пользователь
       source: Источник
@@ -168,7 +165,6 @@ ru:
     fields:
       assigned: Назначен
       unassigned: Снят с
-      project: Список задач
       source: Источник
       status: Статус
       status_previous: Предыдущий статус
@@ -197,8 +193,6 @@ ru:
       project_media_create_related: Добавлен связанный материал «%{type}» (%{user},
         %{role} группы %{team})
       project_media_update: "%{user} (%{role} группы %{team}) обновил(а) материал"
-      project_media_added_to_list: "%{user} (%{role} группы %{team}) добавил(а) материал
-        к списку «%{list_name}»"
       project_media_status: Изменён статус «%{workflow}» материала «%{type}» (%{user},
         %{role} группы %{team})
       project_media_assign: Назначен материал «%{type}» (%{user}, %{role} группы %{team})
@@ -210,9 +204,6 @@ ru:
         %{team})
       project_source_update: Отредактирован источник «%{type}» (%{user}, %{role} группы
         %{team})
-      project_create: Создан список задач (%{user}, %{role} группы %{team})
-      project_assign: Назначен список задач (%{user}, %{role} группы %{team})
-      project_unassign: Снят список задач (%{user}, %{role} группы %{team})
       user_member: 'Новый участник проекта %{team}: %{user} '
       user_requested: 'Новый запрос на вступление в проект %{team}: %{user}'
       user_invited: 'Новое приглашение в проект %{team}: %{user}'
@@ -287,9 +278,6 @@ ru:
   geolocation_invalid_value: Неверная локация. Локация должна содержать корректный
     GeoJSON (http://geojson.org/)
   datetime_invalid_date: Неверная дата
-  error_team_archived: Нельзя добавить список задач в проект, который находится в
-    корзине
-  error_project_archived: Нельзя добавить материал к списку, который находится в корзине
   error_team_archived_for_source: Нельзя добавить источник в проект, который находится
     в корзине
   permission_error: Извините, вам не разрешена данная операция
@@ -343,7 +331,6 @@ ru:
   mails_notifications:
     greeting: Здравствуйте, %{username}!
     greeting_anonymous: Здравствуйте!
-    project_view: Посмотреть список задач
     unsubscribe: Отписаться
     unsubscribe_link: "%{unsubscribe} от этих уведомлений"
     copyright_html: '%{app_name} от <a href="https://meedan.com">Meedan</a>'
@@ -396,16 +383,6 @@ ru:
         его, используйте пароль %{password}."
       expire_note: Пожалуйста, обратите внимание, что эта ссылка перестанет действовать
         через %{days} дней.
-      project_export_csv_subject: "[%{team} - %{project}] Отчёт по списку задач готов
-        для скачивания"
-      project_export_images_subject: "[%{team} - %{project}] Архив изображений из
-        списка задач готов для скачивания"
-      project_export_title: Экспорт списка задач
-      project_export_button: Скачать список задач
-      project_export_csv_text: 'Вы запросили отчёт по списку %{project} — вот ссылка
-        для его скачивания: %{link}'
-      project_export_images_text: 'Вы запросили архив изображений из списка %{project}
-        — вот ссылка для его скачивания: %{link}'
       team_import_subject: Импорт данных завершён
       team_import_title: Импорт данных
       team_import_text: "<p>Ваш запрос на импорт данных в %{app_name} выполнен. Чтобы
@@ -416,7 +393,6 @@ ru:
     task_resolved:
       subject: "[%{team} - %{project}] Получен ответ на вопрос"
       header_title: Получен ответ на вопрос
-      header_text: Получен ответ на вопрос в списке %{project} проекта %{team} (%{author}).
       section_title: Кто (или что) является источником материала?
       status: Статус
       media_h: Материал
@@ -424,7 +400,6 @@ ru:
       label: материал
       subject: "[%{team} - %{project}] Статус материала изменен: %{status}"
       header_title: Статус материала изменён
-      header_text: Обновлен статус материала в списке %{project} проекта %{team} (%{author}).
       section_title: 'Новый статус: %{status}.'
       added_to: Добавлено в %{app_name}
       update_h: Последнее обновление
@@ -432,31 +407,17 @@ ru:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Вам был назначен вопрос по материалу"
       unassign_task_subject: "[%{team} - %{project}] С вас был снят вопрос по материалу"
-      assign_project_subject: "[%{team} - %{project}] Вам был назначен список задач"
-      unassign_project_subject: "[%{team} - %{project}] Вы были сняты со списка задач"
       assign_media_subject: "[%{team} - %{project}] Вам был назначен материал"
       unassign_media_subject: "[%{team} - %{project}] С вас был снят материал"
-      assign_project_title: Список задач назначен
-      unassign_project_title: Список задач снят
-      assign_project_text: Назначен список задач %{project} проекта %{team} (%{author}).
-      unassign_project_text: Снято назначение списка задач %{project} проекта %{team}
-        (%{author}).
       assign_task_title: Задача назначена
       unassign_task_title: Задача снята
-      assign_task_text: Назначен вопрос в списке %{project} проекта %{team} (%{author}).
-      unassign_task_text: Снято назначение вопроса в списке %{project} проекта %{team}
-        (%{author}).
       assign_media_title: Материал назначен
       unassign_media_title: Материал снят
-      assign_media_text: Назначен материал в списке %{project} проекта %{team} (%{author}).
-      unassign_media_text: Снято назначение материала в списке %{project} проекта
-        %{team} (%{author}).
       assign_log: Назначен элемент «%{model}» на пользователя %{username} (%{author}).
       unassign_log: Снято назначение элемента «%{model}» с пользователя %{username}
         (%{author}).
       assign_by: Назначил(а)
       unassign_by: Снял(а)
-      project_button: Перейти на страницу списка
     request_to_join:
       subject: Запрос на вступление в проект %{team}
       team_page: страница проекта
@@ -558,18 +519,8 @@ ru:
   smooch_bot_result_changed: "❗️Отчёт о верификации, который мы вам отправили, был
     *обновлён*"
   permissions_info:
-    roles:
-      editor:
-        description: Редакторы управляют проектом и списками задач.
     permissions:
       sections:
-        project_management:
-          name: Управление списками задач
-          permissions:
-            create: Создавать списки задач
-            edit: Редактировать списки
-            delete: Удалять списки
-            add_item: Добавлять задачи к спискам
         item_page_management:
           name: Управление материалами
           permissions:
@@ -578,7 +529,6 @@ ru:
             change_status: Изменение статуса материала
             lock_unlock_status: Блокирование/разблокирование статусов
             add_remove_tag: Создание и удаление тэгов
-            send_to_trash: Перемещение материалов и источников в корзину
             empty_trash: Очистка корзины
         task_management:
           name: Управление вопросами
@@ -610,12 +560,10 @@ ru:
     user_not_present: Выбранный пользователь не найден при импорте данных. Пожалуйста,
       свяжитесь со службой поддержки.
     user_not_authorized: Извините, вы не можете импортировать данные в этот проект.
-    invalid_project: Неверный список %{project}
     invalid_user: Неверный пользователь %{user}
     invalid_status: Неверный статус %{status}
     blank_user: Не указан автор
     blank_annotator: Не указан аннотатор
-    blank_project: Не указан список задач
     invalid_annotator: Неверный аннотатор %{user}
     invalid_assignee: Неверный пользователь %{user}
   cant_mutate_inactive_object: Этот материал находится в обработке и не может быть
@@ -633,8 +581,6 @@ ru:
   bot_request_url_invalid: Неверный URL бота
   invalid_task_answer: Неверный формат ответа на вопрос
   team_rule_name: Уникальное название для правила
-  team_rule_project_ids: Применить к списку
-  team_rule_destination: Выберите список задач
   team_rule_names_invalid: Названия правил должны быть уникальными и не могут быть
     пустыми
   team_rules: Правила
@@ -665,9 +611,6 @@ ru:
   team_rule_actions: Тогда
   team_rule_action: Тогда
   team_rule_action_definition: Выберите действие
-  team_rule_send_to_trash: Отправить в корзину
-  team_rule_move_to_project: Переместить в список
-  team_rule_copy_to_project: Добавить в список
   team_rule_ban_submitter: Забанить добавившего (их сообщения больше не будут появляться
     в Check)
   team_rule_all_items: Все материалы
