@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -384,12 +384,12 @@ en:
       expire_note: Please note that this link will expire in %{days} days.
       project_export_csv_subject: "[%{team} - %{project}] Folder report is ready to
         be downloaded"
-      project_export_images_subject: "[%{team} - %{project}] Folder image archive is
-        ready to be downloaded"
+      project_export_images_subject: "[%{team} - %{project}] Folder image archive
+        is ready to be downloaded"
       project_export_title: Folder Data
       project_export_button: Download folder data
-      project_export_csv_text: 'You''ve requested a report for folder %{project} - here''s
-        a link to download it: %{link}'
+      project_export_csv_text: 'You''ve requested a report for folder %{project} -
+        here''s a link to download it: %{link}'
       project_export_images_text: 'You''ve requested an archive of images for folder
         %{project} - here''s a link to download it: %{link}'
       team_import_subject: Your data import has completed
@@ -409,8 +409,8 @@ en:
       label: item
       subject: "[%{team} - %{project}] An item status was marked as %{status}"
       header_title: Item Status Updated
-      header_text: " %{author} updated the status of an item in folder %{project} in
-        %{team}."
+      header_text: " %{author} updated the status of an item in folder %{project}
+        in %{team}."
       section_title: Marked as %{status}.
       added_to: Added to %{app_name}
       update_h: Last Update
@@ -441,7 +441,7 @@ en:
       assign_by: Assigned by
       unassign_by: Unassigned by
       project_button: Go to the folder page
-    request_to_join: # Is this set of strings still relevant?
+    request_to_join:
       subject: Request to join workspace %{team}
       team_page: workspace page
       team_button: Go to the workspace page
@@ -756,7 +756,8 @@ en:
   list_column_suggestions_count: Suggested matches
   list_column_folder: Folder
   go_back_to_check: Go back to Check
-  project_cant_have_children_if_has_parent: This folder has a parent folder, so it can't have a child folder
+  project_cant_have_children_if_has_parent: This folder has a parent folder, so it
+    can't have a child folder
   project_group_must_be_under_same_team: The collection should be under the same workspace
   info:
     messages:
@@ -772,7 +773,7 @@ en:
         "%{similar_item_title}".'
       related_to_suggested_similar: '"%{item_title}" has been suggested similar to
         "%{similar_item_title}".'
-      sent_message_to_requestors_on_status_change: 'An update with "%{status}" status
-        has been sent to %{requestors_count} requestors.'
+      sent_message_to_requestors_on_status_change: An update with "%{status}" status
+        has been sent to %{requestors_count} requestors.
       tagged_by_rule: '"%{item_title}" has been tagged as "%{tag}" by an automation
         rule.'
