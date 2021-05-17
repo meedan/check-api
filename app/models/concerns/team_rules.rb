@@ -171,13 +171,6 @@ module TeamRules
       tag.skip_check_ability = true
       CheckNotification::InfoMessages.send('tagged_by_rule', item_title: pm.title, tag: tag_text.text) if tag.save
     end
-
-    def add_tag(pm, value, _rule_id)
-      tag = TagText.where(text: value, team_id: pm.team_id).last
-      return if tag.nil?
-      Tag.create! annotated: pm, tag: tag.id
-      CheckNotification::InfoMessages.send('tagged_by_rule', item_title: pm.title, tag: tag.text)
-    end
   end
 
   included do
