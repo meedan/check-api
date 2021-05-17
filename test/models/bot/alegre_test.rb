@@ -238,10 +238,21 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    Relationship::ActiveRecord_Relation.any_instance.stubs(:distinct).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
     response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     assert_equal response, false
-    Relationship::ActiveRecord_Relation.any_instance.unstub(:distinct)
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
+  end
+
+  test "resets relationship transitively" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1, relationship_type: Relationship.confirmed_type), Relationship.new(source_id: 2)])
+    response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
+    assert_equal response, false
+    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
   end
 
   test "should get similar items" do
@@ -396,6 +407,38 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should get items with similar title when using non-elasticsearch matching model" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'This is some more longer title that has enough text to be worth checking Title 1' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { title: 'Title 1' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista began his wrestling career in 1999, and signed with the World Wrestling Federation (WWF, now WWE) in 2000. From 2002 to 2010, he gained fame under the ring name Batista and became a six-time world champion by winning the World Heavyweight Championship four times and the WWE Championship twice. He holds the record for the longest reign as World Heavyweight Champion at 282 days and has also won the World Tag Team Championship three times (twice with Ric Flair and once with John Cena) and the WWE Tag Team Championship once (with Rey Mysterio). He was the winner of the 2005 Royal Rumble match and went on to headline WrestleMania 21, one of the top five highest-grossing pay-per-view events in professional wrestling history",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    })
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
+    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+    assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:matching_model_to_use)
   end
 
   test "should get items with similar title" do

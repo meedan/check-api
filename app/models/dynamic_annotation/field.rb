@@ -63,12 +63,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
         data: { key => self.value },
         obj: self.annotation.project_media
       }
-      if Rails.env == 'test'
-        self.update_elasticsearch_doc(options[:keys], options[:data], options[:obj])
-      else
-        options[:doc_id] = self.get_es_doc_id(options[:obj])
-        self.update_elasticsearch_doc_bg(options) # This is actually processed in foreground
-      end
+      self.update_elasticsearch_doc(options[:keys], options[:data], options[:obj])
     end
   end
 

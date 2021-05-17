@@ -40,6 +40,29 @@ module SampleData
     a.reload
   end
 
+  def create_saved_search(options = {})
+    ss = SavedSearch.new
+    ss.team = create_team
+    ss.title = random_string
+    ss.filters = '{}'
+    options.each do |key, value|
+      ss.send("#{key}=", value) if ss.respond_to?("#{key}=")
+    end
+    ss.save!
+    ss.reload
+  end
+
+  def create_project_group(options = {})
+    pg = ProjectGroup.new
+    pg.team = create_team
+    pg.title = random_string
+    options.each do |key, value|
+      pg.send("#{key}=", value) if pg.respond_to?("#{key}=")
+    end
+    pg.save!
+    pg.reload
+  end
+
   def create_bot_user(options = {})
     u = BotUser.new
     u.name = options[:name] || random_string
@@ -564,7 +587,6 @@ module SampleData
     pm = ProjectMedia.new
     if options.has_key?(:project) && !options[:project].nil?
       options[:team] = options[:project].team
-      options[:add_to_project_id] = options[:project].id unless options.has_key?(:add_to_project_id)
     end
     options[:team] = create_team unless options.has_key?(:team)
     options[:media] = create_valid_media({team: options[:team]}) unless options.has_key?(:media)
@@ -885,18 +907,6 @@ module SampleData
     end
     la.save!
     la.reload
-  end
-
-  def create_project_media_project(options = {})
-    pmp = ProjectMediaProject.new
-    pmp.disable_es_callbacks = true
-    options.each do |key, value|
-      pmp.send("#{key}=", value) if pmp.respond_to?("#{key}=")
-    end
-    pmp.project_media = create_project_media unless options.has_key?(:project_media)
-    pmp.project = create_project unless options.has_key?(:project)
-    pmp.save!
-    pmp.reload
   end
 
   def create_blank_media

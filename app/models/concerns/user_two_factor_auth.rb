@@ -15,7 +15,7 @@ module UserTwoFactorAuth
       data[:can_enable_otp] = self.encrypted_password? && !self.email.blank?
       data[:otp_required] = self.otp_required_for_login?
       data[:qrcode_svg] = ''
-      if data[:can_enable_otp] && !data[:otp_required]
+      if CheckConfig.get('two_factor_key') && data[:can_enable_otp] && !data[:otp_required]
         self.otp_secret = User.generate_otp_secret
         self.save!
         # render qrcode if otp is disabled

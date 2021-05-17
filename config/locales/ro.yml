@@ -49,8 +49,6 @@ ro:
         label: Înșelător
       disputed:
         label: Contestat
-      out_of_scope:
-        label: În afara domeniului
       junk:
         label: Nedorit
       unstarted:
@@ -109,7 +107,6 @@ ro:
       comment: Notă
       project_media: Element
       media: Element
-      project: Listă
       team: Spațiu de lucru
       user: Utilizator
       source: Sursa
@@ -170,7 +167,6 @@ ro:
     fields:
       assigned: Atribuit lui
       unassigned: Transferat de la
-      project: Listă
       source: Sursa
       status: Starea
       status_previous: Starea precedentă
@@ -197,8 +193,6 @@ ro:
       project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type}
         asociat"
       project_media_update: "%{user} (%{role} din %{team}) a actualizat un element"
-      project_media_added_to_list: "%{user} (%{role} din %{team}) a adăugat un element
-        în lista %{list_name}"
       project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow}
         pentru %{type}"
       project_media_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
@@ -206,9 +200,6 @@ ro:
       project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
       project_source_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
       project_source_update: "%{user} (%{role} în %{team}) a redactat %{type}"
-      project_create: "%{user} (%{role} din %{team}) a creat o listă"
-      project_assign: "%{user} (%{role} din %{team}) a alocat o listă"
-      project_unassign: "%{user} (%{role} din %{team}) a anulat alocarea unei liste"
       user_member: "%{user} s-a alăturat spațiului de lucru %{team}"
       user_requested: "%{user} a cerut să se alăture spațiului de lucru %{team}"
       user_invited: "%{user} a fost invitat(ă) să se alăture spațiului de lucru %{team}"
@@ -256,6 +247,8 @@ ro:
     privind acest element la %{date}"
   oembed_source_date: "%{date} pe %{provider}"
   role_editor: redactor
+  role_admin: admin
+  role_collaborator: colaborator
   role_none: membru
   role_: administrator de sistem
   oembed_credit: Adăugat de %{user} (%{role}) %{date}
@@ -281,8 +274,6 @@ ro:
   geolocation_invalid_value: Locație nevalidă. Se așteaptă o structură GeoJSON validă
     (http://geojson.org/)
   datetime_invalid_date: Dată nevalidă
-  error_team_archived: Ne pare rău, nu puteți adăuga liste în spații de lucru șterse
-  error_project_archived: Ne pare rău, nu puteți adăuga elemente în liste șterse
   error_team_archived_for_source: Ne pare rău, nu puteți adăuga surse în spații de
     lucru șterse
   permission_error: Ne pare rău, nu aveți permisiunea de a efectua această operațiune
@@ -338,7 +329,6 @@ ro:
   mails_notifications:
     greeting: Salut, %{username},
     greeting_anonymous: Salut!
-    project_view: Afișează lista
     unsubscribe: Anulați abonarea
     unsubscribe_link: "%{unsubscribe} la aceste înștiințări"
     copyright_html: '%{app_name} de la <a href="https://meedan.com">Meedan</a>'
@@ -386,16 +376,6 @@ ro:
       decompress_text: " %{type} va fi descărcat sub forma unui fișier comprimat,
         criptat. Pentru a decomprima fișierul introduceți parola: %{password}."
       expire_note: Atenție! Acest link va expira peste %{days} zile.
-      project_export_csv_subject: "[%{team} - %{project}] Raportul listei este gata
-        pentru descărcare"
-      project_export_images_subject: "[%{team} - %{project}] Arhiva imaginilor din
-        listă este gata de descărcare"
-      project_export_title: Datele listei
-      project_export_button: Descarcă datele listei
-      project_export_csv_text: 'Ați solicitat un raport pentru lista %{project} -
-        acesta este linkul pentru descărcare: %{link}'
-      project_export_images_text: 'Ați solicitat o arhivă de imagini pentru lista
-        %{project} - acesta este linkul pentru descărcare: %{link}'
       team_import_subject: Importul de date s-a finalizat
       team_import_title: Import de date
       team_import_text: "<p>Activitatea dvs de import de date în %{app_name} s-a finalizat.
@@ -405,7 +385,6 @@ ro:
     task_resolved:
       subject: "[%{team} - %{project}] Sarcină rezolvată"
       header_title: Sarcină rezolvată
-      header_text: " %{author} a răspuns la o sarcină din lista %{project} din %{team}."
       section_title: Cine sau care este sursa elementului?
       status: Starea
       media_h: Element
@@ -413,8 +392,6 @@ ro:
       label: element
       subject: "[%{team} - %{project}] O stare a unui element a fost marcată ca %{status}"
       header_title: Starea elementului a fost actualizată
-      header_text: " %{author} a actualizat starea unui element din lista %{project}
-        din %{team}."
       section_title: Marcat ca fiind %{status}.
       added_to: Adăugat în %{app_name}
       update_h: Ultima actualizare
@@ -423,31 +400,17 @@ ro:
       assign_task_subject: "[%{team} - %{project}] V-a fost desemnată o sarcină"
       unassign_task_subject: "[%{team} - %{project}] O sarcină a fost transferată
         de la Dvs"
-      assign_project_subject: "[%{team} - %{project}] Vi s-a alocat o listă"
-      unassign_project_subject: "[%{team} - %{project}] Vi s-a anulat alocarea unei
-        liste"
       assign_media_subject: "[%{team} - %{project}] Vi s-a alocat un element"
       unassign_media_subject: "[%{team} - %{project}] Vi s-a anulat alocarea unui
         element"
-      assign_project_title: Listă alocată
-      unassign_project_title: Alocare listă anulată
-      assign_project_text: "%{author} a alocat lista %{project} din %{team}."
-      unassign_project_text: "%{author} a anulat alocarea listei %{project} din %{team}."
       assign_task_title: Sarcină desemnată
       unassign_task_title: Sarcină transferată
-      assign_task_text: "%{author} a alocat o sarcină în lista %{project} din %{team}."
-      unassign_task_text: "%{author} a anulat alocarea unei sarcini din lista %{project}
-        din %{team}."
       assign_media_title: Element alocat
       unassign_media_title: Alocare element anulată
-      assign_media_text: "%{author} a alocat un element din lista %{project} din %{team}."
-      unassign_media_text: "%{author} a anulat alocarea unui element din lista %{project}
-        din %{team}."
       assign_log: "%{author} a atribuit %{model} lui %{username}"
       unassign_log: "%{author} a transferat %{model} de la %{username}"
       assign_by: Atribuit de
       unassign_by: Transferat de către
-      project_button: Deschide pagina listei
     request_to_join:
       subject: Cerere pentru a intra în spațiul de lucru %{team}
       team_page: pagina spațiului de lucru
@@ -559,17 +522,13 @@ ro:
     transmis a fost *actualizat* cu informații noi"
   permissions_info:
     roles:
-      editor:
-        description: Editorii gestionează spațiul de lucru și listele.
+      admin:
+        description: Administratorii controlează spațiul de lucru.
+      collaborator:
+        description: Colaboratorii pot adăuga informații noi de verificat. Sunt adesea
+          persoane din publicul larg.
     permissions:
       sections:
-        project_management:
-          name: Gestionarea listelor
-          permissions:
-            create: Creează o listă
-            edit: Editează lista
-            delete: Șterge lista
-            add_item: Adaugă un element în listă
         item_page_management:
           name: Gestionare elemente
           permissions:
@@ -578,7 +537,6 @@ ro:
             change_status: Schimbă starea elementului
             lock_unlock_status: Blochează/deblochează starea
             add_remove_tag: Adaugă/elimină etichetă
-            send_to_trash: Trimite elementul sau sursa în coș
             empty_trash: Golire coș
         task_management:
           name: Gestionare sarcini
@@ -599,6 +557,8 @@ ro:
             edit_tasks: Creează și editează sarcini în spațiul de lucru
             roles: Editează rolurile din spațiul de lucru
             third_party: Adaugă integrare a terților
+            invite_admin: Invită, aprobă și elimină administratori ai spațiului de
+              lucru
             invite_members: Invită, aprobă și elimină membri ai spațiului de lucru
   team_clone:
     user_not_authorized: Ne pare rău, nu aveți permisiunea să duplicați această echipă.
@@ -615,12 +575,10 @@ ro:
       Vă rugăm să informați echipa de suport despre acest incident.
     user_not_authorized: Ne pare rău, nu aveți dreptu să importați date în acest spațiu
       de lucru.
-    invalid_project: Listă nevalidă %{project}
     invalid_user: Autorul %{user} nu este valid
     invalid_status: Starea %{status} nu este validă
     blank_user: Câmp gol de autor nevalid
     blank_annotator: Câmp gol de adnotator nevalid
-    blank_project: Câmp gol de listă nevalid
     invalid_annotator: Adnotator nevalid %{user}
     invalid_assignee: Destinatar al desemnării nevalid %{user}
   cant_mutate_inactive_object: Ne pare rău, pentru acest element există o operațiune
@@ -636,16 +594,18 @@ ro:
   smooch_requests_asc: Cel mai puțin solicitat
   smooch_requests_desc: Cel mai solicitat
   bot_request_url_invalid: URL robot nevalid
+  must_select_exactly_one_facebook_page: Selectați exact pagina Facebook pe care vreți
+    să o integrați cu linia de ponturi.
   invalid_task_answer: Format nevalid de răspuns la sarcină
   team_rule_name: O denumire unică ce identifică ce face această regulă
-  team_rule_project_ids: Aplică pe listă
-  team_rule_destination: Selectează lista de destinație
   team_rule_names_invalid: Denumirile regulilor nu pot fi goale și trebuie să fie
     unice
   team_rules: Reguli
   team_rule_conditions: Dacă
   team_rule_condition: Dacă
   team_rule_condition_definition: Selectați condiția
+  team_rule_has_less_than_x_words: Cererea de text conține mai puțin de (sau exact)
+    următorul număr de cuvinte
   team_rule_title_matches_regexp: Titlul elementului se potrivește cu această expresie
     regulată
   team_rule_request_matches_regexp: Cererea se potrivește cu această expresie regulată
@@ -671,9 +631,6 @@ ro:
   team_rule_actions: Atunci
   team_rule_action: Atunci
   team_rule_action_definition: Selectați acțiunea
-  team_rule_send_to_trash: Trimite la coșul de gunoi
-  team_rule_move_to_project: Mută elementul în listă
-  team_rule_copy_to_project: Adaugă elementul în listă
   team_rule_ban_submitter: Pune interdicție expeditorului (mesajele viitoare de la
     el/ea nu vor mai apărea în Check)
   team_rule_all_items: Toate elementele
@@ -708,6 +665,7 @@ ro:
   team_rule_select_field_tasks: Selectează sarcina
   team_rule_select_field_value_tasks: Selectează răspunsul
   team_rule_item_is_assigned_to_user: Elementul este alocat lui
+  team_rule_add_tag: Adaugă eticheta
   flag_adult: Adult
   flag_spoof: Înșelătorie
   flag_medical: Medical
@@ -759,3 +717,14 @@ ro:
   list_column_media_published_at: Medii publicate
   list_column_related_count: Asociate
   list_column_suggestions_count: Potriviri sugerate
+  go_back_to_check: Întoarcere la Check
+  info:
+    messages:
+      sent_to_trash_by_rule: "„%{item_title}” a fost pus la coșul de gunoi de o regulă
+        automată."
+      banned_submitter_by_rule: Cererea de la „%{item_title}” a fost interzisă de
+        o regulă automată.
+      related_to_confirmed_similar: "„%{item_title}” a fost confirmat ca similar cu
+        „%{similar_item_title}”."
+      related_to_suggested_similar: "„%{item_title}” a fost sugerat ca similar cu
+        „%{similar_item_title}”."

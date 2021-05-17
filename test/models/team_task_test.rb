@@ -160,24 +160,6 @@ class TeamTaskTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "should add teamwide task to item in multiple list" do
-    t =  create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    Team.stubs(:current).returns(t)
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      create_project_media_project project: p2, project_media: pm
-      tt = nil
-      assert_difference 'Task.length', 1 do
-        tt = create_team_task team_id: t.id, project_ids: [], order: 1, description: 'Foo', options: [{ label: 'Foo' }]
-      end
-      assert_equal 1, pm.annotations('task').select{|t| t.team_task_id == tt.id}.count
-      assert_equal 1, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).from_fieldset('tasks').count
-    end
-    Team.unstub(:current)
-  end
-
   test "should bypass trashed items" do
     t =  create_team
     u = create_user
@@ -490,7 +472,7 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id, project_ids: [p2.id]
     # Project Media error
     ProjectMedia.any_instance.stubs(:create_auto_tasks).raises(StandardError)
-    tt.send(:handle_add_projects, { 'pmp.project_id': p.id })
+    tt.send(:handle_add_projects, { 'project_id': p.id })
     ProjectMedia.any_instance.unstub(:create_auto_tasks)
     # Source error
     tt2 = create_team_task team_id: t.id, fieldset: 'metadata', associated_type: 'Source'
@@ -603,5 +585,57 @@ class TeamTaskTest < ActiveSupport::TestCase
     tt = create_team_task show_in_browser_extension: false
     t = create_task team_task_id: tt.id
     assert !t.show_in_browser_extension
+  end
+
+  test "should add-remove team tasks based on rule" do
+    create_task_stuff
+    t = create_team
+    p = create_project team: t
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          action_definition: 'move_to_project',
+          action_value: p.id
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    tt = create_team_task team_id: t.id, project_ids: []
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t, quote: 'test by sawy'
+      end
+      pm_tasks = pm.annotations('task').select{|t| t.team_task_id == tt.id}
+      assert_equal 1, pm_tasks.count
+      tt2 = create_team_task team_id: t.id, project_ids: [p.id]
+      pm2 = nil
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media team: t, quote: 'another test by sawy'
+      end
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}
+      pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}
+      assert_equal 1, pm2_tt.count
+      assert_equal 1, pm2_tt2.count
+    end
+    Team.unstub(:current)
   end
 end

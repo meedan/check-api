@@ -7,10 +7,6 @@ DynamicAnnotation::Field.class_eval do
     CheckCldr.language_code_to_name(code)
   end
 
-  def field_formatter_name_response_single_choice
-    response_value(self.value)
-  end
-
   def field_formatter_name_response_multiple_choice
     response_value(self.value)
   end
@@ -33,7 +29,7 @@ DynamicAnnotation::Field.class_eval do
     I18n.l(DateTime.parse(self.value), format: :task).gsub('[TZ]', abbr)
   end
 
-  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload'].each do |type|
+  ['free_text', 'yes_no', 'single_choice', 'multiple_choice', 'geolocation', 'datetime', 'file_upload', 'number'].each do |type|
     define_method "field_formatter_name_suggestion_#{type}" do
       JSON.parse(self.value)['suggestion']
     end

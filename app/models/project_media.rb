@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :add_to_project_id, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -16,21 +16,19 @@ class ProjectMedia < ActiveRecord::Base
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
+  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
 
   before_validation :set_team_id, on: :create
-  after_create :create_project_media_project, :set_quote_metadata, :create_annotation, :notify_team_bots_create, :create_metrics_annotation
-  after_create :send_slack_notification, :create_auto_tasks_for_team_item, if: proc { |pm| pm.add_to_project_id.nil? }
-  after_create :create_relationship
-  after_commit :apply_rules_and_actions_on_create, on: [:create]
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
+  after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_commit :set_quote_metadata, on: [:create]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],
                   event: 'media_updated',
-                  targets: proc { |pm| [pm.media, pm.team].concat(pm.projects) },
+                  targets: proc { |pm| [pm.media, pm.team, pm.project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
@@ -74,6 +72,10 @@ class ProjectMedia < ActiveRecord::Base
     mapping_ids[value]
   end
 
+  def project_group
+    self.project&.project_group
+  end
+
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
@@ -95,11 +97,9 @@ class ProjectMedia < ActiveRecord::Base
     }
   end
 
-  def should_send_slack_notification_message_for_card?(event = nil)
+  def should_send_slack_notification_message_for_card?
     # Should always render a card if there is no slack_message annotation
     return true if Annotation.where(annotation_type: 'slack_message', annotated_type: 'ProjectMedia', annotated_id: self.id).last.nil?
-    # Should always render a card if the item was added/moved to a list that has a specific Slack channel
-    return true if event == 'item_added'
     Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
   end
 
@@ -114,7 +114,7 @@ class ProjectMedia < ActiveRecord::Base
     related = params[:related_to].blank? ? '' : '_related'
     pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
     # Either render a card or update an existing one
-    self.should_send_slack_notification_message_for_card?(update) ? self.slack_notification_message_for_card(pretext) : nil
+    self.should_send_slack_notification_message_for_card? ? self.slack_notification_message_for_card(pretext) : nil
   end
 
   def picture
@@ -190,7 +190,8 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def full_url
-    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}/media/#{self.id}"
+    project_prefix = self.project_id.nil? ? '' : "/project/#{self.project_id}"
+    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}#{project_prefix}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)
@@ -281,19 +282,15 @@ class ProjectMedia < ActiveRecord::Base
     User.current = previous_user
   end
 
-  def project_ids
-    self.projects.map(&:id)
-  end
-
-  def add_destination_team_tasks(project, only_selected)
-    tasks = project.team.auto_tasks(project.id, only_selected)
+  def add_destination_team_tasks(project_id)
+    tasks = self.team.auto_tasks(project_id)
     existing_tasks = Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia', annotated_id: self.id)
       .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id)) unless tasks.blank?
     unless existing_tasks.blank?
       tt_ids = existing_tasks.collect{|i| i.data['team_task_id']}
       tasks.delete_if {|t| tt_ids.include?(t.id)}
     end
-    self.create_auto_tasks(project.id, tasks) unless tasks.blank?
+    self.create_auto_tasks(project_id, tasks) unless tasks.blank?
   end
 
   def replace_by(new_project_media)
@@ -305,13 +302,21 @@ class ProjectMedia < ActiveRecord::Base
       id = new_project_media.id
       ProjectMedia.transaction do
         # Remove any status and report from the new item
-        Annotation.where(annotation_type: ['verification_status', 'report_design'], annotated_type: 'ProjectMedia', annotated_id: new_project_media.id).destroy_all
+        Annotation.where(
+          annotation_type: ['verification_status', 'report_design'],
+          annotated_type: 'ProjectMedia', annotated_id: new_project_media.id
+        ).find_each do |a|
+          a.skip_check_ability = true
+          a.destroy!
+        end
         # All annotations from the old item should point to the new item
         Annotation.where(annotated_type: 'ProjectMedia', annotated_id: self.id).update_all(annotated_id: id)
         # Destroy the old item
+        self.skip_check_ability = true
         self.destroy!
         # Save the new item
         new_project_media.updated_at = Time.now
+        new_project_media.skip_check_ability = true
         new_project_media.save!
       end
     end
@@ -347,17 +352,6 @@ class ProjectMedia < ActiveRecord::Base
     self.updated_at.to_i
   end
 
-  def create_project_media_project
-    unless self.add_to_project_id.blank?
-      ProjectMediaProject.create!(
-        project_media_id: self.id,
-        project_id: self.add_to_project_id,
-        set_tasks_responses: self.set_tasks_responses,
-        disable_es_callbacks: self.disable_es_callbacks
-      ) unless self.project_media_projects.where(project_id: self.add_to_project_id).exists?
-    end
-  end
-
   def has_analysis_title?
     !self.analysis_title.blank?
   end
@@ -388,6 +382,32 @@ class ProjectMedia < ActiveRecord::Base
 
   def analysis_published_date
     self.analysis.dig('date_published')
+  end
+
+  def remove_related_team_tasks_bg(pid)
+    # Get team tasks that assigned to target list (pid)
+    tasks = TeamTask.where("project_ids like ?", "% #{pid}\n%")
+    # Get tasks with zero answer (should keep completed tasks)
+    Task.where('annotations.annotation_type' => 'task', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => self.id)
+    .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', tasks.map(&:id))
+    .joins("LEFT JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
+      AND responses.annotated_type = 'Task'
+      AND responses.annotated_id = annotations.id"
+      )
+    .where('responses.id' => nil).find_each do |t|
+      t.skip_check_ability = true
+      t.destroy
+    end
+  end
+
+  def slack_channel(event)
+    return nil if self.project_id.nil?
+    event ||= 'item_added'
+    slack_events = self.project.setting(:slack_events)
+    slack_events ||= []
+    slack_events.map!(&:with_indifferent_access)
+    selected_event = slack_events.select{|i| i['event'] == event }.last
+    selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
   protected

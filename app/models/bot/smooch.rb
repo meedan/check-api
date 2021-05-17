@@ -7,6 +7,8 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
+  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter telegram viber line)
+
   check_settings
 
   include SmoochMessages
@@ -14,9 +16,14 @@ class Bot::Smooch < BotUser
   include SmoochTos
   include SmoochStatus
   include SmoochResend
+  include SmoochTeamBotInstallation
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
+
+    def report_image
+      self.get_dynamic_annotation('report_design')&.report_design_image_url(nil)
+    end
   end
 
   ::Relationship.class_eval do
@@ -38,7 +45,7 @@ class Bot::Smooch < BotUser
           s.status = status
           s.save!
         end
-        ::Bot::Smooch.delay_for(1.second).send_report_from_parent_to_child(parent.id, target.id)
+        ::Bot::Smooch.delay_for(3.seconds).send_report_from_parent_to_child(parent.id, target.id)
       end
     end
 
@@ -151,6 +158,10 @@ class Bot::Smooch < BotUser
           case user[:platform]
           when 'whatsapp'
             user[:displayName]
+          when 'telegram'
+            '@' + user[:raw][:username].to_s
+          when 'messenger', 'viber', 'line'
+            user[:externalId]
           when 'twitter'
             '@' + user[:raw][:screen_name]
           else
@@ -208,16 +219,6 @@ class Bot::Smooch < BotUser
         slack_channel_url = field_value.value unless field_value.nil?
       end
       slack_channel_url
-    end
-  end
-
-  TeamBotInstallation.class_eval do
-    # Save Twitter/Facebook token and authorization URL
-    after_create do
-      if self.bot_user.identifier == 'smooch'
-        self.reset_smooch_authorization_token
-        self.save!
-      end
     end
   end
 
@@ -498,8 +499,7 @@ class Bot::Smooch < BotUser
       original = JSON.parse(original)
       if original['fallback_template'] =~ /report/
         pmids = ProjectMedia.find(original['project_media_id']).related_items_ids
-        f = DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).first
-        unless f.nil?
+        DynamicAnnotation::Field.joins(:annotation).where(field_name: 'smooch_data', 'annotations.annotated_type' => 'ProjectMedia', 'annotations.annotated_id' => pmids).where("value_json ->> 'authorId' = ?", message['appUser']['_id']).each do |f|
           a = f.annotation.load
           a.set_fields = { smooch_report_received: Time.now.to_i }.to_json
           a.save!
@@ -548,7 +548,7 @@ class Bot::Smooch < BotUser
       api_client = self.smooch_api_client
       app_id = self.config['smooch_app_id']
       api_instance = SmoochApi::AppUserApi.new(api_client)
-      user = api_instance.get_app_user(app_id, uid).appUser.to_hash
+      user = api_instance.get_app_user(app_id, uid).appUser.to_hash.with_indifferent_access
       api_instance = SmoochApi::AppApi.new(api_client)
       app = api_instance.get_app(app_id)
 
@@ -588,11 +588,17 @@ class Bot::Smooch < BotUser
                  when 'whatsapp'
                    user.dig(:clients, 0, :displayName)
                  when 'messenger'
-                   messenger_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)
-                   messenger_match.nil? ? nil : messenger_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/psid=([0-9]+)/)&.to_a&.at(1)
                  when 'twitter'
-                   twitter_match = user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)
-                   twitter_match.nil? ? nil : twitter_match[1]
+                   user.dig(:clients, 0, :info, :avatarUrl)&.match(/profile_images\/([0-9]+)\//)&.to_a&.at(1)
+                 when 'telegram'
+                   # The message on Slack side doesn't contain a unique Telegram identifier
+                   nil
+                 when 'viber'
+                   viber_match = user.dig(:clients, 0, 'raw', 'avatar')&.match(/dlid=([^&]+)/)
+                   viber_match.nil? ? nil : viber_match[1][0..26]
+                 when 'line'
+                   user.dig(:clients, 0, 'raw', 'pictureUrl')&.match(/sprofile\.line-scdn\.net\/(.*)/)&.to_a&.at(1)
                  end
       identifier ||= uid
       Digest::MD5.hexdigest(identifier)
@@ -773,7 +779,7 @@ class Bot::Smooch < BotUser
 
   def self.create_project_media(message, type, extra)
     extra.merge!({ archived: message['archived'] })
-    pm = ProjectMedia.create!({ add_to_project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
+    pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
   end
@@ -815,14 +821,14 @@ class Bot::Smooch < BotUser
       filepath = File.join(Rails.root, 'tmp', filename)
       media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).joins(:project_media_projects).where('medias.type' => media_type, 'medias.file' => filename, 'project_media_projects.project_id' => message['project_id']).last
+      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
       if pm.nil?
         m = media_type.constantize.new
         File.open(filepath) do |f2|
           m.file = f2
         end
         m.save!
-        pm = ProjectMedia.create!(add_to_project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.create!(project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
         pm.is_being_created = true
       end
       FileUtils.rm_f filepath
@@ -868,19 +874,23 @@ class Bot::Smooch < BotUser
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil)
     parent = Relationship.confirmed_parent(pm)
     report = parent.get_dynamic_annotation('report_design')
+    Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
     if report&.get_field_value('state') == 'published' && parent.archived == CheckArchivedFlags::FlagCodes::NONE
       last_smooch_response = nil
       if report.report_design_field_value('use_introduction', lang)
         introduction = report.report_design_introduction(data, lang)
         last_smooch_response = self.send_message_to_user(uid, introduction)
+        Rails.logger.info "[Smooch Bot] Sent report introduction to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
         sleep 1
       end
       if report.report_design_field_value('use_visual_card', lang)
         last_smooch_response = self.send_message_to_user(uid, '', { 'type' => 'image', 'mediaUrl' => report.report_design_image_url(lang) })
+        Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
         sleep 3
       end
       if report.report_design_field_value('use_text_message', lang)
         last_smooch_response = self.send_message_to_user(uid, report.report_design_text(lang))
+        Rails.logger.info "[Smooch Bot] Sent text report to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response.to_json}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
     end
