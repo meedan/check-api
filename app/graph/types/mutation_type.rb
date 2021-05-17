@@ -74,7 +74,9 @@ MutationType = GraphQL::ObjectType.define do
   field :updateTeamBotInstallation, field: TeamBotInstallationMutations::Update.field
   field :destroyTeamBotInstallation, field: TeamBotInstallationMutations::Destroy.field
 
-  field :smoochBotAddSlackChannelUrl, field: SmoochBotAddSlackChannelUrlMutation.field
+  field :smoochBotAddSlackChannelUrl, field: SmoochBotMutations::AddSlackChannelUrl.field
+  field :smoochBotAddIntegration, field: SmoochBotMutations::AddIntegration.field
+  field :smoochBotRemoveIntegration, field: SmoochBotMutations::RemoveIntegration.field
 
   field :createTagText, field: TagTextMutations::Create.field
   field :updateTagText, field: TagTextMutations::Update.field
@@ -97,16 +99,15 @@ MutationType = GraphQL::ObjectType.define do
     field "destroyDynamicAnnotation#{klass}".to_sym, field: "DynamicAnnotation#{klass}Mutations::Destroy".constantize.field
   end
 
-  field :importSpreadsheet, field: ImportSpreadsheetMutation.field
-
-  field :createProjectMediaProject, field: ProjectMediaProjectMutations::Create.field
-  field :updateProjectMediaProject, field: ProjectMediaProjectMutations::Update.field
-  field :destroyProjectMediaProject, field: ProjectMediaProjectMutations::Destroy.field
-  field :createProjectMediaProjects, field: ProjectMediaProjectMutations::BulkCreate.field
-  field :updateProjectMediaProjects, field: ProjectMediaProjectMutations::BulkUpdate.field
-  field :destroyProjectMediaProjects, field: ProjectMediaProjectMutations::BulkDestroy.field
-
   field :createProjectMediaUser, field: ProjectMediaUserMutations::Create.field
   field :updateProjectMediaUser, field: ProjectMediaUserMutations::Update.field
   field :destroyProjectMediaUser, field: ProjectMediaUserMutations::Destroy.field
+
+  field :createSavedSearch, field: SavedSearchMutations::Create.field
+  field :updateSavedSearch, field: SavedSearchMutations::Update.field
+  field :destroySavedSearch, field: SavedSearchMutations::Destroy.field
+
+  field :createProjectGroup, field: ProjectGroupMutations::Create.field
+  field :updateProjectGroup, field: ProjectGroupMutations::Update.field
+  field :destroyProjectGroup, field: ProjectGroupMutations::Destroy.field
 end

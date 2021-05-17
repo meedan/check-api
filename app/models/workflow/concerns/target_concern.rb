@@ -8,7 +8,7 @@ module Workflow
         target_id = workflow.target.name.underscore # project_media, task, etc.
 
         workflow.target.class_eval do
-          after_create "create_first_#{workflow_id}", prepend: true
+          after_create "create_first_#{workflow_id}".to_sym, prepend: true
 
           define_method "get_#{target_id}_status" do
             self.last_status

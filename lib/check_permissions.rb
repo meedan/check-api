@@ -27,18 +27,20 @@ module CheckPermissions
     end
 
     def get_object(id)
-      if self.name == 'Project'
-        self.joins(:team).where('teams.inactive' => false).where(id: id)[0]
-      elsif self.name == 'Team'
-        self.where(id: id, inactive: false).last
-      elsif self.name == 'ProjectMedia'
-        pm = self.find(id)
-        pm.team&.inactive ? nil : pm
-      elsif self.name == 'Version'
+      obj = nil
+      if self.name == 'Version'
         tid = Team.current&.id.to_i
-        self.from_partition(tid).where(id: id).last
+        obj = self.from_partition(tid).where(id: id).last
       else
-        self.find(id)
+        obj = self.find_by_id(id)
+      end
+      return nil if obj.nil?
+      if self.name == 'Project' || self.name == 'ProjectMedia'
+        obj.team&.inactive ? nil : obj
+      elsif self.name == 'Team'
+        obj.inactive? ? nil : obj
+      else
+        obj
       end
     end
 
@@ -109,9 +111,9 @@ module CheckPermissions
     return :create if self.new_record?
     changes = self.changes.to_json
     op = :update
-    if changes == '{"archived":[1,0]}'
+    if changes.include?('"archived":[1,0]')
       op = :restore
-    elsif changes == '{"archived":[2,0]}'
+    elsif changes.include?('"archived":[2,0]')
       op = :confirm
     end
     op

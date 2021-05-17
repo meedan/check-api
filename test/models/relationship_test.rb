@@ -294,10 +294,10 @@ class RelationshipTest < ActiveSupport::TestCase
     pm_s = create_project_media team: t
     pm_t = create_project_media project: p
     r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
-    assert_equal [p.id], pm_t.project_ids
+    assert_equal p.id, pm_t.project_id
     r.add_to_project_id = p2.id
     r.destroy
-    assert_equal [p.id, p2.id], pm_t.reload.project_ids.sort
+    assert_equal p2.id, pm_t.reload.project_id
 
   end
 
@@ -358,5 +358,21 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_queries(0, '>') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
+  end
+
+  test "should clear cache when inverting relationship" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
+    assert_equal 1, pm1.reload.linked_items_count
+    assert_equal 0, pm2.reload.linked_items_count
+    r = Relationship.find(r.id)
+    r.source_id = pm2.id
+    r.target_id = pm1.id
+    r.save!
+    assert_equal 0, pm1.reload.linked_items_count
+    assert_equal 1, pm2.reload.linked_items_count
   end
 end

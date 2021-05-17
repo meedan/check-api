@@ -273,6 +273,146 @@ class GraphqlController5Test < ActionController::TestCase
     assert_not_nil @u.reload.last_active_at
   end
 
+  test "should not get Smooch integrations if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
+  test "should get Smooch integrations if permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_enabled_integrations')
+  end
+
+  test "should remove Smooch integration if permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'smoochBotRemoveIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
+  end
+
+  test "should not remove Smooch integration if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
+    
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
+  test "should add Smooch integration if permissioned" do
+    SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).returns(nil)
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'smoochBotAddIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
+  end
+
+  test "should not add Smooch integration if not permissioned" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    t2 = create_team
+    create_team_user user: u, team: t2, role: 'admin'
+    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
+
+    post :create, query: query
+    assert_error_message 'Not Found'
+
+    authenticate_with_user(u)
+    post :create, query: query
+    assert_error_message 'Not Found'
+  end
+
+  test "should get saved search filters" do
+    t = create_team
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters } } } } }"
+    post :create, query: query
+    assert_equal '{"foo":"bar"}', JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node', 'filters')
+    assert_response :success
+  end
+
+  test "should search by report status" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    # Published
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    r1 = publish_report(pm1)
+    r1 = Dynamic.find(r1.id)
+    r1.disable_es_callbacks = false
+    r1.set_fields = { state: 'published' }.to_json
+    r1.save!
+
+    # Paused
+    pm2 = create_project_media team: t, disable_es_callbacks: false
+    r2 = publish_report(pm2)
+    r2 = Dynamic.find(r2.id)
+    r2.disable_es_callbacks = false
+    r2.set_fields = { state: 'paused' }.to_json
+    r2.save!
+
+    # Not published
+    pm3 = create_project_media team: t, disable_es_callbacks: false
+
+    # Published
+    query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+  end
+
   protected
 
   def assert_error_message(expected)

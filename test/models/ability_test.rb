@@ -103,28 +103,6 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    test "#{role} permissions for project media project" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      tu = create_team_user user: u , team: t, role: role
-      p = create_project team: t
-      pm = create_project_media team: t
-      p2 = create_project team: t2
-      pm2 = create_project_media team: t2
-      pmp1 = create_project_media_project project: p, project_media: pm
-      pmp2 = create_project_media_project project: p2, project_media: pm2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, pmp1)
-        assert ability.can?(:update, pmp1)
-        assert ability.can?(:destroy, pmp1)
-        assert ability.cannot?(:create, pmp2)
-        assert ability.cannot?(:update, pmp2)
-        assert ability.cannot?(:destroy, pmp2)
-      end
-    end
-
     test "#{role} permissions for tag" do
       u = create_user
       t = create_team
@@ -304,18 +282,6 @@ class AbilityTest < ActiveSupport::TestCase
         assert ability.can?(:create, em_v)
         assert ability.cannot?(:update, em_v)
         assert ability.can?(:destroy, em_v)
-      end
-    end
-
-    test "team #{role} can import spreadsheet" do
-      t = create_team
-      t2 = create_team
-      u = create_user
-      create_team_user team: t, user: u, role: role
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:import_spreadsheet, t)
-        assert ability.cannot?(:import_spreadsheet, t2)
       end
     end
 
@@ -741,9 +707,8 @@ class AbilityTest < ActiveSupport::TestCase
     p = create_project team: t
     a = create_account
     team_perms = [
-      "bulk_create Tag", "bulk_create ProjectMediaProject", "bulk_update ProjectMediaProject", "bulk_destroy ProjectMediaProject",
-      "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash", "create Project",
-      "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
+      "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
+      "create Project", "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "mange TagText", "mange TeamTask"
     ]
     project_perms = [
@@ -1038,20 +1003,6 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
   end
-
-  # TODO: Sawy fix
-  # test "permissions for annotation type" do
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   at = create_annotation_type
-  #   with_current_user_and_team(u, t) do
-  #     ability = Ability.new
-  #     assert ability.can?(:create, DynamicAnnotation::AnnotationType)
-  #     assert ability.cannot?(:update, at)
-  #     assert ability.can?(:destroy, at)
-  #   end
-  # end
 
   test "permissions for team bot" do
     t1 = create_team

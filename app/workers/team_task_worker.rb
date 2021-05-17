@@ -32,6 +32,6 @@ class TeamTaskWorker
 
   def handle_remove_from(pid, options)
     pm = ProjectMedia.find_by_id(options[:project_media_id])
-    ProjectMediaProject.remove_related_team_tasks_bg(pid, pm.id) unless pm.nil?
+    pm.remove_related_team_tasks_bg(pid) unless pm.nil?
   end
 end

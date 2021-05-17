@@ -57,7 +57,7 @@ class TeamTask < ActiveRecord::Base
       add_to_sources
     else
       # items related to added projects
-      condition = self.project_ids.blank? ? { team_id: self.team_id } : { 'pmp.project_id': self.project_ids }
+      condition = self.project_ids.blank? ? { team_id: self.team_id } : { project_id: self.project_ids }
       handle_add_projects(condition)
     end
   end
@@ -171,10 +171,9 @@ class TeamTask < ActiveRecord::Base
     unless condition.blank?
       Task.where(annotation_type: 'task', annotated_type: 'ProjectMedia')
       .joins("INNER JOIN project_medias pm ON annotations.annotated_id = pm.id")
-      .joins("LEFT JOIN project_media_projects pmp ON pmp.project_media_id = pm.id")
       .where('task_team_task_id(annotations.annotation_type, annotations.data) = ?', self.id)
       .where(condition)
-      .where("pmp.project_id NOT IN (?) OR pmp.project_id IS NULL", excluded_ids)
+      .where("pm.project_id NOT IN (?) OR pm.project_id IS NULL", excluded_ids)
       .find_each { |t| t.destroy }
     end
   end
@@ -189,7 +188,7 @@ class TeamTask < ActiveRecord::Base
       condition = { "#{prefix}team_id": self.team_id }
       excluded_ids = projects[else_key]
     elsif !projects[else_key].blank?
-      condition = { "pmp.project_id": projects[if_key] }
+      condition = { "#{prefix}project_id": projects[if_key] }
     end
     [condition, excluded_ids]
   end
@@ -212,8 +211,7 @@ class TeamTask < ActiveRecord::Base
     # bypass trashed items
     condition.merge!({ archived: CheckArchivedFlags::FlagCodes::NONE })
     ProjectMedia.where(condition)
-    .joins("LEFT JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
-    .where("pmp.project_id NOT IN (?) OR pmp.project_id IS NULL", excluded_ids)
+    .where("project_medias.project_id NOT IN (?) OR project_medias.project_id IS NULL", excluded_ids)
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")

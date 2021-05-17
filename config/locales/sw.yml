@@ -50,7 +50,7 @@ sw:
       disputed:
         label: Imepingwa
       out_of_scope:
-        label: Nje ya Mawanda
+        label: Nje ya Wigo
       junk:
         label: Taka
       unstarted:
@@ -107,7 +107,6 @@ sw:
       comment: Maelezo
       project_media: Kitu
       media: Kitu
-      project: Orodha
       team: Ulingo wa kazi
       user: Mtumiaji
       source: Chanzo
@@ -165,7 +164,6 @@ sw:
     fields:
       assigned: Imepangiwa
       unassigned: Imepanguliwa kutoka kwa
-      project: Orodha
       source: Chanzo
       status: Hali
       status_previous: Hali iliyopita
@@ -194,8 +192,6 @@ sw:
       project_media_create_related: "%{user} (%{role} kwa %{team}) ameongeza inayohusiana
         %{type}"
       project_media_update: "%{user}( %{role} katika %{team} ) ilisasisha kipengee"
-      project_media_added_to_list: "%{user} ( %{role} katika %{team} )  aliongeza
-        kitu kwenye orodha %{list_name}"
       project_media_status: "%{user} (%{role} kwa %{team}) amebadilisha %{workflow}
         hali ya %{type}"
       project_media_assign: "%{user} (%{role} kwa %{team}) amepangia %{type}"
@@ -204,9 +200,6 @@ sw:
         %{parent_type}"
       project_source_create: "%{user} (%{role} kwa %{team}) ameongeza %{type}"
       project_source_update: "%{user} (%{role} kwa %{team}) amehariri %{type}"
-      project_create: "%{user} (%{role} kwa %{team}) ameunda Orodha"
-      project_assign: "%{user} (%{role} kwa %{team}) amepangia Orodha"
-      project_unassign: "%{user} (%{role} kwa %{team}) amepangua Orodha"
       user_member: "%{user} amejiunga na ulingo wa kazi %{team}"
       user_requested: "%{user} ameomba kujiunga na ulingo wa kazi %{team}"
       user_invited: "%{user} ameaalikwa kujiunga na ulingo wa kazi %{team}"
@@ -274,8 +267,6 @@ sw:
   duplicate_source: Chanzo tayari kipo
   geolocation_invalid_value: Mahali batili. Inatarajia muundo halali wa GeoJSON (http://geojson.org/)
   datetime_invalid_date: Tarehe batili
-  error_team_archived: Samahani, hauwezi kuongeza orodha kwenye ulingo wa kazi taka
-  error_project_archived: Samahani, huwezi kuongeza kitu kwenye orodha taka
   error_team_archived_for_source: Samahani,  huwezi kuongeza chanzo kwenye ulingo
     wa kazi taka
   permission_error: Samahani hauruhusiwi kutekeleza kitendo hiki
@@ -328,7 +319,6 @@ sw:
   mails_notifications:
     greeting: Habari %{username},
     greeting_anonymous: Habari!
-    project_view: Angalia orodha
     unsubscribe: Jiondoe
     unsubscribe_link: "%{unsubscribe} kutoka kwa arifu hizi"
     copyright_html: '%{app_name} na <a href="https://meedan.com">Meedan</a>'
@@ -379,16 +369,6 @@ sw:
         Kuioandoa kwenye gandamizo, tafadhali tumia nenosiri %{password}."
       expire_note: Tafadhali zingatia kuwa kiungo hiki kitaisha muda ndani ya siku
         %{days}.
-      project_export_csv_subject: "{%{team} - %{project}] Ripoti ya orodha ipo tayari
-        kupakuliwa."
-      project_export_images_subject: "{%{team} - %{project}] Picha ya jalada ya orodha
-        ipo tayari kupakuliwa."
-      project_export_title: Data ya orodha
-      project_export_button: Pakua data ya orodha
-      project_export_csv_text: 'Umeomba ripoti ya orodha %{project} - hiki hapa kiungo
-        cha kupakua: %{link}'
-      project_export_images_text: 'Umetuma ombi la jalada la picha za orodha %{project}
-        - hiki hapa kiungo cha kupakua: %{link}'
       team_import_subject: Uagizaji wako wa data  umekamilika
       team_import_title: Uagizaji data
       team_import_text: "<p>Data zako za kazi zilizoagizwa hadi %{app_name} zimekamilika.
@@ -398,7 +378,6 @@ sw:
     task_resolved:
       subject: "[%{team} - %{project}] Tazi Imejibiwa"
       header_title: Kazi imejibiwa
-      header_text: "%{author} amejibu kazi kwenye orodha %{project} kwa %{team}."
       section_title: Ni nani au nini chanzo cha kitu hiki?
       status: Hali
       media_h: Kitu
@@ -406,7 +385,6 @@ sw:
       label: Kitu
       subject: "[%{team} - %{project}] hali ya kitu imealamishwa kama %{status}"
       header_title: Hali ya kitu imesasishwa
-      header_text: "%{author} amesasisha hali ya kitu %{project} kwenye %{team}. "
       section_title: 'Imealamishwa kama %{status}. '
       added_to: Ameongezwa kwa %{app_name}
       update_h: Mwisho kusasishwa
@@ -414,28 +392,16 @@ sw:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Amepangiwa kazi"
       unassign_task_subject: "[%{team} - %{project}] Umepanguliwa kazi"
-      assign_project_subject: "[ %{team} - %{project}] Umepangiwa orodha "
-      unassign_project_subject: "[%{team} - %{project}] Umepanguliwa kazi"
       assign_media_subject: "[%{team} - %{project}] Umepangiwa kazi"
       unassign_media_subject: "[%{team} - %{project}] Kitu kilipanguliwa kutoka kwako"
-      assign_project_title: Orodha imepangiwa
-      unassign_project_title: Orodha haijapangiwa
-      assign_project_text: "%{author} amepangiwa orodha %{project} kwa %{team}."
-      unassign_project_text: "%{author} amepangua orodha %{project} kwa %{team}."
       assign_task_title: 'Kazi imepangiwa '
       unassign_task_title: Kazi haijapangiwa
-      assign_task_text: "%{author} amepangiwa kazi kwa orodha %{project} kwa %{team}."
-      unassign_task_text: "%{author} amepanguliwa kazi kwa orodha %{project} kwa %{team}."
       assign_media_title: 'Kitu kimepangiwa '
       unassign_media_title: Kitu hakijapangiwa
-      assign_media_text: "%{author} amepangiwa kitu kwa orodha %{project} kwa %{team}. "
-      unassign_media_text: "%{author} amepanguliwa kitu kwa orodha %{project} kwa
-        %{team}."
       assign_log: "%{author} amepanga %{model} kwa %{username}"
       unassign_log: "%{author} amepangua %{model} kutoka kwa %{username}"
       assign_by: Imepangwa na
       unassign_by: Imepanguliwa na
-      project_button: Nenda kwa ukurasa wa orodha
     request_to_join:
       subject: Omba kujiunga na ulingo wa kazi %{team}
       team_page: Ukurasa wa ulingo wa kazi
@@ -540,18 +506,8 @@ sw:
   smooch_bot_result_changed: "❗️Tathmini ukweli tuliyokutumia *imesasishwa* na maelezo
     mapya"
   permissions_info:
-    roles:
-      editor:
-        description: Wahariri wanasimamia ulingo wa kazi na orodha.
     permissions:
       sections:
-        project_management:
-          name: Usimamiaji wa orodha
-          permissions:
-            create: 'Unda orodha '
-            edit: Hariri orodha
-            delete: Futa orodha
-            add_item: Angela kitu  kwa orodha
         item_page_management:
           name: 'Usimamizi wa kitu '
           permissions:
@@ -560,7 +516,6 @@ sw:
             change_status: Badilisha hali ya kitu
             lock_unlock_status: Funga/fungua hali
             add_remove_tag: Ongeza/ondoa tagi
-            send_to_trash: Tuma kitu au kipeleke hadi taka
             empty_trash: Safisha taka
         task_management:
           name: Usimamiaji kazi
@@ -595,12 +550,10 @@ sw:
     user_not_present: Mtumiaji wa sasa hakuweza kupatikana wakati wa uagizaji data.
       Tafadhali ijulishe timu ya msaada kuhusu tukio hili.
     user_not_authorized: Samahani, hauruhusiwi kuleta data kwenye ulingo huu wa kazi.
-    invalid_project: Orodha batili %{project}
     invalid_user: Mwandishi batili %{user}
     invalid_status: Hali batili %{status}
     blank_user: Uga batili tupu wa mwandishi
     blank_annotator: 'Uga batili tupu wa ufafanuzi '
-    blank_project: Uga batili tupu wa orodha
     invalid_annotator: Mfafanuzi batili %{user}
     invalid_assignee: Mpangiwaji batili %{user}
   cant_mutate_inactive_object: Samahani, kuna shughuli inayosubiri kwa kipengele hiki,
@@ -618,8 +571,6 @@ sw:
   bot_request_url_invalid: URL batili ya boti
   invalid_task_answer: Muundo batili wa jibu la kazi
   team_rule_name: Jina la kipekee linalotambua kile kanuni hii hufanya
-  team_rule_project_ids: Tekeleza kwenye orodha
-  team_rule_destination: Chagua kunakoelekezwa orodha
   team_rule_names_invalid: Majina ya sheria hayawezi kuwa tupu na lazima yawe ya kipekee
   team_rules: Masharti
   team_rule_conditions: Iwapo
@@ -650,9 +601,6 @@ sw:
   team_rule_actions: Basi
   team_rule_action: Basi
   team_rule_action_definition: Chagua hatua
-  team_rule_send_to_trash: Tuma kwa taka
-  team_rule_move_to_project: Hamisha kipengee kwenye orodha
-  team_rule_copy_to_project: Ongeza kipengee kwenye orodha
   team_rule_ban_submitter: Mpige marufuku mtumaji (jumbe zao za siku za usoni hazitaonekana
     katika Check)
   team_rule_all_items: Vitu vyote
@@ -687,6 +635,7 @@ sw:
   team_rule_select_field_tasks: Chagua kazi
   team_rule_select_field_value_tasks: Chagua jibu
   team_rule_item_is_assigned_to_user: Kitu kimepangiwa
+  team_rule_add_tag: Ongeza lebo
   flag_adult: 'Mtu  mzima '
   flag_spoof: Hadaa
   flag_medical: Matibabu

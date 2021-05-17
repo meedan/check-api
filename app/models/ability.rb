@@ -65,7 +65,6 @@ class Ability
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'collaborator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
-    can :import_spreadsheet, Team, :id => @context_team.id
     can :preview_rss_feed, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
     can [:cud], Project, :team_id => @context_team.id
@@ -76,7 +75,7 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can [:cud], BotResource, :team_id => @context_team.id
+    can [:cud], [BotResource, SavedSearch, ProjectGroup], :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
@@ -107,9 +106,6 @@ class Ability
     can [:update, :destroy], [Media, Link, Claim] do |obj|
       obj.team_ids.include?(@context_team.id)
     end
-    can [:cud], ProjectMediaProject do |obj|
-      obj.project && obj.project.team_id == @context_team.id
-    end
     can :destroy, TeamUser, user_id: @user.id
     can :lock_annotation, ProjectMedia do |obj|
       obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
@@ -138,9 +134,6 @@ class Ability
       before, after = obj.data_change
       changes = (after.to_a - before.to_a).to_h
       obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_trashed?
-    end
-    can [:bulk_create, :bulk_update, :bulk_destroy], ProjectMediaProject do |obj|
-      obj.team == @context_team
     end
     can [:administer_content, :bulk_update], ProjectMedia do |obj|
       obj.related_to_team?(@context_team)

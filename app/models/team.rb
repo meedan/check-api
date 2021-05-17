@@ -9,7 +9,7 @@ class Team < ActiveRecord::Base
   include TeamAssociations
   include TeamPrivate
   include TeamDuplication
-  include TeamImport
+  # include TeamImport
   include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
@@ -70,11 +70,11 @@ class Team < ActiveRecord::Base
   end
 
   def owners(role, statuses = TeamUser.status_types)
-    self.users.where({'team_users.role': role, 'team_users.status': statuses})
+    self.users.where({ 'team_users.role': role, 'team_users.status': statuses })
   end
 
   def recent_projects
-    self.projects.order('title ASC')
+    self.projects
   end
 
   def team_graphql_id
@@ -134,14 +134,10 @@ class Team < ActiveRecord::Base
     self.team_users.where(user_id: User.current.id).last unless User.current.nil?
   end
 
-  def auto_tasks(add_to_project_id, only_selected = false, associated_type = 'ProjectMedia')
+  def auto_tasks(project_id, associated_type = 'ProjectMedia')
     tasks = []
     self.team_tasks.where(associated_type: associated_type).order(order: :asc, id: :asc).each do |task|
-      if only_selected
-        tasks << task if task.project_ids.include?(add_to_project_id)
-      else
-        tasks << task if task.project_ids.include?(add_to_project_id) || task.project_ids.blank?
-      end
+      tasks << task if task.project_ids.include?(project_id) || task.project_ids.blank?
     end
     tasks
   end
@@ -291,7 +287,6 @@ class Team < ActiveRecord::Base
     perms["mange TagText"] = ability.can?(:manage, tag_text)
     # FIXME fix typo
     perms["mange TeamTask"] = ability.can?(:manage, team_task)
-    [:bulk_create, :bulk_update, :bulk_destroy].each { |perm| perms["#{perm} ProjectMediaProject"] = ability.can?(perm, ProjectMediaProject.new(team: self)) }
     perms
   end
 
@@ -383,8 +378,8 @@ class Team < ActiveRecord::Base
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
-    updates = { 'verification_status' => fallback_status_id }
-    ProjectMedia.bulk_reindex(ids_json, updates)
+    script = { source: "ctx._source.verification_status = params.status", params: { status: fallback_status_id } }
+    ProjectMedia.bulk_reindex(ids_json, script)
   end
 
   def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
@@ -484,6 +479,11 @@ class Team < ActiveRecord::Base
       {
         key: 'suggestions_count',
         label: I18n.t(:list_column_suggestions_count),
+        show: false
+      },
+      {
+        key: 'folder',
+        label: I18n.t(:list_column_folder),
         show: false
       }
     ]

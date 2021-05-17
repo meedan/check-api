@@ -3,12 +3,15 @@ class Project < ActiveRecord::Base
   include ValidationsHelper
   include DestroyLater
   include AssignmentConcern
+  include AnnotationBase::Association
+
+  attr_accessor :project_media_ids_were, :previous_project_group_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
   belongs_to :user
   belongs_to :team
-  has_many :project_media_projects, dependent: :destroy
-  has_many :project_medias, through: :project_media_projects
+  belongs_to :project_group
+  has_many :project_medias
 
   mount_uploader :lead_image, ImageUploader
 
@@ -18,12 +21,14 @@ class Project < ActiveRecord::Base
   after_commit :send_slack_notification, on: [:create, :update]
   after_commit :update_elasticsearch_data, on: :update
   after_update :archive_or_restore_project_medias_if_needed
+  before_destroy :store_project_media_ids
   after_destroy :reset_current_project
 
   validates_presence_of :title
   validates :lead_image, size: true
   validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
+  validate :project_group_is_under_same_team
 
   has_annotations
 
@@ -35,21 +40,12 @@ class Project < ActiveRecord::Base
     start_as: 0,
     update_es: false,
     recalculate: proc { |p|
-      ProjectMediaProject.joins(:project_media).where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => p.id, 'project_medias.sources_count' => 0 }).count
+      ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: p.id, sources_count: 0 }).count
     },
     update_on: [
       {
-        model: ProjectMediaProject,
-        affected_ids: proc { |pmp| [pmp.project_id, pmp.previous_project_id] },
-        events: {
-          create: :recalculate,
-          update: :recalculate,
-          destroy: :recalculate
-        }
-      },
-      {
         model: Relationship,
-        affected_ids: proc { |r| ProjectMediaProject.where(project_media_id: r.target_id).map(&:project_id) },
+        affected_ids: proc { |r| ProjectMedia.where(id: r.target_id).map(&:project_id) },
         events: {
           save: :recalculate,
           destroy: :recalculate
@@ -57,10 +53,19 @@ class Project < ActiveRecord::Base
       },
       {
         model: ProjectMedia,
-        if: proc { |pm| pm.archived_changed? },
-        affected_ids: proc { |pm| ProjectMediaProject.where(project_media_id: pm.id).map(&:project_id) },
+        if: proc { |pm| !pm.project_id.nil? },
+        affected_ids: proc { |pm| [pm.project_id] },
         events: {
-          update: :recalculate
+          create: :recalculate,
+          destroy: :recalculate
+        }
+      },
+      {
+        model: ProjectMedia,
+        if: proc { |pm| pm.archived_changed? || pm.project_id_changed? },
+        affected_ids: proc { |pm| [pm.project_id, pm.project_id_was] },
+        events: {
+          update: :recalculate,
         }
       },
     ]
@@ -71,6 +76,10 @@ class Project < ActiveRecord::Base
 
   def check_search_project
     CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => self.id }, 'projects' => [self.id] }.to_json)
+  end
+
+  def project_group_was
+    ProjectGroup.find_by_id(self.previous_project_group_id) unless self.previous_project_group_id.nil?
   end
 
   def user_id_callback(value, _mapping_ids = nil)
@@ -219,8 +228,7 @@ class Project < ActiveRecord::Base
 
   def propagate_assignment_to(user = nil)
     targets = []
-    ProjectMedia.joins("INNER JOIN project_media_projects pmp ON project_medias.id = pmp.project_media_id")
-    .where("pmp.project_id = ?", self.id).find_each do |pm|
+    ProjectMedia.where(project_id: self.id).find_each do |pm|
       status = pm.last_status_obj
       unless status.nil?
         targets << status
@@ -241,11 +249,9 @@ class Project < ActiveRecord::Base
 
   def self.bulk_update_medias_count(pids)
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
-    ProjectMediaProject
-      .joins(:project_media)
-      .where({ 'project_medias.archived' => CheckArchivedFlags::FlagCodes::NONE, 'project_media_projects.project_id' => pids, 'project_medias.sources_count' => 0 })
-      .group('project_media_projects.project_id')
-      .count.to_h.each do |pid, count|
+    ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: pids, sources_count: 0})
+    .group('project_id')
+    .count.to_h.each do |pid, count|
       pids_count[pid.to_i] = count.to_i
     end
     pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }
@@ -282,5 +288,24 @@ class Project < ActiveRecord::Base
 
   def reset_current_project
     User.where(current_project_id: self.id).each{ |user| user.update_columns(current_project_id: nil) }
+    # reset ProjectMedia.project_id in PG & ES
+    ProjectMedia.where(project_id: self.id).update_all(project_id: nil)
+    client = $repository.client
+    options = {
+      index: CheckElasticSearchModel.get_index_alias,
+      body: {
+        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: 0 } },
+        query: { term: { project_id: { value: self.id } } }
+      }
+    }
+    client.update_by_query options
+  end
+
+  def project_group_is_under_same_team
+    errors.add(:base, I18n.t(:project_group_must_be_under_same_team)) if self.project_group && self.project_group.team_id != self.team_id
+  end
+
+  def store_project_media_ids
+    self.project_media_ids_were = self.project_media_ids
   end
 end

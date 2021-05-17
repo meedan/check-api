@@ -513,104 +513,104 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal tt3.id, data['team_tasks']['edges'][2]['node']['dbid']
   end
 
-  test "should not import spreadsheet if URL is not present" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should not import spreadsheet if URL is not present" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
+  #   authenticate_with_user(u)
 
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-    post :create, query: query, team: t.slug
-    sleep 1
-    assert_response :success
-    response = JSON.parse(@response.body)
-    assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
-  end
+  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+  #   post :create, query: query, team: t.slug
+  #   sleep 1
+  #   assert_response :success
+  #   response = JSON.parse(@response.body)
+  #   assert response.has_key?('errors')
+  #   assert_match /invalid value/, response['errors'].first['message']
+  # end
 
-  test "should not import spreadsheet if team_id is not present" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should not import spreadsheet if team_id is not present" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
+  #   authenticate_with_user(u)
 
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", user_id: #{u.id} }) { success } }"
-    post :create, query: query, team: t.slug
-    sleep 1
-    assert_response :success
-    response = JSON.parse(@response.body)
-    assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
-  end
+  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", user_id: #{u.id} }) { success } }"
+  #   post :create, query: query, team: t.slug
+  #   sleep 1
+  #   assert_response :success
+  #   response = JSON.parse(@response.body)
+  #   assert response.has_key?('errors')
+  #   assert_match /invalid value/, response['errors'].first['message']
+  # end
 
-  test "should not import spreadsheet if user_id is not present" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should not import spreadsheet if user_id is not present" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
+  #   authenticate_with_user(u)
 
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id} }) { success } }"
-    post :create, query: query, team: t.slug
-    sleep 1
-    assert_response :success
-    response = JSON.parse(@response.body)
-    assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
-  end
+  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id} }) { success } }"
+  #   post :create, query: query, team: t.slug
+  #   sleep 1
+  #   assert_response :success
+  #   response = JSON.parse(@response.body)
+  #   assert response.has_key?('errors')
+  #   assert_match /invalid value/, response['errors'].first['message']
+  # end
 
-  test "should not import spreadsheet if URL is invalid" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should not import spreadsheet if URL is invalid" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
+  #   authenticate_with_user(u)
 
-    [' ', 'https://example.com'].each do |url|
-      query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-      post :create, query: query, team: t.slug
-      sleep 1
-      assert_response 400
-      response = JSON.parse(@response.body)
-      assert_includes response.keys, 'errors'
-      error_info = response['errors'].first
-      assert_equal 'INVALID_VALUE', error_info['code']
-    end
-  end
+  #   [' ', 'https://example.com'].each do |url|
+  #     query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+  #     post :create, query: query, team: t.slug
+  #     sleep 1
+  #     assert_response 400
+  #     response = JSON.parse(@response.body)
+  #     assert_includes response.keys, 'errors'
+  #     error_info = response['errors'].first
+  #     assert_equal 'INVALID_VALUE', error_info['code']
+  #   end
+  # end
 
-  test "should not import spreadsheet if id not found" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should not import spreadsheet if id not found" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+  #   authenticate_with_user(u)
+  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/invalid_spreadsheet/edit#gid=0"
+  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
 
-    post :create, query: query, team: t.slug
-    assert_response 400
-    response = JSON.parse(@response.body)
-    error_info = response['errors'].first
-    assert_equal 'INVALID_VALUE', error_info['code']
-    assert_match /File not found/, error_info['data']['error_message']
-  end
+  #   post :create, query: query, team: t.slug
+  #   assert_response 400
+  #   response = JSON.parse(@response.body)
+  #   error_info = response['errors'].first
+  #   assert_equal 'INVALID_VALUE', error_info['code']
+  #   assert_match /File not found/, error_info['data']['error_message']
+  # end
 
-  test "should import spreadsheet if inputs are valid" do
-    t = create_team
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
+  # test "should import spreadsheet if inputs are valid" do
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user user: u, team: t, role: 'admin'
 
-    authenticate_with_user(u)
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
-    query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
-  end
+  #   authenticate_with_user(u)
+  #   spreadsheet_url = "https://docs.google.com/spreadsheets/d/1lyxWWe9rRJPZejkCpIqVrK54WUV2UJl9sR75W5_Z9jo/edit#gid=0"
+  #   query = "mutation importSpreadsheet { importSpreadsheet(input: { clientMutationId: \"1\", spreadsheet_url: \"#{spreadsheet_url}\", team_id: #{t.id}, user_id: #{u.id} }) { success } }"
+  #   post :create, query: query, team: t.slug
+  #   assert_response :success
+  #   assert_equal({"success" => true}, JSON.parse(@response.body)['data']['importSpreadsheet'])
+  # end
 
   test "should read project media user if not annotator" do
     u = create_user
@@ -627,22 +627,6 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
-  end
-
-  test "should read project media project" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    pmp = pm.project_media_projects.last
-    assert_not_nil pmp
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { project_media_project(project_id: #{p.id}) { dbid } } }"
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal pmp.id, JSON.parse(@response.body)['data']['project_media']['project_media_project']['dbid']
   end
 
   test "should get project assignments" do
@@ -789,11 +773,11 @@ class GraphqlController2Test < ActionController::TestCase
     # detach to specific list
     p2 = create_project team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
-    assert_equal [p.id], pm2.project_ids
+    assert_equal p.id, pm2.project_id
     query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '", add_to_project_id: ' + p2.id.to_s + ' }) { deletedId, source_project_media { id }, target_project_media { id } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal [p.id, p2.id], pm2.reload.project_ids.sort
+    assert_equal p2.id, pm2.reload.project_id
   end
 
   test "should get version from global id" do
@@ -1018,5 +1002,34 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+  end
+
+  test "should search by project group" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    pg = create_project_group team: t
+    p1 = create_project team: t
+    p1.project_group = pg
+    p1.save!
+    create_project_media project: p1
+    p2 = create_project team: t
+    p2.project_group = pg
+    p2.save!
+    create_project_media project: p2
+    p3 = create_project team: t
+    create_project_media project: p3
+
+    query = 'query CheckSearch { search(query: "{}") { number_of_results } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 3, JSON.parse(@response.body)['data']['search']['number_of_results']
+
+    query = 'query CheckSearch { search(query: "{\"project_group_id\":' + pg.id.to_s + '}") { number_of_results } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
   end
 end
