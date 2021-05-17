@@ -35,8 +35,6 @@ hi:
         label: भ्रामक
       disputed:
         label: विवादित
-      out_of_scope:
-        label: दायरे से बाहर
       junk:
         label: निरर्थक
       unstarted:

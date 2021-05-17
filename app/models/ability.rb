@@ -65,7 +65,6 @@ class Ability
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'collaborator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
-    can :import_spreadsheet, Team, :id => @context_team.id
     can :preview_rss_feed, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
     can [:cud], Project, :team_id => @context_team.id
@@ -76,7 +75,7 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can [:cud], BotResource, :team_id => @context_team.id
+    can [:cud], [BotResource, SavedSearch, ProjectGroup], :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end

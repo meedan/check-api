@@ -117,6 +117,7 @@ module ProjectMediaCachedFields
     cached_field :last_seen,
       start_as: proc { |pm| pm.created_at.to_i },
       update_es: true,
+      update_pg: true,
       recalculate: proc { |pm| (Dynamic.where(annotation_type: 'smooch', annotated_id: pm.related_items_ids).order('created_at DESC').first&.created_at || ProjectMedia.find(pm.id).created_at).to_i },
       update_on: [
         {
@@ -269,6 +270,28 @@ module ProjectMediaCachedFields
           affected_ids: proc { |r| [r.target_id] },
           events: {
             destroy: proc { |_pm, _r| nil }
+          }
+        }
+      ]
+
+    cached_field :folder,
+      start_as: proc { |pm| pm.project&.title.to_s },
+      recalculate: proc { |pm| pm.project&.title.to_s },
+      update_on: [
+        {
+          model: ProjectMedia,
+          affected_ids: proc { |pm| [pm.id] },
+          if: proc { |pm| pm.project_id_changed? },
+          events: {
+            save: :recalculate,
+          }
+        },
+        {
+          model: Project,
+          affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
+          events: {
+            save: proc { |_pm, p| p.title },
+            destroy: proc { |_pm, _p| '' }
           }
         }
       ]

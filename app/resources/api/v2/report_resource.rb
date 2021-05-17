@@ -22,36 +22,56 @@ module Api
       attribute :tags, delegate: :tags_as_sentence
       attribute :media_type, delegate: :type_of_media
       attribute :score
+      attribute :report_image
 
       def score
         RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil
       end
 
       def self.records(options = {})
-        team_ids = self.workspaces(options).map(&:id)
+        teams = self.workspaces(options)
+        team_ids = teams.map(&:id)
         conditions = { team_id: team_ids }
-        result = ProjectMedia
+        if team_ids.size == Team.count
+          team_ids = []
+          conditions = {}
+        end
         filters = options[:filters] || {}
 
-        # Filtering by similar items, from Alegre
-        text = filters[:similar_to_text]
-        unless text.blank?
-          ids = begin
-                  threshold = filters[:similarity_threshold] ? filters[:similarity_threshold][0].to_f : nil
-                  organization_ids = filters[:similarity_organization_ids].blank? ? team_ids : filters[:similarity_organization_ids].flatten.map(&:to_i)
-                  fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-                  ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, threshold, nil, filters.dig(:fuzzy, 0))
-                  # Store the scores so we can return them
-                  RequestStore.store[:scores] = ids_and_scores
-                  ids_and_scores.keys.uniq
-                rescue StandardError => e
-                  Bot::Alegre.notify_error(e, options, RequestStore[:request])
-                  nil
-                end
-          conditions[:id] = ids || [0]
-        end
+        organization_ids = filters[:similarity_organization_ids].blank? ? team_ids : filters[:similarity_organization_ids].flatten.map(&:to_i)
+        threshold = filters[:similarity_threshold] ? filters[:similarity_threshold].flatten[0].to_f : nil
+        ids_text = self.apply_text_similarity_filter(organization_ids, threshold, filters)
+        ids_image = self.apply_image_similarity_filter(organization_ids, threshold, filters)
+        conditions[:id] = (ids_text.to_a + ids_image.to_a).uniq if ids_text || ids_image
 
         self.apply_check_filters(conditions, filters)
+      end
+
+      def self.apply_text_similarity_filter(organization_ids, threshold, filters)
+        text = filters[:similar_to_text]
+        ids = nil
+        unless text.blank?
+          fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
+          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, threshold, nil, filters.dig(:fuzzy, 0))
+          RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
+          ids = ids_and_scores.keys.uniq || [0]
+        end
+        ids
+      end
+
+      def self.apply_image_similarity_filter(organization_ids, threshold, filters)
+        image = filters[:similar_to_image]
+        ids = nil
+        unless image.blank?
+          image[0].rewind
+          image_path = "api_v2_similar_image/#{SecureRandom.hex}"
+          CheckS3.write(image_path, 'image/png', image[0].read)
+          ids_and_scores = Bot::Alegre.get_items_from_similar_image(organization_ids, CheckS3.public_url(image_path), threshold)
+          RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
+          ids = ids_and_scores.keys.uniq || [0]
+          CheckS3.delete(image_path)
+        end
+        ids
       end
 
       def self.apply_check_filters(conditions, filters)
@@ -60,7 +80,14 @@ module Api
         new_conditions[:archived] = filters[:archived] if filters.has_key?(:archived)
         result = result.joins(:media).where('medias.type' => filters[:media_type]) if filters.has_key?(:media_type)
         # FIXME: Not the best way to check for the report state
-        result = result.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.data LIKE ?', "%state: #{filters[:report_state][0]}%") if filters.has_key?(:report_state)
+        if filters.has_key?(:report_state)
+          value = filters[:report_state][0]
+          if value == 'unpublished'
+            result = result.joins("LEFT OUTER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.annotated_id' => nil)
+          else
+            result = result.joins("INNER JOIN annotations a ON a.annotated_type = 'ProjectMedia' AND a.annotated_id = project_medias.id AND a.annotation_type = 'report_design'").where('a.data LIKE ?', "%state: #{value}%")
+          end
+        end
         result.where(new_conditions)
       end
 
@@ -74,6 +101,7 @@ module Api
       filter :media_type, apply: ->(records, _value, _options) { records }
       filter :archived, apply: ->(records, _value, _options) { records }
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
+      filter :similar_to_image, apply: ->(records, _value, _options) { records }
       filter :similarity_fields, apply: ->(records, _value, _options) { records }
       filter :similarity_threshold, apply: ->(records, _value, _options) { records }
       filter :similarity_organization_ids, apply: ->(records, _value, _options) { records }

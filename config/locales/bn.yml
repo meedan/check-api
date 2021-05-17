@@ -34,8 +34,6 @@ bn:
         label: বিভ্রান্তিকর
       disputed:
         label: বিতর্কিত
-      out_of_scope:
-        label: কোন সুযোগ নেই
       junk:
         label: প্রত্যাখ্যাত
       unstarted:

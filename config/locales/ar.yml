@@ -49,8 +49,6 @@ ar:
         label: مُضَلِّل
       disputed:
         label: متنازع عليه
-      out_of_scope:
-        label: خارج النطاق
       junk:
         label: مهملات
       unstarted:
@@ -105,7 +103,6 @@ ar:
       comment: ملحوظة
       project_media: العنصر
       media: عنصر
-      project: قائمة
       team: مساحة العمل
       user: المستخدم(ة)
       source: مصدر
@@ -167,7 +164,6 @@ ar:
     fields:
       assigned: مُكَلَّف إلى
       unassigned: تم إلغاء التكليف عن
-      project: القائمة
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
@@ -196,8 +192,6 @@ ar:
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}
         مرتبط
       project_media_update: قام %{user} (%{role} في %{team}) بتحديث عنصر
-      project_media_added_to_list: قام %{user} (%{role} في %{team}) بإضافة عنصر إلى
-        قائمة %{list_name}
       project_media_status: قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow}
         %{type}
       project_media_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
@@ -205,9 +199,6 @@ ar:
       project_source_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_source_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_source_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
-      project_create: قام %{user} (%{role} في %{team}) بإنشاء قائمة
-      project_assign: قام %{user} (%{role} في %{team}) بتعيين قائمة
-      project_unassign: قام %{user} (%{role} في %{team}) بالغاء تعيين قائمة
       user_member: إنضم %{user} الى مساحة العمل %{team}
       user_requested: طلب %{user} الانضمام الى مساحة العمل %{team}
       user_invited: تمت دعوة %{user} الى مساحة العمل %{team}
@@ -253,7 +244,7 @@ ar:
   oembed_source_date: "%{provider}%{date} على "
   role_editor: محرر
   role_admin: المسؤول
-  role_collaborator: الشركاء
+  role_collaborator: شريك
   role_none: عضو
   role_: مسؤول النظام
   oembed_credit: تمت الإضافة بواسطة %{user} (%{role}) في %{date}
@@ -288,8 +279,6 @@ ar:
   geolocation_invalid_value: الموقع غير صالح. المتوقع صيغة صالحة من نوع (/GeoJSON
     (http://geojson.org
   datetime_invalid_date: التاريخ غير صالح
-  error_team_archived: عذراً ، لا يمكن إضافة قائمة لمساحة عمل في سلة المهملات
-  error_project_archived: عذراً ، لا يمكن إضافة عنصر لقائمة  في سلة المهملات
   error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لمساحة عمل في سلة المهملات
   permission_error: عذراً ، ليس مسموح لك تنفيذ هذه العملية
   error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
@@ -328,6 +317,8 @@ ar:
     failure:
       unconfirmed: يرجى مراجعة بريدك الالكتروني لتأكيد حسابك.
   user_invitation:
+    invited: تمت دعوة %{email} لمساحة العمل هذه من قبل.
+    member: "%{email} عضو بالفعل."
     team_found: مساحة العمل غير موجودة.
     invalid: رمز الدعوة غير صالح.
     no_invitation: لا توجد دعوة لمساحة العمل %{name}
@@ -340,7 +331,6 @@ ar:
   mails_notifications:
     greeting: مرحباً %{username}
     greeting_anonymous: مرحباً
-    project_view: عرض القائمة
     unsubscribe: إلغاء الاشتراك
     unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
@@ -388,15 +378,6 @@ ar:
       decompress_text: سوف يتم تنزيل %{type} كملف مضغوط ومشفر. لفك الضغط ، الرجاء
         استخدام كلمة السّر %{password}
       expire_note: ستنتهي صلاحية هذا الرابط بعد %{days} أيام.
-      project_export_csv_subject: "[%{team} - %{project}] تقرير القائمة جاهز للتحميل"
-      project_export_images_subject: "[%{team} - %{project}] أرشيف صور القائمة جاهزة
-        للتحميل"
-      project_export_title: بيانات القائمة
-      project_export_button: تحميل بيانات القائمة
-      project_export_csv_text: 'لقد طلبتم تقريراً للقائمة %{project} - يمكنكم استخدام
-        هذا الرابط لتحميله: %{link}'
-      project_export_images_text: 'لقد طلبتم أرشيف للصور في القائمة %{project} - يمكنكم
-        استخدام هذا الرابط للتحميل: %{link}'
       team_import_subject: تمت عملية استيراد البيانات
       team_import_title: استيراد البيانات
       team_import_text: "<p>تمت عملية استيراد البيانات إلى %{app_name}. يمكنكم فحص
@@ -405,7 +386,6 @@ ar:
     task_resolved:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
       header_title: تمت الإجابة عن المهمّة
-      header_text: قام(ت) %{author} بإجابة مهمة في قائمة %{project} التابع إلى %{team}.
       section_title: من أو ما هو مصدر العنصر؟
       status: الحالة
       media_h: العنصر
@@ -413,8 +393,6 @@ ar:
       label: عنصر
       subject: "[%{team} - %{project}] تم تصنيف حالة العنصر أنه %{status}"
       header_title: تم تحديث حالة العنصر
-      header_text: قام(ت) %{author} بتحديث حالة عنصر في قائمة %{project} التابع الى
-        %{team}.
       section_title: تم التصنيف أنه %{status}.
       added_to: تمت الإضافة الى %{app_name}
       update_h: آخر تحديث
@@ -422,32 +400,16 @@ ar:
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-      assign_project_subject: "[%{team} - %{project}] تم تكليف قائمة إليك"
-      unassign_project_subject: "[%{team} - %{project}] تم إلغاء تكليف قائمة عنك"
       assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
       unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف عنصر عنك"
-      assign_project_title: 'تمّ تكليف القائمة '
-      unassign_project_title: تمّ  إلغاء تكليف قائمة
-      assign_project_text: قام(ت) %{author} بتكليف قائمة %{project} التابع الى %{team}.
-      unassign_project_text: قام(ت) %{author} بالغاء تكليف قائمة %{project} التابع
-        الى %{team}.
       assign_task_title: تكليف مهمة
       unassign_task_title: إلغاء تكليف مهمة
-      assign_task_text: قام(ت) %{author} بتكليف مهمة في قائمة %{project} التابع الى
-        %{team}.
-      unassign_task_text: قام(ت) %{author} بالغاء تكليف مهمة في قائمة %{project} التابع
-        الى %{team}.
       assign_media_title: تمّ تكليف العنصر
       unassign_media_title: تمّ إلغاء تكليف العنصر
-      assign_media_text: قام(ت) %{author} بتكليف عنصر في قائمة %{project} التابع الى
-        %{team}.
-      unassign_media_text: قام(ت) %{author} بالغاء تكليف عنصر في قائمة %{project}
-        التابع الى %{team}.
       assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
       unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
       assign_by: تكليف من
       unassign_by: قام(ت) بإلغاء التكليف
-      project_button: إلى صفحة القائمة
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
       team_page: صفحة مساحة العمل
@@ -546,20 +508,11 @@ ar:
     roles:
       admin:
         description: يتحكم المسؤول في مساحة العمل.
-      editor:
-        description: يدير المحرّرون مساحة العمل والقوائم.
       collaborator:
-        description: بإمكان المشاركين إضافة عناصر جديدة للتحقق منها. وهم في الغالب
-          من الجمهور.
+        description: بإمكان الشركاء إضافة عناصر جديدة للتحقق منها. وهم في الغالب من
+          الجمهور.
     permissions:
       sections:
-        project_management:
-          name: إدارة القوائم
-          permissions:
-            create: إنشاء قائمة
-            edit: تحرير القائمة
-            delete: حذف القائمة
-            add_item: إضافة عناصر للقائمة
         item_page_management:
           name: إدارة العناصر
           permissions:
@@ -568,7 +521,6 @@ ar:
             change_status: تغيير حالة العنصر
             lock_unlock_status: 'إقفال/إلغاء إقفال الحالة '
             add_remove_tag: إضافة/حذف العلامات
-            send_to_trash: ارسال العنصر أو المصدر إلى سلة المهملات
             empty_trash: إفراغ سلة المهملات
         task_management:
           name: إدارة المهام
@@ -604,12 +556,10 @@ ar:
     user_not_present: لم يتم العثور على المستخدم(ة) الحالي(ة) أثناء استيراد البيانات.
       يرجى تبليغ فريق الدعم عن هذه الحادثة.
     user_not_authorized: عذراً ، ليس مسموح لك استيراد البيانات لمساحة العمل هذه.
-    invalid_project: قائمة غير صالحة %{project}
     invalid_user: المؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
     blank_user: حقل المؤلف(ة) الفارغ غير صالح
     blank_annotator: حقل المُعقِّب(ة) الفارغ غير صالح
-    blank_project: حقل القائمة الفارغ غير صالح
     invalid_annotator: المُعقِّب غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
   cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنكم
@@ -625,12 +575,20 @@ ar:
   smooch_requests_asc: اﻷقل طلباً
   smooch_requests_desc: اﻷكثر طلباً
   bot_request_url_invalid: رابط البوت غير صالح
-  must_select_exactly_one_facebook_page: يُرجى التحديد، بالضبط، الصفحة المنفردة في
-    فيسبوك التي لديك النية في إدماجها في الخط الساخن.
+  smooch_facebook_success: |
+    تم بنجاح!
+    أصبح خطك للتبليغ وللاقتراحات (Tipline) متصلا اﻵن بمِرْسال فيسبوك Facebook Messenger.
+    سيقوم خط التبليغ والاقتراحات بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
+    يرجى إعادة تحميل صفحة إعدادات خط التبليغ والاقتراحات لمشاهدة التغييرات الجديدة.
+  smooch_twitter_success: |
+    تم بنجاح!
+    لقد أصبح خطك للتبليغ وللاقتراحات (Tipline) الآن متصلا بتويتر.
+    سيقوم خط التبليغ والاقتراحات بمعالجة أي رسالة مباشرة جرى استلامها انطلاقا من حساب تويتر هذا.
+    يرجى إعادة تحميل صفحة إعدادات خط التبليغ والاقتراحات لمشاهدة التغييرات الجديدة.
+  must_select_exactly_one_facebook_page: يُرجى تحديد صفحة واحدة من فيسبوك لكي يتم
+    وصلها بخط التبليغ والاقتراحات (Tipline).
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
   team_rule_name: اسم فريد يصف ما تفعله القاعدة
-  team_rule_project_ids: تطبيق على القائمة
-  team_rule_destination: تحديد القائمة المقصودة
   team_rule_names_invalid: أسماء القواعد لا يمكن أن تكون فارغة ويجب أن تكون فريدة
   team_rules: القواعد
   team_rule_conditions: إذا
@@ -662,9 +620,6 @@ ar:
   team_rule_actions: حينئذ
   team_rule_action: حينئذ
   team_rule_action_definition: تحديد الإجراء
-  team_rule_send_to_trash: ارسال إلى سلة المهملات
-  team_rule_move_to_project: نقل العنصر إلى قائمة
-  team_rule_copy_to_project: إضافة العنصر إلى قائمة
   team_rule_ban_submitter: حظر المُقدم (لن تظهر رسائلهم المستقبلية فى Check)
   team_rule_all_items: جميع العناصر
   team_rule_send_message_to_user: إرسال رسالة إلى المستخدم(ة)
@@ -752,7 +707,9 @@ ar:
   info:
     messages:
       sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.
-      moved_to_project_by_rule: نُقل "%{item_title}" إلى القائمة "[%{list_name}](%{list_link})"
-        بواسطة قاعدة آلية.
-      copied_to_project_by_rule: لقد نُسخ"%{item_title}" في القائمة "[%{list_name}](%{list_link})"
-        بواسطة قاعدة آلية.
+      banned_submitter_by_rule: لقد تم منع طالب "%{item_title}" بواسطة قاعدة آلية.
+      related_to_confirmed_similar: لقد تم تأكيد أن "%{item_title}" مشابه لـ "%{similar_item_title}".
+      related_to_suggested_similar: لقد تم اقتراح "%{item_title}" كمتشابه مع "%{similar_item_title}".
+      sent_message_to_requestors_on_status_change: لقد أُرسِل تحديث ذو الحالة "%{status}"
+        إلى %{requestors_count} مستخدم قد طلبها.
+      tagged_by_rule: لقد تم وضع علامة "%{tag}" على "%{item_title}" بواسطة قاعدة آلية.

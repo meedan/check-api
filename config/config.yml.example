@@ -6,21 +6,23 @@ development: &default
   checkdesk_base_url_private: 'http://localhost:3000'
   checkdesk_client: 'http://localhost:3333'
   app_url: 'http://localhost:3333'
-  pender_url: 'http://localhost:3200'
-  pender_url_private: 'http://pender:3200'
-  pender_key: 'dev'
-  alegre_host: 'http://alegre:5000'
-  alegre_token: 'dev'
   elasticsearch_host: 'elasticsearch'
   elasticsearch_port: 9200
   elasticsearch_index:
   elasticsearch_log: true
   elasticsearch_sync: false
-  pghero_enabled: true
 
   # WARNING For production, don't use a wildcard: set the allowed domains explicitly as a regular expression, e.g.
   # '(https?://.*\.?(meedan.com|meedan.org))'
   allowed_origins: '.*'
+
+  # Alegre service URL
+  #
+  # OPTIONAL AND RECOMMENDED
+  # Use values below for local development
+  #
+  alegre_host: 'http://alegre:5000'
+  alegre_token: 'dev'
 
   # Alegre Similarity Thresholds
   #
@@ -58,24 +60,28 @@ development: &default
   tos_url: 'https://meedan.com/en/check/check_tos.html'
   tos_smooch_url: "{\"lang\":{\"en\":\"https://meedan.com/en/check/check_message_tos.html\",\"es\":\"https://meedan.com/es/check/check_message_tos.html\"}}"
   privacy_policy_url: 'https://meedan.com/en/check/check_privacy.html'
-  privacy_email: 'privacy@meedan.com'
+  privacy_email: 'privacy@example.com'
 
   # 2FA/OTP settings
   #
-  two_factor_key: 'a3ebaae85c248da81427623959753e46b9fcb8a0d630a1e41c1dffe03596bf2ffd9701bf69fa0dd598f3c45103bdba7e956d0d3560916859884de92d1f51fe16'
+  # OPTIONAL
+  # Generate a key with SecureRandom to enable two-factor authentication (2FA) `SecureRandom.hex(20)`
+  # If blank the QRCode won't be generated and the 2FA can't be enabled
+  #
+  two_factor_key: "a2ab0425f2cfa4243110e343bc865653aea941b91819e754c9a82a0115266add" # '<Google two factor key>'
 
   # File storage on S3 or API equivalent
   #
   # REQUIRED
   # Use values below for local development
   #
-  sotrage_endpoint: 'http://minio:9000'
-  sotrage_asset_host: 'http://localhost:9000/check-api-dev'
-  sotrage_access_key: 'AKIAIOSFODNN7EXAMPLE'
-  sotrage_secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
-  sotrage_bucket: 'check-api-dev'
-  sotrage_bucket_region: 'us-east-1'
-  sotrage_path_style:
+  storage_endpoint: 'http://minio:9000'
+  storage_asset_host: 'http://localhost:9000/check-api-dev'
+  storage_access_key: 'AKIAIOSFODNN7EXAMPLE'
+  storage_secret_key: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+  storage_bucket: 'check-api-dev'
+  storage_bucket_region: 'us-east-1'
+  storage_path_style:
 
   # Screenshot service URL
   #
@@ -84,7 +90,16 @@ development: &default
   #
   narcissus_url: 'http://narcissus:8687'
   narcissus_token: 'dev'
-  
+
+  # Pender service URL
+  #
+  # REQUIRED for parsing and archiving URLs
+  # Use values below for local development
+  #
+  pender_url: 'http://localhost:3200'
+  pender_url_private: 'http://pender:3200'
+  pender_key: 'dev'
+
   # Fact-checks service URL
   #
   # OPTIONAL
@@ -113,8 +128,8 @@ development: &default
   #
   # REQUIRED for notification emails
   #
-  support_email: 'check@meedan.com'
-  default_mail: 'Meedan Check <root@localhost>'
+  support_email: 'check@example.com'
+  default_mail: 'Check <root@localhost>'
   send_welcome_email_on_registration: false
   smtp_host: 'smtp.gmail.com'
   smtp_port: 587
@@ -166,7 +181,8 @@ development: &default
 
   # Google social login
   #
-  # REQUIRED for Google social login
+  # REQUIRED for Google social login https://developers.google.com/identity/protocols/oauth2
+  # On authorized redirect URIs set the callback http://localhost:3000/api/users/auth/google_oauth2/callback
   #
   google_client_id: # '<GOOGLE CLIENT ID>'
   google_client_secret: # '<GOOGLE CLIENT SECRET>'
@@ -212,10 +228,17 @@ development: &default
   cloudflare_auth_key: # '<CLOUDFLARE AUTH KEY>'
   cloudflare_zone: # '<CLOUDFLARE ZONE>'
 
+  # PgHero: a performance dashboard for Postgres
+  #
+  # OPTIONAL
+  # Set true to enable the dashboard. It will be available at http://localhost:3000/pghero
+  #
+  pghero_enabled: false
+
 test:
   <<: *default
-  checkdesk_base_url: 'http://api:3000'
-  checkdesk_client: 'http://web:3333'
+  checkdesk_base_url_private: http://api:3000
+  pender_url: 'http://pender:3200'
   pender_key: 'test'
   alegre_token: 'test'
   elasticsearch_index: 'check_test<%= ENV["TEST_ENV_NUMBER"] %>'

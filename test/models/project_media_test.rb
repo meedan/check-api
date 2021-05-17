@@ -1789,16 +1789,16 @@ class ProjectMediaTest < ActiveSupport::TestCase
     team = create_team
     p = create_project team: team
     pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
-    sleep 3
     result = $repository.find(get_es_id(pm))
     assert_equal 0, result['linked_items_count']
     assert_equal pm.created_at.to_i, result['last_seen']
+    assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
     t = t0 = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
+    assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
     pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
-    sleep 3
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))
@@ -1806,14 +1806,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 1, result['linked_items_count']
     assert_equal 0, result2['linked_items_count']
     assert_equal t, result['last_seen']
+    assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
     t = create_dynamic_annotation(annotation_type: 'smooch', annotated: pm2).created_at.to_i
     result = $repository.find(get_es_id(pm))
     assert_equal t, result['last_seen']
+    assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
     r.destroy!
     result = $repository.find(get_es_id(pm))
     assert_equal t0, result['last_seen']
+    assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
     result = $repository.find(get_es_id(pm))
     result2 = $repository.find(get_es_id(pm2))
     assert_equal 0, result['linked_items_count']
@@ -2333,5 +2336,27 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Rails.cache.clear
     assert_queries(1, '=') { assert_equal 'Link', pm.type_of_media }
     assert_queries(0, '=') { assert_equal 'Link', pm.type_of_media }
+  end
+
+  test "should cache project title" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p1 = create_project title: 'Foo', team: t
+    p2 = create_project title: 'Bar', team: t
+    pm = create_project_media project: nil, project_id: nil, team: t
+    assert_queries(0, '=') { assert_equal '', pm.folder }
+    pm.project_id = p1.id
+    pm.save!
+    assert_queries(0, '=') { assert_equal 'Foo', pm.folder }
+    p1.title = 'Test'
+    p1.save!
+    assert_queries(0, '=') { assert_equal 'Test', pm.folder }
+    pm.project_id = p2.id
+    pm.save!
+    assert_queries(0, '=') { assert_equal 'Bar', pm.folder }
+    assert_equal p2.id, pm.reload.project_id
+    p2.destroy!
+    assert_nil pm.reload.project_id
+    assert_queries(0, '=') { assert_equal '', pm.folder }
   end
 end

@@ -248,6 +248,7 @@ class BotUser < User
       properties[s[:name]] = {
         type: type,
         title: s[:label],
+        description: s[:description]
       }
       if type == 'array'
         properties[s[:name]][:items] = s[:items]
@@ -370,7 +371,8 @@ class BotUser < User
         label = s['label']
         type = s['type']
         default = s['default']
-        setting = { 'name' => name, 'label' => label, 'type' => type, 'default' => default }
+        description = s['description']
+        setting = { 'name' => name, 'label' => label, 'type' => type, 'default' => default, 'description' => description }
         setting['items'] = s['items'] unless s['items'].blank?
         setting['properties'] = s['properties'] unless s['properties'].blank?
         settings << setting

@@ -90,14 +90,19 @@ class Bot::Alegre < BotUser
     Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
   end
 
-  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
-    self.translate_similar_items(
+  def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+    suggested_or_confirmed_results = self.translate_similar_items(
       suggested_or_confirmed, Relationship.suggested_type
-    ).merge(
-      self.translate_similar_items(
-        confirmed, Relationship.confirmed_type
-      )
     )
+    if pm.is_link?
+      suggested_or_confirmed_results
+    else
+      suggested_or_confirmed_results.merge(
+        self.translate_similar_items(
+          confirmed, Relationship.confirmed_type
+        )
+      )
+    end
   end
 
   def self.get_threshold_for_text_query(pm, automatic=false)
@@ -112,11 +117,11 @@ class Bot::Alegre < BotUser
     if pm.is_text?
       suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm))
       confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold').to_f)
       confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold').to_f)
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed)
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
     end
@@ -215,7 +220,7 @@ class Bot::Alegre < BotUser
 
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id if pm
     return self.default_matching_model if tbi.nil?
     tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
@@ -353,32 +358,36 @@ class Bot::Alegre < BotUser
     self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
   end
 
+  def self.build_context(team_id=nil, field=nil)
+    context = {has_custom_id: true}
+    context[:field] = field if field && field != []
+    context[:team_id] = team_id if team_id && team_id != []
+    context
+  end
+
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
-    threshold ||= self.get_threshold_for_text_query(pm, true)
+    threshold ||= self.get_threshold_for_text_query(nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api('/text/similarity/', {
       text: text,
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
-      context: {
-        team_id: team_id,
-        field: field,
-        has_custom_id: true
-      },
+      context: self.build_context(team_id, field),
       threshold: threshold
     })
   end
 
   def self.get_items_with_similar_image(pm, threshold)
+    self.get_items_from_similar_image(pm.team_id, self.media_file_url(pm), threshold).reject{ |id, _score| pm.id == id }
+  end
+
+  def self.get_items_from_similar_image(team_id, image_url, threshold)
     self.get_similar_items_from_api('/image/similarity/', {
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        has_custom_id: true
-      },
+      url: image_url,
+      context: self.build_context(team_id),
       threshold: threshold
-    }).reject{ |id, _score| pm.id == id }
+    })
   end
 
   def self.add_relationships(pm, pm_id_scores)
@@ -391,12 +400,22 @@ class Bot::Alegre < BotUser
     # - If it has no existing relationship, use it.
 
     parent_id = pm_id_scores.keys.sort[0]
-    source_ids = Relationship.where(:target_id => parent_id).select(:source_id).distinct
-    if source_ids.length > 0
+    parent_relationships = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: parent_id).all
+    if parent_relationships.length > 0
       # Sanity check: if there are multiple parents, something is wrong in the dataset.
-      Rails.logger.error("[Alegre Bot] Found multiple relationship parents for ProjectMedia #{parent_id}") if source_ids.length > 1
-      # Take the first source as the parent.
-      parent_id = source_ids[0].source_id
+      self.notify_error(StandardError.new("[Alegre Bot] Found multiple similarity relationship parents for ProjectMedia #{parent_id}"), {}, RequestStore[:request]) if parent_relationships.length > 1
+      # Take the first source as the parent (A).
+      # 1. A is confirmed to B and C is suggested to B: type of the relationship between A and C is: suggested
+      # 2. A is confirmed to B and C is confirmed to B: type of the relationship between A and C is: confirmed
+      # 3. A is suggested to B and C is suggested to B: type of the relationship between A and C is: suggested
+      # 4. A is suggested to B and C is confirmed to B: type of the relationship between A and C is: suggested
+      parent_relationship = parent_relationships.first
+      new_type = Relationship.suggested_type
+      if parent_relationship.is_confirmed? && pm_id_scores[parent_id][:relationship_type] == Relationship.confirmed_type
+        new_type = Relationship.confirmed_type
+      end
+      parent_id = parent_relationship.source_id
+      pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
 
     # Better be safe than sorry.
