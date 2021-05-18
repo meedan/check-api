@@ -48,7 +48,7 @@ class Bot::Fetch < BotUser
       RequestStore.store[:skip_notifications] = true
       User.current = installation.user
       Team.current = installation.team
-      status_mapping = JSON.parse(installation.get_status_mapping, { quirks_mode: true })
+      status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
       Bot::Fetch::Import.delay(retry: 3).import_claim_review(claim_review, installation.team_id, installation.user_id, installation.get_status_fallback, status_mapping)
       true
     rescue StandardError => e
@@ -137,7 +137,7 @@ class Bot::Fetch < BotUser
       Team.current = team = installation.team
       service_name = installation.get_fetch_service_name
       status_fallback = installation.get_status_fallback
-      status_mapping = JSON.parse(installation.get_status_mapping, { quirks_mode: true })
+      status_mapping = installation.get_status_mapping.blank? ? nil : JSON.parse(installation.get_status_mapping, { quirks_mode: true })
       service_info = Bot::Fetch.supported_services.find{ |s| s['service'] == service_name }
       if service_info['count'] > 0
         # Paginate by date in a way that we have more or less 1000 items per "page"
