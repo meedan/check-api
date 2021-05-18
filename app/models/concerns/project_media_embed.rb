@@ -69,7 +69,7 @@ module ProjectMediaEmbed
   end
 
   def all_tasks
-    self.annotations.where(annotation_type: 'task').map(&:load)
+    self.annotations.where(annotation_type: 'task').map(&:load).reject{ |t| t.nil? }
   end
 
   def completed_tasks_count
