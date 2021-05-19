@@ -2359,4 +2359,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_nil pm.reload.project_id
     assert_queries(0, '=') { assert_equal '', pm.folder }
   end
+
+  test "should get original title for uploaded files" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    pm = create_project_media media: create_uploaded_image
+    pm.analysis = { title: 'Custom Title' }
+    pm.save!
+    assert_equal 'Custom Title', pm.reload.title
+    assert_equal 'rails.png', pm.reload.original_title
+  end
 end
