@@ -6,7 +6,6 @@ SavedSearchType = GraphqlCrudOperations.define_default_type do
 
   field :dbid, types.Int
   field :title, types.String
-  field :filters, JsonStringType
   field :team_id, types.Int
   field :team, TeamType
 
