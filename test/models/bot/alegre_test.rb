@@ -197,6 +197,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
+    pm1.media.type = "UploadedImage"
+    pm2.media.type = "UploadedImage"
     pm3.media.type = "UploadedImage"
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
