@@ -49,6 +49,8 @@ ar:
         label: مُضَلِّل
       disputed:
         label: متنازع عليه
+      out_of_scope:
+        label: خارج النطاق
       junk:
         label: مهملات
       unstarted:
@@ -103,6 +105,7 @@ ar:
       comment: ملحوظة
       project_media: العنصر
       media: عنصر
+      project: مجلد
       team: مساحة العمل
       user: المستخدم(ة)
       source: مصدر
@@ -164,6 +167,7 @@ ar:
     fields:
       assigned: مُكَلَّف إلى
       unassigned: تم إلغاء التكليف عن
+      project: مجلد
       source: المصدر
       status: الحالة
       status_previous: الحالة السابقة
@@ -192,6 +196,8 @@ ar:
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}
         مرتبط
       project_media_update: قام %{user} (%{role} في %{team}) بتحديث عنصر
+      project_media_added_to_list: قام %{user} (%{role} في %{team}) بإضافة عنصر إلى
+        مجلد %{list_name}
       project_media_status: قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow}
         %{type}
       project_media_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
@@ -199,6 +205,9 @@ ar:
       project_source_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_source_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_source_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
+      project_create: قام %{user} (%{role} في %{team}) بإنشاء مجلد
+      project_assign: قام %{user} (%{role} في %{team}) بتعيين مجلد
+      project_unassign: قام %{user} (%{role} في %{team}) بالغاء تعيين مجلد
       user_member: إنضم %{user} الى مساحة العمل %{team}
       user_requested: طلب %{user} الانضمام الى مساحة العمل %{team}
       user_invited: تمت دعوة %{user} الى مساحة العمل %{team}
@@ -279,6 +288,8 @@ ar:
   geolocation_invalid_value: الموقع غير صالح. المتوقع صيغة صالحة من نوع (/GeoJSON
     (http://geojson.org
   datetime_invalid_date: التاريخ غير صالح
+  error_team_archived: عذراً ، لا يمكن إضافة مجلد لمساحة عمل في سلة المهملات
+  error_project_archived: عذراً ، لا يمكن إضافة عنصر لمجلد في سلة المهملات
   error_team_archived_for_source: عذراً ، لا يمكن إضافة مصدر لمساحة عمل في سلة المهملات
   permission_error: عذراً ، ليس مسموح لك تنفيذ هذه العملية
   error_annotated_archived: عذراً ، لا يمكن إضافة تعليق لعنصر في سلة المهملات
@@ -331,6 +342,7 @@ ar:
   mails_notifications:
     greeting: مرحباً %{username}
     greeting_anonymous: مرحباً
+    project_view: عرض المجلد
     unsubscribe: إلغاء الاشتراك
     unsubscribe_link: "%{unsubscribe} من هذه الإخطارات"
     copyright_html: '%{app_name} من <a href="https://meedan.com">Meedan</a>'
@@ -386,6 +398,7 @@ ar:
     task_resolved:
       subject: "[%{team} - %{project}] تمت اجابة مهمة"
       header_title: تمت الإجابة عن المهمّة
+      header_text: قام(ت) %{author} بإجابة مهمة في مجلد %{project} التابع إلى %{team}.
       section_title: من أو ما هو مصدر العنصر؟
       status: الحالة
       media_h: العنصر
@@ -393,6 +406,8 @@ ar:
       label: عنصر
       subject: "[%{team} - %{project}] تم تصنيف حالة العنصر أنه %{status}"
       header_title: تم تحديث حالة العنصر
+      header_text: قام(ت) %{author} بتحديث حالة عنصر في مجلد %{project} التابع الى
+        %{team}.
       section_title: تم التصنيف أنه %{status}.
       added_to: تمت الإضافة الى %{app_name}
       update_h: آخر تحديث
@@ -400,16 +415,32 @@ ar:
     assignment:
       assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
       unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
+      assign_project_subject: "[%{team} - %{project}] تم تكليف مجلد إليك"
+      unassign_project_subject: "[%{team} - %{project}] تم إلغاء تكليف مجلد عنك"
       assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
       unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف عنصر عنك"
+      assign_project_title: تمّ تكليف مجلد
+      unassign_project_title: تمّ إلغاء تكليف مجلد
+      assign_project_text: قام(ت) %{author} بتكليف مجلد %{project} التابع الى %{team}.
+      unassign_project_text: قام(ت) %{author} بالغاء تكليف مجلد %{project} التابع
+        الى %{team}.
       assign_task_title: تكليف مهمة
       unassign_task_title: إلغاء تكليف مهمة
+      assign_task_text: قام(ت) %{author} بتكليف مهمة في مجلد %{project} التابع الى
+        %{team}.
+      unassign_task_text: قام(ت) %{author} بالغاء تكليف مهمة في مجلد %{project} التابع
+        الى %{team}.
       assign_media_title: تمّ تكليف العنصر
       unassign_media_title: تمّ إلغاء تكليف العنصر
+      assign_media_text: قام(ت) %{author} بتكليف عنصر في مجلد %{project} التابع الى
+        %{team}.
+      unassign_media_text: قام(ت) %{author} بالغاء تكليف عنصر في مجلد %{project} التابع
+        الى %{team}.
       assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
       unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
       assign_by: تكليف من
       unassign_by: قام(ت) بإلغاء التكليف
+      project_button: إلى صفحة المجلد
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
       team_page: صفحة مساحة العمل
@@ -508,11 +539,20 @@ ar:
     roles:
       admin:
         description: يتحكم المسؤول في مساحة العمل.
+      editor:
+        description: يدير المحرّرون مساحة العمل والمجلدات.
       collaborator:
         description: بإمكان الشركاء إضافة عناصر جديدة للتحقق منها. وهم في الغالب من
           الجمهور.
     permissions:
       sections:
+        project_management:
+          name: إدارة المجلد
+          permissions:
+            create: إنشاء مجلد
+            edit: تحرير مجلد
+            delete: حذف مجلد
+            add_item: إضافة عنصر إلى مجلد
         item_page_management:
           name: إدارة العناصر
           permissions:
@@ -521,6 +561,7 @@ ar:
             change_status: تغيير حالة العنصر
             lock_unlock_status: 'إقفال/إلغاء إقفال الحالة '
             add_remove_tag: إضافة/حذف العلامات
+            send_to_trash: نقل العنصر أو المصدر إلى سلة المهملات
             empty_trash: إفراغ سلة المهملات
         task_management:
           name: إدارة المهام
@@ -556,10 +597,12 @@ ar:
     user_not_present: لم يتم العثور على المستخدم(ة) الحالي(ة) أثناء استيراد البيانات.
       يرجى تبليغ فريق الدعم عن هذه الحادثة.
     user_not_authorized: عذراً ، ليس مسموح لك استيراد البيانات لمساحة العمل هذه.
+    invalid_project: مجلد غير صالح %{project}
     invalid_user: المؤلف غير صالح %{user}
     invalid_status: حالة غير صالحة %{status}
     blank_user: حقل المؤلف(ة) الفارغ غير صالح
     blank_annotator: حقل المُعقِّب(ة) الفارغ غير صالح
+    blank_project: حقل المجلد الفارغ غير صالح
     invalid_annotator: المُعقِّب غير صالح %{user}
     invalid_assignee: مُكلّف غير صالح %{user}
   cant_mutate_inactive_object: عذرًا ، هناك عملية جارية لهذا العنصر ، لذا لا يمكنكم
@@ -577,18 +620,20 @@ ar:
   bot_request_url_invalid: رابط البوت غير صالح
   smooch_facebook_success: |
     تم بنجاح!
-    أصبح خطك للتبليغ وللاقتراحات (Tipline) متصلا اﻵن بمِرْسال فيسبوك Facebook Messenger.
-    سيقوم خط التبليغ والاقتراحات بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
-    يرجى إعادة تحميل صفحة إعدادات خط التبليغ والاقتراحات لمشاهدة التغييرات الجديدة.
+    أصبح خطك الساخن (Tipline) متصلا اﻵن بمِرْسال فيسبوك Facebook Messenger.
+    سيقوم خط الساخن بمعالجة أي رسالة مُستلَمة من صفحة فيسبوك هذه.
+    يرجى إعادة تحميل صفحة إعدادات الخط الساخن لمشاهدة التغييرات الجديدة.
   smooch_twitter_success: |
     تم بنجاح!
-    لقد أصبح خطك للتبليغ وللاقتراحات (Tipline) الآن متصلا بتويتر.
-    سيقوم خط التبليغ والاقتراحات بمعالجة أي رسالة مباشرة جرى استلامها انطلاقا من حساب تويتر هذا.
-    يرجى إعادة تحميل صفحة إعدادات خط التبليغ والاقتراحات لمشاهدة التغييرات الجديدة.
+    لقد أصبح خطك الساخن  (Tipline) الآن متصلا بتويتر.
+    سيقوم الخط الساخن بمعالجة أي رسالة مباشرة جرى استلامها انطلاقا من حساب تويتر هذا.
+    يرجى إعادة تحميل صفحة إعدادات الخط الساخن لمشاهدة التغييرات الجديدة.
   must_select_exactly_one_facebook_page: يُرجى تحديد صفحة واحدة من فيسبوك لكي يتم
-    وصلها بخط التبليغ والاقتراحات (Tipline).
+    وصلها بالخط الساخن (Tipline).
   invalid_task_answer: تنسيق إجابة المهمة غير صالح
   team_rule_name: اسم فريد يصف ما تفعله القاعدة
+  team_rule_project_ids: تطبيق على المجلد
+  team_rule_destination: تحديد المجلد المقصود
   team_rule_names_invalid: أسماء القواعد لا يمكن أن تكون فارغة ويجب أن تكون فريدة
   team_rules: القواعد
   team_rule_conditions: إذا
@@ -620,6 +665,9 @@ ar:
   team_rule_actions: حينئذ
   team_rule_action: حينئذ
   team_rule_action_definition: تحديد الإجراء
+  team_rule_send_to_trash: نقل إلى سلة المهملات
+  team_rule_move_to_project: نقل العنصر إلى مجلد
+  team_rule_copy_to_project: إضافة عنصر إلى مجلد
   team_rule_ban_submitter: حظر المُقدم (لن تظهر رسائلهم المستقبلية فى Check)
   team_rule_all_items: جميع العناصر
   team_rule_send_message_to_user: إرسال رسالة إلى المستخدم(ة)
@@ -703,11 +751,19 @@ ar:
   list_column_media_published_at: تاريخ نشر المادة الإعلامية
   list_column_related_count: ذات صلة
   list_column_suggestions_count: المتطابقات المقترحة
+  list_column_folder: مجلد
   go_back_to_check: العودة إلى Check
+  project_cant_have_children_if_has_parent: هذا المجلد له مجلد أصلي، لذا لا يمكن أن
+    يصبح لديه مجلد تابع له
+  project_group_must_be_under_same_team: يجب أن تكون المجموعة من نفس مساحة العمل
   info:
     messages:
       sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.
+      moved_to_project_by_rule: تم نقل "%{item_title}" إلى المجلد "[%{list_name}](%{list_link})"
+        بواسطة قاعدة آلية.
       banned_submitter_by_rule: لقد تم منع طالب "%{item_title}" بواسطة قاعدة آلية.
+      copied_to_project_by_rule: تم نسخ "%{item_title}" إلى المجلد "[%{list_name}](%{list_link})"
+        بواسطة قاعدة آلية.
       related_to_confirmed_similar: لقد تم تأكيد أن "%{item_title}" مشابه لـ "%{similar_item_title}".
       related_to_suggested_similar: لقد تم اقتراح "%{item_title}" كمتشابه مع "%{similar_item_title}".
       sent_message_to_requestors_on_status_change: لقد أُرسِل تحديث ذو الحالة "%{status}"

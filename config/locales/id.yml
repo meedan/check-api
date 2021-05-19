@@ -108,6 +108,7 @@ id:
       comment: Catatan
       project_media: Perihal
       media: Perihal
+      project: Folder
       team: Ruang kerja
       user: Pengguna
       source: Sumber
@@ -154,11 +155,15 @@ id:
   invalid_label_for_custom_verification_status: Label status harus diisi
   invalid_id_for_custom_verification_status: Pengenal status adalah wajib dan harus
     terdiri dari huruf kecil, nomor, tanda sambung dan garis bawah
+  invalid_statuses_format_for_custom_verification_status: 'Status verifikasi kustom
+    salah. Menunggu entri yang bentar untuk: label, pengidentifikasi, deskripsi, dan
+    ragam.'
   mail_account_confirmation: "%{app_name} konfirmasi akun"
   slack:
     fields:
       assigned: Ditugaskan pada
       unassigned: Dilepas tugaskan dari
+      project: Folder
       source: Sumber
       status: Status
       status_previous: Status sebelumnya
@@ -186,6 +191,8 @@ id:
       project_media_create_related: "%{user} (%{role} pada %{team}) menambahkan sebuah
         %{type} terkait"
       project_media_update: "%{user} (%{role} pada %{team}) memperbarui sebuah perihal"
+      project_media_added_to_list: "%{user} (%{role} pada %{team}) menambahkan perihal
+        ke folder %{list_name}"
       project_media_status: "%{user} (%{role} pada %{team}) mengganti status %{workflow}
         dari %{type}"
       project_media_assign: "%{user} (%{role} pada %{team}) menetapkan sebuah %{type}"
@@ -194,6 +201,9 @@ id:
         pada %{parent_type}"
       project_source_create: "%{user} (%{role} pada %{team}) menambahkan sebuah %{type}"
       project_source_update: "%{user} (%{role} pada %{team}) menyunting sebuah %{type}"
+      project_create: "%{user} (%{role} pada %{team}) membuat sebuah folder"
+      project_assign: "%{user} (%{role} pada %{team}) menugaskan sebuah folder"
+      project_unassign: "%{user} (%{role} pada %{team}) melepas tugaskan sebuah folder"
       user_member: "%{user} bergabung ke ruang kerja %{team}"
       user_requested: "%{user} meminta untuk bergabung ke ruang kerja %{team}"
       user_invited: "%{user} diundang untuk bergabung ke ruang kerja %{team}"
@@ -226,6 +236,11 @@ id:
   email_not_found: Surel tidak ditemukan
   slack_channel_format_wrong: Channel Slack salah
   invalid_token: Token salah
+  time:
+    formats:
+      oembed: "%B %d, %Y"
+      task: "%B %d, %Y at %H:%M [TZ] (%z UTC)"
+      email: "%B %d, %Y %I:%M %p %Z"
   oembed_disclaimer_undetermined: Perihal ini belum diverifikasi oleh %{team}
   oembed_disclaimer_in_progress: Perihal ini telah diverifikasi oleh %{team} pada
     %{date}
@@ -257,6 +272,10 @@ id:
   duplicate_source: Sumber sudah ada
   geolocation_invalid_value: Lokasi salah. Menunggu struktur GeoJSON yang benar (http://geojson.org/)
   datetime_invalid_date: Tanggal salah
+  error_team_archived: Maaf, Anda tidak dapat menambahkan folder ke ruang kerja yang
+    telah dihapus
+  error_project_archived: Maaf, Anda tidak dapat menambahkan perihal ke folder yang
+    telah dihapus
   error_team_archived_for_source: Maaf, Anda tidak dapat menambahkan sumber pada ruang
     kerja yang telah dihapus
   permission_error: Maaf, Anda tidak diizinkan untuk melakukan tindakan ini
@@ -314,6 +333,7 @@ id:
   mails_notifications:
     greeting: Halo %{username},
     greeting_anonymous: Halo!
+    project_view: Lihat folder
     unsubscribe: Berhenti berlangganan
     unsubscribe_link: "%{unsubscribe} dari notifikasi ini"
     copyright_html: '%{app_name} oleh <a href="https://meedan.com">Meedan</a>'
@@ -373,6 +393,7 @@ id:
     task_resolved:
       subject: "[%{team} - %{project}] Tugas Terjawab"
       header_title: Tugas Terjawab
+      header_text: "%{author} menjawab sebuah tugas dalam folder %{project} pada %{team}."
       section_title: Siapa atau apakah sumber dari perihal ini?
       status: Status
       media_h: Perihal
@@ -381,6 +402,8 @@ id:
       subject: "[%{team} - %{project}] Sebuah status perihal telah ditandai sebagai
         %{status}"
       header_title: Status Perihal Diperbarui
+      header_text: "%{author} memperbarui status dari perihal dalam folder %{project}
+        pada %{team}."
       section_title: Ditandai sebagai %{status}.
       added_to: Ditambahkan ke %{app_name}
       update_h: Pembaruan Terakhir
@@ -390,40 +413,71 @@ id:
         Anda"
       unassign_task_subject: "[%{team} - %{project}] Sebuah tugas telah dibatalkan
         dari Anda"
+      assign_project_subject: "[%{team} - %{project}] Sebuah folder telah diserahkan
+        kepada Anda"
+      unassign_project_subject: "[%{team} - %{project}] Sebuah folder telah dibatalkan
+        dari Anda"
       assign_media_subject: "[%{team} - %{project}] Sebuah perihal telah diserahkan
         kepada Anda"
       unassign_media_subject: "[%{team} - %{project}] Sebuah perihal telah dibatalkan
         dari Anda"
-      assign_task_title: tugas yang telah tetapkan
-      unassign_task_title: tugas yang belum ditetapkan
+      assign_project_title: Folder Diserahkan
+      unassign_project_title: Folder Dibatalkan
+      assign_project_text: "%{author} menyerahkan folder %{project} pada %{team}."
+      unassign_project_text: "%{author} membatalkan folder %{project} pada %{team}."
+      assign_task_title: Tugas Diserahkan
+      unassign_task_title: Tugas Dibatalkan
+      assign_task_text: "%{author} menyerahkan tugas di dalam folder %{project} pada%{team}."
+      unassign_task_text: "%{author} membatalkan sebuah tugas dalam folder %{project}
+        pada %{team}."
       assign_media_title: Perihal yang telah ditugaskan
       unassign_media_title: Perihal yang belum ditugaskan
+      assign_media_text: "%{author} menyerahkan sebuah perihal dalam folder %{project}
+        pada %{team}."
+      unassign_media_text: "%{author} membatalkan sebuah perihal dalam folder %{project}
+        pada %{team}."
       assign_log: "%{author} menugaskan %{model} pada %{username}"
-      unassign_log: "%{author} membatalkan penugasan %{model} dari %{username}"
-      assign_by: Ditugaskan oleh
-      unassign_by: Dilepas tugaskan oleh
+      unassign_log: "%{author} membatalkan %{model} dari %{username}"
+      assign_by: Diserahkan oleh
+      unassign_by: Dibatalkan oleh
+      project_button: Pergi ke halaman folder
     request_to_join:
-      subject: Permohonan untuk bergabung ke ruang kerja %{team}
+      subject: Meminta untuk bergabung ke ruang kerja %{team}
       team_page: halaman ruang kerja
-      rejected_subject: Permohonan anda untuk bergabung %{team} tidak disetujui
+      team_button: Pergi ke halaman ruang kerja
+      rejected_subject: Permintaan Anda untuk bergabung %{team} tidak disetujui
       approved_subject: Selamat datang di ruang kerja %{team}
-      request_title: Permohonan untuk bergabung ke ruang kerja %{team}
+      request_title: Permintaan untuk bergabung ke ruang kerja %{team}
       request_text: "%{name} (%{email}) ingin bergabung dengan ruang kerja %{team}
         pada%{app_name}. Anda dapat memproses permohonan ini dengan mengunjungi %{url}."
       approved_title: Selamat datang di ruang kerja %{team}
-      approved_text: Permohonan anda untuk bergabung %{team} dengan %{app_name} telah
-        disetujui. Sekarang anda dapat lanjut ke %{url} dan mulai berkontribusi.
-      rejected_title: Permohonan Ditolak
+      approved_text: Permintaan Anda untuk bergabung  ke ruang kerja %{team} pada
+        %{app_name} telah disetujui. Sekarang Anda dapat pergi ke %{url} dan mulai
+        berkontribusi.
+      rejected_title: Permintaan Ditolak
       rejected_text: Maaf, permohonan anda untuk bergabung dengan %{team} dengan %{app_name}
         tidak disetujui.
   mail_security:
+    device_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} dari %{browser}
+      pada %{platform}'
+    ip_subject: 'Peringatan keamanan: Percobaan masuk baru atau tidak biasa dari %{app_name}'
+    failed_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} gagal'
     ip: Anda telah masuk dari %{location}
     device: Anda telah masuk melalui %{browser} pada %{platform}
-    failed: Upaya login gagal terditeksi
+    devise_name: "%{browser} pada %{platform}"
+    failed: Upaya masuk gagal terdeteksi
     password_text: segera atur ulang kata sandi.
+    device_text: Sepertinya akun Anda baru masuk ke %{app_name} dari perangkat baru.
+      Jika ini bukan Anda, Anda harus %{change_password}
+    ip_text: terlihat seperti Anda baru saja masuk ke akun %{app_name} Anda dari lokasi
+      baru. Jika ini bukan Anda, Anda harus %{change_password}
+    failed_text: terlihat beberapa kali percobaan telah dilakukan untuk masuk ke akun
+      %{app_name} Anda, Jika ini memang Anda, Anda dapat secara aman mengabaikan pesan
+      ini. Jika ini bukan Anda, lalu Anda harus %{change_password}
     time_h: Waktu
     device_h: Perangkat
     location_h: Lokasi
+    location_disclaimer: "* Lokasi diperkirakan berdasarkan alamat IP asal."
     ip_h: Alamat IP
     privacy: "%{manage} notifikasi surel • Pelajari lebih lanjut mengenai %{privacy}
       kami"
@@ -431,15 +485,120 @@ id:
     manage_text: Kelola
     privace_manage_plain: Kelola notifikasi surel anda
     privacy_plain: Pelajari lebih lanjut mengenai Kebijakan Pribadi kami
+  archive_keep_backup: Vault Video
   archive_pender_archive: Tangkapan layar
-  workflow_status_permission_error: Maaf, anda tidak diperbolehkan untuk mengganti
-    status ini.
+  archive_archive_is: Archive.is
+  archive_archive_org: Archive.org
+  workflow_status_is_not_valid: 'Status salah: ''%{status}'' (seharusnya berupa satu
+    dari %{valid})'
+  workflow_status_permission_error: Maaf, anda tidak diizinkan untuk mengganti status
+    ini.
+  bot_name_exists_for_this_team: Sudah ada bot dengan nama tersebut di dalam ruang
+    kerja ini
+  bot_team_id_doesnt_exist: Maaf, tidak ada ruang kerja dengan pengenal yang disediakan
+  bot_team_id_mandatory_to_create: Maaf, Anda perlu memilih sebuah ruang kerja untuk
+    membuat bot
+  bot_not_approved_for_installation: Maaf, bot ini tidak disetujui sehingga tidak
+    dapat dipasang
+  only_admins_can_approve_bots: Maaf, hanya administrator sistem yang dapat menyetujui
+    bot
+  could_not_save_related_bot_data: Maaf, tidak dapat menambahkan bot ke dalam ruang
+    kerja ini
+  bot_cant_add_review_to_task: Maaf, bot tidak dapat meninjau sebuah tugas
   tag_text_id_not_found: Label tidak ditemukan
   annotation_type_language_label: Bahasa
+  smooch_bot_message_confirmed: |-
+    Terima kasih. Permintaan Anda telah ditambahkan ke dalam antrrian verifikasi kami.
+
+    Kami akan mencoba untuk mengirimkan Anda laporan dalam 24 jam, namun mohon dicatat bahwa kami tidak dapat merespon setiap permintaan.
+  smooch_bot_message_unconfirmed: Karena Anda tidak membalas dengan 1, kami tidak
+    akan memproses permintaan Anda lebih lanjut. Terima kasih.
   smooch_bot_message_type_unsupported: Maaf, kami tidak mendukung jenis pesan seperti
     ini.
   smooch_bot_message_size_unsupported: Maaf, kami tidak mendukung berkas yang lebih
     besar dari %{max_size}.
+  smooch_bot_result: |-
+    [Laporan Verifikasi} Perihal yang Anda bagikan kepada kami telah ditandai sebagai *%{status}*.
+
+    Berikut langkah yang kami ambil untuk menentukannya: %{url}
+  smooch_bot_ask_for_confirmation: |-
+    Terima kasih telah mengirimkan permintaan ini. Apakah Anda ingin kami memverifikasi kontennya?
+
+    Jika ya, *mohon balas dengan 1*. Respon lainnya akan mengakhiri percakapan kita.
+  smooch_bot_ask_for_tos: |-
+    Terima kasih telah menjangkau Check Message!
+
+    Anda dapat menggunakan layanan ini untuk melakukan permintaan verifikasi, pengecekan fakta, dan investigasi dari berita-berita dan informasi. Check Message tersedia untuk Anda dibawah Persyaratan Layanan: %{tos}. Dengan lanjut menggunakan layanan ini, *Anda setuju untuk terikat pada persyaratan tersebut*. Anda dapat membatalkan penggunaan Check Message jika tidak setuju.
+  smooch_bot_window_closing: Jumlah permintaan pada channel ini sangat tinggi, dan
+    kami belum dapat menyelesaikan persoalan Anda. Terima kasih untuk kesabaran Anda.
+  smooch_bot_not_final: |-
+    [Laporan Verifikasi - KOREKSI] Pesan yang Anda bagikan kepada kami telah ditandai secara keliru sebagai *%{status}*.
+
+    Hal tersebut sedang dalam antrian untuk verifikasi lebih lanjut.
+  smooch_bot_disabled: Terima kasih telah mengirimkan pesan ini. Kami tidak dapat
+    mengirimkan kembali laporan verifikasi apapun, karena proyek ini sudah tidak aktif.
+  permissions_info:
+    roles:
+      admin:
+        description: Administrator mengontrol ruang kerja.
+      editor:
+        description: Penyunting mengelola ruang kerja dan folder-folder.
+    permissions:
+      sections:
+        project_management:
+          name: Pengelolaan Folder
+          permissions:
+            create: Buat folder
+            edit: Sunting folder
+            delete: Hapus folder
+            add_item: Tambahkan perihal ke folder
+        item_page_management:
+          name: Pengelolaan perihal
+          permissions:
+            edit: Sunting perihal
+            move: Pindahkan perihal
+            change_status: Ganti status perihal
+            lock_unlock_status: Status terkunci/tidak
+            add_remove_tag: Tambah/hapus label
+            send_to_trash: Pindahkan perihal atau sumber ke Tong Sampah
+            empty_trash: Kosongkan Tong Sampah
+        task_management:
+          name: Pengelolaan Tugas
+          permissions:
+            create: Buat tugas
+            edit: Sunting tugas
+            delete: Hapus tugas
+            add_response: Tambahkan respon
+            delete_repsonse: Hapus respon
+            assign_task: Serahkan tugas atau perihal
+        team_management:
+          name: Pengelolaan ruang kerja
+          permissions:
+            delete: Tutup ruang kerja
+            edit: Sunting informasi ruang kerja
+            set_private: Atur ruang kerja menjadi privat
+            edit_status: Sunting status ruang kerja
+            edit_tasks: Buat dan sunting tugas-tugas ruang kerja
+            roles: Sunting peran ruang kerja
+            third_party: Tambah intergrasi pihak-ketiga
+            invite_admin: Undang, terima, dan hapus administrator ruang kerja
+            invite_members: Undang, terima, dan hapus anggota ruang kerja
+  team_clone:
+    user_not_authorized: Maaf, Anda tidak diizinkan untuk menggandakan tim ini.
+  team_import:
+    invalid_google_spreadsheet_url: URL spreadsheet salah %{spreadsheet_url}
+    not_found_google_spreadsheet_url: Spreadsheet tidak ditemukan pada %{spreadsheet_url}
+    cannot_authenticate_with_the_credentials: Tidak dapat mengautentikasi Google Drive
+      dengan kredensial saat ini. Mohon kontak tim dukungan untuk memberitahukan kesalahan
+      ini.
+    team_not_present: Ruang kerja saat ini tidak dapat ditemukan saat impor data.
+      Mohon beritahu tim dukungan soal kesalahan ini.
+    user_not_present: Pengguna saat ini tidak ditemukan saat impor data. Mohon beritahu
+      tim dukungan soal kesalahan ini.
+    user_not_authorized: Maaf, Anda tidak diizinkan untuk mengimpor data ke dalam
+      ruang kerja ini.
+    invalid_project: Folder salah %{project}
+    invalid_status: Status salah %{status}
   embed_expand_all: Lebarkan semua
   embed_collapse_all: Tutup semua
   embed_tasks: Tugas
@@ -447,4 +606,6 @@ id:
   team_rule_type_is_link: Tautan
   team_rule_type_is_uploadedimage: Gambar
   team_rule_type_is_uploadedvideo: Video
+  team_rule_copy_to_project: Tambahkan perihal ke folder
   list_column_status: Status
+  list_column_folder: Folder
