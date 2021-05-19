@@ -49,6 +49,8 @@ es:
         label: Engañoso
       disputed:
         label: En conflicto
+      out_of_scope:
+        label: Fuera de Alcance
       junk:
         label: Basura
       unstarted:
