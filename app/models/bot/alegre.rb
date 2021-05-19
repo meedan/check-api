@@ -90,16 +90,28 @@ class Bot::Alegre < BotUser
     Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
   end
 
+  def self.restrict_to_same_modality(pm, matches)
+    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{|pm| [pm.id, pm]}]
+    if pm.is_text?
+      return matches.select{|k,v| other_pms[k].is_text?}
+    else
+      return matches.select{|k,v| other_pms[k].media.type == pm.media.type}
+    end
+  end
+
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     suggested_or_confirmed_results = self.translate_similar_items(
       suggested_or_confirmed, Relationship.suggested_type
     )
     if pm.is_link?
-      suggested_or_confirmed_results
+      self.restrict_to_same_modality(pm, suggested_or_confirmed_results)
     else
-      suggested_or_confirmed_results.merge(
-        self.translate_similar_items(
-          confirmed, Relationship.confirmed_type
+      self.restrict_to_same_modality(
+        pm,
+        suggested_or_confirmed_results.merge(
+          self.translate_similar_items(
+            confirmed, Relationship.confirmed_type
+          )
         )
       )
     end
