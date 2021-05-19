@@ -357,7 +357,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def original_title
-    (self.media&.metadata&.dig('title') || self.media.quote)
+    self.media&.metadata&.dig('title') || self.media&.quote || self.media&.file&.file&.filename
   end
 
   def analysis_title
