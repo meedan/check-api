@@ -181,6 +181,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
+    pm1.media.type = "UploadedImage"
+    pm2.media.type = "UploadedImage"
+    pm3.media.type = "UploadedImage"
+    pm1.media.save!
+    pm2.media.save!
+    pm3.media.save!
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -197,7 +203,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    pm3.media.type = "UploadedImage"
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -375,7 +380,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
-    assert Bot::Alegre.send_description_to_similarity_index(pm, 'original_description')
+    assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
   end
 
   test "should get items with similar description" do
