@@ -1,4 +1,4 @@
-class AddFieldsMappingToAnalysisTitle < ActiveRecord::Migration
+class AddMappingForSortTitle < ActiveRecord::Migration
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client
@@ -6,10 +6,8 @@ class AddFieldsMappingToAnalysisTitle < ActiveRecord::Migration
       index: index_alias,
       body: {
         properties: {
-          analysis_title: {
-            type: 'text',
-            analyzer: 'check',
-            fields: { raw: { type: 'keyword' } }
+          sort_title: {
+            type: 'keyword',
           }
         }
       }
