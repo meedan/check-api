@@ -7,6 +7,8 @@ class AddFieldsMappingToAnalysisTitle < ActiveRecord::Migration
       body: {
         properties: {
           analysis_title: {
+            type: 'text',
+            analyzer: 'check',
             fields: { raw: { type: 'keyword' } }
           }
         }
