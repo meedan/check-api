@@ -14,14 +14,14 @@ class Bot::Alegre < BotUser
     
     def self.save_analysis_to_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.send_title_to_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.send_description_to_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_description')
     end
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_description')
     end
 
     private
@@ -62,8 +62,8 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
-        self.send_title_to_similarity_index(pm, 'original_title')
-        self.send_description_to_similarity_index(pm, 'original_description')
+        self.send_field_to_similarity_index(pm, 'original_title')
+        self.send_field_to_similarity_index(pm, 'original_description')
         self.get_flags(pm)
         self.relate_project_media_to_similar_items(pm)
         handled = true
@@ -221,14 +221,9 @@ class Bot::Alegre < BotUser
     Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip.delete("\n").delete("=")
   end
 
-  def self.send_title_to_similarity_index(pm, field)
-    return if pm.title.blank?
-    self.send_to_text_similarity_index(pm, field, pm.title, self.item_doc_id(pm, field))
-  end
-
-  def self.send_description_to_similarity_index(pm, field)
-    return if pm.description.blank?
-    self.send_to_text_similarity_index(pm, field, pm.description, self.item_doc_id(pm, field))
+  def self.send_field_to_similarity_index(pm, field)
+    return if pm.send(field).blank?
+    self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
   end
 
   def self.team_has_alegre_bot_installed?(team_id)
