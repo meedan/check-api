@@ -117,14 +117,6 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_query(pm, query_type, automatic=false)
-    if query_type == "image"
-      self.get_threshold_for_image_query(pm, automatic)
-    elsif query_type == "text"
-      self.get_threshold_for_text_query(pm, automatic)
-    end
-  end  
-
   def self.get_threshold_for_image_query(pm, automatic=false)
     key = 'image_similarity_threshold'
     key = "automatic_#{key}" if automatic
