@@ -58,10 +58,14 @@ class DynamicAnnotation::Field < ActiveRecord::Base
     # Handle analysis fields (title/ description)
     if self.annotation_type == "verification_status" && ['title', 'content'].include?(self.field_name)
       key = 'analysis_' + self.field_name.gsub('content', 'description')
+      obj = self.annotation.project_media
+      value = self.value
+      # back analysis_title to original value for search purpose if user update title with blank
+      value = obj.title if key == 'analysis_title' && value.blank?
       options = {
         keys: [key],
-        data: { key => self.value },
-        obj: self.annotation.project_media
+        data: { key => value },
+        obj: obj
       }
       self.update_elasticsearch_doc(options[:keys], options[:data], options[:obj])
     end
