@@ -391,7 +391,7 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_similar_items_from_api(path, conditions, threshold)
+  def self.get_similar_items_from_api(path, conditions, threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
     project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?

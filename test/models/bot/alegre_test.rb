@@ -263,8 +263,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm1).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:matching_model_to_use)
   end
 
   test "should get empty similar items when not text or image" do
@@ -312,6 +314,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm2).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
@@ -331,6 +335,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     response = Bot::Alegre.get_similar_items(pm)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:matching_model_to_use)
   end
 
   test "should get items with similar text when they are text-based" do
@@ -358,7 +363,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -440,7 +445,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_similarity_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
