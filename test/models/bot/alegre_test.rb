@@ -63,7 +63,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true})
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
@@ -394,7 +394,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
     assert_equal response.class, Hash
     assert_equal response, {}
     Bot::Alegre.unstub(:request_api)
