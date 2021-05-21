@@ -17,7 +17,9 @@ module TeamDuplication
       ActiveRecord::Base.transaction do
         Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
         team = t.deep_clone include: [
-          :projects,
+          { project_groups: [:projects] },
+          { projects: { if: lambda{ |p| p.project_group_id.blank? }}},
+          :saved_searches,
           :tag_texts,
           :team_tasks
         ] do |original, copy|
@@ -77,6 +79,8 @@ module TeamDuplication
       elsif original.is_a?(TagText)
         copy.team_id = @team_id if !@team_id.nil?
         copy.tags_count = 0
+      elsif original.is_a?(ProjectGroup) || original.is_a?(SavedSearch)
+        copy.is_being_copied = true
       end
       copy.save!
       if original.is_a?(Project)
@@ -139,6 +143,8 @@ module TeamDuplication
         if !clone[:original].is_a?(Team)
           if clone[:original].is_a?(TeamTask)
             clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
+          elsif clone[:original].is_a?(Project)
+            clone[:clone].team_id = @team_id
           end
         end
         clone[:clone].skip_check_ability = true
