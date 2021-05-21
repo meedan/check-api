@@ -20,8 +20,8 @@ class Bot::Alegre < BotUser
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_description')
     end
 
     private
@@ -214,8 +214,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_field_to_similarity_index(pm, field)
-    return if pm.send(field).blank?
-    self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
+    if pm.send(field).blank?
+      self.delete_field_from_text_similarity_index(pm, field, true)
+    else
+      self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
+    end
   end
 
   def self.team_has_alegre_bot_installed?(team_id)
@@ -238,13 +241,14 @@ class Bot::Alegre < BotUser
     tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
 
-  def self.delete_field_from_text_similarity_index(pm, field)
-    self.delete_from_text_similarity_index(self.item_doc_id(pm, field))
+  def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
+    self.delete_from_text_similarity_index(self.item_doc_id(pm, field), quiet)
   end
 
-  def self.delete_from_text_similarity_index(doc_id)
+  def self.delete_from_text_similarity_index(doc_id, quiet=false)
     self.request_api('delete', '/text/similarity/', {
-      doc_id: doc_id
+      doc_id: doc_id,
+      quiet: quiet
     })
   end
 
@@ -369,6 +373,7 @@ class Bot::Alegre < BotUser
   def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
     if conditions.with_indifferent_access.dig('text') && threshold.with_indifferent_access.dig('automatic')
       if self.split_text(self.get_content_from_image_or_text_response(r).to_s).length > self.similarity_text_length_threshold
+        gg#intentionally raise error to see relevant tests
         return true
       else
         return false
