@@ -396,7 +396,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
-    assert_queal response, {}
+    assert_equal response, {}
     Bot::Alegre.unstub(:request_api)
   end
 

@@ -373,7 +373,6 @@ class Bot::Alegre < BotUser
   def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
     if conditions.with_indifferent_access.dig('text') && threshold.with_indifferent_access.dig('automatic')
       if self.split_text(self.get_content_from_image_or_text_response(r).to_s).length > self.similarity_text_length_threshold
-        gg#intentionally raise error to see relevant tests
         return true
       else
         return false
