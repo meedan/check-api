@@ -853,6 +853,24 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil copy_p
   end
 
+  test "should duplicate a team with project groups and saved searches" do
+    team = create_team name: 'Team A'
+    pg = create_project_group team: team
+    project = create_project team: team, project_group_id: pg.id
+    ss = create_saved_search team: team, filters: '{"foo":"bar"}'
+
+    RequestStore.store[:disable_es_callbacks] = true
+    copy = Team.duplicate(team)
+    RequestStore.store[:disable_es_callbacks] = false
+
+    copy_p = copy.projects.find_by_title(project.title)
+    copy_pg = copy.project_groups.find_by_title(pg.title)
+    assert_includes copy_pg.projects, copy_p
+
+    copy_ss = copy.saved_searches.find_by_title(ss.title)
+    assert_equal 'bar', copy_ss.filters['foo']
+  end
+
   test "should reset current team when team is deleted" do
     t = create_team
     u = create_user

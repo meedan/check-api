@@ -453,6 +453,7 @@ module SampleData
     project.archived = options[:archived] || 0
     team = options[:team] || create_team
     project.team_id = options[:team_id] || team.id
+    project.project_group_id = options[:project_group_id] if options.has_key?(:project_group_id)
     project.save!
     project.reload
   end
