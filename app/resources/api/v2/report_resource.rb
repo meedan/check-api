@@ -52,7 +52,7 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, threshold, nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
         end
@@ -66,7 +66,7 @@ module Api
           image[0].rewind
           image_path = "api_v2_similar_image/#{SecureRandom.hex}"
           CheckS3.write(image_path, 'image/png', image[0].read)
-          ids_and_scores = Bot::Alegre.get_items_from_similar_image(organization_ids, CheckS3.public_url(image_path), threshold)
+          ids_and_scores = Bot::Alegre.get_items_from_similar_image(organization_ids, CheckS3.public_url(image_path), {value: threshold})
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(image_path)
