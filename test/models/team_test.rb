@@ -855,20 +855,28 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should duplicate a team with project groups and saved searches" do
     team = create_team name: 'Team A'
-    pg = create_project_group team: team
-    project = create_project team: team, project_group_id: pg.id
-    ss = create_saved_search team: team, filters: '{"foo":"bar"}'
+    pg_1 = create_project_group team: team
+    pg_2 = create_project_group team: team
+    project_1 = create_project team: team, project_group_id: pg_1.id
+    project_2 = create_project team: team, project_group_id: pg_1.id
+    project_3 = create_project team: team
+    ss = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
 
-    copy_p = copy.projects.find_by_title(project.title)
-    copy_pg = copy.project_groups.find_by_title(pg.title)
-    assert_includes copy_pg.projects, copy_p
+    copy_pg_1 = copy.project_groups.find_by_title(pg_1.title)
+    copy_pg_2 = copy.project_groups.find_by_title(pg_2.title)
+    copy_project_1 = copy.projects.find_by_title(project_1.title)
+    copy_project_2 = copy.projects.find_by_title(project_2.title)
+    copy_project_3 = copy.projects.find_by_title(project_3.title)
+    assert_equal copy_pg_1.projects.sort, [copy_project_1, copy_project_2].sort
 
     copy_ss = copy.saved_searches.find_by_title(ss.title)
-    assert_equal 'bar', copy_ss.filters['foo']
+    assert_equal ['images'], copy_ss.filters['show']
+    assert_equal [copy_project_1.id.to_s, copy_project_3.id.to_s], copy_ss.filters['projects']
+    assert_equal [copy_pg_2.id.to_s], copy_ss.filters['project_group_id']
   end
 
   test "should reset current team when team is deleted" do

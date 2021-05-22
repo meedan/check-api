@@ -11,6 +11,7 @@ module TeamDuplication
       @bot_ids = []
       @clones = []
       @project_id_map = {}
+      @project_group_id_map = {}
       @team_id = nil
       @custom_name = custom_name
       @custom_slug = custom_slug
@@ -85,6 +86,8 @@ module TeamDuplication
       copy.save!
       if original.is_a?(Project)
         @project_id_map[original.id] = copy.id
+      elsif original.is_a?(ProjectGroup)
+        @project_group_id_map[original.id] = copy.id
       elsif copy.is_a?(Team)
         @team_id = copy.id
       end
@@ -145,6 +148,9 @@ module TeamDuplication
             clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
           elsif clone[:original].is_a?(Project)
             clone[:clone].team_id = @team_id
+          elsif clone[:original].is_a?(SavedSearch)
+            clone[:clone].filters['projects'] = clone[:clone].filters['projects'].collect { |pid| @project_id_map[pid.to_i].to_s }
+            clone[:clone].filters['project_group_id'] = clone[:clone].filters['project_group_id'].collect { |pgid| @project_group_id_map[pgid.to_i].to_s }
           end
         end
         clone[:clone].skip_check_ability = true
