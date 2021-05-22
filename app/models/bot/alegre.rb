@@ -20,8 +20,8 @@ class Bot::Alegre < BotUser
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_description')
     end
 
     private
@@ -117,12 +117,18 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_threshold_for_image_query(pm, automatic=false)
+    key = 'image_similarity_threshold'
+    key = "automatic_#{key}" if automatic
+    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+  end  
+
   def self.get_threshold_for_text_query(pm, automatic=false)
     model = self.matching_model_to_use(pm)
     key = "text_similarity_threshold"
     key = "automatic_#{key}" if automatic
     key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
-    return CheckConfig.get(key).to_f
+    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
   end  
 
   def self.get_similar_items(pm)
@@ -131,8 +137,8 @@ class Bot::Alegre < BotUser
       confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     elsif pm.is_image?
-      suggested_or_confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('image_similarity_threshold').to_f)
-      confirmed = self.get_items_with_similar_image(pm, CheckConfig.get('automatic_image_similarity_threshold').to_f)
+      suggested_or_confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm))
+      confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
@@ -208,8 +214,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_field_to_similarity_index(pm, field)
-    return if pm.send(field).blank?
-    self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
+    if pm.send(field).blank?
+      self.delete_field_from_text_similarity_index(pm, field, true)
+    else
+      self.send_to_text_similarity_index(pm, field, pm.send(field), self.item_doc_id(pm, field))
+    end
   end
 
   def self.team_has_alegre_bot_installed?(team_id)
@@ -232,13 +241,14 @@ class Bot::Alegre < BotUser
     tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
 
-  def self.delete_field_from_text_similarity_index(pm, field)
-    self.delete_from_text_similarity_index(self.item_doc_id(pm, field))
+  def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
+    self.delete_from_text_similarity_index(self.item_doc_id(pm, field), quiet)
   end
 
-  def self.delete_from_text_similarity_index(doc_id)
+  def self.delete_from_text_similarity_index(doc_id, quiet=false)
     self.request_api('delete', '/text/similarity/', {
-      doc_id: doc_id
+      doc_id: doc_id,
+      quiet: quiet
     })
   end
 
@@ -307,12 +317,16 @@ class Bot::Alegre < BotUser
     CheckConfig.get("similarity_text_length_threshold").to_f
   end
 
+  def self.split_text(text)
+    text.split(/\s/)
+  end
+
   def self.get_items_with_similar_title(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    pm.title.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
+    self.split_text(pm.title.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
   end
 
   def self.get_items_with_similar_description(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    pm.description.to_s.split(/\s/).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
+    self.split_text(pm.description.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
@@ -341,17 +355,37 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_context_from_image_or_text_response(search_result)
-    search_result.dig('_source', 'context') || search_result.dig('context')
+    self.get_source_key_from_image_or_text_response(search_result, 'context')
+  end
+
+  def self.get_content_from_image_or_text_response(search_result)
+    self.get_source_key_from_image_or_text_response(search_result, 'content')
+  end
+
+  def self.get_source_key_from_image_or_text_response(search_result, source_key)
+    search_result.dig('_source', source_key) || search_result.dig(source_key)
   end
 
   def self.get_score_from_image_or_text_response(search_result)
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.get_similar_items_from_api(path, conditions)
+  def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
+    if conditions.with_indifferent_access.dig('text') && threshold.with_indifferent_access.dig('automatic')
+      if self.split_text(self.get_content_from_image_or_text_response(r).to_s).length > self.similarity_text_length_threshold
+        return true
+      else
+        return false
+      end
+    else
+      return true
+    end
+  end
+
+  def self.get_similar_items_from_api(path, conditions, threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
-    project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
+    project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score
@@ -381,8 +415,8 @@ class Bot::Alegre < BotUser
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
       context: self.build_context(team_id, field),
-      threshold: threshold
-    })
+      threshold: threshold[:value]
+    }, threshold)
   end
 
   def self.get_items_with_similar_image(pm, threshold)
