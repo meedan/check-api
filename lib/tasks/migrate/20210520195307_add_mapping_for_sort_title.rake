@@ -11,7 +11,7 @@ namespace :check do
         query = { term: { team_id: { value: t.id } } }
         search_after = [0]
         while true
-          result = $repository.search(query: query, sort: sort, search_after: search_after, size: 2500)
+          result = $repository.search(query: query, sort: sort, search_after: search_after, size: 5000)
           es_ids = result.collect{ |i| i['annotated_id'] }.uniq
           break if es_ids.empty?
           es_body = []
