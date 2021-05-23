@@ -149,8 +149,12 @@ module TeamDuplication
           elsif clone[:original].is_a?(Project)
             clone[:clone].team_id = @team_id
           elsif clone[:original].is_a?(SavedSearch)
-            clone[:clone].filters['projects'] = clone[:clone].filters['projects'].collect { |pid| @project_id_map[pid.to_i].to_s }
-            clone[:clone].filters['project_group_id'] = clone[:clone].filters['project_group_id'].collect { |pgid| @project_group_id_map[pgid.to_i].to_s }
+            unless clone[:clone].filters['projects'].blank?
+              clone[:clone].filters['projects'] = clone[:clone].filters['projects'].collect { |pid| @project_id_map[pid.to_i].to_s }
+            end
+            unless clone[:clone].filters['project_group_id'].blank?
+              clone[:clone].filters['project_group_id'] = clone[:clone].filters['project_group_id'].collect { |pgid| @project_group_id_map[pgid.to_i].to_s }
+            end
           end
         end
         clone[:clone].skip_check_ability = true
