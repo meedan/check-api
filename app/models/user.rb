@@ -330,6 +330,12 @@ class User < ActiveRecord::Base
       as = AccountSource.where(source_id: s2.id, account_id: s.accounts)
       as.each{|i| i.skip_check_ability = true; i.destroy;}
     end
+
+    # Remove duplicate ProjectMediaUser before merging
+    data = ProjectMediaUser.select('project_media_id').where(user_id: [user.id, self.id])
+    .group('project_media_id').having("count(project_media_id) = ?", 2)
+    ProjectMediaUser.where(project_media_id: data.map(&:project_media_id), user_id: user.id).delete_all
+
     all_associations = User.reflect_on_all_associations(:has_many).select{|a| a.foreign_key == 'user_id'}
     all_associations.each do |assoc|
       assoc.class_name.constantize.where(assoc.foreign_key => user.id).update_all(assoc.foreign_key => self.id)
