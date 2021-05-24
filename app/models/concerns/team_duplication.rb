@@ -71,18 +71,25 @@ module TeamDuplication
       copy.set_slack_notifications_enabled = false
     end
 
+    def self.alter_project_group_copy(copy)
+      copy.is_being_copied = true
+    end
+
+    def self.alter_saved_search_copy(copy)
+      copy.is_being_copied = true
+    end
+
+    def self.alter_tag_text_copy(copy)
+      copy.team_id = @team_id if !@team_id.nil?
+      copy.tags_count = 0
+    end
+
+    def self.alter_team_task_copy(_copy)
+    end
+
     def self.alter_copy_by_type(original, copy)
       copy.skip_check_ability = true # We use a specific "duplicate" permission before calling the Team.duplicate method
-      if original.is_a?(Team)
-        self.alter_team_copy(copy)
-      elsif original.is_a?(Project)
-        self.alter_project_copy(copy)
-      elsif original.is_a?(TagText)
-        copy.team_id = @team_id if !@team_id.nil?
-        copy.tags_count = 0
-      elsif original.is_a?(ProjectGroup) || original.is_a?(SavedSearch)
-        copy.is_being_copied = true
-      end
+      self.send("alter_#{original.class_name.underscore}_copy", copy)
       copy.save!
       if original.is_a?(Project)
         @project_id_map[original.id] = copy.id
@@ -149,17 +156,24 @@ module TeamDuplication
           elsif clone[:original].is_a?(Project)
             clone[:clone].team_id = @team_id
           elsif clone[:original].is_a?(SavedSearch)
-            unless clone[:clone].filters['projects'].blank?
-              clone[:clone].filters['projects'] = clone[:clone].filters['projects'].collect { |pid| @project_id_map[pid.to_i].to_s }
-            end
-            unless clone[:clone].filters['project_group_id'].blank?
-              clone[:clone].filters['project_group_id'] = clone[:clone].filters['project_group_id'].collect { |pgid| @project_group_id_map[pgid.to_i].to_s }
-            end
+            clone[:clone].filters = self.update_saved_search_filters(clone[:clone].filters)
           end
         end
         clone[:clone].skip_check_ability = true
         clone[:clone].save!
       end
+    end
+
+    def self.update_saved_search_filters(filters)
+      {
+        'projects' => @project_id_map,
+        'project_group_id' => @project_group_id_map
+      }.each do |filter, collection|
+        unless filters[filter].blank?
+          filters[filter] = filters[filter].collect { |id| collection[id.to_i].to_s }
+        end
+      end
+      filters
     end
   end
 
