@@ -860,23 +860,31 @@ class TeamTest < ActiveSupport::TestCase
     project_1 = create_project team: team, project_group_id: pg_1.id
     project_2 = create_project team: team, project_group_id: pg_1.id
     project_3 = create_project team: team
-    ss = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
+    ss_1 = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
+    ss_2 = create_saved_search team: team, filters: {"projects"=>[]}.to_json
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
 
+    # Projects Groups and projects are copied
     copy_pg_1 = copy.project_groups.find_by_title(pg_1.title)
-    copy_pg_2 = copy.project_groups.find_by_title(pg_2.title)
     copy_project_1 = copy.projects.find_by_title(project_1.title)
     copy_project_2 = copy.projects.find_by_title(project_2.title)
-    copy_project_3 = copy.projects.find_by_title(project_3.title)
     assert_equal copy_pg_1.projects.sort, [copy_project_1, copy_project_2].sort
 
-    copy_ss = copy.saved_searches.find_by_title(ss.title)
-    assert_equal ['images'], copy_ss.filters['show']
-    assert_equal [copy_project_1.id.to_s, copy_project_3.id.to_s], copy_ss.filters['projects']
-    assert_equal [copy_pg_2.id.to_s], copy_ss.filters['project_group_id']
+    # Saved searches are copied and the projects and project groups are updated on filters
+    copy_pg_2 = copy.project_groups.find_by_title(pg_2.title)
+    copy_project_3 = copy.projects.find_by_title(project_3.title)
+    copy_ss_1 = copy.saved_searches.find_by_title(ss_1.title)
+    assert_equal ['images'], copy_ss_1.filters['show']
+    assert_equal [copy_project_1.id.to_s, copy_project_3.id.to_s], copy_ss_1.filters['projects']
+    assert_equal [copy_pg_2.id.to_s], copy_ss_1.filters['project_group_id']
+
+    # Saved searches without projects and project groups defined are copied
+    copy_ss_2 = copy.saved_searches.find_by_title(ss_2.title)
+    assert_equal [], copy_ss_2.filters['projects']
+    assert !copy_ss_2.filters.has_key?('project_group_id')
   end
 
   test "should reset current team when team is deleted" do
