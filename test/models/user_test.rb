@@ -1220,6 +1220,19 @@ class UserTest < ActiveSupport::TestCase
     assert Source.exists?(s.id)
   end
 
+  test "should merge two users with same ProjectMediaUser" do
+    u = create_user
+    u2 = create_user
+    pm = create_project_media
+    ProjectMediaUser.create!(project_media: pm, user: u)
+    ProjectMediaUser.create!(project_media: pm, user: u2)
+    assert_nothing_raised do
+      u.merge_with(u2)
+    end
+    assert_equal 1, ProjectMediaUser.where(project_media_id: pm.id, user_id: u.id).count
+    assert_equal 0, ProjectMediaUser.where(project_media_id: pm.id, user_id: u2.id).count
+  end
+
   test "should keep email based login when merge users" do
     u = create_user email: 'test@local.com', token: '123456', is_admin: true
     u2 = create_omniauth_user
