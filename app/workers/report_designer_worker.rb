@@ -36,6 +36,7 @@ class ReportDesignerWorker
     data[:published_count] = data[:published_count].to_i + 1
     d.data = data
     d.save!
+    BotUser.enqueue_event('publish_report', pm.team_id, d)
     pm.clear_caches
   end
 end
