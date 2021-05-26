@@ -410,13 +410,21 @@ class Bot::Alegre < BotUser
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
     threshold ||= self.get_threshold_for_text_query(nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
-    self.get_similar_items_from_api('/text/similarity/', {
+    self.get_similar_items_from_api(
+      '/text/similarity/',
+      self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold),
+      threshold
+    )
+  end
+
+  def self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold)
+    {
       text: text,
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
       context: self.build_context(team_id, field),
       threshold: threshold[:value]
-    }, threshold)
+    }
   end
 
   def self.get_items_with_similar_image(pm, threshold)
@@ -424,11 +432,18 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_from_similar_image(team_id, image_url, threshold)
-    self.get_similar_items_from_api('/image/similarity/', {
+    self.get_similar_items_from_api(
+      '/image/similarity/',
+      self.similar_images_from_api_conditions(team_id, image_url, threshold)
+    )
+  end
+  
+  def self.similar_images_from_api_conditions(team_id, image_url, threshold)
+    {
       url: image_url,
       context: self.build_context(team_id),
-      threshold: threshold
-    })
+      threshold: threshold[:value]
+    }
   end
 
   def self.add_relationships(pm, pm_id_scores)
