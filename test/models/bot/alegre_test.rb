@@ -97,7 +97,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => 0}
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
-      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
+      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, Bot::Alegre.get_threshold_for_image_query(pm2))
       assert_nil pm2.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
