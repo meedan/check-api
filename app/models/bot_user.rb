@@ -2,7 +2,7 @@ class BotUser < User
   include ErrorNotification
   include CheckPusher
 
-  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own']
+  EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
   if ActiveRecord::Base.connection.table_exists?(:dynamic_annotation_annotation_types)
     annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'tag', 'task', 'geolocation']
     annotation_types.each do |type|

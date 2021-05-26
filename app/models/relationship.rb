@@ -15,6 +15,7 @@ class Relationship < ActiveRecord::Base
   validate :items_are_from_the_same_team
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
+  after_create :move_to_same_project_as_main, prepend: true
   after_create :point_targets_to_new_source, :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
@@ -203,5 +204,14 @@ class Relationship < ActiveRecord::Base
     parent_id = action == 'destroy' ? self.target_id : self.source_id
     options = { keys: ['parent_id'], data: { 'parent_id' => parent_id }, obj: self.target }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(self.target), YAML::dump(options), 'update_doc')
+  end
+
+  def move_to_same_project_as_main
+    main = self.source
+    secondary = self.target
+    if (self.is_confirmed? || self.is_suggested?) && secondary && main && secondary.project_id != main.project_id
+      secondary.project_id = main.project_id
+      secondary.save!
+    end
   end
 end

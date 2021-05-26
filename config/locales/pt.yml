@@ -49,6 +49,8 @@ pt:
         label: Enganoso
       disputed:
         label: Controverso
+      out_of_scope:
+        label: Fora de escopo
       junk:
         label: Lixo
       unstarted:
@@ -106,6 +108,7 @@ pt:
       comment: Nota
       project_media: Item
       media: Item
+      project: Pasta
       team: Espaço de trabalho
       user: Usuário(a)
       source: Fonte
@@ -164,6 +167,7 @@ pt:
     fields:
       assigned: Atribuída a
       unassigned: Atribuição removida de
+      project: Pasta
       source: Fonte
       status: Status
       status_previous: Status anterior
@@ -191,6 +195,8 @@ pt:
       project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a)
         %{type} relacionado(a)"
       project_media_update: "%{user} (%{role} em %{team}) atualizou um item"
+      project_media_added_to_list: "%{user} (%{role} em %{team}) adicionou um item
+        à pasta %{list_name}"
       project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow}
         de um(a) %{type}"
       project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
@@ -200,6 +206,10 @@ pt:
         %{parent_type}"
       project_source_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
       project_source_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
+      project_create: "%{user} (%{role} em %{team}) criou uma pasta"
+      project_assign: "%{user} (%{role} em %{team}) atribuiu uma pasta"
+      project_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de uma
+        pasta"
       user_member: "%{user} começou a participar do espaço de trabalho %{team}"
       user_requested: "%{user} enviou solicitação para participar do espaço de trabalho
         %{team}"
@@ -250,10 +260,10 @@ pt:
     %{team} em %{date}
   oembed_source_date: "%{date} no %{provider}"
   role_editor: editor(a)
-  role_admin: administrador(a)
+  role_admin: admin
   role_collaborator: colaborador(a)
   role_none: membro
-  role_: administrador(a) de sistemas
+  role_: admin de sistemas
   oembed_credit: Adicionado por %{user} (%{role}) %{date}
   oembed_notes_count:
     one: Uma nota
@@ -274,13 +284,17 @@ pt:
   geolocation_invalid_value: Localização inválida. Esperando uma estrutura GeoJSON
     válida (http://geojson.org/)
   datetime_invalid_date: Data inválida
+  error_team_archived: Desculpe, não é possível adicionar uma pasta a um espaço de
+    trabalho que esteja na lixeira
+  error_project_archived: Desculpe, não é possível adicionar um item a uma pasta que
+    esteja na lixeira
   error_team_archived_for_source: 'Desculpe, não é possível adicionar uma fonte a
     um espaço de trabalho que esteja na lixeira '
   permission_error: Desculpe, você não tem permissão para realizar esta operação
   error_annotated_archived: Desculpe, não é possível adicionar uma nota a um item
     na lixeira
-  only_super_admin_can_do_this: Desculpe, apenas os administradores do sistema podem
-    efetuar esta modificação
+  only_super_admin_can_do_this: Desculpe, apenas admins do sistema podem efetuar esta
+    modificação
   cant_change_custom_statuses: |-
     Desculpe, não é possível modificar as definições de status porque alguns deles desapareceriam. Esses identificadores de status: %{statuses} estão sendo usados pelos itens seguintes:
     %{urls} %{others_amount}
@@ -330,6 +344,7 @@ pt:
   mails_notifications:
     greeting: Olá, %{username}.
     greeting_anonymous: Olá!
+    project_view: Ver pasta
     unsubscribe: Desinscrever-se
     unsubscribe_link: "%{unsubscribe} dessas notificações"
     copyright_html: '%{app_name} pela <a href="https://meedan.com">Meedan</a>'
@@ -388,6 +403,7 @@ pt:
     task_resolved:
       subject: "[%{team} - %{project}] A tarefa foi respondida"
       header_title: A tarefa foi respondida
+      header_text: " %{author} respondeu a uma tarefa na pasta %{project} em %{team}."
       section_title: Quem ou qual é a fonte desse item?
       status: Status
       media_h: Item
@@ -395,6 +411,8 @@ pt:
       label: Item
       subject: "[%{team} - %{project}] O status de um item foi marcado como %{status}"
       header_title: O status do item foi atualizado
+      header_text: " %{author} atualizou o status de um item na pasta %{project} em
+        %{team}."
       section_title: Marcado como %{status}.
       added_to: Adicionado ao %{app_name}
       update_h: Última Atualização
@@ -403,17 +421,32 @@ pt:
       assign_task_subject: "[%{team} - %{project}] Uma tarefa foi atribuída a você"
       unassign_task_subject: "[%{team} - %{project}] A atribuição de uma tarefa a
         você foi removida"
+      assign_project_subject: "[%{team} - %{project}] Uma pasta foi atribuída a você"
+      unassign_project_subject: "[%{team} - %{project}] A atribuição de uma pasta
+        foi removida de você"
       assign_media_subject: "[%{team} - %{project}] Um item foi atribuído a você"
       unassign_media_subject: "[%{team} - %{project}] A atribuição de um item a você
         foi removida"
+      assign_project_title: Pasta atribuída
+      unassign_project_title: A atribuição da pasta foi removida
+      assign_project_text: "%{author} atribuiu a pasta %{project} em %{team}."
+      unassign_project_text: "%{author} removeu a atribuição da pasta %{project} em
+        %{team}."
       assign_task_title: Tarefa atribuída
-      unassign_task_title: A atribuição da tarefa removida
+      unassign_task_title: A atribuição da tarefa foi removida
+      assign_task_text: "%{author} atribuiu uma tarefa na pasta %{project} em %{team}."
+      unassign_task_text: "%{author} removeu a atribuição de uma tarefa na pasta %{project}
+        em %{team}."
       assign_media_title: Item atribuído
-      unassign_media_title: A atribuição do item removida
+      unassign_media_title: A atribuição do item foi removida
+      assign_media_text: "%{author} atribuiu um item na pasta %{project} em %{team}."
+      unassign_media_text: "%{author} removeu a atribuição de um item na pasta %{project}
+        em %{team}."
       assign_log: " %{author} atribuiu um(a) %{model} a %{username}"
       unassign_log: " %{author} removeu a atribuição de %{model} de %{username}"
-      assign_by: Atribuído(a) por
+      assign_by: Atribuídos por
       unassign_by: A atribuição foi removida por
+      project_button: Ir para a página da pasta
     request_to_join:
       subject: Solicitação para participar do espaço de trabalho %{team}
       team_page: página do espaço de trabalho
@@ -476,8 +509,7 @@ pt:
     para criar um bot
   bot_not_approved_for_installation: Desculpe, este bot não foi aprovado e por isso
     não pode ser instalado
-  only_admins_can_approve_bots: Desculpe, apenas administradores do sistema podem
-    aprovar bots
+  only_admins_can_approve_bots: Desculpe, apenas admins do sistema podem aprovar bots
   could_not_save_related_bot_data: Desculpe, não foi possível adicionar o bot a esse
     espaço de trabalho
   bot_cant_add_response_to_task: Desculpe, um bot não pode responder a uma tarefa
@@ -522,20 +554,30 @@ pt:
   permissions_info:
     roles:
       admin:
-        description: O(A) administrador(a) controla o espaço de trabalho.
+        description: Admins controlam o espaço de trabalho.
+      editor:
+        description: Editores(as) gerenciam o espaço de trabalho e as pastas.
       collaborator:
         description: O(A) colaborador(a) pode adicionar novas informações a serem
           verificadas. Geralmente são pessoas do público.
     permissions:
       sections:
+        project_management:
+          name: Gerenciamento de pasta
+          permissions:
+            create: Criar pasta
+            edit: Editar pasta
+            delete: Excluir pasta
+            add_item: Adicionar item à pasta
         item_page_management:
           name: Gerenciamento de item
           permissions:
             edit: Editar item
             move: Mover item
-            change_status: Mudar status do item
+            change_status: Mudar o status do item
             lock_unlock_status: Bloquear/desbloquear status
             add_remove_tag: Adicionar/excluir tags
+            send_to_trash: Mover item ou fonte para a Lixeira
             empty_trash: Esvaziar lixeira
         task_management:
           name: Gerenciamento de tarefa
@@ -556,8 +598,7 @@ pt:
             edit_tasks: Criar e editar tarefas do espaço de trabalho
             roles: Editar papéis no espaço de trabalho
             third_party: Adicionar integrações externas
-            invite_admin: Convidar, aprovar e remover administradores(as) do espaço
-              de trabalho
+            invite_admin: Convidar, aprovar e remover admins do espaço de trabalho
             invite_members: Convidar, aprovar e excluir membros do espaço de trabalho
   team_clone:
     user_not_authorized: Desculpe, você não tem permissão para duplicar esta equipe.
@@ -573,10 +614,12 @@ pt:
       Por favor, notifique a equipe de suporte sobre este incidente.
     user_not_authorized: Desculpe, você não tem permissão para importar dados para
       esse espaço de trabalho.
+    invalid_project: A pasta %{project} é inválida
     invalid_user: O(A) autor(a) %{user} é inválido(a)
     invalid_status: O status %{status} é inválido
     blank_user: O campo "autor" não pode ficar em branco
     blank_annotator: O campo "anotador(a)" não pode ficar em branco
+    blank_project: O campo "pasta" é inválido
     invalid_annotator: O(A) anotador(a) %{user} é inválido(a)
     invalid_assignee: A pessoa à qual a tarefa foi atribuída, %{user}, é inválida
   cant_mutate_inactive_object: Desculpe, há uma operação pendente para este item,
@@ -594,18 +637,20 @@ pt:
   bot_request_url_invalid: A URL do bot é inválida
   smooch_facebook_success: |
     Sucesso!
-    Sua linha direta agora está conectada ao Facebook Messenger.
-    Todas as mensagens recebidas por esta página do Facebook será gerenciada pela linha direta.
-    Por favor, recarregue a página de configurações da sua linha direta para ver as novas mudanças.
+    Sua Tipline agora está conectada ao Facebook Messenger.
+    Todas as mensagens recebidas por esta página do Facebook será gerenciada pela Tipline.
+    Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
   smooch_twitter_success: |
     Sucesso!
-    Sua linha direta agora está conectada ao Twitter.
-    Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela linha direta.
-    Por favor, recarregue a página de configurações da sua linha direta para ver as novas mudanças.
+    Sua Tipline agora está conectada ao Twitter.
+    Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela Tipline.
+    Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
   must_select_exactly_one_facebook_page: Por favor, selecione a página exata do Facebook
-    que você deseja integrar com a linha direta.
+    que você deseja integrar com a Tipline.
   invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
+  team_rule_project_ids: Aplicar à pasta
+  team_rule_destination: Selecionar pasta de destino
   team_rule_names_invalid: Os nomes de regras não podem ficar em branco e devem ser
     únicos
   team_rules: Regras
@@ -614,15 +659,15 @@ pt:
   team_rule_condition_definition: Selecionar condição
   team_rule_has_less_than_x_words: A solicitação contém menos que (ou exatamente)
     o seguinte número de palavras
-  team_rule_title_matches_regexp: O título do item corresponde a esta expressão regular
-  team_rule_request_matches_regexp: A solicitação corresponde a esta expressão regular
+  team_rule_title_matches_regexp: O título do item coincide com esta expressão regular
+  team_rule_request_matches_regexp: A solicitação coincide com esta expressão regular
   team_rule_type_is: O tipo do item é
   team_rule_type_is_claim: Texto
   team_rule_type_is_link: Link
   team_rule_type_is_uploadedimage: Imagem
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
-  team_rule_title_contains_keyword: O titulo do item contém uma ou mais destas palavras-chave
+  team_rule_title_contains_keyword: O título do item contém uma ou mais destas palavras-chave
   team_rule_select_type: Selecionar tipo
   team_rule_select_language: Selecionar idioma
   team_rule_select_user: Escolha um(a) colaborador(a)
@@ -636,6 +681,9 @@ pt:
   team_rule_actions: Então
   team_rule_action: Então
   team_rule_action_definition: Selecionar ação
+  team_rule_send_to_trash: Mover para a Lixeira
+  team_rule_move_to_project: Mover item para a pasta
+  team_rule_copy_to_project: Adicionar item à pasta
   team_rule_ban_submitter: Banir remetente (as futuras mensagens não aparecerão no
     Check)
   team_rule_all_items: Todos os itens
@@ -647,10 +695,10 @@ pt:
   team_rule_type_title_threshold: Distância entre títulos de itens
   team_rule_type_image_threshold: Distância entre imagens
   team_rule_type_flag_threshold: Com uma probabilidade de pelo menos
-  team_rule_select_flag: Selecionar indicador
-  team_rule_flagged_as: O item está indicado como
+  team_rule_select_flag: Selecionar classificação
+  team_rule_flagged_as: O item está classificado como
   team_rule_report_is_published: O relatório foi publicado
-  team_rule_report_is_paused: O relatório está em pausa
+  team_rule_report_is_paused: O relatório está suspenso
   team_rule_condition_groups: Grupos de condições
   team_rule_condition_group: Grupo de condições
   team_rule_operator: Operador
@@ -661,10 +709,10 @@ pt:
   team_rule_item_is_read: O item foi lido
   team_rule_field_from_fieldset_tasks_value_is: A tarefa tem uma resposta específica
   team_rule_field_from_fieldset_metadata_value_is: Os metadados têm um valor específico
-  team_rule_field_from_fieldset_tasks_value_contains_keyword: Resposta da tarefa contém
-    palavra-chave
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Metadados contêm
-    palavra-chave
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: A resposta da tarefa
+    contém a palavra-chave
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Os metadados contêm
+    a palavra-chave
   team_rule_select_field_metadata: Selecionar metadados
   team_rule_select_field_value_metadata: Selecionar valor
   team_rule_select_field_tasks: Selecionar tarefa
@@ -677,8 +725,8 @@ pt:
   flag_violence: Violência
   flag_racy: Sugestivo
   flag_spam: Spam
-  annotation_type_flag_name_label: Indicador
-  annotation_type_flag_value_label: Probabilidade do indicador
+  annotation_type_flag_name_label: Classificação
+  annotation_type_flag_value_label: 'Probabilidade da classificação '
   flag_likelihood_0: Desconhecido
   flag_likelihood_1: Muito improvável
   flag_likelihood_2: Improvável
@@ -718,17 +766,26 @@ pt:
   list_column_created_at: Enviado
   list_column_last_seen: Último envio
   list_column_updated_at: Atualizado
-  list_column_report_status: Status do relatório
+  list_column_report_status: O status do relatório é
   list_column_tags_as_sentence: Tags
   list_column_media_published_at: Mídia publicada
   list_column_related_count: Relacionado
   list_column_suggestions_count: Coincidências sugeridas
+  list_column_folder: Pasta
   go_back_to_check: Voltar ao Check
+  project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente,
+    por isso não pode ter uma pasta descendente
+  project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de
+    trabalho
   info:
     messages:
       sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo
         uma regra automática.
+      moved_to_project_by_rule: O item "%{item_title}" foi movido para a pasta "[%{list_name}](%{list_link})",
+        seguindo uma regra automática.
       banned_submitter_by_rule: O(A) solicitante do item "%{item_title}" foi banido(a),
+        seguindo uma regra automática.
+      copied_to_project_by_rule: O item "%{item_title}" foi copiado para a pasta "[%{list_name}](%{list_link})",
         seguindo uma regra automática.
       related_to_confirmed_similar: O item "%{item_title}" foi confirmado como semelhante
         ao item "%{similar_item_title}".

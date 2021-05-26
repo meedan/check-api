@@ -50,6 +50,8 @@ fr:
         label: Trompeur
       disputed:
         label: Contesté
+      out_of_scope:
+        label: Hors du champ visé
       junk:
         label: Indésirable
       unstarted:
@@ -109,6 +111,7 @@ fr:
       comment: Note
       project_media: Élément
       media: Élément
+      project: Dossier
       team: Espace de travail
       user: Utilisateur
       source: Source
@@ -169,6 +172,7 @@ fr:
     fields:
       assigned: Attribuée à
       unassigned: Attribution retirée de
+      project: Dossier
       source: Source
       status: État
       status_previous: État précédent
@@ -197,6 +201,8 @@ fr:
       project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un ou une
         %{type} associé.e"
       project_media_update: "%{user} (%{role} de %{team}) a mis un élément à jour"
+      project_media_added_to_list: "%{user} (%{role} de %{team}) a ajouté un élément
+        au dossier %{list_name}"
       project_media_status: "%{user} (%{role} de%{team}) a changé l’état %{workflow}
         d’un/d’une %{type}"
       project_media_assign: "%{user} (%{role} de %{team}) a attribué un ou une %{type}"
@@ -206,6 +212,10 @@ fr:
         ou une%{parent_type}"
       project_source_create: "%{user} (%{role} de %{team}) a ajouté un ou une %{type}"
       project_source_update: "%{user} (%{role} de %{team}) a modifié un ou une %{type}"
+      project_create: "%{user} (%{role} de %{team}) a créé un dossier"
+      project_assign: "%{user} (%{role} de %{team}) a affecté un dossier"
+      project_unassign: "%{user} (%{role} de %{team}) a retiré l'attribution d'un
+        dossier"
       user_member: "%{user} s’est joint à l’espace de travail %{team}"
       user_requested: "%{user} a demandé à se joindre à l’espace de travail %{team}"
       user_invited: "%{user} a été invité à se joindre à l’espace de travail %{team}"
@@ -279,6 +289,10 @@ fr:
   geolocation_invalid_value: Le lieu est invalide. Une structure GeoJSON valide est
     attendue (http://geojson.org/)
   datetime_invalid_date: La date est invalide
+  error_team_archived: Désolé, vous ne pouvez pas ajouter un dossier à un espace de
+    travail qui est dans la corbeille
+  error_project_archived: Désolé, vous ne pouvez pas ajouter un élément à un dossier
+    qui est dans la corbeille
   error_team_archived_for_source: Désolé, vous ne pouvez pas ajouter une source à
     un espace de travail qui est dans la corbeille
   permission_error: Désolé, vous n’êtes pas autorisé à effectuer cette opération
@@ -334,10 +348,11 @@ fr:
     des membres de cet espace de travail
   error_login_with_exists_account: Désolé, un autre utilisateur utilise déjà ce compte
   error_login_2fa: Veuillez terminer votre connexion en indiquant un code d’authentification.
-  error_record_not_found: "%{type} #%{id} est introuvable"
+  error_record_not_found: "%{type} no %{id} est introuvable"
   mails_notifications:
     greeting: Bonjour, %{username},
     greeting_anonymous: Bonjour,
+    project_view: Visualiser le dossier
     unsubscribe: Se désabonner
     unsubscribe_link: "%{unsubscribe} de ces notifications"
     copyright_html: '%{app_name} par <a href="https://meedan.com">Meedan</a>'
@@ -369,8 +384,8 @@ fr:
     delete_user:
       subject: "[%{team}] Un utilisateur a été supprimé"
       header_title: L’utilisateur a été supprimé
-      header_text: 'Un compte d’utilisateur a été supprimé et son contenu a été réattribué
-        à l’utilisateur %{anonymous} # %{id}'
+      header_text: Un compte d’utilisateur a été supprimé et son contenu a été réattribué
+        à l’utilisateur %{anonymous} %{id}
       anonymous: anonyme
     admin_mailer:
       team_download_subject: "[%{team}] L’instantané des données de l’espace de travail
@@ -396,6 +411,7 @@ fr:
     task_resolved:
       subject: "[%{team} – %{project}] Une tâche a reçu une réponse"
       header_title: Une tâche a reçu une réponse
+      header_text: "%{author} a répondu à une tâche du dossier %{project} de %{team}."
       section_title: Qui ou quelle est la source de l’élément ?
       status: État
       media_h: Élément
@@ -403,6 +419,8 @@ fr:
       label: élément
       subject: "[%{team} – %{project}] Un élément a été marqué %{status}"
       header_title: L’état d’un élément a été mis à jour
+      header_text: "%{author} a mis à jour l’état d’un élément du dossier %{project}
+        de %{team}."
       section_title: Marqué %{status}.
       added_to: Ajouté à %{app_name}
       update_h: Dernière mise à jour
@@ -411,17 +429,33 @@ fr:
       assign_task_subject: "[%{team} – %{project}] Une tâche vous a été attribuée"
       unassign_task_subject: "[%{team} – %{project}] L’attribution d’une tâche vous
         a été retirée"
+      assign_project_subject: "[%{team} – %{project}] Un dossier vous a été attribué"
+      unassign_project_subject: "[%{team} – %{project}] L’attribution d’un dossier
+        vous a été retirée"
       assign_media_subject: "[%{team} – %{project}] Un élément vous a été attribué"
       unassign_media_subject: "[%{team} – %{project}] L’attribution d’un élément vous
         a été retirée"
+      assign_project_title: Le dossier a été attribué
+      unassign_project_title: L’attribution du dossier a été retirée
+      assign_project_text: "%{author} a attribué le dossier %{project} de %{team}."
+      unassign_project_text: "%{author} a retiré l’attribution du dossier %{project}
+        de %{team}."
       assign_task_title: Une tâche a été attribuée
       unassign_task_title: L’attribution d’une tâche a été retirée
+      assign_task_text: "%{author} a attribué une tâche du dossier %{project} de %{team}."
+      unassign_task_text: "%{author} a retiré l’attribution d’une tâche du dossier
+        %{project} de %{team}."
       assign_media_title: Un élément a été attribué
       unassign_media_title: L’attribution d’un élément a été retirée
+      assign_media_text: "%{author} a attribué un élément du dossier %{project} de
+        %{team}."
+      unassign_media_text: "%{author} a retiré l’attribution d’un élément du dossier
+        %{project} de %{team}."
       assign_log: "%{author} a attribué %{model} à %{username}"
       unassign_log: "%{author} a retirer l’attribution de %{model} de %{username}"
       assign_by: Attribués par
       unassign_by: Attribution retirée par
+      project_button: Accéder à la page du dossier
     request_to_join:
       subject: Demande de se joindre à l’espace de travail %{team}
       team_page: page de l’espace de travail
@@ -536,19 +570,29 @@ fr:
     roles:
       admin:
         description: L’administrateur gère l’espace de travail.
+      editor:
+        description: Les rédacteurs gèrent l’espace de travail et les dossiers.
       collaborator:
         description: Le collaborateur peut ajouter de nouveaux renseignements à confirmer.
           Il est souvent un membre du public.
     permissions:
       sections:
+        project_management:
+          name: Gestion des dossiers
+          permissions:
+            create: Créer un dossier
+            edit: Modifier un dossier
+            delete: Supprimer un dossier
+            add_item: Ajouter un élément à un dossier
         item_page_management:
           name: Gestion des éléments
           permissions:
             edit: Modifier un élément
-            move: Transférer un élément
+            move: Déplacer un élément
             change_status: Modifier l’état de l’élément
             lock_unlock_status: Verrouiller/déverrouiller l’état
             add_remove_tag: Ajouter/supprimer des étiquettes
+            send_to_trash: Déplacer l’élément ou la source vers la corbeille
             empty_trash: Vider la corbeille
         task_management:
           name: Gestion des tâches
@@ -587,10 +631,12 @@ fr:
       des données. Veuillez prévenir l’équipe d’assistance de cet incident.
     user_not_authorized: Désolé, vous n’êtes pas autorisé à importer des données dans
       cet espace de travail.
+    invalid_project: La dossier %{project} est invalide
     invalid_user: L’auteur auteur est invalide %{user}
     invalid_status: L’état %{status} est invalide
     blank_user: Le champ Auteur ne peut pas être vide
     blank_annotator: Le champ Annotateur ne peut pas être vide
+    blank_project: Le champ Dossier ne peut pas être vide
     invalid_annotator: L’annotateur %{user} est invalide
     invalid_assignee: La personne à qui la tâche est attribuée %{user} est invalide
   cant_mutate_inactive_object: Désolé, une opération est en cours pour cet élément
@@ -620,6 +666,8 @@ fr:
     unique de Facebook que vous voulez intégrer au service Tipline.
   invalid_task_answer: Le format de réponse de la tâche est invalide
   team_rule_name: Un nom unique qui décrit ce que cette règle fait
+  team_rule_project_ids: Appliquer au dossier
+  team_rule_destination: Sélectionnez le dossier de destination
   team_rule_names_invalid: Les noms de règle ne peuvent pas être vides et doivent
     être uniques
   team_rules: Règles
@@ -639,19 +687,22 @@ fr:
   team_rule_contains_keyword: La demande comprend un ou plusieurs des mots-clés suivants
   team_rule_title_contains_keyword: Le titre de l’élément comprend un ou plusieurs
     des mots-clés suivants
-  team_rule_select_type: Sélectionner un type
-  team_rule_select_language: Sélectionner la langue
-  team_rule_select_user: Sélectionner un collaborateur
+  team_rule_select_type: Sélectionnez un type
+  team_rule_select_language: Sélectionnez la langue
+  team_rule_select_user: Sélectionnez un collaborateur
   team_rule_tagged_as: L’élément est étiqueté
   team_rule_select_tag: Sélectionnez une étiquette
-  team_rule_select_status: Sélectionner l’état
+  team_rule_select_status: Sélectionnez l’état
   team_rule_status_is: Le état de l’élément est
   team_rule_type_regexp: Saisissez une expression rationnelle
-  team_rule_type_number: Saisir le nombre de mots
+  team_rule_type_number: Saisissez le nombre de mots
   team_rule_value: 'Saisissez une liste de mots-clés séparés par des virgules '
   team_rule_actions: alors
   team_rule_action: alors
   team_rule_action_definition: Sélectionnez une action
+  team_rule_send_to_trash: Déplacer vers la corbeille
+  team_rule_move_to_project: Déplacer l’élément vers un dossier
+  team_rule_copy_to_project: Ajouter l’élément au dossier
   team_rule_ban_submitter: Bannir l’expéditeur (ses futurs messages n’apparaîtront
     pas dans Check)
   team_rule_all_items: Tous les éléments
@@ -663,7 +714,7 @@ fr:
   team_rule_type_title_threshold: Distance entre les titres des éléments
   team_rule_type_image_threshold: Distance entre les images
   team_rule_type_flag_threshold: Avec une probabilité d’au moins
-  team_rule_select_flag: Sélectionner un drapeau
+  team_rule_select_flag: Sélectionnez un drapeau
   team_rule_flagged_as: L’élément est marqué du drapeau
   team_rule_report_is_published: Le rapport est publié
   team_rule_report_is_paused: Le rapport est interrompu
@@ -682,10 +733,10 @@ fr:
     comprend le mot-clé
   team_rule_field_from_fieldset_metadata_value_contains_keyword: La valeur des métadonnées
     comprend le mot-clé
-  team_rule_select_field_metadata: Sélectionner les métadonnées
-  team_rule_select_field_value_metadata: Sélectionner la valeur
-  team_rule_select_field_tasks: Sélectionner la tâche
-  team_rule_select_field_value_tasks: Sélectionner la réponse
+  team_rule_select_field_metadata: Sélectionnez les métadonnées
+  team_rule_select_field_value_metadata: Sélectionnez la valeur
+  team_rule_select_field_tasks: Sélectionnez la tâche
+  team_rule_select_field_value_tasks: Sélectionnez la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
   team_rule_add_tag: Ajouter une étiquette
   flag_adult: Adulte
@@ -740,13 +791,22 @@ fr:
   list_column_media_published_at: Média publié
   list_column_related_count: Associés
   list_column_suggestions_count: Correspondances suggérées
+  list_column_folder: Dossier
   go_back_to_check: Retourner à Check
+  project_cant_have_children_if_has_parent: Ce dossier a un dossier parent et il ne
+    peut donc pas avoir un dossier enfant
+  project_group_must_be_under_same_team: La collection devrait être dans le même espace
+    de travail
   info:
     messages:
       sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
         règle d’automatisation."
+      moved_to_project_by_rule: "« %{item_title} » a été déplacé dans le dossier « [%{list_name}](%{list_link}) »
+        par une règle d’automatisation."
       banned_submitter_by_rule: Le demandeur de « %{item_title} » a été banni par
         une règle d’automatisation.
+      copied_to_project_by_rule: "« %{item_title} » a été copié dans le dossier « [%{list_name}](%{list_link}) »
+        par une règle d’automatisation."
       related_to_confirmed_similar: "« %{item_title} » a été confirmé comme semblable
         à « %{similar_item_title} »."
       related_to_suggested_similar: "« %{item_title} » a été suggéré comme semblable

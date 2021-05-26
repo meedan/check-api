@@ -56,7 +56,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
     argument :published_reports_count, types.Boolean
 
     resolve -> (team, args, _ctx) do
-      team.reload.send('verification_statuses', 'media', nil, args['items_count'], args['published_reports_count'])
+      team = team.reload if args['items_count'] || args['published_reports_count']
+      team.send('verification_statuses', 'media', nil, args['items_count'], args['published_reports_count'])
     end
   end
 

@@ -11,13 +11,16 @@ module TeamDuplication
       @bot_ids = []
       @clones = []
       @project_id_map = {}
+      @project_group_id_map = {}
       @team_id = nil
       @custom_name = custom_name
       @custom_slug = custom_slug
       ActiveRecord::Base.transaction do
         Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
         team = t.deep_clone include: [
-          :projects,
+          { project_groups: [:projects] },
+          { projects: { if: lambda{ |p| p.project_group_id.blank? }}},
+          :saved_searches,
           :tag_texts,
           :team_tasks
         ] do |original, copy|
@@ -68,19 +71,30 @@ module TeamDuplication
       copy.set_slack_notifications_enabled = false
     end
 
+    def self.alter_project_group_copy(copy)
+      copy.is_being_copied = true
+    end
+
+    def self.alter_saved_search_copy(copy)
+      copy.is_being_copied = true
+    end
+
+    def self.alter_tag_text_copy(copy)
+      copy.team_id = @team_id if !@team_id.nil?
+      copy.tags_count = 0
+    end
+
+    def self.alter_team_task_copy(_copy)
+    end
+
     def self.alter_copy_by_type(original, copy)
       copy.skip_check_ability = true # We use a specific "duplicate" permission before calling the Team.duplicate method
-      if original.is_a?(Team)
-        self.alter_team_copy(copy)
-      elsif original.is_a?(Project)
-        self.alter_project_copy(copy)
-      elsif original.is_a?(TagText)
-        copy.team_id = @team_id if !@team_id.nil?
-        copy.tags_count = 0
-      end
+      self.send("alter_#{original.class_name.underscore}_copy", copy)
       copy.save!
       if original.is_a?(Project)
         @project_id_map[original.id] = copy.id
+      elsif original.is_a?(ProjectGroup)
+        @project_group_id_map[original.id] = copy.id
       elsif copy.is_a?(Team)
         @team_id = copy.id
       end
@@ -139,11 +153,27 @@ module TeamDuplication
         if !clone[:original].is_a?(Team)
           if clone[:original].is_a?(TeamTask)
             clone[:clone].project_ids = clone[:clone].project_ids.collect{ |pid| @project_id_map[pid] }
+          elsif clone[:original].is_a?(Project)
+            clone[:clone].team_id = @team_id
+          elsif clone[:original].is_a?(SavedSearch)
+            clone[:clone].filters = self.update_saved_search_filters(clone[:clone].filters)
           end
         end
         clone[:clone].skip_check_ability = true
         clone[:clone].save!
       end
+    end
+
+    def self.update_saved_search_filters(filters)
+      {
+        'projects' => @project_id_map,
+        'project_group_id' => @project_group_id_map
+      }.each do |filter, collection|
+        unless filters[filter].blank?
+          filters[filter] = filters[filter].collect { |id| collection[id.to_i].to_s }
+        end
+      end
+      filters
     end
   end
 

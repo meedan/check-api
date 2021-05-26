@@ -1029,7 +1029,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
     assert_match /items_count/, data['verification_statuses_with_counters'].to_json
-    assert_no_match /items_count/, data['verification_statuses'].to_json
+    assert_no_match /items_count:0/, data['verification_statuses'].to_json
   end
 
   test "should filter by user in ElasticSearch" do

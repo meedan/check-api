@@ -49,6 +49,8 @@ es:
         label: Engañoso
       disputed:
         label: En conflicto
+      out_of_scope:
+        label: Fuera de Alcance
       junk:
         label: Basura
       unstarted:
@@ -105,6 +107,7 @@ es:
       comment: Nota
       project_media: Ítem
       media: Ítem
+      project: Carpeta
       team: Área de trabajo
       user: Usuario
       source: Fuente
@@ -163,6 +166,7 @@ es:
     fields:
       assigned: Asignado a
       unassigned: Desasignado de
+      project: Carpeta
       source: Fuente
       status: Estado
       status_previous: Estado anterior
@@ -189,6 +193,8 @@ es:
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type}
         relacionado"
       project_media_update: "%{user}(%{role} en %{team}) actualizó un ítem"
+      project_media_added_to_list: "%{user}(%{role}en%{team}) añadió un ítem a la
+        carpeta%{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) cambiar el %{workflow} del
         estado a %{type}"
       project_media_assign: "%{user} (%{role} at %{team}) asignado un %{type}"
@@ -197,6 +203,9 @@ es:
         %{parent_type}"
       project_source_create: "%{user} (%{role} at %{team}) añadido un %{type}"
       project_source_update: "%{user} (%{role} at %{team}) editado un %{type}"
+      project_create: "%{user}(%{role}en%{team}) creó una carpeta"
+      project_assign: "%{user}(%{role}en%{team}) asignó una carpeta"
+      project_unassign: "%{user}(%{role} en %{team}) desasignó una carpeta"
       user_member: "%{user} se unió al área de trabajo %{team}"
       user_requested: "%{user} solicitó unirse al área de trabajo %{team}"
       user_invited: "%{user} fue invitado a unirse al área de trabajo %{team}"
@@ -271,6 +280,9 @@ es:
   geolocation_invalid_value: Ubicación inválida. Se espera una estructura GeoJSON
     válida (http://geojson.org/)
   datetime_invalid_date: Fecha inválida
+  error_team_archived: Lo sentimos, no puedes añadir una carpeta a un área de trabajo
+    eliminada
+  error_project_archived: Lo sentimos, no puedes añadir un ítem a una carpeta eliminada
   error_team_archived_for_source: Lo sentimos, no puedes añadir una fuente a una área
     de trabajo eliminada
   permission_error: Lo sentimos, no tienes autorización para realizar esta operación
@@ -328,6 +340,7 @@ es:
   mails_notifications:
     greeting: Hola %{username},
     greeting_anonymous: "¡Hola!"
+    project_view: Ver carpeta
     unsubscribe: 'Cancelar suscripción '
     unsubscribe_link: "%{unsubscribe} de estas notificaciones"
     copyright_html: '%{app_name} por <a href="https://meedan.com">Meedan</a>'
@@ -386,6 +399,7 @@ es:
     task_resolved:
       subject: "[%{team} - %{project}] Tarea resuelta"
       header_title: Tarea respondida
+      header_text: "%{author} respondió una tarea en la carpeta %{project} en %{team}."
       section_title: "¿Quién o cuál es la fuente del ítem?"
       status: Estado
       media_h: Ítem
@@ -393,6 +407,8 @@ es:
       label: ítem
       subject: "[%{team} - %{project}] El estado del ítem fue marcado como %{status}"
       header_title: El estado del ítem ha sido actualizado
+      header_text: "%{author} actualizó el estado de un ítem en la carpeta %{project}
+        en %{team}."
       section_title: Marcado como %{status}.
       added_to: Añadido a %{app_name}
       update_h: Última actualización
@@ -400,16 +416,29 @@ es:
     assignment:
       assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
       unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
+      assign_project_subject: "[%{team} - %{project}] Se te asignó una carpeta"
+      unassign_project_subject: "[%{team} - %{project}] Se te desasignó una carpeta"
       assign_media_subject: "[%{team} - %{project}] Se te ha asignado un ítem"
       unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
+      assign_project_title: Carpeta Asignada
+      unassign_project_title: Carpeta Desasignada
+      assign_project_text: "%{author} asignó la carpeta %{project} en %{team}."
+      unassign_project_text: "%{author} desasignó la carpeta %{project} en %{team}."
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
+      assign_task_text: "%{author} asignó una tarea en la carpeta %{project} en %{team}."
+      unassign_task_text: "%{author} desasignó una tarea en la carpeta %{project}
+        en %{team}."
       assign_media_title: Ítem Asignado
       unassign_media_title: Ítem Desasignado
+      assign_media_text: "%{author} asignó un ítem en la carpeta %{project} en %{team}."
+      unassign_media_text: "%{author} desasignó un ítem en la carpeta %{project} en
+        %{team}."
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
+      project_button: Ir a la pagina de carpeta
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo
@@ -520,11 +549,20 @@ es:
     roles:
       admin:
         description: Administradores(as) controlan el área de trabajo.
+      editor:
+        description: Las(os) editoras(es) administran el área de trabajo y las carpetas.
       collaborator:
         description: Colaborador(a) puede añadir nueva información para verificar.
           Usualmente son miembros del público.
     permissions:
       sections:
+        project_management:
+          name: Administración de carpeta
+          permissions:
+            create: Crear carpeta
+            edit: Editar carpeta
+            delete: Eliminar carpeta
+            add_item: Añadir ítem a carpeta
         item_page_management:
           name: Gestión del ítem
           permissions:
@@ -533,6 +571,7 @@ es:
             change_status: Cambiar el estado del ítem
             lock_unlock_status: Bloquear/desbloquear estado
             add_remove_tag: Añadir/eliminar etiquetas
+            send_to_trash: Mover ítem o fuente a Papelera
             empty_trash: 'Papelera vacía '
         task_management:
           name: Gestor de tareas
@@ -572,10 +611,12 @@ es:
       este incidente.
     user_not_authorized: Lo sentimos, no tienes permitido importar data dentro de
       esta área de trabajo.
+    invalid_project: Carpeta inválida%{project}
     invalid_user: Autor inválido %{user}
     invalid_status: Estado inválido %{status}
     blank_user: El campo Autor no puede estar en blanco
     blank_annotator: El campo de anotación no puede estar en blanco
+    blank_project: Campo de carpeta en blanco inválido
     invalid_annotator: Anotación inválida %{user}
     invalid_assignee: Usuario asignado inválido %{user}
   cant_mutate_inactive_object: Lo sentimos, hay una operación pendiente para este
@@ -605,6 +646,8 @@ es:
     de Facebook que quieres integrar con la Tipline.
   invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
+  team_rule_project_ids: Aplicar a carpeta
+  team_rule_destination: Seleccionar carpeta de destino
   team_rule_names_invalid: Los nombres de las reglas no pueden estar en blanco y deben
     ser únicos
   team_rules: Reglas
@@ -637,6 +680,9 @@ es:
   team_rule_actions: Entonces
   team_rule_action: Entonces
   team_rule_action_definition: Seleccionar acción
+  team_rule_send_to_trash: Mover a Papelera
+  team_rule_move_to_project: Mover ítem a carpeta
+  team_rule_copy_to_project: Añadir ítem a carpeta
   team_rule_ban_submitter: Prohibir el remitente (sus futuros mensajes no aparecerán
     en Check)
   team_rule_all_items: Todos los ítems
@@ -724,13 +770,22 @@ es:
   list_column_media_published_at: Medios publicados
   list_column_related_count: Relacionado(s)
   list_column_suggestions_count: Coincidencias sugeridas
+  list_column_folder: Carpeta
   go_back_to_check: Regresar a Check
+  project_cant_have_children_if_has_parent: Esta carpeta tiene una carpeta principal,
+    por lo que no puede tener una subcarpeta
+  project_group_must_be_under_same_team: La colección debe estar en la misma área
+    de trabajo
   info:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una
         regla de automatización.'
+      moved_to_project_by_rule: '"%{item_title}" se ha movido a la carpeta "[%{list_name}](%{list_link})"
+        por una regla de automatización.'
       banned_submitter_by_rule: El/la solicitante de %{item_title} " ha sido prohibido(a)
         por una regla de automatización.
+      copied_to_project_by_rule: '"%{item_title}" se ha copiado a la carpeta "[%{list_name}](%{list_link})"
+        por una relga de automatización.'
       related_to_confirmed_similar: '"%{item_title}" se ha confirmado que es similar
         a "%{similar_item_title}". '
       related_to_suggested_similar: '"%{item_title}" se ha sugerido como similar a
