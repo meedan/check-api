@@ -206,7 +206,7 @@ class GraphqlController4Test < ActionController::TestCase
     p4 = create_project team: @t
     pm1 = create_project_media project: create_project
     pm2 = create_project_media project: @p1
-    invalid_id_1 = Base64.encode64("ProjectMedia/0")
+    invalid_id_1 = Base64.encode64("ProjectMediaProject/0")
     invalid_id_2 = Base64.encode64("Project/#{pm1.id}")
     invalid_id_3 = random_string
     assert_equal 2, @p1.reload.medias_count
