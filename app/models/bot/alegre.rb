@@ -91,11 +91,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.restrict_to_same_modality(pm, matches)
-    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{|pm| [pm.id, pm]}]
+    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |pm| [pm.id, pm] }]
     if pm.is_text?
-      return matches.select{|k,v| other_pms[k].is_text?}
+      return matches.select{ |k, v| other_pms[k.to_i]&.is_text? }
     else
-      return matches.select{|k,v| other_pms[k].media.type == pm.media.type}
+      return matches.select{ |k, v| other_pms[k.to_i]&.media&.type == pm.media.type }
     end
   end
 
