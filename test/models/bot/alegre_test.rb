@@ -63,6 +63,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
@@ -181,6 +182,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
+    pm1.media.type = "UploadedImage"
+    pm2.media.type = "UploadedImage"
+    pm3.media.type = "UploadedImage"
+    pm1.media.save!
+    pm2.media.save!
+    pm3.media.save!
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -197,7 +204,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    pm3.media.type = "UploadedImage"
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do
       Bot::Alegre.relate_project_media_to_similar_items(pm3)
@@ -258,8 +264,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should get similar items" do
     p = create_project
     pm1 = create_project_media project: p
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm1).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:matching_model_to_use)
   end
 
   test "should get empty similar items when not text or image" do
@@ -307,6 +315,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2 = create_project_media quote: "Blah2", team: @team
     pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
     pm2.save!
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
+    Bot::Alegre.stubs(:matching_model_to_use).with(pm2).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     Bot::Alegre.stubs(:request_api).returns({"result" => [{
         "_index" => "alegre_similarity",
         "_type" => "_doc",
@@ -326,6 +336,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     response = Bot::Alegre.get_similar_items(pm)
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:matching_model_to_use)
   end
 
   test "should get items with similar text when they are text-based" do
@@ -353,8 +364,39 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', 0.7, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should not get items with similar short text when they are text-based" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    pm = create_project_media quote: "Blah", team: @team
+    pm.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm.save!
+    pm2 = create_project_media quote: "Blah2", team: @team
+    pm2.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles' }
+    pm2.save!
+    Bot::Alegre.stubs(:request_api).returns({"result" => [{
+        "_index" => "alegre_similarity",
+        "_type" => "_doc",
+        "_id" => "tMXj53UB36CYclMPXp14",
+        "_score" => 0.9,
+        "_source" => {
+          "content" => "Bautista",
+          "context" => {
+            "team_id" => pm2.team.id.to_s,
+            "field" => "title",
+            "project_media_id" => pm2.id.to_s
+          }
+        }
+      }
+      ]
+    })
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
+    assert_equal response.class, Hash
+    assert_equal response, {}
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -375,7 +417,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.analysis = { content: 'Description 1' }
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
-    assert Bot::Alegre.send_description_to_similarity_index(pm, 'original_description')
+    assert Bot::Alegre.send_field_to_similarity_index(pm, 'description')
   end
 
   test "should get items with similar description" do
@@ -435,7 +477,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_similarity_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)

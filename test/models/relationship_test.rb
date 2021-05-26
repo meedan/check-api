@@ -375,4 +375,22 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 0, pm1.reload.linked_items_count
     assert_equal 1, pm2.reload.linked_items_count
   end
+
+  test "should move secondary item to same folder as main" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p1 = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media team: t, project: p1
+    pm2 = create_project_media team: t, project: p2
+    assert_equal p1, pm1.reload.project
+    assert_equal p2, pm2.reload.project
+    assert_equal 1, p1.reload.medias_count
+    assert_equal 1, p2.reload.medias_count
+    r = create_relationship relationship_type: Relationship.confirmed_type, source_id: pm1.id, target_id: pm2.id
+    assert_equal p1, pm1.reload.project
+    assert_equal p1, pm2.reload.project
+    assert_equal 1, p1.reload.medias_count
+    assert_equal 0, p2.reload.medias_count
+  end
 end

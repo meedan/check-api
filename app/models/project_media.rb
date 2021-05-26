@@ -357,7 +357,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def original_title
-    (self.media&.metadata&.dig('title') || self.media.quote)
+    self.media&.metadata&.dig('title') || self.media&.quote || self.media&.file&.file&.filename
   end
 
   def analysis_title
@@ -428,6 +428,8 @@ class ProjectMedia < ActiveRecord::Base
     ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
     data = self.analysis || {}
     ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
+    # initiate sort_title with same title value for sorting by title purpose
+    ms.attributes[:sort_title] = ms.attributes[:title]
     ms.attributes[:description] = data['content'].blank? ? m.metadata['description'] : data['content']
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
