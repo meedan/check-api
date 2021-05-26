@@ -49,6 +49,8 @@ id:
         label: Menyesatkan
       disputed:
         label: Dibantah
+      out_of_scope:
+        label: Di luar Jangkauan
       junk:
         label: Sampah
       unstarted:
@@ -149,6 +151,7 @@ id:
         too_short:
           other: terlalu pendek (minimal %{count} karakter)
   slack_webhook_format_wrong: Webhook Slack salah. Menunggu format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
+  slug_is_reserved: telah disimpan
   invalid_media_item: Perihal ini salah
   invalid_default_status_for_custom_verification_status: Pengenal status bawaan salah
   invalid_active_status_for_custom_verification_status: Pengenal status aktif salah
@@ -430,8 +433,8 @@ id:
       assign_task_text: "%{author} menyerahkan tugas di dalam folder %{project} pada%{team}."
       unassign_task_text: "%{author} membatalkan sebuah tugas dalam folder %{project}
         pada %{team}."
-      assign_media_title: Perihal yang telah ditugaskan
-      unassign_media_title: Perihal yang belum ditugaskan
+      assign_media_title: Perihal Diserahkan
+      unassign_media_title: Perihal Belum Diserahkan
       assign_media_text: "%{author} menyerahkan sebuah perihal dalam folder %{project}
         pada %{team}."
       unassign_media_text: "%{author} membatalkan sebuah perihal dalam folder %{project}
@@ -449,14 +452,14 @@ id:
       approved_subject: Selamat datang di ruang kerja %{team}
       request_title: Permintaan untuk bergabung ke ruang kerja %{team}
       request_text: "%{name} (%{email}) ingin bergabung dengan ruang kerja %{team}
-        pada%{app_name}. Anda dapat memproses permohonan ini dengan mengunjungi %{url}."
+        pada%{app_name}. Anda dapat memproses permintaan ini dengan mengunjungi %{url}."
       approved_title: Selamat datang di ruang kerja %{team}
       approved_text: Permintaan Anda untuk bergabung  ke ruang kerja %{team} pada
         %{app_name} telah disetujui. Sekarang Anda dapat pergi ke %{url} dan mulai
         berkontribusi.
       rejected_title: Permintaan Ditolak
-      rejected_text: Maaf, permohonan anda untuk bergabung dengan %{team} dengan %{app_name}
-        tidak disetujui.
+      rejected_text: Maaf, permintaan Anda untuk bergabung ke ruang kerja %{team}pada
+        %{app_name} tidak disetujui.
   mail_security:
     device_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} dari %{browser}
       pada %{platform}'
@@ -469,11 +472,11 @@ id:
     password_text: segera atur ulang kata sandi.
     device_text: Sepertinya akun Anda baru masuk ke %{app_name} dari perangkat baru.
       Jika ini bukan Anda, Anda harus %{change_password}
-    ip_text: terlihat seperti Anda baru saja masuk ke akun %{app_name} Anda dari lokasi
+    ip_text: Sepertinya Anda baru saja masuk ke akun %{app_name} Anda dari lokasi
       baru. Jika ini bukan Anda, Anda harus %{change_password}
-    failed_text: terlihat beberapa kali percobaan telah dilakukan untuk masuk ke akun
-      %{app_name} Anda, Jika ini memang Anda, Anda dapat secara aman mengabaikan pesan
-      ini. Jika ini bukan Anda, lalu Anda harus %{change_password}
+    failed_text: Beberapa kali percobaan telah dilakukan untuk masuk ke akun %{app_name}
+      Anda, Jika ini memang Anda, Anda dapat secara aman mengabaikan pesan ini. Jika
+      bukan, maka Anda harus %{change_password}
     time_h: Waktu
     device_h: Perangkat
     location_h: Lokasi
@@ -504,7 +507,12 @@ id:
     bot
   could_not_save_related_bot_data: Maaf, tidak dapat menambahkan bot ke dalam ruang
     kerja ini
+  bot_cant_add_response_to_task: Maaf, bot tidak dapat menjawab tugas secara langsung
+    - mohon kirimkan usulan jawaban sebagai gantinya
   bot_cant_add_review_to_task: Maaf, bot tidak dapat meninjau sebuah tugas
+  task_suggestion_invalid_value: Usulan tugas salah. Menunggu sebuah obyek JSON dengan
+    atribut `usulan` (nilai sesungguhnya yang disalin ke jawaban dari tugas saat diterima)
+    dan `komentar` (ditampilkan kepada pengguna).
   tag_text_id_not_found: Label tidak ditemukan
   annotation_type_language_label: Bahasa
   smooch_bot_message_confirmed: |-
@@ -537,12 +545,17 @@ id:
     Hal tersebut sedang dalam antrian untuk verifikasi lebih lanjut.
   smooch_bot_disabled: Terima kasih telah mengirimkan pesan ini. Kami tidak dapat
     mengirimkan kembali laporan verifikasi apapun, karena proyek ini sudah tidak aktif.
+  smooch_bot_result_changed: "❗️Pengecekan fakta yang kami kirimkan kepada Anda telah
+    *diperbarui* dengan informasi baru"
   permissions_info:
     roles:
       admin:
         description: Administrator mengontrol ruang kerja.
       editor:
         description: Penyunting mengelola ruang kerja dan folder-folder.
+      collaborator:
+        description: Kolaborator dapat menambahkan informasi baru untuk memverifikasi.
+          Mereka seringkali bagian dari masyarakat umum.
     permissions:
       sections:
         project_management:
@@ -598,14 +611,155 @@ id:
     user_not_authorized: Maaf, Anda tidak diizinkan untuk mengimpor data ke dalam
       ruang kerja ini.
     invalid_project: Folder salah %{project}
+    invalid_user: Pengarang salah %{user}
     invalid_status: Status salah %{status}
+  cant_mutate_inactive_object: Maaf, sedang ada pekerjaan tertunda untuk perihal ini,
+    sehingga Anda tidak dapat mengubahnya sekarang. Mohon coba lagi nanti.
   embed_expand_all: Lebarkan semua
   embed_collapse_all: Tutup semua
   embed_tasks: Tugas
+  embed_description: Deskripsi
+  other_language: Lainnya
+  unidentified_language: Tidak dapat diidentifikasi
+  relationship_item_has_parent: Perihal ini telah menjadi turunan dari perihal lain
+  smooch_requests: Permintaan
+  smooch_requests_asc: Paling sedikit diminta
+  smooch_requests_desc: Paling banyak diminta
+  bot_request_url_invalid: URL bot salah
+  smooch_facebook_success: |
+    Sukses!
+    Tipline Anda sekarang terhubung dengan Facebook Messenger.
+    Pesan yang diterima oleh Halaman Facebook ini akan ditangani oleh tipline.
+    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat perubahan baru.
+  smooch_twitter_success: |
+    Sukses!
+    Tipline Anda sekarang terhubung dengan Twitter.
+    Semua pesan yang diterima oleh profil Twitter ini akan ditangani oleh tipline.
+    Mohon muat ulang halaman pengaturan tipline Anda untuk melihat perubahan baru.
+  must_select_exactly_one_facebook_page: Silakan pilih salah satu halaman Facebook
+    yang Anda ingin integrasikan dengan tipline.
+  invalid_task_answer: Format jawaban dari tugas salah
+  team_rule_name: Nama unik yang dapat mengidentifikasi apa yang aturan ini lakukan
+  team_rule_project_ids: Terapkan pada folder
+  team_rule_destination: Pilih folder tujuan
+  team_rule_names_invalid: Nama aturan tidak dapat kosong dan harus unik
+  team_rules: Peraturan
+  team_rule_conditions: Jika
+  team_rule_condition: Jika
+  team_rule_condition_definition: Pilih kondisi
+  team_rule_has_less_than_x_words: Permintaan teks mengandung kurang dari (atau sama
+    dengan) kata-kata berikut
+  team_rule_type_is: Tipe perihal adalah
   team_rule_type_is_claim: Teks
   team_rule_type_is_link: Tautan
   team_rule_type_is_uploadedimage: Gambar
   team_rule_type_is_uploadedvideo: Video
+  team_rule_contains_keyword: Permintaan mengandung satu atau beberapa kata kunci
+    berikut
+  team_rule_title_contains_keyword: Judul perihal mengandung satu atau beberapa kata
+    kunci berikut
+  team_rule_select_type: Pilih tipe
+  team_rule_select_language: Pilih bahasa
+  team_rule_select_user: Pilih seorang kolaborator
+  team_rule_tagged_as: Perihal dilabeli sebagai
+  team_rule_select_tag: Pilih label
+  team_rule_select_status: Pilih status
+  team_rule_status_is: Status perihal adalah
+  team_rule_type_number: Masukkan beberapa kata
+  team_rule_value: Ketik daftar kata-kata kunci dipisahkan dengan tanda koma
+  team_rule_actions: Lalu
+  team_rule_action: Lalu
+  team_rule_action_definition: Pilih tindakan
+  team_rule_send_to_trash: Pindahkan ke Tong Sampah
+  team_rule_move_to_project: Pindahkan perihal ke folder
   team_rule_copy_to_project: Tambahkan perihal ke folder
+  team_rule_all_items: Semua perihal
+  team_rule_send_message_to_user: Kirim pesan ke pengguna
+  team_rule_action_value: Ketik pesan di sini
+  team_rule_item_titles_are_similar: Judul perihal serupa
+  team_rule_item_images_are_similar: Gambar serupa
+  team_rule_relate_similar_items: Kaitkan perihal
+  team_rule_type_title_threshold: Jarak antara judul perihal
+  team_rule_type_image_threshold: Jarak antara gambar
+  team_rule_type_flag_threshold: Dengan kemungkinan setidaknya
+  team_rule_select_flag: Pilih tanda
+  team_rule_flagged_as: Perihal ditandai sebagai
+  team_rule_report_is_published: Laporan telah diterbitkan
+  team_rule_report_is_paused: Laporan ditunda
+  team_rule_operator: Operator
+  team_rule_json_schema_validation: Format aturan salah
+  team_rule_updated_at: Diperbarui
+  team_rule_item_language_is: Bahasa perihal adalah
+  team_rule_item_user_is: Perihal dibuat oleh
+  team_rule_item_is_read: Perihal dibaca
+  team_rule_field_from_fieldset_tasks_value_is: Tugas dengan jawaban spesifik
+  team_rule_field_from_fieldset_metadata_value_is: Metadata dengan nilai spesifik
+  team_rule_field_from_fieldset_tasks_value_contains_keyword: Jawaban tugas mengandung
+    kata kunci
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Nilai metadata mengandung
+    kata kunci
+  team_rule_select_field_metadata: Pilih metadata
+  team_rule_select_field_value_metadata: Pilih nilai
+  team_rule_select_field_tasks: Pilih tugas
+  team_rule_select_field_value_tasks: Pilih jawaban
+  team_rule_item_is_assigned_to_user: Perihal diserahkan kepada
+  team_rule_add_tag: Tambahkan label
+  flag_adult: Dewasa
+  flag_spoof: Tipuan
+  flag_medical: Medis
+  flag_violence: Kekerasan
+  flag_racy: Cabul
+  flag_spam: Spam
+  annotation_type_flag_name_label: Tandai
+  annotation_type_flag_value_label: Tandai kemungkinan
+  flag_likelihood_0: Tidak diketahui
+  flag_likelihood_1: Sangat tidak mungkin
+  flag_likelihood_2: Tidak mungkin
+  flag_likelihood_3: Bisa jadi
+  flag_likelihood_4: Mungkin
+  flag_likelihood_5: Sangat mungkin
+  relationship_not_same_team: Perihal terkait harus berada di dalam ruang kerja yang
+    sama
+  bulk_operation_limit_error: Maaf, jumlah maksimal perihal yang dapat diproses saat
+    bersamaan adalah %{limit}
+  must_provide_fallback_when_deleting_status_in_use: Status ini sedang digunakan,
+    sehingga Anda harus menyertakan status fallback jika Anda ingin menghapusnya
+  embed_no_content_yet: Laporan sedang dibuat. Proses ini memakan waktu beberapa menit.
+    Mohon segarkan halaman ini.
+  language_format_invalid: Format bahasa salah. Menunggu kode ISO 639-1.
+  languages_format_invalid: Format bahasa salah. Menunggu daftar dari kode-kode ISO
+    639-1.
+  cant_change_status_if_item_is_published: Maaf, Anda tidak dapat mengubah status
+    ketika laporan diterbitkan
+  fetch_bot_service_unsupported: Layanan tidak didukung
+  task_options_must_be_array: Pilihan tugas harus berupa daftar
+  fieldset_not_defined_by_team: Fieldset harus didukung oleh ruang kerja
+  replace_by_media_in_the_same_team: Maaf, Anda hanya dapat mengganti perihal ini
+    dengan perihal lain dari dalam ruang kerja yang sama
+  replace_blank_media_only: Maaf, namun sekarang Anda hanya dapat mengganti perihal
+    yang kosong
+  cant_preview_rss_feed: Maaf, Anda tidak memiliki izin untuk melakukan pratinjau
+    pada umpan RSS.
+  list_column_demand: Permintaan
+  list_column_linked_items_count: Media serupa
+  list_column_type: Tipe
   list_column_status: Status
+  list_column_created_at: Diserahkan
+  list_column_last_seen: Diserahkan Terakhir
+  list_column_updated_at: Diperbarui
+  list_column_report_status: Status laporan
+  list_column_tags_as_sentence: Label-label
+  list_column_media_published_at: Media diterbitkan
+  list_column_related_count: Terkait
   list_column_folder: Folder
+  go_back_to_check: Kembali ke Check
+  project_cant_have_children_if_has_parent: Folder ini berada di dalam folder lain,
+    sehingga tidak dapat membuat folder di dalamnya.
+  project_group_must_be_under_same_team: Koleksi harus berada di bawah ruang kerja
+    yang sama
+  info:
+    messages:
+      sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan
+        otomasi.'
+      moved_to_project_by_rule: '"%{item_title}" dipindahkan ke folder "[%{list_name}](%{list_link})"
+        oleh aturan otomasi.'

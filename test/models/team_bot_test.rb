@@ -594,4 +594,26 @@ class TeamBotTest < ActiveSupport::TestCase
     tb = create_team_bot set_settings: settings
     assert_match /textarea/, tb.settings_ui_schema
   end
+
+  test "should notify team bots when report is published" do
+    Dynamic.any_instance.stubs(:report_image_generate_png)
+    team = create_team name: 'Test Team'
+    team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'publish_report', graphql: nil }], set_request_url: 'http://bot'
+    pm_1 = create_project_media team: team
+    pm_2 = create_project_media team: team
+    WebMock.disable_net_connect! allow: /http:\/\/bot|#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+    data = { event: 'publish_report' }
+    publish_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
+
+    with_current_user_and_team(nil, nil) do
+      BotUser.init_event_queue
+      publish_report(pm_1)
+      publish_report(pm_2)
+      BotUser.trigger_events
+    end
+
+    assert_equal 2, WebMock::RequestRegistry.instance.times_executed(publish_stub.request_pattern)
+    WebMock.allow_net_connect!
+    Dynamic.any_instance.unstub(:report_image_generate_png)
+  end
 end
