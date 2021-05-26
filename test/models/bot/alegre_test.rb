@@ -97,7 +97,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => 0}
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
-      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, 0.9)
+      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, Bot::Alegre.get_threshold_for_image_query(pm2))
       assert_nil pm2.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
@@ -304,6 +304,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal response.class, Hash
     assert_equal response, {1932=>100.60148}
     Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should generate correct text conditions for api request" do
+    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_similarity_threshold', automatic: false})
+    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
+  end
+
+  test "should generate correct image conditions for api request" do
+    conditions = Bot::Alegre.similar_images_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
   test "should get similar items when they are text-based" do

@@ -862,6 +862,7 @@ class TeamTest < ActiveSupport::TestCase
     project_3 = create_project team: team
     ss_1 = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
     ss_2 = create_saved_search team: team, filters: {"projects"=>[]}.to_json
+    ss_3 = create_saved_search team: team, filters: nil
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -885,6 +886,10 @@ class TeamTest < ActiveSupport::TestCase
     copy_ss_2 = copy.saved_searches.find_by_title(ss_2.title)
     assert_equal [], copy_ss_2.filters['projects']
     assert !copy_ss_2.filters.has_key?('project_group_id')
+
+    # Saved searches without filters are copied
+    copy_ss_3 = copy.saved_searches.find_by_title(ss_3.title)
+    assert_nil copy_ss_3.filters
   end
 
   test "should reset current team when team is deleted" do
