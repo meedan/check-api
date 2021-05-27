@@ -958,6 +958,22 @@ class UserTest < ActiveSupport::TestCase
     assert_equal tu1.status, 'invited'
   end
 
+  test "should invite emails case insensitive" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'collaborator', email: 'test1@local.com'}]
+      assert_difference ['User.count', 'TeamUser.count'], 1 do
+        User.send_user_invitation(members)
+      end
+      members = [{role: 'collaborator', email: 'TEST1@local.com'}]
+      assert_no_difference ['User.count', 'TeamUser.count'] do
+        User.send_user_invitation(members)
+      end
+    end
+  end
+
   test "should cancel user invitation" do
     t = create_team
     u = create_user
