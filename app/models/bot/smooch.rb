@@ -399,7 +399,7 @@ class Bot::Smooch < BotUser
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
-      has_main_menu = (workflow.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
+      has_main_menu = (workflow&.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
         sm.start
         main_message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
