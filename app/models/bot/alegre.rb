@@ -20,8 +20,8 @@ class Bot::Alegre < BotUser
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description')
     end
 
     private
