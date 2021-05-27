@@ -13,7 +13,7 @@ class MediaSearch
     indexes :title, { type: 'text', analyzer: 'check' }
     indexes :description, { type: 'text', analyzer: 'check' }
     indexes :analysis_title, { type: 'text', analyzer: 'check' }
-    indexes :sort_title, { type: 'keyword', normalizer: 'keyword_lowercase'}
+    indexes :sort_title, { type: 'keyword' }
     indexes :analysis_description, { type: 'text', analyzer: 'check' }
     indexes :quote, { type: 'text', analyzer: 'check' }
     indexes :archived, { type: 'integer' }
