@@ -8,6 +8,7 @@ class AddMappingForSortTitle < ActiveRecord::Migration
         properties: {
           sort_title: {
             type: 'keyword',
+            normalizer: 'keyword_lowercase',
           }
         }
       }

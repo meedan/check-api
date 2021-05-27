@@ -20,8 +20,8 @@ class Bot::Alegre < BotUser
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.delete_from_text_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description')
     end
 
     private
@@ -91,11 +91,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.restrict_to_same_modality(pm, matches)
-    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{|pm| [pm.id, pm]}]
+    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |pm| [pm.id, pm] }]
     if pm.is_text?
-      return matches.select{|k,v| other_pms[k].is_text?}
+      return matches.select{ |k, v| other_pms[k.to_i]&.is_text? }
     else
-      return matches.select{|k,v| other_pms[k].media.type == pm.media.type}
+      return matches.select{ |k, v| other_pms[k.to_i]&.media&.type == pm.media.type }
     end
   end
 
