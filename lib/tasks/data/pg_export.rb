@@ -398,7 +398,12 @@ module PgExport
 
     class Version < Base
       def where_clause
-        "WHERE team_id = #{team_id}"
+        # This table gets quite big. Limit it so anything unused by the
+        # Workbench module isn't included.
+        #
+        # 2021-05-27 This reduces sqlite3 file size by ~45%, both before and
+        # after LZ4 compression.
+        "WHERE team_id = #{team_id} AND event_type IN ('update_projectmedia', 'create_dynamic', 'update_dynamic', 'update_dynamicannotationfield') AND associated_type = 'ProjectMedia'"
       end
 
       protected
