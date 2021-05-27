@@ -105,9 +105,6 @@ deploy_live:
     - pip install ecs-deploy==1.11.0
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /live/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/live/check-api/##' > env.live.names
-    - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-workbench $NAME /live/check-api/$NAME " >> live-check-api-workbench.env.args; done
-    - echo -n "-s live-check-api-workbench GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-workbench.env.args
-    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-env -e live-check-api-workbench APP check-api -e live-check-api-workbench DEPLOY_ENV live -e live-check-api-workbench AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-workbench.env.args`
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-migration $NAME /live/check-api/$NAME " >> live-check-api-migration.env.args; done
     - echo -n "-s live-check-api-migration GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-migration.env.args
     - ecs update live-check-api-migration --image live-check-api-migration $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-env -e live-check-api-migration APP check-api -e live-check-api-migration DEPLOY_ENV live -e live-check-api-migration AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-migration.env.args`
@@ -120,6 +117,9 @@ deploy_live:
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-background $NAME /live/check-api/$NAME " >> live-check-api-background.env.args; done
     - echo -n "-s live-check-api-background GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-background.env.args
     - ecs deploy ecs-live  live-check-api-background --image live-check-api-background $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA  --timeout 3600 --exclusive-env -e live-check-api-background APP check-api -e live-check-api-background DEPLOY_ENV live -e live-check-api-background AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-background.env.args`
+    - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-workbench $NAME /live/check-api/$NAME " >> live-check-api-workbench.env.args; done
+    - echo -n "-s live-check-api-workbench GITHUB_TOKEN arn:aws:secretsmanager:eu-west-1:848416313321:secret:GithubToken-Plain-BUhwIw" >> live-check-api-workbench.env.args
+    - ecs update live-check-api-workbench --image live-check-api-workbench $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA --exclusive-env -e live-check-api-workbench APP check-api -e live-check-api-workbench DEPLOY_ENV live -e live-check-api-workbench AWS_REGION $AWS_DEFAULT_REGION --exclusive-secrets `cat live-check-api-workbench.env.args`
     - echo "new Image was deployed $ECR_API_BASE_URL/live/check/api:$CI_COMMIT_SHA"
   only:
     - master
