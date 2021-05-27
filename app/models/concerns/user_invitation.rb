@@ -14,7 +14,7 @@ module UserInvitation
         member.symbolize_keys!
         role = member[:role]
         member[:email].split(',').each do |email|
-          email.strip!
+          email = email.downcase.strip
           u = User.find_user_by_email(email)
           begin
             if u.nil?
