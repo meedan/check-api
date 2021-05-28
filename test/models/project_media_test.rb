@@ -523,6 +523,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should add or remove team tasks when moving items 2" do
+    t =  create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    tt = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
+    tt2 = create_team_task team_id: t.id, project_ids: [p.id, p2.id]
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 2 do
+        pm = create_project_media team: t, project_id: p.id
+      end
+      assert_no_difference 'Task.length' do
+        pm.project_id = p2.id
+        pm.save!
+      end
+      assert_equal 2, pm.annotations('task').count
+      pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      assert_not_nil pm_tt
+      assert_not_nil pm_tt2
+    end
+    Team.unstub(:current)
+  end
+
   test "should add or remove team tasks when bulk-move items" do
     t =  create_team
     p = create_project team: t
