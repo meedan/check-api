@@ -308,7 +308,7 @@ class Bot::Alegre < BotUser
       parsed = JSON.parse(response.body)
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
-      self.notify_error(e, { bot: self.name, url: uri, params: params }, RequestStore[:request] )
+      self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
       { 'type' => 'error', 'data' => { 'message' => e.message } }
     end
   end
