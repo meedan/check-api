@@ -33,11 +33,11 @@ class Bot::Alegre < BotUser
     end
 
     def save_analysis_to_similarity_index
-      self.class.delay.save_analysis_to_similarity_index(self.annotation.annotated_id)
+      self.class.delay_for(5.seconds, retry: 5).save_analysis_to_similarity_index(self.annotation.annotated_id)
     end
 
     def delete_analysis_from_similarity_index
-      self.class.delay.delete_analysis_from_similarity_index(self.annotation.annotated_id)
+      self.class.delay_for(5.seconds, retry: 5).delete_analysis_from_similarity_index(self.annotation.annotated_id)
     end
   end
 
