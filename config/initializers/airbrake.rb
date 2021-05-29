@@ -6,4 +6,5 @@ unless CheckConfig.get('airbrake_host').blank?
     config.ignore_environments = %w(development test)
     config.environment = CheckConfig.get('airbrake_environment')
   end
+  Airbrake.add_filter(Airbrake::Sidekiq::RetryableJobsFilter.new)
 end
