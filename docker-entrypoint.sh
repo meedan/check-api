@@ -3,6 +3,16 @@
 # Wait for Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
+set_config() {
+  find config/ -iname \*.example | rename -v "s/.example//g"
+}
+
+if [[ "${DEPLOY_ENV}" == "test" ]]; then
+    set_config
+    touch tmp/parallel_runtime_test.log
+    chmod +w tmp/parallel_runtime_test.log
+fi
+
 # Rake tasks
 if [ "$RAILS_ENV" == "test" ]
 then

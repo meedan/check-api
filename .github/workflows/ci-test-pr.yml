@@ -1,0 +1,120 @@
+name: Build and Run Tests
+
+on:
+  push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        aws-region: eu-west-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@master
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      id: cache
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Docker Build and Load
+      id: docker-build-load
+      uses: docker/build-push-action@v2
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.repository.name }}
+        IMAGE_TAG: ${{ github.sha }}
+      with:
+        load: true
+        tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        builder: ${{ steps.buildx.outputs.name }}
+        cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+    - name: Docker Build and Push To ECR
+      id: docker-build-ecr
+      uses: docker/build-push-action@v2
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.repository.name }}
+        IMAGE_TAG: ${{ github.sha }}
+      with:
+        push: true
+        tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        builder: ${{ steps.buildx.outputs.name }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+    - name: Run Unit Tests
+      id: run-unit-tests
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.repository.name }}
+        IMAGE_TAG: ${{ github.sha }}
+        GIT_SHA: ${{ github.sha }}
+        BUILD_NUMBER: ${{ github.run_number }}
+      run: |
+        # rearrange tags so that docker buildx containers match what docker-compose.yml expects
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG check-api:latest
+        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
+        until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+        docker-compose exec api test/setup-parallel-env.sh
+        docker-compose exec api bundle exec rake assets:precompile
+        docker-compose exec -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
+        docker-compose exec api test/test-coverage.sh
+
+    - name: Teardown Unit Tests
+      run: docker-compose down
+
+    - name: Run Functional Tests
+      id: run-functional-tests
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.repository.name }}
+        IMAGE_TAG: ${{ github.sha }}
+        GIT_SHA: ${{ github.sha }}
+        BUILD_NUMBER: ${{ github.run_number }}
+      run: |
+        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
+        until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+        docker-compose exec api test/setup-parallel-env.sh
+        docker-compose exec api bundle exec rake assets:precompile
+        docker-compose exec -e PATTERN='controllers' api test/run-tests.sh
+        docker-compose exec api test/test-coverage.sh
+
+    - name: Notify Slack
+      id: slack-notify
+      uses: 8398a7/action-slack@v3
+      if: ${{ always() }}
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took,message
+        custom_payload: |
+          {
+            attachments: [{
+              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_MESSAGE} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO} @ ${process.env.AS_REF}\nby ${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}`,
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
