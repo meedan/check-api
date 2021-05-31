@@ -3,3 +3,4 @@ services:
   api:
     environment:
       RAILS_ENV: test
+      DEPLOY_ENV: test
