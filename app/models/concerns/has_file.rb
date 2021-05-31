@@ -29,7 +29,7 @@ module HasFile
     end
 
     def max_size_readable
-      Filesize.new(self.max_size, Filesize::SI).pretty
+      ActionController::Base.helpers.number_to_human_size(self.max_size)
     end
   end
 
