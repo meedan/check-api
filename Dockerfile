@@ -22,16 +22,17 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpegthumbnailer \
     git \
     graphicsmagick \
-    libidn11-dev \
     inotify-tools \
+    libidn11-dev \
     libpq-dev \
-    libtag1-dev \
     libsqlite3-dev \
+    libtag1-dev \
+    lsof \
     lz4 \
     nodejs \
-    sqlite3 \
-    lsof \
-    python-pip
+    python-pip \
+    rename \
+    sqlite3
 
 RUN python -m pip install -U setuptools wheel
 
