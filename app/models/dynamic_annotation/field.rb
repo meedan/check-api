@@ -63,7 +63,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
       data = { key => self.value }
       if self.field_name == 'title'
         keys << 'sort_title'
-        data['sort_title'] = self.value.blank? ? obj.title : self.value
+        data['sort_title'] = self.value.blank? ? obj.title.downcase : self.value.downcase
       end
       self.update_elasticsearch_doc(keys, data, obj)
     end

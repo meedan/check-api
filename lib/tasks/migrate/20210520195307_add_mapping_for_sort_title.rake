@@ -21,7 +21,7 @@ namespace :check do
             print '.'
             doc_id = Base64.encode64("ProjectMedia/#{item['annotated_id']}")
             sort_title = item['analysis_title'].blank? ? item['title'] : item['analysis_title']
-            data = { sort_title: sort_title }
+            data = { sort_title: sort_title.downcase }
             es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: data } } }
           end
           client.bulk body: es_body unless es_body.blank?
