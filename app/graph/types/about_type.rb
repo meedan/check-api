@@ -20,7 +20,7 @@ AboutType = GraphQL::ObjectType.define do
   field :file_max_size, types.String, 'Maximum file upload size, in human-readable format'
   field :video_max_size, types.String, 'Maximum video upload size, in human-readable format'
   field :audio_max_size, types.String, 'Maximum audio upload size, in human-readable format'
-  
+
   field :upload_max_size_in_bytes, types.Int, 'Maximum upload size, in bytes'
   field :file_max_size_in_bytes, types.Int, 'Maximum file upload size, in bytes'
   field :video_max_size_in_bytes, types.Int, 'Maximum video upload size, in bytes'
