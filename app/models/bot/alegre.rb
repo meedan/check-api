@@ -20,8 +20,8 @@ class Bot::Alegre < BotUser
 
     def self.delete_analysis_from_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description')
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title', true)
+      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description', true)
     end
 
     private
@@ -296,7 +296,7 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.request_api(method, path, params = {})
+  def self.request_api(method, path, params = {}, retries = 3)
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
@@ -305,8 +305,12 @@ class Bot::Alegre < BotUser
     http.use_ssl = uri.scheme == 'https'
     begin
       response = http.request(request)
-      parsed = JSON.parse(response.body)
+      JSON.parse(response.body)
     rescue StandardError => e
+      if retries > 0
+        sleep 1
+        self.request_api(method, path, params, retries - 1)
+      end
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
       self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
       { 'type' => 'error', 'data' => { 'message' => e.message } }
