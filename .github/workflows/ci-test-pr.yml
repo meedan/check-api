@@ -87,10 +87,10 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        docker-compose exec -tt api test/setup-parallel-env.sh
-        docker-compose exec -tt api bundle exec rake assets:precompile
-        docker-compose exec -tt -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
-        docker-compose exec -tt api test/test-coverage.sh
+        docker-compose exec -t api test/setup-parallel-env.sh
+        docker-compose exec -t api bundle exec rake assets:precompile
+        docker-compose exec -t -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
+        docker-compose exec -t api test/test-coverage.sh
 
     - name: Teardown Unit Tests
       run: docker-compose down
@@ -106,10 +106,10 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        docker-compose exec -tt api test/setup-parallel-env.sh
-        docker-compose exec -tt api bundle exec rake assets:precompile
-        docker-compose exec -tt -e PATTERN='controllers' api test/run-tests.sh
-        docker-compose exec -tt api test/test-coverage.sh
+        docker-compose exec -T api test/setup-parallel-env.sh
+        docker-compose exec -T api bundle exec rake assets:precompile
+        docker-compose exec -T -e PATTERN='controllers' api test/run-tests.sh
+        docker-compose exec -T api test/test-coverage.sh
 
     -
       # Temp fix
