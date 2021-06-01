@@ -85,8 +85,6 @@ jobs:
         GIT_SHA: ${{ github.sha }}
         BUILD_NUMBER: ${{ github.run_number }}
       run: |
-        # rearrange tags so that docker buildx containers match what docker-compose.yml expects
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG check-api:latest
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
         docker-compose exec -tt api test/setup-parallel-env.sh
