@@ -26,7 +26,7 @@ module TeamRules
     end
 
     def title_contains_keyword(pm, value, _rule_id)
-      text_contains_keyword(pm.title, value)
+      text_contains_keyword(pm.title, value) || text_contains_keyword(pm.description, value)
     end
 
     def text_contains_keyword(text, value)

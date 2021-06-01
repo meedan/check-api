@@ -2944,4 +2944,46 @@ class TeamTest < ActiveSupport::TestCase
     pm = create_project_media team: t, media: nil, quote: 'Foo'
     assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
+
+  test "should match rule by description" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "test"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","description":"this is a test","title":"foo","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    create_project_media project: p0, media: nil, url: url
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
+  end
 end
