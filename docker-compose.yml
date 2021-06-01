@@ -58,6 +58,7 @@ services:
       - dev
   api:
     build: .
+    image: api
     ports:
       - "3000:3000"
     depends_on:

@@ -96,7 +96,7 @@ jobs:
       run: |
         docker-compose down
         # Temporary until volume mount is removed
-        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+        sudo rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
         mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Run Unit Tests

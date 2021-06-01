@@ -1,6 +1,7 @@
 version: "2.2"
 services:
   api:
+    image: api
     environment:
       RAILS_ENV: test
       DEPLOY_ENV: test
