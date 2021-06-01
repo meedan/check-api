@@ -29,12 +29,6 @@ module CheckElasticSearchModel
           tokenizer: 'whitespace',
           filter: ['lowercase', 'hashtag_as_alphanum', 'asciifolding','icu_normalizer','arabic_normalization']
         }
-      },
-      normalizer: {
-        keyword_lowercase: {
-          type: "custom",
-          filter: ["lowercase", "asciifolding"]
-        }
       }
     }
   end
