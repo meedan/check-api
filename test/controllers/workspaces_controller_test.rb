@@ -51,4 +51,24 @@ class WorkspacesControllerTest < ActionController::TestCase
     assert_equal 1, json_response['data'].size
     assert_equal 'Test 3', json_response['data'][0]['attributes']['name']
   end
+
+  test "should filter by whether it has Alegre bot installed" do
+    authenticate_with_user @u
+    b = create_team_bot name: 'Alegre', login: 'alegre', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/alegre"
+    create_team_bot_installation user_id: b.id, settings: nil, team_id: @t1.id
+
+    get :index
+    assert_response :success
+    assert_equal 2, json_response['data'].size
+
+    get :index, filter: { is_similarity_feature_enabled: true }
+    assert_response :success
+    assert_equal 1, json_response['data'].size
+    assert_equal 'Test 1', json_response['data'][0]['attributes']['name']
+
+    get :index, filter: { is_similarity_feature_enabled: false }
+    assert_response :success
+    assert_equal 1, json_response['data'].size
+    assert_equal 'Test 3', json_response['data'][0]['attributes']['name']
+  end
 end
