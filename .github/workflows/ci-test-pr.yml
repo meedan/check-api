@@ -72,7 +72,7 @@ jobs:
       with:
         load: true
         tags: |
-          ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          api:${{ env.IMAGE_TAG }}
         builder: ${{ steps.buildx.outputs.name }}
         cache-from: type=local,src=/tmp/.buildx-cache
 
@@ -87,13 +87,17 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        docker-compose exec -t api test/setup-parallel-env.sh
-        docker-compose exec -t api bundle exec rake assets:precompile
-        docker-compose exec -t -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
-        docker-compose exec -t api test/test-coverage.sh
+        docker-compose exec -T api test/setup-parallel-env.sh
+        docker-compose exec -T api bundle exec rake assets:precompile
+        docker-compose exec -T -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
+        docker-compose exec -T api test/test-coverage.sh
 
     - name: Teardown Unit Tests
-      run: docker-compose down
+      run: |
+        docker-compose down
+        # Temporary until volume mount is removed
+        rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+        mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Run Unit Tests
       id: run-unit-tests
