@@ -7,6 +7,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      AWS_ACCOUNT_NUMBER: '848416313321'
+      AWS_REGION: 'eu-west-1'
+
     outputs:
       image: ${{ steps.build-image.outputs.image }}
 
