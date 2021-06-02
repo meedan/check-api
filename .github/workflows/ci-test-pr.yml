@@ -73,6 +73,7 @@ jobs:
         load: true
         tags: |
           api:${{ env.IMAGE_TAG }}
+          api:latest
         builder: ${{ steps.buildx.outputs.name }}
         cache-from: type=local,src=/tmp/.buildx-cache
 
@@ -92,12 +93,12 @@ jobs:
         GIT_SHA: ${{ github.sha }}
         BUILD_NUMBER: ${{ github.run_number }}
       run: |
-        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
+        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up --no-build -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
-        docker-compose exec -T api test/test-coverage.sh
+        docker-compose exec -T -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} api test/test-coverage.sh
 
     - name: Teardown Unit Tests
       id: teardown-unit-tests
@@ -115,13 +116,14 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
         GIT_SHA: ${{ github.sha }}
         BUILD_NUMBER: ${{ github.run_number }}
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |
-        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
+        DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up --no-build -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='controllers' api test/run-tests.sh
-        docker-compose exec -T api test/test-coverage.sh
+        docker-compose exec -T -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} api test/test-coverage.sh
 
     -
       # Temp fix
