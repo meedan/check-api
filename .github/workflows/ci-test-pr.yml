@@ -76,6 +76,13 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         cache-from: type=local,src=/tmp/.buildx-cache
 
+    - name: Teardown Functional Tests
+      id: teardown-functional-tests
+      run: |
+        # Temporary until volume mount is removed
+        sudo rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+        mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+
     - name: Run Functional Tests
       id: run-functional-tests
       env:
@@ -93,6 +100,7 @@ jobs:
         docker-compose exec -T api test/test-coverage.sh
 
     - name: Teardown Unit Tests
+      id: teardown-unit-tests
       run: |
         docker-compose down
         # Temporary until volume mount is removed
