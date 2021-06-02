@@ -61,6 +61,15 @@ TeamType = GraphqlCrudOperations.define_default_type do
     end
   end
 
+  field :team_bot_installation do
+    type TeamBotInstallationType
+    argument :bot_identifier, !types.String
+
+    resolve -> (team, args, _ctx) do
+      TeamBotInstallation.where(user_id: BotUser.get_user(args['bot_identifier'])&.id, team_id: team.id).first
+    end
+  end
+
   connection :team_users, -> { TeamUserType.connection_type } do
     argument :status, types[types.String]
 

@@ -413,6 +413,20 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
   end
 
+  test "should get a single bot installation" do
+    t = create_team private: true
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installation(bot_identifier: \"smooch\") { smooch_enabled_integrations(force: true) } } }"
+    post :create, query: query
+    assert_not_nil json_response.dig('data', 'team', 'team_bot_installation', 'smooch_enabled_integrations')
+  end
+
   protected
 
   def assert_error_message(expected)

@@ -24,7 +24,13 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
 
   # Only for Smooch Bot
 
-  field :smooch_enabled_integrations, JsonStringType
+  field :smooch_enabled_integrations do
+    type JsonStringType
+    argument :force, types.Boolean
+    resolve -> (obj, args, _ctx) do
+      obj.smooch_enabled_integrations(args['force'])
+    end
+  end
 
   field :smooch_bot_preview_rss_feed do
     type types.String
