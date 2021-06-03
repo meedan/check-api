@@ -97,8 +97,8 @@ module Workflow
         def can_set_workflow_status
           if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
             options = self.workflow_options_and_roles
-            value = self.value.to_sym
-            old_value = self.previous_value.to_sym
+            value = self.value&.to_sym
+            old_value = self.previous_value&.to_sym
             self.previous_status = old_value
             user = User.current
 
