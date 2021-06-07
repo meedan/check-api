@@ -293,12 +293,6 @@ module TeamRules
     end
   end
 
-  def rules_changed?
-    rules_were = self.settings_was.to_h.with_indifferent_access[:rules]
-    rules_are = self.get_rules
-    rules_were != rules_are && (!rules_were.blank? || !rules_are.blank?)
-  end
-
   def rules_search_fields_json_schema
     return nil if self.get_rules.blank?
     properties = {
