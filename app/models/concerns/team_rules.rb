@@ -179,7 +179,6 @@ module TeamRules
     include ErrorNotification
 
     validate :rules_names, :rules_regular_expressions_are_valid
-    after_save :update_rules_index
 
     def self.rule_id(rule)
       rule.with_indifferent_access[:name].parameterize.tr('-', '_')
@@ -288,7 +287,6 @@ module TeamRules
           matched_rules_ids << rule_id
         end
       end
-      pm.update_elasticsearch_doc(['rules'], { 'rules' => matched_rules_ids }, pm) unless matched_rules_ids.blank?
     rescue StandardError => e
       Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_rules_and_actions' }) if Airbrake.configured?
       Rails.logger.info "[Team Rules] Exception when applying rules to project media #{pm.id} for team #{self.id}"
@@ -314,13 +312,6 @@ module TeamRules
   end
 
   private
-
-  def update_rules_index
-    if self.rules_changed?
-      Rails.cache.write("cancel_rules_indexing_for_team_#{self.id}", 1) if Rails.cache.read("rules_indexing_in_progress_for_team_#{self.id}")
-      RulesIndexWorker.perform_in(5.seconds, self.id)
-    end
-  end
 
   def rules_names
     names = []
