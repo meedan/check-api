@@ -192,7 +192,6 @@ class CheckSearch
     conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
     check_seach_concat_conditions(conditions, dynamic_conditions)
-    check_seach_concat_conditions(conditions, rules_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_seach_concat_conditions(conditions, team_tasks_conditions)
     media_source_conditions = build_search_media_source_conditions
