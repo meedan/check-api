@@ -1271,6 +1271,7 @@ class TeamTest < ActiveSupport::TestCase
     end
     t.rules = rules.to_json
     t.save!
+    assert_equal 4, t.rules_search_fields_json_schema[:properties][:rules][:properties].keys.size
     s = create_source
     c = create_claim_media account: create_valid_account({team: t})
     c.account.sources << s
