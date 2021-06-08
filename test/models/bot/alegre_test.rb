@@ -225,6 +225,35 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal response, true
   end
 
+  test "should return matches for non-blank cases" do
+    p = create_project
+    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm1.save!
+    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2.save!
+    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_text_query(pm2))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_text_query(pm2)).returns({pm1.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_text_query(pm2, true)).returns({})
+    assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
+    Bot::Alegre.unstub(:get_merged_items_with_similar_text)
+  end
+
+  test "should not return matches for blank cases" do
+    p = create_project
+    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm1.save!
+    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2.save!
+    pm3 = create_project_media project: p, media: Blank.new
+    pm3.save!
+    Bot::Alegre.get_merged_items_with_similar_text(pm3, Bot::Alegre.get_threshold_for_text_query(pm3))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_text_query(pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
+    assert_equal Bot::Alegre.get_similar_items(pm3), {}
+    Bot::Alegre.unstub(:get_merged_items_with_similar_text)
+  end
+
   test "should add relationships" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
