@@ -326,7 +326,8 @@ class Team < ActiveRecord::Base
     unless status_id.blank?
       data = DynamicAnnotation::Field
         .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
-        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'value' => status_id, 'pm.team_id' => self.id)
+        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'pm.team_id' => self.id)
+        .where('dynamic_annotation_fields.dynamic_annotation_fields_value(field_name, value) = ?', status_id.to_json)
         .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
       pmids = data.map(&:pmid)
 
