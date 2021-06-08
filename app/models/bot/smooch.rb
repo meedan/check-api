@@ -152,7 +152,7 @@ class Bot::Smooch < BotUser
         return '' unless object_after['field_name'] == 'smooch_data'
         data = JSON.parse(object_after['value'])
         Rails.cache.fetch("smooch:user:external_identifier:#{data['authorId']}") do
-          field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: data['authorId']).last
+          field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', data['authorId'].to_json).last
           return '' if field.nil?
           user = JSON.parse(field.annotation.load.get_field_value('smooch_user_data')).with_indifferent_access[:raw][:clients][0]
           case user[:platform]
@@ -211,7 +211,7 @@ class Bot::Smooch < BotUser
       pid =  tbi.get_smooch_project_id unless tbi.nil?
       pid ||= obj.project_id
       smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', annotation_type: 'smooch_user')
-      .where(value: data['authorId'])
+      .where('dynamic_annotation_fields_value(field_name, value) = ?', data['authorId'].to_json)
       .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
       .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
       unless smooch_user_data.nil?
@@ -543,7 +543,7 @@ class Bot::Smooch < BotUser
   def self.save_user_information(app_id, uid)
     self.get_installation('smooch_app_id', app_id) if self.config.blank?
     # FIXME Shouldn't we make sure this is an annotation in the right project?
-    field = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last
+    field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', uid.to_json).last
     if field.nil?
       api_client = self.smooch_api_client
       app_id = self.config['smooch_app_id']
