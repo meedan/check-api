@@ -53,7 +53,7 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def is_text?
-    self.is_claim? || self.is_link? || self.is_blank?
+    self.is_claim? || self.is_link?
   end
 
   def report_type
