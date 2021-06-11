@@ -16,6 +16,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
     create_flag_annotation_type
+    create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
   end
 
@@ -55,7 +56,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
-  test "should link similar images and get flags" do
+  test "should link similar images, get flags and extract text" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
@@ -71,13 +72,17 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "result": []
       }.to_json)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
-        "result": "invalid"
+        "result": valid_flags_data
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/ocr/').to_return(body: {
+        "text": "Foo bar"
       }.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
+
+      # Similarity
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
-      assert_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
         "result": [
@@ -98,7 +103,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       response = {pm1.id => 0}
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
       assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, Bot::Alegre.get_threshold_for_image_query(pm2))
-      assert_nil pm2.get_annotations('flag').last
+
+      # Flags
       Bot::Alegre.unstub(:media_file_url)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
         "result": valid_flags_data
@@ -107,6 +113,15 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
       assert_not_nil pm3.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
+
+      # Text extraction
+      Bot::Alegre.unstub(:media_file_url)
+      pm4 = create_project_media team: @pm.team, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm4).returns("some/path")
+      assert Bot::Alegre.run({ data: { dbid: pm4.id }, event: 'create_project_media' })
+      extracted_text_annotation = pm4.get_annotations('extracted_text').last
+      assert_equal 'Foo bar', extracted_text_annotation.data['text']
       Bot::Alegre.unstub(:media_file_url)
     end
   end
