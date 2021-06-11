@@ -62,12 +62,12 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
-    - name: Teardown Functional Tests
-      id: teardown-functional-tests
-      run: |
-        # Temporary until volume mount is removed
-        sudo rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-        mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+    # - name: Teardown Functional Tests
+    #   id: teardown-functional-tests
+    #   run: |
+    #     # Temporary until volume mount is removed
+    #     sudo rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
+    #     mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Run Functional Tests
       id: run-functional-tests
@@ -80,6 +80,7 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+        docker-compose exec -T api mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
@@ -89,9 +90,6 @@ jobs:
       id: teardown-unit-tests
       run: |
         docker-compose down
-        # Temporary until volume mount is removed
-        sudo rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-        mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Run Unit Tests
       id: run-unit-tests
@@ -105,6 +103,7 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+        docker-compose exec -T api mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='controllers' api test/run-tests.sh
