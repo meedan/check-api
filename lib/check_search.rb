@@ -378,15 +378,30 @@ class CheckSearch
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
-      if response_type == 'choice'
-        # should handle any/no values
-        if tt['response'] == 'ANY_VALUE'
-          must_c << { exists: { field: "task_responses.value" } }
-        elsif tt['response'] == 'NO_VALUE'
-          must_c << { bool: { must_not: [ { exists: { field: "task_responses.value" } } ] } }
-        else
-          must_c << { term: { "task_responses.value.raw": tt['response'] } }
-        end
+      if tt['response'] == 'ANY_VALUE'
+        must_c << { exists: { field: "task_responses.value" } }
+      elsif tt['response'] == 'NO_VALUE'
+        return [{
+          bool: {
+            must_not: [
+              {
+                nested: {
+                  path: 'task_responses',
+                  query: {
+                    bool: {
+                      must: [
+                        { term: { 'task_responses.team_task_id': tt['id'] } },
+                        { exists: { field: 'task_responses.value' } }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }]
+      elsif response_type == 'choice'
+        must_c << { term: { "task_responses.value.raw": tt['response'] } }
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
