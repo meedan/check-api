@@ -119,7 +119,6 @@ class Bot::Smooch < BotUser
       uid = self.get_field_value('smooch_user_id')
       unless uid.blank?
         ["smooch:bundle:#{uid}", "smooch:last_accepted_terms:#{uid}", "smooch:banned:#{uid}"].each { |key| Rails.cache.delete(key) }
-        Rails.cache.delete_matched("smooch:request:#{uid}:*")
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
