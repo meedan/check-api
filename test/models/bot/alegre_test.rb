@@ -377,7 +377,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_images_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
