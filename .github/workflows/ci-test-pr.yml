@@ -169,17 +169,7 @@ jobs:
     steps:
     - name: Notify Slack
       id: slack-notify
-      uses: 8398a7/action-slack@v3
-      if: ${{ always() }}
-      with:
-        status: custom
-        fields: workflow,job,commit,repo,ref,author,took,message
-        custom_payload: |
-          {
-            attachments: [{
-              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_MESSAGE} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO} @ ${process.env.AS_REF}\nby ${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}`,
-            }]
-          }
+      uses: slackapi/slack-github-action@v1.14.0
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+	SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: ${{ always() }}
