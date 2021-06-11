@@ -64,16 +64,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
+      WebMock.stub_request(:post, 'http://alegre/video/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
+      WebMock.stub_request(:get, 'http://alegre/video/similarity/').to_return(body: {
         "result": []
       }.to_json)
       WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
         "result": "invalid"
       }.to_json)
-      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:post, 'http://alegre/video/similarity/').to_return(body: 'success')
       pm1 = create_project_media team: @pm.team, media: create_uploaded_video
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
