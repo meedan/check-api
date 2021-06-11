@@ -117,6 +117,12 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_threshold_for_video_query(pm, automatic=false)
+    key = 'video_similarity_threshold'
+    key = "automatic_#{key}" if automatic
+    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+  end  
+
   def self.get_threshold_for_image_query(pm, automatic=false)
     key = 'image_similarity_threshold'
     key = "automatic_#{key}" if automatic
@@ -139,6 +145,10 @@ class Bot::Alegre < BotUser
     elsif pm.is_image?
       suggested_or_confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm))
       confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm, true))
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+    elsif pm.is_video?
+      suggested_or_confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm))
+      confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
@@ -371,7 +381,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_score_from_image_or_text_response(search_result)
-    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
+    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score')).to_f
   end
 
   def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
@@ -431,20 +441,23 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_image(pm, threshold)
-    self.get_items_from_similar_image(pm.team_id, self.media_file_url(pm), threshold).reject{ |id, _score| pm.id == id }
+  def self.get_items_with_similar_video(pm, threshold)
+    self.get_similar_items_from_api(
+      '/video/similarity/',
+      self.similar_visual_content_from_api_conditions(pm.team_id, self.media_file_url(pm), threshold)
+    ).reject{ |id, _score| pm.id == id }
   end
 
-  def self.get_items_from_similar_image(team_id, image_url, threshold)
+  def self.get_items_with_similar_image(pm, threshold)
     self.get_similar_items_from_api(
       '/image/similarity/',
-      self.similar_images_from_api_conditions(team_id, image_url, threshold)
-    )
+      self.similar_visual_content_from_api_conditions(pm.team_id, self.media_file_url(pm), threshold)
+    ).reject{ |id, _score| pm.id == id }
   end
   
-  def self.similar_images_from_api_conditions(team_id, image_url, threshold)
+  def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
     {
-      url: image_url,
+      url: media_url,
       context: self.build_context(team_id),
       threshold: threshold[:value]
     }

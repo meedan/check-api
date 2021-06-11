@@ -55,6 +55,57 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
   end
 
+  test "should link similar videos and get flags" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    Bot::Alegre.unstub(:request_api)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
+        "success": true
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
+        "result": "invalid"
+      }.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
+      pm1 = create_project_media team: @pm.team, media: create_uploaded_video
+      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("some/path")
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      assert_nil pm1.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
+      WebMock.stub_request(:get, 'http://alegre/video/similarity/').to_return(body: {
+        "result": [
+          {
+            "hash_key": "6393db3d6d5c181aa43dd925539a15e7",
+            "context": {"blah": 1, "project_media_id": pm1.id.to_s, "team_id": pm1.team.id.to_s},
+            "score": "0.033167",
+            "filename": "/app/persistent_disk/6393db3d6d5c181aa43dd925539a15e7/12342.tmk"
+          }
+        ]
+      }.to_json)
+      pm2 = create_project_media team: @pm.team, media: create_uploaded_video
+      response = {pm1.id => 0.033167}
+      Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
+      assert_equal response, Bot::Alegre.get_items_with_similar_video(pm2, Bot::Alegre.get_threshold_for_video_query(pm2))
+      assert_nil pm2.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').to_return(body: {
+        "result": valid_flags_data
+      }.to_json)
+      pm3 = create_project_media team: @pm.team, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+      assert Bot::Alegre.run({ data: { dbid: pm3.id }, event: 'create_project_media' })
+      assert_not_nil pm3.get_annotations('flag').last
+      Bot::Alegre.unstub(:media_file_url)
+    end
+  end
+
   test "should link similar images and get flags" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
     at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
@@ -643,3 +694,4 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert !Bot::Alegre.add_relationship(create_project_media, {}, create_project_media)
   end
 end
+
