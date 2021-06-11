@@ -65,6 +65,8 @@ services:
       - postgres
       - redis
       - minio
+    volumes:
+      - ".:/app"
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000
