@@ -182,14 +182,23 @@ module ProjectMediaCachedFields
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
       update_es: proc { |_pm, value| ['unpublished', 'paused', 'published'].index(value) },
-      recalculate: proc { |pm| pm.get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
+      recalculate: proc { |pm| Relationship.confirmed_parent(pm).get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'report_design' },
-          affected_ids: proc { |d| [d.annotated_id.to_i] },
+          affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
             save: proc { |_pm, d| d.data.with_indifferent_access[:state] }
+          }
+        },
+        {
+          model: Relationship,
+          if: proc { |r| !r.is_default? },
+          affected_ids: proc { |r| [r.target_id, r.source_id] },
+          events: {
+            create: :recalculate,
+            destroy: :recalculate
           }
         }
       ]
