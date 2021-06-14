@@ -192,10 +192,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm.destroy, pm
   end
 
-  test "should relate project media to similar items as video" do
+  test "zzz should relate project media to similar items as video" do
     p = create_project
     pm1 = create_project_media team: @pm.team
-    
+
     pm1 = create_project_media project: p, media: create_uploaded_video
     pm2 = create_project_media project: p, media: create_uploaded_video
     pm3 = create_project_media project: p, media: create_uploaded_video

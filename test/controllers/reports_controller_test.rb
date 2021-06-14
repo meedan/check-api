@@ -46,6 +46,7 @@ class ReportsControllerTest < ActionController::TestCase
     assert_equal 6, json_response['meta']['record-count']
 
     get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
+    puts json_response.inspect
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']

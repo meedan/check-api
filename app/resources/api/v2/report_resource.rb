@@ -61,31 +61,32 @@ module Api
       end
 
       def self.apply_image_similarity_filter(organization_ids, threshold, filters)
-        image = filters[:similar_to_image]
-        ids = nil
-        unless image.blank?
-          image[0].rewind
-          image_path = "api_v2_similar_image/#{SecureRandom.hex}"
-          CheckS3.write(image_path, image[0].content_type, image[0].read)
-          ids_and_scores = Bot::Alegre.get_similar_images(organization_ids, CheckS3.public_url(image_path), {value: threshold})
-          RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
-          ids = ids_and_scores.keys.uniq || [0]
-          CheckS3.delete(image_path)
-        end
-        ids
+        self.apply_media_similarity_filter(
+          organization_ids,
+          threshold,
+          "api_v2_similar_image/#{SecureRandom.hex}",
+          filters[:similar_to_image]
+        )
       end
 
       def self.apply_video_similarity_filter(organization_ids, threshold, filters)
-        video = filters[:similar_to_video]
+        self.apply_media_similarity_filter(
+          organization_ids,
+          threshold,
+          "api_v2_similar_video/#{SecureRandom.hex}",
+          filters[:similar_to_video]
+        )
+      end
+
+      def self.apply_media_similarity_filter(organization_ids, threshold, media_path, media)
         ids = nil
-        unless video.blank?
-          video[0].rewind
-          video_path = "api_v2_similar_video/#{SecureRandom.hex}"
-          CheckS3.write(video_path, video[0].content_type, video[0].read)
-          ids_and_scores = Bot::Alegre.get_similar_videos(organization_ids, CheckS3.public_url(video_path), {value: threshold})
+        unless media.blank?
+          media[0].rewind
+          CheckS3.write(media_path, media[0].content_type, media[0].read)
+          ids_and_scores = Bot::Alegre.get_similar_videos(organization_ids, CheckS3.public_url(media_path), {value: threshold})
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
-          CheckS3.delete(video_path)
+          CheckS3.delete(media_path)
         end
         ids
       end
