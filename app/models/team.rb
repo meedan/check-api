@@ -9,7 +9,6 @@ class Team < ActiveRecord::Base
   include TeamAssociations
   include TeamPrivate
   include TeamDuplication
-  # include TeamImport
   include TeamRules
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
@@ -27,6 +26,7 @@ class Team < ActiveRecord::Base
   before_validation :set_default_fieldsets, on: :create
   after_create :add_user_to_team, :add_default_bots_to_team
   after_update :archive_or_restore_projects_if_needed
+  after_save :update_reports_if_labels_changed, on: :update
   before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 
@@ -345,7 +345,7 @@ class Team < ActiveRecord::Base
         Team.delay.reindex_statuses_after_deleting_status(pmids.to_json, fallback_status_id)
 
         # Update reports in background
-        Team.delay.update_reports_after_deleting_status(pmids.to_json, fallback_status_id)
+        Team.delay.update_reports_after_changing_statuses(pmids.to_json, fallback_status_id)
       end
 
       # Update team statuses after deleting one of them
@@ -383,7 +383,7 @@ class Team < ActiveRecord::Base
     ProjectMedia.bulk_reindex(ids_json, script)
   end
 
-  def self.update_reports_after_deleting_status(ids_json, fallback_status_id)
+  def self.update_reports_after_changing_statuses(ids_json, fallback_status_id)
     ids = JSON.parse(ids_json)
     ids.each do |id|
       report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: id).last
@@ -401,6 +401,37 @@ class Team < ActiveRecord::Base
         report.data = data
         report.save!
       end
+    end
+  end
+
+  def self.update_reports_if_labels_changed(team_id, statuses_were, statuses)
+    ids_that_changed_labels = []
+
+    # Find the status IDs that changed label
+    if statuses && statuses_were && statuses != statuses_were
+      statuses_were['statuses'].each do |status|
+        status['locales'].each do |locale, value|
+          new_label = statuses['statuses'].find{ |s| s['id'] == status['id'] }&.dig('locales', locale, 'label')
+          if new_label && value['label'] != new_label
+            ids_that_changed_labels << status['id']
+          end
+        end
+      end
+    end
+
+    return if ids_that_changed_labels.empty?
+
+    ids_that_changed_labels.uniq.each do |status_id|
+      # Find reports with that status
+      data = DynamicAnnotation::Field
+        .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia'")
+        .where('dynamic_annotation_fields.field_name' =>  'verification_status_status', 'pm.team_id' => team_id)
+        .where('dynamic_annotation_fields_value(field_name, value) = ?', status_id.to_json)
+        .select('pm.id AS pmid, dynamic_annotation_fields.id AS fid').to_a
+      pmids = data.map(&:pmid)
+
+      # Update reports
+      self.update_reports_after_changing_statuses(pmids.to_json, status_id)
     end
   end
 

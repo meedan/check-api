@@ -11,7 +11,7 @@ class Bot::Alegre < BotUser
   DynamicAnnotation::Field.class_eval do
     after_commit :save_analysis_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
     after_destroy :delete_analysis_from_similarity_index, if: :can_be_sent_to_index?
-    
+
     def self.save_analysis_to_similarity_index(pm_id)
       pm = ProjectMedia.find_by_id(pm_id)
       Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
@@ -64,8 +64,9 @@ class Bot::Alegre < BotUser
         self.send_to_image_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
         self.send_field_to_similarity_index(pm, 'original_description')
-        self.get_flags(pm)
+        self.get_extracted_text(pm)
         self.relate_project_media_to_similar_items(pm)
+        self.get_flags(pm)
         handled = true
       end
     rescue StandardError => e
@@ -127,7 +128,7 @@ class Bot::Alegre < BotUser
     key = 'image_similarity_threshold'
     key = "automatic_#{key}" if automatic
     return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
-  end  
+  end
 
   def self.get_threshold_for_text_query(pm, automatic=false)
     model = self.matching_model_to_use(pm)
@@ -135,7 +136,7 @@ class Bot::Alegre < BotUser
     key = "automatic_#{key}" if automatic
     key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
     return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
-  end  
+  end
 
   def self.get_similar_items(pm)
     if pm.is_text?
@@ -205,13 +206,16 @@ class Bot::Alegre < BotUser
   def self.get_flags(pm, attempts = 0)
     return if pm.report_type != 'uploadedimage'
 
-    begin
-      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
-      self.save_annotation(pm, 'flag', result['result'])
-    rescue
-      sleep 1
-      self.get_flags(pm, attempts + 1) if attempts < 5
-    end
+    result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+    self.save_annotation(pm, 'flag', result['result'])
+  end
+
+  def self.get_extracted_text(pm)
+    return if pm.report_type != 'uploadedimage'
+
+    result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
+    self.save_annotation(pm, 'extracted_text', result)
+    result
   end
 
   def self.media_file_url(pm)
