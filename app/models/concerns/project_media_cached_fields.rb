@@ -37,22 +37,22 @@ module ProjectMediaCachedFields
 
   included do
 
+    SIMILARITY_EVENT = {
+      model: Relationship,
+      if: proc { |r| !r.is_default? },
+      affected_ids: proc { |r| [r.source_id, r.target_id] },
+      events: {
+        save: :recalculate,
+        destroy: :recalculate
+      }
+    }
+
     { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
       cached_field field_name,
         start_as: 0,
         update_es: true,
         recalculate: proc { |pm| Relationship.send(type).where(source_id: pm.id).count },
-        update_on: [
-          {
-            model: Relationship,
-            if: proc { |r| !r.is_default? },
-            affected_ids: proc { |r| [r.source_id, r.target_id] },
-            events: {
-              save: :recalculate,
-              destroy: :recalculate
-            }
-          }
-        ]
+        update_on: [SIMILARITY_EVENT]
     end
 
     cached_field :related_count,
@@ -192,15 +192,7 @@ module ProjectMediaCachedFields
             save: proc { |_pm, d| d.data.with_indifferent_access[:state] }
           }
         },
-        {
-          model: Relationship,
-          if: proc { |r| !r.is_default? },
-          affected_ids: proc { |r| [r.target_id, r.source_id] },
-          events: {
-            create: :recalculate,
-            destroy: :recalculate
-          }
-        }
+        SIMILARITY_EVENT
       ]
 
     cached_field :tags_as_sentence,
