@@ -71,7 +71,6 @@ module Api
       end
 
       def self.apply_video_similarity_filter(organization_ids, threshold, filters)
-        binding.pry
         self.apply_media_similarity_filter(
           organization_ids,
           threshold,
