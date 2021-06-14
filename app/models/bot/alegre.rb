@@ -445,29 +445,33 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_media(pm, threshold, team_id, path)
+  def self.get_items_with_similar_media(media_url, threshold, team_id, path)
     self.get_similar_items_from_api(
       path,
-      self.similar_visual_content_from_api_conditions(team_id, self.media_file_url(pm), threshold)
-    ).reject{ |id, _score| pm.id == id }
+      self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
+    )
   end
 
-  def self.get_similar_videos(team_id, pm, threshold)
-    self.get_items_with_similar_video(pm, threshold, team_id)
+  def self.get_similar_videos(team_id, media_url, threshold)
+    self.get_items_with_similar_media(media_url, threshold, team_id, '/video/similarity/')
   end
 
-  def self.get_similar_images(team_id, pm, threshold)
-    self.get_items_with_similar_image(pm, threshold, team_id)
+  def self.get_similar_images(team_id, media_url, threshold)
+    self.get_items_with_similar_media(media_url, threshold, team_id, '/image/similarity/')
+  end
+
+  def self.reject_same_case(results, pm)
+    results.reject{ |id, _score| pm.id == id }
   end
 
   def self.get_items_with_similar_video(pm, threshold, team_id=nil)
     team_id||=pm.team_id
-    self.get_items_with_similar_media(pm, threshold, team_id, '/video/similarity/')
+    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/video/similarity/'), pm)
   end
 
   def self.get_items_with_similar_image(pm, threshold, team_id=nil)
     team_id||=pm.team_id
-    self.get_items_with_similar_media(pm, threshold, team_id, '/image/similarity/')
+    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/image/similarity/'), pm)
   end
   
   def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)

@@ -36,17 +36,17 @@ class ReportsControllerTest < ActionController::TestCase
     pm3 = create_project_media team: @t
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'paused', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: pm3
     pm4 = create_project_media team: @t
+    pm5 = create_project_media team: @t, media: create_uploaded_video
     create_project_media team: @t
 
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4)] })
+    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
 
     get :index
     assert_response :success
-    assert_equal 6, json_response['data'].size
-    assert_equal 6, json_response['meta']['record-count']
+    assert_equal 7, json_response['data'].size
+    assert_equal 7, json_response['meta']['record-count']
 
     get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
-    puts json_response.inspect
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
