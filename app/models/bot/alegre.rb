@@ -381,7 +381,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_score_from_image_or_text_response(search_result)
-    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score')).to_f
+    (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
   def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
@@ -441,18 +441,29 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_video(pm, threshold)
+  def self.get_items_with_similar_media(pm, threshold, team_id, path)
     self.get_similar_items_from_api(
-      '/video/similarity/',
+      path,
       self.similar_visual_content_from_api_conditions(pm.team_id, self.media_file_url(pm), threshold)
     ).reject{ |id, _score| pm.id == id }
   end
 
-  def self.get_items_with_similar_image(pm, threshold)
-    self.get_similar_items_from_api(
-      '/image/similarity/',
-      self.similar_visual_content_from_api_conditions(pm.team_id, self.media_file_url(pm), threshold)
-    ).reject{ |id, _score| pm.id == id }
+  def self.get_similar_videos(team_id, pm, threshold)
+    self.get_items_with_similar_video(pm, threshold, team_id)
+  end
+
+  def self.get_similar_images(team_id, pm, threshold)
+    self.get_items_with_similar_image(pm, threshold, team_id)
+  end
+
+  def self.get_items_with_similar_video(pm, threshold, team_id=nil)
+    team_id||=pm.team_id
+    self.get_items_with_similar_media(pm, threshold, team_id, '/video/similarity/')
+  end
+
+  def self.get_items_with_similar_image(pm, threshold, team_id=nil)
+    team_id||=pm.team_id
+    self.get_items_with_similar_media(pm, threshold, team_id, '/image/similarity/')
   end
   
   def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
@@ -517,4 +528,9 @@ class Bot::Alegre < BotUser
       )
     end
   end
+
+  class <<self  
+    alias_method :get_similar_texts, :get_items_from_similar_text
+  end  
+
 end

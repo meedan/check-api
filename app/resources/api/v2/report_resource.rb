@@ -42,7 +42,8 @@ module Api
         threshold = filters[:similarity_threshold] ? filters[:similarity_threshold].flatten[0].to_f : nil
         ids_text = self.apply_text_similarity_filter(organization_ids, threshold, filters)
         ids_image = self.apply_image_similarity_filter(organization_ids, threshold, filters)
-        conditions[:id] = (ids_text.to_a + ids_image.to_a).uniq if ids_text || ids_image
+        ids_video = self.apply_video_similarity_filter(organization_ids, threshold, filters)
+        conditions[:id] = (ids_text.to_a + ids_image.to_a + ids_video.to_a).uniq if ids_text || ids_image || ids_video
 
         self.apply_check_filters(conditions, filters)
       end
@@ -52,7 +53,7 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
         end
@@ -65,11 +66,26 @@ module Api
         unless image.blank?
           image[0].rewind
           image_path = "api_v2_similar_image/#{SecureRandom.hex}"
-          CheckS3.write(image_path, 'image/png', image[0].read)
-          ids_and_scores = Bot::Alegre.get_items_from_similar_image(organization_ids, CheckS3.public_url(image_path), {value: threshold})
+          CheckS3.write(image_path, image[0].content_type, image[0].read)
+          ids_and_scores = Bot::Alegre.get_similar_images(organization_ids, CheckS3.public_url(image_path), {value: threshold})
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(image_path)
+        end
+        ids
+      end
+
+      def self.apply_video_similarity_filter(organization_ids, threshold, filters)
+        video = filters[:similar_to_video]
+        ids = nil
+        unless video.blank?
+          video[0].rewind
+          video_path = "api_v2_similar_video/#{SecureRandom.hex}"
+          CheckS3.write(video_path, video[0].content_type, video[0].read)
+          ids_and_scores = Bot::Alegre.get_similar_videos(organization_ids, CheckS3.public_url(video_path), {value: threshold})
+          RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
+          ids = ids_and_scores.keys.uniq || [0]
+          CheckS3.delete(video_path)
         end
         ids
       end

@@ -27,7 +27,7 @@ class ReportsControllerTest < ActionController::TestCase
     }
   end
 
-  test "should return similar items" do
+  test "zzz should return similar items" do
     create_report_design_annotation_type
     authenticate_with_token @a
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: @pm
