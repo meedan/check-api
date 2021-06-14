@@ -167,7 +167,7 @@ class Bot::Alegre < BotUser
   def self.relate_project_media_to_similar_items(pm)
     self.add_relationships(
       pm,
-      Bot::Alegre.get_similar_items(pm)
+      self.get_similar_items(pm)
     )
   end
 
@@ -448,7 +448,7 @@ class Bot::Alegre < BotUser
   def self.get_items_with_similar_media(pm, threshold, team_id, path)
     self.get_similar_items_from_api(
       path,
-      self.similar_visual_content_from_api_conditions(pm.team_id, self.media_file_url(pm), threshold)
+      self.similar_visual_content_from_api_conditions(team_id, self.media_file_url(pm), threshold)
     ).reject{ |id, _score| pm.id == id }
   end
 

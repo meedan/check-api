@@ -195,7 +195,6 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "zzz should relate project media to similar items as video" do
     p = create_project
     pm1 = create_project_media team: @pm.team
-
     pm1 = create_project_media project: p, media: create_uploaded_video
     pm2 = create_project_media project: p, media: create_uploaded_video
     pm3 = create_project_media project: p, media: create_uploaded_video
@@ -207,12 +206,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3.media.save!
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
-      "result": [
+      "result" => [
         {
-          "hash_key": "6393db3d6d5c181aa43dd925539a15e7",
-          "context": {"blah": 1, "project_media_id": pm1.id.to_s, "team_id": pm1.team.id.to_s},
-          "score": "0.033167",
-          "filename": "/app/persistent_disk/6393db3d6d5c181aa43dd925539a15e7/12342.tmk"
+          "hash_key" => "6393db3d6d5c181aa43dd925539a15e7",
+          "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
+          "score" => "0.983167",
+          "filename" => "/app/persistent_disk/6393db3d6d5c181aa43dd925539a15e7/12342.tmk"
         }
       ]
     })
@@ -222,8 +221,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal pm3, r.target
-    assert_equal pm2, r.source
-    assert_equal r.weight, 1
+    assert_equal pm1, r.source
+    assert_equal r.weight, 0.983167
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:media_file_url)
   end
