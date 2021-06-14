@@ -71,6 +71,7 @@ module Api
       end
 
       def self.apply_video_similarity_filter(organization_ids, threshold, filters)
+        binding.pry
         self.apply_media_similarity_filter(
           organization_ids,
           threshold,
@@ -121,6 +122,7 @@ module Api
       filter :archived, apply: ->(records, _value, _options) { records }
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
       filter :similar_to_image, apply: ->(records, _value, _options) { records }
+      filter :similar_to_video, apply: ->(records, _value, _options) { records }
       filter :similarity_fields, apply: ->(records, _value, _options) { records }
       filter :similarity_threshold, apply: ->(records, _value, _options) { records }
       filter :similarity_organization_ids, apply: ->(records, _value, _options) { records }
