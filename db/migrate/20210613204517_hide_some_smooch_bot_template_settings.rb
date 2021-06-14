@@ -7,6 +7,8 @@ class HideSomeSmoochBotTemplateSettings < ActiveRecord::Migration
       settings.each_with_index do |s, i|
         if fields_to_hide.include?(s.with_indifferent_access[:name])
           settings[i][:type] = 'hidden'
+        elsif s.with_indifferent_access[:name].match(/^smooch_template_/)
+          settings[i][:label] = s.with_indifferent_access[:label].to_s.gsub('_only', '')
         end
       end
       tb.set_settings(settings)
