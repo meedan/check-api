@@ -118,6 +118,12 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.get_threshold_for_video_query(pm, automatic=false)
+    key = 'video_similarity_threshold'
+    key = "automatic_#{key}" if automatic
+    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+  end  
+
   def self.get_threshold_for_image_query(pm, automatic=false)
     key = 'image_similarity_threshold'
     key = "automatic_#{key}" if automatic
@@ -141,6 +147,10 @@ class Bot::Alegre < BotUser
       suggested_or_confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm))
       confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+    elsif pm.is_video?
+      suggested_or_confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm))
+      confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm, true))
+      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
     end
@@ -157,7 +167,7 @@ class Bot::Alegre < BotUser
   def self.relate_project_media_to_similar_items(pm)
     self.add_relationships(
       pm,
-      Bot::Alegre.get_similar_items(pm)
+      self.get_similar_items(pm)
     )
   end
 
@@ -435,20 +445,38 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_image(pm, threshold)
-    self.get_items_from_similar_image(pm.team_id, self.media_file_url(pm), threshold).reject{ |id, _score| pm.id == id }
-  end
-
-  def self.get_items_from_similar_image(team_id, image_url, threshold)
+  def self.get_items_with_similar_media(media_url, threshold, team_id, path)
     self.get_similar_items_from_api(
-      '/image/similarity/',
-      self.similar_images_from_api_conditions(team_id, image_url, threshold)
+      path,
+      self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
     )
   end
 
-  def self.similar_images_from_api_conditions(team_id, image_url, threshold)
+  def self.get_similar_videos(team_id, media_url, threshold)
+    self.get_items_with_similar_media(media_url, threshold, team_id, '/video/similarity/')
+  end
+
+  def self.get_similar_images(team_id, media_url, threshold)
+    self.get_items_with_similar_media(media_url, threshold, team_id, '/image/similarity/')
+  end
+
+  def self.reject_same_case(results, pm)
+    results.reject{ |id, _score| pm.id == id }
+  end
+
+  def self.get_items_with_similar_video(pm, threshold, team_id=nil)
+    team_id||=pm.team_id
+    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/video/similarity/'), pm)
+  end
+
+  def self.get_items_with_similar_image(pm, threshold, team_id=nil)
+    team_id||=pm.team_id
+    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/image/similarity/'), pm)
+  end
+  
+  def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
     {
-      url: image_url,
+      url: media_url,
       context: self.build_context(team_id),
       threshold: threshold[:value]
     }
@@ -508,4 +536,9 @@ class Bot::Alegre < BotUser
       )
     end
   end
+
+  class <<self  
+    alias_method :get_similar_texts, :get_items_from_similar_text
+  end  
+
 end

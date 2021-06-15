@@ -48,6 +48,10 @@ class ProjectMedia < ActiveRecord::Base
     self.media.type == "Blank"
   end
 
+  def is_video?
+    self.media.type == "UploadedVideo"
+  end
+
   def is_image?
     self.is_uploaded_image?
   end
