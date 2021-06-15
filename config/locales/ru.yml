@@ -596,8 +596,6 @@ ru:
   team_rule_type_is_uploadedimage: Изображение
   team_rule_type_is_uploadedvideo: Видео
   team_rule_contains_keyword: Запрос содержит хотя бы одно слово из данного списка
-  team_rule_title_contains_keyword: Заголовок материала содержит хотя бы одно слово
-    из данного списка
   team_rule_select_type: Выберите тип
   team_rule_select_language: Выберите язык
   team_rule_select_user: Укажите соавтора

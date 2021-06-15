@@ -644,7 +644,8 @@ en:
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Request contains one or more of the following keywords
-  team_rule_title_contains_keyword: Content contains one or more of the following keywords
+  team_rule_title_contains_keyword: Content contains one or more of the following
+    keywords
   team_rule_select_type: Select type
   team_rule_select_language: Select language
   team_rule_select_user: Choose a collaborator

@@ -685,8 +685,6 @@ fr:
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Vidéo
   team_rule_contains_keyword: La demande comprend un ou plusieurs des mots-clés suivants
-  team_rule_title_contains_keyword: Le titre de l’élément comprend un ou plusieurs
-    des mots-clés suivants
   team_rule_select_type: Sélectionnez un type
   team_rule_select_language: Sélectionnez la langue
   team_rule_select_user: Sélectionnez un collaborateur
