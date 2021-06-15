@@ -111,7 +111,17 @@ jobs:
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='models mailers integration workers lib' api test/run-tests.sh
-        docker-compose exec -T -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} api test/test-coverage.sh
+
+    - name: Save Coverage
+      id: functional-coverage
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
+        GIT_BRANCH: ${{ github.ref }}
+        GITHUB_JOB_NAME: functional-tests
+        GITHUB_JOB_ID: ${{ github.run_id }}
+      run: |
+        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/test-coverage.sh
+
 
   test-unit:
     runs-on: ubuntu-latest
@@ -145,11 +155,6 @@ jobs:
 
     - name: Run Unit Tests
       id: run-unit-tests
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ github.event.repository.name }}
-        IMAGE_TAG: ${{ github.sha }}
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
@@ -157,7 +162,16 @@ jobs:
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
         docker-compose exec -T -e PATTERN='controllers' api test/run-tests.sh
-        docker-compose exec -T -e CC_TEST_REPORTER_ID=${{ secrets.CC_TEST_REPORTER_ID }} api test/test-coverage.sh
+
+    - name: Save Coverage
+      id: unit-coverage
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
+        GIT_BRANCH: ${{ github.ref }}
+        GITHUB_JOB_NAME: unit-tests
+        GITHUB_JOB_ID: ${{ github.run_id }}
+      run: |
+        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/test-coverage.sh
 
   cleanup-and-notify:
     runs-on: ubuntu-latest
@@ -167,9 +181,29 @@ jobs:
       - test-functional
 
     steps:
+    - name: Upload Coverage
+      id: run-unit-tests
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
+        GIT_BRANCH: ${{ github.ref }}
+        GITHUB_JOB_ID: ${{ github.run_id }}
+      run: |
+        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/upload-coverage.sh
+
     - name: Notify Slack
       id: slack-notify
-      uses: slackapi/slack-github-action@v1.14.0
+      uses: 8398a7/action-slack@v3
+      if: ${{ always() }}
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took,message
+        custom_payload: |
+          {
+            attachments: [{
+              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_REPO} @ ${process.env.AS_REF}: ${process.env.AS_WORKFLOW}\n${process.env.AS_MESSAGE} (${process.env.AS_COMMIT})\nby ${process.env.AS_AUTHOR}`,
+            }]
+          }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: ${{ always() }}
