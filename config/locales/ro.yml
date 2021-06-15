@@ -616,8 +616,6 @@ ro:
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Cererea conține unul sau mai multe dintre următoarele
     cuvinte-cheie
-  team_rule_title_contains_keyword: Titlul elementului conține unul sau mai multe
-    dintre următoarele cuvinte-cheie
   team_rule_select_type: Selectați tipul
   team_rule_select_language: Selectați limba
   team_rule_select_user: Alegeți un colaborator

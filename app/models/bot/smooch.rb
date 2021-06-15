@@ -119,7 +119,6 @@ class Bot::Smooch < BotUser
       uid = self.get_field_value('smooch_user_id')
       unless uid.blank?
         ["smooch:bundle:#{uid}", "smooch:last_accepted_terms:#{uid}", "smooch:banned:#{uid}"].each { |key| Rails.cache.delete(key) }
-        Rails.cache.delete_matched("smooch:request:#{uid}:*")
         sm = CheckStateMachine.new(uid)
         sm.leave_human_mode if sm.state.value == 'human_mode'
       end
@@ -639,7 +638,7 @@ class Bot::Smooch < BotUser
     api_client = self.smooch_api_client
     api_instance = SmoochApi::ConversationApi.new(api_client)
     app_id = self.config['smooch_app_id']
-    params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
+    params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text.to_s.truncate(4096) }.merge(extra)
     # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
     if text.to_s.match(/https?:\/\//)
       params.merge!({

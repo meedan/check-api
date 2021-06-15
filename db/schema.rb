@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210504211959) do
+ActiveRecord::Schema.define(version: 20210613204517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -256,10 +256,12 @@ ActiveRecord::Schema.define(version: 20210504211959) do
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
+    t.integer  "parent_id"
     t.integer  "project_group_id"
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
+  add_index "projects", ["parent_id"], name: "index_projects_on_parent_id", using: :btree
   add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree

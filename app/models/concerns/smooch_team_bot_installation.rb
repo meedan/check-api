@@ -32,12 +32,14 @@ module SmoochTeamBotInstallation
       end
 
       # Return a hash of enabled integrations and their information
-      def smooch_enabled_integrations
+      def smooch_enabled_integrations(force = false)
         if self.bot_user.identifier == 'smooch'
-          api_instance = self.smooch_integrations_api_client
-          integrations = {}
-          begin api_instance.list_integrations(self.get_smooch_app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
-          integrations.with_indifferent_access
+          Rails.cache.fetch("smooch_bot:#{self.team_id}:enabled_integrations", force: force) do
+            api_instance = self.smooch_integrations_api_client
+            integrations = {}
+            begin api_instance.list_integrations(self.get_smooch_app_id, {}).integrations.select{ |i| i.status == 'active' }.each{ |i| integrations[i.type] = i.to_hash.reject{ |k| ['tier', 'envName', 'consumerKey', 'accessTokenKey'].include?(k.to_s) } } rescue {} end
+            integrations.with_indifferent_access
+          end
         end
       end
 

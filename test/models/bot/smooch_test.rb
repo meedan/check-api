@@ -197,7 +197,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     create_tag_text text: 'montag', team_id: @team.id
 
     assert_difference 'ProjectMedia.count', 7 do
-      assert_difference 'Annotation.where(annotation_type: "smooch").count', 15 do
+      assert_difference 'Annotation.where(annotation_type: "smooch").count', 22 do
         assert_no_difference 'Comment.length' do
           messages.each do |message|
             uid = message[:authorId]

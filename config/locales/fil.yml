@@ -612,8 +612,6 @@ fil:
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Ang kahilingan ay naglalaman ng isa o higit pa sa sumusunod
     na mga keyword
-  team_rule_title_contains_keyword: Nilalaman ng pamagat ng item ang isa o higit pa
-    sa mga sumusunod na keyword
   team_rule_select_type: Mamili ng uri
   team_rule_select_language: Mamili ng wika
   team_rule_select_user: Mamili ng katuwang

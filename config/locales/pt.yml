@@ -667,7 +667,6 @@ pt:
   team_rule_type_is_uploadedimage: Imagem
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
-  team_rule_title_contains_keyword: O título do item contém uma ou mais destas palavras-chave
   team_rule_select_type: Selecionar tipo
   team_rule_select_language: Selecionar idioma
   team_rule_select_user: Escolha um(a) colaborador(a)
