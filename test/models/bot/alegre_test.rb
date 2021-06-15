@@ -192,6 +192,41 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm.destroy, pm
   end
 
+  test "zzz should relate project media to similar items as video" do
+    p = create_project
+    pm1 = create_project_media team: @pm.team
+    pm1 = create_project_media project: p, media: create_uploaded_video
+    pm2 = create_project_media project: p, media: create_uploaded_video
+    pm3 = create_project_media project: p, media: create_uploaded_video
+    pm1.media.type = "UploadedVideo"
+    pm2.media.type = "UploadedVideo"
+    pm3.media.type = "UploadedVideo"
+    pm1.media.save!
+    pm2.media.save!
+    pm3.media.save!
+    create_relationship source_id: pm2.id, target_id: pm1.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "hash_key" => "6393db3d6d5c181aa43dd925539a15e7",
+          "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
+          "score" => "0.983167",
+          "filename" => "/app/persistent_disk/6393db3d6d5c181aa43dd925539a15e7/12342.tmk"
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    end
+    r = Relationship.last
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
+    assert_equal r.weight, 0.983167
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, is_image: true
@@ -356,7 +391,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_images_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
@@ -658,3 +693,4 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert !Bot::Alegre.add_relationship(create_project_media, {}, create_project_media)
   end
 end
+
