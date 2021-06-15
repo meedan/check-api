@@ -586,8 +586,6 @@ sw:
   team_rule_type_is_uploadedimage: Picha
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Ombi lina moja au zaidi ya maneno msingi yafuatayo
-  team_rule_title_contains_keyword: Kichwa cha kipengee kina moja au zaidi ya maneno
-    msingi yafuatayo
   team_rule_select_type: Chagua aina
   team_rule_select_language: Chagua lugha
   team_rule_select_user: Chagua mshirika
