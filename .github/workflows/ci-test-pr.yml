@@ -114,6 +114,7 @@ jobs:
 
     - name: Save Coverage
       id: functional-coverage
+      env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
@@ -165,6 +166,7 @@ jobs:
 
     - name: Save Coverage
       id: unit-coverage
+      env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
