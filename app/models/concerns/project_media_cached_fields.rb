@@ -37,22 +37,22 @@ module ProjectMediaCachedFields
 
   included do
 
+    SIMILARITY_EVENT = {
+      model: Relationship,
+      if: proc { |r| !r.is_default? },
+      affected_ids: proc { |r| [r.source_id, r.target_id] },
+      events: {
+        save: :recalculate,
+        destroy: :recalculate
+      }
+    }
+
     { linked_items_count: 'confirmed', suggestions_count: 'suggested' }.each do |field_name, type|
       cached_field field_name,
         start_as: 0,
         update_es: true,
         recalculate: proc { |pm| Relationship.send(type).where(source_id: pm.id).count },
-        update_on: [
-          {
-            model: Relationship,
-            if: proc { |r| !r.is_default? },
-            affected_ids: proc { |r| [r.source_id, r.target_id] },
-            events: {
-              save: :recalculate,
-              destroy: :recalculate
-            }
-          }
-        ]
+        update_on: [SIMILARITY_EVENT]
     end
 
     cached_field :related_count,
@@ -182,16 +182,17 @@ module ProjectMediaCachedFields
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
       update_es: proc { |_pm, value| ['unpublished', 'paused', 'published'].index(value) },
-      recalculate: proc { |pm| pm.get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
+      recalculate: proc { |pm| Relationship.confirmed_parent(pm).get_dynamic_annotation('report_design')&.get_field_value('state') || 'unpublished' },
       update_on: [
         {
           model: Dynamic,
           if: proc { |d| d.annotation_type == 'report_design' },
-          affected_ids: proc { |d| [d.annotated_id.to_i] },
+          affected_ids: proc { |d| d.annotated.related_items_ids },
           events: {
             save: proc { |_pm, d| d.data.with_indifferent_access[:state] }
           }
-        }
+        },
+        SIMILARITY_EVENT
       ]
 
     cached_field :tags_as_sentence,

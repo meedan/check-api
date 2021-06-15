@@ -104,10 +104,11 @@ class ElasticSearch6Test < ActionController::TestCase
       assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
       # update analysis
       pm3.analysis = { title: 'f-item' }
+      pm6 = create_project_media project: p, quote: 'DUPPER-item', disable_es_callbacks: false
       sleep 2
-      orders = {asc: [pm1, pm2, pm4, pm5, pm3], desc: [pm3, pm5, pm4, pm2, pm1]}
+      orders = {asc: [pm1, pm2, pm4, pm6, pm5, pm3], desc: [pm3, pm5, pm6, pm4, pm2, pm1]}
       result = CheckSearch.new(query.to_json)
-      assert_equal 5, result.medias.count
+      assert_equal 6, result.medias.count
       assert_equal orders[order.to_sym].map(&:id), result.medias.map(&:id)
     end
   end

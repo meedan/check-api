@@ -100,7 +100,21 @@ module CheckElasticSearchModel
       client = $repository.client
       MediaSearch.delete_index target_index
       MediaSearch.create_index(target_index, false)
-      client.reindex body: { source: { index: source_index }, dest: { index: target_index } }
+      Team.find_each do |t|
+        client.reindex slices: 'auto', body: {
+          source: {
+            index: source_index,
+            query: {
+              term: {
+                team_id: { value: t.id }
+              }
+            }
+          },
+          dest: {
+            index: target_index
+          }
+        }
+      end
     end
 
     def all_sorted(order = 'asc', field = 'created_at')

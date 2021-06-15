@@ -82,8 +82,6 @@ class MediaSearch
       }
     }
 
-    indexes :rules, { type: 'keyword' }
-
     indexes :linked_items_count, { type: 'long' }
 
     indexes :last_seen, { type: 'long' }

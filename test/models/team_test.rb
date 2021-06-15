@@ -534,7 +534,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.archived = true
       t.save!
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 2, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -547,7 +547,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.name = random_string
       t.save!
-      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -1271,6 +1271,7 @@ class TeamTest < ActiveSupport::TestCase
     end
     t.rules = rules.to_json
     t.save!
+    assert_equal 4, t.rules_search_fields_json_schema[:properties][:rules][:properties].keys.size
     s = create_source
     c = create_claim_media account: create_valid_account({team: t})
     c.account.sources << s
@@ -2943,5 +2944,80 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     pm = create_project_media team: t, media: nil, quote: 'Foo'
     assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
+
+  test "should match rule by description" do
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "test"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p1.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 0, Project.find(p1.id).project_medias.count
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","description":"this is a test","title":"foo","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    create_project_media project: p0, media: nil, url: url
+    assert_equal 0, Project.find(p0.id).project_medias.count
+    assert_equal 1, Project.find(p1.id).project_medias.count
+  end
+
+  test "should update reports when status is changed at team level" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+    assert_nothing_raised do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    pm = create_project_media team: t
+    r = publish_report(pm)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    s = pm.last_verification_status_obj
+    s.status = '2'
+    s.save!
+    assert_equal 'Custom Status 2', r.reload.data.dig('options', 0, 'status_label')
+    t = Team.find(t.id)
+    value[:statuses][1][:locales][:en][:label] = 'Custom Status 2 Changed'
+    t.media_verification_statuses = value
+    t.save!
+    assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 0, 'status_label')
   end
 end

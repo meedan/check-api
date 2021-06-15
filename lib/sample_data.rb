@@ -322,6 +322,17 @@ module SampleData
     create_annotation_type_and_fields('Flag', {}, json_schema)
   end
 
+  def create_extracted_text_annotation_type
+    json_schema = {
+      type: 'object',
+      required: ['text'],
+      properties: {
+        text: { type: 'string' }
+      }
+    }
+    create_annotation_type_and_fields('Extracted Text', {}, json_schema)
+  end
+
   def create_report_design_annotation_type
     json_schema = {
       type: 'object',

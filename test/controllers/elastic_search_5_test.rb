@@ -69,23 +69,30 @@ class ElasticSearch5Test < ActionController::TestCase
     target_index = "#{source_index}_reindex"
     MediaSearch.delete_index target_index
     MediaSearch.create_index(target_index, false)
-    m = create_media_search
+    t = create_team
+    t2 = create_team
+    pm = create_project_media team: t, disable_es_callbacks: false
+    pm2 = create_project_media team: t2, disable_es_callbacks: false
     url = "http://#{CheckConfig.get('elasticsearch_host')}:#{CheckConfig.get('elasticsearch_port')}"
     client = Elasticsearch::Client.new(url: url)
     repository = MediaSearch.new(client: client, index_name: source_index)
     results = repository.search(query: { match_all: { } }, size: 10000)
-    assert_equal 1, results.size
+    assert_equal 2, results.size
     repository2 = MediaSearch.new(client: client, index_name: target_index)
     results = repository2.search(query: { match_all: { } }, size: 10000)
     assert_equal 0, results.size
     MediaSearch.migrate_es_data(source_index, target_index)
     sleep 1
     results = repository2.search(query: { match_all: { } }, size: 10000)
-    assert_equal 1, results.size
+    assert_equal 2, results.size
     # test re-index
     CheckElasticSearchModel.reindex_es_data
     sleep 1
-    assert_equal 1, MediaSearch.length
+    assert_equal 2, MediaSearch.length
+    results = repository2.search(query: { term: { team_id: { value: t.id } } }, size: 10000)
+    assert_equal 1, results.size
+    results = repository2.search(query: { term: { team_id: { value: t2.id } } }, size: 10000)
+    assert_equal 1, results.size
   end
 
   test "should destroy related items" do

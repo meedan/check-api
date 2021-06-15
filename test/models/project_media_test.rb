@@ -2291,18 +2291,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     pm = create_project_media
+    pm2 = create_project_media team: pm.team
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal 'unpublished', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'unpublished', pm2.report_status }
     r = publish_report(pm)
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal 'published', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'published', pm2.report_status }
     r = Dynamic.find(r.id)
     r.set_fields = { state: 'paused' }.to_json
     r.action = 'pause'
     r.save!
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal 'paused', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'paused', pm2.report_status }
     Rails.cache.clear
     assert_queries(0, '>') { assert_equal 'paused', pm.report_status }
+    pm3 = create_project_media team: pm.team
+    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
+    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    assert_queries(0, '=') { assert_equal 'paused', pm3.report_status }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
   end
 
   test "should cache tags list" do
