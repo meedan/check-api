@@ -17,6 +17,7 @@ class Bot::Smooch < BotUser
   include SmoochStatus
   include SmoochResend
   include SmoochTeamBotInstallation
+  include SmoochZendesk
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -317,10 +318,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.valid_request?(request)
-    RequestStore.store[:smooch_bot_queue] = request.headers['X-Check-Smooch-Queue'].to_s
-    key = request.headers['X-API-Key'].to_s
-    installation = self.get_installation('smooch_webhook_secret', key)
-    !key.blank? && !installation.nil?
+    self.valid_zendesk_request?(request)
   end
 
   def self.config
@@ -508,15 +506,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.smooch_api_get_messages(app_id, user_id, opts = {})
-    result = nil
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    begin
-      result = api_instance.get_messages(app_id, user_id, opts)
-    rescue StandardError => e
-      Rails.logger.error("[Smooch Bot] Exception for get messages : #{e.message}")
-    end
-    result
+    self.zendesk_api_get_messages(app_id, user_id, opts)
   end
 
   def self.get_language(message, fallback_language = 'en')
@@ -544,12 +534,8 @@ class Bot::Smooch < BotUser
     # FIXME Shouldn't we make sure this is an annotation in the right project?
     field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', uid.to_json).last
     if field.nil?
-      api_client = self.smooch_api_client
-      app_id = self.config['smooch_app_id']
-      api_instance = SmoochApi::AppUserApi.new(api_client)
-      user = api_instance.get_app_user(app_id, uid).appUser.to_hash.with_indifferent_access
-      api_instance = SmoochApi::AppApi.new(api_client)
-      app = api_instance.get_app(app_id)
+      user = self.zendesk_api_get_user_data(uid) 
+      app = self.zendesk_api_get_app_data(app_id)
 
       identifier = self.get_identifier(user, uid)
 
@@ -622,49 +608,9 @@ class Bot::Smooch < BotUser
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)
   end
-
-  def self.smooch_api_client
-    payload = { scope: 'app' }
-    jwt_header = { kid: self.config['smooch_secret_key_key_id'] }
-    token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwt_header
-    config = SmoochApi::Configuration.new
-    config.api_key['Authorization'] = token
-    config.api_key_prefix['Authorization'] = 'Bearer'
-    SmoochApi::ApiClient.new(config)
-  end
-
+    
   def self.send_message_to_user(uid, text, extra = {}, force = false)
-    return if self.config['smooch_disabled'] && !force
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    app_id = self.config['smooch_app_id']
-    params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text.to_s.truncate(4096) }.merge(extra)
-    # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
-    if text.to_s.match(/https?:\/\//)
-      params.merge!({
-        override: {
-          whatsapp: {
-            payload: {
-              preview_url: true,
-              type: 'text',
-              text: {
-                body: text
-              }
-            }
-          }
-        }
-      })
-    end
-    return if params['type'] == 'text' && params['text'].blank?
-    message_post_body = SmoochApi::MessagePost.new(params)
-    begin
-      api_instance.post_message(app_id, uid, message_post_body)
-    rescue SmoochApi::ApiError => e
-      Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
-      self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
-      nil
-    end
+    self.zendesk_send_message_to_user(uid, text, extra, force)
   end
 
   def self.create_project_media_from_message(message)
