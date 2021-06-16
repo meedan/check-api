@@ -12,6 +12,8 @@ class CheckSearch
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= MEDIA_TYPES
+    # set show similar
+    @options['show_similar'] ||= false
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
@@ -177,8 +179,7 @@ class CheckSearch
   end
 
   def should_include_related_items?
-    all_items = (@options['projects'].blank? && @options['archived'].to_i == 0)
-    @options['include_related_items'] || all_items || show_parent?
+    @options['show_similar'] || show_parent?
   end
 
   def show_parent?
