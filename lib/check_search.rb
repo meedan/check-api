@@ -73,7 +73,7 @@ class CheckSearch
     if should_hit_elasticsearch?
       query = medias_build_search_query
       result = medias_get_search_result(query)
-      key = show_parent? ? 'parent_id' : 'annotated_id'
+      key = get_search_field
       @ids = result.collect{ |i| i[key] }.uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
@@ -187,6 +187,12 @@ class CheckSearch
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
+  def get_search_field
+    field = 'annotated_id'
+    field = 'parent_id' if !@options['show_similar'] && show_parent?
+    field
+  end
+
   def medias_build_search_query
     core_conditions = []
     custom_conditions = []
@@ -222,8 +228,7 @@ class CheckSearch
 
   def medias_get_search_result(query)
     # use collapse to return uniq results
-    field = show_parent? ? 'parent_id' : 'annotated_id'
-    collapse = { field: field }
+    collapse = { field: get_search_field }
     sort = build_search_sort
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
