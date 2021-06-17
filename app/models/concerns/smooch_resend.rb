@@ -139,7 +139,7 @@ module SmoochResend
       message = JSON.parse(message)
       original = Rails.cache.read('smooch:original:' + message['message']['_id'])
       platform = message.dig('destination', 'type')
-      self.get_installation('smooch_app_id', message['app']['_id'])
+      self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
       return resend_whatsapp_message_after_window(message, original) if platform == 'whatsapp'
       return resend_facebook_messenger_message_after_window(message, original) if platform == 'messenger'
     end

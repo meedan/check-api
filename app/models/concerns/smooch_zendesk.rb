@@ -8,7 +8,9 @@ module SmoochZendesk
       RequestStore.store[:smooch_bot_queue] = request.headers['X-Check-Smooch-Queue'].to_s
       key = request.headers['X-API-Key'].to_s
       installation = self.get_installation('smooch_webhook_secret', key)
-      !key.blank? && !installation.nil?
+      valid = !key.blank? && !installation.nil?
+      RequestStore.store[:smooch_bot_provider] = 'ZENDESK'
+      valid
     end
 
     def zendesk_api_get_messages(app_id, user_id, opts = {})
