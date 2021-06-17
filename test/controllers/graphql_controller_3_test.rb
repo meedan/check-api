@@ -250,7 +250,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm1e.id, target_id: pm1f.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"include_related_items\":true}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"show_similar\":true}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
     post :create, query: query, team: t1.slug
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
