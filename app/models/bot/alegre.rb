@@ -204,7 +204,7 @@ class Bot::Alegre < BotUser
     return if pm.report_type != 'uploadedimage'
 
     result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
-    self.save_annotation(pm, 'extracted_text', result)
+    self.save_annotation(pm, 'extracted_text', result) if result
     result
   end
 
