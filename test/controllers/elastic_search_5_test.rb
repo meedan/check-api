@@ -27,6 +27,8 @@ class ElasticSearch5Test < ActionController::TestCase
     result = CheckSearch.new({ projects: [p.id] }.to_json)
     assert_equal [pm1.id], result.medias.map(&:id)
     result = CheckSearch.new({}.to_json)
+    assert_equal [pm1.id].sort, result.medias.map(&:id)
+    result = CheckSearch.new({ show_similar: true }.to_json)
     assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
     # detach and assign to specific list
     r.add_to_project_id = p2.id
