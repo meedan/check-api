@@ -122,7 +122,7 @@ class Bot::Alegre < BotUser
     key = 'video_similarity_threshold'
     key = "automatic_#{key}" if automatic
     return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
-  end  
+  end
 
   def self.get_threshold_for_image_query(pm, automatic=false)
     key = 'image_similarity_threshold'
@@ -214,8 +214,7 @@ class Bot::Alegre < BotUser
     return if pm.report_type != 'uploadedimage'
 
     result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
-    self.save_annotation(pm, 'extracted_text', result)
-    result
+    self.save_annotation(pm, 'extracted_text', result) if result
   end
 
   def self.media_file_url(pm)
@@ -473,7 +472,7 @@ class Bot::Alegre < BotUser
     team_id||=pm.team_id
     self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/image/similarity/'), pm)
   end
-  
+
   def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
     {
       url: media_url,
@@ -537,8 +536,8 @@ class Bot::Alegre < BotUser
     end
   end
 
-  class <<self  
+  class <<self
     alias_method :get_similar_texts, :get_items_from_similar_text
-  end  
+  end
 
 end
