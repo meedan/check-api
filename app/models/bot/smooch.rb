@@ -341,7 +341,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.preprocess_message(body)
-    if RequestStore.store[:smooch_bot_provider] = 'TURN'
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.preprocess_turnio_message(body)
     else
       JSON.parse(body)
@@ -549,7 +549,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.api_get_user_data(uid, payload)
-    if RequestStore.store[:smooch_bot_provider] = 'TURN'
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_user_data(uid, payload)
     else
       self.zendesk_api_get_user_data(uid) 
@@ -557,7 +557,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.api_get_app_name(app_id)
-    if RequestStore.store[:smooch_bot_provider] = 'TURN'
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_app_name
     else
       self.zendesk_api_get_app_data(uid).app.name
@@ -646,7 +646,7 @@ class Bot::Smooch < BotUser
   end
     
   def self.send_message_to_user(uid, text, extra = {}, force = false)
-    if RequestStore.store[:smooch_bot_provider] = 'TURN'
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_send_message_to_user(uid, text, extra, force)
     else
       self.zendesk_send_message_to_user(uid, text, extra, force)

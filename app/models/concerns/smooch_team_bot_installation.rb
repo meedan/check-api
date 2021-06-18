@@ -26,7 +26,7 @@ module SmoochTeamBotInstallation
       def smooch_integrations_api_client
         if self.bot_user.identifier == 'smooch'
           bot = Bot::Smooch
-          bot.get_installation(self.installation_setting_id_keys, self.get_smooch_app_id)
+          bot.get_installation(bot.installation_setting_id_keys, self.get_smooch_app_id)
           SmoochApi::IntegrationApi.new(bot.zendesk_api_client)
         end
       end
