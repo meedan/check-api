@@ -316,11 +316,12 @@ class Bot::Smooch < BotUser
     smooch_bot_installation = nil
     keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
     TeamBotInstallation.where(user_id: bot.id).each do |installation|
-      has_key_and_value = false
+      key_that_has_value = nil
       installation.settings.each do |k, v|
-        has_key_and_value = true if keys.include?(k.to_s) && v == value
+        key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
       end
-      smooch_bot_installation = installation if (block_given? && yield(installation)) || has_key_and_value
+      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
+      RequestStore.store[:smooch_bot_provider] = 'TURN' if key_that_has_value == 'turnio_secret'
     end
     settings = smooch_bot_installation&.settings || {}
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })
@@ -560,7 +561,7 @@ class Bot::Smooch < BotUser
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_app_name
     else
-      self.zendesk_api_get_app_data(uid).app.name
+      self.zendesk_api_get_app_data(app_id).app.name
     end
   end
 
@@ -881,9 +882,18 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.get_id_from_send_response(response)
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      puts response.body
+      JSON.parse(response.body).dig('messages', 0, 'id')
+    else
+      response&.message&.id
+    end
+  end
+
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
     return false if response.nil? || fallback_template.nil?
-    id = response&.message&.id
+    id = self.get_id_from_send_response(response)
     Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
   end
 

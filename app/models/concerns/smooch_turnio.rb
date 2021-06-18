@@ -20,7 +20,7 @@ module SmoochTurnio
     end
 
     def turnio_api_get_user_data(uid, payload)
-      payload['turnIo']['contacts'][0]
+      payload['turnIo']['contacts'][0].merge({ clients: [{ platform: 'whatsapp', displayName: uid }] })
     end
 
     def turnio_api_get_app_name
@@ -29,6 +29,7 @@ module SmoochTurnio
     
     def preprocess_turnio_message(body)
       json = JSON.parse(body)
+
       # Convert a message received from a WhatsApp user to the payload accepted by the Smooch Bot
       if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound'
         message = json['messages'][0]
@@ -55,8 +56,42 @@ module SmoochTurnio
           },
           turnIo: json
         }.with_indifferent_access
+
+      # User received report
+      elsif json.dig('statuses', 0, 'status') == 'delivered'
+        status = json['statuses'][0]
+        {
+          trigger: 'message:delivery:channel',
+          app: {
+            '_id': self.config['turnio_secret']
+          },
+          version: 'v1.1',
+          message: {
+            '_id': status['id'],
+            'type': 'text'
+          },
+          appUser: {
+            '_id': status['recipient_id'],
+            'conversationStarted': true
+          },
+          turnIo: json
+        }.with_indifferent_access
+
+      # Fallback to be sure that we at least have a valid payload
       else
-        {}
+        {
+          trigger: 'message:other',
+          app: {
+            '_id': self.config['turnio_secret']
+          },
+          version: 'v1.1',
+          messages: [],
+          appUser: {
+            '_id': '',
+            'conversationStarted': true
+          },
+          turnIo: json
+        }.with_indifferent_access
       end
     end
 
@@ -78,9 +113,7 @@ module SmoochTurnio
         http.use_ssl = uri.scheme == 'https'
         req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
         req.body = payload.to_json
-        res = http.request(req)
-        puts res.inspect
-        res
+        http.request(req)
       rescue StandardError => e
         raise(e) if Rails.env.development?
         Rails.logger.error("[Smooch Bot] Exception when sending message #{payload.inspect} to turn.io: #{e.message}")
