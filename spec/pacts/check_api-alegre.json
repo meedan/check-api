@@ -1,0 +1,33 @@
+{
+  "consumer": {
+    "name": "Check API"
+  },
+  "provider": {
+    "name": "Alegre"
+  },
+  "interactions": [
+    {
+      "description": "a text",
+      "providerState": "Alegre returns text language",
+      "request": {
+        "method": "get",
+        "path": "/text/langid/",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"result\":{\"language\":\"en\"}}"
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
