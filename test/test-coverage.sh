@@ -8,7 +8,7 @@ git clone https://github.com/codeclimate/test-reporter /tmp/go/src/github.com/co
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-sudo ./aws/install
+./aws/install
 
 # format coverage
 # ./test/format-coverage.sh
@@ -20,4 +20,4 @@ fi
 
 echo "Uploading coverage report to S3..."
 ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$PATTERN.json ../coverage/.resultset.json
-aws s3 cp ../coverage/codeclimate.$PATTERN.json s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_JOB_NUMBER/codeclimate.$PATTERN.json
+/usr/local/bin/aws s3 cp ../coverage/codeclimate.$PATTERN.json s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_JOB_NUMBER/codeclimate.$PATTERN.json
