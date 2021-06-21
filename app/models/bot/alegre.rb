@@ -388,23 +388,10 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
-    if conditions.with_indifferent_access.dig('text') && threshold.with_indifferent_access.dig('automatic')
-      if self.split_text(self.get_content_from_image_or_text_response(r).to_s).length > self.similarity_text_length_threshold
-        return true
-      else
-        return false
-      end
-    else
-      return true
-    end
-  end
-
   def self.get_similar_items_from_api(path, conditions, threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
-    project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}
-    .collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
+    project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score
@@ -522,9 +509,10 @@ class Bot::Alegre < BotUser
     if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
+      relationship_type = self.split_text(pm.title.to_s).length > self.similarity_text_length_threshold ? pm_id_scores[parent_id][:relationship_type] : Relationship.suggested_type
       r = Relationship.new
       r.skip_check_ability = true
-      r.relationship_type = pm_id_scores[parent_id][:relationship_type]
+      r.relationship_type = relationship_type
       r.weight = pm_id_scores[parent_id][:score]
       r.source_id = parent_id
       r.target_id = pm.id

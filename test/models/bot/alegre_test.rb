@@ -192,18 +192,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm.destroy, pm
   end
 
-  test "zzz should relate project media to similar items as video" do
+  test "should relate project media to similar items as video" do
     p = create_project
     pm1 = create_project_media team: @pm.team
     pm1 = create_project_media project: p, media: create_uploaded_video
     pm2 = create_project_media project: p, media: create_uploaded_video
     pm3 = create_project_media project: p, media: create_uploaded_video
-    pm1.media.type = "UploadedVideo"
-    pm2.media.type = "UploadedVideo"
-    pm3.media.type = "UploadedVideo"
-    pm1.media.save!
-    pm2.media.save!
-    pm3.media.save!
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -229,15 +223,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should relate project media to similar items" do
     p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
-    pm1.media.type = "UploadedImage"
-    pm2.media.type = "UploadedImage"
-    pm3.media.type = "UploadedImage"
-    pm1.media.save!
-    pm2.media.save!
-    pm3.media.save!
+    pm1 = create_project_media project: p, media: create_uploaded_image
+    pm2 = create_project_media project: p, media: create_uploaded_image
+    pm3 = create_project_media project: p, media: create_uploaded_image
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -485,7 +473,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     })
     response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
     assert_equal response.class, Hash
-    assert_equal response, {}
+    assert_not_empty response
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -691,6 +679,29 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should not add relationship" do
     assert !Bot::Alegre.add_relationship(create_project_media, {}, create_project_media)
+  end
+
+  test "should add short text as suggestions" do
+    p = create_project
+    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "hash_key" => "6393db3d6d5c181aa43dd925539a15e7",
+          "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
+          "score" => "0.983167",
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal pm2, r.target
+    assert_equal pm1, r.source
+    assert_equal r.relationship_type, Relationship.suggested_type
+    Bot::Alegre.unstub(:request_api)
   end
 end
 
