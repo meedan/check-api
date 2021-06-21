@@ -7,13 +7,16 @@
   },
   "interactions": [
     {
-      "description": "a text",
-      "providerState": "Alegre returns text language",
+      "description": "a request to identify its language",
+      "providerState": "a text exists",
       "request": {
         "method": "get",
         "path": "/text/langid/",
         "headers": {
           "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "This is a test"
         }
       },
       "response": {
@@ -21,7 +24,7 @@
         "headers": {
           "Content-Type": "application/json"
         },
-        "body": "{\"result\":{\"language\":\"en\"}}"
+        "body": "{\"result\":{\"language\":\"en\",\"confidence\":0.421875},\"raw\":[{\"confidence\":0.421875,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
       }
     }
   ],
