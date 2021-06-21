@@ -56,23 +56,28 @@ module SmoochTurnio
       if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound'
         message = json['messages'][0]
         uid = message['_vnd']['v1']['author']['id']
+        messages = [{
+          '_id': message['id'],
+          authorId: uid,
+          name: json['contacts'][0]['profile']['name'],
+          type: message['type'],
+          text: message.dig('text', 'body').to_s,
+          source: { type: 'whatsapp' },
+          received: message['timestamp'].to_i || Time.now.to_i
+        }]
+        if message['type'] == 'image'
+          messages[0].merge!({
+            mediaUrl: message.dig('image', 'link').to_s,
+            mediaType: message.dig('image', 'mime_type')
+          })
+        end
         {
           trigger: 'message:appUser',
           app: {
             '_id': self.config['turnio_secret']
           },
           version: 'v1.1',
-          messages: [
-            {
-              '_id': message['id'],
-              authorId: uid,
-              name: json['contacts'][0]['profile']['name'],
-              type: message['type'],
-              text: message['text']['body'],
-              source: { type: 'whatsapp' },
-              received: message['timestamp'].to_i || Time.now.to_i
-            }
-          ],
+          messages: messages,
           appUser: {
             '_id': uid,
             'conversationStarted': true
