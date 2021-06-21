@@ -92,11 +92,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.restrict_to_same_modality(pm, matches)
-    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |pm| [pm.id, pm] }]
+    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
     if pm.is_text?
-      return matches.select{ |k, v| other_pms[k.to_i]&.is_text? }
+      return matches.select{ |k, _v| other_pms[k.to_i]&.is_text? }
     else
-      return matches.select{ |k, v| other_pms[k.to_i]&.media&.type == pm.media.type }
+      return matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
     end
   end
 
@@ -118,13 +118,13 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_video_query(pm, automatic=false)
+  def self.get_threshold_for_video_query(_pm, automatic=false)
     key = 'video_similarity_threshold'
     key = "automatic_#{key}" if automatic
     return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
   end
 
-  def self.get_threshold_for_image_query(pm, automatic=false)
+  def self.get_threshold_for_image_query(_pm, automatic=false)
     key = 'image_similarity_threshold'
     key = "automatic_#{key}" if automatic
     return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
@@ -183,6 +183,7 @@ class Bot::Alegre < BotUser
       response = self.request_api('get', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
     rescue
+      nil
     end
     lang
   end
@@ -203,7 +204,7 @@ class Bot::Alegre < BotUser
     annotation
   end
 
-  def self.get_flags(pm, attempts = 0)
+  def self.get_flags(pm)
     return if pm.report_type != 'uploadedimage'
 
     result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
@@ -338,12 +339,12 @@ class Bot::Alegre < BotUser
     text.split(/\s/)
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    self.split_text(pm.title.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
+  def self.get_items_with_similar_title(pm, threshold)
+    pm.title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title)
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    self.split_text(pm.description.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
+  def self.get_items_with_similar_description(pm, threshold)
+    pm.description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description)
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
@@ -402,7 +403,8 @@ class Bot::Alegre < BotUser
   def self.get_similar_items_from_api(path, conditions, threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
-    project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
+    project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}
+    .collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score
@@ -509,12 +511,12 @@ class Bot::Alegre < BotUser
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
 
-    # Better be safe than sorry.
-    return if parent_id == pm.id
     self.add_relationship(pm, pm_id_scores, parent_id)
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
+    # Better be safe than sorry.
+    return if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
     return false if parent.nil?
     if parent.is_blank?

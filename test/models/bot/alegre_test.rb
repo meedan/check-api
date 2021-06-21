@@ -535,7 +535,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_text_query(pm))
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -597,7 +597,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_title(pm, Bot::Alegre.get_threshold_for_text_query(pm))
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
