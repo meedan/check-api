@@ -193,7 +193,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should decode a doc_id" do
-    assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), "check-project_media-554571-video" 
+    assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), ["check", "project_media", "554571", "video" ]
   end
 
   test "should relate project media to similar items as video" do
