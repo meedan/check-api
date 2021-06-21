@@ -182,7 +182,7 @@ class Bot::Alegre < BotUser
     begin
       response = self.request_api('get', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
-    rescue Exception => e
+    rescue
     end
     lang
   end
