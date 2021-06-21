@@ -192,7 +192,11 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm.destroy, pm
   end
 
-  test "zzz should relate project media to similar items as video" do
+  test "should decode a doc_id" do
+    assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), "check-project_media-554571-video" 
+  end
+
+  test "should relate project media to similar items as video" do
     p = create_project
     pm1 = create_project_media team: @pm.team
     pm1 = create_project_media project: p, media: create_uploaded_video
@@ -497,6 +501,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should pass through the send video to similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_video_similarity_index(pm)
   end
 
   test "should pass through the send to description similarity index call" do
