@@ -273,19 +273,19 @@ class Bot::Alegre < BotUser
     })
   end
 
-  def self.delete_from_image_similarity_index(pm, quiet=false)
-    self.request_api('delete', '/image/similarity/', {
-      doc_id: self.item_doc_id(pm, "image"),
-      quiet: quiet
-    })
-  end
-
-  def self.delete_from_video_similarity_index(pm, quiet=false)
-    self.request_api('delete', '/video/similarity/', {
-      doc_id: self.item_doc_id(pm, "video"),
-      quiet: quiet
-    })
-  end
+  # def self.delete_from_image_similarity_index(pm, quiet=false)
+  #   self.request_api('delete', '/image/similarity/', {
+  #     doc_id: self.item_doc_id(pm, "image"),
+  #     quiet: quiet
+  #   })
+  # end
+  #
+  # def self.delete_from_video_similarity_index(pm, quiet=false)
+  #   self.request_api('delete', '/video/similarity/', {
+  #     doc_id: self.item_doc_id(pm, "video"),
+  #     quiet: quiet
+  #   })
+  # end
 
   def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
     model ||= self.indexing_model_to_use(pm)
