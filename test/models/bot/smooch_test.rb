@@ -624,4 +624,18 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     v = Version.where("object_after LIKE '%smooch_data%'").last
     assert_equal 'en', v.smooch_user_request_language
   end
+
+  test "should get turn.io installation" do
+    @installation.set_turnio_secret = 'secret'
+    @installation.set_turnio_token = 'token'
+    @installation.save!
+    assert_equal @installation, Bot::Smooch.get_turnio_installation('PzqzmGtlarsXrz6xRD7WwI74//n+qDkVkJ0bQhrsib4=', '{"foo":"bar"}')
+  end
+
+  test "should send message to turn.io user" do
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
+    assert_not_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test')
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 404, body: '{}')
+    assert_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test 2')
+  end
 end

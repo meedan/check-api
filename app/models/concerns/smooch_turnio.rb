@@ -107,19 +107,18 @@ module SmoochTurnio
           body: text
         }
       }
-      begin
-        uri = URI('https://whatsapp.turn.io/v1/messages')
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = uri.scheme == 'https'
-        req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
-        req.body = payload.to_json
-        http.request(req)
-      rescue StandardError => e
-        raise(e) if Rails.env.development?
-        Rails.logger.error("[Smooch Bot] Exception when sending message #{payload.inspect} to turn.io: #{e.message}")
-        e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
-        self.notify_error(e2, { uid: uid, body: payload, error: e.message }, RequestStore[:request])
-        nil
+      uri = URI('https://whatsapp.turn.io/v1/messages')
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
+      req.body = payload.to_json
+      response = http.request(req)
+      if response.code.to_i == 200
+        return response
+      else
+        e = SmoochBotDeliveryFailure.new('Could not send message to Turn.io user!')
+        self.notify_error(e, { uid: uid, body: payload, error: e.message, response: response }, RequestStore[:request])
+        return nil
       end
     end
   end
