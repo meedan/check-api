@@ -26,6 +26,28 @@ module SmoochTurnio
     def turnio_api_get_app_name
       'TURN.IO'
     end
+
+    def turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      components = []
+      components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
+      body = []
+      placeholders.each do |placeholder|
+        body << { type: 'text', text: placeholder.gsub(/\s+/, ' ') }
+      end
+      components << { type: 'body', parameters: body } unless body.empty?
+      {
+        type: 'template',
+        template: {
+          namespace: namespace,
+          name: template,
+          language: {
+            code: locale,
+            policy: 'deterministic'
+          },
+          components: components
+        }
+      }
+    end
     
     def preprocess_turnio_message(body)
       json = JSON.parse(body)
@@ -47,7 +69,8 @@ module SmoochTurnio
               name: json['contacts'][0]['profile']['name'],
               type: message['type'],
               text: message['text']['body'],
-              source: { type: 'whatsapp' }
+              source: { type: 'whatsapp' },
+              received: message['timestamp'].to_i || Time.now.to_i
             }
           ],
           appUser: {
@@ -64,6 +87,34 @@ module SmoochTurnio
           trigger: 'message:delivery:channel',
           app: {
             '_id': self.config['turnio_secret']
+          },
+          version: 'v1.1',
+          message: {
+            '_id': status['id'],
+            'type': 'text'
+          },
+          appUser: {
+            '_id': status['recipient_id'],
+            'conversationStarted': true
+          },
+          turnIo: json
+        }.with_indifferent_access
+
+      # Could not deliver message (probably it's outside the 24-hours window)
+      elsif json.dig('statuses', 0, 'status') == 'failed'
+        status = json['statuses'][0]
+        {
+          trigger: 'message:delivery:failure',
+          app: {
+            '_id': self.config['turnio_secret']
+          },
+          destination: {
+            type: 'whatsapp'
+          },
+          error: {
+            underlyingError: {
+              errors: [{ code: 470 }]
+            }
           },
           version: 'v1.1',
           message: {
@@ -95,18 +146,23 @@ module SmoochTurnio
       end
     end
 
-    def turnio_send_message_to_user(uid, text, extra = {}, force = false)
+    def turnio_send_message_to_user(uid, text, _extra = {}, force = false)
       return if self.config['smooch_disabled'] && !force
       return if text.blank?
-      payload = {
-        preview_url: !text.to_s.match(/https?:\/\//).nil?,
-        recipient_type: 'individual',
-        to: uid,
-        type: 'text',
-        text: {
-          body: text
+      payload = nil
+      if text.is_a?(String)
+        payload = {
+          preview_url: !text.to_s.match(/https?:\/\//).nil?,
+          recipient_type: 'individual',
+          to: uid,
+          type: 'text',
+          text: {
+            body: text
+          }
         }
-      }
+      else
+        payload = { to: uid }.merge(text)
+      end
       uri = URI('https://whatsapp.turn.io/v1/messages')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'

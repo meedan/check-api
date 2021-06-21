@@ -81,5 +81,20 @@ module SmoochZendesk
         nil
       end
     end
+
+    # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
+    def zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      data = { namespace: namespace, template: template, fallback: fallback, language: locale }
+      data['header_image'] = image unless image.blank?
+      output = ['&((']
+      data.each do |key, value|
+        output << "#{key}=[[#{value}]]"
+      end
+      placeholders.each do |placeholder|
+        output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
+      end
+      output << '))&'
+      output.join('')
+    end
   end
 end

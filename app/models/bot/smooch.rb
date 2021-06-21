@@ -489,24 +489,17 @@ class Bot::Smooch < BotUser
     languages.blank? ? ['en'] : languages
   end
 
-  # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
   def self.format_template_message(template_name, placeholders, image, fallback, language)
     namespace = self.config['smooch_template_namespace']
     return '' if namespace.blank?
     template = self.config["smooch_template_name_for_#{template_name}"] || template_name
     default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
     locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
-    data = { namespace: namespace, template: template, fallback: fallback, language: locale }
-    data['header_image'] = image unless image.blank?
-    output = ['&((']
-    data.each do |key, value|
-      output << "#{key}=[[#{value}]]"
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+    else
+      self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders)
     end
-    placeholders.each do |placeholder|
-      output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
-    end
-    output << '))&'
-    output.join('')
   end
 
   def self.user_received_report(message)
@@ -889,7 +882,7 @@ class Bot::Smooch < BotUser
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
     return false if response.nil? || fallback_template.nil?
     id = self.get_id_from_send_response(response)
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
+    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)
