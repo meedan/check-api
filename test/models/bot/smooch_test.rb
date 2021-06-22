@@ -638,4 +638,17 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 404, body: '{}')
     assert_nil Bot::Smooch.turnio_send_message_to_user('123456', 'Test 2')
   end
+
+  test "should resend turn.io message" do
+    WebMock.stub_request(:post, 'https://whatsapp.turn.io/v1/messages').to_return(status: 200, body: '{}')
+    @installation.set_turnio_secret = 'test'
+    @installation.set_turnio_token = 'test'
+    @installation.save!
+    Bot::Smooch.get_installation('turnio_secret', 'test')
+    pm = create_project_media team: @team
+    publish_report(pm)
+    Rails.cache.write('smooch:original:987654', { project_media_id: pm.id, fallback_template: 'fact_check_report_text_only', language: 'en', query_date: Time.now.to_i }.to_json)
+    payload = { statuses: [{ id: '987654', recipient_id: '123456', status: 'failed', timestamp: Time.now.to_i.to_s }]}
+    assert Bot::Smooch.run(payload.to_json)
+  end
 end

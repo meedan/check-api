@@ -65,12 +65,7 @@ module SmoochTurnio
           source: { type: 'whatsapp' },
           received: message['timestamp'].to_i || Time.now.to_i
         }]
-        if message['type'] == 'image'
-          messages[0].merge!({
-            mediaUrl: message.dig('image', 'link').to_s,
-            mediaType: message.dig('image', 'mime_type')
-          })
-        end
+        messages[0].merge!({ mediaUrl: message.dig('image', 'link').to_s, mediaType: message.dig('image', 'mime_type') }) if message['type'] == 'image'
         {
           trigger: 'message:appUser',
           app: {
