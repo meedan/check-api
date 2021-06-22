@@ -213,16 +213,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       "result" => [
         {
           "context"=>[
-            {"blah"=>1, "project_media_id"=>12343}
+            {"team_id"=>pm1.team.id.to_s, "project_media_id"=>pm1.id.to_s}
           ],
-          "score"=>"0.033167",
+          "score"=>"0.983167",
           "filename"=>"/app/persistent_disk/blah/12342.tmk"
         },
         {
           "context"=>[
-            {"blah"=>1, "project_media_id"=>12343}
+            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s}
           ],
-          "score"=>"1.000000",
+          "score"=>"0.983167",
           "filename"=>"/app/persistent_disk/blah/12343.tmk"
         }
       ]
