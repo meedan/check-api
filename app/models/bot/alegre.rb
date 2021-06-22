@@ -148,13 +148,13 @@ class Bot::Alegre < BotUser
 
   def self.get_items_with_similarity(type, pm, threshold)
     if type == 'text'
-      self.get_merged_items_with_similar_text(type, pm, threshold)
+      self.get_merged_items_with_similar_text(pm, threshold)
     else
       self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/"), pm)
     end
   end
 
-  def self.get_merged_items_with_similar_text(type, pm, threshold)
+  def self.get_merged_items_with_similar_text(pm, threshold)
     by_title = self.get_items_with_similar_title(pm, threshold)
     by_description = self.get_items_with_similar_description(pm, threshold)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|

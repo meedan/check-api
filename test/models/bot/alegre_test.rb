@@ -270,9 +270,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1.save!
     pm2 = create_project_media project: p, quote: "Blah2", team: @team
     pm2.save!
-    Bot::Alegre.get_merged_items_with_similar_text('text', pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with('text', pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with('text', pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
+    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
     assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
@@ -286,8 +286,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.save!
     pm3 = create_project_media project: p, media: Blank.new
     pm3.save!
-    Bot::Alegre.get_merged_items_with_similar_text('text', pm3, Bot::Alegre.get_threshold_for_query('text', pm3))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with('text', pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
+    Bot::Alegre.get_merged_items_with_similar_text(pm3, Bot::Alegre.get_threshold_for_query('text', pm3))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
     assert_equal Bot::Alegre.get_similar_items(pm3), {}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
@@ -482,7 +482,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm = create_project_media quote: "Blah"
     Bot::Alegre.stubs(:get_items_with_similar_title).returns({1 => 0.2, 2 => 0.3})
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({2 => 0.2, 3 => 0.3})
-    assert_equal Bot::Alegre.get_merged_items_with_similar_text('text', pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
+    assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
