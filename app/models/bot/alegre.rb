@@ -118,25 +118,13 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_video_query(_pm, automatic=false)
-    get_threshold_for_non_text_query('video', automatic)
-  end
-
-  def self.get_threshold_for_image_query(_pm, automatic=false)
-    get_threshold_for_non_text_query('image', automatic)
-  end
-
-  def self.get_threshold_for_text_query(pm, automatic=false)
-    model = self.matching_model_to_use(pm)
-    key = "text_similarity_threshold"
-    key = "automatic_#{key}" if automatic
-    key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
-    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
-  end
-
-  def self.get_threshold_for_non_text_query(type, automatic)
+  def self.get_threshold_for_query(type, pm, automatic = false)
     key = "#{type}_similarity_threshold"
     key = "automatic_#{key}" if automatic
+    if type == 'text' && !pm.nil?
+      model = self.matching_model_to_use(pm)
+      key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
+    end
     { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
   end
 
@@ -150,17 +138,23 @@ class Bot::Alegre < BotUser
       type = 'video'
     end
     unless type.blank?
-      method = type == 'text' ? "get_merged_items_with_similar_#{type}" : "get_items_with_similar_#{type}"
-      method_threshold = "get_threshold_for_#{type}_query"
-      suggested_or_confirmed = self.send(method, pm, self.send(method_threshold, pm))
-      confirmed = self.send(method, pm, self.send( method_threshold,pm, true))
+      suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
+      confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
     end
   end
 
-  def self.get_merged_items_with_similar_text(pm, threshold)
+  def self.get_items_with_similarity(type, pm, threshold)
+    if type == 'text'
+      self.get_merged_items_with_similar_text(type, pm, threshold)
+    else
+      self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/"), pm)
+    end
+  end
+
+  def self.get_merged_items_with_similar_text(type, pm, threshold)
     by_title = self.get_items_with_similar_title(pm, threshold)
     by_description = self.get_items_with_similar_description(pm, threshold)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|
@@ -254,7 +248,7 @@ class Bot::Alegre < BotUser
 
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id if pm
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id(pm.team_id, bot&&bot.id) unless pm.nil?
     return self.default_matching_model if tbi.nil?
     tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
@@ -418,7 +412,7 @@ class Bot::Alegre < BotUser
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
-    threshold ||= self.get_threshold_for_text_query(nil, true)
+    threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api(
       '/text/similarity/',
@@ -454,16 +448,6 @@ class Bot::Alegre < BotUser
 
   def self.reject_same_case(results, pm)
     results.reject{ |id, _score| pm.id == id }
-  end
-
-  def self.get_items_with_similar_video(pm, threshold, team_id=nil)
-    team_id||=pm.team_id
-    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/video/similarity/'), pm)
-  end
-
-  def self.get_items_with_similar_image(pm, threshold, team_id=nil)
-    team_id||=pm.team_id
-    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/image/similarity/'), pm)
   end
 
   def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
