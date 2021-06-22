@@ -62,6 +62,7 @@ class Bot::Alegre < BotUser
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
         self.send_to_image_similarity_index(pm)
+        self.send_to_video_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
         self.send_field_to_similarity_index(pm, 'original_description')
         self.get_extracted_text(pm)
@@ -226,6 +227,10 @@ class Bot::Alegre < BotUser
     Base64.encode64(["check", object.class.to_s.underscore, object.id, field_name].join("-")).strip.delete("\n").delete("=")
   end
 
+  def self.decode_item_doc_id(doc_id)
+    Base64.decode64(doc_id).split("-")
+  end
+
   def self.send_field_to_similarity_index(pm, field)
     if pm.send(field).blank?
       self.delete_field_from_text_similarity_index(pm, field, true)
@@ -300,12 +305,33 @@ class Bot::Alegre < BotUser
     }
   end
 
+  def self.send_to_video_similarity_index_package(pm)
+    {
+      doc_id: self.item_doc_id(pm, 'video'),
+      url: self.media_file_url(pm),
+      context: {
+        team_id: pm.team_id,
+        project_media_id: pm.id,
+        has_custom_id: true
+      }
+    }
+  end
+
   def self.send_to_image_similarity_index(pm)
     return if pm.report_type != 'uploadedimage'
     self.request_api(
       'post',
       '/image/similarity/',
       self.send_to_image_similarity_index_package(pm)
+    )
+  end
+
+  def self.send_to_video_similarity_index(pm)
+    return if pm.report_type != 'uploadedvideo'
+    self.request_api(
+      'post',
+      '/video/similarity/',
+      self.send_to_video_similarity_index_package(pm)
     )
   end
 
