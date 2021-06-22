@@ -93,11 +93,7 @@ class Bot::Alegre < BotUser
 
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
-    if pm.is_text?
-      return matches.select{ |k, _v| other_pms[k.to_i]&.is_text? }
-    else
-      return matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
-    end
+    pm.is_text? ? matches.select{ |k, _v| other_pms[k.to_i]&.is_text? } : matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -203,17 +199,17 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_flags(pm)
-    return if pm.report_type != 'uploadedimage'
-
-    result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
-    self.save_annotation(pm, 'flag', result['result'])
+    if pm.report_type == 'uploadedimage'
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      self.save_annotation(pm, 'flag', result['result'])
+    end
   end
 
   def self.get_extracted_text(pm)
-    return if pm.report_type != 'uploadedimage'
-
-    result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
-    self.save_annotation(pm, 'extracted_text', result) if result
+    if pm.report_type == 'uploadedimage'
+      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
+      self.save_annotation(pm, 'extracted_text', result) if result
+    end
   end
 
   def self.media_file_url(pm)
@@ -242,15 +238,13 @@ class Bot::Alegre < BotUser
   def self.indexing_model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
-    return self.default_model if tbi.nil?
-    tbi.get_alegre_model_in_use || self.default_model
+    tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id(pm.team_id, bot&&bot.id) unless pm.nil?
-    return self.default_matching_model if tbi.nil?
-    tbi.get_alegre_matching_model_in_use || self.default_matching_model
+    tbi.nil? ? self.default_matching_model : tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
@@ -300,12 +294,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.send_to_image_similarity_index(pm)
-    return if pm.report_type != 'uploadedimage'
     self.request_api(
       'post',
       '/image/similarity/',
       self.send_to_image_similarity_index_package(pm)
-    )
+    ) if pm.report_type == 'uploadedimage'
   end
 
   def self.request_api(method, path, params = {}, retries = 3)
@@ -403,10 +396,10 @@ class Bot::Alegre < BotUser
     self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
   end
 
-  def self.build_context(team_id=nil, field=nil)
-    context = {has_custom_id: true}
-    context[:field] = field if field && field != []
-    context[:team_id] = team_id if team_id && team_id != []
+  def self.build_context(team_id, field = nil)
+    context = { has_custom_id: true }
+    context[:field] = field unless field.blank?
+    context[:team_id] = team_id unless team_id.blank?
     context
   end
 
