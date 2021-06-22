@@ -119,15 +119,11 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_threshold_for_video_query(_pm, automatic=false)
-    key = 'video_similarity_threshold'
-    key = "automatic_#{key}" if automatic
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+    get_threshold_for_non_text_query('video', automatic)
   end
 
   def self.get_threshold_for_image_query(_pm, automatic=false)
-    key = 'image_similarity_threshold'
-    key = "automatic_#{key}" if automatic
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+    get_threshold_for_non_text_query('image', automatic)
   end
 
   def self.get_threshold_for_text_query(pm, automatic=false)
@@ -135,21 +131,29 @@ class Bot::Alegre < BotUser
     key = "text_similarity_threshold"
     key = "automatic_#{key}" if automatic
     key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
+  end
+
+  def self.get_threshold_for_non_text_query(type, automatic)
+    key = "#{type}_similarity_threshold"
+    key = "automatic_#{key}" if automatic
+    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
   end
 
   def self.get_similar_items(pm)
+    type = nil
     if pm.is_text?
-      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm))
-      confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+      type = 'text'
     elsif pm.is_image?
-      suggested_or_confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm))
-      confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+      type = 'image'
     elsif pm.is_video?
-      suggested_or_confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm))
-      confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm, true))
+      type = 'video'
+    end
+    unless type.blank?
+      method = type == 'text' ? "get_merged_items_with_similar_#{type}" : "get_items_with_similar_#{type}"
+      method_threshold = "get_threshold_for_#{type}_query"
+      suggested_or_confirmed = self.send(method, pm, self.send(method_threshold, pm))
+      confirmed = self.send(method, pm, self.send( method_threshold,pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
@@ -388,7 +392,7 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.get_similar_items_from_api(path, conditions, threshold={})
+  def self.get_similar_items_from_api(path, conditions, _threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
