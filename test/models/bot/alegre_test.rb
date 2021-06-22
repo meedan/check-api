@@ -210,14 +210,14 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm3.media.save!
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
-      "result" => [
-        {
-          "hash_key" => "6393db3d6d5c181aa43dd925539a15e7",
-          "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
-          "score" => "0.983167",
-          "filename" => "/app/persistent_disk/6393db3d6d5c181aa43dd925539a15e7/12342.tmk"
-        }
-      ]
+      'requested' => {
+        'doc_id' => 'Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8',
+        'url' => 'http://devingaffney.com/files/sample-videos/sample-videos/pattern-sd-with-large-logo-bar.mp4',
+        "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
+      },
+      'result' => {
+        'outfile' => '/app/persistent_disk/9676/f0ab0061-6b02-43a5-8a64-40d5e804f7ca.tmk'
+      }
     })
     Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
     assert_difference 'Relationship.count' do

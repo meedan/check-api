@@ -22,9 +22,6 @@ class Bot::Alegre < BotUser
       pm = ProjectMedia.find_by_id(pm_id)
       Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title', true)
       Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description', true)
-      # @Caiosba - we need to be able to delete images/videos from Alegre, no?
-      # Bot::Alegre.delete_from_image_similarity_index(pm, true)
-      # Bot::Alegre.delete_from_video_similarity_index(pm, true)
     end
 
     private
@@ -272,20 +269,6 @@ class Bot::Alegre < BotUser
       quiet: quiet
     })
   end
-
-  # def self.delete_from_image_similarity_index(pm, quiet=false)
-  #   self.request_api('delete', '/image/similarity/', {
-  #     doc_id: self.item_doc_id(pm, "image"),
-  #     quiet: quiet
-  #   })
-  # end
-  #
-  # def self.delete_from_video_similarity_index(pm, quiet=false)
-  #   self.request_api('delete', '/video/similarity/', {
-  #     doc_id: self.item_doc_id(pm, "video"),
-  #     quiet: quiet
-  #   })
-  # end
 
   def self.send_to_text_similarity_index_package(pm, field, text, doc_id, model=nil)
     model ||= self.indexing_model_to_use(pm)
