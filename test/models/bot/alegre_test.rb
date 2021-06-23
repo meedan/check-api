@@ -508,7 +508,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm.media.save!
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
-    assert Bot::Alegre.send_to_video_similarity_index(pm)
+    assert Bot::Alegre.send_to_media_similarity_index(pm)
   end
 
   test "should pass through the send to description similarity index call" do

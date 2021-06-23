@@ -61,8 +61,7 @@ class Bot::Alegre < BotUser
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
-        self.send_to_image_similarity_index(pm)
-        self.send_to_video_similarity_index(pm)
+        self.send_to_media_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
         self.send_field_to_similarity_index(pm, 'original_description')
         self.get_extracted_text(pm)
@@ -286,44 +285,29 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.send_to_image_similarity_index_package(pm)
-    {
-      doc_id: self.item_doc_id(pm, 'image'),
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
+  def self.send_to_media_similarity_index(pm)
+    type = nil
+    if pm.report_type == 'uploadedimage'
+      type = 'image'
+    elsif pm.report_type == 'uploadedvideo'
+      type = 'video'
+    end
+    unless type.blank?
+      params = {
+        doc_id: self.item_doc_id(pm, type),
+        url: self.media_file_url(pm),
+        context: {
+          team_id: pm.team_id,
+          project_media_id: pm.id,
+          has_custom_id: true
+        }
       }
-    }
-  end
-
-  def self.send_to_video_similarity_index_package(pm)
-    {
-      doc_id: self.item_doc_id(pm, 'video'),
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
-      }
-    }
-  end
-
-  def self.send_to_image_similarity_index(pm)
-    self.request_api(
-      'post',
-      '/image/similarity/',
-      self.send_to_image_similarity_index_package(pm)
-    ) if pm.report_type == 'uploadedimage'
-  end
-
-  def self.send_to_video_similarity_index(pm)
-    self.request_api(
-      'post',
-      '/video/similarity/',
-      self.send_to_video_similarity_index_package(pm)
-    ) if pm.report_type == 'uploadedvideo'
+      self.request_api(
+        'post',
+        "/#{type}/similarity/",
+        params
+      )
+    end
   end
 
   def self.request_api(method, path, params = {}, retries = 3)
