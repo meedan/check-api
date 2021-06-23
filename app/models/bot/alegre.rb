@@ -362,7 +362,8 @@ class Bot::Alegre < BotUser
     end
     es_matches = output.values.reduce({}, :merge)
     # set matched fields to use in short-text suggestion
-    pm.alegre_matched_fields = output.keys
+    pm.alegre_matched_fields ||= []
+    pm.alegre_matched_fields.concat(output.keys)
     es_matches
   end
 
@@ -382,10 +383,6 @@ class Bot::Alegre < BotUser
 
   def self.get_context_from_image_or_text_response(search_result)
     self.get_source_key_from_image_or_text_response(search_result, 'context')
-  end
-
-  def self.get_content_from_image_or_text_response(search_result)
-    self.get_source_key_from_image_or_text_response(search_result, 'content')
   end
 
   def self.get_source_key_from_image_or_text_response(search_result, source_key)
@@ -528,7 +525,7 @@ class Bot::Alegre < BotUser
     is_short = true
     unless pm.alegre_matched_fields.blank?
       fields_size = []
-      pm.alegre_matched_fields.each do |field|
+      pm.alegre_matched_fields.uniq.each do |field|
         fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
       end
       is_short = fields_size.max <= self.similarity_text_length_threshold unless fields_size.blank?

@@ -706,15 +706,19 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should add short text as suggestions" do
+    create_verification_status_stuff
+    # Relation should be suggested if all fields size <= threshold
     p = create_project
-    pm1 = create_project_media project: p, quote: "Blah", team: @team
-    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm1 = create_project_media project: p, quote: "for testing short text", team: @team
+    pm2 = create_project_media project: p, quote: "testing short text", team: @team
+    pm2.analysis = { content: 'short text' }
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
         {
-          "hash_key" => "6393db3d6d5c181aa43dd925539a15e7",
-          "context" => {"blah" => 1, "project_media_id" => pm1.id.to_s, "team_id" => pm1.team.id.to_s},
-          "score" => "0.983167",
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+          }
         }
       ]
     })
@@ -722,9 +726,26 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
-    assert_equal pm2, r.target
-    assert_equal pm1, r.source
-    assert_equal r.relationship_type, Relationship.suggested_type
+    assert_equal Relationship.suggested_type, r.relationship_type
+    # Relation should be confirmed if at least one field size > threshold
+    pm3 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
+    pm4 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
+    pm4.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles', content: 'This is also a long enough Title' }
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm3.team_id.to_s, "project_media_id" => pm3.id.to_s, "has_custom_id" => true }
+          }
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm4)
+    end
+    r = Relationship.last
+    assert_equal Relationship.confirmed_type, r.relationship_type
     Bot::Alegre.unstub(:request_api)
   end
 end
