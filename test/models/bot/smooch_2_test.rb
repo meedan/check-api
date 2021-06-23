@@ -533,5 +533,67 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     end
   end
 
+  test "should parse turn.io media message" do
+    Sidekiq::Testing.inline! do
+      @installation.set_turnio_secret = 'test'
+      @installation.set_turnio_token = 'test'
+      @installation.save!
+      Bot::Smooch.get_installation('turnio_secret', 'test')
+      WebMock.stub_request(:get, 'https://whatsapp.turn.io/v1/media/123456').to_return(status: 200, body: File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+      payload = {
+        contacts: [
+          {
+            profile: {
+              name: 'Caio Almeida'
+            },
+            wa_id: '557112345678'
+          }
+        ],
+        messages: [
+          {
+            '_vnd': {
+              v1: {
+                author: {
+                  id: '557112345678',
+                  name: 'Foo Bar',
+                  type: 'OWNER'
+                },
+                chat: {
+                  assigned_to: nil,
+                  owner: '+557112345678',
+                  permalink: 'https://app.turn.io/c/123456789',
+                  state: 'OPEN',
+                  state_reason: 'Re-opened by inbound message.',
+                  unread_count: 5,
+                  uuid: '123456789'
+                },
+                direction: 'inbound',
+                faq_uuid: nil,
+                in_reply_to: nil,
+                inserted_at: '2021-06-16T17:45:10.326052Z',
+                labels: nil,
+                rendered_content: nil
+              }
+            },
+            from: '557112345678',
+            id: '123456789',
+            text: {
+              body: 'Test'
+            },
+            timestamp: '1623865510',
+            type: 'image',
+            image: {
+              id: '123456',
+              mime_type: 'image/png'
+            }
+          }
+        ]
+      }
+      assert_difference 'ProjectMedia.count' do
+        assert Bot::Smooch.run(payload.to_json)
+      end
+    end
+  end
+
   # Add tests to test/models/bot/smooch_3_test.rb
 end

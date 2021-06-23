@@ -48,7 +48,22 @@ module SmoochTurnio
         }
       }
     end
-    
+
+    def store_turnio_media(media_id, mime_type)
+      uri = URI("https://whatsapp.turn.io/v1/media/#{media_id}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['turnio_token']}")
+      response = http.request(req)
+      path = "turnio/#{media_id}"
+      CheckS3.write(path, mime_type, response.body)
+      CheckS3.public_url(path)
+    end
+
+    def convert_turnio_message_type(type)
+      type == 'voice' ? 'audio' : type
+    end
+
     def preprocess_turnio_message(body)
       json = JSON.parse(body)
 
@@ -60,12 +75,18 @@ module SmoochTurnio
           '_id': message['id'],
           authorId: uid,
           name: json['contacts'][0]['profile']['name'],
-          type: message['type'],
+          type: self.convert_turnio_message_type(message['type']),
           text: message.dig('text', 'body').to_s,
           source: { type: 'whatsapp' },
           received: message['timestamp'].to_i || Time.now.to_i
         }]
-        messages[0].merge!({ mediaUrl: message.dig('image', 'link').to_s, mediaType: message.dig('image', 'mime_type') }) if message['type'] == 'image'
+        if message['type'] != 'text'
+          mime_type = message.dig(message['type'], 'mime_type')
+          messages[0].merge!({
+            mediaUrl: self.store_turnio_media(message.dig(message['type'], 'id'), mime_type),
+            mediaType: mime_type
+          })
+        end
         {
           trigger: 'message:appUser',
           app: {
