@@ -522,7 +522,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.is_text_too_short?(pm)
-    is_short = true
+    is_short = false
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
