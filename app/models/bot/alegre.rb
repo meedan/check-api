@@ -5,7 +5,7 @@ class Bot::Alegre < BotUser
   ELASTICSEARCH_MODEL = "elasticsearch"
 
   ::ProjectMedia.class_eval do
-    attr_accessor :alegre_similarity_thresholds
+    attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
   end
 
   DynamicAnnotation::Field.class_eval do
@@ -61,8 +61,7 @@ class Bot::Alegre < BotUser
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         self.get_language(pm)
-        self.send_to_image_similarity_index(pm)
-        self.send_to_video_similarity_index(pm)
+        self.send_to_media_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
         self.send_field_to_similarity_index(pm, 'original_description')
         self.get_extracted_text(pm)
@@ -93,12 +92,8 @@ class Bot::Alegre < BotUser
   end
 
   def self.restrict_to_same_modality(pm, matches)
-    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |pm| [pm.id, pm] }]
-    if pm.is_text?
-      return matches.select{ |k, v| other_pms[k.to_i]&.is_text? }
-    else
-      return matches.select{ |k, v| other_pms[k.to_i]&.media&.type == pm.media.type }
-    end
+    other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
+    pm.is_text? ? matches.select{ |k, _v| other_pms[k.to_i]&.is_text? } : matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -119,41 +114,39 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_video_query(pm, automatic=false)
-    key = 'video_similarity_threshold'
+  def self.get_threshold_for_query(type, pm, automatic = false)
+    key = "#{type}_similarity_threshold"
     key = "automatic_#{key}" if automatic
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
-  end
-
-  def self.get_threshold_for_image_query(pm, automatic=false)
-    key = 'image_similarity_threshold'
-    key = "automatic_#{key}" if automatic
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
-  end
-
-  def self.get_threshold_for_text_query(pm, automatic=false)
-    model = self.matching_model_to_use(pm)
-    key = "text_similarity_threshold"
-    key = "automatic_#{key}" if automatic
-    key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
-    return {value: CheckConfig.get(key).to_f, key: key, automatic: automatic}
+    if type == 'text' && !pm.nil?
+      model = self.matching_model_to_use(pm)
+      key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
+    end
+    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
   end
 
   def self.get_similar_items(pm)
+    type = nil
     if pm.is_text?
-      suggested_or_confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm))
-      confirmed = self.get_merged_items_with_similar_text(pm, self.get_threshold_for_text_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+      type = 'text'
     elsif pm.is_image?
-      suggested_or_confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm))
-      confirmed = self.get_items_with_similar_image(pm, self.get_threshold_for_image_query(pm, true))
-      self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
+      type = 'image'
     elsif pm.is_video?
-      suggested_or_confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm))
-      confirmed = self.get_items_with_similar_video(pm, self.get_threshold_for_video_query(pm, true))
+      type = 'video'
+    end
+    unless type.blank?
+      suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
+      confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
+    end
+  end
+
+  def self.get_items_with_similarity(type, pm, threshold)
+    if type == 'text'
+      self.get_merged_items_with_similar_text(pm, threshold)
+    else
+      self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/"), pm)
     end
   end
 
@@ -161,7 +154,7 @@ class Bot::Alegre < BotUser
     by_title = self.get_items_with_similar_title(pm, threshold)
     by_description = self.get_items_with_similar_description(pm, threshold)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|
-      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].sort.last]
+      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].max]
     end]
   end
 
@@ -184,6 +177,7 @@ class Bot::Alegre < BotUser
       response = self.request_api('get', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
     rescue
+      nil
     end
     lang
   end
@@ -204,18 +198,18 @@ class Bot::Alegre < BotUser
     annotation
   end
 
-  def self.get_flags(pm, attempts = 0)
-    return if pm.report_type != 'uploadedimage'
-
-    result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
-    self.save_annotation(pm, 'flag', result['result'])
+  def self.get_flags(pm)
+    if pm.report_type == 'uploadedimage'
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      self.save_annotation(pm, 'flag', result['result'])
+    end
   end
 
   def self.get_extracted_text(pm)
-    return if pm.report_type != 'uploadedimage'
-
-    result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
-    self.save_annotation(pm, 'extracted_text', result) if result
+    if pm.report_type == 'uploadedimage'
+      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
+      self.save_annotation(pm, 'extracted_text', result) if result
+    end
   end
 
   def self.media_file_url(pm)
@@ -248,15 +242,13 @@ class Bot::Alegre < BotUser
   def self.indexing_model_to_use(pm)
     bot = BotUser.alegre_user
     tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
-    return self.default_model if tbi.nil?
-    tbi.get_alegre_model_in_use || self.default_model
+    tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.matching_model_to_use(pm)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id if pm
-    return self.default_matching_model if tbi.nil?
-    tbi.get_alegre_matching_model_in_use || self.default_matching_model
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id(pm.team_id, bot&&bot.id) unless pm.nil?
+    tbi.nil? ? self.default_matching_model : tbi.get_alegre_matching_model_in_use || self.default_matching_model
   end
 
   def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
@@ -293,46 +285,29 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.send_to_image_similarity_index_package(pm)
-    {
-      doc_id: self.item_doc_id(pm, 'image'),
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
+  def self.send_to_media_similarity_index(pm)
+    type = nil
+    if pm.report_type == 'uploadedimage'
+      type = 'image'
+    elsif pm.report_type == 'uploadedvideo'
+      type = 'video'
+    end
+    unless type.blank?
+      params = {
+        doc_id: self.item_doc_id(pm, type),
+        url: self.media_file_url(pm),
+        context: {
+          team_id: pm.team_id,
+          project_media_id: pm.id,
+          has_custom_id: true
+        }
       }
-    }
-  end
-
-  def self.send_to_video_similarity_index_package(pm)
-    {
-      doc_id: self.item_doc_id(pm, 'video'),
-      url: self.media_file_url(pm),
-      context: {
-        team_id: pm.team_id,
-        project_media_id: pm.id,
-        has_custom_id: true
-      }
-    }
-  end
-
-  def self.send_to_image_similarity_index(pm)
-    return if pm.report_type != 'uploadedimage'
-    self.request_api(
-      'post',
-      '/image/similarity/',
-      self.send_to_image_similarity_index_package(pm)
-    )
-  end
-
-  def self.send_to_video_similarity_index(pm)
-    return if pm.report_type != 'uploadedvideo'
-    self.request_api(
-      'post',
-      '/video/similarity/',
-      self.send_to_video_similarity_index_package(pm)
-    )
+      self.request_api(
+        'post',
+        "/#{type}/similarity/",
+        params
+      )
+    end
   end
 
   def self.request_api(method, path, params = {}, retries = 3)
@@ -364,23 +339,32 @@ class Bot::Alegre < BotUser
     text.split(/\s/)
   end
 
-  def self.get_items_with_similar_title(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    self.split_text(pm.title.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title) : {}
+  def self.get_items_with_similar_title(pm, threshold)
+    pm.title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title)
   end
 
-  def self.get_items_with_similar_description(pm, threshold, text_length_threshold=self.similarity_text_length_threshold)
-    self.split_text(pm.description.to_s).length > text_length_threshold ? self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description) : {}
+  def self.get_items_with_similar_description(pm, threshold)
+    pm.description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description)
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
-    es_matches = fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)}.reduce({}, :merge)
-    if self.matching_model_to_use(pm) == self.default_matching_model
-      es_matches
-    else
-      fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge).merge(
-        es_matches
-      )
+    output = {}
+    fields.each do |field|
+      response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)
+      output[field] = response unless response.blank?
     end
+
+    if self.matching_model_to_use(pm) != self.default_matching_model
+      fields.each do |field|
+        response = self.get_items_with_similar_text(pm, field, threshold, value)
+        output[field] = response unless response.blank?
+      end
+    end
+    es_matches = output.values.reduce({}, :merge)
+    # set matched fields to use in short-text suggestion
+    pm.alegre_matched_fields ||= []
+    pm.alegre_matched_fields.concat(output.keys)
+    es_matches
   end
 
   def self.extract_project_medias_from_context(search_result)
@@ -401,10 +385,6 @@ class Bot::Alegre < BotUser
     self.get_source_key_from_image_or_text_response(search_result, 'context')
   end
 
-  def self.get_content_from_image_or_text_response(search_result)
-    self.get_source_key_from_image_or_text_response(search_result, 'content')
-  end
-
   def self.get_source_key_from_image_or_text_response(search_result, source_key)
     search_result.dig('_source', source_key) || search_result.dig(source_key)
   end
@@ -413,22 +393,10 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)
-    if conditions.with_indifferent_access.dig('text') && threshold.with_indifferent_access.dig('automatic')
-      if self.split_text(self.get_content_from_image_or_text_response(r).to_s).length > self.similarity_text_length_threshold
-        return true
-      else
-        return false
-      end
-    else
-      return true
-    end
-  end
-
-  def self.get_similar_items_from_api(path, conditions, threshold={})
+  def self.get_similar_items_from_api(path, conditions, _threshold={})
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
-    project_medias = result.select{|r| self.result_isnt_short_text_for_confirmed_match(r, conditions, threshold)}.collect{ |r| self.extract_project_medias_from_context(r) } unless result.nil?
+    project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
         response[pmid] = score
@@ -442,16 +410,16 @@ class Bot::Alegre < BotUser
     self.get_items_from_similar_text(pm.team_id, text, field, threshold, model).reject{ |id, _score| pm.id == id }
   end
 
-  def self.build_context(team_id=nil, field=nil)
-    context = {has_custom_id: true}
-    context[:field] = field if field && field != []
-    context[:team_id] = team_id if team_id && team_id != []
+  def self.build_context(team_id, field = nil)
+    context = { has_custom_id: true }
+    context[:field] = field unless field.blank?
+    context[:team_id] = team_id unless team_id.blank?
     context
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
     field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
-    threshold ||= self.get_threshold_for_text_query(nil, true)
+    threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api(
       '/text/similarity/',
@@ -487,16 +455,6 @@ class Bot::Alegre < BotUser
 
   def self.reject_same_case(results, pm)
     results.reject{ |id, _score| pm.id == id }
-  end
-
-  def self.get_items_with_similar_video(pm, threshold, team_id=nil)
-    team_id||=pm.team_id
-    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/video/similarity/'), pm)
-  end
-
-  def self.get_items_with_similar_image(pm, threshold, team_id=nil)
-    team_id||=pm.team_id
-    self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, team_id, '/image/similarity/'), pm)
   end
 
   def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
@@ -535,20 +493,21 @@ class Bot::Alegre < BotUser
       pm_id_scores[parent_id][:relationship_type] = new_type if pm_id_scores[parent_id]
     end
 
-    # Better be safe than sorry.
-    return if parent_id == pm.id
     self.add_relationship(pm, pm_id_scores, parent_id)
   end
 
   def self.add_relationship(pm, pm_id_scores, parent_id)
+    # Better be safe than sorry.
+    return if parent_id == pm.id
     parent = ProjectMedia.find_by_id(parent_id)
     return false if parent.nil?
     if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
+      relationship_type = self.is_text_too_short?(pm) ? Relationship.suggested_type : pm_id_scores[parent_id][:relationship_type]
       r = Relationship.new
       r.skip_check_ability = true
-      r.relationship_type = pm_id_scores[parent_id][:relationship_type]
+      r.relationship_type = relationship_type
       r.weight = pm_id_scores[parent_id][:score]
       r.source_id = parent_id
       r.target_id = pm.id
@@ -560,6 +519,18 @@ class Bot::Alegre < BotUser
         similar_item_title: parent.title
       )
     end
+  end
+
+  def self.is_text_too_short?(pm)
+    is_short = false
+    unless pm.alegre_matched_fields.blank?
+      fields_size = []
+      pm.alegre_matched_fields.uniq.each do |field|
+        fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
+      end
+      is_short = fields_size.max <= self.similarity_text_length_threshold unless fields_size.blank?
+    end
+    is_short
   end
 
   class <<self
