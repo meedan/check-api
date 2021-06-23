@@ -135,6 +135,25 @@ module SmoochResend
       self.notify_error(SmoochBotDeliveryFailure.new('Could not deliver message to final user!'), message, RequestStore[:request]) if message['isFinalEvent']
     end
 
+    def template_locale_options(team_slug = nil)
+      team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
+      languages = team&.get_languages
+      languages.blank? ? ['en'] : languages
+    end
+
+    def format_template_message(template_name, placeholders, image, fallback, language)
+      namespace = self.config['smooch_template_namespace']
+      return '' if namespace.blank?
+      template = self.config["smooch_template_name_for_#{template_name}"] || template_name
+      default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
+      locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
+      if RequestStore.store[:smooch_bot_provider] == 'TURN'
+        self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      else
+        self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders)
+      end
+    end
+
     def resend_message_after_window(message)
       message = JSON.parse(message)
       original = Rails.cache.read('smooch:original:' + message['message']['_id'])

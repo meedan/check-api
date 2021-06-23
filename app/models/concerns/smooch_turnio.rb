@@ -27,7 +27,7 @@ module SmoochTurnio
       'TURN.IO'
     end
 
-    def turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
+    def turnio_format_template_message(namespace, template, _fallback, locale, image, placeholders)
       components = []
       components << { type: 'header', parameters: [{ type: 'image', image: { link: image } }] } unless image.blank?
       body = []

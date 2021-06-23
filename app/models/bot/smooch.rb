@@ -323,7 +323,7 @@ class Bot::Smooch < BotUser
       smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
       RequestStore.store[:smooch_bot_provider] = 'TURN' if key_that_has_value == 'turnio_secret'
     end
-    settings = smooch_bot_installation&.settings || {}
+    settings = smooch_bot_installation&.settings&.to_h
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })
     smooch_bot_installation
   end
@@ -483,25 +483,6 @@ class Bot::Smooch < BotUser
     return false
   end
 
-  def self.template_locale_options(team_slug = nil)
-    team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
-    languages = team&.get_languages
-    languages.blank? ? ['en'] : languages
-  end
-
-  def self.format_template_message(template_name, placeholders, image, fallback, language)
-    namespace = self.config['smooch_template_namespace']
-    return '' if namespace.blank?
-    template = self.config["smooch_template_name_for_#{template_name}"] || template_name
-    default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
-    locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
-    if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
-    else
-      self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders)
-    end
-  end
-
   def self.user_received_report(message)
     self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
@@ -546,7 +527,7 @@ class Bot::Smooch < BotUser
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_api_get_user_data(uid, payload)
     else
-      self.zendesk_api_get_user_data(uid) 
+      self.zendesk_api_get_user_data(uid)
     end
   end
 
@@ -638,7 +619,7 @@ class Bot::Smooch < BotUser
     error_message = is_supported[:type] == false ? workflow['smooch_message_smooch_bot_message_type_unsupported'] : I18n.t(:smooch_bot_message_size_unsupported, { max_size: max_size, locale: message['language'] })
     self.send_message_to_user(message['authorId'], error_message)
   end
-    
+
   def self.send_message_to_user(uid, text, extra = {}, force = false)
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
       self.turnio_send_message_to_user(uid, text, extra, force)
