@@ -5,7 +5,7 @@ class Bot::Alegre < BotUser
   ELASTICSEARCH_MODEL = "elasticsearch"
 
   ::ProjectMedia.class_eval do
-    attr_accessor :alegre_similarity_thresholds
+    attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
   end
 
   DynamicAnnotation::Field.class_eval do
@@ -155,7 +155,7 @@ class Bot::Alegre < BotUser
     by_title = self.get_items_with_similar_title(pm, threshold)
     by_description = self.get_items_with_similar_description(pm, threshold)
     Hash[(by_title.keys|by_description.keys).collect do |pmid|
-      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].sort.last]
+      [pmid, [by_title[pmid].to_f, by_description[pmid].to_f].max]
     end]
   end
 
@@ -364,14 +364,22 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
-    es_matches = fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)}.reduce({}, :merge)
-    if self.matching_model_to_use(pm) == self.default_matching_model
-      es_matches
-    else
-      fields.collect{|field| self.get_items_with_similar_text(pm, field, threshold, value)}.reduce({}, :merge).merge(
-        es_matches
-      )
+    output = {}
+    fields.each do |field|
+      response = self.get_items_with_similar_text(pm, field, threshold, value, self.default_matching_model)
+      output[field] = response unless response.blank?
     end
+
+    if self.matching_model_to_use(pm) != self.default_matching_model
+      fields.each do |field|
+        response = self.get_items_with_similar_text(pm, field, threshold, value)
+        output[field] = response unless response.blank?
+      end
+    end
+    es_matches = output.values.reduce({}, :merge)
+    # set matched fields to use in short-text suggestion
+    pm.alegre_matched_fields = output.keys
+    es_matches
   end
 
   def self.extract_project_medias_from_context(search_result)
@@ -515,7 +523,7 @@ class Bot::Alegre < BotUser
     if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
-      relationship_type = self.split_text(pm.title.to_s).length > self.similarity_text_length_threshold ? pm_id_scores[parent_id][:relationship_type] : Relationship.suggested_type
+      relationship_type = self.is_text_too_short?(pm) ? Relationship.suggested_type : pm_id_scores[parent_id][:relationship_type]
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
@@ -530,6 +538,18 @@ class Bot::Alegre < BotUser
         similar_item_title: parent.title
       )
     end
+  end
+
+  def self.is_text_too_short?(pm)
+    is_short = true
+    unless pm.alegre_matched_fields.blank?
+      fields_size = []
+      pm.alegre_matched_fields.each do |field|
+        fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
+      end
+      is_short = fields_size.max <= self.similarity_text_length_threshold unless fields_size.blank?
+    end
+    is_short
   end
 
   class <<self
