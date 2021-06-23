@@ -323,7 +323,7 @@ class Bot::Smooch < BotUser
       smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
       RequestStore.store[:smooch_bot_provider] = 'TURN' if key_that_has_value == 'turnio_secret'
     end
-    settings = smooch_bot_installation&.settings&.to_h
+    settings = smooch_bot_installation&.settings.to_h
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })
     smooch_bot_installation
   end
@@ -622,7 +622,7 @@ class Bot::Smooch < BotUser
 
   def self.send_message_to_user(uid, text, extra = {}, force = false)
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_send_message_to_user(uid, text, extra, force)
+      self.turnio_send_message_to_user(uid, text.to_s, extra, force)
     else
       self.zendesk_send_message_to_user(uid, text, extra, force)
     end

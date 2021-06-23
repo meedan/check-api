@@ -167,9 +167,19 @@ module SmoochTurnio
       end
     end
 
-    def turnio_send_message_to_user(uid, text, _extra = {}, force = false)
+    def turnio_upload_image(url)
+      require 'open-uri'
+      uri = URI('https://whatsapp.turn.io/v1/media')
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
+      req.body = open(url).read
+      response = http.request(req)
+      JSON.parse(response.body).dig('media', 0, 'id')
+    end
+
+    def turnio_send_message_to_user(uid, text, extra = {}, force = false)
       return if self.config['smooch_disabled'] && !force
-      return if text.blank?
       payload = nil
       if text.is_a?(String)
         payload = {
@@ -184,6 +194,19 @@ module SmoochTurnio
       else
         payload = { to: uid }.merge(text)
       end
+      if extra['type'] == 'image'
+        media_id = self.turnio_upload_image(extra['mediaUrl'])
+        payload = {
+          recipient_type: 'individual',
+          to: uid,
+          type: 'image',
+          image: {
+            id: media_id,
+            caption: text.to_s
+          }
+        }
+      end
+      return if payload[:type] == 'text' && payload[:text][:body].blank?
       uri = URI('https://whatsapp.turn.io/v1/messages')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
