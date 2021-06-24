@@ -75,6 +75,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("https://i.imgur.com/ewGClFQ.png")
       # puts" pm1.get_annotations('flag').last #{pm1.get_annotations('flag').last}" 
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      assert_not_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
     end
   end

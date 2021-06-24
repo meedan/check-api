@@ -7,27 +7,6 @@
   },
   "interactions": [
     {
-      "description": "a request to identify its language",
-      "providerState": "a text exists",
-      "request": {
-        "method": "get",
-        "path": "/text/langid/",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "This is a test"
-        }
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": "{\"result\":{\"language\":\"en\",\"confidence\":0.421875},\"raw\":[{\"confidence\":0.421875,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
-      }
-    },
-    {
       "description": "a request to get image flags",
       "providerState": "an image URL",
       "request": {
@@ -49,14 +28,35 @@
           "result": {
             "flags": {
               "adult": 1,
-              "spoof": 3,
-              "medical": 4,
-              "violence": 4,
-              "racy": 4,
+              "spoof": 4,
+              "medical": 3,
+              "violence": 1,
+              "racy": 3,
               "spam": 4
             }
           }
         }
+      }
+    },
+    {
+      "description": "a request to identify its language",
+      "providerState": "a text exists",
+      "request": {
+        "method": "get",
+        "path": "/text/langid/",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "This is a test"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"result\":{\"language\":\"en\",\"confidence\":0.421875},\"raw\":[{\"confidence\":0.421875,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
       }
     }
   ],
