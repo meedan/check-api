@@ -42,7 +42,8 @@ module Api
         threshold = filters[:similarity_threshold] ? filters[:similarity_threshold].flatten[0].to_f : nil
         ids_text = self.apply_text_similarity_filter(organization_ids, threshold, filters)
         ids_image = self.apply_image_similarity_filter(organization_ids, threshold, filters)
-        conditions[:id] = (ids_text.to_a + ids_image.to_a).uniq if ids_text || ids_image
+        ids_video = self.apply_video_similarity_filter(organization_ids, threshold, filters)
+        conditions[:id] = (ids_text.to_a + ids_image.to_a + ids_video.to_a).uniq if ids_text || ids_image || ids_video
 
         self.apply_check_filters(conditions, filters)
       end
@@ -52,7 +53,7 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_items_from_similar_text(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
         end
@@ -60,16 +61,34 @@ module Api
       end
 
       def self.apply_image_similarity_filter(organization_ids, threshold, filters)
-        image = filters[:similar_to_image]
+        self.apply_media_similarity_filter(
+          organization_ids,
+          threshold,
+          "api_v2_similar_image/#{SecureRandom.hex}",
+          filters[:similar_to_image],
+          "get_similar_images"
+        )
+      end
+
+      def self.apply_video_similarity_filter(organization_ids, threshold, filters)
+        self.apply_media_similarity_filter(
+          organization_ids,
+          threshold,
+          "api_v2_similar_video/#{SecureRandom.hex}",
+          filters[:similar_to_video],
+          "get_similar_videos"
+        )
+      end
+
+      def self.apply_media_similarity_filter(organization_ids, threshold, media_path, media, method)
         ids = nil
-        unless image.blank?
-          image[0].rewind
-          image_path = "api_v2_similar_image/#{SecureRandom.hex}"
-          CheckS3.write(image_path, 'image/png', image[0].read)
-          ids_and_scores = Bot::Alegre.get_items_from_similar_image(organization_ids, CheckS3.public_url(image_path), {value: threshold})
+        unless media.blank?
+          media[0].rewind
+          CheckS3.write(media_path, media[0].content_type, media[0].read)
+          ids_and_scores = Bot::Alegre.send(method, *[organization_ids, CheckS3.public_url(media_path), {value: threshold}])
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
-          CheckS3.delete(image_path)
+          CheckS3.delete(media_path)
         end
         ids
       end
@@ -102,6 +121,7 @@ module Api
       filter :archived, apply: ->(records, _value, _options) { records }
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
       filter :similar_to_image, apply: ->(records, _value, _options) { records }
+      filter :similar_to_video, apply: ->(records, _value, _options) { records }
       filter :similarity_fields, apply: ->(records, _value, _options) { records }
       filter :similarity_threshold, apply: ->(records, _value, _options) { records }
       filter :similarity_organization_ids, apply: ->(records, _value, _options) { records }

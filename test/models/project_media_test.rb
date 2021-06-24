@@ -1870,7 +1870,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
     create_relationship source_id: pm.id, target_id: create_project_media(team: t, project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     sleep 2
-    assert_equal 4, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json).medias.size
+    assert_equal 4, CheckSearch.new({ show_similar: true, team_id: t.id }.to_json).medias.size
     assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json).medias.size
     assert_equal 0, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json).medias.size
     assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json).medias.size
@@ -2291,18 +2292,29 @@ class ProjectMediaTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     pm = create_project_media
+    pm2 = create_project_media team: pm.team
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_queries(0, '=') { assert_equal 'unpublished', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'unpublished', pm2.report_status }
     r = publish_report(pm)
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal 'published', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'published', pm2.report_status }
     r = Dynamic.find(r.id)
     r.set_fields = { state: 'paused' }.to_json
     r.action = 'pause'
     r.save!
     pm = ProjectMedia.find(pm.id)
     assert_queries(0, '=') { assert_equal 'paused', pm.report_status }
+    assert_queries(0, '=') { assert_equal 'paused', pm2.report_status }
     Rails.cache.clear
     assert_queries(0, '>') { assert_equal 'paused', pm.report_status }
+    pm3 = create_project_media team: pm.team
+    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
+    r = create_relationship source_id: pm.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    assert_queries(0, '=') { assert_equal 'paused', pm3.report_status }
+    r.destroy!
+    assert_queries(0, '=') { assert_equal 'unpublished', pm3.report_status }
   end
 
   test "should cache tags list" do

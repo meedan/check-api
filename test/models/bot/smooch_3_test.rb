@@ -455,10 +455,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
       assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
-        Bot::Smooch.run(payload)
+        assert Bot::Smooch.run(payload)
       end
       pm = ProjectMedia.last
-      assert_not_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
       sm = CheckStateMachine.new(uid)
       sm.enter_human_mode
       sm = CheckStateMachine.new(uid)
@@ -469,7 +468,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_not_nil a
       a.destroy!
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
-      assert_nil Rails.cache.read("smooch:request:#{uid}:#{pm.id}")
       sm = CheckStateMachine.new(uid)
       assert_equal 'waiting_for_message', sm.state.value
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")

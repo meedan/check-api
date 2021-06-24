@@ -25,7 +25,7 @@ namespace :check do
             }
           })
           if similar['result'].length == 0
-            Bot::Alegre.send_to_image_similarity_index(pm)
+            Bot::Alegre.send_to_media_similarity_index(pm)
           end
         end
       end

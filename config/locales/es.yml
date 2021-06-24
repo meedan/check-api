@@ -665,8 +665,6 @@ es:
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: La solicitud contiene una o más de las siguientes palabras
     clave
-  team_rule_title_contains_keyword: El título del ítem contiene una o más de las siguientes
-    palabras clave
   team_rule_select_type: Seleccionar tipo
   team_rule_select_language: 'Selecciona el idioma '
   team_rule_select_user: Selecciona un(a) colaborador(a)

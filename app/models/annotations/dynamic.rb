@@ -201,7 +201,9 @@ class Dynamic < ActiveRecord::Base
   end
 
   def set_data
-    self.data = self.data.merge(JSON.parse(self.set_fields)) if !self.set_fields.blank? && !self.json_schema.blank?
+    unless self.set_fields.blank? || self.json_schema.blank?
+      begin self.data = self.data.merge(JSON.parse(self.set_fields)) rescue {} end
+    end
   end
 
   def mandatory_fields_are_set

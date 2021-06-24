@@ -5,12 +5,15 @@ class CheckSearch
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
     @options['team_id'] = Team.current.id unless Team.current.nil?
+    @options['operator'] ||= 'AND' # AND or OR
     # set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
     @options['sort'] ||= (smooch_bot_installed ? 'last_seen' : 'recent_added')
     @options['sort_type'] ||= 'desc'
     # set show options
     @options['show'] ||= MEDIA_TYPES
+    # set show similar
+    @options['show_similar'] ||= false
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
@@ -70,7 +73,7 @@ class CheckSearch
     if should_hit_elasticsearch?
       query = medias_build_search_query
       result = medias_get_search_result(query)
-      key = show_parent? ? 'parent_id' : 'annotated_id'
+      key = get_search_field
       @ids = result.collect{ |i| i[key] }.uniq
       results = ProjectMedia.where(id: @ids)
       @medias = sort_pg_results(results, 'project_medias')
@@ -153,23 +156,30 @@ class CheckSearch
   end
 
   def get_pg_results_for_media
-    filters = {}
-    filters['team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    filters['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
-    filters['user_id'] = [@options['users']].flatten unless @options['users'].blank?
-    filters['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
-    filters['read'] = @options['read'].to_i if @options.has_key?('read')
+    custom_conditions = {}
+    core_conditions = {}
+    core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
+    custom_conditions['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
+    custom_conditions['user_id'] = [@options['users']].flatten unless @options['users'].blank?
+    custom_conditions['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
+    custom_conditions['read'] = @options['read'].to_i if @options.has_key?('read')
     archived = @options['archived'].to_i
-    filters = filters.merge({ archived: archived })
-    filters = filters.merge({ sources_count: 0 }) unless should_include_related_items?
-    build_search_range_filter(:pg, filters)
-    relation = ProjectMedia.where(filters).distinct('project_medias.id').includes(:media)
-    relation
+    core_conditions.merge!({ archived: archived })
+    core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
+    build_search_range_filter(:pg, custom_conditions)
+    relation = ProjectMedia
+    if @options['operator'].upcase == 'OR'
+      custom_conditions.each do |key, value|
+        relation = relation.or(ProjectMedia.where({ key => value }))
+      end
+    else
+      relation = relation.where(custom_conditions)
+    end
+    relation.distinct('project_medias.id').includes(:media).where(core_conditions)
   end
 
   def should_include_related_items?
-    all_items = (@options['projects'].blank? && @options['archived'].to_i == 0)
-    @options['include_related_items'] || all_items || show_parent?
+    @options['show_similar'] || show_parent?
   end
 
   def show_parent?
@@ -177,36 +187,48 @@ class CheckSearch
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
-  def medias_build_search_query
-    conditions = []
-    conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
-    archived = @options['archived'].to_i
-    conditions << { term: { archived: archived } }
-    conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
-    conditions << { term: { sources_count: 0 } } unless should_include_related_items?
-    conditions.concat build_search_keyword_conditions
-    conditions.concat build_search_tags_conditions
-    conditions.concat build_search_report_status_conditions
-    conditions.concat build_search_assignment_conditions
-    conditions.concat build_search_doc_conditions
-    conditions.concat build_search_range_filter(:es)
-    dynamic_conditions = build_search_dynamic_annotation_conditions
-    check_seach_concat_conditions(conditions, dynamic_conditions)
-    team_tasks_conditions = build_search_team_tasks_conditions
-    check_seach_concat_conditions(conditions, team_tasks_conditions)
-    media_source_conditions = build_search_media_source_conditions
-    check_seach_concat_conditions(conditions, media_source_conditions)
-    { bool: { must: conditions } }
+  def get_search_field
+    field = 'annotated_id'
+    field = 'parent_id' if !@options['show_similar'] && show_parent?
+    field
   end
 
-  def check_seach_concat_conditions(base_condition, c)
+  def medias_build_search_query
+    core_conditions = []
+    custom_conditions = []
+    core_conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
+    archived = @options['archived'].to_i
+    core_conditions << { term: { archived: archived } }
+    custom_conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
+    core_conditions << { term: { sources_count: 0 } } unless should_include_related_items?
+    custom_conditions.concat build_search_keyword_conditions
+    custom_conditions.concat build_search_tags_conditions
+    custom_conditions.concat build_search_report_status_conditions
+    custom_conditions.concat build_search_assignment_conditions
+    custom_conditions.concat build_search_doc_conditions
+    custom_conditions.concat build_search_range_filter(:es)
+    dynamic_conditions = build_search_dynamic_annotation_conditions
+    check_search_concat_conditions(custom_conditions, dynamic_conditions)
+    team_tasks_conditions = build_search_team_tasks_conditions
+    check_search_concat_conditions(custom_conditions, team_tasks_conditions)
+    media_source_conditions = build_search_media_source_conditions
+    check_search_concat_conditions(custom_conditions, media_source_conditions)
+    if @options['operator'].upcase == 'OR'
+      and_conditions = { bool: { must: core_conditions } }
+      or_conditions = { bool: { should: custom_conditions } }
+      { bool: { must: [and_conditions, or_conditions] } }
+    else
+      { bool: { must: core_conditions + custom_conditions } }
+    end
+  end
+
+  def check_search_concat_conditions(base_condition, c)
     base_condition.concat(c) unless c.blank?
   end
 
   def medias_get_search_result(query)
     # use collapse to return uniq results
-    field = show_parent? ? 'parent_id' : 'annotated_id'
-    collapse = { field: field }
+    collapse = { field: get_search_field }
     sort = build_search_sort
     @options['es_id'] ? $repository.find([@options['es_id']]).compact : $repository.search(query: query, collapse: collapse, sort: sort, size: @options['eslimit'], from: @options['esoffset']).results
   end
@@ -242,7 +264,7 @@ class CheckSearch
     set_keyword_fields
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
-    check_seach_concat_conditions(keyword_c, field_conditions)
+    check_search_concat_conditions(keyword_c, field_conditions)
     [['comments', 'text'], ['task_comments', 'text'], ['dynamics', 'indexable']].each do |pair|
       keyword_c << {
         nested: {
@@ -264,7 +286,7 @@ class CheckSearch
     } if should_include_keyword_field?('accounts')
 
     team_tasks_c = build_keyword_conditions_team_tasks
-    check_seach_concat_conditions(keyword_c, team_tasks_c)
+    check_search_concat_conditions(keyword_c, team_tasks_c)
 
     [{ bool: { should: keyword_c } }]
   end
@@ -362,15 +384,30 @@ class CheckSearch
       must_c = []
       must_c << { term: { "task_responses.team_task_id": tt['id'] } } if tt.has_key?('id')
       response_type = tt['response_type'] ||= 'choice'
-      if response_type == 'choice'
-        # should handle any/no values
-        if tt['response'] == 'ANY_VALUE'
-          must_c << { exists: { field: "task_responses.value" } }
-        elsif tt['response'] == 'NO_VALUE'
-          must_c << { bool: { must_not: [ { exists: { field: "task_responses.value" } } ] } }
-        else
-          must_c << { term: { "task_responses.value.raw": tt['response'] } }
-        end
+      if tt['response'] == 'ANY_VALUE'
+        must_c << { exists: { field: "task_responses.value" } }
+      elsif tt['response'] == 'NO_VALUE'
+        return [{
+          bool: {
+            must_not: [
+              {
+                nested: {
+                  path: 'task_responses',
+                  query: {
+                    bool: {
+                      must: [
+                        { term: { 'task_responses.team_task_id': tt['id'] } },
+                        { exists: { field: 'task_responses.value' } }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }]
+      elsif response_type == 'choice'
+        must_c << { term: { "task_responses.value.raw": tt['response'] } }
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end

@@ -534,7 +534,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.archived = true
       t.save!
-      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 2, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -547,7 +547,7 @@ class TeamTest < ActiveSupport::TestCase
       t = Team.find(t.id)
       t.name = random_string
       t.save!
-      assert_equal n, Sidekiq::Extensions::DelayedClass.jobs.size
+      assert_equal n + 1, Sidekiq::Extensions::DelayedClass.jobs.size
     end
   end
 
@@ -2986,5 +2986,38 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media project: p0, media: nil, url: url
     assert_equal 0, Project.find(p0.id).project_medias.count
     assert_equal 1, Project.find(p1.id).project_medias.count
+  end
+
+  test "should update reports when status is changed at team level" do
+    create_verification_status_stuff
+    t = create_team
+    value = {
+      label: 'Field label',
+      active: '2',
+      default: '1',
+      statuses: [
+        { id: '1', locales: { en: { label: 'Custom Status 1', description: 'The meaning of this status' } }, style: { color: 'red' } },
+        { id: '2', locales: { en: { label: 'Custom Status 2', description: 'The meaning of that status' } }, style: { color: 'blue' } }
+      ]
+    }
+    assert_nothing_raised do
+      t.set_media_verification_statuses(value)
+      t.save!
+    end
+    pm = create_project_media team: t
+    r = publish_report(pm)
+    r = Dynamic.find(r.id)
+    r.set_fields = { state: 'paused' }.to_json
+    r.action = 'pause'
+    r.save!
+    s = pm.last_verification_status_obj
+    s.status = '2'
+    s.save!
+    assert_equal 'Custom Status 2', r.reload.data.dig('options', 0, 'status_label')
+    t = Team.find(t.id)
+    value[:statuses][1][:locales][:en][:label] = 'Custom Status 2 Changed'
+    t.media_verification_statuses = value
+    t.save!
+    assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 0, 'status_label')
   end
 end

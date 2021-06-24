@@ -166,8 +166,8 @@ ar:
   mail_account_confirmation: تأكيد الحساب %{app_name}
   slack:
     fields:
-      assigned: مُكَلَّف إلى
-      unassigned: تم إلغاء التكليف عن
+      assigned: المُكَلَّف
+      unassigned: أُزيل التكليف عن
       project: مجلد
       source: المصدر
       status: الحالة
@@ -201,14 +201,15 @@ ar:
         مجلد %{list_name}
       project_media_status: قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow}
         %{type}
-      project_media_assign: قام %{user} (%{role} في %{team}) بتكليف %{type}
-      project_media_unassign: قام %{user} (%{role} في %{team}) بالغاء تكليف %{type}
+      project_media_assign: قام المستخدم %{user} (%{role} في %{team}) بتكليف %{type}
+      project_media_unassign: قام المستخدم %{user} (%{role} في %{team}) بإلغاء تكليف
+        %{type}
       project_source_comment: قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}
       project_source_create: قام %{user} (%{role} في %{team}) بإنشاء %{type}
       project_source_update: قام %{user} (%{role} في %{team}) بتحرير %{type}
       project_create: قام %{user} (%{role} في %{team}) بإنشاء مجلد
-      project_assign: قام %{user} (%{role} في %{team}) بتعيين مجلد
-      project_unassign: قام %{user} (%{role} في %{team}) بإلغاء تعيين مجلد
+      project_assign: قام المستخدم %{user} (%{role} في %{team}) بتعيين مجلد
+      project_unassign: قام المستخدم %{user} (%{role} في %{team}) بإلغاء تعيين مجلد
       user_member: إنضم %{user} الى مساحة العمل %{team}
       user_requested: طلب %{user} الانضمام الى مساحة العمل %{team}
       user_invited: تمت دعوة %{user} الى مساحة العمل %{team}
@@ -334,7 +335,7 @@ ar:
     team_found: مساحة العمل غير موجودة.
     invalid: رمز الدعوة غير صالح.
     no_invitation: لا توجد دعوة لمساحة العمل %{name}
-  error_user_is_not_a_team_member: عذراً ، لا يمكن تكليف مهام لغير أعضاء مساحة العمل
+  error_user_is_not_a_team_member: عذراً، لا يمكن تعيين مهام لغير أعضاء مساحة العمل
     هذه
   error_login_with_exists_account: 'عذرًا ، هذا الحسب هذا مُستخدم من قبل مستخدم أو
     مستخدمة آخرى  '
@@ -375,8 +376,8 @@ ar:
     delete_user:
       subject: "[%{team}] تم حذف مستخدم"
       header_title: تم حذف المستخدم/ة
-      header_text: تم حذف حساب مستخدم ونقل محتواه الخاص إلى المستخدم %{anonymous}
-        ومعرّفه %{id}
+      header_text: لقد حُذف حساب مستخدم ثم أعيد تخصيص المستخدم %{anonymous} ليتكلف
+        بمحتواه ومُعرِّفه %{id}
       anonymous: مجهول/ة
     admin_mailer:
       team_download_subject: "[%{team}] لقطة بيانات مساحة العمل جاهزة للتحميل"
@@ -415,33 +416,34 @@ ar:
       update_h: آخر تحديث
       tasks_h: المهام المكتلمة
     assignment:
-      assign_task_subject: "[%{team} - %{project}] تم تكليف مهمة إليك"
-      unassign_task_subject: "[%{team} - %{project}] تم إلغاء تكليف مهمة عنك"
-      assign_project_subject: "[%{team} - %{project}] تم تكليف مجلد إليك"
+      assign_task_subject: "[%{team} - %{project}] تم تعيينك بمهمة"
+      unassign_task_subject: "[%{team} - %{project}] تم إلغاء تعيينك بمهمة"
+      assign_project_subject: "[%{team} - %{project}] تم تخصيصك بمجلد"
       unassign_project_subject: "[%{team} - %{project}] لم تعد مكلفا بالمجلد"
-      assign_media_subject: "[%{team} - %{project}] تم تكليف عنصر إليك"
-      unassign_media_subject: "[%{team} - %{project}] تم إلغاء تكليف عنصر عنك"
-      assign_project_title: تمّ تكليف مجلد
+      assign_media_subject: "[%{team} - %{project}] تم تخصيص عنصر لك"
+      unassign_media_subject: "[%{team} - %{project}] تم إلغاء تخصيصك بعنصر"
+      assign_project_title: المجلد المُخصَّص
       unassign_project_title: لا أحد مكلف بالمجلد
-      assign_project_text: قام(ت) %{author} بتكليف مجلد %{project} التابع الى %{team}.
-      unassign_project_text: قام(ت) %{author} بالغاء تكليف مجلد %{project} التابع
-        الى %{team}.
-      assign_task_title: تكليف مهمة
-      unassign_task_title: إلغاء تكليف مهمة
-      assign_task_text: قام(ت) %{author} بتكليف مهمة في مجلد %{project} التابع لـ
+      assign_project_text: قام المؤلف %{author} بتخصيص المجلد %{project} التابع لـ
         %{team}.
-      unassign_task_text: قام(ت) %{author} بالغاء تكليف مهمة في مجلد %{project} التابع
-        الى %{team}.
-      assign_media_title: تمّ تكليف العنصر
-      unassign_media_title: تمّ إلغاء تكليف العنصر
-      assign_media_text: قام(ت) %{author} بتكليف عنصر في مجلد %{project} التابع الى
-        %{team}.
-      unassign_media_text: قام(ت) %{author} بالغاء تكليف عنصر في مجلد %{project} التابع
-        الى %{team}.
-      assign_log: قام(ت) %{author} بتكليف %{model} الى %{username}
-      unassign_log: قام(ت) %{author} بإلغاء تكليف %{model} عن %{username}
-      assign_by: تكليف من
-      unassign_by: قام(ت) بإلغاء التكليف
+      unassign_project_text: قام المؤلف %{author} بإلغاء تخصيص المجلد %{project} التابع
+        لـ %{team}.
+      assign_task_title: تخصيص مهمة
+      unassign_task_title: مهمة غير مُخصَّصة
+      assign_task_text: قام المؤلف %{author} بتعيين مهمة في المجلد %{project} التابع
+        لـ %{team}.
+      unassign_task_text: قام المؤلف %{author} بإلغاء تعيين مهمة في المجلد %{project}
+        التابع لـ %{team}.
+      assign_media_title: العنصر المُخصَّص
+      unassign_media_title: تمّ إلغاء تخصيص العنصر
+      assign_media_text: قام المؤلف %{author} بتخصيص عنصر في مجلد %{project} التابع
+        لـ %{team}.
+      unassign_media_text: قام المؤلف %{author} بإلغاء تخصيص عنصر في المجلد %{project}
+        التابع لـ %{team}.
+      assign_log: قام المؤلف %{author} بتخصيص %{model} لـ %{username}
+      unassign_log: قام المؤلف %{author} بإلغاء تخصيص %{model} عن %{username}
+      assign_by: عُيِّن من طرف
+      unassign_by: لقد أُلغِي التخصيص من طرف
       project_button: العودة إلى صفحة المجلد
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
@@ -573,7 +575,7 @@ ar:
             delete: حذف مهمة
             add_response: إضافة إجابة
             delete_repsonse: حذف اﻹجابة
-            assign_task: تكليف مهمة أو عنصر
+            assign_task: تعيين مهمة أو عنصر
         team_management:
           name: إدارة مساحة العمل
           permissions:
@@ -652,8 +654,6 @@ ar:
   team_rule_type_is_uploadedvideo: فيديو
   team_rule_contains_keyword: الطلب يحتوي على كلمة واحدة على الأقل من الكلمات المفتاحيّة
     اﻵتية
-  team_rule_title_contains_keyword: يحتوي عنوان العنصر على كلمة أو أكثر من الكلمات
-    المفتاحية التالية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
   team_rule_select_user: اختيار شريك(ة)
@@ -702,7 +702,7 @@ ar:
   team_rule_select_field_value_metadata: تحديد القيمة
   team_rule_select_field_tasks: اختيار مهمة
   team_rule_select_field_value_tasks: اختيار إجابة
-  team_rule_item_is_assigned_to_user: العنصر مُكَلَّف إلى
+  team_rule_item_is_assigned_to_user: العنصر مُخصَّص لـ
   team_rule_add_tag: إضافة الوسم
   flag_adult: إباحي
   flag_spoof: متلاعب بها

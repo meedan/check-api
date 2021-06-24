@@ -143,3 +143,4 @@ gem 'taglib-ruby'
 gem 'bitly', require: false
 gem 'open_uri_redirections', require: false
 gem 'jsonapi-resources'
+gem 'where-or'

@@ -187,7 +187,7 @@ class Bot::Fetch < BotUser
     def self.already_imported?(claim_review, team)
       id = claim_review['identifier']
       joins = "INNER JOIN annotations ON annotations.id = dynamic_annotation_fields.annotation_id INNER JOIN project_medias ON project_medias.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'"
-      Rails.cache.read(self.semaphore_key(team.id, id)) || DynamicAnnotation::Field.joins(joins).where('project_medias.team_id' => team.id, 'value' => id, 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').last.present?
+      Rails.cache.read(self.semaphore_key(team.id, id)) || DynamicAnnotation::Field.joins(joins).where('project_medias.team_id' => team.id, 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').where('dynamic_annotation_fields_value(field_name, value) = ?', id.to_json).last.present?
     end
 
     def self.create_project_media(team, user)

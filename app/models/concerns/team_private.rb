@@ -93,4 +93,10 @@ module TeamPrivate
     params.merge!({ 'parent' => { 'type' => 'team', 'slug' => self.slug }})
     CheckSearch.new(params.to_json)
   end
+
+  def update_reports_if_labels_changed
+    statuses = self.settings.to_h.with_indifferent_access[:media_verification_statuses]
+    statuses_were = self.settings_was.to_h.with_indifferent_access[:media_verification_statuses]
+    self.class.delay_for(1.second).update_reports_if_labels_changed(self.id, statuses_were, statuses)
+  end
 end
