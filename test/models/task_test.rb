@@ -691,4 +691,15 @@ class TaskTest < ActiveSupport::TestCase
       create_task annotator: u, annotated: pm
     end
   end
+
+  test "should upload multiple files to task" do
+    t = create_task
+    at = create_annotation_type annotation_type: 'task_response'
+    t.file = [File.new(File.join(Rails.root, 'test', 'data', 'rails.png')), File.new(File.join(Rails.root, 'test', 'data', 'rails2.png'))]
+    t.response = { annotation_type: 'task_response' }.to_json
+    t.save!
+    file_urls = t.reload.first_response_obj.file_data
+    assert_kind_of Array, file_urls
+    assert_equal 2, file_urls.size
+  end
 end
