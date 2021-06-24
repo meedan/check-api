@@ -622,7 +622,7 @@ class Bot::Smooch < BotUser
 
   def self.send_message_to_user(uid, text, extra = {}, force = false)
     if RequestStore.store[:smooch_bot_provider] == 'TURN'
-      self.turnio_send_message_to_user(uid, text.to_s, extra, force)
+      self.turnio_send_message_to_user(uid, text, extra, force)
     else
       self.zendesk_send_message_to_user(uid, text, extra, force)
     end
