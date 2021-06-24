@@ -38,7 +38,7 @@ RUN python -m pip install -U setuptools wheel
 # install our app
 WORKDIR /app
 COPY Gemfile /app/Gemfile
-COPY Gemfile.lock /app/Gemfile.lock
+#COPY Gemfile.lock /app/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
     gem install bundler -v "< 2.0" \
     && bundle install --jobs 20 --retry 5
