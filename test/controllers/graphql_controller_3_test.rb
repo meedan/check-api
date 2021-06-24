@@ -1356,6 +1356,22 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal output, JSON.parse(@response.body)['data']['node']['smooch_bot_preview_rss_feed']
   end
 
+  test "should set and get Alegre Bot settings" do
+    u = create_user
+    t = create_team
+    b = create_team_bot name: 'Alegre', login: 'alegre', set_approved: true
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id
+    tu = create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation { updateTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '", json_settings: "{\"similarity_text_length_threshold\":\"4\"}" }) { team_bot_installation { json_settings } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { alegre_settings } } }'
+    post :create, query: query, team: t.slug
+    alegre_settings =  JSON.parse(@response.body)['data']['node']['alegre_settings']
+    assert_equal "4", JSON.parse(alegre_settings)['similarity_text_length_threshold']
+  end
+
   test "should not get Smooch Bot RSS feed preview if not owner" do
     u = create_user
     t = create_team
