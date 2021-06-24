@@ -130,7 +130,7 @@ class Task < ActiveRecord::Base
     response.annotation_type = params['annotation_type']
     response.set_fields = params['set_fields']
     response.updated_at = Time.now
-    response.file = [self.file]
+    response.file = [self.file].flatten
     self.file = nil
     response.save!
     @response = response
