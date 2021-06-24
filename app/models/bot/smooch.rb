@@ -17,6 +17,8 @@ class Bot::Smooch < BotUser
   include SmoochStatus
   include SmoochResend
   include SmoochTeamBotInstallation
+  include SmoochZendesk
+  include SmoochTurnio
 
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
@@ -96,7 +98,7 @@ class Bot::Smooch < BotUser
             app_id = self.get_field_value('smooch_user_app_id')
             message = self.action.to_s.match(/^send (.*)$/)
             unless message.nil?
-              Bot::Smooch.get_installation('smooch_app_id', app_id)
+              Bot::Smooch.get_installation(Bot::Smooch.installation_setting_id_keys, app_id)
               payload = {
                 '_id': Digest::MD5.hexdigest([self.action.to_s, Time.now.to_f.to_s].join(':')),
                 authorId: id,
@@ -304,23 +306,30 @@ class Bot::Smooch < BotUser
     !tbi.nil? && tbi.settings.with_indifferent_access[:smooch_disabled].blank?
   end
 
-  def self.get_installation(key, value)
+  def self.installation_setting_id_keys
+    ['smooch_app_id', 'turnio_secret']
+  end
+
+  def self.get_installation(key = nil, value = nil)
     bot = BotUser.smooch_user
     return nil if bot.nil?
     smooch_bot_installation = nil
+    keys = [key].flatten.map(&:to_s).reject{ |k| k.blank? }
     TeamBotInstallation.where(user_id: bot.id).each do |installation|
-      smooch_bot_installation = installation if installation.settings.with_indifferent_access[key] == value
+      key_that_has_value = nil
+      installation.settings.each do |k, v|
+        key_that_has_value = k.to_s if keys.include?(k.to_s) && v == value
+      end
+      smooch_bot_installation = installation if (block_given? && yield(installation)) || !key_that_has_value.nil?
+      RequestStore.store[:smooch_bot_provider] = 'TURN' if key_that_has_value == 'turnio_secret'
     end
-    settings = smooch_bot_installation&.settings || {}
+    settings = smooch_bot_installation&.settings.to_h
     RequestStore.store[:smooch_bot_settings] = settings.with_indifferent_access.merge({ team_id: smooch_bot_installation&.team_id.to_i })
     smooch_bot_installation
   end
 
   def self.valid_request?(request)
-    RequestStore.store[:smooch_bot_queue] = request.headers['X-Check-Smooch-Queue'].to_s
-    key = request.headers['X-API-Key'].to_s
-    installation = self.get_installation('smooch_webhook_secret', key)
-    !key.blank? && !installation.nil?
+    self.valid_zendesk_request?(request) || self.valid_turnio_request?(request)
   end
 
   def self.config
@@ -332,14 +341,22 @@ class Bot::Smooch < BotUser
     Bot::Smooch.run(request.body.read)
   end
 
+  def self.preprocess_message(body)
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.preprocess_turnio_message(body)
+    else
+      JSON.parse(body)
+    end
+  end
+
   def self.run(body)
     begin
-      json = JSON.parse(body)
+      json = self.preprocess_message(body)
       JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
       case json['trigger']
       when 'message:appUser'
         json['messages'].each do |message|
-          self.parse_message(message, json['app']['_id'])
+          self.parse_message(message, json['app']['_id'], json)
         end
         true
       when 'message:delivery:failure'
@@ -352,6 +369,7 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
+      raise(e) if Rails.env.development?
       Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
       self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
       raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
@@ -465,34 +483,8 @@ class Bot::Smooch < BotUser
     return false
   end
 
-  def self.template_locale_options(team_slug = nil)
-    team = team_slug.nil? ? Team.current : Team.where(slug: team_slug).last
-    languages = team&.get_languages
-    languages.blank? ? ['en'] : languages
-  end
-
-  # https://docs.smooch.io/guide/whatsapp#shorthand-syntax
-  def self.format_template_message(template_name, placeholders, image, fallback, language)
-    namespace = self.config['smooch_template_namespace']
-    return '' if namespace.blank?
-    template = self.config["smooch_template_name_for_#{template_name}"] || template_name
-    default_language = Team.where(id: self.config['team_id'].to_i).last&.default_language
-    locale = (!language.blank? && [self.config['smooch_template_locales']].flatten.include?(language)) ? language : default_language
-    data = { namespace: namespace, template: template, fallback: fallback, language: locale }
-    data['header_image'] = image unless image.blank?
-    output = ['&((']
-    data.each do |key, value|
-      output << "#{key}=[[#{value}]]"
-    end
-    placeholders.each do |placeholder|
-      output << "body_text=[[#{placeholder.gsub(/\s+/, ' ')}]]"
-    end
-    output << '))&'
-    output.join('')
-  end
-
   def self.user_received_report(message)
-    self.get_installation('smooch_app_id', message['app']['_id'])
+    self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
     original = Rails.cache.read('smooch:original:' + message['message']['_id'])
     unless original.blank?
       original = JSON.parse(original)
@@ -508,15 +500,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.smooch_api_get_messages(app_id, user_id, opts = {})
-    result = nil
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    begin
-      result = api_instance.get_messages(app_id, user_id, opts)
-    rescue StandardError => e
-      Rails.logger.error("[Smooch Bot] Exception for get messages : #{e.message}")
-    end
-    result
+    self.zendesk_api_get_messages(app_id, user_id, opts)
   end
 
   def self.get_language(message, fallback_language = 'en')
@@ -539,17 +523,30 @@ class Bot::Smooch < BotUser
     hash
   end
 
-  def self.save_user_information(app_id, uid)
-    self.get_installation('smooch_app_id', app_id) if self.config.blank?
+  def self.api_get_user_data(uid, payload)
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.turnio_api_get_user_data(uid, payload)
+    else
+      self.zendesk_api_get_user_data(uid)
+    end
+  end
+
+  def self.api_get_app_name(app_id)
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.turnio_api_get_app_name
+    else
+      self.zendesk_api_get_app_data(app_id).app.name
+    end
+  end
+
+  def self.save_user_information(app_id, uid, payload_json)
+    payload = JSON.parse(payload_json)
+    self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     # FIXME Shouldn't we make sure this is an annotation in the right project?
     field = DynamicAnnotation::Field.where('field_name = ? AND dynamic_annotation_fields_value(field_name, value) = ?', 'smooch_user_id', uid.to_json).last
     if field.nil?
-      api_client = self.smooch_api_client
-      app_id = self.config['smooch_app_id']
-      api_instance = SmoochApi::AppUserApi.new(api_client)
-      user = api_instance.get_app_user(app_id, uid).appUser.to_hash.with_indifferent_access
-      api_instance = SmoochApi::AppApi.new(api_client)
-      app = api_instance.get_app(app_id)
+      user = self.api_get_user_data(uid, payload)
+      app_name = self.api_get_app_name(app_id)
 
       identifier = self.get_identifier(user, uid)
 
@@ -557,7 +554,7 @@ class Bot::Smooch < BotUser
         id: uid,
         raw: user,
         identifier: identifier,
-        app_name: app.app.name
+        app_name: app_name
       }
 
       a = Dynamic.new
@@ -569,7 +566,7 @@ class Bot::Smooch < BotUser
       a.annotated_id = self.get_project_id
       a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
       a.save!
-      query = { field_name: 'smooch_user_data', json: { app_name: app.app.name, identifier: identifier } }.to_json
+      query = { field_name: 'smooch_user_data', json: { app_name: app_name, identifier: identifier } }.to_json
       cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
       Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
       # Cache SmoochUserSlackChannelUrl if smooch_user_slack_channel_url exist
@@ -623,47 +620,11 @@ class Bot::Smooch < BotUser
     self.send_message_to_user(message['authorId'], error_message)
   end
 
-  def self.smooch_api_client
-    payload = { scope: 'app' }
-    jwt_header = { kid: self.config['smooch_secret_key_key_id'] }
-    token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwt_header
-    config = SmoochApi::Configuration.new
-    config.api_key['Authorization'] = token
-    config.api_key_prefix['Authorization'] = 'Bearer'
-    SmoochApi::ApiClient.new(config)
-  end
-
   def self.send_message_to_user(uid, text, extra = {}, force = false)
-    return if self.config['smooch_disabled'] && !force
-    api_client = self.smooch_api_client
-    api_instance = SmoochApi::ConversationApi.new(api_client)
-    app_id = self.config['smooch_app_id']
-    params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text.to_s.truncate(4096) }.merge(extra)
-    # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
-    if text.to_s.match(/https?:\/\//)
-      params.merge!({
-        override: {
-          whatsapp: {
-            payload: {
-              preview_url: true,
-              type: 'text',
-              text: {
-                body: text
-              }
-            }
-          }
-        }
-      })
-    end
-    return if params['type'] == 'text' && params['text'].blank?
-    message_post_body = SmoochApi::MessagePost.new(params)
-    begin
-      api_instance.post_message(app_id, uid, message_post_body)
-    rescue SmoochApi::ApiError => e
-      Rails.logger.error("[Smooch Bot] Exception when sending message #{params.inspect}: #{e.response_body}")
-      e2 = SmoochBotDeliveryFailure.new('Could not send message to Smooch user!')
-      self.notify_error(e2, { smooch_app_id: app_id, uid: uid, body: params, smooch_response: e.response_body }, RequestStore[:request])
-      nil
+    if RequestStore.store[:smooch_bot_provider] == 'TURN'
+      self.turnio_send_message_to_user(uid, text, extra, force)
+    else
+      self.zendesk_send_message_to_user(uid, text, extra, force)
     end
   end
 
@@ -846,7 +807,7 @@ class Bot::Smooch < BotUser
     ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
       pm2.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
         self.send_correction_to_user(data, parent, annotation.created_at, last_published_at, action, report.get_field_value('published_count').to_i) unless self.config['smooch_disabled']
       end
     end
@@ -895,10 +856,14 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.get_id_from_send_response(response)
+    RequestStore.store[:smooch_bot_provider] == 'TURN' ? JSON.parse(response.body).dig('messages', 0, 'id') : response&.message&.id
+  end
+
   def self.save_smooch_response(response, pm, query_date, fallback_template = nil, lang = 'en', custom = {})
     return false if response.nil? || fallback_template.nil?
-    id = response&.message&.id
-    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: query_date }.merge(custom).to_json) unless id.blank?
+    id = self.get_id_from_send_response(response)
+    Rails.cache.write('smooch:original:' + id, { project_media_id: pm.id, fallback_template: fallback_template, language: lang, query_date: (query_date || Time.now.to_i) }.merge(custom).to_json) unless id.blank?
   end
 
   def self.send_report_from_parent_to_child(parent_id, target_id)
@@ -907,7 +872,7 @@ class Bot::Smooch < BotUser
     return if parent.nil? || child.nil?
     child.get_annotations('smooch').find_each do |annotation|
       data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-      self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       self.send_report_to_user(data['authorId'], data, parent, data['language'], 'fact_check_report')
     end
   end
@@ -937,7 +902,7 @@ class Bot::Smooch < BotUser
     ProjectMedia.where(id: parent.related_items_ids).each do |pm2|
       pm2.get_annotations('smooch').find_each do |annotation|
         data = JSON.parse(annotation.load.get_field_value('smooch_data'))
-        self.get_installation('smooch_app_id', data['app_id']) if self.config.blank?
+        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
         message = parent.team.get_status_message_for_language(status, data['language'])
         unless message.blank?
           response = self.send_message_to_user(data['authorId'], message)
@@ -982,7 +947,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.timeout_smooch_menu(time, message, app_id)
-    self.get_installation('smooch_app_id', app_id) if self.config.blank?
+    self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     language = self.get_user_language(message)
     workflow = self.get_workflow(language)
     uid = message['authorId']
@@ -1000,10 +965,12 @@ class Bot::Smooch < BotUser
     team_bot_installation.apply_default_settings
     team_bot_installation.reset_smooch_authorization_token
     if blast_secret_settings
-      team_bot_installation.settings.delete("smooch_app_id")
-      team_bot_installation.settings.delete("smooch_secret_key_key_id")
-      team_bot_installation.settings.delete("smooch_secret_key_secret")
-      team_bot_installation.settings.delete("smooch_webhook_secret")
+      team_bot_installation.settings.delete('smooch_app_id')
+      team_bot_installation.settings.delete('smooch_secret_key_key_id')
+      team_bot_installation.settings.delete('smooch_secret_key_secret')
+      team_bot_installation.settings.delete('smooch_webhook_secret')
+      team_bot_installation.settings.delete('turnio_secret')
+      team_bot_installation.settings.delete('turnio_token')
     end
     team_bot_installation
   end

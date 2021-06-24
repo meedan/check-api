@@ -455,7 +455,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       assert_equal 0, redis.llen("smooch:bundle:#{uid}")
       assert_nil Rails.cache.read("smooch:banned:#{uid}")
       assert_difference "Dynamic.where(annotation_type: 'smooch_user').count" do
-        Bot::Smooch.run(payload)
+        assert Bot::Smooch.run(payload)
       end
       pm = ProjectMedia.last
       sm = CheckStateMachine.new(uid)
