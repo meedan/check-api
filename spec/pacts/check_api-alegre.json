@@ -26,6 +26,38 @@
         },
         "body": "{\"result\":{\"language\":\"en\",\"confidence\":0.421875},\"raw\":[{\"confidence\":0.421875,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
       }
+    },
+    {
+      "description": "a request to get image flags",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/classification/",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "uri": "https://i.imgur.com/ewGClFQ.png"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "flags": {
+              "adult": 1,
+              "spoof": 3,
+              "medical": 4,
+              "violence": 4,
+              "racy": 4,
+              "spam": 4
+            }
+          }
+        }
+      }
     }
   ],
   "metadata": {

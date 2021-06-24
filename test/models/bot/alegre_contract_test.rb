@@ -4,8 +4,10 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   include Pact::Consumer::Minitest
 
   def setup
-    stub_request(:any, "http://localhost:5000/pact")
-    stub_request(:get, "http://localhost:5000/interactions/verification?example_description=Bot::AlegreContractTest")
+    # stub_request(:any, "http://localhost:5000/pact")
+    p = create_project
+    m = create_claim_media quote: 'I like apples'
+    @pm = create_project_media project: p, media: m
   end
 
   def teardown
@@ -16,12 +18,6 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
   test 'should return language' do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
-      Bot::Alegre.stubs(:request_api).returns({
-        'result' => {
-          'language' => 'en',
-          'confidence' => 1.0
-        }
-      })
       alegre.given('a text exists').
       upon_receiving('a request to identify its language').
       with(
@@ -41,18 +37,29 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       )
       assert_equal 'en', Bot::Alegre.get_language_from_alegre('This is a test')
     end
-    Bot::Alegre.unstub(:request_api)
   end
 
-  test 'should return language und if there is an error' do
+  test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
-      Bot::Alegre.stubs(:request_api).raises(RuntimeError)
-      alegre.given('a text exists').
-      upon_receiving('a request with an error').
+      WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
+        "success": true
+      }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').to_return(body: {
+        "text": "Foo bar"
+      }.to_json)
+      WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
+      Bot::Alegre.unstub(:media_file_url)
+      alegre.given('an image URL').
+      upon_receiving('a request to get image flags').
       with(
         method: :get,
-        path: '/text/langid/',
-        body: { 'foo': 'bar' },
+        path: '/image/classification/',
+        body: { uri: 'https://i.imgur.com/ewGClFQ.png' },
         headers: {
           'Content-Type': 'application/json'
         }
@@ -61,12 +68,15 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
         status: 200,
         headers: {
           'Content-Type': 'application/json'
-        }
-        # body: { result: { language: 'en', confidence: 0.421875 }}.to_json
+        },
+        body: { result: valid_flags_data }
       )
-      assert_equal 'und', Bot::Alegre.get_language_from_alegre('This is a test')
+      pm1 = create_project_media team: @pm.team, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("https://i.imgur.com/ewGClFQ.png")
+      # puts" pm1.get_annotations('flag').last #{pm1.get_annotations('flag').last}" 
+      assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+      Bot::Alegre.unstub(:media_file_url)
     end
-    Bot::Alegre.unstub(:request_api)
   end
 
 end
