@@ -112,6 +112,28 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_not_equal({}, tb.settings)
   end
 
+  test "should get alegre settings with fallback values" do
+    b = create_team_bot login: 'alegre', set_approved: true
+    tb = create_team_bot_installation user_id: b.id
+    # verifiy settings with fallback values
+    stub_configs({ 'text_length_matching_threshold' => 7, 'text_elasticsearch_suggestion_threshold' => 0.8, 'image_hash_suggestion_threshold' => 0.6}) do
+      settings = JSON.parse(tb.alegre_settings)
+      assert_not_empty settings
+      assert_equal 7, settings['text_length_matching_threshold']
+      assert_equal 0.8, settings['text_elasticsearch_suggestion_threshold']
+      assert_equal 0.6, settings['image_hash_suggestion_threshold']
+      # override default settings
+      settings['text_length_matching_threshold'] = 4
+      settings['text_elasticsearch_suggestion_threshold'] = 0.4
+      tb.json_settings = settings.to_json
+      tb.save!
+      settings = JSON.parse(tb.reload.alegre_settings)
+      assert_equal 4, settings['text_length_matching_threshold']
+      assert_equal 0.4, settings['text_elasticsearch_suggestion_threshold']
+      assert_equal 0.6, settings['image_hash_suggestion_threshold']
+    end
+  end
+
   test "should follow schema" do
     schema = [{
       name: 'foo',

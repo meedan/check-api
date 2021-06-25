@@ -386,12 +386,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate correct text conditions for api request" do
-    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
     assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
   end
 
   test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
@@ -453,7 +453,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_suggestion_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -483,7 +483,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah')
     assert_equal response.class, Hash
     assert_not_empty response
     Bot::Alegre.unstub(:request_api)
@@ -578,7 +578,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_similarity_threshold', value: 0.1, automatic: false})
+    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
