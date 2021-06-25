@@ -1,4 +1,4 @@
-class Tag < ActiveRecord::Base
+class Tag < ApplicationRecord
   include AnnotationBase
 
   # "tag" is a reference to a TagText object

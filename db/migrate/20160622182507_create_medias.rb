@@ -4,7 +4,7 @@ class CreateMedias < ActiveRecord::Migration
       t.belongs_to :user
       t.belongs_to :account, index: true
       t.string :url
-      if ActiveRecord::Base.connection.class.name === 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
+      if ApplicationRecord.connection.class.name === 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter'
         t.json :data
       else
         t.text :data

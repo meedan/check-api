@@ -1,4 +1,4 @@
-class Team < ActiveRecord::Base
+class Team < ApplicationRecord
   # These two callbacks must be in the top
   after_create :create_team_partition
   before_destroy :delete_created_bots
@@ -87,7 +87,7 @@ class Team < ActiveRecord::Base
     # Re-create an empty partition before destroying the rest, to avoid errors
     self.send :delete_team_partition
     self.send :create_team_partition
-    ActiveRecord::Base.connection_pool.with_connection { self.destroy! }
+    ApplicationRecord.connection_pool.with_connection { self.destroy! }
     RequestStore.store[:skip_cached_field_update] = false
   end
 

@@ -1,4 +1,4 @@
-class SavedSearch < ActiveRecord::Base
+class SavedSearch < ApplicationRecord
   attr_accessor :is_being_copied
 
   validates_presence_of :title, :team_id

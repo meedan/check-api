@@ -1,4 +1,4 @@
-class Media < ActiveRecord::Base
+class Media < ApplicationRecord
   include AnnotationBase::Association
 
   self.inheritance_column = :type

@@ -197,8 +197,8 @@ class ActiveSupport::TestCase
   end
 
   def assert_queries(num = 1, operator = '=', test = true, &block)
-    old = ActiveRecord::Base.connection.query_cache_enabled
-    ActiveRecord::Base.connection.enable_query_cache!
+    old = ApplicationRecord.connection.query_cache_enabled
+    ApplicationRecord.connection.enable_query_cache!
     queries  = []
     callback = lambda { |name, start, finish, id, payload|
       queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and payload[:name] != 'CACHE'
@@ -206,7 +206,7 @@ class ActiveSupport::TestCase
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
     queries
   ensure
-    ActiveRecord::Base.connection.disable_query_cache! unless old
+    ApplicationRecord.connection.disable_query_cache! unless old
     debug = "Total of #{queries.size} Queries:\n#{queries.join("\n")}"
     msg = "#{queries.size} expected to be #{operator} #{num}. " + debug
     if test

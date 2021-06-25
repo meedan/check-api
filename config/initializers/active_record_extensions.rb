@@ -18,7 +18,7 @@ module ActiveRecordExtensions
 
   module ClassMethods
     def permissioned(team = nil)
-      klass = self.to_s.gsub(/::ActiveRecord.*$/, '')
+      klass = self.to_s.gsub(/::ApplicationRecord.*$/, '')
       all_params = RequestStore.store[:graphql_connection_params] || {}
       user = User.current || User.new
       team ||= (Team.current || Team.new)
@@ -127,4 +127,4 @@ module ActiveRecordExtensions
   end
 end
 
-ActiveRecord::Base.send(:include, ActiveRecordExtensions)
+ApplicationRecord.send(:include, ActiveRecordExtensions)

@@ -1,4 +1,4 @@
-class TagText < ActiveRecord::Base
+class TagText < ApplicationRecord
   include CheckPusher
   attr_accessor :marked_for_deletion
 

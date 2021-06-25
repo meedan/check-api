@@ -11,4 +11,4 @@ module PaperTrail
   end
 end
 
-ActiveRecord::Base.send :include, AnnotationBase::Association
+ApplicationRecord.send :include, AnnotationBase::Association

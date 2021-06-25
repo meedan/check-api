@@ -1,4 +1,4 @@
-class Relationship < ActiveRecord::Base
+class Relationship < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :is_being_copied, :add_to_project_id

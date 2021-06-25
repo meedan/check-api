@@ -6,7 +6,7 @@ namespace :check do
       bot = BotUser.find_by(:login => 'alegre')
 
       # Calculate total work to be done
-      total = ActiveRecord::Base.connection.execute("
+      total = ApplicationRecord.connection.execute("
         select count(*) as total from
         project_medias pm
         left join medias m on m.id = pm.media_id

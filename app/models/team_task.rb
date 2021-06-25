@@ -1,4 +1,4 @@
-class TeamTask < ActiveRecord::Base
+class TeamTask < ApplicationRecord
   include ErrorNotification
 
   attr_accessor :keep_completed_tasks

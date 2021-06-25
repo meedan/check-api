@@ -1,4 +1,4 @@
-class ProjectMediaUser < ActiveRecord::Base
+class ProjectMediaUser < ApplicationRecord
   belongs_to :project_media
   belongs_to :user
 

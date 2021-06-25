@@ -1,4 +1,4 @@
-class ProjectGroup < ActiveRecord::Base
+class ProjectGroup < ApplicationRecord
   attr_accessor :is_being_copied
 
   validates_presence_of :title, :team_id

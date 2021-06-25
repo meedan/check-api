@@ -1,4 +1,4 @@
-class DynamicAnnotation::Field < ActiveRecord::Base
+class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
   include Versioned
 

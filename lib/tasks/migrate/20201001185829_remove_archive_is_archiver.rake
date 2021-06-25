@@ -35,7 +35,7 @@ namespace :check do
       puts "[#{Time.now}] Deleting #{n} #{field_name} fields..."
 
       query = "SELECT f.id, pm.team_id FROM dynamic_annotation_fields f LEFT OUTER JOIN annotations a ON a.id = f.annotation_id LEFT OUTER JOIN project_medias pm ON pm.id = a.annotated_id WHERE f.field_name = '#{field_name}' AND a.annotation_type = 'archiver' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id LIMIT #{SIZE}"
-      result = ActiveRecord::Base.connection.execute(query).to_a
+      result = ApplicationRecord.connection.execute(query).to_a
       while !result.empty? do
         fields_to_delete = []
         result.group_by { |r| r['team_id'] }.each do |team_id, fields|
@@ -46,7 +46,7 @@ namespace :check do
         DynamicAnnotation::Field.where(id: fields_to_delete).delete_all
         puts "[#{Time.now}] Deleted #{i}/#{n} #{field_name} fields..."
         query = "SELECT f.id, pm.team_id FROM dynamic_annotation_fields f LEFT OUTER JOIN annotations a ON a.id = f.annotation_id LEFT OUTER JOIN project_medias pm ON pm.id = a.annotated_id WHERE f.field_name = '#{field_name}' AND a.annotation_type = 'archiver' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id LIMIT #{SIZE}"
-        result = ActiveRecord::Base.connection.execute(query).to_a
+        result = ApplicationRecord.connection.execute(query).to_a
       end
 
       DynamicAnnotation::FieldInstance.where(name: field_name).destroy_all

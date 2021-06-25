@@ -15,7 +15,7 @@ module CheckPermissions
 
   module ClassMethods
     def find_if_can(id, ability = nil)
-      id = id.id if id.is_a?(ActiveRecord::Base)
+      id = id.id if id.is_a?(ApplicationRecord)
       model = self.get_object(id)
       raise ActiveRecord::RecordNotFound if model.nil?
       ability ||= Ability.new

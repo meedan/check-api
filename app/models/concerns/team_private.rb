@@ -22,7 +22,7 @@ module TeamPrivate
 
   def add_default_bots_to_team
     return if self.is_being_copied
-    return false unless ActiveRecord::Base.connection.column_exists?(:users, :default)
+    return false unless ApplicationRecord.connection.column_exists?(:users, :default)
     BotUser.where(default: true).map do |bot_user|
       bot_user.install_to!(self) if bot_user.get_approved
     end
@@ -46,14 +46,14 @@ module TeamPrivate
   end
 
   def create_team_partition
-    if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
-      ActiveRecord::Base.connection_pool.with_connection do
+    if ApplicationRecord.connection.schema_exists?('versions_partitions')
+      ApplicationRecord.connection_pool.with_connection do
         partition = "\"versions_partitions\".\"p#{self.id}\""
-        ActiveRecord::Base.connection.execute("CREATE TABLE #{partition} (CHECK(team_id = #{self.id})) INHERITS (versions)")
-        ActiveRecord::Base.connection.execute("CREATE INDEX version_field_p#{self.id} ON #{partition} (version_field_name(event_type, object_after))")
-        ActiveRecord::Base.connection.execute("CREATE INDEX version_annotation_type_p#{self.id} ON #{partition} (version_annotation_type(event_type, object_after))")
+        ApplicationRecord.connection.execute("CREATE TABLE #{partition} (CHECK(team_id = #{self.id})) INHERITS (versions)")
+        ApplicationRecord.connection.execute("CREATE INDEX version_field_p#{self.id} ON #{partition} (version_field_name(event_type, object_after))")
+        ApplicationRecord.connection.execute("CREATE INDEX version_annotation_type_p#{self.id} ON #{partition} (version_annotation_type(event_type, object_after))")
         [[:item_type, :item_id], [:event], [:whodunnit], [:event_type], [:team_id], [:associated_type, :associated_id]].each do |columns|
-          ActiveRecord::Base.connection.add_index(partition, columns, name: "version_#{columns.join('_')}_p#{self.id}")
+          ApplicationRecord.connection.add_index(partition, columns, name: "version_#{columns.join('_')}_p#{self.id}")
         end
       end
     end
@@ -65,7 +65,7 @@ module TeamPrivate
   end
 
   def delete_team_partition
-    ActiveRecord::Base.connection.execute("DROP TABLE \"versions_partitions\".\"p#{self.id}\"") if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
+    ApplicationRecord.connection.execute("DROP TABLE \"versions_partitions\".\"p#{self.id}\"") if ApplicationRecord.connection.schema_exists?('versions_partitions')
   end
 
   def set_default_language

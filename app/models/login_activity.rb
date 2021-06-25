@@ -1,4 +1,4 @@
-class LoginActivity < ActiveRecord::Base
+class LoginActivity < ApplicationRecord
   belongs_to :user, polymorphic: true
   after_create :send_security_notification
   before_create :set_original_ip

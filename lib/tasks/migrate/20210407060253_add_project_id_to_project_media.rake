@@ -1,4 +1,4 @@
-class ProjectMediaProject < ActiveRecord::Base
+class ProjectMediaProject < ApplicationRecord
 end
 
 namespace :check do

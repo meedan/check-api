@@ -1,4 +1,4 @@
-class Source < ActiveRecord::Base
+class Source < ApplicationRecord
   attr_accessor :disable_es_callbacks, :add_to_project_media_id, :urls, :validate_primary_link_exist, :set_tasks_responses
 
   include HasImage

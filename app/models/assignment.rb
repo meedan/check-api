@@ -1,4 +1,4 @@
-class Assignment < ActiveRecord::Base
+class Assignment < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :propagate_in_foreground

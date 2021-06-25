@@ -1,6 +1,6 @@
 require 'error_codes'
 
-class AccountSource < ActiveRecord::Base
+class AccountSource < ApplicationRecord
   include CheckElasticSearch
   attr_accessor :url
 

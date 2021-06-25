@@ -167,7 +167,7 @@ class Bot::Fetch < BotUser
         team = Team.find(team_id)
         unless self.already_imported?(claim_review, team)
           Rails.cache.write(self.semaphore_key(team_id, claim_review['identifier']), Time.now)
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)

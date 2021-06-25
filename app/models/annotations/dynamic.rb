@@ -1,4 +1,4 @@
-class Dynamic < ActiveRecord::Base
+class Dynamic < ApplicationRecord
   include AnnotationBase
 
   mount_uploaders :file, ImageUploader
