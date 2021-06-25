@@ -12,9 +12,9 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       project.set_social_publishing(setting)
       project.skip_check_ability = true
       project.save!
-      render text: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
+      render plain: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
     else
-      render text: I18n.t(:invalid_token), status: 401
+      render plain: I18n.t(:invalid_token), status: 401
     end
   end
 

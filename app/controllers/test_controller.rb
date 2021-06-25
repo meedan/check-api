@@ -11,7 +11,7 @@ class TestController < ApplicationController
       user.skip_check_ability = true
       user.confirm
     end
-    render text: 'OK'
+    render plain: 'OK'
   end
 
   def make_team_public
@@ -20,7 +20,7 @@ class TestController < ApplicationController
       team.private = false
       team.save!
     end
-    render text: 'OK'
+    render plain: 'OK'
   end
 
   def new_user

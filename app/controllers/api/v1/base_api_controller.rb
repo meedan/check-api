@@ -57,7 +57,7 @@ module Api
 
       # Needed for pre-flight check
       def options
-        render text: ''
+        render plain: ''
       end
 
       private
