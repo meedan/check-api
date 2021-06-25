@@ -12,7 +12,6 @@ group :test do
   gem 'simplecov', '0.17.1', require: false
   gem 'simplecov-console', require: false
   gem 'codeclimate-test-reporter', '1.0.7', require: nil
-  gem 'test_after_commit'
   gem 'minitest-retry'
   gem 'rails-controller-testing'
 end
