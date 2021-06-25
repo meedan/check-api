@@ -1,4 +1,4 @@
-class AddTranslationRequestAnnotation < ActiveRecord::Migration
+class AddTranslationRequestAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

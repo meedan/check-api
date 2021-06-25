@@ -1,4 +1,4 @@
-class AddStatusToTeamUsers < ActiveRecord::Migration
+class AddStatusToTeamUsers < ActiveRecord::Migration[4.2]
   def change
     add_column :team_users, :status, :string, default: "member", index: true
     # Fix existing records

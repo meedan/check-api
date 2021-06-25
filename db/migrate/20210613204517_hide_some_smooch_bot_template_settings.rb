@@ -1,4 +1,4 @@
-class HideSomeSmoochBotTemplateSettings < ActiveRecord::Migration
+class HideSomeSmoochBotTemplateSettings < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.smooch_user
     fields_to_hide = ['smooch_template_name_for_fact_check_report', 'smooch_template_name_for_fact_check_report_updated', 'smooch_template_name_for_more_information_needed', 'smooch_template_name_for_more_information_needed_image_only']

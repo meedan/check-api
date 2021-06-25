@@ -1,4 +1,4 @@
-class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migration
+class ConvertStatusVersionsToVerificationStatusVersions < ActiveRecord::Migration[4.2]
   def change
     i = 0
     PaperTrail::Version.where(item_type: 'Status').find_each do |version|

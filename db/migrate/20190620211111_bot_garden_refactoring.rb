@@ -1,4 +1,4 @@
-class BotGardenRefactoring < ActiveRecord::Migration
+class BotGardenRefactoring < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     config = CheckConfig.get('clamav_service_path')

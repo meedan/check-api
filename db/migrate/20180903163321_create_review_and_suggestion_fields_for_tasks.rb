@@ -1,6 +1,6 @@
 require 'sample_data'
 include SampleData
-class CreateReviewAndSuggestionFieldsForTasks < ActiveRecord::Migration
+class CreateReviewAndSuggestionFieldsForTasks < ActiveRecord::Migration[4.2]
   def change
     json = DynamicAnnotation::FieldType.where(field_type: 'json').last || create_field_type(field_type: 'json', label: 'JSON')
     Task.task_types.each do |type|

@@ -1,4 +1,4 @@
-class AddMoreIndexesToVersions < ActiveRecord::Migration
+class AddMoreIndexesToVersions < ActiveRecord::Migration[4.2]
   def change
     execute 'COMMIT;'
     execute %{

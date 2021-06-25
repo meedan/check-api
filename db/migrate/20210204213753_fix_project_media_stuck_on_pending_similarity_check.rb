@@ -1,4 +1,4 @@
-class FixProjectMediaStuckOnPendingSimilarityCheck < ActiveRecord::Migration
+class FixProjectMediaStuckOnPendingSimilarityCheck < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     RequestStore.store[:skip_rules] = true

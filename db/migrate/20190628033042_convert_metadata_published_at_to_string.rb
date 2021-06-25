@@ -1,4 +1,4 @@
-class ConvertMetadataPublishedAtToString < ActiveRecord::Migration
+class ConvertMetadataPublishedAtToString < ActiveRecord::Migration[4.2]
   def change
     # Remember the last metadata annotation we need to verify on since this code is deployed,
     # all subsequent `published_at` info on metadata annotation will be String.

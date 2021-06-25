@@ -1,6 +1,6 @@
 require 'sample_data'
 include SampleData
-class CreateMemebusterAnnotation < ActiveRecord::Migration
+class CreateMemebusterAnnotation < ActiveRecord::Migration[4.2]
   def change
     text = DynamicAnnotation::FieldType.where(field_type: 'text').last
     image = DynamicAnnotation::FieldType.where(field_type: 'image_path').last

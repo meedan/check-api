@@ -1,4 +1,4 @@
-class MigratePendingStatus < ActiveRecord::Migration
+class MigratePendingStatus < ActiveRecord::Migration[4.2]
   def change
     if CheckConfig.get('app_name') === 'Check' && !defined?(Status).nil?
       client = $repository.client

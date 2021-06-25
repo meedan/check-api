@@ -1,4 +1,4 @@
-class UpdateKeepBotDefaultSettings < ActiveRecord::Migration
+class UpdateKeepBotDefaultSettings < ActiveRecord::Migration[4.2]
   def change
     bot = BotUser.find_by(login: 'keep')
     settings = bot.get_settings

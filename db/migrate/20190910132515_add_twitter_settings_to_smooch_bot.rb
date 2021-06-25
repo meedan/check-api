@@ -1,4 +1,4 @@
-class AddTwitterSettingsToSmoochBot < ActiveRecord::Migration
+class AddTwitterSettingsToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     Dynamic.where(annotation_type: 'smooch_user').destroy_all
     tb = BotUser.smooch_user

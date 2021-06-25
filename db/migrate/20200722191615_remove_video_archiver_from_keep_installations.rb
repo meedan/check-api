@@ -1,4 +1,4 @@
-class RemoveVideoArchiverFromKeepInstallations < ActiveRecord::Migration
+class RemoveVideoArchiverFromKeepInstallations < ActiveRecord::Migration[4.2]
   def change
     bot = BotUser.find_by(login: 'keep')
     unless bot.nil?

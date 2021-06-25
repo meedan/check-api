@@ -1,4 +1,4 @@
-class UpdateUserAccount < ActiveRecord::Migration
+class UpdateUserAccount < ActiveRecord::Migration[4.2]
   def change
     User.where(provider: 'slack').find_each do |u|
       account = u.account

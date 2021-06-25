@@ -1,4 +1,4 @@
-class CreateMedias < ActiveRecord::Migration
+class CreateMedias < ActiveRecord::Migration[4.2]
   def change
     create_table :medias do |t|
       t.belongs_to :user

@@ -1,4 +1,4 @@
-class CreateReverseImageDynamicAnnotation < ActiveRecord::Migration
+class CreateReverseImageDynamicAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

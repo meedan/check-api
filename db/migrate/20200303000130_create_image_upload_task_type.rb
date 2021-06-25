@@ -1,4 +1,4 @@
-class CreateImageUploadTaskType < ActiveRecord::Migration
+class CreateImageUploadTaskType < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

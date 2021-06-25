@@ -1,4 +1,4 @@
-class MigrateStatusEventType < ActiveRecord::Migration
+class MigrateStatusEventType < ActiveRecord::Migration[4.2]
   def change
     unless defined?(Status).nil?
       status_list = PaperTrail::Version.where(event_type: 'create_status').group(:item_id).count.select{ |id, count| count > 1 }

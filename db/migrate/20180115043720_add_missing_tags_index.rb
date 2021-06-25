@@ -1,4 +1,4 @@
-class AddMissingTagsIndex < ActiveRecord::Migration
+class AddMissingTagsIndex < ActiveRecord::Migration[4.2]
   def change
   	ids = Annotation.where(annotation_type: 'tag').map(&:id)
   	unless ids.blank?

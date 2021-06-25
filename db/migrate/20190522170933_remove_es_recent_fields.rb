@@ -1,4 +1,4 @@
-class RemoveEsRecentFields < ActiveRecord::Migration
+class RemoveEsRecentFields < ActiveRecord::Migration[4.2]
   def change
     # Remember the last project media we need to work on since once this code is deployed,
     # all subsequent new project medias will not include recent_activity and recent_added fields

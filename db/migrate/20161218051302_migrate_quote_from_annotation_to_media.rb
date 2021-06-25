@@ -1,4 +1,4 @@
-class MigrateQuoteFromAnnotationToMedia < ActiveRecord::Migration
+class MigrateQuoteFromAnnotationToMedia < ActiveRecord::Migration[4.2]
   def change
     Media.where(url: nil).each do |m|
       m.annotations('embed').each do |e|

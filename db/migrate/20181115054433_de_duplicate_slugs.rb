@@ -1,4 +1,4 @@
-class DeDuplicateSlugs < ActiveRecord::Migration
+class DeDuplicateSlugs < ActiveRecord::Migration[4.2]
   def change
     duplicates = Team.group(:slug).count.select{ |k, v| v > 1 }
     duplicates.each do |slug, count|

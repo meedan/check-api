@@ -1,4 +1,4 @@
-class AddErrorFieldToMemebusterAnnotation < ActiveRecord::Migration
+class AddErrorFieldToMemebusterAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

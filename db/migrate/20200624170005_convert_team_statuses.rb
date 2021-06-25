@@ -1,4 +1,4 @@
-class ConvertTeamStatuses < ActiveRecord::Migration
+class ConvertTeamStatuses < ActiveRecord::Migration[4.2]
   def change
     Team.find_each do |team|
       settings = team.settings || {}

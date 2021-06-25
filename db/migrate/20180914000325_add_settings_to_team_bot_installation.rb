@@ -1,4 +1,4 @@
-class AddSettingsToTeamBotInstallation < ActiveRecord::Migration
+class AddSettingsToTeamBotInstallation < ActiveRecord::Migration[4.2]
   def change
     config = CheckConfig.get('clamav_service_path')
     CheckConfig.set('clamav_service_path', nil)

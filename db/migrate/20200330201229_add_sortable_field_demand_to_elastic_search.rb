@@ -1,4 +1,4 @@
-class AddSortableFieldDemandToElasticSearch < ActiveRecord::Migration
+class AddSortableFieldDemandToElasticSearch < ActiveRecord::Migration[4.2]
   def change
     # calling reindex will add `demand` and remove `requests_count` field
     CheckElasticSearchModel.reindex_es_data

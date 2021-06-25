@@ -1,4 +1,4 @@
-class CleanupTaskReferences < ActiveRecord::Migration
+class CleanupTaskReferences < ActiveRecord::Migration[4.2]
   def change
     DynamicAnnotation::Field.delete_all(:field_type => 'task_reference')
     DynamicAnnotation::FieldInstance.delete_all(:field_type => 'task_reference')

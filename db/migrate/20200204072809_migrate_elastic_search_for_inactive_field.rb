@@ -1,4 +1,4 @@
-class MigrateElasticSearchForInactiveField < ActiveRecord::Migration
+class MigrateElasticSearchForInactiveField < ActiveRecord::Migration[4.2]
   def change
   	ids = ProjectMedia.where(inactive: true).map(&:id)
   	client = $repository.client

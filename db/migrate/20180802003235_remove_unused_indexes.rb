@@ -1,4 +1,4 @@
-class RemoveUnusedIndexes < ActiveRecord::Migration
+class RemoveUnusedIndexes < ActiveRecord::Migration[4.2]
   def change
     remove_index :versions, name: "index_versions_on_item_type_and_item_id"
     remove_index :versions, name: "index_versions_on_associated_type"

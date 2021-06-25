@@ -1,4 +1,4 @@
-class AddFieldsToMemebusterAnnotation < ActiveRecord::Migration
+class AddFieldsToMemebusterAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

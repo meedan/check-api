@@ -1,4 +1,4 @@
-class ConvertArchivedFlagToInteger < ActiveRecord::Migration
+class ConvertArchivedFlagToInteger < ActiveRecord::Migration[4.2]
   def change
     { teams: Team, projects: Project, project_medias: ProjectMedia, sources: Source }.each do |table, model|
       column = model.column_for_attribute('archived')

@@ -1,4 +1,4 @@
-class UpdateBotsDescription < ActiveRecord::Migration
+class UpdateBotsDescription < ActiveRecord::Migration[4.2]
   def change
     b = BotUser.smooch_user
     unless b.nil?

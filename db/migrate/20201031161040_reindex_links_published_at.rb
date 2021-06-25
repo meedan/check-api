@@ -1,4 +1,4 @@
-class ReindexLinksPublishedAt < ActiveRecord::Migration
+class ReindexLinksPublishedAt < ActiveRecord::Migration[4.2]
   def change
     started = Time.now.to_i
     index_alias = CheckElasticSearchModel.get_index_alias

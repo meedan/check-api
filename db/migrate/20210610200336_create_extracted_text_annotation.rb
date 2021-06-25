@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class CreateExtractedTextAnnotation < ActiveRecord::Migration
+class CreateExtractedTextAnnotation < ActiveRecord::Migration[4.2]
   def change
     json_schema = {
       type: 'object',

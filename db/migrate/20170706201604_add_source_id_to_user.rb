@@ -1,4 +1,4 @@
-class AddSourceIdToUser < ActiveRecord::Migration
+class AddSourceIdToUser < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :source_id, :integer
     add_index :users, :source_id

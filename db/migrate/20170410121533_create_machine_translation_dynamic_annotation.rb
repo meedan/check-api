@@ -1,4 +1,4 @@
-class CreateMachineTranslationDynamicAnnotation < ActiveRecord::Migration
+class CreateMachineTranslationDynamicAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

@@ -1,4 +1,4 @@
-class ConvertStatusToVerificationStatus < ActiveRecord::Migration
+class ConvertStatusToVerificationStatus < ActiveRecord::Migration[4.2]
   def change
     i = 0
     Annotation.where(annotation_type: 'status').find_each do |status|

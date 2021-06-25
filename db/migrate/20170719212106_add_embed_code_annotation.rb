@@ -1,4 +1,4 @@
-class AddEmbedCodeAnnotation < ActiveRecord::Migration
+class AddEmbedCodeAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

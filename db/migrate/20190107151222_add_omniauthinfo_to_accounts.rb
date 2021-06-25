@@ -1,4 +1,4 @@
-class AddOmniauthinfoToAccounts < ActiveRecord::Migration
+class AddOmniauthinfoToAccounts < ActiveRecord::Migration[4.2]
   def change
   	add_column :accounts, :omniauth_info, :text
   	add_column :accounts, :uid, :string

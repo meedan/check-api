@@ -1,4 +1,4 @@
-class AddDeviseInvitable < ActiveRecord::Migration
+class AddDeviseInvitable < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :invitation_token, :string
     add_column :users, :raw_invitation_token, :string

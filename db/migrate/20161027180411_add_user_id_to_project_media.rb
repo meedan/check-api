@@ -1,4 +1,4 @@
-class AddUserIdToProjectMedia < ActiveRecord::Migration
+class AddUserIdToProjectMedia < ActiveRecord::Migration[4.2]
   def change
     add_column :project_medias, :user_id, :integer
     add_index :project_medias, :user_id

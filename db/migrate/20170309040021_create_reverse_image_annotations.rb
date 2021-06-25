@@ -1,4 +1,4 @@
-class CreateReverseImageAnnotations < ActiveRecord::Migration
+class CreateReverseImageAnnotations < ActiveRecord::Migration[4.2]
   def change
     ProjectMedia.find_each do |pm|
       User.current = pm.user

@@ -1,4 +1,4 @@
-class AddNoActionSettingToSmoochBot < ActiveRecord::Migration
+class AddNoActionSettingToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.where(login: 'smooch').last
     unless tb.nil?

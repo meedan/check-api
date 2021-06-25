@@ -1,4 +1,4 @@
-class AddFacebookSettingsToSmoochBot < ActiveRecord::Migration
+class AddFacebookSettingsToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.smooch_user
     unless tb.nil?

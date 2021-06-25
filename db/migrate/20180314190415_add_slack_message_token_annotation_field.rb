@@ -1,4 +1,4 @@
-class AddSlackMessageTokenAnnotationField < ActiveRecord::Migration
+class AddSlackMessageTokenAnnotationField < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

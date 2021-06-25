@@ -1,4 +1,4 @@
-class CreateDynamicAnnotationFieldInstances < ActiveRecord::Migration
+class CreateDynamicAnnotationFieldInstances < ActiveRecord::Migration[4.2]
   def change
     create_table :dynamic_annotation_field_instances, id: false do |t|
       t.string :name, primary_key: true, null: false

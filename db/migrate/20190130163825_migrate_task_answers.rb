@@ -1,4 +1,4 @@
-class MigrateTaskAnswers < ActiveRecord::Migration
+class MigrateTaskAnswers < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     field_names = ['task_free_text', 'task_yes_no', 'task_single_choice', 'task_multiple_choice', 'task_datetime', 'task_geolocation']

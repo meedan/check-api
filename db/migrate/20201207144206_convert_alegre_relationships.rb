@@ -1,4 +1,4 @@
-class ConvertAlegreRelationships < ActiveRecord::Migration
+class ConvertAlegreRelationships < ActiveRecord::Migration[4.2]
   def change
     confirmables = []
     suggestables = []

@@ -1,4 +1,4 @@
-class AddCustomTaskSettingToSmoochBot < ActiveRecord::Migration
+class AddCustomTaskSettingToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.smooch_user
     unless tb.nil?
