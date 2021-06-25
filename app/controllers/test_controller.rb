@@ -1,7 +1,7 @@
 require 'sample_data'
 
 class TestController < ApplicationController
-  before_filter :check_environment
+  before_action :check_environment
 
   include SampleData
 

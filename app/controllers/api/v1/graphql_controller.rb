@@ -5,7 +5,7 @@ module Api
     class GraphqlController < Api::V1::BaseApiController
       include GraphqlDoc
 
-      skip_before_filter :authenticate_from_token!
+      skip_before_action :authenticate_from_token!
 
       before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]

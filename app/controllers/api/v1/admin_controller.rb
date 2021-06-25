@@ -1,5 +1,5 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_filter :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
+  before_action :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
 
   # GET /api/admin/project/add_publisher?token=:project-token
   def add_publisher_to_project
