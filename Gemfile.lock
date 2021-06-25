@@ -1,4 +1,15 @@
 GIT
+  remote: https://github.com/AirHelp/partitioned
+  revision: 4304620861002e8fea7d53cc62c297eb5810d23e
+  branch: rails-5-0
+  specs:
+    partitioned (2.1.0)
+      activerecord
+      activerecord-redshift-adapter
+      bulk_data_methods
+      pg
+
+GIT
   remote: https://github.com/iain/http_accept_language.git
   revision: 74a6a244afa069154d08df0f5df373a6c7fc4fe2
   specs:
@@ -136,6 +147,9 @@ GEM
       sassc (>= 2.0.0)
     buftok (0.2.0)
     builder (3.2.4)
+    bulk_data_methods (1.1.2)
+      activerecord (>= 3.0.0)
+      pg
     bumbler (0.8.0)
     byebug (11.1.3)
     cancancan (1.17.0)
@@ -755,6 +769,7 @@ DEPENDENCIES
   minitest-retry
   mocha (= 1.2.1)
   multi_json (= 1.15.0)
+  nokogiri (= 1.10.10)
   omniauth-facebook
   omniauth-google-oauth2!
   omniauth-slack
@@ -762,6 +777,7 @@ DEPENDENCIES
   open_uri_redirections
   paper_trail (= 10.3.1)
   parallel_tests
+  partitioned!
   peek (= 1.1.0)
   peek-rblineprof
   pender_client!
@@ -809,6 +825,7 @@ DEPENDENCIES
   test_after_commit
   therubyracer
   thin
+  transifex-interface-ruby!
   turbolinks
   twitter
   twitter-text
