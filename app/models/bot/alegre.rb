@@ -114,14 +114,19 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_query(type, pm, automatic = false)
-    key = "#{type}_similarity_threshold"
-    key = "automatic_#{key}" if automatic
-    if type == 'text' && !pm.nil?
+  def self.get_threshold_for_query(media_type, pm, automatic = false)
+    similarity_method = media_type == 'text' ? 'elasticsearch' : 'hash'
+    similarity_level = automatic ? 'matching' : 'suggestion'
+    setting_type = 'threshold'
+    if media_type == 'text' && !pm.nil?
       model = self.matching_model_to_use(pm)
-      key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      similarity_method = 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
     end
-    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
+    key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = JSON.parse(tbi.alegre_settings) unless tbi.nil?
+    value = settings.blank? ? CheckConfig.get(key) : settings[key]
+    { value: value.to_f, key: key, automatic: automatic }
   end
 
   def self.get_similar_items(pm)
@@ -234,21 +239,24 @@ class Bot::Alegre < BotUser
   end
 
   def self.team_has_alegre_bot_installed?(team_id)
-    bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id team_id, bot&&bot.id
+    tbi = self.get_alegre_tbi(team_id)
     !tbi.nil?
   end
 
   def self.indexing_model_to_use(pm)
-    bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    tbi = self.get_alegre_tbi(pm&.team_id)
     tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.matching_model_to_use(pm)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model
+  end
+
+  def self.get_alegre_tbi(team_id)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id(pm.team_id, bot&&bot.id) unless pm.nil?
-    tbi.nil? ? self.default_matching_model : tbi.get_alegre_matching_model_in_use || self.default_matching_model
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id(team_id, bot&&bot.id)
+    tbi
   end
 
   def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
@@ -331,8 +339,10 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.similarity_text_length_threshold
-    CheckConfig.get("similarity_text_length_threshold").to_f
+  def self.text_length_matching_threshold(pm)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = JSON.parse(tbi.alegre_settings) unless tbi.nil?
+    settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
   end
 
   def self.split_text(text)
@@ -528,7 +538,7 @@ class Bot::Alegre < BotUser
       pm.alegre_matched_fields.uniq.each do |field|
         fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
       end
-      is_short = fields_size.max <= self.similarity_text_length_threshold unless fields_size.blank?
+      is_short = fields_size.max <= self.text_length_matching_threshold(pm) unless fields_size.blank?
     end
     is_short
   end
