@@ -1,4 +1,4 @@
-require_relative '../../test_helper'
+require_relative '../test_helper'
 require 'pact/consumer/minitest'
 
 Pact.service_consumer "Check API" do
