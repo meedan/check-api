@@ -12,20 +12,20 @@ class AdminControllerTest < ActionController::TestCase
 
   test "should return error if project does not exist" do
     assert_raises ActiveRecord::RecordNotFound do
-      get :add_publisher_to_project, id: 1, provider: 'twitter', token: '123456'
+      get :add_publisher_to_project, params: { id: 1, provider: 'twitter', token: '123456' }
     end
   end
 
   test "should return error if token is not valid" do
     p = create_project
-    get :add_publisher_to_project, id: p.id, provider: 'twitter', token: '123456'
+    get :add_publisher_to_project, params: { id: p.id, provider: 'twitter', token: '123456' }
     assert_response 401
   end
 
   test "should save oauth information if token is valid" do
     p = create_project
     session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :add_publisher_to_project, id: p.id, provider: 'twitter', token: p.token
+    get :add_publisher_to_project, params: { id: p.id, provider: 'twitter', token: p.token }
     assert_response :success
     p = Project.find(p.id)
     assert_equal '123456', p.get_social_publishing['twitter']['token']
@@ -37,7 +37,7 @@ class AdminControllerTest < ActionController::TestCase
     u = create_omniauth_user provider: 'slack', uid: 'U123'
     slack_account = u.get_social_accounts_for_login({provider: 'slack', uid: 'U123'}).first
     authenticate_with_token(a)
-    get :slack_user, uid: 'U123'
+    get :slack_user, params: { uid: 'U123' }
     assert_equal slack_account.token, JSON.parse(@response.body)['data']['token']
   end
 
@@ -45,7 +45,7 @@ class AdminControllerTest < ActionController::TestCase
     a = create_api_key
     u = create_omniauth_user provider: 'slack', uid: 'U123'
     authenticate_with_token(a)
-    get :slack_user, uid: 'U124'
+    get :slack_user, params: { uid: 'U124' }
     assert_nil JSON.parse(@response.body)['data']
   end
 
@@ -54,14 +54,14 @@ class AdminControllerTest < ActionController::TestCase
     create_bot_user api_key_id: a.id
     u = create_omniauth_user provider: 'slack', uid: 'U123'
     authenticate_with_token(a)
-    get :slack_user, uid: 'U123'
+    get :slack_user, params: { uid: 'U123' }
     assert_nil JSON.parse(@response.body)['data']
   end
 
   test "should not find Slack user by UID if API key is not provided" do
     a = create_api_key
     u = create_omniauth_user provider: 'slack', uid: 'U123'
-    get :slack_user, uid: 'U123'
+    get :slack_user, params: { uid: 'U123' }
     assert_response 401
   end
 
@@ -69,7 +69,7 @@ class AdminControllerTest < ActionController::TestCase
     b = create_team_bot login: 'smooch'
     tbi = create_team_bot_installation
     session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_twitter_credentials_for_smooch_bot, id: tbi.id, token: random_string
+    get :save_twitter_credentials_for_smooch_bot, params: { id: tbi.id, token: random_string }
     assert_response 401
   end
 
@@ -83,7 +83,7 @@ class AdminControllerTest < ActionController::TestCase
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.twitter.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_twitter_credentials_for_smooch_bot, id: tbi.id, token: t
+    get :save_twitter_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
     assert_response :success
     Bot::Smooch.unstub(:smooch_api_client)
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
@@ -93,7 +93,7 @@ class AdminControllerTest < ActionController::TestCase
     b = create_team_bot login: 'smooch'
     tbi = create_team_bot_installation
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, id: tbi.id, token: random_string
+    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: random_string }
     assert_response 401
   end
 
@@ -108,7 +108,7 @@ class AdminControllerTest < ActionController::TestCase
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, id: tbi.id, token: t
+    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
     assert_response 400
     Bot::Smooch.unstub(:smooch_api_client)
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
@@ -125,7 +125,7 @@ class AdminControllerTest < ActionController::TestCase
     tbi.set_smooch_authorization_token = t
     tbi.save!
     session['check.facebook.authdata'] = { 'token' => '123456', 'secret' => '654321' }
-    get :save_facebook_credentials_for_smooch_bot, id: tbi.id, token: t
+    get :save_facebook_credentials_for_smooch_bot, params: { id: tbi.id, token: t }
     assert_response :success
     Bot::Smooch.unstub(:smooch_api_client)
     SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
