@@ -47,6 +47,7 @@ MutationType = GraphQL::ObjectType.define do
 
   field :createAnnotation, field: AnnotationMutations::Create.field
   field :destroyAnnotation, field: AnnotationMutations::Destroy.field
+  field :extractText, field: OcrMutations::ExtractText.field
 
   field :destroyVersion, field: VersionMutations::Destroy.field
 
