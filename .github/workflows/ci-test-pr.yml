@@ -119,9 +119,15 @@ jobs:
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
         GITHUB_JOB_NAME: functional-tests
-        GITHUB_JOB_ID: ${{ github.run_id }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/test-coverage.sh
+        docker-compose exec -T \
+        -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
+        -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
+        -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
+        -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
+        -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        api test/test-coverage.sh
 
 
   test-unit:
@@ -171,9 +177,15 @@ jobs:
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
         GITHUB_JOB_NAME: unit-tests
-        GITHUB_JOB_ID: ${{ github.run_id }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_NAME=$GITHUB_JOB_NAME -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/test-coverage.sh
+        docker-compose exec -T \
+        -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
+        -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
+        -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
+        -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
+        -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        api test/test-coverage.sh
 
   cleanup-and-notify:
     runs-on: ubuntu-latest
@@ -189,9 +201,15 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
-        GITHUB_JOB_ID: ${{ github.run_id }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        docker-compose exec -T -e GIT_COMMIT_SHA=$GIT_COMMIT_SHA -e GIT_BRANCH=$GIT_BRANCH -e GITHUB_JOB_ID=$GITHUB_JOB_ID -e CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID api test/upload-coverage.sh
+        docker-compose exec -T \
+        -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
+        -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
+        -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
+        -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
+        -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        api test/upload-coverage.sh
 
     - name: Notify Slack
       id: slack-notify
