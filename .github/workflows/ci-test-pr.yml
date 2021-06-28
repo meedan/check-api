@@ -47,9 +47,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
-    - name: Remove tmp files (tmp step to clear buildx cache)
-      run: rm tmp/* || true
-
     - name: Docker Build And Push To ECR
       id: docker-build-ecr
       uses: docker/build-push-action@v2
@@ -130,6 +127,7 @@ jobs:
         -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        -e GIT_COMMITTED_AT=${{ fromJSON(env.time) }} \
         api test/test-coverage.sh
 
 
@@ -188,6 +186,7 @@ jobs:
         -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        -e GIT_COMMITTED_AT=${{ fromJSON(env.time) }} \
         api test/test-coverage.sh
 
   cleanup-and-notify:
@@ -212,6 +211,7 @@ jobs:
         -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
+        -e GIT_COMMITTED_AT=${{ fromJSON(env.time) }} \
         api test/upload-coverage.sh
 
     - name: Notify Slack
