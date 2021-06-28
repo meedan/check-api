@@ -47,6 +47,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
+    - name: Remove tmp files (tmp step to clear buildx cache)
+      run: rm tmp/* || true
+
     - name: Docker Build And Push To ECR
       id: docker-build-ecr
       uses: docker/build-push-action@v2
