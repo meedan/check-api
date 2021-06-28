@@ -1369,7 +1369,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { alegre_settings } } }'
     post :create, query: query, team: t.slug
     alegre_settings =  JSON.parse(@response.body)['data']['node']['alegre_settings']
-    assert_equal "4", JSON.parse(alegre_settings)['text_length_matching_threshold']
+    assert_equal "4", alegre_settings['text_length_matching_threshold']
   end
 
   test "should not get Smooch Bot RSS feed preview if not owner" do
