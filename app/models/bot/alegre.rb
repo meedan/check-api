@@ -124,7 +124,7 @@ class Bot::Alegre < BotUser
     end
     key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
     tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.alegre_settings unless tbi.nil?
+    settings = JSON.parse(tbi.alegre_settings) unless tbi.nil?
     value = settings.blank? ? CheckConfig.get(key) : settings[key]
     { value: value.to_f, key: key, automatic: automatic }
   end
@@ -341,7 +341,7 @@ class Bot::Alegre < BotUser
 
   def self.text_length_matching_threshold(pm)
     tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.alegre_settings unless tbi.nil?
+    settings = JSON.parse(tbi.alegre_settings) unless tbi.nil?
     settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
   end
 

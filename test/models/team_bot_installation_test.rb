@@ -117,7 +117,7 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     tb = create_team_bot_installation user_id: b.id
     # verifiy settings with fallback values
     stub_configs({ 'text_length_matching_threshold' => 7, 'text_elasticsearch_suggestion_threshold' => 0.8, 'image_hash_suggestion_threshold' => 0.6}) do
-      settings = tb.alegre_settings
+      settings = JSON.parse(tb.alegre_settings)
       assert_not_empty settings
       assert_equal 7, settings['text_length_matching_threshold']
       assert_equal 0.8, settings['text_elasticsearch_suggestion_threshold']
@@ -127,7 +127,7 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       settings['text_elasticsearch_suggestion_threshold'] = 0.4
       tb.json_settings = settings.to_json
       tb.save!
-      settings = tb.reload.alegre_settings
+      settings = JSON.parse(tb.reload.alegre_settings)
       assert_equal 4, settings['text_length_matching_threshold']
       assert_equal 0.4, settings['text_elasticsearch_suggestion_threshold']
       assert_equal 0.6, settings['image_hash_suggestion_threshold']
