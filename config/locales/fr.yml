@@ -527,7 +527,7 @@ fr:
     à cet espace de travail
   bot_cant_add_response_to_task: Désolé, un robot ne peut pas répondre directement
     à une tâche. Veuillez plutôt envoyer une suggestion de réponse
-  bot_cant_add_review_to_task: Désolé, les robots ne peuvent pas réviser les tâches
+  bot_cant_add_review_to_task: Désolé, les robots ne peuvent pas examiner les tâches
   task_suggestion_invalid_value: La suggestion de la tâche est invalide. Un objet
     JSON avec les attributs `suggestion` (la valeur qui est copiée dans la réponse
     de la tâche une fois acceptée) et `comment` (montré aux utilisateurs) est attendu.
@@ -684,7 +684,10 @@ fr:
   team_rule_type_is_link: Lien
   team_rule_type_is_uploadedimage: Image
   team_rule_type_is_uploadedvideo: Vidéo
-  team_rule_contains_keyword: La demande comprend un ou plusieurs des mots-clés suivants
+  team_rule_contains_keyword: La demande comprend l’un ou plusieurs des mots-clés
+    suivants
+  team_rule_title_contains_keyword: Le contenu comprend l’un ou plusieurs des mots-clés
+    suivants
   team_rule_select_type: Sélectionnez un type
   team_rule_select_language: Sélectionnez la langue
   team_rule_select_user: Sélectionnez un collaborateur
