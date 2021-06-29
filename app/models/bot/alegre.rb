@@ -129,6 +129,13 @@ class Bot::Alegre < BotUser
     { value: value.to_f, key: key, automatic: automatic }
   end
 
+  def self.should_get_similar_items_of_type?(type, team_id)
+    tbi = self.get_alegre_tbi(team_id)
+    key = "#{type}_similarity_enabled"
+    value = tbi.nil? ? CheckConfig.get(key, true) : tbi.send("get_#{key}")
+    !!value
+  end
+
   def self.get_similar_items(pm)
     type = nil
     if pm.is_text?
@@ -139,6 +146,7 @@ class Bot::Alegre < BotUser
       type = 'video'
     end
     unless type.blank?
+      return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
       suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
       confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
