@@ -121,7 +121,7 @@ jobs:
         GITHUB_JOB_NAME: functional-tests
         GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        GIT_COMMITTED_AT=$(git log -1 --format=%ct origin)
+        GIT_COMMITTED_AT=$(git log -1 --format=%ct)
         docker-compose exec -T \
         -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
         -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
@@ -181,7 +181,7 @@ jobs:
         GITHUB_JOB_NAME: unit-tests
         GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        GIT_COMMITTED_AT=$(git log -1 --format=%ct origin)
+        GIT_COMMITTED_AT=$(git log -1 --format=%ct)
         docker-compose exec -T \
         -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
         -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
@@ -207,7 +207,7 @@ jobs:
         GIT_BRANCH: ${{ github.ref }}
         GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
-        GIT_COMMITTED_AT=$(git log -1 --format=%ct origin)
+        GIT_COMMITTED_AT=$(git log -1 --format=%ct)
         docker-compose exec -T \
         -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
         -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
