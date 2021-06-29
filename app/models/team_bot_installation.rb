@@ -35,7 +35,7 @@ class TeamBotInstallation < TeamUser
     end
     # other keys
     settings['text_similarity_model'] = self.get_text_similarity_model
-    settings.to_json
+    settings
   end
 
   def bot_user
