@@ -35,6 +35,10 @@ development: &default
   text_elasticsearch_matching_threshold: 0.875
   text_vector_matching_threshold: 0.95
   text_length_matching_threshold: 8
+  master_similarity_enabled: true
+  image_similarity_enabled: true
+  text_similarity_enabled: true
+  video_similarity_enabled: true
 
   # Localization
   #
