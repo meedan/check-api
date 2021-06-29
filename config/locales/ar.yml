@@ -654,6 +654,8 @@ ar:
   team_rule_type_is_uploadedvideo: فيديو
   team_rule_contains_keyword: الطلب يحتوي على كلمة واحدة على الأقل من الكلمات المفتاحيّة
     اﻵتية
+  team_rule_title_contains_keyword: يضم المحتوى كلمة أو أكثر من الكلمات المفتاحية
+    التالية
   team_rule_select_type: تحديد النوع
   team_rule_select_language: تحديد اللغة
   team_rule_select_user: اختيار شريك(ة)
