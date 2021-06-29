@@ -8,9 +8,9 @@ set_config() {
 }
 
 if [[ "${DEPLOY_ENV}" == "test" ]]; then
-    set_config
-    touch tmp/parallel_runtime_test.log
-    chmod +w tmp/parallel_runtime_test.log
+  set_config
+  touch tmp/parallel_runtime_test.log
+  chmod +w tmp/parallel_runtime_test.log
 fi
 
 # Rake tasks
