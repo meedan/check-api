@@ -132,7 +132,7 @@ class Bot::Alegre < BotUser
   def self.should_get_similar_items_of_type?(type, team_id)
     tbi = self.get_alegre_tbi(team_id)
     key = "#{type}_similarity_enabled"
-    tbi&.send("get_#{key}")&.nil? ? (CheckConfig.get(key, true).to_s == 'true') : tbi.send("get_#{key}")
+    (!tbi || tbi.send("get_#{key}").nil?) ? (CheckConfig.get(key, true).to_s == 'true') : tbi.send("get_#{key}")
   end
 
   def self.get_similar_items(pm)
