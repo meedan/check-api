@@ -29,6 +29,8 @@ class TeamBotInstallation < TeamUser
       text_vector_suggestion_threshold
       image_hash_matching_threshold
       image_hash_suggestion_threshold
+      video_hash_matching_threshold
+      video_hash_suggestion_threshold
     )
     threshold_keys.each do |k|
       settings[k] = self.send("get_#{k}").nil? ? CheckConfig.get(k, 0.9).to_f : self.send("get_#{k}").to_f
