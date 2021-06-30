@@ -24,7 +24,7 @@ class Relationship < ApplicationRecord
   after_commit :update_counters, :update_elasticsearch_parent, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
 
-  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',

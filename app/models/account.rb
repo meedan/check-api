@@ -4,7 +4,7 @@ class Account < ApplicationRecord
 
   attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation, :created_on_registration
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], class_name: 'Version'
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], versions: { class_name: 'Version' }
   belongs_to :user, inverse_of: :accounts
   belongs_to :team
   has_many :medias

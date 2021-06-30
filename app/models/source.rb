@@ -8,7 +8,7 @@ class Source < ApplicationRecord
   include CustomLock
   include ProjectMediaSourceAssociations
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   has_many :account_sources, dependent: :destroy
   has_many :accounts, through: :account_sources
   has_many :project_medias

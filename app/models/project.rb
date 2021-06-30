@@ -7,7 +7,7 @@ class Project < ApplicationRecord
 
   attr_accessor :project_media_ids_were, :previous_project_group_id
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user
   belongs_to :team
   belongs_to :project_group
