@@ -127,15 +127,29 @@ class Task < ActiveRecord::Base
     params = JSON.parse(json)
     response = self.new_or_existing_response
     response.annotated = self
-    response.annotation_type = params['annotation_type']
-    response.set_fields = params['set_fields']
+    response.annotation_type = params['annotation_type'] unless params['annotation_type'].blank?
+    response.set_fields = params['set_fields'] unless params['set_fields'].blank?
     response.updated_at = Time.now
-    response.file = [self.file]
+    response.file = [self.file].flatten
     self.file = nil
     response.save!
     @response = response
     self.update_task_answer_cache
     self.record_timestamps = false
+  end
+
+  def existing_files
+    self.first_response_obj&.load&.file.to_a
+  end
+
+  def add_files(new_files)
+    self.file = [self.existing_files].flatten.reject{ |f| f.blank? }.concat(new_files)
+    self.response = '{}'
+  end
+
+  def remove_files(filenames)
+    self.file = [existing_files].flatten.reject{ |f| f.blank? || filenames.include?(f.to_s.split('/').last) }
+    self.response = '{}'
   end
 
   def first_response_obj

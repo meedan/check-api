@@ -4,7 +4,7 @@ module SmoochMessages
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def parse_message(message, app_id)
+    def parse_message(message, app_id, payload = nil)
       uid = message['authorId']
       sm = CheckStateMachine.new(uid)
       if sm.state.value == 'human_mode'
@@ -14,7 +14,7 @@ module SmoochMessages
       self.refresh_smooch_menu_timeout(message, app_id)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
-      self.delay_for(1.second).save_user_information(app_id, uid) if redis.llen(key) == 0
+      self.delay_for(1.second).save_user_information(app_id, uid, payload.to_json) if redis.llen(key) == 0
       self.parse_message_based_on_state(message, app_id)
     end
 
@@ -32,7 +32,7 @@ module SmoochMessages
       unless list.empty?
         last = JSON.parse(list.last)
         if last['_id'] == id || type == 'menu_options_requests'
-          self.get_installation('smooch_app_id', app_id) if self.config.blank?
+          self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
           self.handle_bundle_messages(type, list, last, app_id, annotated)
           redis.del(key)
           sm = CheckStateMachine.new(uid)
@@ -140,7 +140,7 @@ module SmoochMessages
 
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', annotated_obj = nil)
       message = JSON.parse(message_json)
-      self.get_installation('smooch_app_id', app_id)
+      self.get_installation(self.installation_setting_id_keys, app_id)
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
       if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)

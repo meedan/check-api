@@ -8,6 +8,7 @@ class ReportsControllerTest < ActionController::TestCase
     @t = create_team
     @pm = create_project_media team: @t
     @f = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.png'), 'image/png')
+    @m = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.mp4'), 'video/mp4')
   end
 
   def from_alegre(pm)
@@ -27,7 +28,7 @@ class ReportsControllerTest < ActionController::TestCase
     }
   end
 
-  test "should return similar items" do
+  test "zzz should return similar items" do
     create_report_design_annotation_type
     authenticate_with_token @a
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: @pm
@@ -36,21 +37,22 @@ class ReportsControllerTest < ActionController::TestCase
     pm3 = create_project_media team: @t
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'paused', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: pm3
     pm4 = create_project_media team: @t
+    pm5 = create_project_media team: @t, media: create_uploaded_video
     create_project_media team: @t
 
-    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4)] })
+    Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
 
     get :index
     assert_response :success
-    assert_equal 6, json_response['data'].size
-    assert_equal 6, json_response['meta']['record-count']
+    assert_equal 7, json_response['data'].size
+    assert_equal 7, json_response['meta']['record-count']
 
-    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
+    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
 
-    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' }
+    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']

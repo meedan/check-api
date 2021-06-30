@@ -17,6 +17,28 @@ class TeamBotInstallation < TeamUser
     self.settings.to_json
   end
 
+  def alegre_settings
+    settings = {}
+    boolean_keys = %w(master_similarity_enabled text_similarity_enabled image_similarity_enabled video_similarity_enabled)
+    boolean_keys.each{ |k| settings[k] = self.send("get_#{k}").nil? ? (CheckConfig.get(k, true).to_s == 'true') : self.send("get_#{k}") }
+    threshold_keys = %w(
+      text_length_matching_threshold
+      text_elasticsearch_matching_threshold
+      text_elasticsearch_suggestion_threshold
+      text_vector_matching_threshold
+      text_vector_suggestion_threshold
+      image_hash_matching_threshold
+      image_hash_suggestion_threshold
+      video_hash_matching_threshold
+      video_hash_suggestion_threshold
+    )
+    threshold_keys.each do |k|
+      settings[k] = self.send("get_#{k}").nil? ? CheckConfig.get(k, 0.9).to_f : self.send("get_#{k}").to_f
+    end
+    settings['text_similarity_model'] = self.get_text_similarity_model || Bot::Alegre.default_matching_model
+    settings
+  end
+
   def bot_user
     BotUser.where(id: self.user_id).last
   end

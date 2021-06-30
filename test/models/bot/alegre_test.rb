@@ -102,7 +102,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       response = {pm1.id => 0}
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns("some/path")
-      assert_equal response, Bot::Alegre.get_items_with_similar_image(pm2, Bot::Alegre.get_threshold_for_image_query(pm2))
+      assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
 
       # Flags
       Bot::Alegre.unstub(:media_file_url)
@@ -192,17 +192,52 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm.destroy, pm
   end
 
+  test "should decode a doc_id" do
+    assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), ["check", "project_media", "554571", "video" ]
+  end
+
+  test "should relate project media to similar items as video" do
+    p = create_project
+    pm1 = create_project_media team: @pm.team
+    pm1 = create_project_media project: p, media: create_uploaded_video
+    pm2 = create_project_media project: p, media: create_uploaded_video
+    pm3 = create_project_media project: p, media: create_uploaded_video
+    create_relationship source_id: pm2.id, target_id: pm1.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "context"=>[
+            {"team_id"=>pm1.team.id.to_s, "project_media_id"=>pm1.id.to_s}
+          ],
+          "score"=>"0.983167",
+          "filename"=>"/app/persistent_disk/blah/12342.tmk"
+        },
+        {
+          "context"=>[
+            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s}
+          ],
+          "score"=>"0.983167",
+          "filename"=>"/app/persistent_disk/blah/12343.tmk"
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    end
+    r = Relationship.last
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
+    assert_equal r.weight, 0.983167
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should relate project media to similar items" do
     p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
-    pm1.media.type = "UploadedImage"
-    pm2.media.type = "UploadedImage"
-    pm3.media.type = "UploadedImage"
-    pm1.media.save!
-    pm2.media.save!
-    pm3.media.save!
+    pm1 = create_project_media project: p, media: create_uploaded_image
+    pm2 = create_project_media project: p, media: create_uploaded_image
+    pm3 = create_project_media project: p, media: create_uploaded_image
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
@@ -247,9 +282,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1.save!
     pm2 = create_project_media project: p, quote: "Blah2", team: @team
     pm2.save!
-    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_text_query(pm2))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_text_query(pm2)).returns({pm1.id => 0.99})
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_text_query(pm2, true)).returns({})
+    Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
     assert_equal Bot::Alegre.get_similar_items(pm2), {pm1.id=>{:score=>0.99, :relationship_type=>{:source=>"suggested_sibling", :target=>"suggested_sibling"}}}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
@@ -263,8 +298,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm2.save!
     pm3 = create_project_media project: p, media: Blank.new
     pm3.save!
-    Bot::Alegre.get_merged_items_with_similar_text(pm3, Bot::Alegre.get_threshold_for_text_query(pm3))
-    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_text_query(pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
+    Bot::Alegre.get_merged_items_with_similar_text(pm3, Bot::Alegre.get_threshold_for_query('text', pm3))
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => 0.99, pm2.id => 0.99})
     assert_equal Bot::Alegre.get_similar_items(pm3), {}
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
@@ -351,12 +386,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate correct text conditions for api request" do
-    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
     assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
   end
 
   test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_images_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
@@ -418,7 +453,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_suggestion_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -448,9 +483,9 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah')
     assert_equal response.class, Hash
-    assert_equal response, {}
+    assert_not_empty response
     Bot::Alegre.unstub(:request_api)
   end
 
@@ -462,6 +497,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Bot::Alegre.get_merged_items_with_similar_text(pm, 0.0), {1 => 0.2, 2 => 0.3, 3 => 0.3}
     Bot::Alegre.unstub(:get_items_with_similar_title)
     Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should pass through the send video to similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_video
+    pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_media_similarity_index(pm)
   end
 
   test "should pass through the send to description similarity index call" do
@@ -500,7 +547,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_description(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm))
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -531,7 +578,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_similarity_threshold', value: 0.1, automatic: false})
+    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -562,7 +609,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_title(pm, 0.1)
+    response = Bot::Alegre.get_items_with_similar_title(pm, Bot::Alegre.get_threshold_for_query('text', pm))
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -657,4 +704,49 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should not add relationship" do
     assert !Bot::Alegre.add_relationship(create_project_media, {}, create_project_media)
   end
+
+  test "should add short text as suggestions" do
+    create_verification_status_stuff
+    # Relation should be suggested if all fields size <= threshold
+    p = create_project
+    pm1 = create_project_media project: p, quote: "for testing short text", team: @team
+    pm2 = create_project_media project: p, quote: "testing short text", team: @team
+    pm2.analysis = { content: 'short text' }
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+          }
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal Relationship.suggested_type, r.relationship_type
+    # Relation should be confirmed if at least one field size > threshold
+    pm3 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
+    pm4 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
+    pm4.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles', content: 'This is also a long enough Title' }
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm3.team_id.to_s, "project_media_id" => pm3.id.to_s, "has_custom_id" => true }
+          }
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm4)
+    end
+    r = Relationship.last
+    assert_equal Relationship.confirmed_type, r.relationship_type
+    Bot::Alegre.unstub(:request_api)
+  end
 end
+
