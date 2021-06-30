@@ -785,7 +785,7 @@ class GraphqlController2Test < ActionController::TestCase
     v = create_version
     t = Team.last
     id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 11 do
+    q = assert_queries 9 do
       post :create, query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug
     end
     assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
@@ -1031,5 +1031,46 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+  end
+
+  test "should get OCR" do
+    b = create_alegre_bot(name: 'alegre', login: 'alegre')
+    b.approve!
+    create_extracted_text_annotation_type
+    Bot::Alegre.unstub(:request_api)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+      WebMock.stub_request(:get, 'http://alegre/image/ocr/').to_return(body: { text: 'Foo bar' }.to_json)
+
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      authenticate_with_user(u)
+
+      Bot::Alegre.unstub(:media_file_url)
+      pm = create_project_media team: t, media: create_uploaded_image
+      Bot::Alegre.stubs(:media_file_url).with(pm).returns('some/path')
+
+      query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+
+      extracted_text_annotation = pm.get_annotations('extracted_text').last
+      assert_equal 'Foo bar', extracted_text_annotation.data['text']
+      Bot::Alegre.unstub(:media_file_url)
+    end
+  end
+
+  test "should not get OCR" do
+    u = create_user
+    t = create_team private: true
+    authenticate_with_user(u)
+
+    pm = create_project_media team: t, media: create_uploaded_image
+
+    query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
+    post :create, query: query, team: t.slug
+
+    assert_nil pm.get_annotations('extracted_text').last
   end
 end

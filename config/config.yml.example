@@ -28,13 +28,17 @@ development: &default
   #
   # MANDATORY
   # 0.7 is a good base-level text similarity score - removing this will have unintended and potentially bad consequences.
-  image_similarity_threshold: 0.89
-  text_similarity_threshold: 0.7
-  vector_text_similarity_threshold: 0.75
-  automatic_image_similarity_threshold: 0.95
-  automatic_text_similarity_threshold: 0.875
-  vector_automatic_text_similarity_threshold: 0.95
-  similarity_text_length_threshold: 8
+  image_hash_suggestion_threshold: 0.89
+  text_elasticsearch_suggestion_threshold: 0.7
+  text_vector_suggestion_threshold: 0.75
+  image_hash_matching_threshold: 0.95
+  text_elasticsearch_matching_threshold: 0.875
+  text_vector_matching_threshold: 0.95
+  text_length_matching_threshold: 8
+  master_similarity_enabled: true
+  image_similarity_enabled: true
+  text_similarity_enabled: true
+  video_similarity_enabled: true
 
   # Localization
   #
