@@ -2,16 +2,16 @@ SavedSearchType = GraphqlCrudOperations.define_default_type do
   name 'SavedSearch'
   description 'Saved search type'
 
-  interfaces [NodeIdentification.interface]
+  implements NodeIdentification.interface
 
-  field :dbid, types.Int
-  field :title, types.String
-  field :team_id, types.Int
-  field :team, TeamType
+  field :dbid, Integer, null: true
+  field :title, String, null: true
+  field :team_id, Integer, null: true
+  field :team, TeamType, null: true
 
-  field :filters, types.String do
-    resolve -> (saved_search, _args, _ctx) {
-      saved_search.filters ? saved_search.filters.to_json : '{}'
-    }
+  field :filters, String, null: true
+
+  def filters
+    object.filters ? object.filters.to_json : '{}'
   end
 end

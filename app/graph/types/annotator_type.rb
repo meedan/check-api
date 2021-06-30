@@ -1,15 +1,14 @@
-AnnotatorType = GraphQL::ObjectType.define do
-  name 'Annotator'
+class AnnotatorType < Types::BaseObject
   description 'Information about an annotator'
-  interfaces [NodeIdentification.interface]
+  implements NodeIdentification.interface
   global_id_field :id
 
-  field :name, types.String
-  field :profile_image, types.String
+  field :name, String, null: true
+  field :profile_image, String, null: true
 
-  field :user, UserType do
-    resolve -> (annotator, _args, _ctx) {
-      User.where(id: annotator.id).last if annotator.is_a?(User)
-    }
+  field :user, UserType, null: true
+
+  def user
+    User.where(id: object.id).last if object.is_a?(User)
   end
 end

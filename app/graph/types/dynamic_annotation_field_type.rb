@@ -2,7 +2,7 @@ DynamicAnnotationFieldType = GraphqlCrudOperations.define_default_type do
   name 'DynamicAnnotationField'
   description 'DynamicAnnotation::Field type'
 
-  interfaces [NodeIdentification.interface]
+  implements NodeIdentification.interface
 
-  field :annotation, AnnotationType
+  field :annotation, AnnotationType, null: true
 end

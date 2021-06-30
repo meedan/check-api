@@ -2,25 +2,22 @@ PublicTeamType = GraphqlCrudOperations.define_default_type do
   name 'PublicTeam'
   description 'Public team type'
 
-  interfaces [NodeIdentification.interface]
+  implements NodeIdentification.interface
 
-  field :name, !types.String
-  field :slug, !types.String
-  field :description, types.String
-  field :dbid, types.Int
-  field :avatar, types.String
-  field :private, types.Boolean
-  field :team_graphql_id, types.String
+  field :name, String, null: false
+  field :slug, String, null: false
+  field :description, String, null: true
+  field :dbid, Integer, null: true
+  field :avatar, String, null: true
+  field :private, Boolean, null: true
+  field :team_graphql_id, String, null: true
 
-  field :pusher_channel do
-    type types.String
+  field :pusher_channel, String, null: true
 
-    resolve -> (team, _args, _ctx) do
-      Team.find(team.id).pusher_channel
-    end
+  def pusher_channel
+    Team.find(object.id).pusher_channel
   end
 
   instance_exec :trash_count, &GraphqlCrudOperations.archived_count
   instance_exec :unconfirmed_count, &GraphqlCrudOperations.archived_count
-
 end

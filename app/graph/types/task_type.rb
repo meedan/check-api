@@ -1,76 +1,64 @@
 TaskType = GraphqlCrudOperations.define_annotation_type('task', { label: 'str', type: 'str', annotated_type: 'str', description: 'str', json_schema: 'str' }) do
-  field :first_response do
-    type AnnotationType
+  field :first_response, AnnotationType, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.nil? ? nil : obj.first_response_obj
-    }
+  def first_response
+    obj = object.load || object
+    obj.nil? ? nil : obj.first_response_obj
   end
 
-  field :first_response_value do
-    type types.String
+  field :first_response_value, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.nil? ? "" : obj.first_response
-    }
+  def first_response_value
+    obj = object.load || object
+    obj.nil? ? "" : obj.first_response
   end
 
-  field :jsonoptions do
-    type types.String
+  field :jsonoptions, String, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.jsonoptions unless obj.nil?
-    }
+  def jsonoptions
+    obj = object.load || object
+    obj.jsonoptions unless obj.nil?
   end
 
-  field :options do
-    type JsonStringType
+  field :options, JsonStringType, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.options unless obj.nil?
-    }
+  def options
+    obj = object.load || object
+    obj.options unless obj.nil?
   end
 
-  field :project_media do
-    type ProjectMediaType
+  field :project_media, ProjectMediaType, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.annotated if !obj.nil? && obj.annotated_type == 'ProjectMedia'
-    }
+  def project_media
+    obj = object.load || object
+    obj.annotated if !obj.nil? && obj.annotated_type == 'ProjectMedia'
   end
 
-  field :team_task_id, types.Int
+  field :team_task_id, Integer, null: true
 
-  field :order, types.Int
+  field :order, Integer, null: true
 
-  field :log_count do
-    type types.Int
+  field :log_count, Integer, null: true
 
-    resolve -> (task, _args, _ctx) {
-      obj = task.load || task
-      obj.nil? ? 0 : (obj.log_count || 0)
-    }
+  def log_count
+    obj = object.load || object
+    obj.nil? ? 0 : (obj.log_count || 0)
   end
 
-  field :suggestions_count, types.Int
+  field :suggestions_count, Integer, null: true
 
-  field :pending_suggestions_count, types.Int
+  field :pending_suggestions_count, Integer, null: true
 
-  field :fieldset, types.String
+  field :fieldset, String, null: true
 
-  field :show_in_browser_extension, types.Boolean
+  field :show_in_browser_extension, Boolean, null: true
 
-  connection :log, -> { VersionType.connection_type } do
-    resolve ->(task, _args, _ctx) {
-      obj = task.load || task
-      obj.log unless obj.nil?
-    }
+  field :log, VersionType.connection_type, null: true, connection: true
+
+  def log
+    obj = object.load || object
+    obj.log unless obj.nil?
   end
 
-  connection :responses, -> { AnnotationType.connection_type }
+  field :responses, AnnotationType.connection_type, null: true, connection: true
 end

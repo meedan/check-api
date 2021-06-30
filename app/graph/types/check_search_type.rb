@@ -2,12 +2,12 @@ CheckSearchType = GraphqlCrudOperations.define_default_type do
   name 'CheckSearch'
   description 'CheckSearch type'
 
-  interfaces [NodeIdentification.interface]
+  implements NodeIdentification.interface
 
-  field :number_of_results, types.Int
-  field :pusher_channel, types.String
-  field :item_navigation_offset, types.Int
-  field :team, TeamType
+  field :number_of_results, Integer, null: true
+  field :pusher_channel, String, null: true
+  field :item_navigation_offset, Integer, null: true
+  field :team, TeamType, null: true
 
-  connection :medias, ProjectMediaType.connection_type
+  field :medias, ProjectMediaType.connection_type, null: true, connection: true
 end
