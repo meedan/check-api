@@ -21,7 +21,6 @@ module Check
     config.autoload_paths << Rails.root.join('app', 'graph', 'mutations')
     config.autoload_paths << Rails.root.join('app', 'graph', 'types')
 
-    config.active_record.raise_in_transactional_callbacks = true
     config.autoload_paths << "#{config.root}/app/models/annotations"
     config.autoload_paths << "#{config.root}/app/models/search"
     config.autoload_paths += %W(#{config.root}/lib)
