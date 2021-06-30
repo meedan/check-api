@@ -30,14 +30,14 @@ class WebhooksControllerTest < ActionController::TestCase
 
   test "should return error if bot does not exist" do
     stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
-      get :index, name: :test
+      get :index, params: { name: :test }
       assert_response 404
     end
   end
 
   test "should return error if request is not valid" do
     stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
-      get :index, name: :smooch
+      get :index, params: { name: :smooch }
       assert_response 400
     end
   end
@@ -45,7 +45,7 @@ class WebhooksControllerTest < ActionController::TestCase
   test "should make successful request to bot" do
     stub_configs({ 'checkdesk_base_url_private' => 'http://test.host' }) do
       @request.headers['X-API-Key'] = 'test'
-      get :index, name: :smooch
+      get :index, params: { name: :smooch }
       assert_response :success
     end
   end
@@ -76,7 +76,7 @@ class WebhooksControllerTest < ActionController::TestCase
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
-    post :index, name: :keep
+    post :index, params: { name: :keep }
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
@@ -110,7 +110,7 @@ class WebhooksControllerTest < ActionController::TestCase
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
-    post :index, name: :keep
+    post :index, params: { name: :keep }
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
@@ -130,7 +130,7 @@ class WebhooksControllerTest < ActionController::TestCase
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
-    post :index, name: :keep
+    post :index, params: { name: :keep }
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
   end
@@ -162,7 +162,7 @@ class WebhooksControllerTest < ActionController::TestCase
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
-    post :index, name: :keep
+    post :index, params: { name: :keep }
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
     Team.any_instance.unstub(:get_limits_keep)
@@ -188,7 +188,7 @@ class WebhooksControllerTest < ActionController::TestCase
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
     @request.headers['X-Signature'] = sig
     @request.env['RAW_POST_DATA'] = payload
-    post :index, name: :keep
+    post :index, params: { name: :keep }
     @request.env.delete('RAW_POST_DATA')
     assert_response :success
   end

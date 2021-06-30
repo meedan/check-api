@@ -89,7 +89,7 @@ class ElasticSearch7Test < ActionController::TestCase
       # search with different cases
       # A) test with choice (single/multiple) [exact match]
       query = 'query Search { search(query: "{\"team_tasks\":[{\"response\":\"ans_a\",\"response_type\":\"choice\",\"id\":' +  tt.id.to_s + '}]}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       ids = []
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -98,7 +98,7 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm.id, pm3.id], ids.sort
       # B) test with free text (contain match)
       query = 'query Search { search(query: "{\"team_tasks\":[{\"response\":\"sawy\",\"response_type\":\"free_text\",\"id\":' +  tt3.id.to_s + '}]}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       ids = []
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -290,7 +290,7 @@ class ElasticSearch7Test < ActionController::TestCase
       result = CheckSearch.new({keyword: 'Sawy', keyword_fields: {team_tasks: [tt2.id]}}.to_json)
       assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
       query = 'query Search { search(query: "{\"keyword\":\"Sawy\",\"keyword_fields\":{\"fields\":[\"task_answers\",\"metadata_answers\"],\"team_tasks\":[' + tt2.id.to_s + ']}}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       ids = []
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -334,7 +334,7 @@ class ElasticSearch7Test < ActionController::TestCase
       # Hit ES with option id
       # A) id is array (should ignore)
       query = 'query Search { search(query: "{\"id\":[' + pm.id.to_s + '],\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       ids = []
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -343,7 +343,7 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal [pm.id, pm2.id], ids.sort
       # B) id is string and exists in ES
       query = 'query Search { search(query: "{\"id\":' + pm.id.to_s + ',\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       ids = []
       JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -353,7 +353,7 @@ class ElasticSearch7Test < ActionController::TestCase
       # C) id is string and not exists in ES
       $repository.delete(get_es_id(pm))
       query = 'query Search { search(query: "{\"id\":' + pm.id.to_s + ',\"keyword\":\"claim\"}") { medias(first: 10) { edges { node { dbid } } } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       assert_empty JSON.parse(@response.body)['data']['search']['medias']['edges']
     end
@@ -401,10 +401,10 @@ class ElasticSearch7Test < ActionController::TestCase
     with_current_user_and_team(u ,t) do
       assert_nothing_raised do
         query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":20000,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
-        post :create, query: query
+        post :create, params: { query: query }
         assert_response :success
         query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":10000,\"esoffset\":20}") {medias(first:20){edges{node{dbid}}}}}'
-        post :create, query: query
+        post :create, params: { query: query }
         assert_response :success
       end
     end

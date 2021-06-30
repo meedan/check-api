@@ -18,17 +18,17 @@ class InvitationsControllerTest < ActionController::TestCase
     end
     tu =  u1.team_users.last
     token = tu.raw_invitation_token
-    get :edit, invitation_token: token, slug: t.slug
+    get :edit, params: { invitation_token: token, slug: t.slug }
     assert_redirected_to "#{CheckConfig.get('checkdesk_client')}/?invitation_response=success&msg=no"
     assert_equal 'member', tu.reload.status
     assert_nil tu.reload.raw_invitation_token
-    get :edit, invitation_token: token, slug: t.slug
+    get :edit, params: { invitation_token: token, slug: t.slug }
     assert_redirected_to "#{CheckConfig.get('checkdesk_client')}/#{t.slug}"
     User.current = nil
     u2 = User.where(email: 'test2@local.com').last
     tu =  u2.team_users.last
     token = tu.raw_invitation_token
-    get :edit, invitation_token: token, slug: t.slug
+    get :edit, params: { invitation_token: token, slug: t.slug }
     assert_equal "#{CheckConfig.get('checkdesk_client')}/#{t.slug}", @response.location.split("?").first
     assert_equal 'member', tu.reload.status
     assert_nil tu.reload.raw_invitation_token
@@ -45,10 +45,10 @@ class InvitationsControllerTest < ActionController::TestCase
     end
     tu =  u1.team_users.last
     token = tu.raw_invitation_token
-    get :edit, invitation_token: 'invalid-token', slug: t.slug
+    get :edit, params: { invitation_token: 'invalid-token', slug: t.slug }
     assert_redirected_to "#{CheckConfig.get('checkdesk_client')}/?invitation_response=no_invitation"
     assert_not_nil tu.reload.invitation_token
-    get :edit, invitation_token: token, slug: 'invalid-slug'
+    get :edit, params: { invitation_token: token, slug: 'invalid-slug' }
     assert_not_nil tu.reload.invitation_token
     assert_redirected_to "#{CheckConfig.get('checkdesk_client')}/?invitation_response=invalid_team"
   end

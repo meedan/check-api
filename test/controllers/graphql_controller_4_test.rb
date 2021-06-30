@@ -39,7 +39,7 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
@@ -49,7 +49,7 @@ class GraphqlController4Test < ActionController::TestCase
     ids = []
     10001.times { ids << random_string }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 1 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
   end
@@ -62,7 +62,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 0, CheckPusher::Worker.jobs.size
     
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
@@ -78,7 +78,7 @@ class GraphqlController4Test < ActionController::TestCase
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
@@ -88,7 +88,7 @@ class GraphqlController4Test < ActionController::TestCase
     ids = []
     10001.times { ids << random_string }
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 0 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
   end
@@ -104,7 +104,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 0, CheckPusher::Worker.jobs.size
     
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
@@ -126,7 +126,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 0, CheckPusher::Worker.jobs.size
 
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0, project_id: ' + add_to.id.to_s + ' }) { ids, team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
 
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
@@ -143,7 +143,7 @@ class GraphqlController4Test < ActionController::TestCase
     query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [' + inputs + '] }) { team { dbid } } }'
     assert_no_difference 'TagText.count' do
       assert_no_difference 'Tag.length' do
-        post :create, query: query, team: @t.slug
+        post :create, params: { query: query, team: @t.slug }
         assert_response :success
         assert_error_message 'allowed'
       end
@@ -155,7 +155,7 @@ class GraphqlController4Test < ActionController::TestCase
     query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [' + inputs.gsub(/, $/, '') + '] }) { team { dbid } } }'
     assert_no_difference 'TagText.count' do
       assert_no_difference 'Tag.length' do
-        post :create, query: query, team: @t.slug
+        post :create, params: { query: query, team: @t.slug }
         assert_response 400
         assert_error_message 'maximum'
       end
@@ -169,7 +169,7 @@ class GraphqlController4Test < ActionController::TestCase
     query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + @pm2.id.to_s + '" }, { tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm3.id.to_s + '" }, { tag: "test", annotated_type: "ProjectMedia", annotated_id: "' + pm4.id.to_s + '" }, { tag: "bar", annotated_type: "Comment", annotated_id: "' + c.id.to_s + '" }]}) { team { dbid } } }'
     assert_difference 'TagText.count', 1 do
       assert_difference 'Tag.length', 3 do
-        post :create, query: query, team: @t.slug
+        post :create, params: { query: query, team: @t.slug }
         assert_response :success
       end
     end
@@ -186,7 +186,7 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     p4 = create_project team: @t
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
   end
@@ -196,7 +196,7 @@ class GraphqlController4Test < ActionController::TestCase
     10001.times { ids << random_string }
     p4 = create_project team: @t
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
   end
@@ -215,7 +215,7 @@ class GraphqlController4Test < ActionController::TestCase
     ids = []
     [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
     query = "mutation { updateProjectMedias(input: { clientMutationId: \"1\", ids: #{ids.to_json}, move_to: #{p4.id} }) { team { dbid } } }"
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 0, @p1.reload.medias_count
     assert_equal 0, @p2.reload.medias_count
@@ -225,7 +225,7 @@ class GraphqlController4Test < ActionController::TestCase
   test "should update archived media by owner" do
     pm = create_project_media team: @t, archived: CheckArchivedFlags::FlagCodes::TRASHED
     query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\"}) { project_media { permissions } } }"
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
     permissions = JSON.parse(data['permissions'])
