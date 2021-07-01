@@ -1,6 +1,6 @@
 require 'apollo/tracing'
 
-class RelayOnRailsSchema < GraphQL::Schema
+RelayOnRailsSchema = GraphQL::Schema.define do
   query QueryType
   mutation MutationType
   use GraphQL::Batch
@@ -19,7 +19,7 @@ class RelayOnRailsSchema < GraphQL::Schema
   #   }
   # end
 
-  def self.resolve_type(_type, object, _ctx)
+  resolve_type -> (_type, object, _ctx) do
     klass = (object.respond_to?(:type) && object.type) ? object.type : object.class_name
     klass = 'Task' if Task.task_types.include?(klass)
     klass = 'User' if object.class.name == 'User'
@@ -30,7 +30,7 @@ class RelayOnRailsSchema < GraphQL::Schema
     CheckGraphql.id_from_object(obj, type, ctx)
   }
 
-  def self.object_from_id(id, ctx)
+  object_from_id -> (id, ctx) do
     CheckGraphql.object_from_id(id, ctx)
   end
 
