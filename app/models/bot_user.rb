@@ -3,7 +3,7 @@ class BotUser < User
   include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
-  if ApplicationRecord.data_source_exists?(:dynamic_annotation_annotation_types)
+  if ApplicationRecord.connection.table_exists?(:dynamic_annotation_annotation_types)
     annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'tag', 'task', 'geolocation']
     annotation_types.each do |type|
       EVENTS << "create_annotation_#{type}"
