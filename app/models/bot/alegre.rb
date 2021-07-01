@@ -346,12 +346,6 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.text_length_matching_threshold(pm)
-    tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.alegre_settings unless tbi.nil?
-    settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
-  end
-
   def self.split_text(text)
     text.split(/\s/)
   end
@@ -521,7 +515,7 @@ class Bot::Alegre < BotUser
     if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
-      relationship_type = self.is_text_too_short?(pm) ? Relationship.suggested_type : pm_id_scores[parent_id][:relationship_type]
+      relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
@@ -538,14 +532,28 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.is_text_too_short?(pm)
+  def self.set_relationship_type(pm, pm_id_scores, parent)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.alegre_settings unless tbi.nil?
+    date_threshold = settings['similarity_date_threshold'] unless setting_type.blank?
+    relationship_type = pm_id_scores[parent.id][:relationship_type]
+    if !date_threshold.blank? && parent.created_at < date_threshold
+      relationship_type = Relationship.suggested_type
+    else
+      length_threshold = settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
+      relationship_type = Relationship.suggested_type if self.is_text_too_short(pm, length_threshold)
+    end
+    relationship_type
+  end
+
+  def self.is_text_too_short?(pm, length_threshold)
     is_short = false
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
         fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
       end
-      is_short = fields_size.max <= self.text_length_matching_threshold(pm) unless fields_size.blank?
+      is_short = fields_size.max < length_threshold unless fields_size.blank?
     end
     is_short
   end

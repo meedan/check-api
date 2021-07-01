@@ -36,6 +36,7 @@ class TeamBotInstallation < TeamUser
       settings[k] = self.send("get_#{k}").nil? ? CheckConfig.get(k, 0.9).to_f : self.send("get_#{k}").to_f
     end
     settings['text_similarity_model'] = self.get_text_similarity_model || Bot::Alegre.default_matching_model
+    settings['similarity_date_threshold'] = self.get_similarity_date_threshold
     settings
   end
 
