@@ -6,6 +6,7 @@ until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep
 # Rake tasks
 if [ "$RAILS_ENV" == "test" ]
 then
+  bin/rails db:environment:set RAILS_ENV=$RAILS_ENV || true
   bundle exec rake db:drop
 fi
 bundle exec rake db:create
