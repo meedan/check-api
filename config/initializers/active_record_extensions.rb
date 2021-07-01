@@ -74,7 +74,7 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if self.class_name.constantize.paper_trail.enabled?
+    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
