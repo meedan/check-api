@@ -121,7 +121,7 @@ module ActiveRecordExtensions
     # https://github.com/paper-trail-gem/paper_trail/issues/215#issuecomment-21196200
     transaction do
       save!
-      self.version_object = Version.from_partition(self.team.id).where(item_type: self.class_name, item_id: self.id.to_s).last if self.class_name.constantize.paper_trail.enabled? && self.team
+      self.version_object = Version.from_partition(self.team.id).where(item_type: self.class_name, item_id: self.id.to_s).last if PaperTrail.request.enabled_for_model?(self.class_name.constantize) && self.team
       self
     end
   end
