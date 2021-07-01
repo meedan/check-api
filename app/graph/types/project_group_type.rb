@@ -2,14 +2,14 @@ ProjectGroupType = GraphqlCrudOperations.define_default_type do
   name 'ProjectGroup'
   description 'Project group type'
 
-  implements NodeIdentification.interface
+  interfaces [NodeIdentification.interface]
 
-  field :dbid, Integer, null: true
-  field :title, String, null: true
-  field :description, String, null: true
-  field :team_id, Integer, null: true
-  field :team, TeamType, null: true
-  field :medias_count, Integer, null: true
+  field :dbid, types.Int
+  field :title, types.String
+  field :description, types.String
+  field :team_id, types.Int
+  field :team, TeamType
+  field :medias_count, types.Int
 
-  field :projects, ProjectType.connection_type, null: true, connection: true
+  connection :projects, ProjectType.connection_type
 end

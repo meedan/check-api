@@ -2,24 +2,24 @@ MediaType = GraphqlCrudOperations.define_default_type do
   name 'Media'
   description 'Media type'
 
-  implements NodeIdentification.interface
+  interfaces [NodeIdentification.interface]
 
-  field :url, String, null: true
-  field :quote, String, null: true
-  field :account_id, Integer, null: true
-  field :dbid, Integer, null: true
-  field :domain, String, null: true
-  field :pusher_channel, String, null: true
-  field :embed_path, String, null: true
-  field :thumbnail_path, String, null: true
-  field :picture, String, null: true
-  field :type, String, null: true
-  field :file_path, String, null: true
-  field :metadata, JsonStringType, null: true
+  field :url, types.String
+  field :quote, types.String
+  field :account_id, types.Int
+  field :dbid, types.Int
+  field :domain, types.String
+  field :pusher_channel, types.String
+  field :embed_path, types.String
+  field :thumbnail_path, types.String
+  field :picture, types.String
+  field :type, types.String
+  field :file_path, types.String
+  field :metadata, JsonStringType
 
-  field :account, AccountType, null: true
+  field :account do
+    type -> { AccountType }
 
-  def account
-    object.account
+    resolve -> (media, _args, _ctx) { media.account }
   end
 end

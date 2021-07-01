@@ -2,25 +2,27 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
   name 'TeamTask'
   description 'Team task type'
 
-  implements NodeIdentification.interface
+  interfaces [NodeIdentification.interface]
 
-  field :dbid, Integer, null: true
-  field :label, String, null: true
-  field :description, String, null: true
-  field :options, JsonStringType, null: true
-  field :project_ids, JsonStringType, null: true
-  field :required, Boolean, null: true
-  field :team_id, Integer, null: true
-  field :team, TeamType, null: true
-  field :json_schema, String, null: true
-  field :order, Integer, null: true
-  field :fieldset, String, null: true
-  field :associated_type, String, null: true
-  field :show_in_browser_extension, Boolean, null: true
+  field :dbid, types.Int
+  field :label, types.String
+  field :description, types.String
+  field :options, JsonStringType
+  field :project_ids, JsonStringType
+  field :required, types.Boolean
+  field :team_id, types.Int
+  field :team, TeamType
+  field :json_schema, types.String
+  field :order, types.Int
+  field :fieldset, types.String
+  field :associated_type, types.String
+  field :show_in_browser_extension, types.Boolean
 
-  field :type, String, null: true
+  field :type do
+    type types.String
 
-  def type
-    object.task_type
+    resolve -> (task, _args, _ctx) {
+      task.task_type
+    }
   end
 end

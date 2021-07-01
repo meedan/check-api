@@ -2,9 +2,9 @@ TagTextType = GraphqlCrudOperations.define_default_type do
   name 'TagText'
   description 'Tag text type'
 
-  implements NodeIdentification.interface
+  interfaces [NodeIdentification.interface]
 
-  field :dbid, Integer, null: true
-  field :text, String, null: true
-  field :tags_count, Integer, null: true
+  field :dbid, types.Int
+  field :text, types.String
+  field :tags_count, types.Int
 end
