@@ -44,8 +44,8 @@ class << Concurrent::Future
 end
 
 class Api::V1::TestController < Api::V1::BaseApiController
-  before_filter :verify_payload!, only: [:notify]
-  skip_before_filter :authenticate_from_token!, only: [:notify]
+  before_action :verify_payload!, only: [:notify]
+  skip_before_action :authenticate_from_token!, only: [:notify]
 
   def test
     @p = get_params
