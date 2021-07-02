@@ -6,7 +6,7 @@ class ShortUrlIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should redirect to 404 page if short URL doesn't exist" do
-    get "#{CheckConfig.get('short_url_host')}/x1y2z3"
+    get "#{CheckConfig.get('short_url_host')}/x1y2z3", params: {}
     assert_redirected_to '/404.html'
   end
 
@@ -14,7 +14,7 @@ class ShortUrlIntegrationTest < ActionDispatch::IntegrationTest
     pm = create_project_media
     short_url = pm.embed_url
     full_url = CheckConfig.get('pender_url') + '/api/medias.html?host=localhost&url=' + CGI.escape(pm.full_url)
-    get short_url
+    get short_url, params: {}
     assert_redirected_to full_url
   end
 end
