@@ -121,7 +121,7 @@ class Account < ApplicationRecord
   def set_omniauth_info_as_annotation
     m = self.annotations('metadata').last
     if m.nil?
-      m = Dynamic.new
+      m = Embed.new
       m.annotation_type = 'metadata'
       m.annotated = self
     else
