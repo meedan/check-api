@@ -98,8 +98,12 @@ module UserMultiAuthLogin
     end
 
     def self.find_with_token(token)
-      account = Account.where(token: token).last
-      account.nil? ?  User.where(token: token).last : account.user
+      return nil if token.blank?
+      uid = Rails.cache.fetch("user_id_from_token_#{token}") do
+        account = Account.where(token: token).last
+        account.nil? ? User.where(token: token).last&.id : account.user&.id
+      end
+      uid ? User.find(uid) : nil
     end
 
     def accept_invitation_or_confirm

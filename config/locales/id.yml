@@ -25,8 +25,8 @@ id:
         label: Sedang Berlangsung
         description: Pekerjaan telah dimulai, namun belum ada terjemahannya
       not_true:
-        label: Salah
-        description: 'Kesimpulan: konten dari perihal ini salah'
+        label: Palsu
+        description: 'Kesimpulan: konten dari perihal ini palsu'
       verified:
         label: Terverifikasi
         description: 'Kesimpulan: konten dari perihal ini terverifikasi'
@@ -42,7 +42,7 @@ id:
       error:
         label: Kesalahan
       'false':
-        description: 'Kesimpulan: konten dari perihal ini salah'
+        description: 'Kesimpulan: konten dari perihal ini palsu'
       inconclusive:
         label: Tidak meyakinkan
       misleading:
@@ -76,8 +76,8 @@ id:
     messages:
       invalid_password: Kata sandi salah
       invalid_qrcode: Kode validasi salah
-      extension_white_list_error: 'tidak dapat memiliki tipe %{extension}, tipe-tipe
-        yang diijinkan: %{allowed_types}'
+      extension_white_list_error: 'tidak dapat memiliki tipe format %{extension},
+        tipe-tipe yang diijinkan: %{allowed_types}'
       invalid_size: 'harus berukuran antara %{min_width}x%{min_height} dan %{max_width}x%{max_height}
         piksel '
       mini_magick_processing_error: 'Maaf, kami gagal memproses gambar. Kesalahan:
@@ -126,7 +126,7 @@ id:
       uploaded_video:
         file: Video
       team:
-        slug: URL Ruang kerja
+        slug: URL ruang kerja
       source:
         name: Nama
       contact:
@@ -250,7 +250,7 @@ id:
     %{date}
   oembed_disclaimer_verified: Perihal ini telah ditentukan untuk diverifikasi oleh
     %{team} pada %{date}
-  oembed_disclaimer_false: Perihal ini telah ditentukan salah oleh %{team} pada %{date}
+  oembed_disclaimer_false: Perihal ini telah ditentukan palsu oleh %{team} pada %{date}
   oembed_disclaimer_not_applicable: Tidak ada kesimpulan yang dapat diperoleh mengenai
     perihal ini oleh %{team} pada %{date}
   oembed_source_date: "%{date} pada %{provider}"
@@ -513,10 +513,10 @@ id:
   could_not_save_related_bot_data: Maaf, tidak dapat menambahkan bot ke dalam ruang
     kerja ini
   bot_cant_add_response_to_task: Maaf, bot tidak dapat menjawab tugas secara langsung
-    - mohon kirimkan usulan jawaban sebagai gantinya
+    - silakan kirimkan saran jawaban sebagai gantinya
   bot_cant_add_review_to_task: Maaf, bot tidak dapat meninjau sebuah tugas
-  task_suggestion_invalid_value: Usulan tugas salah. Menunggu sebuah obyek JSON dengan
-    atribut `usulan` (nilai sesungguhnya yang disalin ke jawaban dari tugas saat diterima)
+  task_suggestion_invalid_value: Saran tugas salah. Menunggu sebuah obyek JSON dengan
+    atribut `saran` (nilai sesungguhnya yang disalin ke jawaban dari tugas saat diterima)
     dan `komentar` (ditampilkan kepada pengguna).
   tag_text_id_not_found: Label tidak ditemukan
   annotation_type_language_label: Bahasa
@@ -615,14 +615,14 @@ id:
       tahu tim dukungan tentang kejadian ini.
     user_not_authorized: Maaf, Anda tidak diizinkan untuk mengimpor data ke dalam
       ruang kerja ini.
-    invalid_project: Folder salah %{project}
-    invalid_user: Pengarang salah %{user}
-    invalid_status: Status salah %{status}
+    invalid_project: Folder %{project} salah
+    invalid_user: Pengarang %{user} salah
+    invalid_status: Status %{status} salah
     blank_user: Bidang pengarang tidak boleh kosong
     blank_annotator: Bidang pencatat tidak boleh kosong
     blank_project: Bidang folder tidak boleh kosong
-    invalid_annotator: Pencatat salah %{user}
-    invalid_assignee: Penerima tugas salah %{user}
+    invalid_annotator: Pencatat %{user} salah
+    invalid_assignee: Penerima tugas %{user} salah
   cant_mutate_inactive_object: Maaf, sedang ada pekerjaan tertunda untuk perihal ini,
     sehingga Anda tidak dapat mengubahnya sekarang. Mohon coba lagi nanti.
   embed_expand_all: Lebarkan semua
@@ -668,6 +668,8 @@ id:
   team_rule_type_is_uploadedvideo: Video
   team_rule_contains_keyword: Permintaan mengandung satu atau beberapa kata kunci
     berikut
+  team_rule_title_contains_keyword: Konten mengandung satu atau lebih dari kata kunci
+    berikut
   team_rule_select_type: Pilih tipe
   team_rule_select_language: Pilih bahasa
   team_rule_select_user: Pilih seorang kolaborator
@@ -689,8 +691,8 @@ id:
   team_rule_all_items: Semua perihal
   team_rule_send_message_to_user: Kirim pesan ke pengguna
   team_rule_action_value: Ketik pesan di sini
-  team_rule_item_titles_are_similar: Judul-judul perihal ini serupa
-  team_rule_item_images_are_similar: Gambar-gambar ini serupa
+  team_rule_item_titles_are_similar: Judul-judul perihal ini mirip
+  team_rule_item_images_are_similar: Gambar-gambar ini mirip
   team_rule_relate_similar_items: Kaitkan perihal
   team_rule_type_title_threshold: Jarak antara judul perihal
   team_rule_type_image_threshold: Jarak antara gambar
@@ -715,7 +717,7 @@ id:
   team_rule_select_field_value_metadata: Pilih nilai
   team_rule_select_field_tasks: Pilih tugas
   team_rule_select_field_value_tasks: Pilih jawaban
-  team_rule_item_is_assigned_to_user: Perihal diserahkan kepada
+  team_rule_item_is_assigned_to_user: Perihal ditugaskan kepada
   team_rule_add_tag: Tambahkan label
   flag_adult: Dewasa
   flag_spoof: Tipuan
@@ -757,11 +759,11 @@ id:
   list_column_share_count: Dibagikan di FB
   list_column_reaction_count: Reaksi di FB
   list_column_comment_count: Komentar di FB
-  list_column_linked_items_count: Media serupa
+  list_column_linked_items_count: Media yang mirip
   list_column_type: Tipe
   list_column_status: Status
   list_column_created_at: Diserahkan
-  list_column_last_seen: Diserahkan terakhir
+  list_column_last_seen: Terakhir diserahkan
   list_column_updated_at: Diperbarui
   list_column_report_status: Status laporan
   list_column_tags_as_sentence: Label-label
@@ -784,9 +786,9 @@ id:
         otomasi.
       copied_to_project_by_rule: '"%{item_title}" telah disalin ke dalam folder "[%{list_name}](%{list_link})"
         oleh aturan otomasi.'
-      related_to_confirmed_similar: '"%{item_title}" telah dikonfirmasi serupa dengan
+      related_to_confirmed_similar: '"%{item_title}" telah dikonfirmasi mirip dengan
         "%{similar_item_title}".'
-      related_to_suggested_similar: '"%{item_title}" telah disarankan serupa dengan
+      related_to_suggested_similar: '"%{item_title}" telah disarankan mirip dengan
         "%{similar_item_title}".'
       sent_message_to_requestors_on_status_change: Sebuah pembaruan dengan status
         "%{status}" telah dikirimkan ke %{requestors_count} pemohon.

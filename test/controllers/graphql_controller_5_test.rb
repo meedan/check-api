@@ -5,6 +5,7 @@ class GraphqlController5Test < ActionController::TestCase
     require 'sidekiq/testing'
     super
     @controller = Api::V1::GraphqlController.new
+    create_annotation_type annotation_type: 'task_response'
     User.unstub(:current)
     Team.unstub(:current)
     User.current = nil
@@ -28,6 +29,9 @@ class GraphqlController5Test < ActionController::TestCase
     [@t1, @t2, @t3, @m1, @m2, @m3].each { |t| t.order = nil ; t.save! }
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
+    @f1 = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.png'), 'image/png')
+    @f2 = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails2.png'), 'image/png')
+    @f3 = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.mp4'), 'video/mp4')
     authenticate_with_user(@u)
   end
 
@@ -215,262 +219,29 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal @m2.id.to_s, tasks[2]['node']['dbid']
   end
 
-  test "should update project media source" do
-    s = create_source team: @t
-    s2 = create_source team: @t
-    pm = create_project_media team: @t, source_id: s.id, skip_autocreate_source: false
-    pm2 = create_project_media team: @t, source_id: s2.id, skip_autocreate_source: false
-    assert_equal s.id, pm.source_id
-    query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm.graphql_id}\", source_id: #{s2.id}}) { project_media { source { dbid, medias_count, medias(first: 10) { edges { node { dbid } } } } } } }"
+  test "should add files to task and remove files from task" do
+    t0 = create_task annotated: @pm, fieldset: 'tasks', task_type: 'file_upload' ; sleep 1
+    t0.response = { annotation_type: 'task_response' }.to_json
+    t0.save!
+    assert_equal 0, t0.reload.first_response_obj.file_data.size
+
+    query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
+    post :create, query: query, file: { '0' => @f1 }, team: @t.slug
+    assert_response :success
+    assert_equal 1, t0.reload.first_response_obj.file_data.size
+    assert_equal ['rails.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
+
+    query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
+    post :create, query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug
+    assert_response :success
+    assert_equal 3, t0.reload.first_response_obj.file_data.size
+    assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }.sort
+
+    query = 'mutation { removeFilesFromTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '", filenames: ["rails.mp4", "rails.png"] }) { task { id } } }'
     post :create, query: query, team: @t.slug
     assert_response :success
-    data = JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']
-    assert_equal s2.id, data['source']['dbid']
-    assert_equal 2, data['source']['medias_count']
-    assert_equal 2, data['source']['medias']['edges'].size
-  end
-
-  test "should create related project media for source" do
-    t = create_team
-    pm = create_project_media team: t
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
-    query = 'mutation create { createSource(input: { name: "new source", slogan: "new source", clientMutationId: "1", add_to_project_media_id: ' + pm.id.to_s + ' }) { source { dbid } } }'
-    post :create, query: query, team: t
-    assert_response :success
-    source = JSON.parse(@response.body)['data']['createSource']['source']
-    assert_equal pm.reload.source_id, source['dbid']
-  end
-
-  test "should search team sources by keyword" do
-    t = create_team slug: 'sawy'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    create_source team: t, name: 'keyword begining'
-    create_source team: t, name: 'ending keyword'
-    create_source team: t, name: 'in the KEYWORD middle'
-    create_source team: t
-    authenticate_with_user(u)
-    query = 'query read { team(slug: "sawy") { sources(first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query
-    assert_response :success
-    edges = JSON.parse(@response.body)['data']['team']['sources']['edges']
-    assert_equal 4, edges.length
-    query = 'query read { team(slug: "sawy") { sources(first: 1000, keyword: "keyword") { edges { node { dbid } } } } }'
-    post :create, query: query
-    assert_response :success
-    edges = JSON.parse(@response.body)['data']['team']['sources']['edges']
-    assert_equal 3, edges.length
-  end
-
-  test "should update last_active_at from users before a graphql request" do
-    assert_nil @u.last_active_at
-    query = "query { user(id: #{@u.id}) { last_active_at } }"
-    post :create, query: query
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['user']['last_active_at']
-    assert_not_nil @u.reload.last_active_at
-  end
-
-  test "should not get Smooch integrations if not permissioned" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    t2 = create_team
-    create_team_user user: u, team: t2, role: 'admin'
-    
-    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
-    post :create, query: query
-    assert_error_message 'Not Found'
-
-    authenticate_with_user(u)
-    post :create, query: query
-    assert_error_message 'Not Found'
-  end
-
-  test "should get Smooch integrations if permissioned" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    
-    authenticate_with_user(u)
-    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_enabled_integrations } } } } }"
-    post :create, query: query
-    assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_enabled_integrations')
-  end
-
-  test "should remove Smooch integration if permissioned" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    
-    authenticate_with_user(u)
-    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
-    post :create, query: query
-    assert_not_nil json_response.dig('data', 'smoochBotRemoveIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
-  end
-
-  test "should not remove Smooch integration if not permissioned" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    t2 = create_team
-    create_team_user user: u, team: t2, role: 'admin'
-    query = "mutation { smoochBotRemoveIntegration(input: { clientMutationId: \"1\", team_bot_installation_id: \"#{tbi.graphql_id}\", integration_type: \"whatsapp\" }) { team_bot_installation { smooch_enabled_integrations } } }"
-    
-    post :create, query: query
-    assert_error_message 'Not Found'
-
-    authenticate_with_user(u)
-    post :create, query: query
-    assert_error_message 'Not Found'
-  end
-
-  test "should add Smooch integration if permissioned" do
-    SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).returns(nil)
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    
-    authenticate_with_user(u)
-    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
-    post :create, query: query
-    assert_not_nil json_response.dig('data', 'smoochBotAddIntegration', 'team_bot_installation', 'smooch_enabled_integrations')
-  end
-
-  test "should not add Smooch integration if not permissioned" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    t2 = create_team
-    create_team_user user: u, team: t2, role: 'admin'
-    query = 'mutation { smoochBotAddIntegration(input: { clientMutationId: "1", team_bot_installation_id: "' + tbi.graphql_id + '", integration_type: "messenger", params: "{\"token\":\"abc\"}" }) { team_bot_installation { smooch_enabled_integrations } } }'
-
-    post :create, query: query
-    assert_error_message 'Not Found'
-
-    authenticate_with_user(u)
-    post :create, query: query
-    assert_error_message 'Not Found'
-  end
-
-  test "should get saved search filters" do
-    t = create_team
-    ss = create_saved_search team: t, filters: { foo: 'bar' }
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters } } } } }"
-    post :create, query: query
-    assert_equal '{"foo":"bar"}', JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node', 'filters')
-    assert_response :success
-  end
-
-  test "should search by report status" do
-    setup_elasticsearch
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-
-    # Published
-    pm1 = create_project_media team: t, disable_es_callbacks: false
-    r1 = publish_report(pm1)
-    r1 = Dynamic.find(r1.id)
-    r1.disable_es_callbacks = false
-    r1.set_fields = { state: 'published' }.to_json
-    r1.save!
-
-    # Paused
-    pm2 = create_project_media team: t, disable_es_callbacks: false
-    r2 = publish_report(pm2)
-    r2 = Dynamic.find(r2.id)
-    r2.disable_es_callbacks = false
-    r2.set_fields = { state: 'paused' }.to_json
-    r2.save!
-
-    # Not published
-    pm3 = create_project_media team: t, disable_es_callbacks: false
-
-    # Published
-    query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
-  end
-
-  test "should get a single bot installation" do
-    t = create_team private: true
-    b = create_team_bot login: 'smooch', set_approved: true
-    app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
-    u = create_user
-    create_team_user user: u, team: t, role: 'admin'
-    
-    authenticate_with_user(u)
-    query = "query { team(slug: \"#{t.slug}\") { team_bot_installation(bot_identifier: \"smooch\") { smooch_enabled_integrations(force: true) } } }"
-    post :create, query: query
-    assert_not_nil json_response.dig('data', 'team', 'team_bot_installation', 'smooch_enabled_integrations')
-  end
-
-  test "should search using OR or AND on PG" do
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-
-    pm1 = create_project_media team: t, project: p1, read: true
-    pm2 = create_project_media team: t, project: p2, read: false
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":true,\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":true,\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
-  end
-
-  test "should search using OR or AND on ES" do
-    setup_elasticsearch
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-
-    pm1 = create_project_media team: t, project: p1, read: true
-    pm2 = create_project_media team: t, project: p2, read: false
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":true,\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":true,\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
-    assert_response :success
-    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+    assert_equal 1, t0.reload.first_response_obj.file_data.size
+    assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
   end
 
   protected
