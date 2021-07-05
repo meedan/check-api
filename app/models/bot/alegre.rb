@@ -535,13 +535,13 @@ class Bot::Alegre < BotUser
   def self.set_relationship_type(pm, pm_id_scores, parent)
     tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.alegre_settings unless tbi.nil?
-    date_threshold = settings['similarity_date_threshold'] unless setting_type.blank?
+    date_threshold = settings['similarity_date_threshold'] unless settings.blank?
     relationship_type = pm_id_scores[parent.id][:relationship_type]
-    if !date_threshold.blank? && parent.created_at < date_threshold
+    if !date_threshold.blank? && parent.created_at.to_i < date_threshold.to_i
       relationship_type = Relationship.suggested_type
     else
       length_threshold = settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
-      relationship_type = Relationship.suggested_type if self.is_text_too_short(pm, length_threshold)
+      relationship_type = Relationship.suggested_type if self.is_text_too_short?(pm, length_threshold)
     end
     relationship_type
   end
