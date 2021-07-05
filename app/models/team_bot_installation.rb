@@ -19,7 +19,7 @@ class TeamBotInstallation < TeamUser
 
   def alegre_settings
     settings = {}
-    boolean_keys = %w(master_similarity_enabled text_similarity_enabled image_similarity_enabled video_similarity_enabled)
+    boolean_keys = %w(master_similarity_enabled text_similarity_enabled image_similarity_enabled video_similarity_enabled date_similarity_threshold_enabled)
     boolean_keys.each{ |k| settings[k] = self.send("get_#{k}").nil? ? (CheckConfig.get(k, true).to_s == 'true') : self.send("get_#{k}") }
     threshold_keys = %w(
       text_length_matching_threshold
