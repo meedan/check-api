@@ -21,7 +21,7 @@ module SmoochResources
         message << resource['smooch_custom_resource_body'] unless resource['smooch_custom_resource_body'].to_s.strip.blank?
         unless resource['smooch_custom_resource_feed_url'].blank?
           message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}") do
-            self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
+            begin self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles']) rescue nil end
           end
         end
       end
@@ -46,15 +46,11 @@ module SmoochResources
       require 'rss'
       require 'open-uri'
       output = []
-      begin
-        open(url.to_s.strip) do |rss|
-          feed = RSS::Parser.parse(rss, false)
-          feed.items.first(count).each do |item|
-            output << item.title.strip + "\n" + item.link.strip
-          end
+      open(url.to_s.strip) do |rss|
+        feed = RSS::Parser.parse(rss, false)
+        feed.items.first(count).each do |item|
+          output << item.title.strip + "\n" + item.link.strip
         end
-      rescue
-        nil
       end
       output.join("\n\n")
     end
