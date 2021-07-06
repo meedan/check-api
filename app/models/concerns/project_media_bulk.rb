@@ -70,7 +70,7 @@ module ProjectMediaBulk
     def bulk_move_secondary_items(ids, project, previous_project_id, team)
       target_ids = Relationship.where(source_id: ids).map(&:target_id)
       secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id)
-      self.bulk_move(secondary_ids, project, previous_project_id, team)
+      self.bulk_move(secondary_ids, project, team)
     end
 
     def send_pusher_and_parents(project, previous_project_id, team)
