@@ -534,7 +534,7 @@ class Bot::Alegre < BotUser
 
   def self.set_relationship_type(pm, pm_id_scores, parent)
     tbi = self.get_alegre_tbi(pm&.team_id)
-    settings = tbi.alegre_settings unless tbi.nil?
+    settings = tbi.nil? ? {} : tbi.alegre_settings
     date_threshold = Time.now - settings['similarity_date_threshold'].to_i.months unless settings['similarity_date_threshold'].blank?
     relationship_type = pm_id_scores[parent.id][:relationship_type]
     if settings['date_similarity_threshold_enabled'] && !date_threshold.blank? && parent.created_at.to_i < date_threshold.to_i
