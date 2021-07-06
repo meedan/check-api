@@ -91,7 +91,7 @@ module ProjectMediaPrivate
     # move similar items to same project as main item
     if self.project_id_changed?
       secondary_ids = self.source_relationships.map(&:target_id)
-      ProjectMedia.bulk_move(secondary_ids, self.project, self.project_id_was, self.team) unless secondary_ids.blank?
+      ProjectMedia.bulk_move(secondary_ids, self.project, self.team) unless secondary_ids.blank?
     end
   end
 

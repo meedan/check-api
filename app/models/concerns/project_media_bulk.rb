@@ -11,7 +11,7 @@ module ProjectMediaBulk
       elsif keys.include?(:move_to)
         project = Project.where(team_id: team&.id, id: updates[:move_to]).last
         unless project.nil?
-          self.bulk_move(ids, project, updates[:previous_project_id], team)
+          self.bulk_move(ids, project, team)
           # bulk move secondary items
           self.bulk_move_secondary_items(ids, project, updates[:previous_project_id], team)
           # send pusher and set parent objects for graphql
@@ -48,7 +48,7 @@ module ProjectMediaBulk
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
 
-    def bulk_move(ids, project, previous_project_id, team)
+    def bulk_move(ids, project, team)
       pmp_mapping = {}
       ProjectMedia.where(id: ids).collect{ |pm| pmp_mapping[pm.id] = pm.project_id }
       # SQL bulk-update
