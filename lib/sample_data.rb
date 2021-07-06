@@ -44,7 +44,7 @@ module SampleData
     ss = SavedSearch.new
     ss.team = create_team
     ss.title = random_string
-    ss.filters = '{}'
+    ss.filters = {}
     options.each do |key, value|
       ss.send("#{key}=", value) if ss.respond_to?("#{key}=")
     end
