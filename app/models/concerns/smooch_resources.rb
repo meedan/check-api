@@ -46,11 +46,15 @@ module SmoochResources
       require 'rss'
       require 'open-uri'
       output = []
-      open(url.to_s.strip) do |rss|
-        feed = RSS::Parser.parse(rss, false)
-        feed.items.first(count).each do |item|
-          output << item.title.strip + "\n" + item.link.strip
+      begin
+        open(url.to_s.strip) do |rss|
+          feed = RSS::Parser.parse(rss, false)
+          feed.items.first(count).each do |item|
+            output << item.title.strip + "\n" + item.link.strip
+          end
         end
+      rescue
+        nil
       end
       output.join("\n\n")
     end
