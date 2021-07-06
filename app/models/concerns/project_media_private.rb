@@ -87,6 +87,14 @@ module ProjectMediaPrivate
     end
   end
 
+  def move_similar_item
+    # move similar items to same project as main item
+    if self.project_id_changed?
+      secondary_ids = self.source_relationships.map(&:target_id)
+      ProjectMedia.bulk_move(secondary_ids, self.project, self.project_id_was, self.team) unless secondary_ids.blank?
+    end
+  end
+
   def project_is_not_archived
     parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end

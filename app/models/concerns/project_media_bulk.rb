@@ -10,7 +10,13 @@ module ProjectMediaBulk
         self.bulk_archive(ids, updates[:archived], updates[:previous_project_id], updates[:project_id], team)
       elsif keys.include?(:move_to)
         project = Project.where(team_id: team&.id, id: updates[:move_to]).last
-        self.bulk_move(ids, project, updates[:previous_project_id], team) unless project.nil?
+        unless project.nil?
+          self.bulk_move(ids, project, updates[:previous_project_id], team)
+          # bulk move secondary items
+          self.bulk_move_secondary_items(ids, project, updates[:previous_project_id], team)
+          # send pusher and set parent objects for graphql
+          self.send_pusher_and_parents(project, updates[:previous_project_id], team)
+        end
       end
     end
 
@@ -56,19 +62,28 @@ module ProjectMediaBulk
       # Other callbacks to run in background
       ProjectMedia.delay.run_bulk_update_team_tasks(pmp_mapping, User.current&.id)
 
+      # ElasticSearch
+      script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
+      self.bulk_reindex(ids.to_json, script)
+    end
+
+    def bulk_move_secondary_items(ids, project, previous_project_id, team)
+      target_ids = Relationship.where(source_id: ids).map(&:target_id)
+      secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id)
+      self.bulk_move(secondary_ids, project, previous_project_id, team)
+    end
+
+    def send_pusher_and_parents(project, previous_project_id, team)
       # Get previous_project
       project_was = Project.find_by_id previous_project_id unless previous_project_id.blank?
-
       # Pusher
       team.notify_pusher_channel
       project.notify_pusher_channel
       project_was&.notify_pusher_channel
-
-      # ElasticSearch
-      script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
-      self.bulk_reindex(ids.to_json, script)
-
-      { team: team, project: project, check_search_project: project&.check_search_project, project_was: project_was, check_search_project_was: project_was&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
+      { team: team, project: project, check_search_project: project&.check_search_project,
+        project_was: project_was, check_search_project_was: project_was&.check_search_project,
+        check_search_team: team.check_search_team, check_search_trash: team.check_search_trash
+      }
     end
 
     def run_bulk_update_team_tasks(pmp_mapping, user_id)
