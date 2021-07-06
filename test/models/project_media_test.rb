@@ -566,7 +566,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm2 = create_project_media team: t, project_id: p.id
       end
       ids = [pm.id, pm2.id]
-      ProjectMedia.bulk_move(ids, p2, nil, t)
+      ProjectMedia.bulk_move(ids, p2, t)
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
