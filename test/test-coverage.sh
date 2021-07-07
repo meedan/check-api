@@ -23,4 +23,4 @@ fi
 echo "Uploading coverage report to S3..."
 ls -ahl coverage/
 ./test/cc-test-reporter format-coverage -t simplecov --output coverage/codeclimate.$PATTERN.json ../coverage/.resultset.json
-/usr/local/bin/aws s3 cp coverage/codeclimate.$PATTERN.json s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_RUN_ID/codeclimate.$PATTERN.json
+/usr/local/bin/aws s3 cp coverage/codeclimate.$PATTERN.json s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_RUN_ID/codeclimate.$PATTERN.json --region $AWS_DEFAULT_REGION
