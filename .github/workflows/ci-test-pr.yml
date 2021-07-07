@@ -129,7 +129,7 @@ jobs:
         -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
-        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT}\
+        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
         api test/test-coverage.sh
 
 
@@ -179,17 +179,13 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}
         GIT_BRANCH: ${{ github.ref }}
-        GITHUB_JOB_NAME: unit-tests
-        GITHUB_RUN_ID: ${{ github.run_id }}
       run: |
         GIT_COMMITTED_AT=$(git log -1 --format=%ct)
         docker-compose exec -T \
         -e GIT_COMMIT_SHA=${{ env.GIT_COMMIT_SHA }} \
         -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
-        -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
-        -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
-        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT}\
+        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
         api test/test-coverage.sh
 
   cleanup-and-notify:
@@ -211,7 +207,7 @@ jobs:
         aws-region: eu-west-1
 
     - name: Upload Coverage
-      id: run-unit-tests
+      id: upload-coverage
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}
@@ -225,7 +221,7 @@ jobs:
         -e GITHUB_JOB_NAME=${{ env.GITHUB_JOB_NAME }} \
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
-        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT}\
+        -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
         api test/upload-coverage.sh
 
     - name: Notify Slack
