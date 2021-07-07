@@ -13,7 +13,7 @@ module ProjectMediaBulk
         unless project.nil?
           self.bulk_move(ids, project, team)
           # bulk move secondary items
-          self.bulk_move_secondary_items(ids, project, updates[:previous_project_id], team)
+          self.bulk_move_secondary_items(ids, project, team)
           # send pusher and set parent objects for graphql
           self.send_pusher_and_parents(project, updates[:previous_project_id], team)
         end
@@ -67,7 +67,7 @@ module ProjectMediaBulk
       self.bulk_reindex(ids.to_json, script)
     end
 
-    def bulk_move_secondary_items(ids, project, previous_project_id, team)
+    def bulk_move_secondary_items(ids, project, team)
       target_ids = Relationship.where(source_id: ids).map(&:target_id)
       secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id)
       self.bulk_move(secondary_ids, project, team)
