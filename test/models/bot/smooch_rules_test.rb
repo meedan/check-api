@@ -410,9 +410,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
   end
 
   test "should match with regexp" do
-    p0 = create_project team: @team 
-    p1 = create_project team: @team 
-    p2 = create_project team: @team 
+    p0 = create_project team: @team
+    p1 = create_project team: @team
+    p2 = create_project team: @team
     rules = []
     rules << {
       "name": random_string,
