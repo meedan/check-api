@@ -1,0 +1,68 @@
+{
+  "consumer": {
+    "name": "Check API"
+  },
+  "provider": {
+    "name": "Alegre"
+  },
+  "interactions": [
+    {
+      "description": "a request to get image flags",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/classification/",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "uri": "https://i.imgur.com/ewGClFQ.png"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "flags": {
+              "adult": 1,
+              "spoof": 1,
+              "medical": 2,
+              "violence": 1,
+              "racy": 1,
+              "spam": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "a request to identify its language",
+      "providerState": "a text exists",
+      "request": {
+        "method": "get",
+        "path": "/text/langid/",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "This is a test"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"result\":{\"language\":\"en\",\"confidence\":1},\"raw\":[{\"confidence\":1,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

@@ -206,11 +206,18 @@ class GraphqlController4Test < ActionController::TestCase
     p4 = create_project team: @t
     pm1 = create_project_media project: create_project
     pm2 = create_project_media project: @p1
+    # add similar items
+    t_pm1 = create_project_media project: @pm1.project
+    create_relationship source_id: @pm1.id, target_id: t_pm1.id 
+    t2_pm1 = create_project_media project: @pm1.project
+    create_relationship source_id: @pm1.id, target_id: t2_pm1.id
+    t_pm2 = create_project_media project: @pm2.project
+    create_relationship source_id: @pm2.id, target_id: t_pm2.id
     invalid_id_1 = Base64.encode64("ProjectMedia/0")
     invalid_id_2 = Base64.encode64("Project/#{pm1.id}")
     invalid_id_3 = random_string
-    assert_equal 2, @p1.reload.medias_count
-    assert_equal 1, @p2.reload.medias_count
+    assert_equal 4, @p1.reload.medias_count
+    assert_equal 2, @p2.reload.medias_count
     assert_equal 0, p4.reload.medias_count
     ids = []
     [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
@@ -219,7 +226,11 @@ class GraphqlController4Test < ActionController::TestCase
     assert_response :success
     assert_equal 0, @p1.reload.medias_count
     assert_equal 0, @p2.reload.medias_count
-    assert_equal 3, p4.reload.medias_count
+    assert_equal 6, p4.reload.medias_count
+    # verify move similar items
+    assert_equal p4.id, t_pm1.reload.project_id
+    assert_equal p4.id, t2_pm1.reload.project_id
+    assert_equal p4.id, t_pm2.reload.project_id
   end
 
   test "should update archived media by owner" do
