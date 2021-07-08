@@ -14,6 +14,7 @@ group :test do
   gem 'codeclimate-test-reporter', '1.0.7', require: nil
   gem 'test_after_commit'
   gem 'minitest-retry'
+  gem 'pact-consumer-minitest'
 end
 
 group :doc do
