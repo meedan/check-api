@@ -4,17 +4,16 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   include Pact::Consumer::Minitest
 
   def setup
-    # stub_request(:any, "http://localhost:5000/pact")
     p = create_project
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
   end
 
-  def teardown
-    puts '$ cat log/alegre_mock_service.log'
-    path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
-    puts `cat #{path}`
-  end
+  # def teardown
+  #   puts '$ cat log/alegre_mock_service.log'
+  #   path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
+  #   puts `cat #{path}`
+  # end
 
   test 'should return language' do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
@@ -33,7 +32,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
         headers: {
           'Content-Type': 'application/json'
         },
-        body: { result: { language: 'en', confidence: 0.421875 }, raw: [{ confidence: 0.421875, language: 'en', input: 'This is a test' }], provider: 'google' }.to_json
+        body: { result: { language: 'en', confidence: 1 }, raw: [{ confidence: 1, language: 'en', input: 'This is a test' }], provider: 'google' }.to_json
       )
       assert_equal 'en', Bot::Alegre.get_language_from_alegre('This is a test')
     end
@@ -69,15 +68,13 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
         headers: {
           'Content-Type': 'application/json'
         },
-        body: { result: valid_flags_data }
+        body: { result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}} }
       )
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns("https://i.imgur.com/ewGClFQ.png")
-      # puts" pm1.get_annotations('flag').last #{pm1.get_annotations('flag').last}" 
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_not_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
     end
   end
-
 end

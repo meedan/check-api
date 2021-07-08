@@ -28,11 +28,11 @@
           "result": {
             "flags": {
               "adult": 1,
-              "spoof": 4,
-              "medical": 3,
+              "spoof": 1,
+              "medical": 2,
               "violence": 1,
-              "racy": 3,
-              "spam": 4
+              "racy": 1,
+              "spam": 0
             }
           }
         }
@@ -56,7 +56,7 @@
         "headers": {
           "Content-Type": "application/json"
         },
-        "body": "{\"result\":{\"language\":\"en\",\"confidence\":0.421875},\"raw\":[{\"confidence\":0.421875,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
+        "body": "{\"result\":{\"language\":\"en\",\"confidence\":1},\"raw\":[{\"confidence\":1,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
       }
     }
   ],
