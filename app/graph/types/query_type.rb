@@ -58,10 +58,10 @@ QueryType = GraphQL::ObjectType.define do
         team = Team.where(slug: args['slug']).first
         tid = team.id unless team.nil?
       end
-      if tid === 0 && !Team.current.blank?
-        tid = Team.current.id
+      if tid === 0
+        tid = Team.current&.id || User.current&.teams&.first&.id
       end
-      GraphqlCrudOperations.load_if_can(Team, tid, ctx)
+      GraphqlCrudOperations.load_if_can(Team, tid.to_i, ctx)
     end
   end
 
