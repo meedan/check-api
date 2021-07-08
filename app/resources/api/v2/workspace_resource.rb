@@ -19,10 +19,11 @@ module Api
 
       def self.has_bot_installed(records, value, bot = nil)
         return records if bot.nil?
-        if value && value[0]
-          records.joins("INNER JOIN team_users tu2 ON tu2.team_id = teams.id AND tu2.user_id = #{bot.id}")
-        else
+        is_false = !value || value[0].to_s == 'false' || value[0].to_s == '0'
+        if is_false
           records.joins("LEFT OUTER JOIN team_users tu2 ON tu2.team_id = teams.id AND tu2.user_id = #{bot.id}").where('tu2.team_id' => nil)
+        else
+          records.joins("INNER JOIN team_users tu2 ON tu2.team_id = teams.id AND tu2.user_id = #{bot.id}")
         end
       end
     end
