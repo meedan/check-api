@@ -708,7 +708,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should add short text as suggestions" do
     create_verification_status_stuff
     # Relation should be suggested if all fields size <= threshold
-    p = create_project
+    p = create_project team: @team
     pm1 = create_project_media project: p, quote: "for testing short text", team: @team
     pm2 = create_project_media project: p, quote: "testing short text", team: @team
     pm2.analysis = { content: 'short text' }
@@ -746,6 +746,41 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should set similarity relationship based on date threshold" do
+    create_verification_status_stuff
+    p = create_project team: @team
+    pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
+    pm2 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+          }
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal Relationship.confirmed_type, r.relationship_type
+    pm1.created_at = Time.now - 2.months
+    pm1.save!
+    tbi = Bot::Alegre.get_alegre_tbi(@team.id)
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.set_similarity_date_threshold("1")
+    tbi.save!
+    r.destroy
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal Relationship.suggested_type, r.relationship_type
     Bot::Alegre.unstub(:request_api)
   end
 end
