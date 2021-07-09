@@ -2444,9 +2444,9 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, Project.find(p1.id).project_medias.count
   end
 
-  test "should duplicate team with rules" do
+  test "should duplicate team with tags and rules" do
     t = create_team
-    create_tag_text team: t
+    create_tag_text team: t, text: 'new-tag'
     p = create_project team: t
     rules = []
     rules << {
@@ -2476,7 +2476,10 @@ class TeamTest < ActiveSupport::TestCase
     t.rules = rules.to_json
     t.save!
     assert_nothing_raised do
-      Team.duplicate(t)
+      copy = Team.duplicate(t)
+      assert_equal ['new-tag'], copy.tag_texts.map(&:text)
+      assert_equal 1, copy.get_rules.size
+      assert_equal rules.first[:name], copy.get_rules.first['name']
     end
   end
 
