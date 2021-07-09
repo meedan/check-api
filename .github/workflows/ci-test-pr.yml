@@ -133,6 +133,10 @@ jobs:
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
         -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
+        -e AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }} \
+        -e AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN }} \
+        -e AWS_REGION=${{ env.AWS_REGION }} \
         api test/test-coverage.sh
 
 
@@ -192,6 +196,10 @@ jobs:
         -e GIT_BRANCH=${{ env.GIT_BRANCH }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
         -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
+        -e AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }} \
+        -e AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN }} \
+        -e AWS_REGION=${{ env.AWS_REGION }} \
         api test/test-coverage.sh
 
   cleanup-and-notify:
@@ -231,6 +239,10 @@ jobs:
         -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }} \
         -e CC_TEST_REPORTER_ID=${{ env.CC_TEST_REPORTER_ID }} \
         -e GIT_COMMITTED_AT=${GIT_COMMITTED_AT} \
+        -e AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }} \
+        -e AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN }} \
+        -e AWS_REGION=${{ env.AWS_REGION }} \
         api test/upload-coverage.sh
 
     - name: Notify Slack
