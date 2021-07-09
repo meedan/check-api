@@ -88,7 +88,7 @@ class GraphqlController2Test < ActionController::TestCase
       post :create, params: { query: query, team: t.slug }
       assert_response :success
 
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response 400
       ret = JSON.parse(@response.body)
       assert_includes ret.keys, 'errors'
