@@ -101,6 +101,7 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
   end
 
   test "should have settings" do
+    require File.join(Rails.root, 'app', 'models', 'concerns', 'smooch_team_bot_installation')
     tb = create_team_bot_installation
     assert_equal({}, tb.settings)
     tb.set_foo = 'bar'
@@ -109,7 +110,8 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_kind_of String, tb.json_settings
     b = create_team_bot login: 'smooch', set_approved: true
     tb = create_team_bot_installation user_id: b.id
-    assert_not_equal({}, tb.settings)
+    assert tb.settings.kind_of?(Hash)
+    assert_not_empty tb.settings
   end
 
   test "should follow schema" do
