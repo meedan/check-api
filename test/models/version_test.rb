@@ -195,6 +195,7 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should get smooch user slack channel url" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     b = create_team_bot login: 'smooch', set_approved: true
     create_annotation_type_and_fields('Smooch', { 'Data' => ['JSON', false] })
     create_annotation_type_and_fields('Smooch User', {
