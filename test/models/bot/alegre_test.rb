@@ -386,12 +386,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate correct text conditions for api request" do
-    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
     assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
   end
 
   test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_similarity_threshold', automatic: false})
+    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
@@ -453,7 +453,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_similarity_threshold', value: 0.7, automatic: false}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_suggestion_threshold', value: 0.7, automatic: false}, 'blah')
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
   end
@@ -483,7 +483,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       }
       ]
     })
-    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'automatic_text_similarity_threshold', value: 0.7, automatic: true}, 'blah')
+    response = Bot::Alegre.get_items_with_similar_text(pm, 'title', {key: 'text_elasticsearch_matching_threshold', value: 0.7, automatic: true}, 'blah')
     assert_equal response.class, Hash
     assert_not_empty response
     Bot::Alegre.unstub(:request_api)
@@ -578,7 +578,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       ]
     })
     Bot::Alegre.stubs(:matching_model_to_use).with(pm).returns(Bot::Alegre::MEAN_TOKENS_MODEL)
-    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_similarity_threshold', value: 0.1, automatic: false})
+    response = Bot::Alegre.get_items_with_similar_title(pm, {key: 'text_elasticsearch_suggestion_threshold', value: 0.1, automatic: false})
     assert_equal response.class, Hash
     Bot::Alegre.unstub(:request_api)
     Bot::Alegre.unstub(:matching_model_to_use)
@@ -708,7 +708,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should add short text as suggestions" do
     create_verification_status_stuff
     # Relation should be suggested if all fields size <= threshold
-    p = create_project
+    p = create_project team: @team
     pm1 = create_project_media project: p, quote: "for testing short text", team: @team
     pm2 = create_project_media project: p, quote: "testing short text", team: @team
     pm2.analysis = { content: 'short text' }
@@ -746,6 +746,41 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should set similarity relationship based on date threshold" do
+    create_verification_status_stuff
+    p = create_project team: @team
+    pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
+    pm2 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "_score" => 26.493948,
+          "_source" => {
+            "context"=> { "team_id"=> pm1.team_id.to_s, "project_media_id" => pm1.id.to_s, "has_custom_id" => true }
+          }
+        }
+      ]
+    })
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal Relationship.confirmed_type, r.relationship_type
+    pm1.created_at = Time.now - 2.months
+    pm1.save!
+    tbi = Bot::Alegre.get_alegre_tbi(@team.id)
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.set_similarity_date_threshold("1")
+    tbi.save!
+    r.destroy
+    assert_difference 'Relationship.count' do
+      result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
+    end
+    r = Relationship.last
+    assert_equal Relationship.suggested_type, r.relationship_type
     Bot::Alegre.unstub(:request_api)
   end
 end

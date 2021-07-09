@@ -22,6 +22,8 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
     }
   end
 
+  field :alegre_settings, JsonStringType
+
   # Only for Smooch Bot
 
   field :smooch_enabled_integrations do

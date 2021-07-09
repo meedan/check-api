@@ -566,7 +566,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm2 = create_project_media team: t, project_id: p.id
       end
       ids = [pm.id, pm2.id]
-      ProjectMedia.bulk_move(ids, p2, nil, t)
+      ProjectMedia.bulk_move(ids, p2, t)
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
@@ -2405,5 +2405,20 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal 'Custom Title', pm.reload.title
     assert_equal 'rails.png', pm.reload.original_title
+  end
+
+  test "should move secondary item to same main item project" do
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    create_relationship source_id: pm.id, target_id: pm2.id
+    create_relationship source_id: pm.id, target_id: pm3.id
+    pm.project_id = p2.id
+    pm.save!
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p2.id, pm3.reload.project_id
   end
 end

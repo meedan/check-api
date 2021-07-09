@@ -14,7 +14,7 @@ group :test do
   gem 'simplecov-console', require: false
   gem 'codeclimate-test-reporter', '1.0.7', require: nil
   gem 'minitest-retry'
-  gem 'rails-controller-testing'
+  gem 'pact-consumer-minitest'
 end
 
 group :doc do

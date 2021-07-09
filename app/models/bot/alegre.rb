@@ -114,14 +114,25 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_threshold_for_query(type, pm, automatic = false)
-    key = "#{type}_similarity_threshold"
-    key = "automatic_#{key}" if automatic
-    if type == 'text' && !pm.nil?
+  def self.get_threshold_for_query(media_type, pm, automatic = false)
+    similarity_method = media_type == 'text' ? 'elasticsearch' : 'hash'
+    similarity_level = automatic ? 'matching' : 'suggestion'
+    setting_type = 'threshold'
+    if media_type == 'text' && !pm.nil?
       model = self.matching_model_to_use(pm)
-      key = "vector_#{key}" if model != Bot::Alegre::ELASTICSEARCH_MODEL
+      similarity_method = 'vector' if model != Bot::Alegre::ELASTICSEARCH_MODEL
     end
-    { value: CheckConfig.get(key).to_f, key: key, automatic: automatic }
+    key = "#{media_type}_#{similarity_method}_#{similarity_level}_#{setting_type}"
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.alegre_settings unless tbi.nil?
+    value = settings.blank? ? CheckConfig.get(key) : settings[key]
+    { value: value.to_f, key: key, automatic: automatic }
+  end
+
+  def self.should_get_similar_items_of_type?(type, team_id)
+    tbi = self.get_alegre_tbi(team_id)
+    key = "#{type}_similarity_enabled"
+    (!tbi || tbi.send("get_#{key}").nil?) ? (CheckConfig.get(key, true).to_s == 'true') : tbi.send("get_#{key}")
   end
 
   def self.get_similar_items(pm)
@@ -134,6 +145,7 @@ class Bot::Alegre < BotUser
       type = 'video'
     end
     unless type.blank?
+      return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
       suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
       confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -234,21 +246,24 @@ class Bot::Alegre < BotUser
   end
 
   def self.team_has_alegre_bot_installed?(team_id)
-    bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id team_id, bot&&bot.id
+    tbi = self.get_alegre_tbi(team_id)
     !tbi.nil?
   end
 
   def self.indexing_model_to_use(pm)
-    bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id pm.team_id, bot&&bot.id
+    tbi = self.get_alegre_tbi(pm&.team_id)
     tbi.nil? ? self.default_model : tbi.get_alegre_model_in_use || self.default_model
   end
 
   def self.matching_model_to_use(pm)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    tbi.nil? ? self.default_matching_model : tbi.get_text_similarity_model || self.default_matching_model
+  end
+
+  def self.get_alegre_tbi(team_id)
     bot = BotUser.alegre_user
-    tbi = TeamBotInstallation.find_by_team_id_and_user_id(pm.team_id, bot&&bot.id) unless pm.nil?
-    tbi.nil? ? self.default_matching_model : tbi.get_alegre_matching_model_in_use || self.default_matching_model
+    tbi = TeamBotInstallation.find_by_team_id_and_user_id(team_id, bot&&bot.id)
+    tbi
   end
 
   def self.delete_field_from_text_similarity_index(pm, field, quiet=false)
@@ -329,10 +344,6 @@ class Bot::Alegre < BotUser
       self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
       { 'type' => 'error', 'data' => { 'message' => e.message } }
     end
-  end
-
-  def self.similarity_text_length_threshold
-    CheckConfig.get("similarity_text_length_threshold").to_f
   end
 
   def self.split_text(text)
@@ -504,7 +515,7 @@ class Bot::Alegre < BotUser
     if parent.is_blank?
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
-      relationship_type = self.is_text_too_short?(pm) ? Relationship.suggested_type : pm_id_scores[parent_id][:relationship_type]
+      relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
@@ -521,14 +532,28 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.is_text_too_short?(pm)
+  def self.set_relationship_type(pm, pm_id_scores, parent)
+    tbi = self.get_alegre_tbi(pm&.team_id)
+    settings = tbi.nil? ? {} : tbi.alegre_settings
+    date_threshold = Time.now - settings['similarity_date_threshold'].to_i.months unless settings['similarity_date_threshold'].blank?
+    relationship_type = pm_id_scores[parent.id][:relationship_type]
+    if settings['date_similarity_threshold_enabled'] && !date_threshold.blank? && parent.created_at.to_i < date_threshold.to_i
+      relationship_type = Relationship.suggested_type
+    else
+      length_threshold = settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
+      relationship_type = Relationship.suggested_type if self.is_text_too_short?(pm, length_threshold)
+    end
+    relationship_type
+  end
+
+  def self.is_text_too_short?(pm, length_threshold)
     is_short = false
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
         fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
       end
-      is_short = fields_size.max <= self.similarity_text_length_threshold unless fields_size.blank?
+      is_short = fields_size.max < length_threshold unless fields_size.blank?
     end
     is_short
   end
