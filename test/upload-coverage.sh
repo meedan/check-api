@@ -4,7 +4,7 @@
 echo 'Combining and uploading coverage report to codeclimate...'
 ls -ahl
 ls ..
-/usr/local/bin/aws s3 cp --recursive s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_RUN_ID/ ../coverage_reports/ --region $AWS_DEFAULT_REGION
+/usr/local/bin/aws s3 cp --recursive s3://check-api-travis/codeclimate/meedan/check-api/$GITHUB_RUN_ID/ ../coverage_reports/
 if [[ $(ls ../coverage_reports/codeclimate.* | wc -l) -eq 2 ]]; then
     ./test/cc-test-reporter sum-coverage --output - --parts 2 ../coverage_reports/codeclimate.* | sed 's/\/home\/travis\/build\/meedan\/check-api\///g' > ../coverage_reports/codeclimate.json
     cat ../coverage_reports/codeclimate.json | ./test/cc-test-reporter upload-coverage --input -
