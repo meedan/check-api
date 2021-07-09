@@ -596,6 +596,7 @@ class TeamBotTest < ActiveSupport::TestCase
   end
 
   test "should notify team bots when report is published" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     Dynamic.any_instance.stubs(:report_image_generate_png)
     team = create_team name: 'Test Team'
     team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'publish_report', graphql: nil }], set_request_url: 'http://bot'
