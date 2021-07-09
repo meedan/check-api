@@ -362,6 +362,7 @@ class TestControllerTest < ActionController::TestCase
   end
 
   test "should create dynamic annotation" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')   
     data = { phone: '123', app_name: 'Test' }.to_json
     p = create_project
     assert_difference 'Dynamic.count', 2 do
