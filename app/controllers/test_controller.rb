@@ -218,6 +218,6 @@ class TestController < ApplicationController
   private
 
   def check_environment
-    (render(text: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
+    (render(plain: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
   end
 end
