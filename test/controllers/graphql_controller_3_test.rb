@@ -1433,7 +1433,7 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug; false }
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
   end
 
@@ -1453,7 +1453,7 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
-    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug; false }
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
   end
 
