@@ -11,6 +11,18 @@ if [[ -z ${DEPLOY_ENV+x} || -z ${APP+x} ]]; then
 	exit 1
 fi
 
+# Move default configs into place.
+# For most environments, these settings are overridden in ENV set from SSM.
+(
+  cd config
+  ln apollo-engine-proxy.json.example apollo-engine-proxy.json
+  ln clean_db.yml.example clean_db.yml
+  ln config.yml.example config.yml
+  ln credentials.json.example credentials.json
+  ln database.yml.example database.yml
+  ln sidekiq.yml.example sidekiq.yml
+)
+
 /app/current/vendor/bundle/ruby/2.4.0/gems/apollo-tracing-1.5.0/bin/engineproxy_linux_amd64 --config config/apollo-engine-proxy.json &
 
 mkdir -p ${PWD}/tmp/pids
