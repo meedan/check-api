@@ -297,6 +297,7 @@ class DynamicTest < ActiveSupport::TestCase
   end
 
   test "should save report design image in a path" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     create_report_design_annotation_type
     d = create_dynamic_annotation annotation_type: 'report_design', file: 'rails.png', set_fields: { options: [{ language: 'en', image: '' }] }.to_json, action: 'save'
     assert_not_nil d.file
