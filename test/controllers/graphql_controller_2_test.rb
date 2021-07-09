@@ -1052,7 +1052,7 @@ class GraphqlController2Test < ActionController::TestCase
       Bot::Alegre.stubs(:media_file_url).with(pm).returns('some/path')
 
       query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
 
       extracted_text_annotation = pm.get_annotations('extracted_text').last
@@ -1069,7 +1069,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media team: t, media: create_uploaded_image
 
     query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
 
     assert_nil pm.get_annotations('extracted_text').last
   end
