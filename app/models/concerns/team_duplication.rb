@@ -166,6 +166,7 @@ module TeamDuplication
 
     def self.update_saved_search_filters(filters)
       return filters if filters.nil?
+      filters = JSON.parse(filters.to_s) if filters.is_a?(String)
       {
         'projects' => @project_id_map,
         'project_group_id' => @project_group_id_map
