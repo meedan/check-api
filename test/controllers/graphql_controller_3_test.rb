@@ -1364,10 +1364,10 @@ class GraphqlController3Test < ActionController::TestCase
     tu = create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation { updateTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '", json_settings: "{\"text_length_matching_threshold\":\"4\"}" }) { team_bot_installation { json_settings } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { alegre_settings } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     alegre_settings =  JSON.parse(@response.body)['data']['node']['alegre_settings']
     assert_equal 4.0, alegre_settings['text_length_matching_threshold']
   end
