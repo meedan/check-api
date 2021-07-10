@@ -59,6 +59,9 @@ module ProjectMediaBulk
       pids << project.id
       Project.bulk_update_medias_count(pids)
 
+      # Update "folder" cache of each list
+      ids.each{|pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s)}
+
       # Other callbacks to run in background
       ProjectMedia.delay.run_bulk_update_team_tasks(pmp_mapping, User.current&.id)
 
@@ -69,7 +72,7 @@ module ProjectMediaBulk
 
     def bulk_move_secondary_items(ids, project, team)
       target_ids = Relationship.where(source_id: ids).map(&:target_id)
-      secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id)
+      secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id).map(&:id)
       self.bulk_move(secondary_ids, project, team)
     end
 

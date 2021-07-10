@@ -231,6 +231,12 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal p4.id, t_pm1.reload.project_id
     assert_equal p4.id, t2_pm1.reload.project_id
     assert_equal p4.id, t_pm2.reload.project_id
+    # verify cached folder for main & similar items
+    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{@pm1.id}:folder")
+    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{@pm2.id}:folder")
+    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm1.id}:folder")
+    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t2_pm1.id}:folder")
+    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm2.id}:folder")
   end
 
   test "should update archived media by owner" do
