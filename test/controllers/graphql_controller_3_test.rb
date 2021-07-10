@@ -634,6 +634,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should set smooch user slack channel url in background" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     Sidekiq::Testing.fake! do
         create_annotation_type_and_fields('Smooch User', {
             'Data' => ['JSON', false],

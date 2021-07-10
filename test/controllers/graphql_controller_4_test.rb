@@ -320,6 +320,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should get Smooch integrations if permissioned" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
     app_id = random_string
@@ -334,6 +335,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should remove Smooch integration if permissioned" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
     app_id = random_string
@@ -366,6 +368,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should add Smooch integration if permissioned" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).returns(nil)
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
@@ -442,6 +445,7 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should get a single bot installation" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
     app_id = random_string
