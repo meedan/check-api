@@ -57,7 +57,7 @@ module CheckCachedFields
 
     def update_pg_cache_field(options, value, name, target)
       table_name = target.class.name.tableize
-      if ApplicationRecord.connection.table_exists?(table_name)
+      if ApplicationRecord.connection.data_source_exists?(table_name)
         column_name = options[:pg_field_name] || name
         target.update_column(column_name, value) if ApplicationRecord.connection.column_exists?(table_name, column_name)
       end
