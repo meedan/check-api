@@ -14,6 +14,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   before_validation :set_annotation_type, :set_field_type, :set_json_value
 
   validate :field_format
+  validates_presence_of :value
 
   after_commit :add_update_elasticsearch_field, on: [:create, :update]
 
