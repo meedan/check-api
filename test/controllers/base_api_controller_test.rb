@@ -70,7 +70,7 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should get options" do
-    process :options, 'OPTIONS'
+    process :options, params: {}
     assert_response :success
   end
 
