@@ -180,6 +180,7 @@ class Dynamic < ActiveRecord::Base
       data = JSON.parse(self.set_fields)
       data.each do |field_name, value|
         next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
+        value ||= ""
         f = create_field(field_name, value)
         f.save!
         @fields << f
