@@ -28,7 +28,8 @@ class ReportsControllerTest < ActionController::TestCase
     }
   end
 
-  test "zzz should return similar items" do
+  test "should return similar items" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     create_report_design_annotation_type
     authenticate_with_token @a
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: @pm
@@ -42,17 +43,17 @@ class ReportsControllerTest < ActionController::TestCase
 
     Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
 
-    get :index, params: {}
+    post :index, params: {}
     assert_response :success
     assert_equal 7, json_response['data'].size
     assert_equal 7, json_response['meta']['record-count']
 
-    get :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' } }
+    post :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
 
-    get :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' } }
+    post :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
