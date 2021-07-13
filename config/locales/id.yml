@@ -84,7 +84,7 @@ id:
         %{e}'
       annotation_mandatory_fields: Mohon atur semua bagian yang diwajibkan
       annotation_type_does_not_exist: tidak ada
-      invalid_attribution: Penilaian salah
+      invalid_attribution: Atribusi salah
       must_resolve_required_tasks_first: Tugas yang dibutuhkan harus diselesaikan
         lebih dulu.
       image_too_large: Maaf, kami tidak mendukung gambar berukuran lebih besar dari
@@ -93,7 +93,7 @@ id:
         %{max_size}.
       audio_too_large: Maaf, kami tidak mendukung audio berukuran lebih besar dari
         %{max_size}.
-      pender_conflict: Tautan ini telah diurai sebelumnya. Mohon coba lagi dalam beberapa
+      pender_conflict: Tautan ini sudah diurai sebelumnya. Mohon coba lagi dalam beberapa
         detik.
       pender_url_invalid: Tautan ini salah.
       pender_url_unsafe: Tautan ini tidak aman.
@@ -214,7 +214,7 @@ id:
       user_banned: "%{user} dilarang dari ruang kerja %{team}"
   mail_view_welcome: Selamat datang di %{app_name}
   mail_view_register: 'Satu langkah lagi agar Anda dapat menggunakan %{app_name}!
-    Mohon konfirmasi alamat surel Anda dengan klik tautan berikut:'
+    Mohon konfirmasi alamat surel Anda dengan mengeklik tautan berikut:'
   mail_confirm_button: Konfirmasi akun saya
   slack_restricted_join_to_members: Maaf, Anda tidak dapat bergabung dengan %{team_name}
     karena terbatas hanya untuk anggota ruang kerja %{teams} di Slack.
@@ -275,15 +275,15 @@ id:
   duplicate_source: Sumber sudah ada
   geolocation_invalid_value: Lokasi salah. Menunggu struktur GeoJSON yang benar (http://geojson.org/)
   datetime_invalid_date: Tanggal salah
-  error_team_archived: Maaf, Anda tidak dapat menambahkan folder ke ruang kerja yang
+  error_team_archived: Maaf, Anda tidak dapat menambah folder ke ruang kerja yang
     telah dihapus
-  error_project_archived: Maaf, Anda tidak dapat menambahkan perihal ke folder yang
-    telah dihapus
-  error_team_archived_for_source: Maaf, Anda tidak dapat menambahkan sumber pada ruang
+  error_project_archived: Maaf, Anda tidak dapat menambah perihal ke folder yang telah
+    dihapus
+  error_team_archived_for_source: Maaf, Anda tidak dapat menambah sumber pada ruang
     kerja yang telah dihapus
   permission_error: Maaf, Anda tidak diizinkan untuk melakukan tindakan ini
-  error_annotated_archived: Maaf, Anda tidak dapat menambahkan catatan pada perihal
-    yang telah dihapus
+  error_annotated_archived: Maaf, Anda tidak dapat menambah catatan pada perihal yang
+    telah dihapus
   only_super_admin_can_do_this: Maaf, hanya administrator sistem yang dapat melakukan
     perubahan ini
   cant_change_custom_statuses: |-
@@ -293,7 +293,7 @@ id:
   media_exists: Perihal ini sudah ada
   source_exists: Sumber ini sudah ada
   email_exists: sudah diambil
-  banned_user: 'Maaf, akun Anda telah dilarang dari %{app_name}. Mohon kontak tim
+  banned_user: 'Maaf, akun Anda telah dilarang dari %{app_name}. Mohon hubungi tim
     dukungan jika Anda merasa ini adalah sebuah kesalahan. '
   devise:
     mailer:
@@ -306,7 +306,7 @@ id:
         expiry: Permintaan ini akan kedaluwarsa dalam %{expire} jam.
         instruction_1: Klik di sini untuk membuat permintaan baru.
         instruction_2: Jika Anda tidak membuat permintaan ini, atau mengalami kesulitan
-          untuk mengatur ulang kata sandi Anda, mohon kontak kami di %{support_email}.
+          untuk mengatur ulang kata sandi Anda, mohon hubungi kami di %{support_email}.
       invitation_instructions:
         subject: "%{user} mengundang Anda untuk bergabung ke ruang kerja %{team}"
         hello: Halo %{name}
@@ -323,14 +323,14 @@ id:
     failure:
       unconfirmed: Mohon periksa surel Anda untuk memverifikasi akun Anda
   user_invitation:
-    invited: "%{email} telah diundang ke ruang kerja ini."
+    invited: "%{email} sudah diundang ke ruang kerja ini."
     member: "%{email} sudah menjadi anggota."
     team_found: Ruang kerja tidak ditemukan.
     invalid: Kode undangan salah.
     no_invitation: Tidak ada undangan untuk ruang kerja %{name}
   error_user_is_not_a_team_member: Maaf, Anda hanya dapat memberikan tugas pada anggota
     ruang kerja ini
-  error_login_with_exists_account: Maaf, ada pengguna lain yang telah menggunakan
+  error_login_with_exists_account: Maaf, ada pengguna lain yang sudah menggunakan
     akun ini
   error_login_2fa: Mohon lengkapi percobaan masuk Anda dengan memberikan kode autentikasi.
   error_record_not_found: "%{type} #%{id} tidak ditemukan"
@@ -355,7 +355,7 @@ id:
       one_email: |-
         <p>Ini hanya pengingat untuk memastikan Anda masuk ke %{app_name}.</p>
         <p>Apa yang terjadi: Anda mencoba masuk ke %{app_name} dengan akun %{user_provider} yang terhubung ke %{user_email}.
-        Namun alamat surel ini telah terasosiasikan dengan sebuah akun %{duplicate_provider} di %{app_name}.</p>
+        Namun alamat surel ini sudah terasosiasikan dengan sebuah akun %{duplicate_provider} di %{app_name}.</p>
         <p>Apa yang harus dilakukan: Masuk dengan %{duplicate_provider}.</p>
         <p>Kemudian Anda akan masuk dengan akun yang telah Anda gunakan sebelumnya.
         Jika Anda memerlukan bantuan tambahan, mohon kirim surel ke %{support_email}.</p>
@@ -510,8 +510,8 @@ id:
     dapat dipasang
   only_admins_can_approve_bots: Maaf, hanya administrator sistem yang dapat menyetujui
     bot
-  could_not_save_related_bot_data: Maaf, tidak dapat menambahkan bot ke dalam ruang
-    kerja ini
+  could_not_save_related_bot_data: Maaf, tidak dapat menambah bot ke dalam ruang kerja
+    ini
   bot_cant_add_response_to_task: Maaf, bot tidak dapat menjawab tugas secara langsung
     - silakan kirimkan saran jawaban sebagai gantinya
   bot_cant_add_review_to_task: Maaf, bot tidak dapat meninjau sebuah tugas
@@ -521,9 +521,9 @@ id:
   tag_text_id_not_found: Label tidak ditemukan
   annotation_type_language_label: Bahasa
   smooch_bot_message_confirmed: |-
-    Terima kasih. Permintaan Anda telah ditambahkan ke dalam antrrian verifikasi kami.
+    Terima kasih. Permintaan Anda telah ditambahkan ke dalam antrian verifikasi kami.
 
-    Kami akan mencoba untuk mengirimkan Anda laporan dalam 24 jam, namun mohon dicatat bahwa kami tidak dapat merespon setiap permintaan.
+    Kami akan mencoba untuk mengirimkan Anda laporan dalam 24 jam, namun mohon dicatat bahwa kami tidak dapat merespons setiap permintaan.
   smooch_bot_message_unconfirmed: Karena Anda tidak membalas dengan angka 1, kami
     tidak akan memproses permintaan Anda lebih lanjut. Terima kasih.
   smooch_bot_message_type_unsupported: Maaf, kami tidak mendukung jenis pesan seperti
@@ -537,7 +537,7 @@ id:
   smooch_bot_ask_for_confirmation: |-
     Terima kasih telah mengirimkan permintaan ini. Apakah Anda ingin kami memverifikasi kontennya?
 
-    Jika ya, *mohon balas dengan angka 1*. Respon lainnya akan mengakhiri percakapan kita.
+    Jika ya, *mohon balas dengan angka 1*. Respons lainnya akan mengakhiri percakapan kita.
   smooch_bot_ask_for_tos: |-
     Terima kasih telah menjangkau Check Message!
 
@@ -569,7 +569,7 @@ id:
             create: Buat folder
             edit: Sunting folder
             delete: Hapus folder
-            add_item: Tambahkan perihal ke folder
+            add_item: Tambah perihal ke folder
         item_page_management:
           name: Pengelolaan perihal
           permissions:
@@ -586,8 +586,8 @@ id:
             create: Buat tugas
             edit: Sunting tugas
             delete: Hapus tugas
-            add_response: Tambahkan respon
-            delete_repsonse: Hapus respon
+            add_response: Tambah respons
+            delete_repsonse: Hapus respons
             assign_task: Berikan tugas atau perihal
         team_management:
           name: Pengelolaan ruang kerja
@@ -631,7 +631,7 @@ id:
   embed_description: Deskripsi
   other_language: Lainnya
   unidentified_language: Tidak dapat diidentifikasi
-  relationship_item_has_parent: Perihal ini telah menjadi turunan dari perihal lain
+  relationship_item_has_parent: Perihal ini sudah menjadi turunan dari perihal lain
   smooch_requests: Permintaan
   smooch_requests_asc: Paling sedikit diminta
   smooch_requests_desc: Paling banyak diminta
@@ -653,7 +653,7 @@ id:
   team_rule_project_ids: Terapkan pada folder
   team_rule_destination: Pilih folder tujuan
   team_rule_names_invalid: Nama aturan tidak dapat kosong dan harus unik
-  team_rules: Peraturan
+  team_rules: Aturan
   team_rule_conditions: Jika
   team_rule_condition: Jika
   team_rule_condition_definition: Pilih kondisi
@@ -666,7 +666,7 @@ id:
   team_rule_type_is_link: Tautan
   team_rule_type_is_uploadedimage: Gambar
   team_rule_type_is_uploadedvideo: Video
-  team_rule_contains_keyword: Permintaan mengandung satu atau beberapa kata kunci
+  team_rule_contains_keyword: Permintaan mengandung satu atau lebih dari kata kunci
     berikut
   team_rule_title_contains_keyword: Konten mengandung satu atau lebih dari kata kunci
     berikut
@@ -685,7 +685,7 @@ id:
   team_rule_action_definition: Pilih tindakan
   team_rule_send_to_trash: Pindahkan ke Tong Sampah
   team_rule_move_to_project: Pindahkan perihal ke folder
-  team_rule_copy_to_project: Tambahkan perihal ke folder
+  team_rule_copy_to_project: Tambah perihal ke folder
   team_rule_ban_submitter: Tolak pengirim (pesan mereka yang akan datang tidak akan
     muncul di Check)
   team_rule_all_items: Semua perihal
@@ -701,6 +701,8 @@ id:
   team_rule_flagged_as: Perihal ditandai sebagai
   team_rule_report_is_published: Laporan diterbitkan
   team_rule_report_is_paused: Laporan ditunda
+  team_rule_condition_groups: Grup kondisi
+  team_rule_condition_group: Grup kondisi
   team_rule_operator: Operator
   team_rule_json_schema_validation: Format aturan salah
   team_rule_updated_at: Diperbarui
@@ -718,7 +720,7 @@ id:
   team_rule_select_field_tasks: Pilih tugas
   team_rule_select_field_value_tasks: Pilih jawaban
   team_rule_item_is_assigned_to_user: Perihal ditugaskan kepada
-  team_rule_add_tag: Tambahkan label
+  team_rule_add_tag: Tambah label
   flag_adult: Dewasa
   flag_spoof: Tipuan
   flag_medical: Medis
