@@ -458,18 +458,6 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.get_similar_audios(team_id, media_url, threshold)
-    self.get_items_with_similar_media(media_url, threshold, team_id, '/audio/similarity/')
-  end
-
-  def self.get_similar_videos(team_id, media_url, threshold)
-    self.get_items_with_similar_media(media_url, threshold, team_id, '/video/similarity/')
-  end
-
-  def self.get_similar_images(team_id, media_url, threshold)
-    self.get_items_with_similar_media(media_url, threshold, team_id, '/image/similarity/')
-  end
-
   def self.reject_same_case(results, pm)
     results.reject{ |id, _score| pm.id == id }
   end

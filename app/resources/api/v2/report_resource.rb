@@ -67,7 +67,7 @@ module Api
           threshold,
           "api_v2_similar_image/#{SecureRandom.hex}",
           filters[:similar_to_image],
-          "get_similar_images"
+          "image"
         )
       end
 
@@ -77,7 +77,7 @@ module Api
           threshold,
           "api_v2_similar_video/#{SecureRandom.hex}",
           filters[:similar_to_video],
-          "get_similar_videos"
+          "video"
         )
       end
 
@@ -87,16 +87,16 @@ module Api
           threshold,
           "api_v2_similar_audio/#{SecureRandom.hex}",
           filters[:similar_to_audio],
-          "get_similar_audios"
+          "audio"
         )
       end
 
-      def self.apply_media_similarity_filter(organization_ids, threshold, media_path, media, method)
+      def self.apply_media_similarity_filter(organization_ids, threshold, media_path, media, media_type)
         ids = nil
         unless media.blank?
           media[0].rewind
           CheckS3.write(media_path, media[0].content_type, media[0].read)
-          ids_and_scores = Bot::Alegre.send(method, *[organization_ids, CheckS3.public_url(media_path), {value: threshold}])
+          ids_and_scores = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(media_path), {value: threshold}, organization_ids, "/#{media_type}/similarity/")
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(media_path)
