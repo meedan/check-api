@@ -1,5 +1,6 @@
 class Version < Partitioned::ByForeignKey
   include PaperTrail::VersionConcern
+  include CheckPermissions
 
   attr_accessor :is_being_copied
 
