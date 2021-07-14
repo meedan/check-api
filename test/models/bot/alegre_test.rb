@@ -511,6 +511,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert Bot::Alegre.send_to_media_similarity_index(pm)
   end
 
+  test "should pass through the send audio to similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_audio
+    pm.media.type = "UploadedAudio"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_media_similarity_index(pm)
+  end
+
   test "should pass through the send to description similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
