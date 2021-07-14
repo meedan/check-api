@@ -43,7 +43,8 @@ module Api
         ids_text = self.apply_text_similarity_filter(organization_ids, threshold, filters)
         ids_image = self.apply_image_similarity_filter(organization_ids, threshold, filters)
         ids_video = self.apply_video_similarity_filter(organization_ids, threshold, filters)
-        conditions[:id] = (ids_text.to_a + ids_image.to_a + ids_video.to_a).uniq if ids_text || ids_image || ids_video
+        ids_audio = self.apply_audio_similarity_filter(organization_ids, threshold, filters)
+        conditions[:id] = (ids_text.to_a + ids_image.to_a + ids_video.to_a + ids_audio.to_a).uniq if ids_text || ids_image || ids_video
 
         self.apply_check_filters(conditions, filters)
       end
@@ -77,6 +78,16 @@ module Api
           "api_v2_similar_video/#{SecureRandom.hex}",
           filters[:similar_to_video],
           "get_similar_videos"
+        )
+      end
+
+      def self.apply_audio_similarity_filter(organization_ids, threshold, filters)
+        self.apply_media_similarity_filter(
+          organization_ids,
+          threshold,
+          "api_v2_similar_audio/#{SecureRandom.hex}",
+          filters[:similar_to_audio],
+          "get_similar_audios"
         )
       end
 
