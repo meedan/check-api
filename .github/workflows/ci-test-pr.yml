@@ -112,7 +112,7 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        until $(curl -I -f --silent  -XGET 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=120s'); do printf '.'; sleep 1; done
+        until curl -I -f --silent -XGET 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=120s'; do printf '.'; sleep 1; done
         docker-compose exec -T api rm -r tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 || true
         docker-compose exec -T api mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
         docker-compose exec -T api test/setup-parallel-env.sh
@@ -183,7 +183,7 @@ jobs:
       run: |
         DEPLOY_ENV=test docker-compose -f docker-compose.yml -f docker-test.yml up -d
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-        until $(curl -I -f --silent  -XGET 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=120s'); do printf '.'; sleep 1; done
+        until curl -I -f --silent  -XGET 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=120s'; do printf '.'; sleep 1; done
         docker-compose exec -T api mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
         docker-compose exec -T api test/setup-parallel-env.sh
         docker-compose exec -T api bundle exec rake assets:precompile
