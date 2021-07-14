@@ -1,4 +1,5 @@
 require_relative '../test_helper'
+require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
 
 class UserTest < ActiveSupport::TestCase
   def setup
