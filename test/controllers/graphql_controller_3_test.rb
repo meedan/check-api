@@ -963,6 +963,7 @@ class GraphqlController3Test < ActionController::TestCase
   end
 
   test "should create report with multiple images" do
+    require File.join(Rails.root, 'app', 'models', 'bot', 'smooch')
     create_report_design_annotation_type
     u = create_user is_admin: true
     pm = create_project_media
