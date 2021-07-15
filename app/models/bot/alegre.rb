@@ -186,7 +186,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('get', '/text/langid/', { text: text })
+      response = self.request_api('get', '/text/langid/', { text: text }, query_or_body="query")
       lang = response['result']['language'] || lang
     rescue
       nil
@@ -212,7 +212,8 @@ class Bot::Alegre < BotUser
 
   def self.get_flags(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) }, query_or_body="query")
+      # result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
       self.save_annotation(pm, 'flag', result['result'])
     end
   end
@@ -325,11 +326,17 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.request_api(method, path, params = {}, retries = 3)
+  def self.request_api(method, path, params = {}, query_or_body="body", retries = 3)
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
-    request.body = params.to_json
+    if query_or_body == 'query'
+      request.set_form_data(params)
+      # uri.query = URI.encode_www_form(params)
+      request = Net::HTTP::Get.new(uri.path+ '?' + request.body)
+    else
+      request.body = params.to_json
+    end
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.use_ssl = uri.scheme == 'https'
     begin

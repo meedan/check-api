@@ -9,11 +9,11 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     @pm = create_project_media project: p, media: m
   end
 
-  # def teardown
-  #   puts '$ cat log/alegre_mock_service.log'
-  #   path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
-  #   puts `cat #{path}`
-  # end
+  def teardown
+    puts '$ cat log/alegre_mock_service.log'
+    path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
+    puts `cat #{path}`
+  end
 
   test 'should return language' do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
@@ -22,10 +22,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/text/langid/',
-        body: { text: 'This is a test' },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        query: {text: 'This is a test'}
       ).
       will_respond_with(
         status: 200,
@@ -37,44 +34,152 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       assert_equal 'en', Bot::Alegre.get_language_from_alegre('This is a test')
     end
   end
-
+  
   test "should get image flags" do
+    extracted_text='X X X\n3\nTranslate this sentence\n\u0648 \u0639\u0646\u062f\u064a \u0648\u0642\u062a \u0641\u064a \u0627\u0644\u0633\u0627\u0639\u0629 \u0627\u0644\u0639\u0627\u0634\u0631\u0629.\n'
+    uri="https:\/\/i.imgur.com\/ewGClFQ.png"
+    puts @pm.team.id.to_s
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
       WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: {
-        "result": []
-      }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').to_return(body: {
-        "text": "Foo bar"
-      }.to_json)
-      WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: { "result": [] }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').to_return(body: { "text": "Foo bar"  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to get image flags').
       with(
         method: :get,
         path: '/image/classification/',
-        body: { uri: 'https://i.imgur.com/ewGClFQ.png' },
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      ).
-      will_respond_with(
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: { result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}} }
-      )
+        query: { uri: uri },
+        ).
+        will_respond_with(
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: { result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}} }
+        )
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm1).returns("https://i.imgur.com/ewGClFQ.png")
+      Bot::Alegre.stubs(:media_file_url).with(pm1).returns(uri)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
       assert_not_nil pm1.get_annotations('flag').last
       Bot::Alegre.unstub(:media_file_url)
     end
   end
+
+  # test "should extract text" do
+  #   extracted_text='X X X\n3\nTranslate this sentence\n\u0648 \u0639\u0646\u062f\u064a \u0648\u0642\u062a \u0641\u064a \u0627\u0644\u0633\u0627\u0639\u0629 \u0627\u0644\u0639\u0627\u0634\u0631\u0629.\n'
+  #   stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
+  #     WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
+  #     WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
+  #     WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
+  #       "success": true
+  #     }.to_json)
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: {
+  #       "result": []
+  #     }.to_json)
+  #     WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
+  #     Bot::Alegre.unstub(:media_file_url)
+  #     alegre.given('an image URL').
+  #     upon_receiving('a request to extract text').
+  #     with(
+  #       method: :get,
+  #       path: '/image/ocr/',
+  #       body: { url: 'https://i.imgur.com/ewGClFQ.png' },
+  #       headers: {
+  #         'Content-Type': 'application/json'
+  #       }
+  #     ).
+  #     will_respond_with(
+  #       status: 200,
+  #       headers: {
+  #         'Content-Type': 'application/json'
+  #       },
+  #       body: { text: extracted_text }.to_json,
+  #     )
+  
+  #     pm2 = create_project_media team: @pm.team, media: create_uploaded_image
+  #     Bot::Alegre.stubs(:media_file_url).with(pm2).returns("https://i.imgur.com/ewGClFQ.png")
+  #     assert Bot::Alegre.run({ data: { dbid: pm2.id }, event: 'create_project_media' })
+  #     extracted_text_annotation = pm2.get_annotations('extracted_text').last
+  #     puts "extracted_text }.to_json #{extracted_text.to_json}"
+  #     puts "extracted_text_annotation.data['text'] #{extracted_text_annotation.data['text']}"
+  #     puts "puts do test ====="
+  #     assert_equal extracted_text, extracted_text_annotation.data['text']
+  #     Bot::Alegre.unstub(:media_file_url)
+  #   end
+  # end
+
+  # test "should link similar images" do
+  #   Bot::Alegre.unstub(:request_api)
+  #   stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
+  #     pm1 = create_project_media team: @pm.team, media: create_uploaded_image
+  #     Bot::Alegre.stubs(:media_file_url).with(pm1).returns("https://i.imgur.com/ewGClFQ.png")
+  #     body = {
+  #       result: [
+  #         {
+  #         id: 1,
+  #         sha256: "1782b1d1993fcd9f6fd8155adc6009a9693a8da7bb96d20270c4bc8a30c97570",
+  #         phash: 17399941807326929,
+  #         url: "https://i.imgur.com/ewGClFQ.png",
+  #         context: [{
+  #           team_id: pm1.team.id.to_s,
+  #           project_media_id: pm1.id.to_s
+  #           }],
+  #           score: 0
+  #         }
+  #       ]
+  #     }.to_json
+  #     WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
+  #     WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
+  #     WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
+  #       "success": true
+  #     }.to_json)
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body:body)
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').to_return(body: {
+  #       "text": "text"
+  #     }.to_json)
+  #     WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
+  #     assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
+  #     Bot::Alegre.unstub(:media_file_url)
+  #     alegre.given('an image URL').
+  #     upon_receiving('a request to link similar images').
+  #     with(
+  #       method: :get,
+  #       path: '/image/similarity/',
+  #       body: { 
+  #         url: "https://i.imgur.com/ewGClFQ.png",
+  #         context: {
+  #           team_id: pm1.team.id.to_s,
+  #           project_media_id: pm1.id.to_s
+  #         },
+  #         threshold: 0.0
+  #       },
+  #       headers: {
+  #         'Content-Type': 'application/json'
+  #       }
+  #     ).
+  #     will_respond_with(
+  #       status: 200,
+  #       headers: {
+  #         'Content-Type': 'application/json'
+  #       },
+  #       body:body
+  #     )
+  #     pm2 = create_project_media team: @pm.team, media: create_uploaded_image
+  #     response = {pm1.id => 0}
+  #     puts "response #{response}"
+  #     Bot::Alegre.stubs(:media_file_url).with(pm2).returns("https://i.imgur.com/ewGClFQ.png")
+  #     assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
+  #     Bot::Alegre.unstub(:media_file_url)
+  #     puts "Bot::Alegre.get_similar_items(pm1) #{Bot::Alegre.get_similar_items(pm1)}"
+  #     puts "Bot::Alegre.get_similar_items(pm2) #{Bot::Alegre.get_similar_items(pm2)}"
+  #     puts " "
+  #   end
+  # end
 end
