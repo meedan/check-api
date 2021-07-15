@@ -133,6 +133,7 @@ module Api
       filter :similar_to_text, apply: ->(records, _value, _options) { records }
       filter :similar_to_image, apply: ->(records, _value, _options) { records }
       filter :similar_to_video, apply: ->(records, _value, _options) { records }
+      filter :similar_to_audio, apply: ->(records, _value, _options) { records }
       filter :similarity_fields, apply: ->(records, _value, _options) { records }
       filter :similarity_threshold, apply: ->(records, _value, _options) { records }
       filter :similarity_organization_ids, apply: ->(records, _value, _options) { records }
