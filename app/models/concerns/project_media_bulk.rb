@@ -17,6 +17,8 @@ module ProjectMediaBulk
           # send pusher and set parent objects for graphql
           self.send_pusher_and_parents(project, updates[:previous_project_id], team)
         end
+      elsif keys.include?(:assigned_to_ids)
+        self.bulk_assign(ids, updates[:assigned_to_ids], updates[:assignment_message], team)
       end
     end
 
@@ -116,6 +118,43 @@ module ProjectMediaBulk
         }
       }
       client.update_by_query options
+    end
+
+    def bulk_assign(ids, assigned_to_ids, assignment_message, team)
+      status_ids = Annotation.where(annotated_type: 'ProjectMedia', annotation_type: 'verification_status', annotated_id: ids).map(&:id)
+      # delete existing assignments
+      Assignment.where(assigned_type: 'Annotation', assigned_id: status_ids).destroy_all
+      # Bulk-insert assignments
+      assigned_ids = assigned_to_ids.to_s.split(',').map(&:to_i)
+      # verify that users aleady exists
+      u_ids = User.where(id: assigned_ids).map(&:id)
+      inserts = []
+      status_ids.each do |s_id|
+        u_ids.each do |u_id|
+          inserts << { assigned_type: 'Annotation', assigned_id: s_id, user_id: u_id, message: assignment_message }
+        end
+      end
+      result = Assignment.import inserts, validate: false, recursive: false, timestamps: true
+      # Run callbacks in background
+      self.delay.run_bulk_assignment_create_callbacks(result.ids.map(&:to_i).to_json)
+      { team: team }
+    end
+
+    def run_bulk_assignment_create_callbacks(ids_json)
+      ids = JSON.parse(ids_json)
+      callbacks = [
+        :send_email_notification_on_create,
+        :increase_assignments_count,
+        :propagate_assignments,
+        :apply_rules_and_actions,
+        :update_elasticsearch_assignment
+      ]
+      ids.each do |id|
+        a = Assignment.find_by_id(id)
+        callbacks.each do |callback|
+          a.send(callback)
+        end
+      end
     end
   end
 end
