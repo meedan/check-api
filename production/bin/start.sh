@@ -15,12 +15,20 @@ fi
 # For most environments, these settings are overridden in ENV set from SSM.
 (
   cd config
-  ln apollo-engine-proxy.json.example apollo-engine-proxy.json
   ln clean_db.yml.example clean_db.yml
   ln config.yml.example config.yml
   ln credentials.json.example credentials.json
   ln database.yml.example database.yml
   ln sidekiq.yml.example sidekiq.yml
+
+  # For apollo engine proxy config, we use ENV set via SSM:
+  WORKTMP=$(mktemp)
+  if [[ -z ${apollo-proxy-config+x} ]]; then
+    echo "Error: missing apollo-proxy-config ENV setting. Exiting."
+    exit 1
+  fi
+  echo $apollo-proxy-config | python -m base64 -d > $WORKTMP
+  mv $WORKTMP apollo-engine-proxy.json
 )
 
 /app/current/vendor/bundle/ruby/2.4.0/gems/apollo-tracing-1.5.0/bin/engineproxy_linux_amd64 --config config/apollo-engine-proxy.json &
