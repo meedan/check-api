@@ -15,7 +15,7 @@ then
       sleep 5
       size=$(du -s ../coverage/ | cut -f1)
     done
-    ./cc-test-reporter sum-coverage --output - --parts 2 ../coverage/codeclimate.* | sed 's/\/home\/travis\/build\/meedan\/check-api\///g' > ../coverage/codeclimate.json
+    ./cc-test-reporter sum-coverage --output - --parts 3 ../coverage/codeclimate.* | sed 's/\/home\/travis\/build\/meedan\/check-api\///g' > ../coverage/codeclimate.json
     cat ../coverage/codeclimate.json | ./cc-test-reporter upload-coverage --input -
     ./cc-test-reporter show-coverage ../coverage/codeclimate.json
   fi
