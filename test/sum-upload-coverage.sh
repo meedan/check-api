@@ -4,7 +4,7 @@ if [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ $TRAVIS_TEST_RESULT == 0 ]]
 then
   rm -rf ../coverage/*
   aws s3 cp --recursive s3://check-api-travis/codeclimate/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/ ../coverage
-  if [[ $(ls ../coverage/codeclimate.* | wc -l) -eq 2 ]]
+  if [[ $(ls ../coverage/codeclimate.* | wc -l) -eq 3 ]]
   then
     # Make sure we are not dealing with a file that is still being uploaded
     previous_size=0
