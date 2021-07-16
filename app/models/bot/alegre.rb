@@ -143,6 +143,8 @@ class Bot::Alegre < BotUser
       type = 'image'
     elsif pm.is_video?
       type = 'video'
+    elsif pm.is_audio?
+      type = 'audio'
     end
     unless type.blank?
       return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
