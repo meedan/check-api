@@ -24,11 +24,18 @@ fi
   # For apollo engine proxy config, we use ENV set via SSM:
   WORKTMP=$(mktemp)
   if [[ -z ${apollo-proxy-config+x} ]]; then
-    echo "Error: missing apollo-proxy-config ENV setting. Exiting."
-    exit 1
+    echo "Error: missing apollo-proxy-config ENV setting. Using defaults."
+    ln apollo-engine-proxy.json.example apollo-engine-proxy.json
   fi
   echo $apollo-proxy-config | python -m base64 -d > $WORKTMP
-  mv $WORKTMP apollo-engine-proxy.json
+  if (( $? != 0 )); then
+    echo "Error: could not decode configured ENV var: $apollo-proxy-config . Skipping apollo config."
+    rm apollo-engine-proxy.json
+  else
+    echo "Using decoded configuration from ENV var: $apollo-proxy-config."
+    mv $WORKTMP apollo-engine-proxy.json
+    sha1sum apollo-engine-proxy.json
+  fi
 )
 
 /app/current/vendor/bundle/ruby/2.4.0/gems/apollo-tracing-1.5.0/bin/engineproxy_linux_amd64 --config config/apollo-engine-proxy.json &
