@@ -233,6 +233,49 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:media_file_url)
   end
 
+  test "should relate project media to similar items as audio" do
+    p = create_project
+    pm1 = create_project_media team: @pm.team
+    pm1 = create_project_media project: p, media: create_uploaded_audio
+    pm2 = create_project_media project: p, media: create_uploaded_audio
+    pm3 = create_project_media project: p, media: create_uploaded_audio
+    create_relationship source_id: pm2.id, target_id: pm1.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "id" => 1,
+          "doc_id" => "blah",
+          "hash_value" => "0101",
+          "url" => "https://foo.com/bar.wav",
+          "context"=>[
+            {"team_id"=>pm1.team.id.to_s, "project_media_id"=>pm1.id.to_s}
+          ],
+          "score"=>"0.983167",
+        },
+        {
+          "id" => 2,
+          "doc_id" => "blah2",
+          "hash_value" => "0111",
+          "url" => "https://foo.com/baz.wav",
+          "context"=>[
+            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s}
+          ],
+          "score"=>"0.983167",
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    end
+    r = Relationship.last
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
+    assert_equal r.weight, 0.983167
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, media: create_uploaded_image
