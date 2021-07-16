@@ -390,8 +390,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
   end
 
-  test "should generate correct image conditions for api request" do
-    conditions = Bot::Alegre.similar_visual_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
+  test "should generate correct media conditions for api request" do
+    conditions = Bot::Alegre.similar_media_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
     assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
   end
 
@@ -505,6 +505,18 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project
     pm = create_project_media project: p, media: create_uploaded_video
     pm.media.type = "UploadedVideo"
+    pm.media.save!
+    pm.save!
+    Bot::Alegre.stubs(:request_api).returns(true)
+    assert Bot::Alegre.send_to_media_similarity_index(pm)
+  end
+
+  test "should pass through the send audio to similarity index call" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    p = create_project
+    pm = create_project_media project: p, media: create_uploaded_audio
+    pm.media.type = "UploadedAudio"
     pm.media.save!
     pm.save!
     Bot::Alegre.stubs(:request_api).returns(true)
