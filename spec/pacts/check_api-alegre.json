@@ -12,12 +12,7 @@
       "request": {
         "method": "get",
         "path": "/image/classification/",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "uri": "https://i.imgur.com/ewGClFQ.png"
-        }
+        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
       },
       "response": {
         "status": 200,
@@ -44,12 +39,7 @@
       "request": {
         "method": "get",
         "path": "/text/langid/",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "This is a test"
-        }
+        "query": "text=This+is+a+test"
       },
       "response": {
         "status": 200,
