@@ -127,7 +127,7 @@ module ProjectMediaBulk
       # Bulk-insert assignments
       assigned_ids = assigned_to_ids.to_s.split(',').map(&:to_i)
       # verify that users aleady exists
-      u_ids = User.where(id: assigned_ids).map(&:id)
+      u_ids = team.team_users.where(user_id: assigned_ids).map(&:user_id)
       inserts = []
       status_ids.each do |s_id|
         u_ids.each do |u_id|
