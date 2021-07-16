@@ -153,7 +153,7 @@ module ProjectMediaBulk
         a = Assignment.find_by_id(id)
         callbacks.each do |callback|
           a.send(callback)
-        end
+        end unless a.nil?
       end
     end
   end
