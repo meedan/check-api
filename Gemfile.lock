@@ -1,12 +1,10 @@
 GIT
   remote: https://github.com/AirHelp/partitioned
-  revision: 4304620861002e8fea7d53cc62c297eb5810d23e
-  branch: rails-5-0
+  revision: 24103ead1c495329201527adac787cca013fa917
+  branch: rails-5-2
   specs:
     partitioned (2.1.0)
-      activerecord
-      activerecord-redshift-adapter
-      bulk_data_methods
+      activerecord (~> 5.2.3)
       pg
 
 GIT
@@ -68,38 +66,38 @@ GEM
   specs:
     aasm (5.1.1)
       concurrent-ruby (~> 1.0)
-    actioncable (5.0.2)
-      actionpack (= 5.0.2)
-      nio4r (>= 1.2, < 3.0)
-      websocket-driver (~> 0.6.1)
-    actionmailer (5.0.2)
-      actionpack (= 5.0.2)
-      actionview (= 5.0.2)
-      activejob (= 5.0.2)
+    actioncable (5.2.6)
+      actionpack (= 5.2.6)
+      nio4r (~> 2.0)
+      websocket-driver (>= 0.6.1)
+    actionmailer (5.2.6)
+      actionpack (= 5.2.6)
+      actionview (= 5.2.6)
+      activejob (= 5.2.6)
       mail (~> 2.5, >= 2.5.4)
       rails-dom-testing (~> 2.0)
-    actionpack (5.0.2)
-      actionview (= 5.0.2)
-      activesupport (= 5.0.2)
-      rack (~> 2.0)
-      rack-test (~> 0.6.3)
+    actionpack (5.2.6)
+      actionview (= 5.2.6)
+      activesupport (= 5.2.6)
+      rack (~> 2.0, >= 2.0.8)
+      rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (5.0.2)
-      activesupport (= 5.0.2)
+    actionview (5.2.6)
+      activesupport (= 5.2.6)
       builder (~> 3.1)
-      erubis (~> 2.7.0)
+      erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    activejob (5.0.2)
-      activesupport (= 5.0.2)
+    activejob (5.2.6)
+      activesupport (= 5.2.6)
       globalid (>= 0.3.6)
-    activemodel (5.0.2)
-      activesupport (= 5.0.2)
-    activerecord (5.0.2)
-      activemodel (= 5.0.2)
-      activesupport (= 5.0.2)
-      arel (~> 7.0)
+    activemodel (5.2.6)
+      activesupport (= 5.2.6)
+    activerecord (5.2.6)
+      activemodel (= 5.2.6)
+      activesupport (= 5.2.6)
+      arel (>= 9.0)
     activerecord-import (1.1.0)
       activerecord (>= 3.2)
     activerecord-redshift-adapter (0.9.12)
@@ -107,9 +105,13 @@ GEM
       activesupport (>= 3.0.0)
       arel (>= 3.0.0)
       pg
-    activesupport (5.0.2)
+    activestorage (5.2.6)
+      actionpack (= 5.2.6)
+      activerecord (= 5.2.6)
+      marcel (~> 1.0.0)
+    activesupport (5.2.6)
       concurrent-ruby (~> 1.0, >= 1.0.2)
-      i18n (~> 0.7)
+      i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     addressable (2.7.0)
@@ -121,7 +123,7 @@ GEM
     ansi (1.5.0)
     apollo-tracing (1.5.0)
       graphql (>= 1.7.0, < 2)
-    arel (7.1.4)
+    arel (9.0.0)
     ast (2.4.1)
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
@@ -157,9 +159,6 @@ GEM
       sassc (>= 2.0.0)
     buftok (0.2.0)
     builder (3.2.4)
-    bulk_data_methods (1.1.2)
-      activerecord (>= 3.0.0)
-      pg
     bumbler (0.8.0)
     byebug (11.1.3)
     cancancan (1.17.0)
@@ -177,9 +176,9 @@ GEM
     clamav-client (3.2.0)
     codeclimate-test-reporter (1.0.7)
       simplecov
-    coffee-rails (4.1.1)
+    coffee-rails (4.2.2)
       coffee-script (>= 2.2.0)
-      railties (>= 4.0.0, < 5.1.x)
+      railties (>= 4.0.0)
     coffee-script (2.4.1)
       coffee-script-source
       execjs
@@ -236,12 +235,12 @@ GEM
       multi_json
     encryptor (3.0.0)
     equalizer (0.0.11)
-    erubis (2.7.0)
+    erubi (1.10.0)
     ethon (0.12.0)
       ffi (>= 1.3.0)
     eventmachine (1.2.7)
     excon (0.78.1)
-    execjs (2.7.0)
+    execjs (2.8.1)
     faraday (1.1.0)
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
@@ -323,7 +322,7 @@ GEM
       ffi-compiler
     http_parser.rb (0.6.0)
     httpclient (2.8.3)
-    i18n (0.9.5)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     i18n-generators (1.1.3)
       mechanize
@@ -361,6 +360,7 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
+    marcel (1.0.1)
     mechanize (2.7.7)
       domain_name (~> 0.5, >= 0.5.1)
       http-cookie (~> 1.0)
@@ -382,7 +382,7 @@ GEM
     mini_magick (4.10.1)
     mini_mime (1.1.0)
     mini_portile2 (2.5.3)
-    minitest (5.10.1)
+    minitest (5.14.4)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
     minitest-retry (0.2.1)
@@ -504,17 +504,18 @@ GEM
     rack-test (0.6.3)
       rack (>= 1.0)
     railroady (1.5.3)
-    rails (5.0.2)
-      actioncable (= 5.0.2)
-      actionmailer (= 5.0.2)
-      actionpack (= 5.0.2)
-      actionview (= 5.0.2)
-      activejob (= 5.0.2)
-      activemodel (= 5.0.2)
-      activerecord (= 5.0.2)
-      activesupport (= 5.0.2)
-      bundler (>= 1.3.0, < 2.0)
-      railties (= 5.0.2)
+    rails (5.2.6)
+      actioncable (= 5.2.6)
+      actionmailer (= 5.2.6)
+      actionpack (= 5.2.6)
+      actionview (= 5.2.6)
+      activejob (= 5.2.6)
+      activemodel (= 5.2.6)
+      activerecord (= 5.2.6)
+      activestorage (= 5.2.6)
+      activesupport (= 5.2.6)
+      bundler (>= 1.3.0)
+      railties (= 5.2.6)
       sprockets-rails (>= 2.0.0)
     rails-controller-testing (1.0.5)
       actionpack (>= 5.0.1.rc1)
@@ -526,15 +527,15 @@ GEM
     rails-graphql-generator (0.1.0)
     rails-html-sanitizer (1.3.0)
       loofah (~> 2.3)
-    railties (5.0.2)
-      actionpack (= 5.0.2)
-      activesupport (= 5.0.2)
+    railties (5.2.6)
+      actionpack (= 5.2.6)
+      activesupport (= 5.2.6)
       method_source
       rake (>= 0.8.7)
-      thor (>= 0.18.1, < 2.0)
+      thor (>= 0.19.0, < 2.0)
     rainbow (2.2.2)
       rake
-    rake (13.0.3)
+    rake (13.0.6)
     randexp (0.1.7)
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
@@ -745,7 +746,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.7.0)
     webrobots (0.1.2)
-    websocket-driver (0.6.5)
+    websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
 
@@ -754,10 +755,10 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
-  actionmailer (= 5.0.2)
-  actionpack (= 5.0.2)
-  activejob (= 5.0.2)
-  activerecord (= 5.0.2)
+  actionmailer (= 5.2.6)
+  actionpack (= 5.2.6)
+  activejob (= 5.2.6)
+  activerecord (= 5.2.6)
   activerecord-import (= 1.1.0)
   activerecord-redshift-adapter
   airbrake (= 11.0.1)
@@ -775,7 +776,7 @@ DEPENDENCIES
   carrierwave_backgrounder!
   clamav-client
   codeclimate-test-reporter (= 1.0.7)
-  coffee-rails (~> 4.1.0)
+  coffee-rails (~> 4.2.0)
   concurrent-ruby
   connection_pool
   deep_cloneable (~> 2.3.0)
@@ -815,7 +816,7 @@ DEPENDENCIES
   lograge
   loofah (= 2.10.0)
   mini_magick (= 4.10.1)
-  minitest (= 5.10.1)
+  minitest
   minitest-hooks
   minitest-retry
   mocha (= 1.2.1)
@@ -844,7 +845,7 @@ DEPENDENCIES
   rack-cors (= 1.0.6)
   rack-protection (= 2.1.0)
   railroady
-  rails (= 5.0.2)
+  rails (= 5.2.6)
   rails-controller-testing
   rails-graphql-generator
   rails-html-sanitizer (~> 1.2)
