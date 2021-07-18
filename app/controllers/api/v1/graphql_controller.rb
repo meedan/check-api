@@ -11,7 +11,7 @@ module Api
       before_action :authenticate_graphql_user, only: [:create, :batch]
       before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
-      after_action :trigger_bot_events
+      after_action :trigger_bot_events, :set_content_length_header
 
       def create
         Honeycomb.add_field('graphql_query', params[:query]) unless CheckConfig.get('honeycomb_key').blank?
@@ -62,11 +62,13 @@ module Api
       def parse_uploaded_files
         file_param = request.params[:file]
         file = file_param
+        @files = [file_param]
         if file_param.is_a?(Hash)
           file = []
           file_param.each do |key, value|
             file[key.to_i] = value
           end
+          @files = file
         end
         file
       end
@@ -178,6 +180,14 @@ module Api
       def update_last_active_at
         user = User.current
         user.update_column(:last_active_at, Time.now) if user && user.last_active_at.to_i < Time.now.ago(1.day).to_i
+      end
+
+      def set_content_length_header
+        if @files
+          size = 0
+          @files.reject{ |file| file.nil? }.each { |file| size += file.size }
+          response.headers['Content-Length'] = size if size > 0
+        end
       end
     end
   end
