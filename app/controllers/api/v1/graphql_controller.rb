@@ -11,7 +11,7 @@ module Api
       before_action :authenticate_graphql_user, only: [:create, :batch]
       before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
 
-      after_action :trigger_bot_events, :set_content_length_header
+      after_action :trigger_bot_events
 
       def create
         Honeycomb.add_field('graphql_query', params[:query]) unless CheckConfig.get('honeycomb_key').blank?
@@ -47,15 +47,19 @@ module Api
 
       def parse_graphql_result
         context = { ability: @ability, file: parse_uploaded_files }
+        @output = nil
         begin
           result = yield(context)
+          @output = result
           render json: result
 
         # Mutations are not batched, so we can return errors in the root
         rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
-          render json: parse_json_exception(e), status: 400
+          @output = parse_json_exception(e)
+          render json: @output, status: 400
         rescue ActiveRecord::StaleObjectError => e
-          render json: format_error_message(e), status: 409
+          @output = format_error_message(e)
+          render json: @output, status: 409
         end
       end
 
@@ -180,14 +184,6 @@ module Api
       def update_last_active_at
         user = User.current
         user.update_column(:last_active_at, Time.now) if user && user.last_active_at.to_i < Time.now.ago(1.day).to_i
-      end
-
-      def set_content_length_header
-        if @files
-          size = 0
-          @files.reject{ |file| file.nil? }.each { |file| size += file.size }
-          response.headers['Content-Length'] = size if size > 0
-        end
       end
     end
   end
