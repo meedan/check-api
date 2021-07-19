@@ -7,8 +7,9 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     p = create_project
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
-    @extracted_text = 'X X X\n3\nTranslate this sentence\n\u0648 \u0639\u0646\u062f\u064a \u0648\u0642\u062a \u0641\u064a \u0627\u0644\u0633\u0627\u0639\u0629 \u0627\u0644\u0639\u0627\u0634\u0631\u0629.\n'
-    @url = "https:\/\/i.imgur.com\/ewGClFQ.png"
+    @extracted_text = 'X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n'
+    @url = 'https://i.imgur.com/ewGClFQ.png'
+    @url2 = 'https%3A%2F%2Fi.imgur.com%2FewGClFQ.png'
   end
 
   # def teardown
@@ -17,7 +18,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   #   puts `cat #{path}`
   # end
 
-  test 'should return language' do
+  test "should return language" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
       alegre.given('a text exists').
       upon_receiving('a request to identify its language').
@@ -31,23 +32,22 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
         headers: {
           'Content-Type': 'application/json'
         },
-        body: { result: { language: 'en', confidence: 1 }, raw: [{ confidence: 1, language: 'en', input: 'This is a test' }], provider: 'google' }.to_json
+        body: { result: { language: 'en', confidence: 1 }, raw: [{ confidence: 1, language: 'en', input: 'This is a test' }], provider: 'google' }
       )
       assert_equal 'en', Bot::Alegre.get_language_from_alegre('This is a test')
     end
   end
-  
-  test 'should get image flags' do
+
+  test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
       WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: "https%3A%2F%2Fi.imgur.com%2FewGClFQ.png
-        "} }).to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
+      WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: @url2} }).to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
       WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: { "result": [] }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').to_return(body: { "text": @extracted_text  }.to_json)
+      WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to get image flags').
@@ -71,7 +71,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     end
   end
 
-  test 'should extract text' do
+  test "should extract text" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
       WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
@@ -86,19 +86,16 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       with(
         method: :get,
         path: '/image/ocr/',
-        body: { url: @url },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        query: { url: @url },
       ).
       will_respond_with(
         status: 200,
         headers: {
           'Content-Type': 'application/json'
         },
-        body: { text: @extracted_text }.to_json,
+        body: { text: @extracted_text },
       )
-  
+
       pm2 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm2).returns(@url)
       assert Bot::Alegre.run({ data: { dbid: pm2.id }, event: 'create_project_media' })

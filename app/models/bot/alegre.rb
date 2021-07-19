@@ -221,7 +221,7 @@ class Bot::Alegre < BotUser
 
   def self.get_extracted_text(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
+      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) }, 'query')
       self.save_annotation(pm, 'extracted_text', result) if result
     end
   end
@@ -335,7 +335,6 @@ class Bot::Alegre < BotUser
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
     if query_or_body == 'query'
       request.set_form_data(params)
-      # uri.query = URI.encode_www_form(params)
       request = Net::HTTP::Get.new(uri.path+ '?' + request.body)
     else
       request.body = params.to_json
