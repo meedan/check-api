@@ -52,6 +52,10 @@ class ProjectMedia < ApplicationRecord
     self.media.type == "UploadedVideo"
   end
 
+  def is_audio?
+    self.media.type == "UploadedAudio"
+  end
+
   def is_image?
     self.is_uploaded_image?
   end
