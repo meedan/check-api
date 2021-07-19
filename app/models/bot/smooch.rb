@@ -449,6 +449,7 @@ class Bot::Smooch < BotUser
       sm.reset
       return true
     end
+    workflow ||= {}
     workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(typed)
         if option['smooch_menu_option_value'] =~ /_state$/
