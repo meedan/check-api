@@ -46,7 +46,7 @@ class ApplicationMailer < ActionMailer::Base
   def send_email_to_recipients(recipients, subject, type=nil)
     recipients = Bounce.remove_bounces(recipients)
     unless recipients.empty?
-      Rails.logger.info "Sending e-mail to #{recipients}"
+      Rails.logger.warn "Sending e-mail to #{recipients}"
       mail(to: recipients, email_type: type, subject: subject)
     end
   end

@@ -63,7 +63,8 @@ module SmoochResources
       bot = BotUser.smooch_user
       TeamBotInstallation.where(user_id: bot.id).each do |tbi|
         tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a + w['smooch_message_smooch_bot_no_action'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
-          next if resource['smooch_custom_resource_feed_url'].blank?
+          has_feed_url = begin !resource['smooch_custom_resource_feed_url'].blank? rescue false end
+          next unless has_feed_url
           content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
           Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content, expires_in: 1.hour) unless content.blank?
         end
