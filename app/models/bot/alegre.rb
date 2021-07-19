@@ -143,6 +143,8 @@ class Bot::Alegre < BotUser
       type = 'image'
     elsif pm.is_video?
       type = 'video'
+    elsif pm.is_audio?
+      type = 'audio'
     end
     unless type.blank?
       return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
@@ -306,6 +308,8 @@ class Bot::Alegre < BotUser
       type = 'image'
     elsif pm.report_type == 'uploadedvideo'
       type = 'video'
+    elsif pm.report_type == 'uploadedaudio'
+      type = 'audio'
     end
     unless type.blank?
       params = {
@@ -458,23 +462,15 @@ class Bot::Alegre < BotUser
   def self.get_items_with_similar_media(media_url, threshold, team_id, path)
     self.get_similar_items_from_api(
       path,
-      self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
+      self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
     )
-  end
-
-  def self.get_similar_videos(team_id, media_url, threshold)
-    self.get_items_with_similar_media(media_url, threshold, team_id, '/video/similarity/')
-  end
-
-  def self.get_similar_images(team_id, media_url, threshold)
-    self.get_items_with_similar_media(media_url, threshold, team_id, '/image/similarity/')
   end
 
   def self.reject_same_case(results, pm)
     results.reject{ |id, _score| pm.id == id }
   end
 
-  def self.similar_visual_content_from_api_conditions(team_id, media_url, threshold)
+  def self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
     {
       url: media_url,
       context: self.build_context(team_id),
