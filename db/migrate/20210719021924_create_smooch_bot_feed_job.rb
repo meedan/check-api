@@ -1,3 +1,4 @@
+require 'sidekiq/testing'
 class CreateSmoochBotFeedJob < ActiveRecord::Migration
   def change
     # To ensure that the job will be scheduled and not run right away
