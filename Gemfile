@@ -37,7 +37,6 @@ gem 'sqlite3', '1.3.13', require: false
 gem 'lograge'
 gem 'rails', '5.2.6'
 gem 'pg', '~> 0.18.0'
-gem 'pg_application_name'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2.0'

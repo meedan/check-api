@@ -816,7 +816,7 @@ DEPENDENCIES
   lograge
   loofah (= 2.10.0)
   mini_magick (= 4.10.1)
-  minitest
+  minitest (= 5.14.4)
   minitest-hooks
   minitest-retry
   mocha (= 1.2.1)
