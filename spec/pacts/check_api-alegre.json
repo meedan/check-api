@@ -12,12 +12,7 @@
       "request": {
         "method": "get",
         "path": "/image/classification/",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "uri": "https://i.imgur.com/ewGClFQ.png"
-        }
+        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
       },
       "response": {
         "status": 200,
@@ -39,24 +34,50 @@
       }
     },
     {
-      "description": "a request to identify its language",
-      "providerState": "a text exists",
+      "description": "a request to extract text",
+      "providerState": "an image URL",
       "request": {
         "method": "get",
-        "path": "/text/langid/",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "This is a test"
-        }
+        "path": "/image/ocr/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
       },
       "response": {
         "status": 200,
         "headers": {
           "Content-Type": "application/json"
         },
-        "body": "{\"result\":{\"language\":\"en\",\"confidence\":1},\"raw\":[{\"confidence\":1,\"language\":\"en\",\"input\":\"This is a test\"}],\"provider\":\"google\"}"
+        "body": {
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
+        }
+      }
+    },
+    {
+      "description": "a request to identify its language",
+      "providerState": "a text exists",
+      "request": {
+        "method": "get",
+        "path": "/text/langid/",
+        "query": "text=This+is+a+test"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "language": "en",
+            "confidence": 1
+          },
+          "raw": [
+            {
+              "confidence": 1,
+              "language": "en",
+              "input": "This is a test"
+            }
+          ],
+          "provider": "google"
+        }
       }
     }
   ],
