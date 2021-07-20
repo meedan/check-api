@@ -7,7 +7,8 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     p = create_project
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media project: p, media: m
-    @extracted_text = 'X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n'
+    response = JSON.parse("{ \"text\": \"X X X\\n3\\nTranslate this sentence\\nو عندي وقت في الساعة العاشرة.\\n\" }")
+    @extracted_text = response['text']
     @url = 'https://i.imgur.com/ewGClFQ.png'
     @url2 = 'https%3A%2F%2Fi.imgur.com%2FewGClFQ.png'
   end

@@ -7,6 +7,35 @@
   },
   "interactions": [
     {
+      "description": "a request to identify its language",
+      "providerState": "a text exists",
+      "request": {
+        "method": "get",
+        "path": "/text/langid/",
+        "query": "text=This+is+a+test"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "language": "en",
+            "confidence": 1
+          },
+          "raw": [
+            {
+              "confidence": 1,
+              "language": "en",
+              "input": "This is a test"
+            }
+          ],
+          "provider": "google"
+        }
+      }
+    },
+    {
       "description": "a request to extract text",
       "providerState": "an image URL",
       "request": {
@@ -20,7 +49,7 @@
           "Content-Type": "application/json"
         },
         "body": {
-          "text": "X X X\\n3\\nTranslate this sentence\\nو عندي وقت في الساعة العاشرة.\\n"
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
         }
       }
     },
@@ -48,35 +77,6 @@
               "spam": 0
             }
           }
-        }
-      }
-    },
-    {
-      "description": "a request to identify its language",
-      "providerState": "a text exists",
-      "request": {
-        "method": "get",
-        "path": "/text/langid/",
-        "query": "text=This+is+a+test"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "result": {
-            "language": "en",
-            "confidence": 1
-          },
-          "raw": [
-            {
-              "confidence": 1,
-              "language": "en",
-              "input": "This is a test"
-            }
-          ],
-          "provider": "google"
         }
       }
     }
