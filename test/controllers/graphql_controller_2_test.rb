@@ -1040,7 +1040,7 @@ class GraphqlController2Test < ActionController::TestCase
     Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').to_return(body: { text: 'Foo bar' }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
 
       u = create_user
       t = create_team

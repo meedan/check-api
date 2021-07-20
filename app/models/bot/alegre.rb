@@ -188,7 +188,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('get', '/text/langid/', { text: text })
+      response = self.request_api('get', '/text/langid/', { text: text }, 'query')
       lang = response['result']['language'] || lang
     rescue
       nil
@@ -214,14 +214,14 @@ class Bot::Alegre < BotUser
 
   def self.get_flags(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) })
+      result = self.request_api('get', '/image/classification/', { uri: self.media_file_url(pm) }, 'query')
       self.save_annotation(pm, 'flag', result['result'])
     end
   end
 
   def self.get_extracted_text(pm)
     if pm.report_type == 'uploadedimage'
-      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) })
+      result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) }, 'query')
       self.save_annotation(pm, 'extracted_text', result) if result
     end
   end
@@ -329,11 +329,16 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.request_api(method, path, params = {}, retries = 3)
+  def self.request_api(method, path, params = {}, query_or_body = 'body', retries = 3)
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
-    request.body = params.to_json
+    if query_or_body == 'query'
+      request.set_form_data(params)
+      request = Net::HTTP::Get.new(uri.path+ '?' + request.body)
+    else
+      request.body = params.to_json
+    end
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.use_ssl = uri.scheme == 'https'
     begin
@@ -342,7 +347,7 @@ class Bot::Alegre < BotUser
     rescue StandardError => e
       if retries > 0
         sleep 1
-        self.request_api(method, path, params, retries - 1)
+        self.request_api(method, path, params, query_or_body , retries - 1)
       end
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
       self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
