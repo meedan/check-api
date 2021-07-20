@@ -7,6 +7,51 @@
   },
   "interactions": [
     {
+      "description": "a request to get image flags",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/classification/",
+        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "flags": {
+              "adult": 1,
+              "spoof": 1,
+              "medical": 2,
+              "violence": 1,
+              "racy": 1,
+              "spam": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "a request to extract text",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/ocr/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
+        }
+      }
+    },
+    {
       "description": "a request to identify its language",
       "providerState": "a text exists",
       "request": {
@@ -32,51 +77,6 @@
             }
           ],
           "provider": "google"
-        }
-      }
-    },
-    {
-      "description": "a request to extract text",
-      "providerState": "an image URL",
-      "request": {
-        "method": "get",
-        "path": "/image/ocr/",
-        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
-        }
-      }
-    },
-    {
-      "description": "a request to get image flags",
-      "providerState": "an image URL",
-      "request": {
-        "method": "get",
-        "path": "/image/classification/",
-        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "result": {
-            "flags": {
-              "adult": 1,
-              "spoof": 1,
-              "medical": 2,
-              "violence": 1,
-              "racy": 1,
-              "spam": 0
-            }
-          }
         }
       }
     }

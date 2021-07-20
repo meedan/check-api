@@ -11,6 +11,15 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     @extracted_text = response['text']
     @url = 'https://i.imgur.com/ewGClFQ.png'
     @url2 = 'https%3A%2F%2Fi.imgur.com%2FewGClFQ.png'
+    @flags = {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}
+  end
+
+  def stub_similarity_requests(url)
+    WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
+    WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: { success: true }.to_json)
+    WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: { 'success': true }.to_json)
+    WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: url} }).to_return(body:{ result: @flags }.to_json)
+    WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: { "result": [] }.to_json)
   end
 
   # def teardown
@@ -41,13 +50,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
   test "should get image flags" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
-      WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: {
-        "success": true
-      }.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: @url2} }).to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: { "result": [] }.to_json)
+      stub_similarity_requests(@url2)
       WebMock.stub_request(:get, 'http://localhost:5000/image/ocr/').with({ query: { url: @url } }).to_return(body: { "text": @extracted_text  }.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
@@ -62,7 +65,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
           headers: {
             'Content-Type': 'application/json'
           },
-          body: { result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}} }
+          body: { result: @flags }
         )
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(@url)
@@ -74,13 +77,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
 
   test "should extract text" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
-      WebMock.stub_request(:post, 'http://localhost:5000/text/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:delete, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: {
-        "result": []
-      }.to_json)
-      WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
-      WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: @url } }).to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
+      stub_similarity_requests(@url)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to extract text').
@@ -134,7 +131,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   #       "text": @extracted_text
   #     }.to_json)
   #     WebMock.stub_request(:post, 'http://localhost:5000/image/similarity/').to_return(body: 'success')
-  #     WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: @url } }).to_return(body:{ result: {:flags=>{"adult"=>1, "spoof"=>1, "medical"=>2, "violence"=>1, "racy"=>1, "spam"=>0}}}.to_json)
+  #     WebMock.stub_request(:get, 'http://localhost:5000/image/classification/').with({ query: { uri: @url } }).to_return(body:{ result: @flags}.to_json)
   #     assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
   #     Bot::Alegre.unstub(:media_file_url)
   #     alegre.given('an image URL').
@@ -163,7 +160,6 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   #     )
   #     pm2 = create_project_media team: @pm.team, media: create_uploaded_image
   #     response = {pm1.id => 0}
-  #     puts "response #{response}"
   #     Bot::Alegre.stubs(:media_file_url).with(pm2).returns(@url)
   #     assert_equal response, Bot::Alegre.get_items_with_similarity('image', pm2, Bot::Alegre.get_threshold_for_query('image', pm2))
   #     Bot::Alegre.unstub(:media_file_url)
