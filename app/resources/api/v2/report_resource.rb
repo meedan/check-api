@@ -44,7 +44,8 @@ module Api
         ids_image = self.apply_image_similarity_filter(organization_ids, threshold, filters)
         ids_video = self.apply_video_similarity_filter(organization_ids, threshold, filters)
         ids_audio = self.apply_audio_similarity_filter(organization_ids, threshold, filters)
-        conditions[:id] = (ids_text.to_a + ids_image.to_a + ids_video.to_a + ids_audio.to_a).uniq if ids_text || ids_image || ids_video || ids_audio
+        ids = (ids_text.to_a + ids_image.to_a + ids_video.to_a + ids_audio.to_a).flatten.uniq
+        conditions[:id] = ids unless ids.blank?
 
         self.apply_check_filters(conditions, filters)
       end
