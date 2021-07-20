@@ -347,7 +347,7 @@ class Bot::Alegre < BotUser
     rescue StandardError => e
       if retries > 0
         sleep 1
-        self.request_api(method, path, params, query_or_body = 'body', retries - 1)
+        self.request_api(method, path, params, query_or_body , retries - 1)
       end
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
       self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
