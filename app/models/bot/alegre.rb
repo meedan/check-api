@@ -1,43 +1,62 @@
 class Bot::Alegre < BotUser
   check_settings
-  MEAN_TOKENS_MODEL = "xlm-r-bert-base-nli-stsb-mean-tokens"
-  INDIAN_MODEL = "indian-sbert"
-  ELASTICSEARCH_MODEL = "elasticsearch"
+
+  # Text similarity models
+  MEAN_TOKENS_MODEL = 'xlm-r-bert-base-nli-stsb-mean-tokens'
+  INDIAN_MODEL = 'indian-sbert'
+  ELASTICSEARCH_MODEL = 'elasticsearch'
+
+  REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
   end
 
-  DynamicAnnotation::Field.class_eval do
-    after_commit :save_analysis_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
-    after_destroy :delete_analysis_from_similarity_index, if: :can_be_sent_to_index?
+  Dynamic.class_eval do
+    after_commit :send_annotation_data_to_similarity_index, if: :can_be_sent_to_index?, on: [:create, :update]
+    after_create :match_similar_items_using_ocr
 
-    def self.save_analysis_to_similarity_index(pm_id)
+    def self.send_annotation_data_to_similarity_index(pm_id, annotation_type)
       pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_title')
-      Bot::Alegre.send_field_to_similarity_index(pm, 'analysis_description')
+      if annotation_type == 'report_design'
+        REPORT_TEXT_SIMILARITY_FIELDS.each do |field|
+          Bot::Alegre.send_field_to_similarity_index(pm, field)
+        end
+      elsif annotation_type == 'extracted_text'
+        Bot::Alegre.send_field_to_similarity_index(pm, 'extracted_text')
+      end
     end
 
-    def self.delete_analysis_from_similarity_index(pm_id)
-      pm = ProjectMedia.find_by_id(pm_id)
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_title', true)
-      Bot::Alegre.delete_field_from_text_similarity_index(pm, 'analysis_description', true)
+    def self.match_similar_items_using_ocr(id)
+      annotation = Dynamic.find(id)
+      if annotation.annotation_type == 'extracted_text'
+        pm = annotation.annotated
+        text = annotation.get_field_value('text')
+        return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('image', pm.team_id)
+        matches = Bot::Alegre.get_items_with_similar_description(pm, Bot::Alegre.get_threshold_for_query('text', pm), text).max_by{ |_pm_id, score| score }
+        unless matches.nil?
+          match_id, score = matches
+          match = ProjectMedia.find_by_id(match_id)
+          return if match.nil?
+          parent = Relationship.confirmed_parent(match)
+          Bot::Alegre.create_relationship(parent, pm, score, Relationship.suggested_type)
+        end
+      end
     end
 
     private
 
     def can_be_sent_to_index?
-      ['content', 'title'].include?(self.field_name) &&
-      self.annotation.annotation_type == 'verification_status' &&
-      Bot::Alegre.team_has_alegre_bot_installed?(self.annotation&.annotated&.team&.id&.to_i)
+      ['report_design', 'extracted_text'].include?(self.annotation_type) &&
+      Bot::Alegre.team_has_alegre_bot_installed?(self.annotated&.team&.id&.to_i)
     end
 
-    def save_analysis_to_similarity_index
-      self.class.delay_for(5.seconds, retry: 5).save_analysis_to_similarity_index(self.annotation.annotated_id)
+    def send_annotation_data_to_similarity_index
+      self.class.delay_for(5.seconds, retry: 5).send_annotation_data_to_similarity_index(self.annotated_id, self.annotation_type)
     end
 
-    def delete_analysis_from_similarity_index
-      self.class.delay_for(5.seconds, retry: 5).delete_analysis_from_similarity_index(self.annotation.annotated_id)
+    def match_similar_items_using_ocr
+      self.class.delay_for(5.seconds, retry: 5).match_similar_items_using_ocr(self.id)
     end
   end
 
@@ -93,7 +112,7 @@ class Bot::Alegre < BotUser
 
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
-    pm.is_text? ? matches.select{ |k, _v| other_pms[k.to_i]&.is_text? } : matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
+    pm.is_text? ? matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? } : matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -173,10 +192,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.relate_project_media_to_similar_items(pm)
-    self.add_relationships(
-      pm,
-      self.get_similar_items(pm)
-    )
+    self.add_relationships(pm, self.get_similar_items(pm)) unless pm.is_blank?
   end
 
   def self.get_language(pm)
@@ -360,11 +376,12 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_with_similar_title(pm, threshold)
-    pm.title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'analysis_title'], pm.title)
+    pm.original_title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'report_text_title', 'report_visual_card_title'], pm.original_title)
   end
 
-  def self.get_items_with_similar_description(pm, threshold)
-    pm.description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'analysis_description'], pm.description)
+  def self.get_items_with_similar_description(pm, threshold, input_description = nil)
+    description = input_description || pm.original_description
+    description.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_description', 'report_text_content', 'report_visual_card_content', 'extracted_text'], description)
   end
 
   def self.get_merged_similar_items(pm, threshold, fields, value)
@@ -438,7 +455,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_items_from_similar_text(team_id, text, field = nil, threshold = nil, model = nil, fuzzy = false)
-    field ||= ['original_title', 'original_description', 'analysis_title', 'analysis_description']
+    field ||= (['original_title', 'original_description'] + REPORT_TEXT_SIMILARITY_FIELDS).flatten
     threshold ||= self.get_threshold_for_query('text', nil, true)
     model ||= self.matching_model_to_use(ProjectMedia.new(team_id: team_id))
     self.get_similar_items_from_api(
@@ -517,20 +534,25 @@ class Bot::Alegre < BotUser
       parent.replace_by(pm)
     elsif pm_id_scores[parent_id]
       relationship_type = self.set_relationship_type(pm, pm_id_scores, parent)
-      r = Relationship.new
-      r.skip_check_ability = true
-      r.relationship_type = relationship_type
-      r.weight = pm_id_scores[parent_id][:score]
-      r.source_id = parent_id
-      r.target_id = pm.id
-      r.user_id ||= BotUser.alegre_user&.id
-      r.save!
-      CheckNotification::InfoMessages.send(
-        r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
-        item_title: pm.title,
-        similar_item_title: parent.title
-      )
+      self.create_relationship(parent, pm, pm_id_scores[parent_id][:score], relationship_type)
     end
+  end
+
+  def self.create_relationship(source, target, weight, relationship_type)
+    r = Relationship.new
+    r.skip_check_ability = true
+    r.relationship_type = relationship_type
+    r.weight = weight
+    r.source_id = source.id
+    r.target_id = target.id
+    r.user_id ||= BotUser.alegre_user&.id
+    r.save!
+    CheckNotification::InfoMessages.send(
+      r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
+      item_title: target.title,
+      similar_item_title: source.title
+    )
+    r
   end
 
   def self.set_relationship_type(pm, pm_id_scores, parent)
