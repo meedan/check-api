@@ -30,6 +30,7 @@ class AudioUploader < FileUploader
             end
     klass::File.open(current_path) do |file|
       tag = extname == 'mp3' ? file.id3v2_tag : file.tag
+      return if tag.nil?
       if extname == 'ogg'
         cover = nil
         fields = tag.field_list_map
