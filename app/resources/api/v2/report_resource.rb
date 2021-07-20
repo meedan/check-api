@@ -95,8 +95,8 @@ module Api
         ids = nil
         unless media.blank?
           media[0].rewind
-          CheckS3.write(media_path, media[0].content_type, media[0].read)
-          ids_and_scores = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(media_path), {value: threshold}, organization_ids, "/#{media_type}/similarity/")
+          CheckS3.write(media_path, media[0].content_type.gsub(/^video/, 'application'), media[0].read)
+          ids_and_scores = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(media_path), { value: threshold }, organization_ids, "/#{media_type}/similarity/")
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
           ids = ids_and_scores.keys.uniq || [0]
           CheckS3.delete(media_path)
