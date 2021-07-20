@@ -1223,7 +1223,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_verification_status_stuff
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
-    assert_nil pm.reload.description
+    assert_equal 'Test', pm.reload.description
     info = { content: 'Test 2' }
     pm.analysis = info
     pm.save!
@@ -2426,5 +2426,26 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm.id}:folder")
     assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm2.id}:folder")
     assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm3.id}:folder")
+  end
+
+  test "should get report information" do
+    pm = create_project_media
+    data = {
+      title: 'Report text title',
+      text: 'Report text content',
+      headline: 'Visual card title',
+      description: 'Visual card content'
+    }
+    publish_report(pm, {}, nil, data)
+    pm = ProjectMedia.find(pm.id).reload
+    assert_equal 'Report text title', pm.report_text_title
+    assert_equal 'Report text content', pm.report_text_content
+    assert_equal 'Visual card title', pm.report_visual_card_title
+    assert_equal 'Visual card content', pm.report_visual_card_content
+  end
+
+  test "should get extracted text" do
+    pm = create_project_media
+    assert_kind_of String, pm.extracted_text
   end
 end

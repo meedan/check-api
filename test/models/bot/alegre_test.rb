@@ -65,6 +65,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: {
         "success": true
       }.to_json)
@@ -783,9 +784,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
     # Relation should be confirmed if at least one field size > threshold
-    pm3 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
-    pm4 = create_project_media project: p, quote: "This is also a long enough Title", team: @team
-    pm4.analysis = { title: 'This is also a long enough Title so as to allow an actual check of other titles', content: 'This is also a long enough Title' }
+    pm3 = create_project_media project: p, quote: 'This is also a long enough title', team: @team
+    pm4 = create_project_media project: p, quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
     Bot::Alegre.stubs(:request_api).returns({
       "result" => [
         {
@@ -838,5 +838,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal Relationship.suggested_type, r.relationship_type
     Bot::Alegre.unstub(:request_api)
   end
-end
 
+  test "should index report data" do
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+    pm = create_project_media team: @team
+    assert_nothing_raised do
+      publish_report(pm)
+    end
+  end
+
+  test "should use OCR data for similarity matching" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+end
