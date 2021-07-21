@@ -51,7 +51,7 @@ Dynamic.class_eval do
     if self.annotation_type == 'report_design'
       data = self.data.with_indifferent_access
       default_language = data[:default_language] || self.annotated&.team&.default_language
-      data[:options].each do |option|
+      data[:options].to_a.each do |option|
         value = option[field] if option[:language] == language
         default = option[field] if option[:language] == default_language
       end

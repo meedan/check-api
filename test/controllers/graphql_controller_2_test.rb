@@ -1039,25 +1039,28 @@ class GraphqlController2Test < ActionController::TestCase
     create_extracted_text_annotation_type
     Bot::Alegre.unstub(:request_api)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
-      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
-      WebMock.stub_request(:get, 'http://alegre/image/ocr/').to_return(body: { text: 'Foo bar' }.to_json)
+      Sidekiq::Testing.fake! do
+        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+        WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: "some/path" } }).to_return(body: { text: 'Foo bar' }.to_json)
+        WebMock.stub_request(:get, 'http://alegre/text/similarity/')
 
-      u = create_user
-      t = create_team
-      create_team_user user: u, team: t, role: 'admin'
-      authenticate_with_user(u)
+        u = create_user
+        t = create_team
+        create_team_user user: u, team: t, role: 'admin'
+        authenticate_with_user(u)
 
-      Bot::Alegre.unstub(:media_file_url)
-      pm = create_project_media team: t, media: create_uploaded_image
-      Bot::Alegre.stubs(:media_file_url).with(pm).returns('some/path')
+        Bot::Alegre.unstub(:media_file_url)
+        pm = create_project_media team: t, media: create_uploaded_image
+        Bot::Alegre.stubs(:media_file_url).with(pm).returns('some/path')
 
-      query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
-      post :create, query: query, team: t.slug
-      assert_response :success
+        query = 'mutation ocr { extractText(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id } } }'
+        post :create, query: query, team: t.slug
+        assert_response :success
 
-      extracted_text_annotation = pm.get_annotations('extracted_text').last
-      assert_equal 'Foo bar', extracted_text_annotation.data['text']
-      Bot::Alegre.unstub(:media_file_url)
+        extracted_text_annotation = pm.get_annotations('extracted_text').last
+        assert_equal 'Foo bar', extracted_text_annotation.data['text']
+        Bot::Alegre.unstub(:media_file_url)
+      end
     end
   end
 

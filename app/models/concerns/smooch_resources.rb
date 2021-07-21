@@ -46,11 +46,15 @@ module SmoochResources
       require 'rss'
       require 'open-uri'
       output = []
-      open(url.to_s.strip) do |rss|
-        feed = RSS::Parser.parse(rss, false)
-        feed.items.first(count).each do |item|
-          output << item.title.strip + "\n" + item.link.strip
+      begin
+        open(url.to_s.strip) do |rss|
+          feed = RSS::Parser.parse(rss, false)
+          feed.items.first(count).each do |item|
+            output << item.title.strip + "\n" + item.link.strip
+          end
         end
+      rescue StandardError => e
+        self.notify_error(e, { bot: 'Smooch', operation: 'Render RSS Feed', url: url }, RequestStore[:request])
       end
       output.join("\n\n")
     end
@@ -59,13 +63,10 @@ module SmoochResources
       bot = BotUser.smooch_user
       TeamBotInstallation.where(user_id: bot.id).each do |tbi|
         tbi.settings['smooch_workflows'].to_a.collect{ |w| w['smooch_custom_resources'].to_a + w['smooch_message_smooch_bot_no_action'].to_a }.flatten.reject{ |r| r.blank? }.each do |resource|
-          next if resource['smooch_custom_resource_feed_url'].blank?
-          begin
-            content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
-            Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content, expires_in: 1.hour)
-          rescue StandardError => e
-            self.notify_error(e, { bot: 'Smooch', operation: 'RSS Feed Update', team: tbi.team.slug, resource: resource })
-          end
+          has_feed_url = begin !resource['smooch_custom_resource_feed_url'].blank? rescue false end
+          next unless has_feed_url
+          content = self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
+          Rails.cache.write("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", content, expires_in: 1.hour) unless content.blank?
         end
       end
       self.delay_for(15.minutes, retry: 5).refresh_rss_feeds_cache unless Rails.env.test? # Avoid infinite loop

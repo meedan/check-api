@@ -11,6 +11,7 @@ class ProjectMedia < ActiveRecord::Base
   include ProjectMediaCachedFields
   include ProjectMediaBulk
   include ProjectMediaSourceAssociations
+  include ProjectMediaGetters
 
   validates_presence_of :media, :team
 
@@ -22,7 +23,7 @@ class ProjectMedia < ActiveRecord::Base
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
@@ -31,38 +32,6 @@ class ProjectMedia < ActiveRecord::Base
                   targets: proc { |pm| [pm.media, pm.team, pm.project] },
                   if: proc { |pm| !pm.skip_notifications },
                   data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
-
-  def is_claim?
-    self.media.type == "Claim"
-  end
-
-  def is_link?
-    self.media.type == "Link"
-  end
-
-  def is_uploaded_image?
-    self.media.type == "UploadedImage"
-  end
-
-  def is_blank?
-    self.media.type == "Blank"
-  end
-
-  def is_video?
-    self.media.type == "UploadedVideo"
-  end
-
-  def is_image?
-    self.is_uploaded_image?
-  end
-
-  def is_text?
-    self.is_claim? || self.is_link?
-  end
-
-  def report_type
-    self.media.class.name.downcase
-  end
 
   def related_to_team?(team)
     self.team == team
@@ -121,32 +90,6 @@ class ProjectMedia < ActiveRecord::Base
     self.should_send_slack_notification_message_for_card? ? self.slack_notification_message_for_card(pretext) : nil
   end
 
-  def picture
-    Concurrent::Future.execute(executor: POOL) do
-      self.lead_image
-    end
-  end
-
-  def lead_image
-    self.media&.picture&.to_s
-  end
-
-  def link
-    self.media&.url&.to_s
-  end
-
-  def uploaded_file_url
-    self.media&.file_path
-  end
-
-  def source_name
-    self.source&.name&.to_s
-  end
-
-  def team_name
-    self.team&.name&.to_s
-  end
-
   def get_annotations(type = nil)
     self.annotations.where(annotation_type: type)
   end
@@ -187,15 +130,6 @@ class ProjectMedia < ActiveRecord::Base
     self.updated_at = Time.now
     # update account if we have a new author_url
     update_media_account if self.media.type == 'Link'
-  end
-
-  def text
-    self.media.text
-  end
-
-  def full_url
-    project_prefix = self.project_id.nil? ? '' : "/project/#{self.project_id}"
-    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}#{project_prefix}/media/#{self.id}"
   end
 
   def get_dynamic_annotation(type)
@@ -346,46 +280,6 @@ class ProjectMedia < ActiveRecord::Base
       end
     end
     values
-  end
-
-  def created_at_timestamp
-    self.created_at.to_i
-  end
-
-  def updated_at_timestamp
-    self.updated_at.to_i
-  end
-
-  def has_analysis_title?
-    !self.analysis_title.blank?
-  end
-
-  def original_title
-    self.media&.metadata&.dig('title') || self.media&.quote || self.media&.file&.file&.filename
-  end
-
-  def analysis_title
-    self.analysis.dig('title')
-  end
-
-  def has_analysis_description?
-    !self.analysis_description.blank?
-  end
-
-  def original_description
-    (self.media&.metadata&.dig('description') || (self.media.type == 'Claim' ? nil : self.text))
-  end
-
-  def analysis_description
-    self.analysis.dig('content')
-  end
-
-  def analysis_published_article_url
-    self.analysis.dig('published_article_url')
-  end
-
-  def analysis_published_date
-    self.analysis.dig('date_published')
   end
 
   def remove_related_team_tasks_bg(pid)
