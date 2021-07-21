@@ -14,7 +14,7 @@ if File.exist?(file)
 
   Rails.application.configure do
     config.active_job.queue_adapter = :sidekiq
-    redis_url = { host: redis_config[:redis_host], port: redis_config[:redis_port], db: redis_config[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+    redis_url = { host: SIDEKIQ_CONFIG[:redis_host], port: SIDEKIQ_CONFIG[:redis_port], db: SIDEKIQ_CONFIG[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
     config.cache_store = :redis_store, redis_url
   end
 
