@@ -140,7 +140,7 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :description,
-      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description},
+      recalculate: proc { |pm| pm.has_analysis_description? ? pm.analysis_description : pm.original_description },
       update_on: analysis_update('content')
 
     cached_field :title,
