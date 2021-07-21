@@ -431,6 +431,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_similar_items_from_api(path, conditions, _threshold={})
+    Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
