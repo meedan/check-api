@@ -2,14 +2,8 @@
 
 pip install --user awscli
 
-if [ "$TRAVIS_JOB_NAME" == "unit-tests" ] ; then
-  PATTERN='controllers';
-else
-  PATTERN='models-mailers-integration-workers-lib'
-fi
-
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
-  ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$PATTERN.json ../coverage/.resultset.json
-  aws s3 cp ../coverage/codeclimate.$PATTERN.json s3://check-api-travis/codeclimate/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/codeclimate.$PATTERN.json
+  ./test/cc-test-reporter format-coverage -t simplecov --output ../coverage/codeclimate.$TRAVIS_JOB_NAME.json ../coverage/.resultset.json
+  aws s3 cp ../coverage/codeclimate.$TRAVIS_JOB_NAME.json s3://check-api-travis/codeclimate/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/codeclimate.$TRAVIS_JOB_NAME.json
 fi

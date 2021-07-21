@@ -101,7 +101,7 @@ module AnnotationBase
 
     def touch_annotated
       annotated = self.annotated
-      unless annotated.nil?
+      if !annotated.nil? && !annotated.is_a?(Project)
         annotated.skip_check_ability = annotated.skip_notifications = true # the notification will be triggered by the annotation already
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now

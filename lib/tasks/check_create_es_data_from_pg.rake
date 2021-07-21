@@ -40,7 +40,7 @@ namespace :check do
     sleep 20
     failures = []
     # append nested objects
-    Team.find_each do |team|
+    Team.where(condition).find_each do |team|
       team.project_medias.find_in_batches(:batch_size => 2500) do |pms|
         es_body = []
         pms.each do |obj|
@@ -71,7 +71,7 @@ namespace :check do
           tasks = obj.annotations('task')
           tasks_ids = tasks.map(&:id)
           # 'task_responses'
-          team_task_ids = TeamTask.where(team_id: t.id).map(&:id)
+          team_task_ids = TeamTask.where(team_id: team.id).map(&:id)
           responses = Task.where('annotations.id' => tasks_ids)
           .where('task_team_task_id(annotations.annotation_type, annotations.data) IN (?)', team_task_ids)
           .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'

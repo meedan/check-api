@@ -566,7 +566,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
         pm2 = create_project_media team: t, project_id: p.id
       end
       ids = [pm.id, pm2.id]
-      ProjectMedia.bulk_move(ids, p2, nil, t)
+      ProjectMedia.bulk_move(ids, p2, t)
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm_tt2 = pm.annotations('task').select{|t| t.team_task_id == tt2.id}.last
       pm_tt3 = pm.annotations('task').select{|t| t.team_task_id == tt3.id}.last
@@ -1223,7 +1223,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     create_verification_status_stuff
     c = create_claim_media quote: 'Test'
     pm = create_project_media media: c
-    assert_nil pm.reload.description
+    assert_equal 'Test', pm.reload.description
     info = { content: 'Test 2' }
     pm.analysis = info
     pm.save!
@@ -2405,5 +2405,47 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     assert_equal 'Custom Title', pm.reload.title
     assert_equal 'rails.png', pm.reload.original_title
+  end
+
+  test "should move secondary item to same main item project" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    p2 = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    pm3 = create_project_media project: p
+    assert_equal p.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm.id}:folder")
+    create_relationship source_id: pm.id, target_id: pm2.id
+    create_relationship source_id: pm.id, target_id: pm3.id
+    pm.project_id = p2.id
+    pm.save!
+    assert_equal p2.id, pm2.reload.project_id
+    assert_equal p2.id, pm3.reload.project_id
+    # verify cached folder value
+    assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm.id}:folder")
+    assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm2.id}:folder")
+    assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm3.id}:folder")
+  end
+
+  test "should get report information" do
+    pm = create_project_media
+    data = {
+      title: 'Report text title',
+      text: 'Report text content',
+      headline: 'Visual card title',
+      description: 'Visual card content'
+    }
+    publish_report(pm, {}, nil, data)
+    pm = ProjectMedia.find(pm.id).reload
+    assert_equal 'Report text title', pm.report_text_title
+    assert_equal 'Report text content', pm.report_text_content
+    assert_equal 'Visual card title', pm.report_visual_card_title
+    assert_equal 'Visual card content', pm.report_visual_card_content
+  end
+
+  test "should get extracted text" do
+    pm = create_project_media
+    assert_kind_of String, pm.extracted_text
   end
 end
