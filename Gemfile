@@ -4,6 +4,7 @@ group :development, :test do
   gem 'byebug', require: false
   gem 'rubocop', '0.49.0', require: false
   gem 'rails-graphql-generator', require: false
+  gem 'listen', require: false
 end
 
 group :test do
@@ -143,3 +144,4 @@ gem 'taglib-ruby'
 gem 'bitly', require: false
 gem 'open_uri_redirections', require: false
 gem 'jsonapi-resources'
+gem 'bootsnap', require: false
