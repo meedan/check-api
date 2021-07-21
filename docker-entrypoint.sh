@@ -7,12 +7,12 @@ until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep
 if [ "$RAILS_ENV" == "test" ]
 then
   bin/rails db:environment:set RAILS_ENV=$RAILS_ENV || true
-  bundle exec rake db:drop
+  bundle exec rails db:drop
 fi
-bundle exec rake db:create
-bundle exec rake db:migrate
-export SECRET_KEY_BASE=$(bundle exec rake secret)
-bundle exec rake lapis:api_keys:create_default
+bundle exec rails db:create
+bundle exec rails db:migrate
+export SECRET_KEY_BASE=$(bundle exec rails secret)
+bundle exec rails lapis:api_keys:create_default
 
 # App server
 mkdir -p /app/tmp/pids
