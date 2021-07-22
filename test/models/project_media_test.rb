@@ -2468,8 +2468,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
         end
       end
       assert_equal medias_count + 1, media_type.to_s.constantize.count
-  
-      # second the video is added should not create new media
+
+      # second time the video is added should not create new media
       medias_count = media_type.to_s.constantize.count
       assert_difference 'ProjectMedia.count', 1 do
         pm = ProjectMedia.new media_type: media_type.to_s, team: team2
