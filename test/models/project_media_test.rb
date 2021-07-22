@@ -2457,9 +2457,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
       UploadedImage: 'rails.png',
       UploadedAudio: 'rails.mp3'
     }.each_pair do |media_type, filename|
+      File.stubs(:basename).returns(Digest::MD5.hexdigest('rails') + File.extname(filename))
       # first time the video is added creates a new media
-      medias_count = Media.count
-      puts media_type.class
+      medias_count = media_type.to_s.constantize.count
       assert_difference 'ProjectMedia.count', 1 do
         pm = ProjectMedia.new media_type: media_type.to_s, team: team
         File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
@@ -2467,10 +2467,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
           pm.save!
         end
       end
-      assert_equal medias_count + 1, Media.count
+      assert_equal medias_count + 1, media_type.to_s.constantize.count
   
       # second the video is added should not create new media
-      medias_count = Media.count
+      medias_count = media_type.to_s.constantize.count
       assert_difference 'ProjectMedia.count', 1 do
         pm = ProjectMedia.new media_type: media_type.to_s, team: team2
         File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
@@ -2478,7 +2478,8 @@ class ProjectMediaTest < ActiveSupport::TestCase
           pm.save!
         end
       end
-      assert_equal medias_count, Media.count
+      assert_equal medias_count, media_type.to_s.constantize.count
     end
+    File.unstub(:basename)
   end
 end
