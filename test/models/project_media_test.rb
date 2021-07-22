@@ -2448,4 +2448,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of String, pm.extracted_text
   end
+
+  test "should not create duplicated media with for the same uploaded file" do
+    team = create_team
+    team2 = create_team
+    {
+      UploadedVideo: 'rails.mp4',
+      UploadedImage: 'rails.png',
+      UploadedAudio: 'rails.mp3'
+    }.each_pair do |media_type, filename|
+      # first time the video is added creates a new media
+      medias_count = Media.count
+      puts media_type.class
+      assert_difference 'ProjectMedia.count', 1 do
+        pm = ProjectMedia.new media_type: media_type.to_s, team: team
+        File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
+          pm.file = f
+          pm.save!
+        end
+      end
+      assert_equal medias_count + 1, Media.count
+  
+      # second the video is added should not create new media
+      medias_count = Media.count
+      assert_difference 'ProjectMedia.count', 1 do
+        pm = ProjectMedia.new media_type: media_type.to_s, team: team2
+        File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
+          pm.file = f
+          pm.save!
+        end
+      end
+      assert_equal medias_count, Media.count
+    end
+  end
 end
