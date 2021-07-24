@@ -7,15 +7,20 @@ namespace :check do
       started = Time.now.to_i
       duplicated_media_ids = []
       updated_pms = 0
-      total = Media.where(type: ['UploadedAudio', 'UploadedVideo', 'UploadedImage']).where("file ~* ?", '[0-9a-f]{32}\.').where("id <= ? ", last_id).group(:file).having('count(*) > 1').count.size
+
+      # Only fix files that has MD5 hash as name
+      types = ['UploadedAudio', 'UploadedVideo', 'UploadedImage', 'UploadedFile']
+      md5_regex = '[0-9a-f]{32}\.'
+      total = Media.where(type: types).where("file ~* ?", md5_regex).where("id <= ? ", last_id).group(:file).having('count(*) > 1').count.size
       progressbar = ProgressBar.create(:title => "Fix identical uploaded files", :total => total)
-      medias = Media.select('file, MIN(medias.id) AS min_id').where(type: ['UploadedAudio', 'UploadedVideo', 'UploadedImage']).where("file ~* ?", '[0-9a-f]{32}\.').where("id <= ? ", last_id).group(:file).having('count(*) > 1').each do |media|
+      medias = Media.select('file, MIN(medias.id) AS min_id').where(type: types).where("file ~* ?", md5_regex).where("id <= ? ", last_id).group(:file).having('count(*) > 1').each do |media|
         progressbar.increment
         pms = ProjectMedia.select(:id, :media_id).joins(:media).where('medias.file = ? AND medias.id != ?', media.file, media.min_id)
         duplicated_media_ids += pms.map(&:media_id)
         ProjectMedia.where(id: pms.map(&:id)).update_all(media_id: media.min_id)
         updated_pms += pms.size
       end
+
       Media.where(id: duplicated_media_ids).delete_all
       minutes = (Time.now.to_i - started) / 60
       puts "[#{Time.now}] Done in #{minutes} minutes."

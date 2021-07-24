@@ -50,12 +50,7 @@ module ProjectMediaCreators
 
   def create_with_file(media_type = 'UploadedImage')
     klass = media_type.constantize
-    md5_regex = /\A[0-9a-f]{32}\..+\z/
-    m = if File.basename(self.file).match?(md5_regex)
-          klass.find_by(file: File.basename(self.file)) || klass.new(file: self.file)
-        else
-          klass.new(file: self.file)
-        end
+    m = klass.find_by(file: Media.filename(self.file)) || klass.new(file: self.file)
     m.save! if m.new_record?
     m
   end

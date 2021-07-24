@@ -2457,7 +2457,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
       UploadedImage: 'rails.png',
       UploadedAudio: 'rails.mp3'
     }.each_pair do |media_type, filename|
-      File.stubs(:basename).returns(Digest::MD5.hexdigest('rails') + File.extname(filename))
       # first time the video is added creates a new media
       medias_count = media_type.to_s.constantize.count
       assert_difference 'ProjectMedia.count', 1 do
@@ -2480,6 +2479,5 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
       assert_equal medias_count, media_type.to_s.constantize.count
     end
-    File.unstub(:basename)
   end
 end

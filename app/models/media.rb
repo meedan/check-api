@@ -30,6 +30,11 @@ class Media < ActiveRecord::Base
   def file_path
   end
 
+  def self.filename(file)
+    extension = file.is_a?(File) ? File.extname(file) : ".#{file.extension}"
+    "#{Digest::MD5.hexdigest(file.read)}#{extension}"
+  end
+
   def embed_path
     ''
   end
