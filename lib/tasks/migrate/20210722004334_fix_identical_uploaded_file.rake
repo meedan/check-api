@@ -26,6 +26,7 @@ namespace :check do
       puts "[#{Time.now}] Done in #{minutes} minutes."
       puts "Updated #{updated_pms} project medias"
       puts "Deleted #{duplicated_media_ids.size} medias"
+      Rails.cache.delete('check:migrate:fix_identical_uploaded_file:last_id')
     end
   end
 end
