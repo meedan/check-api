@@ -28,8 +28,8 @@ class Bot::Alegre < BotUser
     end
 
     def self.match_similar_items_using_ocr(id)
-      annotation = Dynamic.find(id)
-      if annotation.annotation_type == 'extracted_text'
+      annotation = Dynamic.find_by_id(id)
+      if annotation && annotation.annotation_type == 'extracted_text'
         pm = annotation.annotated
         text = annotation.get_field_value('text')
         return if text.blank? || !Bot::Alegre.should_get_similar_items_of_type?('master', pm.team_id) || !Bot::Alegre.should_get_similar_items_of_type?('image', pm.team_id)
@@ -56,7 +56,7 @@ class Bot::Alegre < BotUser
     end
 
     def match_similar_items_using_ocr
-      self.class.delay_for(5.seconds, retry: 5).match_similar_items_using_ocr(self.id)
+      self.class.delay_for(15.seconds, retry: 5).match_similar_items_using_ocr(self.id)
     end
   end
 
@@ -431,6 +431,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_similar_items_from_api(path, conditions, _threshold={})
+    Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
     response = {}
     result = self.request_api('get', path, conditions).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
