@@ -31,7 +31,7 @@ class Media < ActiveRecord::Base
   end
 
   def self.filename(file)
-    extension = file.is_a?(File) ? File.extname(file) : ".#{file.extension}"
+    extension = file.respond_to?(:extension) ? ".#{file.extension}" : File.extname(file)
     "#{Digest::MD5.hexdigest(file.read)}#{extension}"
   end
 

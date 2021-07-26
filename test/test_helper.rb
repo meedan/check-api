@@ -1004,6 +1004,12 @@ class ActiveSupport::TestCase
       log.close
     end
   end
+
+  def media_filename(filename)
+    File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
+      return Media.filename(f)
+    end
+  end
 end
 
 class MockedClamavClient

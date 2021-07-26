@@ -397,7 +397,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal 'rails', pm.analysis['title']
+    assert_equal File.basename(media_filename('rails.png'), File.extname(media_filename('rails.png'))), pm.analysis['title']
   end
 
   test "should set automatic title for images videos and audios" do
@@ -429,11 +429,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # test with non smooch user
     with_current_user_and_team(u, team) do
       pm = create_project_media team: team, media: m
-      assert_equal pm.title, "rails"
+      assert_equal pm.title, File.basename(media_filename('rails.png'), File.extname(media_filename('rails.png')))
       pm2 = create_project_media team: team, media: v
-      assert_equal pm2.title, "rails"
+      assert_equal pm2.title, File.basename(media_filename('rails.mp4'), File.extname(media_filename('rails.mp4')))
       pm3 = create_project_media team: team, media: a
-      assert_equal pm3.title, "rails"
+      assert_equal pm3.title, File.basename(media_filename('rails.mp3'), File.extname(media_filename('rails.mp3')))
     end
   end
 
@@ -2404,7 +2404,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.analysis = { title: 'Custom Title' }
     pm.save!
     assert_equal 'Custom Title', pm.reload.title
-    assert_equal 'rails.png', pm.reload.original_title
+    assert_equal media_filename('rails.png'), pm.reload.original_title
   end
 
   test "should move secondary item to same main item project" do
