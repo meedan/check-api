@@ -215,7 +215,7 @@ class TeamTask < ActiveRecord::Base
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
-    .where("a.id" => nil).uniq.find_each do |pm|
+    .where("a.id" => nil).order(id: :desc).uniq.find_each do |pm|
       begin
         pm.create_auto_tasks(nil, [self])
       rescue StandardError => e
