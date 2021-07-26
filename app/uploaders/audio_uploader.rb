@@ -66,7 +66,7 @@ class AudioUploader < FileUploader
   end
 
   def cover_name for_file, version_name
-    %Q{#{version_name}_#{Digest::MD5.hexdigest(self.parent_version.read)}.jpg}
+    %Q{#{version_name}_#{Media.filename(self.parent_version, false)}.jpg}
   end
 
 end

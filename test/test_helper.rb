@@ -1005,9 +1005,9 @@ class ActiveSupport::TestCase
     end
   end
 
-  def media_filename(filename)
+  def media_filename(filename, extension = true)
     File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
-      return Media.filename(f)
+      return Media.filename(f, extension)
     end
   end
 end

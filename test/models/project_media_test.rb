@@ -397,7 +397,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal File.basename(media_filename('rails.png'), File.extname(media_filename('rails.png'))), pm.analysis['title']
+    assert_equal media_filename('rails.png', false), pm.analysis['title']
   end
 
   test "should set automatic title for images videos and audios" do
@@ -429,11 +429,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # test with non smooch user
     with_current_user_and_team(u, team) do
       pm = create_project_media team: team, media: m
-      assert_equal pm.title, File.basename(media_filename('rails.png'), File.extname(media_filename('rails.png')))
+      assert_equal pm.title, media_filename('rails.png', false)
       pm2 = create_project_media team: team, media: v
-      assert_equal pm2.title, File.basename(media_filename('rails.mp4'), File.extname(media_filename('rails.mp4')))
+      assert_equal pm2.title, media_filename('rails.mp4', false)
       pm3 = create_project_media team: team, media: a
-      assert_equal pm3.title, File.basename(media_filename('rails.mp3'), File.extname(media_filename('rails.mp3')))
+      assert_equal pm3.title, media_filename('rails.mp3', false)
     end
   end
 
