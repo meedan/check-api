@@ -3,9 +3,10 @@
 :redis_port: 6379
 :redis_database: 0
 :queues:
-  - ["default", 1]
-  - ["esqueue", 1]
-  - ["smooch", 1]
-  - ["smooch_ping", 1]
-  - ["pusher", 1]
-  - ["carrierwave", 1]
+  - "esqueue"
+  - "tsqueue"
+  - "default"
+  - "smooch"
+  - "smooch_ping"
+  - "pusher"
+  - "carrierwave"
