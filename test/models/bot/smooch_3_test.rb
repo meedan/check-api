@@ -1425,6 +1425,38 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     assert_nil i.settings['smooch_app_id']
   end
 
+  test "should not create duplicated project media and media on team" do
+    Sidekiq::Testing.inline! do
+      # video
+      message = {
+        type: 'file',
+        text: random_string,
+        mediaUrl: @video_url,
+        mediaType: 'video/mp4',
+        role: 'appUser',
+        received: 1573082583.219,
+        name: random_string,
+        authorId: random_string,
+        '_id': random_string
+      }
+      medias_count = Media.count
+      assert_difference 'ProjectMedia.count', 1 do
+        Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      pm = ProjectMedia.last
+      pm.project = create_project team_id: @team.id
+      pm.save
+
+      assert_equal medias_count + 1, Media.count
+      medias_count = Media.count
+
+      assert_no_difference 'ProjectMedia.count' do
+       Bot::Smooch.save_message(message.to_json, @app_id)
+      end
+      assert_equal medias_count, Media.count
+    end
+  end
+
   protected
 
   def run_concurrent_requests

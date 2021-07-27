@@ -397,7 +397,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.disable_es_callbacks = true
     pm.media_type = 'UploadedImage'
     pm.save!
-    assert_equal 'rails', pm.analysis['title']
+    assert_equal media_filename('rails.png', false), pm.analysis['title']
   end
 
   test "should set automatic title for images videos and audios" do
@@ -429,11 +429,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # test with non smooch user
     with_current_user_and_team(u, team) do
       pm = create_project_media team: team, media: m
-      assert_equal pm.title, "rails"
+      assert_equal pm.title, media_filename('rails.png', false)
       pm2 = create_project_media team: team, media: v
-      assert_equal pm2.title, "rails"
+      assert_equal pm2.title, media_filename('rails.mp4', false)
       pm3 = create_project_media team: team, media: a
-      assert_equal pm3.title, "rails"
+      assert_equal pm3.title, media_filename('rails.mp3', false)
     end
   end
 
@@ -2404,7 +2404,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.analysis = { title: 'Custom Title' }
     pm.save!
     assert_equal 'Custom Title', pm.reload.title
-    assert_equal 'rails.png', pm.reload.original_title
+    assert_equal media_filename('rails.png'), pm.reload.original_title
   end
 
   test "should move secondary item to same main item project" do
@@ -2447,5 +2447,37 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should get extracted text" do
     pm = create_project_media
     assert_kind_of String, pm.extracted_text
+  end
+
+  test "should not create duplicated media with for the same uploaded file" do
+    team = create_team
+    team2 = create_team
+    {
+      UploadedVideo: 'rails.mp4',
+      UploadedImage: 'rails.png',
+      UploadedAudio: 'rails.mp3'
+    }.each_pair do |media_type, filename|
+      # first time the video is added creates a new media
+      medias_count = media_type.to_s.constantize.count
+      assert_difference 'ProjectMedia.count', 1 do
+        pm = ProjectMedia.new media_type: media_type.to_s, team: team
+        File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
+          pm.file = f
+          pm.save!
+        end
+      end
+      assert_equal medias_count + 1, media_type.to_s.constantize.count
+
+      # second time the video is added should not create new media
+      medias_count = media_type.to_s.constantize.count
+      assert_difference 'ProjectMedia.count', 1 do
+        pm = ProjectMedia.new media_type: media_type.to_s, team: team2
+        File.open(File.join(Rails.root, 'test', 'data', filename)) do |f|
+          pm.file = f
+          pm.save!
+        end
+      end
+      assert_equal medias_count, media_type.to_s.constantize.count
+    end
   end
 end
