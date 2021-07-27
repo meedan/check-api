@@ -7,7 +7,8 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
-  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter telegram viber line)
+  SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE' }
+  SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
 
   check_settings
 
@@ -437,6 +438,11 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.get_platform_from_message(message)
+    type = message.dig('source', 'type')
+    type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : ''
+  end
+
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -444,7 +450,8 @@ class Bot::Smooch < BotUser
     workflow = self.get_workflow(language)
     typed = message['text'].to_s.downcase.strip
     if self.should_send_tos?(state, typed)
-      self.send_tos_to_user(workflow, uid, language)
+      platform = self.get_platform_from_message(message)
+      self.send_tos_to_user(workflow, uid, language, platform)
       self.bundle_message(message)
       sm.reset
       return true
