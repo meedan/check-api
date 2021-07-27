@@ -208,7 +208,7 @@ module ProjectMediaBulk
           sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
         end
         sql += sql_values.join(", ")
-        ActiveRecord::Base.connection.execute(sql)
+        ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
       end
     end
   end
