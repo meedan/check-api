@@ -49,9 +49,9 @@ module ProjectMediaCreators
   protected
 
   def create_with_file(media_type = 'UploadedImage')
-    m = media_type.constantize.new
-    m.file = self.file
-    m.save!
+    klass = media_type.constantize
+    m = klass.find_by(file: Media.filename(self.file)) || klass.new(file: self.file)
+    m.save! if m.new_record?
     m
   end
 

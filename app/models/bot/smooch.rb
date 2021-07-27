@@ -782,15 +782,15 @@ class Bot::Smooch < BotUser
       filepath = File.join(Rails.root, 'tmp', filename)
       media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
+      team_id = Project.find_by(id: message['project_id'])&.team_id
+      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.team_id' => team_id).last
       if pm.nil?
-        m = media_type.constantize.new
-        File.open(filepath) do |f2|
-          m.file = f2
-        end
-        m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.new(project_id: message['project_id'], archived: message['archived'], media_type: media_type, smooch_message: message)
         pm.is_being_created = true
+        File.open(filepath) do |f2|
+          pm.file = f2
+          pm.save!
+        end
       end
       FileUtils.rm_f filepath
 
