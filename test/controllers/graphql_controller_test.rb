@@ -1058,5 +1058,15 @@ class GraphqlControllerTest < ActionController::TestCase
     end
   end
 
-  # Please add new tests to test/controllers/graphql_controller_2_test.rb
+  test "should create metadata field with isChild key in option" do
+    u = create_user
+    t = create_team
+    id = t.graphql_id
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+    tasks = '[{\"fieldset\":\"tasks\",\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"fieldset\":\"tasks\",\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"is_child\":true,\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", report: "{}" }) { team { id } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+  end
 end
