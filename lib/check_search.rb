@@ -159,11 +159,13 @@ class CheckSearch
     custom_conditions = {}
     core_conditions = {}
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    custom_conditions['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
-    custom_conditions['user_id'] = [@options['users']].flatten unless @options['users'].blank?
-    custom_conditions['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
     custom_conditions['read'] = @options['read'].to_i if @options.has_key?('read')
-    custom_conditions['channel'] = [@options['channels']].flatten unless @options['channels'].blank?
+    # Add custom conditions for array values
+    {
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels'
+    }.each do |k, v|
+      custom_conditions[k] = [@options[v]].flatten unless @options['v'].blank?
+    end
     archived = @options['archived'].to_i
     core_conditions.merge!({ archived: archived })
     core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
@@ -205,16 +207,15 @@ class CheckSearch
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
-    custom_conditions.concat build_search_assignment_conditions
-    custom_conditions.concat build_search_channel_conditions
+    custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
+    custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
+    custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
     custom_conditions.concat build_search_doc_conditions
     custom_conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
     check_search_concat_conditions(custom_conditions, dynamic_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
-    media_source_conditions = build_search_media_source_conditions
-    check_search_concat_conditions(custom_conditions, media_source_conditions)
     if @options['operator'].upcase == 'OR'
       and_conditions = { bool: { must: core_conditions } }
       or_conditions = { bool: { should: custom_conditions } }
@@ -418,11 +419,6 @@ class CheckSearch
     conditions
   end
 
-  def build_search_media_source_conditions
-    return [] unless @options.has_key?('sources') && @options['sources'].class.name == 'Array'
-    [{ terms: { source_id: @options['sources'] } }]
-  end
-
   def build_search_sort
     # As per spec, for now the team task sort should be just based on "has data" / "has no data"
     # Items without data appear first
@@ -475,14 +471,9 @@ class CheckSearch
     [tags_c]
   end
 
-  def build_search_assignment_conditions
-    return [] unless @options['assigned_to'].is_a?(Array)
-    [{ terms: { assigned_user_ids: @options['assigned_to'].map(&:to_i) } }]
-  end
-
-  def build_search_channel_conditions
-    return [] unless @options['channels'].is_a?(Array)
-    [{ terms: { channel: @options['channels'].map(&:to_i) } }]
+  def build_search_integer_terms_query(field, key)
+    return [] unless @options[key].is_a?(Array)
+    [{ terms: { "#{field}": @options[key].map(&:to_i) } }]
   end
 
   def search_tags_query(tags)
