@@ -81,7 +81,9 @@ class Bot::FetchTest < ActiveSupport::TestCase
     assert_difference "ProjectMedia.where(team_id: #{@team.id}).count" do
       assert Bot::Fetch.webhook(request)
     end
-    assert_equal "Earth isn't flat", ProjectMedia.last.title
+    pm = ProjectMedia.last
+    assert_equal "Earth isn't flat", pm.title
+    assert CheckChannels::ChannelCodes::FETCH, pm.channel
   end
 
   # This test to reproduce errbit error #CHECK-166
