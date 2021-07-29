@@ -7,7 +7,8 @@ class Bot::Smooch < BotUser
 
   MESSAGE_BOUNDARY = "\u2063"
 
-  SUPPORTED_INTEGRATIONS = %w(whatsapp messenger twitter telegram viber line)
+  SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE' }
+  SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
 
   check_settings
 
@@ -437,6 +438,11 @@ class Bot::Smooch < BotUser
     end
   end
 
+  def self.get_platform_from_message(message)
+    type = message.dig('source', 'type')
+    type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : ''
+  end
+
   def self.process_menu_option(message, state, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -444,7 +450,8 @@ class Bot::Smooch < BotUser
     workflow = self.get_workflow(language)
     typed = message['text'].to_s.downcase.strip
     if self.should_send_tos?(state, typed)
-      self.send_tos_to_user(workflow, uid, language)
+      platform = self.get_platform_from_message(message)
+      self.send_tos_to_user(workflow, uid, language, platform)
       self.bundle_message(message)
       sm.reset
       return true
@@ -786,15 +793,15 @@ class Bot::Smooch < BotUser
       filepath = File.join(Rails.root, 'tmp', filename)
       media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
-      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.project_id' => message['project_id']).last
+      team_id = Project.find_by(id: message['project_id'])&.team_id
+      pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.team_id' => team_id).last
       if pm.nil?
-        m = media_type.constantize.new
-        File.open(filepath) do |f2|
-          m.file = f2
-        end
-        m.save!
-        pm = ProjectMedia.create!(project_id: message['project_id'], archived: message['archived'], media: m, media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.new(project_id: message['project_id'], archived: message['archived'], media_type: media_type, smooch_message: message)
         pm.is_being_created = true
+        File.open(filepath) do |f2|
+          pm.file = f2
+          pm.save!
+        end
       end
       FileUtils.rm_f filepath
 
