@@ -163,6 +163,7 @@ class CheckSearch
     custom_conditions['user_id'] = [@options['users']].flatten unless @options['users'].blank?
     custom_conditions['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
     custom_conditions['read'] = @options['read'].to_i if @options.has_key?('read')
+    custom_conditions['channel'] = [@options['channels']].flatten unless @options['channels'].blank?
     archived = @options['archived'].to_i
     core_conditions.merge!({ archived: archived })
     core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
@@ -183,7 +184,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -205,6 +206,7 @@ class CheckSearch
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
     custom_conditions.concat build_search_assignment_conditions
+    custom_conditions.concat build_search_channel_conditions
     custom_conditions.concat build_search_doc_conditions
     custom_conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
@@ -476,6 +478,11 @@ class CheckSearch
   def build_search_assignment_conditions
     return [] unless @options['assigned_to'].is_a?(Array)
     [{ terms: { assigned_user_ids: @options['assigned_to'].map(&:to_i) } }]
+  end
+
+  def build_search_channel_conditions
+    return [] unless @options['channels'].is_a?(Array)
+    [{ terms: { channel: @options['channels'].map(&:to_i) } }]
   end
 
   def search_tags_query(tags)

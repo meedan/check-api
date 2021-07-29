@@ -2448,4 +2448,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of String, pm.extracted_text
   end
+
+  test "should validate channel value" do
+    # validate channel create (should be in allowed values)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_project_media channel: 90
+    end
+    pm = nil
+    assert_difference 'ProjectMedia.count' do
+      pm = create_project_media channel: CheckChannels::ChannelCodes::WHATSAPP
+    end
+    # validate channel update (should not update existing value)
+    assert_raises ActiveRecord::RecordInvalid do
+      pm.channel = CheckChannels::ChannelCodes::MESSENGER
+      pm.save!
+    end
+    # Set channel with default value MANUAL
+    pm2 = create_project_media
+    assert_equal CheckChannels::ChannelCodes::MANUAL, pm2.channel
+  end
 end

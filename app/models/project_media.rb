@@ -18,6 +18,8 @@ class ProjectMedia < ActiveRecord::Base
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
+  validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
+  validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
 
   before_validation :set_team_id, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
@@ -337,7 +339,10 @@ class ProjectMedia < ActiveRecord::Base
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     # set fields with integer value
-    fields_i = ['archived', 'sources_count', 'linked_items_count', 'share_count', 'last_seen', 'demand', 'user_id', 'read']
+    fields_i = [
+      'archived', 'channel', 'sources_count', 'linked_items_count', 'share_count',
+      'last_seen', 'demand', 'user_id', 'read'
+    ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
   end
 
