@@ -7,12 +7,14 @@ module CheckChannels
         "BROWSER_EXTENSION" => BROWSER_EXTENSION,
         "API" => API,
         "ZAPIER" => ZAPIER,
-        "WHATSAPP" => WHATSAPP,
-        "MESSENGER" => MESSENGER,
-        "TWITTER" => TWITTER,
-        "TELEGRAM" => TELEGRAM,
-        "VIBER" => VIBER,
-        "LINE" => LINE,
+        "TIPLINE" => {
+          "WHATSAPP" => WHATSAPP,
+          "MESSENGER" => MESSENGER,
+          "TWITTER" => TWITTER,
+          "TELEGRAM" => TELEGRAM,
+          "VIBER" => VIBER,
+          "LINE" => LINE,
+        }
       }
     end
     MANUAL = 0 # items submitted via app
