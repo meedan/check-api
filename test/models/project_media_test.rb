@@ -2466,6 +2466,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Set channel with default value MANUAL
     pm2 = create_project_media
     assert_equal CheckChannels::ChannelCodes::MANUAL, pm2.channel
+    # Set channel with API if ApiKey exists
+    a = create_api_key
+    ApiKey.current = a
+    pm3 = create_project_media
+    assert_equal CheckChannels::ChannelCodes::API, pm3.channel
+    ApiKey.current = nil
   end
   
   test "should not create duplicated media with for the same uploaded file" do

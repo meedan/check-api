@@ -746,11 +746,12 @@ class Bot::Smooch < BotUser
   end
 
   def self.create_project_media(message, type, extra)
+    extra.merge!({ archived: message['archived'] })
     # Get item channel (message type)
     channel = message.dig('source', 'type')&.upcase
     all_channels = CheckChannels::ChannelCodes.all_channels
     channel_value = all_channels.keys.include?(channel) ? all_channels[channel] : nil
-    extra.merge!({ archived: message['archived'], channel: channel_value })
+    extra.merge!({ channel: channel_value }) unless channel_value.nil?
     pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm

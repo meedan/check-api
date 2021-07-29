@@ -1,19 +1,19 @@
 module CheckChannels
   class ChannelCodes
     def self.all_channels
-        {
-            "MANUAL" => MANUAL,
-            "FETCH" => FETCH,
-            "BROWSER_EXTENSION" => BROWSER_EXTENSION,
-            "API" => API,
-            "ZAPIER" => ZAPIER,
-            "WHATSAPP" => WHATSAPP,
-            "MESSENGER" => MESSENGER,
-            "TWITTER" => TWITTER,
-            "TELEGRAM" => TELEGRAM,
-            "VIBER" => VIBER,
-            "LINE" => LINE,
-        }
+      {
+        "MANUAL" => MANUAL,
+        "FETCH" => FETCH,
+        "BROWSER_EXTENSION" => BROWSER_EXTENSION,
+        "API" => API,
+        "ZAPIER" => ZAPIER,
+        "WHATSAPP" => WHATSAPP,
+        "MESSENGER" => MESSENGER,
+        "TWITTER" => TWITTER,
+        "TELEGRAM" => TELEGRAM,
+        "VIBER" => VIBER,
+        "LINE" => LINE,
+      }
     end
     MANUAL = 0 # items submitted via app
     FETCH = 1 # items submitted via Fetch bot
