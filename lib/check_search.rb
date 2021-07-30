@@ -164,7 +164,7 @@ class CheckSearch
     {
       'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels'
     }.each do |k, v|
-      custom_conditions[k] = [@options[v]].flatten unless @options['v'].blank?
+      custom_conditions[k] = [@options[v]].flatten unless @options[v].blank?
     end
     archived = @options['archived'].to_i
     core_conditions.merge!({ archived: archived })
