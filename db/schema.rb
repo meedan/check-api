@@ -235,8 +235,10 @@ ActiveRecord::Schema.define(version: 20210727214018) do
     t.integer  "source_id"
     t.integer  "project_id"
     t.integer  "last_seen"
+    t.integer  "channel",                  default: 0
   end
 
+  add_index "project_medias", ["channel"], name: "index_project_medias_on_channel", using: :btree
   add_index "project_medias", ["last_seen"], name: "index_project_medias_on_last_seen", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
   add_index "project_medias", ["project_id"], name: "index_project_medias_on_project_id", using: :btree
