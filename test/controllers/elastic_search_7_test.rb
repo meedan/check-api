@@ -433,4 +433,25 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_empty results.medias.map(&:id)
     end
   end
+
+  test "should filter items by channel" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, quote: 'claim a', channel: CheckChannels::ChannelCodes::MANUAL, disable_es_callbacks: false
+      pm2 = create_project_media team: t, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
+      pm3 = create_project_media team: t, channel: CheckChannels::ChannelCodes::API, disable_es_callbacks: false
+      pm4 = create_project_media team: t, quote: 'claim b', channel: CheckChannels::ChannelCodes::ZAPIER, disable_es_callbacks: false
+      sleep 2
+      # Hit PG
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::API] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      # Hit ES
+      results = CheckSearch.new({ keyword: 'claim', channels: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::API] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+    end
+  end
 end

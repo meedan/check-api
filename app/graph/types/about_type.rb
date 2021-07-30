@@ -25,4 +25,6 @@ AboutType = GraphQL::ObjectType.define do
   field :file_max_size_in_bytes, types.Int, 'Maximum file upload size, in bytes'
   field :video_max_size_in_bytes, types.Int, 'Maximum video upload size, in bytes'
   field :audio_max_size_in_bytes, types.Int, 'Maximum audio upload size, in bytes'
+
+  field :channels, JsonStringType, 'List check channels'
 end
