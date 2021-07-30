@@ -148,6 +148,10 @@ en:
           attributes:
             slug:
               slug_format: accepts only letters, numbers and hyphens
+        project_media:
+          attributes:
+            channel:
+              channel_update: Sorry, you could not update channel value
       messages:
         record_invalid: "%{errors}"
         improbable_phone: is an invalid number
