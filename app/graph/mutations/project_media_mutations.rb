@@ -9,6 +9,7 @@ module ProjectMediaMutations
     quote: 'str',
     quote_attributions: 'str',
     project_id: 'int',
+    channel: 'int',
     set_annotation: 'str',
     set_tasks_responses: 'json',
     media_type: 'str'
