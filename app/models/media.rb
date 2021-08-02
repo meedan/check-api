@@ -33,8 +33,8 @@ class Media < ActiveRecord::Base
   def self.filename(file, extension = true)
     hash = Digest::MD5.hexdigest(file.read)
     return hash unless extension
-    file = file.tempfile if file.is_a?(ActionDispatch::Http::UploadedFile)
-    ext = file.respond_to?(:extension) ? ".#{file.extension}" : File.extname(file)
+    file = file.try(:filename) || file.try(:path) || file.try(:tempfile) || file.try(:file)
+    ext = File.extname(file)
     "#{hash}#{ext}"
   end
 
