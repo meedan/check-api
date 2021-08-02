@@ -281,7 +281,7 @@ class TeamBotTest < ActiveSupport::TestCase
     p2 = create_project team: t, title: 'Another Test Project'
     tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { name }' }], set_request_url: 'http://bot'
     data = { event: 'create_project_media', data: { team: { name: 'Test Team' } } }
-    WebMock.disable_net_connect!
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('storage_endpoint')}/
     WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
 
     with_current_user_and_team(nil, nil) do
@@ -328,7 +328,7 @@ class TeamBotTest < ActiveSupport::TestCase
     data_update = { event: 'update_project_media', data: { team: { slug: t.slug } } }
     create_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_create)).to_return(body: 'ok')
     update_stub = WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data_update)).to_return(body: 'ok')
-    WebMock.disable_net_connect!
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('storage_endpoint')}/
 
     with_current_user_and_team(nil, nil) do
       BotUser.init_event_queue
