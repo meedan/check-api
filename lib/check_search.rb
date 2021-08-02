@@ -18,6 +18,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
     adjust_project_filter
+    adjust_channel_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -254,6 +255,13 @@ class CheckSearch
 
       # Invalidate the search if empty... otherwise, adjust the projects filter
       @options['projects'] = project_ids.empty? ? [0] : project_ids
+    end
+  end
+
+  def adjust_channel_filter
+    if @options['channels'].is_a?(Array) && @options['channels'].include?('any_tipline')
+      channels = @options['channels'] - ['any_tipline']
+      @options['channels'] = channels.map(&:to_i).concat(CheckChannels::ChannelCodes::TIPLINE).uniq
     end
   end
 

@@ -1,6 +1,6 @@
 namespace :check do
   namespace :migrate do
-    task set_elastic_seach_channel: :environment do
+    task add_channel_to_project_medias: :environment do
       started = Time.now.to_i
       client = $repository.client
       options = { index: CheckElasticSearchModel.get_index_alias }

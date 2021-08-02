@@ -443,6 +443,14 @@ class ElasticSearch7Test < ActionController::TestCase
       pm2 = create_project_media team: t, channel: CheckChannels::ChannelCodes::FETCH, disable_es_callbacks: false
       pm3 = create_project_media team: t, channel: CheckChannels::ChannelCodes::API, disable_es_callbacks: false
       pm4 = create_project_media team: t, quote: 'claim b', channel: CheckChannels::ChannelCodes::ZAPIER, disable_es_callbacks: false
+      # tipline items
+      pm5 = create_project_media team: t, channel: CheckChannels::ChannelCodes::WHATSAPP, disable_es_callbacks: false
+      pm6 = create_project_media team: t, channel: CheckChannels::ChannelCodes::MESSENGER, disable_es_callbacks: false
+      pm7 = create_project_media team: t, channel: CheckChannels::ChannelCodes::TWITTER, disable_es_callbacks: false
+      pm8 = create_project_media team: t, channel: CheckChannels::ChannelCodes::TELEGRAM, disable_es_callbacks: false
+      pm9 = create_project_media team: t, channel: CheckChannels::ChannelCodes::VIBER, disable_es_callbacks: false
+      pm10 = create_project_media team: t, channel: CheckChannels::ChannelCodes::LINE, disable_es_callbacks: false
+      tipline_ids = [pm5.id, pm6.id, pm7.id, pm8.id, pm9.id, pm10.id]
       sleep 2
       # Hit PG
       results = CheckSearch.new({ channels: [CheckChannels::ChannelCodes::MANUAL] }.to_json)
@@ -452,6 +460,11 @@ class ElasticSearch7Test < ActionController::TestCase
       # Hit ES
       results = CheckSearch.new({ keyword: 'claim', channels: [CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::API] }.to_json)
       assert_equal [pm.id], results.medias.map(&:id)
+      # filter by any tipline
+      results = CheckSearch.new({ channels: ['any_tipline'] }.to_json)
+      assert_equal tipline_ids, results.medias.map(&:id).sort
+      results = CheckSearch.new({ channels: ['any_tipline', CheckChannels::ChannelCodes::MANUAL, CheckChannels::ChannelCodes::TWITTER] }.to_json)
+      assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
     end
   end
 end

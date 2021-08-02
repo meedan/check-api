@@ -1,6 +1,6 @@
 class AddChannelToProjectMedia < ActiveRecord::Migration
   def change
-  	add_column :project_medias, :channel, :integer, default: 0
+    add_column :project_medias, :channel, :integer, default: 0
     add_index :project_medias, :channel
     # add ES mapping
     index_alias = CheckElasticSearchModel.get_index_alias
