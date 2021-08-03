@@ -5,6 +5,14 @@ class Project < ActiveRecord::Base
   include AssignmentConcern
   include AnnotationBase::Association
 
+  module PrivacySettings
+    ALL = 0
+    EDITORS = 1
+    ADMINS = 2
+  end
+
+  scope :allowed, ->(team) { where('privacy <= ?', Project.privacy_for_role(team)) }
+
   attr_accessor :project_media_ids_were, :previous_project_group_id
 
   has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
@@ -249,12 +257,17 @@ class Project < ActiveRecord::Base
 
   def self.bulk_update_medias_count(pids)
     pids_count = Hash[pids.product([0])] # Initialize all projects as zero
-    ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: pids, sources_count: 0})
+    ProjectMedia.where({ archived: CheckArchivedFlags::FlagCodes::NONE, project_id: pids, sources_count: 0 })
     .group('project_id')
     .count.to_h.each do |pid, count|
       pids_count[pid.to_i] = count.to_i
     end
     pids_count.each { |pid, count| Rails.cache.write("check_cached_field:Project:#{pid}:medias_count", count) }
+  end
+
+  def self.privacy_for_role(team = Team.current, user = User.current)
+    role = user && team ? user.role(team) : ''
+    { 'editor' => PrivacySettings::EDITORS, 'admin' => PrivacySettings::ADMINS }[role] || PrivacySettings::ALL
   end
 
   private

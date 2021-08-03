@@ -315,6 +315,11 @@ class ProjectMedia < ActiveRecord::Base
     selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
+  def user_can_see_project?(user = User.current)
+    project = self.project
+    project.nil? || project.privacy <= Project.privacy_for_role(project.team, user)
+  end
+
   protected
 
   def set_es_account_data

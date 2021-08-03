@@ -92,7 +92,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
 
   connection :projects, -> { ProjectType.connection_type } do
     resolve ->(team, _args, _ctx) {
-      team.recent_projects
+      team.recent_projects.allowed(team)
     }
   end
 

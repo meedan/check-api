@@ -476,7 +476,8 @@ class GraphqlController4Test < ActionController::TestCase
     # Not published
     pm3 = create_project_media team: t, disable_es_callbacks: false
 
-    # Published
+    # Search
+    sleep 10
     query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -541,6 +542,22 @@ class GraphqlController4Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+  end
+
+  test "should search by project" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    create_project_media team: t, project: nil, project_id: nil
+    create_project_media project: p
+    
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
   protected
