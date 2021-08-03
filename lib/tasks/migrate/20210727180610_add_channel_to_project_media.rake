@@ -23,6 +23,8 @@ namespace :check do
         }
         options[:body] = body
         client.update_by_query options
+        # add sleep to avoid conflict
+        sleep 2
         # set channel for fetch items
         unless fetch.nil?
           print '.'
@@ -49,20 +51,21 @@ namespace :check do
             .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id AND a.annotated_type = 'ProjectMedia'")
             .where('a.annotated_id IN (?)', ids).find_each do |df|
               print '.'
-              channel = df.value_json.dig('source', 'type')&.upcase              
+              channel = df.value_json.dig('source', 'type')&.upcase
               channel_mapping[channel] << df.pm_id unless channel.blank?
             end
             channel_mapping.each do |k, pm_ids|
               channel_value = tiplines.keys.include?(k) ? tiplines[k] : nil
               unless channel_value.blank?
+                pm_ids_uniq = pm_ids.uniq
                 # update PG
-                ProjectMedia.where(id: pm_ids).update_all(channel: channel_value) 
+                ProjectMedia.where(id: pm_ids_uniq).update_all(channel: channel_value)
                 # Update ES
                 body = {
                   script: {
                     source: "ctx._source.channel = params.channel", params: { channel: channel_value }
                   },
-                  query: { terms: { annotated_id: pm_ids } }
+                  query: { terms: { annotated_id: pm_ids_uniq } }
                 }
                 options[:body] = body
                 client.update_by_query options
