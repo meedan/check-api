@@ -6,8 +6,10 @@ namespace :check do
       options = { index: CheckElasticSearchModel.get_index_alias }
       fetch = User.where(login: 'fetch').last
       smooch = User.where(login: 'smooch').last
-      all_channels = CheckChannels::ChannelCodes.all_channels
-      Team.find_each do |team|
+      tiplines = CheckChannels::ChannelCodes.all_channels['TIPLINE']
+      # Get latest team id
+      last_team_id = Rails.cache.read('check:migrate:add_channel_to_project_medias:team_id') || 0
+      Team.where('id > ?', last_team_id).find_each do |team|
         print '.'
         # Set channel = MANUAL for all team items
         body = {
@@ -46,7 +48,7 @@ namespace :check do
               channel_mapping[channel] << df.pm_id unless channel.blank?
             end
             channel_mapping.each do |k, pm_ids|
-              channel_value = all_channels.keys.include?(k) ? all_channels[k] : nil
+              channel_value = tiplines.keys.include?(k) ? tiplines[k] : nil
               unless channel_value.blank?
                 # update PG
                 ProjectMedia.where(id: pm_ids).update_all(channel: channel_value) 
@@ -62,6 +64,8 @@ namespace :check do
             end
           end
         end
+        # log last team id
+        Rails.cache.write('check:migrate:add_channel_to_project_medias:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
