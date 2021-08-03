@@ -3,7 +3,10 @@ namespace :check do
     task add_channel_to_project_medias: :environment do
       started = Time.now.to_i
       client = $repository.client
-      options = { index: CheckElasticSearchModel.get_index_alias }
+      options = {
+        index: CheckElasticSearchModel.get_index_alias,
+        conflicts: 'proceed'
+      }
       fetch = User.where(login: 'fetch').last
       smooch = User.where(login: 'smooch').last
       tiplines = CheckChannels::ChannelCodes.all_channels['TIPLINE']
