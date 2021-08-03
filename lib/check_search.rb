@@ -165,7 +165,7 @@ class CheckSearch
     {
       'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels'
     }.each do |k, v|
-      custom_conditions[k] = [@options[v]].flatten unless @options[v].blank?
+      custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
     archived = @options['archived'].to_i
     core_conditions.merge!({ archived: archived })
@@ -255,6 +255,10 @@ class CheckSearch
 
       # Invalidate the search if empty... otherwise, adjust the projects filter
       @options['projects'] = project_ids.empty? ? [0] : project_ids
+    end
+    # Also, adjust projects filter taking projects' privacy settings into account
+    if Team.current
+      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
   end
 
@@ -532,7 +536,20 @@ class CheckSearch
       fields[field] = field
     end
     fields.each do |k, v|
-      doc_c << { terms: { "#{k}": @options[v] } } if @options.has_key?(v)
+      next unless @options.has_key?(v)
+      value = @options[v]
+      if value.is_a?(Array) && value.include?(nil)
+        doc_c << {
+          bool: {
+            should: [
+              { terms: { k => value.reject{ |v2| v2.nil? } } },
+              { bool: { must_not: [{ exists: { field: k } }] } }
+            ]
+          }
+        }
+      else
+        doc_c << { terms: { k => value } }
+      end
     end
     doc_c
   end
