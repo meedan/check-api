@@ -422,7 +422,11 @@ class CheckSearch
           }
         }]
       elsif response_type == 'choice'
-        must_c << { term: { "task_responses.value.raw": tt['response'] } }
+        if tt['response'].is_a?(Array)
+          must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
+        else
+          must_c << { term: { 'task_responses.value.raw': tt['response'] } }
+        end
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
