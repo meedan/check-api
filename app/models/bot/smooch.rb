@@ -750,7 +750,7 @@ class Bot::Smooch < BotUser
     # Get item channel (message type)
     channel = message.dig('source', 'type')&.upcase
     all_channels = CheckChannels::ChannelCodes.all_channels['TIPLINE']
-    channel_value = all_channels.keys.include?(channel) ? all_channels[channel] : nil
+    channel_value = self.get_smooch_channel(message)
     extra.merge!({ channel: channel_value }) unless channel_value.nil?
     pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
@@ -776,6 +776,13 @@ class Bot::Smooch < BotUser
     type || message['mediaType']
   end
 
+  def self.get_smooch_channel(message)
+    # Get item channel (message type)
+    channel = message.dig('source', 'type')&.upcase
+    all_channels = CheckChannels::ChannelCodes.all_channels['TIPLINE']
+    all_channels.keys.include?(channel) ? all_channels[channel] : nil
+  end
+
   def self.save_media_message(message)
     if message['type'] == 'file'
       message['mediaType'] = self.detect_media_type(message)
@@ -799,6 +806,9 @@ class Bot::Smooch < BotUser
       if pm.nil?
         pm = ProjectMedia.new(project_id: message['project_id'], archived: message['archived'], media_type: media_type, smooch_message: message)
         pm.is_being_created = true
+        # set channel
+        channel_value = self.get_smooch_channel(message)
+        pm.channel = channel_value unless channel_value.nil?
         File.open(filepath) do |f2|
           pm.file = f2
           pm.save!
