@@ -3,7 +3,10 @@ namespace :check do
     task add_channel_to_project_medias: :environment do
       started = Time.now.to_i
       client = $repository.client
-      options = { index: CheckElasticSearchModel.get_index_alias }
+      options = {
+        index: CheckElasticSearchModel.get_index_alias,
+        conflicts: 'proceed'
+      }
       fetch = User.where(login: 'fetch').last
       smooch = User.where(login: 'smooch').last
       tiplines = CheckChannels::ChannelCodes.all_channels['TIPLINE']
@@ -19,13 +22,14 @@ namespace :check do
           query: { term: { team_id: team.id } }
         }
         options[:body] = body
-        # client.update_by_query options
+        client.update_by_query options
         # set channel for fetch items
         unless fetch.nil?
           print '.'
           fetch_pms = fetch.project_medias.where(team_id: team.id).map(&:id)
           # update PG
           ProjectMedia.where(id: fetch_pms).update_all(channel: CheckChannels::ChannelCodes::FETCH)
+          # Update ES
           body = {
             script: {
               source: "ctx._source.channel = params.channel", params: { channel: CheckChannels::ChannelCodes::FETCH }
@@ -33,6 +37,7 @@ namespace :check do
             query: { terms: { annotated_id: fetch_pms } }
           }
           options[:body] = body
+          client.update_by_query options
         end
         # set channel for smooch items
         unless smooch.nil?
@@ -60,6 +65,7 @@ namespace :check do
                   query: { terms: { annotated_id: pm_ids } }
                 }
                 options[:body] = body
+                client.update_by_query options
               end
             end
           end
