@@ -458,4 +458,22 @@ class TestControllerTest < ActionController::TestCase
     assert_equal [], pm1.sources
     Rails.unstub(:env)
   end
+
+  test "should install bot" do
+    t = create_team
+    assert_difference 'TeamBotInstallation.count' do
+      get :install_bot, { slug: t.slug, bot: 'smooch' }
+    end
+    assert_response 200
+  end
+
+  test "should not install bot if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    t = create_team
+    assert_no_difference 'TeamBotInstallation.count' do
+      get :install_bot, { slug: t.slug, bot: 'smooch' }
+    end
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end

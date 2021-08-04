@@ -1,6 +1,8 @@
 class TeamTaskWorker
   include Sidekiq::Worker
 
+  sidekiq_options :queue => :tsqueue
+
   def perform(action, id, author, options = YAML::dump({}), projects = YAML::dump({}), keep_completed_tasks = false)
     RequestStore.store[:skip_notifications] = true
     user_current = User.current

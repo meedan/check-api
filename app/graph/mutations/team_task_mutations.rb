@@ -10,7 +10,8 @@ module TeamTaskMutations
     order: 'int',
     fieldset: 'str',
     associated_type: 'str',
-    show_in_browser_extension: 'bool'
+    show_in_browser_extension: 'bool',
+    is_child: 'bool'
   }
 
   create_fields = fields.merge({

@@ -82,7 +82,7 @@ module CheckBasicAbilities
     can :read, Account, source: { user_id: [@user.id, nil] }
     can :read, Relationship, { source: { team_id: @user.cached_teams }, target: { team_id: @user.cached_teams } }
     can :read, ProjectMedia do |obj|
-      !obj.team.private || @user.cached_teams.include?(obj.team.id)
+      (!obj.team.private || @user.cached_teams.include?(obj.team.id)) && obj.user_can_see_project?(@user)
     end
 
     can :read, BotUser do |obj|

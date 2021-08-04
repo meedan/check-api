@@ -602,4 +602,13 @@ class MediaTest < ActiveSupport::TestCase
     url = random_url
     assert_equal url, Link.new(url: url).get_url_from_result(nil)
   end
+
+  test "get filename of an uploaded file" do
+    uploaded_video = ActionDispatch::Http::UploadedFile.new({
+      :filename => 'rails.mp4',
+      :type => 'video/mp4',
+      :tempfile => File.new(File.join(Rails.root, 'test', 'data', 'rails.mp4'))
+    })
+    assert_equal 'a3ac7ddabb263c2d00b73e8177d15c8d.mp4', Media.filename(uploaded_video)
+  end
 end

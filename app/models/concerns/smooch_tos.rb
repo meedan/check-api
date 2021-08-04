@@ -24,11 +24,11 @@ module SmoochTos
     en: %{
       Privacy and Purpose 
 
-      Welcome to the %{team} WhatsApp tipline. We are working to make you a better source of information for your family and friends on WhatsApp. 
+      Welcome to the %{team} %{channel} tipline. We are working to make you a better source of information for your family and friends on %{channel}. 
 
       You can use this number to submit your query for verification. We're not able to respond to every request, but your data will be safe either way. 
 
-      We take seriously our responsibility to safeguard your personal information and to keep WhatsApp private and secure; will never share, sell, or otherwise use your personally identifiable information (PII) except to provide and improve this service.
+      We take seriously our responsibility to safeguard your personal information and to keep %{channel} private and secure; will never share, sell, or otherwise use your personally identifiable information (PII) except to provide and improve this service.
        
       To detect viral misinformation as early as possible in the future, we may share non-PII content from this tipline with vetted researchers and fact-checking partners. 
 
@@ -46,11 +46,11 @@ module SmoochTos
     pt: %{
       Privacidade e Escopo
 
-      Seja bem-vinda/o à linha direta %{team}. Nós estamos trabalhando para que você se torne uma melhor fonte de informações para a sua família e amigos no WhatsApp. 
+      Seja bem-vinda/o à linha direta %{team}. Nós estamos trabalhando para que você se torne uma melhor fonte de informações para a sua família e amigos no %{channel}. 
 
       Você pode usar este número para enviar a sua solicitação de verificação. Nós não podemos atender a todas as demandas, mas os seus dados estarão protegidos de qualquer forma.  
 
-      Nós levamos a sério a nossa responsabilidade de proteger as suas informações pessoais e manter o WhatsApp privado e seguro; nós nunca compartilharemos, venderemos ou usaremos suas informações de identificação pessoal (PII), por nenhum meio, exceto para fornecer e melhorar este serviço. 
+      Nós levamos a sério a nossa responsabilidade de proteger as suas informações pessoais e manter o %{channel} privado e seguro; nós nunca compartilharemos, venderemos ou usaremos suas informações de identificação pessoal (PII), por nenhum meio, exceto para fornecer e melhorar este serviço. 
 
       Para detectar informações virais falsas o mais cedo possível no futuro, pode ser que compartilhemos conteúdos da nossa linha direta, desde que não sejam informações de identificação pessoal (PII), com pesquisadores aprovados e com parceiros de verificação de dados. 
 
@@ -68,7 +68,7 @@ module SmoochTos
     hi: %{
       गोपनीयता और उद्देश्य
 
-      %{team} WhatsApp टिप-लाइन पर आपका स्वागत है। हम कोशिश कर रहें हैं कि आप WhatsApp पर अपने दोस्तों और परिजनों के लिये जानकारी का और बेहतर माध्यम बन पाएँ।
+      %{team} %{channel} टिप-लाइन पर आपका स्वागत है। हम कोशिश कर रहें हैं कि आप %{channel} पर अपने दोस्तों और परिजनों के लिये जानकारी का और बेहतर माध्यम बन पाएँ।
 
       आप इस नंबर का इस्तेमाल अपने सवालो को सबमिट करने के लिये कर सकते हैं। हम सभी सवालों के जवाब तो नहीं दे पाएँगे लेकिन, आपका डाटा फिर भी सुरक्षित रहेगा।
 
@@ -90,11 +90,11 @@ module SmoochTos
     mr: %{
       गोपनीयता आणि उद्देश
 
-      %{team} WhatsApp टिपलाईनवर स्वागत आहे. WhatsApp वर असलेल्या आपल्या कुटुंब आणि मित्रांसाठी आपण माहितीचा एक अधिक चांगला स्त्रोत बनावे यासाठी आम्ही कार्यरत आहोत.
+      %{team} %{channel} टिपलाईनवर स्वागत आहे. %{channel} वर असलेल्या आपल्या कुटुंब आणि मित्रांसाठी आपण माहितीचा एक अधिक चांगला स्त्रोत बनावे यासाठी आम्ही कार्यरत आहोत.
 
       आपली सत्यापनासाठीची क्वेरी प्रविष्ट करण्यासाठी आपण हा नंबर वापरू शकता. आम्ही प्रत्येक विनंतीला प्रतिसाद देऊ शकत नाही, पण तरीही आपला डेटा सुरक्षित आहे.
 
-      आपल्या वैयक्तिक माहितीचे रक्षण करण्याची आणि WhatsApp खाजगी आणि सुरक्षित ठेवण्याची आमची जबाबदारी आम्ही गंभीरपणे घेतो; ही सेवा पुरवणे आणि सुधारणे वगळता आपली वैयक्तिकरीत्या ओळखता येणारी माहिती (PII) आम्ही कधीही सामायिक, विक्री, किंवा अन्य कारणासाठी वापरणार नाही.
+      आपल्या वैयक्तिक माहितीचे रक्षण करण्याची आणि %{channel} खाजगी आणि सुरक्षित ठेवण्याची आमची जबाबदारी आम्ही गंभीरपणे घेतो; ही सेवा पुरवणे आणि सुधारणे वगळता आपली वैयक्तिकरीत्या ओळखता येणारी माहिती (PII) आम्ही कधीही सामायिक, विक्री, किंवा अन्य कारणासाठी वापरणार नाही.
 
       व्हायरल झालेली चुकीची माहिती लवकरात लवकर ओळखण्यासाठी, अधिकृत संशोधक आणि तथ्य-तपासणी भागीदारांसोबत या टिपलाईनवरून आम्ही विना-PII मजकूर भविष्यात सामायिक करू शकतो.
 
@@ -178,11 +178,11 @@ module SmoochTos
     kn: %{
       ಗೌಪ್ಯತೆ ಮತ್ತು ಉದ್ದೇಶ
 
-      %{team} WhatsApp ಟಿಪ್‌ಲೈನ್‌ಗೆ ಸ್ವಾಗತ. WhatsApp ನಲ್ಲಿ ನಿಮ್ಮ ಕುಟುಂಬ ಮತ್ತು ಸ್ನೇಹಿತರಿಗೆ ಮಾಹಿತಿಯ ಉತ್ತಮ ಮೂಲವನ್ನಾಗಿ ನಿಮ್ಮನ್ನು ರೂಪಿಸಲು ನಾವು ಶ್ರಮಿಸುತ್ತಿದ್ದೇವೆ.
+      %{team} %{channel} ಟಿಪ್‌ಲೈನ್‌ಗೆ ಸ್ವಾಗತ. %{channel} ನಲ್ಲಿ ನಿಮ್ಮ ಕುಟುಂಬ ಮತ್ತು ಸ್ನೇಹಿತರಿಗೆ ಮಾಹಿತಿಯ ಉತ್ತಮ ಮೂಲವನ್ನಾಗಿ ನಿಮ್ಮನ್ನು ರೂಪಿಸಲು ನಾವು ಶ್ರಮಿಸುತ್ತಿದ್ದೇವೆ.
 
       ಪರಿಶೀಲನೆಗೆ ನಿಮ್ಮ ವಿಚಾರಣೆಯನ್ನು ಸಲ್ಲಿಸಲು ಈ ಸಂಖ್ಯೆಯನ್ನು ನೀವು ಬಳಸಬಹುದು. ಪ್ರತಿ ವಿನಂತಿಗೂ ನಾವು ಪ್ರತಿಕ್ರಿಯಿಸಲಾಗದಿರಬಹುದು. ಆದರೆ, ಎಲ್ಲಾ ರೀತಿಯಲ್ಲೂ ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿರುತ್ತದೆ.
 
-      ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ರಕ್ಷಿಸಲು ಮತ್ತು WhatsApp ಅನ್ನು ಖಾಸಗಿ ಮತ್ತು ಸುರಕ್ಷಿತವಾಗಿಡುವ ನಿಟ್ಟಿನಲ್ಲಿ ಜವಾಬ್ದಾರಿಯನ್ನು ನಾವು ಗಂಭೀರವಾಗಿ ಪರಿಗಣಿಸುತ್ತೇವೆ. ಈ ಸೇವೆಯನ್ನು ಸುಧಾರಿಸುವುದು ಮತ್ತು ಒದಗಿಸುವುದನ್ನು ಹೊರತುಪಡಿಸಿ ನಿಮ್ಮನ್ನು ವೈಯಕ್ತಿಕವಾಗಿ ಗುರುತಿಸಬಹುದಾದ ಮಾಹಿತಿ (PII) ಅನ್ನು ನಾವು ಎಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ, ಮಾರುವುದಿಲ್ಲ ಅಥವಾ ಬಳಸುವುದಿಲ್ಲ.
+      ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ರಕ್ಷಿಸಲು ಮತ್ತು %{channel} ಅನ್ನು ಖಾಸಗಿ ಮತ್ತು ಸುರಕ್ಷಿತವಾಗಿಡುವ ನಿಟ್ಟಿನಲ್ಲಿ ಜವಾಬ್ದಾರಿಯನ್ನು ನಾವು ಗಂಭೀರವಾಗಿ ಪರಿಗಣಿಸುತ್ತೇವೆ. ಈ ಸೇವೆಯನ್ನು ಸುಧಾರಿಸುವುದು ಮತ್ತು ಒದಗಿಸುವುದನ್ನು ಹೊರತುಪಡಿಸಿ ನಿಮ್ಮನ್ನು ವೈಯಕ್ತಿಕವಾಗಿ ಗುರುತಿಸಬಹುದಾದ ಮಾಹಿತಿ (PII) ಅನ್ನು ನಾವು ಎಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ, ಮಾರುವುದಿಲ್ಲ ಅಥವಾ ಬಳಸುವುದಿಲ್ಲ.
 
       ವ್ಯಾಪಕವಾಗಿ ಹರಡುವ ಸುಳ್ಳು ಸುದ್ದಿಯನ್ನು ಮುಂದಿನ ದಿನಗಳಲ್ಲಿ ಸಾಧ್ಯವಾದಷ್ಟು ಬೇಗ ಗುರುತಿಸಲು, ಪರಿಣಿತ ಸಂಶೋಧಕರು ಮತ್ತು ಸತ್ಯಶೋಧನೆ ಪಾಲುದಾರರ ಜೊತೆಗೆ ಈ ಟಿಪ್‌ಲೈನ್‌ನಿಂದ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿ ಇಲ್ಲದ ಕಂಟೆಂಟ್‌ ಅನ್ನು ನಾವು ಹಂಚಿಕೊಳ್ಳಬಹುದು.
 
@@ -223,11 +223,11 @@ module SmoochTos
     pa: %{
       ਨਿੱਜਤਾ ਅਤੇ ਉਦੇਸ਼
 
-      %{team} WhatsApp ਟਿਪਲਾਈਨ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ। ਅਸੀਂ WhatsApp 'ਤੇ ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਅਤੇ ਦੋਸਤਾਂ ਲਈ ਤੁਹਾਨੂੰ ਜਾਣਕਾਰੀ ਦਾ ਇੱਕ ਬਿਹਤਰ ਸਰੋਤ ਬਣਾਉਣ ਲਈ ਕੰਮ ਕਰ ਰਹੇ ਹਾਂ। 
+      %{team} %{channel} ਟਿਪਲਾਈਨ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ। ਅਸੀਂ %{channel} 'ਤੇ ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਅਤੇ ਦੋਸਤਾਂ ਲਈ ਤੁਹਾਨੂੰ ਜਾਣਕਾਰੀ ਦਾ ਇੱਕ ਬਿਹਤਰ ਸਰੋਤ ਬਣਾਉਣ ਲਈ ਕੰਮ ਕਰ ਰਹੇ ਹਾਂ। 
 
       ਤੁਸੀਂ ਤਸਦੀਕ ਵਾਸਤੇ ਆਪਣੇ ਸਵਾਲ ਨੂੰ ਜਮ੍ਹਾ ਕਰਨ ਲਈ ਇਸ ਨੰਬਰ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ। ਅਸੀਂ ਹਰ ਬੇਨਤੀ ਦਾ ਜਵਾਬ ਦੇਣ ਦੇ ਯੋਗ ਨਹੀਂ ਹਾਂ, ਪਰ ਅਸੀਂ ਜਵਾਬ ਦਈਏ ਜਾਂ ਨਹੀਂ ਦਈਏ, ਤੁਹਾਡਾ ਡੇਟਾ ਦੋਨਾਂ ਮਾਮਲਿਆਂ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਰਹੇਗਾ। 
 
-      ਅਸੀਂ ਤੁਹਾਡੀ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਅਤੇ WhatsApp ਨੂੰ ਗੁਪਤ ਅਤੇ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਦੀ ਆਪਣੀ ਜਿੰਮੇਵਾਰੀ ਨੂੰ ਗੰਭੀਰਤਾ ਨਾਲ ਲੈਂਦੇ ਹਾਂ; ਅਸੀਂ ਇਹ ਸੇਵਾ ਮੁਹੱਈਆ ਕਰਨ ਅਤੇ ਇਸ ਵਿੱਚ ਸੁਧਾਰ ਕਰਨ ਤੋਂ ਅਲਾਵਾ ਕਿਸੇ ਹੋਰ ਕੰਮ ਲਈ ਕਦੇ ਵੀ ਤੁਹਾਡੀ ਨਿੱਜੀ ਪਛਾਣ ਕਰਨ ਵਾਲੀ ਜਾਣਕਾਰੀ (PII) ਨੂੰ ਸਾਂਝਾ ਨਹੀਂ ਕਰਾਂਗੇ, ਵੇਚਾਂਗੇ ਨਹੀਂ, ਜਾਂ ਕਿਸੇ ਹੋਰ ਤਰੀਕੇ ਨਾਲ ਇਸ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕਰਾਂਗੇ।
+      ਅਸੀਂ ਤੁਹਾਡੀ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਅਤੇ %{channel} ਨੂੰ ਗੁਪਤ ਅਤੇ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਦੀ ਆਪਣੀ ਜਿੰਮੇਵਾਰੀ ਨੂੰ ਗੰਭੀਰਤਾ ਨਾਲ ਲੈਂਦੇ ਹਾਂ; ਅਸੀਂ ਇਹ ਸੇਵਾ ਮੁਹੱਈਆ ਕਰਨ ਅਤੇ ਇਸ ਵਿੱਚ ਸੁਧਾਰ ਕਰਨ ਤੋਂ ਅਲਾਵਾ ਕਿਸੇ ਹੋਰ ਕੰਮ ਲਈ ਕਦੇ ਵੀ ਤੁਹਾਡੀ ਨਿੱਜੀ ਪਛਾਣ ਕਰਨ ਵਾਲੀ ਜਾਣਕਾਰੀ (PII) ਨੂੰ ਸਾਂਝਾ ਨਹੀਂ ਕਰਾਂਗੇ, ਵੇਚਾਂਗੇ ਨਹੀਂ, ਜਾਂ ਕਿਸੇ ਹੋਰ ਤਰੀਕੇ ਨਾਲ ਇਸ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕਰਾਂਗੇ।
 
       ਭਵਿੱਖ ਵਿੱਚ ਜਲਦੀ ਤੋਂ ਜਲਦੀ ਵਾਇਰਲ ਗਲਤ ਜਾਣਕਾਰੀ ਦੀ ਪਛਾਣ ਕਰਨ ਲਈ, ਅਸੀਂ ਧਿਆਨ ਨਾਲ ਨਿਰੀਖਣ ਕਰਨ ਵਾਲੇ ਸ਼ੋਧਕਰਤਾਵਾਂ ਅਤੇ ਤੱਥਾਂ ਦੀ ਜਾਂਚ ਕਰਨ ਵਾਲੇ ਸਾਂਝੇਦਾਰਾਂ ਦੇ ਨਾਲ ਗੁਪਤ ਸੰਚਾਰ ਤੋਂ ਪ੍ਰਾਪਤ ਹੋਈ ਗ਼ੈਰ-PII ਸਮੱਗਰੀ ਨੂੰ ਸਾਂਝਾ ਕਰ ਸਕਦੇ ਹਾਂ।
        
@@ -260,11 +260,12 @@ module SmoochTos
       self.get_custom_message_for_language(workflow, 'greeting') || self.get_message_for_language(GREETING, language)
     end
 
-    def send_tos_to_user(workflow, uid, language)
+    def send_tos_to_user(workflow, uid, language, platform = '')
       team = Team.find(self.config['team_id'].to_i)
       message = self.get_custom_message_for_language(workflow, 'content') || self.get_message_for_language(CONTENT, language)
       message = message.gsub(/^[ ]+/, '')
       message = message.gsub('%{team}', team.name)
+      message = message.gsub('%{channel}', platform)
       self.send_message_to_user(uid, message)
     end
 

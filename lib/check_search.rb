@@ -18,6 +18,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
     adjust_project_filter
+    adjust_channel_filter
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
@@ -159,10 +160,13 @@ class CheckSearch
     custom_conditions = {}
     core_conditions = {}
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    custom_conditions['project_id'] = [@options['projects']].flatten unless @options['projects'].blank?
-    custom_conditions['user_id'] = [@options['users']].flatten unless @options['users'].blank?
-    custom_conditions['source_id'] = [@options['sources']].flatten unless @options['sources'].blank?
     custom_conditions['read'] = @options['read'].to_i if @options.has_key?('read')
+    # Add custom conditions for array values
+    {
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels'
+    }.each do |k, v|
+      custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
+    end
     archived = @options['archived'].to_i
     core_conditions.merge!({ archived: archived })
     core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
@@ -183,7 +187,7 @@ class CheckSearch
   end
 
   def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'report_status']
+    search_keys = ['verification_status', 'tags', 'rules', 'dynamic', 'team_tasks', 'assigned_to', 'channels', 'report_status']
     !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
   end
 
@@ -204,15 +208,15 @@ class CheckSearch
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
     custom_conditions.concat build_search_report_status_conditions
-    custom_conditions.concat build_search_assignment_conditions
+    custom_conditions.concat build_search_integer_terms_query('assigned_user_ids', 'assigned_to')
+    custom_conditions.concat build_search_integer_terms_query('channel', 'channels')
+    custom_conditions.concat build_search_integer_terms_query('source_id', 'sources')
     custom_conditions.concat build_search_doc_conditions
     custom_conditions.concat build_search_range_filter(:es)
     dynamic_conditions = build_search_dynamic_annotation_conditions
     check_search_concat_conditions(custom_conditions, dynamic_conditions)
     team_tasks_conditions = build_search_team_tasks_conditions
     check_search_concat_conditions(custom_conditions, team_tasks_conditions)
-    media_source_conditions = build_search_media_source_conditions
-    check_search_concat_conditions(custom_conditions, media_source_conditions)
     if @options['operator'].upcase == 'OR'
       and_conditions = { bool: { must: core_conditions } }
       or_conditions = { bool: { should: custom_conditions } }
@@ -251,6 +255,17 @@ class CheckSearch
 
       # Invalidate the search if empty... otherwise, adjust the projects filter
       @options['projects'] = project_ids.empty? ? [0] : project_ids
+    end
+    # Also, adjust projects filter taking projects' privacy settings into account
+    if Team.current
+      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
+    end
+  end
+
+  def adjust_channel_filter
+    if @options['channels'].is_a?(Array) && @options['channels'].include?('any_tipline')
+      channels = @options['channels'] - ['any_tipline']
+      @options['channels'] = channels.map(&:to_i).concat(CheckChannels::ChannelCodes::TIPLINE).uniq
     end
   end
 
@@ -407,18 +422,17 @@ class CheckSearch
           }
         }]
       elsif response_type == 'choice'
-        must_c << { term: { "task_responses.value.raw": tt['response'] } }
+        if tt['response'].is_a?(Array)
+          must_c << { terms: { 'task_responses.value.raw': tt['response'] } }
+        else
+          must_c << { term: { 'task_responses.value.raw': tt['response'] } }
+        end
       else
         must_c << { match: { "task_responses.value": tt['response'] } }
       end
       conditions << { nested: { path: 'task_responses', query: { bool: { must: must_c } } } }
     end
     conditions
-  end
-
-  def build_search_media_source_conditions
-    return [] unless @options.has_key?('sources') && @options['sources'].class.name == 'Array'
-    [{ terms: { source_id: @options['sources'] } }]
   end
 
   def build_search_sort
@@ -473,9 +487,9 @@ class CheckSearch
     [tags_c]
   end
 
-  def build_search_assignment_conditions
-    return [] unless @options['assigned_to'].is_a?(Array)
-    [{ terms: { assigned_user_ids: @options['assigned_to'].map(&:to_i) } }]
+  def build_search_integer_terms_query(field, key)
+    return [] unless @options[key].is_a?(Array)
+    [{ terms: { "#{field}": @options[key].map(&:to_i) } }]
   end
 
   def search_tags_query(tags)
@@ -526,7 +540,20 @@ class CheckSearch
       fields[field] = field
     end
     fields.each do |k, v|
-      doc_c << { terms: { "#{k}": @options[v] } } if @options.has_key?(v)
+      next unless @options.has_key?(v)
+      value = @options[v]
+      if value.is_a?(Array) && value.include?(nil)
+        doc_c << {
+          bool: {
+            should: [
+              { terms: { k => value.reject{ |v2| v2.nil? } } },
+              { bool: { must_not: [{ exists: { field: k } }] } }
+            ]
+          }
+        }
+      else
+        doc_c << { terms: { k => value } }
+      end
     end
     doc_c
   end

@@ -23,6 +23,14 @@ class TestController < ApplicationController
     render text: 'OK'
   end
 
+  def install_bot
+    team = Team.where(slug: params[:slug]).last
+    login = params[:bot]
+    bot = BotUser.find_by_login(login) || BotUser.create!(login: login, name: login.capitalize, settings: { approved: true })
+    bot.install_to!(team)
+    render_success 'team', team.reload
+  end
+
   def new_user
     u = create_user params
     u.accept_terms = true

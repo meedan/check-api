@@ -148,6 +148,10 @@ en:
           attributes:
             slug:
               slug_format: accepts only letters, numbers and hyphens
+        project_media:
+          attributes:
+            channel:
+              channel_update: Sorry, you could not update channel value
       messages:
         record_invalid: "%{errors}"
         improbable_phone: is an invalid number
@@ -765,3 +769,5 @@ en:
         has been sent to %{requestors_count} requestors.
       tagged_by_rule: '"%{item_title}" has been tagged as "%{tag}" by an automation
         rule.'
+      moved_to_private_folder: '"%{item_title}" has been moved to a folder you do
+        not have access to.'

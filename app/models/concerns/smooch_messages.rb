@@ -18,6 +18,13 @@ module SmoochMessages
       self.parse_message_based_on_state(message, app_id)
     end
 
+    def get_smooch_channel(message)
+      # Get item channel (message type)
+      channel = message.dig('source', 'type')&.upcase
+      all_channels = CheckChannels::ChannelCodes.all_channels['TIPLINE']
+      all_channels.keys.include?(channel) ? all_channels[channel] : nil
+    end
+
     def bundle_message(message)
       uid = message['authorId']
       redis = Redis.new(REDIS_CONFIG)

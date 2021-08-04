@@ -23,6 +23,7 @@ module Api
       attribute :media_type, delegate: :type_of_media
       attribute :score
       attribute :report_image
+      attribute :report_status
 
       def score
         RequestStore.store[:scores] ? RequestStore.store[:scores][@model.id].to_f : nil

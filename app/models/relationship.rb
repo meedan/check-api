@@ -212,6 +212,7 @@ class Relationship < ActiveRecord::Base
     if (self.is_confirmed? || self.is_suggested?) && secondary && main && secondary.project_id != main.project_id
       secondary.project_id = main.project_id
       secondary.save!
+      CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title) unless secondary.reload.user_can_see_project?(secondary.user)
     end
   end
 end
