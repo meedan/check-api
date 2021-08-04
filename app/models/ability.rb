@@ -58,6 +58,7 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
     can [:update, :destroy], TeamUser, team_id: @context_team.id
     can :duplicate, Team, :id => @context_team.id
+    can :set_privacy, Project, :team_id => @context_team.id
   end
 
   def editor_perms
@@ -69,7 +70,7 @@ class Ability
     can :invite_members, Team, :id => @context_team.id
     can [:cud], Project, :team_id => @context_team.id
     can :destroy, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team)
+      obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
     end
     can :manage, [TagText, TeamTask], team_id: @context_team.id
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
@@ -99,7 +100,7 @@ class Ability
   def collaborator_perms
     can [:cud], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can [:create, :update], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team)
+      obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
     end
     can :create, [Media, Link, Claim]
     can :update, [Media, Link, Claim], { user_id: @user.id }
@@ -108,7 +109,7 @@ class Ability
     end
     can :destroy, TeamUser, user_id: @user.id
     can :lock_annotation, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE
+      obj.related_to_team?(@context_team) && obj.archived_was == CheckArchivedFlags::FlagCodes::NONE && obj.user_can_see_project?(@user)
     end
     can :create, Source, :team_id => @context_team.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
@@ -136,7 +137,7 @@ class Ability
       obj.team&.id == @context_team.id && changes.keys == [] && !obj.annotated_is_trashed?
     end
     can [:administer_content, :bulk_update], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team)
+      obj.related_to_team?(@context_team) && obj.user_can_see_project?(@user)
     end
     can [:destroy, :update], [Dynamic, Annotation] do |obj|
       obj.annotator_id.to_i == @user.id and !obj.annotated_is_archived?

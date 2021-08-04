@@ -83,4 +83,5 @@ Rails.application.routes.draw do
   match '/test/cache_key' => 'test#new_cache_key', via: :get
   match '/test/team_data_field' => 'test#new_team_data_field', via: :get
   match '/test/suggest_similarity' => 'test#suggest_similarity_item', via: :get
+  match '/test/install_bot' => 'test#install_bot', via: :get
 end

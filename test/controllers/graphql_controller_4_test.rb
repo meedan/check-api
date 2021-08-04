@@ -181,6 +181,42 @@ class GraphqlController4Test < ActionController::TestCase
     end
   end
 
+  test "should bulk-assign project medias" do
+    u = create_user
+    create_team_user team: @t, user: u
+    u1 = create_user
+    create_team_user team: @t, user: u1
+    u2 = create_user
+    create_team_user team: @t, user: u2
+    u3 = create_user
+    status = @pm1.last_status_obj
+    with_current_user_and_team(u, @t) do
+        Assignment.create!(assigned_type: 'Annotation', assigned_id: status.id, user_id: u.id)
+    end
+    pm1_assignments = Annotation.joins(:assignments).where(
+        'annotations.annotated_type' => 'ProjectMedia',
+        'annotations.annotated_id' => @pm1.id,
+        'annotations.annotation_type' => 'verification_status'
+        ).count
+    assert_equal 1, pm1_assignments
+    assigned_to_ids = [u1.id, u2.id, u3.id].join(', ')
+    assert_equal 1, @pm1.get_versions_log(['create_assignment']).size
+    Sidekiq::Testing.inline! do
+        query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', assignment_message: "add custom message", assigned_to_ids: "' + assigned_to_ids + '" }) { ids, team { dbid } } }'
+        assert_difference 'Assignment.count', 6 do
+          post :create, query: query, team: @t.slug
+          assert_response :success
+        end
+        pm1_assignments = Annotation.joins(:assignments).where(
+            'annotations.annotated_type' => 'ProjectMedia',
+            'annotations.annotated_id' => @pm1.id,
+            'annotations.annotation_type' => 'verification_status'
+            ).count
+        assert_equal 3, pm1_assignments
+        assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+    end
+  end
+
   test "should not bulk-move project medias from a list to another if not allowed" do
     u = create_user
     authenticate_with_user(u)
@@ -440,7 +476,8 @@ class GraphqlController4Test < ActionController::TestCase
     # Not published
     pm3 = create_project_media team: t, disable_es_callbacks: false
 
-    # Published
+    # Search
+    sleep 10
     query = 'query CheckSearch { search(query: "{\"report_status\":[\"published\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
@@ -505,6 +542,22 @@ class GraphqlController4Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+  end
+
+  test "should search by project" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+
+    create_project_media team: t, project: nil, project_id: nil
+    create_project_media project: p
+    
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
   protected

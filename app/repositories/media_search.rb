@@ -113,5 +113,7 @@ class MediaSearch
     indexes :type_of_media, { type: 'long' } # For sorting - indexes the type index in the list of media types
 
     indexes :url, { type: 'text', analyzer: 'check' }
+
+    indexes :channel, { type: 'integer' }
   end
 end

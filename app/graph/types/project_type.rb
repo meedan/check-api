@@ -20,6 +20,7 @@ ProjectType = GraphqlCrudOperations.define_default_type do
   field :get_slack_events, JsonStringType
   field :project_group_id, types.Int
   field :project_group, ProjectGroupType
+  field :privacy, types.Int
 
   field :assignments_count, types.Int do
     resolve ->(project, _args, _ctx) {

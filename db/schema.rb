@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210719021924) do
+ActiveRecord::Schema.define(version: 20210802000606) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -235,8 +235,10 @@ ActiveRecord::Schema.define(version: 20210719021924) do
     t.integer  "source_id"
     t.integer  "project_id"
     t.integer  "last_seen"
+    t.integer  "channel",                  default: 0
   end
 
+  add_index "project_medias", ["channel"], name: "index_project_medias_on_channel", using: :btree
   add_index "project_medias", ["last_seen"], name: "index_project_medias_on_last_seen", using: :btree
   add_index "project_medias", ["media_id"], name: "index_project_medias_on_media_id", using: :btree
   add_index "project_medias", ["project_id"], name: "index_project_medias_on_project_id", using: :btree
@@ -256,12 +258,11 @@ ActiveRecord::Schema.define(version: 20210719021924) do
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
-    t.integer  "parent_id"
     t.integer  "project_group_id"
+    t.integer  "privacy",           default: 0, null: false
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
-  add_index "projects", ["parent_id"], name: "index_projects_on_parent_id", using: :btree
   add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
@@ -347,6 +348,7 @@ ActiveRecord::Schema.define(version: 20210719021924) do
     t.string   "json_schema"
     t.string   "fieldset",                  default: "",             null: false
     t.boolean  "show_in_browser_extension", default: true,           null: false
+    t.boolean  "is_child",                  default: false
   end
 
   add_index "team_tasks", ["team_id", "fieldset", "associated_type"], name: "index_team_tasks_on_team_id_and_fieldset_and_associated_type", using: :btree

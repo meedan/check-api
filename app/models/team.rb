@@ -55,7 +55,7 @@ class Team < ActiveRecord::Base
   end
 
   def projects_count
-    self.projects.permissioned.count
+    self.projects.allowed(self).permissioned.count
   end
 
   def as_json(_options = {})
@@ -64,7 +64,7 @@ class Team < ActiveRecord::Base
       id: self.team_graphql_id,
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects,
+      projects: self.recent_projects.allowed(team),
       slug: self.slug
     }
   end
@@ -275,6 +275,7 @@ class Team < ActiveRecord::Base
     tmp = ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE)
     tag_text = TagText.new(team_id: self.id)
     team_task = TeamTask.new(team_id: self.id)
+    project = Project.new(team_id: self.id)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
@@ -283,6 +284,7 @@ class Team < ActiveRecord::Base
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    perms["set_privacy Project"] = ability.can?(:set_privacy, project)
     # FIXME fix typo
     perms["mange TagText"] = ability.can?(:manage, tag_text)
     # FIXME fix typo

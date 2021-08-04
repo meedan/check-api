@@ -15,8 +15,8 @@ class VideoUploader < FileUploader
   define_version :thumb, (CheckConfig.get('image_thumbnail_size', [100, 100]))
   define_version :embed, (CheckConfig.get('image_embed_size', [800, 600]))
 
-  def jpg_name(for_file, version_name)
-    %Q{#{version_name}_#{for_file.chomp(File.extname(for_file))}.jpg}
+  def jpg_name(_for_file, version_name)
+    %Q{#{version_name}_#{Media.filename(self.parent_version, false)}.jpg}
   end
 
   def extension_whitelist

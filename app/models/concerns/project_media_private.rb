@@ -98,4 +98,8 @@ module ProjectMediaPrivate
   def project_is_not_archived
     parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end
+
+  def set_channel
+    self.channel = CheckChannels::ChannelCodes::API unless ApiKey.current.nil?
+  end
 end

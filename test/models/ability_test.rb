@@ -709,7 +709,8 @@ class AbilityTest < ActiveSupport::TestCase
     team_perms = [
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
       "create Project", "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
-      "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "mange TagText", "mange TeamTask"
+      "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "mange TagText", "mange TeamTask",
+      "set_privacy Project"
     ]
     project_perms = [
       "read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia",

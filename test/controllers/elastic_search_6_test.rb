@@ -90,8 +90,11 @@ class ElasticSearch6Test < ActionController::TestCase
       pm1 = create_project_media project: p, quote: 'a-item', disable_es_callbacks: false
       pm2 = create_project_media project: p, media: l, disable_es_callbacks: false
       pm3 = create_project_media project: p, media: i, disable_es_callbacks: false
+      pm3.analysis = { title: 'c-item' }; pm3.save
       pm4 = create_project_media project: p, media: v, disable_es_callbacks: false
+      pm4.analysis = { title: 'd-item' }; pm4.save
       pm5 = create_project_media project: p, media: a, disable_es_callbacks: false
+      pm5.analysis = { title: 'e-item' }; pm5.save
       sleep 2
       orders = {asc: [pm1, pm2, pm3, pm4, pm5], desc: [pm5, pm4, pm3, pm2, pm1]}
       query = { projects: [p.id], keyword: 'item', sort: 'title', sort_type: order.to_s }

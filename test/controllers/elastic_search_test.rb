@@ -215,7 +215,7 @@ class ElasticSearchTest < ActionController::TestCase
     m = create_media(account: create_valid_account, url: url)
     m1 = create_media(account: create_valid_account, url: url2)
     pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    keyword = {projects: [rand(40000...50000)]}.to_json
+    keyword = { projects: [0,0,0] }.to_json
     sleep 1
     Team.current = t
     result = CheckSearch.new(keyword)

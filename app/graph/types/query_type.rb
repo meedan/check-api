@@ -32,7 +32,8 @@ QueryType = GraphQL::ObjectType.define do
         upload_min_dimensions: "#{SizeValidator.config('min_width')}x#{SizeValidator.config('min_height')}",
         upload_max_dimensions: "#{SizeValidator.config('max_width')}x#{SizeValidator.config('max_height')}",
         languages_supported: CheckCldr.localized_languages.to_json,
-        terms_last_updated_at: User.terms_last_updated_at
+        terms_last_updated_at: User.terms_last_updated_at,
+        channels: CheckChannels::ChannelCodes.all_channels,
       })
     end
   end

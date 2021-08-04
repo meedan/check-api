@@ -17,6 +17,8 @@ module ProjectMediaBulk
           # send pusher and set parent objects for graphql
           self.send_pusher_and_parents(project, updates[:previous_project_id], team)
         end
+      elsif keys.include?(:assigned_to_ids)
+        self.bulk_assign(ids, updates[:assigned_to_ids], updates[:assignment_message], team)
       end
     end
 
@@ -116,6 +118,98 @@ module ProjectMediaBulk
         }
       }
       client.update_by_query options
+    end
+
+    def bulk_assign(ids, assigned_to_ids, assignment_message, team)
+      status_mapping = {}
+      statuses = Annotation.where(annotated_type: 'ProjectMedia', annotation_type: 'verification_status', annotated_id: ids)
+      status_ids = statuses.map(&:id)
+      statuses.collect{ |s| status_mapping[s.id] = s.annotated_id }
+      # Get current assignments
+      assignment_mapping = Hash.new {|hash, key| hash[key] = [] }
+      Assignment.where(assigned_type: 'Annotation', assigned_id: status_ids).find_each do |a|
+        assignment_mapping[a.assigned_id] << a.user_id
+      end
+      # Bulk-insert assignments
+      assigner_id = User.current.nil? ? nil : User.current.id
+      assigned_ids = assigned_to_ids.to_s.split(',').map(&:to_i)
+      # verify that users aleady exists
+      u_ids = team.team_users.where(user_id: assigned_ids).map(&:user_id)
+      inserts = []
+      status_ids.each do |s_id|
+        u_ids.each do |u_id|
+          inserts << {
+            assigned_type: 'Annotation', assigned_id: s_id, user_id: u_id, assigner_id: assigner_id, message: assignment_message
+          } unless assignment_mapping[s_id].include?(u_id)
+        end
+      end
+      result = Assignment.import inserts, validate: false, recursive: false, timestamps: true
+      # Run callbacks in background
+      extra_options = {
+        team_id: team&.id,
+        user_id: User.current&.id,
+        assigned_ids: u_ids
+      }
+      self.delay.run_bulk_assignment_create_callbacks(result.ids.map(&:to_i).to_json, status_mapping.to_json, extra_options.to_json)
+      { team: team }
+    end
+
+    def run_bulk_assignment_create_callbacks(ids_json, status_mapping_json, extra_options_json)
+      ids = JSON.parse(ids_json)
+      status_mapping = JSON.parse(status_mapping_json)
+      extra_options = JSON.parse(extra_options_json)
+      whodunnit = extra_options['user_id'].blank? ? nil : extra_options['user_id'].to_s
+      team_id = extra_options['team_id']
+      assigned_users = []
+      User.where(id: extra_options['assigned_ids']).collect{ |u| assigned_users[u.id] = u.name }
+      versions = []
+      callbacks = [
+        :send_email_notification_on_create,
+        :increase_assignments_count,
+        :propagate_assignments,
+        :apply_rules_and_actions,
+        :update_elasticsearch_assignment
+      ]
+      ids.each do |id|
+        a = Assignment.find_by_id(id)
+        unless a.nil?
+          versions << {
+            item_type: 'Assignment',
+            item_id: a.id.to_s,
+            event: 'create',
+            whodunnit: whodunnit,
+            object: nil,
+            object_changes: {
+              assigned_type: [nil, 'Annotation'], assigned_id: [nil, a.assigned_id], user_id: [nil, a.user_id],
+              message: [nil, a.message], assigner_id: [nil, a.assigner_id]
+            }.to_json,
+            created_at: a.created_at,
+            meta: {
+              type: 'media',
+              user_name: assigned_users[a.user_id],
+            }.to_json,
+            event_type: 'create_assignment',
+            object_after: a.to_json,
+            associated_id: status_mapping[a.assigned_id.to_s],
+            associated_type: 'ProjectMedia',
+            team_id: team_id
+          }
+          callbacks.each do |callback|
+            a.send(callback)
+          end
+        end
+      end
+      if versions.size > 0
+        keys = versions.first.keys
+        columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
+        sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
+        sql_values = []
+        versions.each do |version|
+          sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
+        end
+        sql += sql_values.join(", ")
+        ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+      end
     end
   end
 end
