@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210802000606) do
+ActiveRecord::Schema.define(version: 20210806202205) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -263,6 +263,7 @@ ActiveRecord::Schema.define(version: 20210802000606) do
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
+  add_index "projects", ["privacy"], name: "index_projects_on_privacy", using: :btree
   add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
   add_index "projects", ["token"], name: "index_projects_on_token", unique: true, using: :btree
@@ -371,6 +372,7 @@ ActiveRecord::Schema.define(version: 20210802000606) do
 
   add_index "team_users", ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true, using: :btree
   add_index "team_users", ["type"], name: "index_team_users_on_type", using: :btree
+  add_index "team_users", ["user_id", "team_id", "status"], name: "index_team_users_on_user_id_and_team_id_and_status", using: :btree
   add_index "team_users", ["user_id", "team_id"], name: "index_team_users_on_user_id_and_team_id", using: :btree
 
   create_table "teams", force: :cascade do |t|
