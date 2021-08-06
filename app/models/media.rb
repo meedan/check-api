@@ -31,7 +31,7 @@ class Media < ActiveRecord::Base
   end
 
   def self.filename(file, extension = true)
-    hash = Digest::MD5.hexdigest(file.read)
+    hash = begin Digest::MD5.hexdigest(file.read) rescue nil end
     return hash unless extension
     file = file.try(:filename) || file.try(:path) || file.try(:tempfile) || file.try(:file)
     ext = File.extname(file)
