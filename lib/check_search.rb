@@ -76,7 +76,7 @@ class CheckSearch
       result = medias_get_search_result(query)
       key = get_search_field
       @ids = result.collect{ |i| i[key] }.uniq
-      results = ProjectMedia.where(id: @ids)
+      results = ProjectMedia.where(id: @ids).includes(:media).includes(:project)
       @medias = sort_pg_results(results, 'project_medias')
     else
       @medias = get_pg_results
@@ -179,7 +179,7 @@ class CheckSearch
     else
       relation = relation.where(custom_conditions)
     end
-    relation.distinct('project_medias.id').includes(:media).where(core_conditions)
+    relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
   end
 
   def should_include_related_items?
