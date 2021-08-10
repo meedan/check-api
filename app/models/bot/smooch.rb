@@ -206,8 +206,6 @@ class Bot::Smooch < BotUser
 
     def get_slack_channel_url(obj, data)
       slack_channel_url = nil
-      bot = BotUser.smooch_user
-      tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
       tid = obj.team_id
       smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', annotation_type: 'smooch_user')
       .where('dynamic_annotation_fields_value(field_name, value) = ?', data['authorId'].to_json)
