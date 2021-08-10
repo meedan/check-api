@@ -151,7 +151,6 @@ module SmoochMessages
       Team.current = Team.where(id: self.config['team_id']).last
       annotated = nil
       if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
-        message['project_id'] = self.get_project_id(message)
         message['archived'] = request_type == 'default_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
       elsif 'menu_options_requests' == request_type
