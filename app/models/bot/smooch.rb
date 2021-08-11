@@ -206,16 +206,11 @@ class Bot::Smooch < BotUser
 
     def get_slack_channel_url(obj, data)
       slack_channel_url = nil
-      # Fetch project from Smooch Bot and fallback to obj.project_id
-      pid = nil
-      bot = BotUser.smooch_user
-      tbi = TeamBotInstallation.where(team_id: obj.team_id, user_id: bot&.id.to_i).last
-      pid =  tbi.get_smooch_project_id unless tbi.nil?
-      pid ||= obj.project_id
+      tid = obj.team_id
       smooch_user_data = DynamicAnnotation::Field.where(field_name: 'smooch_user_id', annotation_type: 'smooch_user')
       .where('dynamic_annotation_fields_value(field_name, value) = ?', data['authorId'].to_json)
       .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id")
-      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Project', pid).last
+      .where("a.annotated_type = ? AND a.annotated_id = ?", 'Team', tid).last
       unless smooch_user_data.nil?
         field_value = DynamicAnnotation::Field.where(field_name: 'smooch_user_slack_channel_url', annotation_type: 'smooch_user', annotation_id: smooch_user_data.annotation_id).last
         slack_channel_url = field_value.value unless field_value.nil?
@@ -570,8 +565,8 @@ class Bot::Smooch < BotUser
       a.skip_notifications = true
       a.disable_es_callbacks = Rails.env.to_s == 'test'
       a.annotation_type = 'smooch_user'
-      a.annotated_type = 'Project'
-      a.annotated_id = self.get_project_id
+      a.annotated_type = 'Team'
+      a.annotated_id = self.config['team_id'].to_i
       a.set_fields = { smooch_user_data: data.to_json, smooch_user_id: uid, smooch_user_app_id: app_id }.to_json
       a.save!
       query = { field_name: 'smooch_user_data', json: { app_name: app_name, identifier: identifier } }.to_json
@@ -651,12 +646,6 @@ class Bot::Smooch < BotUser
       pm.save!
     end
     pm
-  end
-
-  def self.get_project_id(_message = nil)
-    project_id = self.config['smooch_project_id'].to_i
-    raise "Project ID #{project_id} does not belong to team #{self.config['team_id']}" if Project.where(id: project_id, team_id: self.config['team_id'].to_i).last.nil?
-    project_id
   end
 
   def self.extract_url(text)
@@ -749,7 +738,7 @@ class Bot::Smooch < BotUser
     extra.merge!({ archived: message['archived'] })
     channel_value = self.get_smooch_channel(message)
     extra.merge!({ channel: channel_value }) unless channel_value.nil?
-    pm = ProjectMedia.create!({ project_id: message['project_id'], media_type: type, smooch_message: message }.merge(extra))
+    pm = ProjectMedia.create!({ media_type: type, smooch_message: message }.merge(extra))
     pm.is_being_created = true
     pm
   end
@@ -791,10 +780,10 @@ class Bot::Smooch < BotUser
       filepath = File.join(Rails.root, 'tmp', filename)
       media_type = "Uploaded#{message['type'].camelize}"
       File.atomic_write(filepath) { |file| file.write(data) }
-      team_id = Project.find_by(id: message['project_id'])&.team_id
+      team_id = self.config['team_id'].to_i
       pm = ProjectMedia.joins(:media).where('medias.type' => media_type, 'medias.file' => filename, 'project_medias.team_id' => team_id).last
       if pm.nil?
-        pm = ProjectMedia.new(project_id: message['project_id'], archived: message['archived'], media_type: media_type, smooch_message: message)
+        pm = ProjectMedia.new(archived: message['archived'], media_type: media_type, smooch_message: message)
         pm.is_being_created = true
         # set channel
         channel_value = self.get_smooch_channel(message)

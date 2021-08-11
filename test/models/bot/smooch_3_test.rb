@@ -147,7 +147,9 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal @project.id, pm.project_id
+    # assert_equal @project.id, pm.project_id
+    assert_nil pm.project_id
+    assert_equal @team.id, pm.team_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     messages = [
