@@ -154,6 +154,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
+    # puts "Starting test #{self.class.name}/#{self.method_name}"
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
@@ -187,6 +188,7 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
+    # puts "Finished test #{self.class.name}/#{self.method_name}"
   end
 
   def valid_flags_data(random = true)
