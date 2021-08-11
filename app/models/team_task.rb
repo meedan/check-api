@@ -129,11 +129,13 @@ class TeamTask < ActiveRecord::Base
   private
 
   def add_teamwide_tasks
+    Rails.cache.delete("list_columns:team:#{self.team_id}")
     projects = { new: self.project_ids }
     TeamTaskWorker.perform_in(1.second, 'add', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump(projects))
   end
 
   def update_teamwide_tasks
+    Rails.cache.delete("list_columns:team:#{self.team_id}")
     options = {
       label: self.label_changed?,
       description: self.description_changed?,
@@ -152,6 +154,7 @@ class TeamTask < ActiveRecord::Base
   end
 
   def delete_teamwide_tasks
+    Rails.cache.delete("list_columns:team:#{self.team_id}")
     self.keep_completed_tasks = self.keep_completed_tasks.nil? ? false : self.keep_completed_tasks
     TeamTaskWorker.perform_in(1.second, 'destroy', self.id, YAML::dump(User.current), YAML::dump({}), YAML::dump({}), self.keep_completed_tasks)
   end
