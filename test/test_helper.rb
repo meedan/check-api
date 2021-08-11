@@ -746,12 +746,6 @@ class ActiveSupport::TestCase
         "default": ""
       },
       {
-        "name": "smooch_project_id",
-        "label": "Check Project ID",
-        "type": "number",
-        "default": ""
-      },
-      {
         "name": "smooch_twitter_authorization_url",
         "label": "Visit this link to authorize the Twitter Business Account that will forward DMs to this bot",
         "type": "readonly",
@@ -787,7 +781,6 @@ class ActiveSupport::TestCase
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     @pm_for_menu_option = create_project_media(project: @project)
     @settings = {
-      'smooch_project_id' => @project.id,
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => @app_id,
       'smooch_secret_key_key_id' => random_string,
