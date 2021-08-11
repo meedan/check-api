@@ -134,7 +134,6 @@ module TeamDuplication
         new_tbi.team = team
         if new_tbi.user.name == 'Smooch'
           new_tbi = Bot::Smooch.sanitize_installation(new_tbi, true)
-          new_tbi.settings['smooch_project_id'] = @project_id_map[tbi.settings["smooch_project_id"]]
           new_tbi.settings['smooch_workflows'] = tbi.settings["smooch_workflows"].deep_dup
           tbi.settings['smooch_workflows'].to_a.each_with_index do |w, i|
             w['smooch_custom_resources'].to_a.each_with_index do |r, j|

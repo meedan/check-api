@@ -170,6 +170,8 @@ class Team < ActiveRecord::Base
   end
 
   def list_columns=(columns)
+    # Clear list_columns cache
+    Rails.cache.delete("list_columns:team:#{self.id}")
     columns = columns.is_a?(String) ? JSON.parse(columns) : columns
     self.send(:set_list_columns, columns)
   end
@@ -360,24 +362,31 @@ class Team < ActiveRecord::Base
   end
 
   def list_columns
-    show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
-    columns = []
-    Team.default_list_columns.each do |column|
-      columns << column.merge({ show: show_columns.include?(column[:key]) })
+    key = "list_columns:team:#{self.id}"
+    columns = Rails.cache.read(key)
+    if columns.blank?
+      show_columns = self.get_list_columns || Team.default_list_columns.select{ |c| c[:show] }.collect{ |c| c[:key] }
+      columns = []
+      Team.default_list_columns.each do |column|
+        columns << column.merge({ show: show_columns.include?(column[:key]) })
+      end
+      TeamTask.where(team_id: self.id, fieldset: 'metadata', associated_type: 'ProjectMedia').each do |tt|
+        key = "task_value_#{tt.id}"
+        columns << {
+          key: key,
+          label: tt.label,
+          show: show_columns.include?(key),
+          type: tt.task_type
+        }
+      end
+      columns.sort_by! do |column|
+        index = show_columns.index(column[:key])
+        index.nil? ? show_columns.size : index
+      end
+      # write the cache
+      Rails.cache.write(key, columns) unless columns.blank?
     end
-    TeamTask.where(team_id: self.id, fieldset: 'metadata', associated_type: 'ProjectMedia').each do |tt|
-      key = "task_value_#{tt.id}"
-      columns << {
-        key: key,
-        label: tt.label,
-        show: show_columns.include?(key),
-        type: tt.task_type
-      }
-    end
-    columns.sort_by do |column|
-      index = show_columns.index(column[:key])
-      index.nil? ? show_columns.size : index
-    end
+    columns
   end
 
   def self.reindex_statuses_after_deleting_status(ids_json, fallback_status_id)
