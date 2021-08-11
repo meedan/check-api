@@ -28,7 +28,7 @@ class ReportsControllerTest < ActionController::TestCase
     }
   end
 
-  test "zzz should return similar items" do
+  test "should return similar items" do
     create_report_design_annotation_type
     authenticate_with_token @a
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: [{ language: 'en', image: '' }] }.to_json, action: 'save', annotated: @pm
@@ -57,6 +57,37 @@ class ReportsControllerTest < ActionController::TestCase
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
     
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should return empty set if Alegre doesn't return anything" do
+    create_report_design_annotation_type
+    authenticate_with_token @a
+    3.times { create_project_media(team: @t) }
+
+    Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
+
+    get :index, filter: { similar_to_text: 'Test' }
+    assert_response :success
+    assert_equal 0, json_response['data'].size
+    assert_equal 0, json_response['meta']['record-count']
+
+    Bot::Alegre.unstub(:request_api)
+  end
+
+  test "should return empty set if Alegre Bot is not installed" do
+    create_report_design_annotation_type
+    authenticate_with_token create_api_key
+    3.times { create_project_media }
+    TeamBotInstallation.delete_all
+    BotUser.delete_all
+    Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
+
+    get :index, filter: { similar_to_text: 'Test' }
+    assert_response :success
+    assert_equal 0, json_response['data'].size
+    assert_equal 0, json_response['meta']['record-count']
+
     Bot::Alegre.unstub(:request_api)
   end
 end
