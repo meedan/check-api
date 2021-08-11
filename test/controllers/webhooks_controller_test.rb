@@ -12,13 +12,11 @@ class WebhooksControllerTest < ActionController::TestCase
       { name: 'smooch_secret_key_secret', label: 'Smooch Secret Key: Secret', type: 'string', default: '' },
       { name: 'smooch_webhook_secret', label: 'Smooch Webhook Secret', type: 'string', default: '' },
       { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
-      { name: 'smooch_project_id', label: 'Check Project ID', type: 'number', default: '' }
     ]
     @team = create_team
     @project = create_project team_id: @team.id
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: []
     settings = {
-      'smooch_project_id' => @project.id,
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => random_string,
       'smooch_secret_key_key_id' => random_string,
