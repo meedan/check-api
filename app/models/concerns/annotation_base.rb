@@ -63,7 +63,7 @@ module AnnotationBase
     include AssignmentConcern
     include AnnotationPrivate
 
-    attr_accessor :disable_es_callbacks, :is_being_copied, :force_version
+    attr_accessor :disable_es_callbacks, :is_being_copied, :force_version, :skip_trashed_validation
     self.table_name = 'annotations'
 
     notifies_pusher on: :save,
@@ -114,7 +114,7 @@ module AnnotationBase
 
     def annotated_is_not_archived
       annotated = self.annotated ? self.annotated.reload : nil
-      if annotated && annotated.respond_to?(:archived) && annotated.archived > CheckArchivedFlags::FlagCodes::NONE && self.annotator_type != 'BotUser'
+      if annotated && annotated.respond_to?(:archived) && annotated.archived > CheckArchivedFlags::FlagCodes::NONE && self.annotator_type != 'BotUser' && !self.skip_trashed_validation
         errors.add(:base, I18n.t(:error_annotated_archived))
       end
     end
