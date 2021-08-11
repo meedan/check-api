@@ -3020,4 +3020,15 @@ class TeamTest < ActiveSupport::TestCase
     t.save!
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 0, 'status_label')
   end
+
+  test "should add trashed link to duplicated team" do
+    m = create_valid_media
+    t1 = create_team
+    t2 = Team.duplicate(t1)
+    pm = create_project_media media: m, team: t1
+    pm = ProjectMedia.find(pm.id)
+    pm.archived = 1
+    pm.save!
+    create_project_media media: m, team: t2
+  end
 end

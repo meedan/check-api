@@ -105,6 +105,7 @@ class Bot::Keep < BotUser
       end
       current = begin JSON.parse(a.get_field_value('metrics_data')) rescue {} end
       a.set_fields = { metrics_data: current.merge(metrics).to_json }.to_json
+      a.skip_trashed_validation = true
       a.save!
     end
   end
