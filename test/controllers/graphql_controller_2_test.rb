@@ -1076,4 +1076,25 @@ class GraphqlController2Test < ActionController::TestCase
 
     assert_nil pm.get_annotations('extracted_text').last
   end
+
+  test "should get cached values for list columns" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    t.set_list_columns = ["updated_at_timestamp", "last_seen", "demand", "share_count", "folder", "linked_items_count", "suggestions_count", "type_of_media", "status", "created_at_timestamp", "report_status", "tags_as_sentence", "media_published_at", "comment_count", "reaction_count", "related_count"]
+    t.save!
+    5.times { create_project_media team: t }
+    u = create_user is_admin: true
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 5) { edges { node { list_columns_values } } } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+
+    assert_queries(9, '=') do
+      query = 'query CheckSearch { search(query: "{}") { medias(first: 5) { edges { node { list_columns_values } } } } }'
+      post :create, query: query, team: t.slug
+      assert_response :success
+    end
+  end
 end
