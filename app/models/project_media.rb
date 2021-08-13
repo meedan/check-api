@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media, :team
 
-  validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
+  validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
