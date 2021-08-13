@@ -441,7 +441,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
+    assert_equal [pm1.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
   test "should change role of bot" do
