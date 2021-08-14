@@ -81,7 +81,6 @@ class CheckSearch
     else
       @medias = get_pg_results
     end
-    @medias.each { |m| m.cached_team = self.team } if self.team
     @medias
   end
 

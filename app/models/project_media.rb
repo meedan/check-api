@@ -1,5 +1,5 @@
 class ProjectMedia < ActiveRecord::Base
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :cached_team
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -37,10 +37,6 @@ class ProjectMedia < ActiveRecord::Base
 
   def related_to_team?(team)
     self.team == team
-  end
-
-  def team
-    self.cached_team || Team.find_by_id(self.team_id)
   end
 
   def user_id_callback(value, _mapping_ids = nil)
