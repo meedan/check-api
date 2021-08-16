@@ -34,7 +34,6 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :title
   validates :lead_image, size: true
-  validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
   validate :project_group_is_under_same_team
 

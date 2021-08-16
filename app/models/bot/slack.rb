@@ -26,7 +26,6 @@ class Bot::Slack < BotUser
 
   def notify_slack(model, event = nil, channel = nil)
     t = model.team
-
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)
       channel ||= t.any_activity_channel
