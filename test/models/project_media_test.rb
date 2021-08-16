@@ -226,7 +226,23 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "item_added",
+      "values": ["#{p.id}"],
+      "slack_channel": "##{random_string}"
+    }
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "##{random_string}"
+    }
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     with_current_user_and_team(u, t) do
       m = create_valid_media
       pm = create_project_media team: t, media: m
@@ -234,13 +250,31 @@ class ProjectMediaTest < ActiveSupport::TestCase
       m = create_claim_media
       pm = create_project_media team: t, media: m
       assert pm.sent_to_slack
+      pm = create_project_media project: p
+      assert pm.sent_to_slack
     end
   end
 
   test "should not duplicate slack notification for custom slack list settings" do
     Rails.stubs(:env).returns(:production)
     t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    p = create_project team: t
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "item_added",
+      "values": ["#{p.id}"],
+      "slack_channel": "##{random_string}"
+    }
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "##{random_string}"
+    }
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     p = create_project team: t
     Sidekiq::Testing.fake! do
@@ -250,31 +284,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert_equal 0, SlackNotificationWorker.jobs.size
         create_project_media team: t
         assert_equal 1, SlackNotificationWorker.jobs.size
-        p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}]
-        p.save!
         SlackNotificationWorker.drain
         assert_equal 0, SlackNotificationWorker.jobs.size
-        create_project_media project: p.reload
+        create_project_media project: p
         assert_equal 1, SlackNotificationWorker.jobs.size
         Rails.unstub(:env)
       end
     end
-  end
-
-  test "should get slack channel" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    assert_nil pm.slack_channel('item_added')
-    p.set_slack_events = [{event: 'item_added', slack_channel: '#test'}, {event: 'item_deleted', slack_channel: '#test2'}]
-    p.save!
-    pm = pm.reload
-    assert_equal '#test', pm.slack_channel(nil)
-    assert_equal '#test', pm.slack_channel('item_added')
-    assert_equal '#test2', pm.slack_channel('item_deleted')
-    assert_nil pm.slack_channel('non_exist_event')
-    pm2 = create_project_media team: t
-    assert_nil pm2.slack_channel(nil)
   end
 
   test "should notify Pusher when project media is created" do

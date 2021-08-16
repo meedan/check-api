@@ -12,69 +12,65 @@
             "title": "<%= I18n.t(:team_slack_notification_label) %>",
             "type": "string"
           },
-          "condition": {
-            "title": "<%= I18n.t(:team_rule_condition) %>",
-            "type": "object",
-            "properties": {
-              "event_type": {
-                "title": "<%= I18n.t(:team_slack_notification_event_type) %>",
-                "type": "string",
-                "enum": [
-                  {
-                    "key": "any_activity",
-                    "value": "<%= I18n.t(:team_slack_notification_any_activity) %>"
-                  },
-                  {
-                    "key": "folder_is",
-                    "value": "<%= I18n.t(:team_slack_notification_folder_is) %>"
-                  },
-                  {
-                    "key": "status_is",
-                    "value": "<%= I18n.t(:team_slack_notification_status_is) %>"
-                  }
-                ]
+          "event_type": {
+            "title": "<%= I18n.t(:team_slack_notification_event_type) %>",
+            "type": "string",
+            "enum": [
+              {
+                "key": "any_activity",
+                "value": "<%= I18n.t(:team_slack_notification_any_activity) %>"
+              },
+              {
+                "key": "item_added",
+                "value": "<%= I18n.t(:team_slack_notification_folder_is) %>"
+              },
+              {
+                "key": "status_changed",
+                "value": "<%= I18n.t(:team_slack_notification_status_is) %>"
               }
-            },
+            ],
             "allOf": [
               {
                 "if": {
-                  "properties": { "event_type": { "const": "folder_is" } }
+                  "properties": { "event_type": { "const": "item_added" } }
                 },
                 "then": {
                   "properties": { 
                     "values": { 
                       "title": "<%= I18n.t(:team_slack_notification_select_folder) %>",
-                      "type": "string",
-                      "enum": <%= projects.to_json %> 
+                      "type": "array",
+                      "items": {
+                        "title": "<%= I18n.t(:team_slack_notification_select_folder) %>",
+                        "type": "string",
+                        "enum": <%= projects.to_json %>
+                      }
                     }
                   }
                 }
               },
               {
                 "if": {
-                  "properties": { "event_type": { "const": "status_is" } }
+                  "properties": { "event_type": { "const": "status_changed" } }
                 },
                 "then": {
                   "properties": {
                     "values": { 
                       "title": "<%= I18n.t(:team_rule_select_status) %>",
-                      "type": "string",
-                      "enum": <%= statuses.to_json %> 
-                    } 
+                      "type": "array",
+                      "items": {
+                        "title": "<%= I18n.t(:team_rule_select_status) %>",
+                        "type": "string",
+                        "enum": <%= statuses.to_json %>
+                      }
+                    }
                   }
                 }
               },
             ]
           },
-          "action": {
-            "title": "<%= I18n.t(:team_rule_action) %>",
-            "type": "object",
-            "properties": {
-              "slack_channel": {
-                "title": "<%= I18n.t(:team_slack_notification_slack_channel) %>",
-                "type": "string"
-              }
-            }
+          "slack_channel": {
+            "title": "<%= I18n.t(:team_slack_notification_slack_channel) %>",
+            "type": "string"
           }
         }
       }
