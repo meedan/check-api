@@ -39,13 +39,8 @@ module TeamSlackNotifications
 
   def apply_slack_notifications_events(pm)
     return if pm.skip_notifications || RequestStore.store[:skip_notifications]
-    begin
-      self.apply_notifications(pm).each do |notification|
-        self.slack_notification_action(pm, notification[:slack_channel])
-      end
-    rescue StandardError => e
-      Airbrake.notify(e, params: { team: self.name, project_media_id: pm.id, method: 'apply_slack_notification_events' }) if Airbrake.configured?
-      Rails.logger.info "[Slack Notifications] Exception when applying slack notification events to project media #{pm.id} for team #{self.id}"
+    self.apply_notifications(pm).each do |notification|
+      self.slack_notification_action(pm, notification[:slack_channel])
     end
   end
 

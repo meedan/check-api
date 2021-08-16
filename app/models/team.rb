@@ -122,10 +122,6 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_webhook, webhook)
   end
 
-  def slack_channel=(channel)
-    self.send(:set_slack_channel, channel)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)

@@ -1304,16 +1304,15 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal r, new.get_dynamic_annotation('report_design')
   end
 
-  test "should get and set Slack settings for project" do
+  test "should get and set Slack settings for team" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     authenticate_with_user(u)
-    query = 'mutation { updateProject(input: { clientMutationId: "1", id: "' + p.graphql_id + '", slack_events: "[{\"event\":\"item_added\",\"slack_channel\":\"#list\"}]" }) { project { get_slack_events } } }'
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", slack_notifications: "[{\"label\":\"not #1\",\"event_type\":\"any_activity\",\"slack_channel\":\"#list\"}]" }) { team { get_slack_notifications } } }'
     post :create, query: query, team: t.slug
     assert_response :success
-    assert_equal([{ 'event' => 'item_added', 'slack_channel' => '#list' }], JSON.parse(@response.body)['data']['updateProject']['project']['get_slack_events'])
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do
