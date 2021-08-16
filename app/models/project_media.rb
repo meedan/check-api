@@ -15,7 +15,7 @@ class ProjectMedia < ActiveRecord::Base
 
   validates_presence_of :media, :team
 
-  validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }
+  validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
   validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validates :channel, included: { values: CheckChannels::ChannelCodes::ALL }, on: :create
@@ -272,16 +272,18 @@ class ProjectMedia < ActiveRecord::Base
   end
 
   def list_columns_values
-    values = {}
-    columns = self.team.list_columns || Team.default_list_columns
-    columns.each do |column|
-      c = column.with_indifferent_access
-      if c[:show]
-        key = c[:key]
-        values[key] = self.send(key)
+    Concurrent::Future.execute(executor: POOL) do
+      values = {}
+      columns = self.team.list_columns || Team.default_list_columns
+      columns.each do |column|
+        c = column.with_indifferent_access
+        if c[:show]
+          key = c[:key]
+          values[key] = self.send(key)
+        end
       end
+      values
     end
-    values
   end
 
   def remove_related_team_tasks_bg(pid)
