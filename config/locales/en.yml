@@ -700,6 +700,15 @@ en:
   team_rule_select_field_value_tasks: Select answer
   team_rule_item_is_assigned_to_user: Item is assigned to
   team_rule_add_tag: Add tag
+  team_slack_notifications: Slack notifications
+  team_slack_notification_label: Slack notification label
+  team_slack_notification_any_activity: Any workspace activity
+  team_slack_notification_folder_is: Item is added to folder...
+  team_slack_notification_status_is: Status is changed to...
+  team_slack_notification_select_folder: Select folder
+  team_slack_notification_slack_channel: send notification to
+  team_slack_notification_event_type: Event type
+  team_slack_notification_label_invalid: Slack notifications label can't be blank and must be unique
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical

@@ -31,6 +31,7 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :dynamic_search_fields_json_schema, JsonStringType
   field :get_rules, JsonStringType
   field :rules_json_schema, types.String
+  field :slack_notifications_json_schema, types.String
   field :rules_search_fields_json_schema, JsonStringType
   field :medias_count, types.Int
   field :trash_count, types.Int

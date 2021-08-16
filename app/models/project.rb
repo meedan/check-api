@@ -127,14 +127,6 @@ class Project < ActiveRecord::Base
     project
   end
 
-  def slack_notifications_enabled=(enabled)
-    self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def slack_channel=(channel)
-    self.send(:set_slack_channel, channel)
-  end
-
   def update_elasticsearch_doc_team_bg(_options)
     client = $repository.client
     options = {
@@ -248,11 +240,6 @@ class Project < ActiveRecord::Base
 
   def inactive
     team.inactive
-  end
-
-  def slack_events=(events_json)
-    self.skip_notifications = true
-    self.set_slack_events = JSON.parse(events_json)
   end
 
   def self.bulk_update_medias_count(pids)

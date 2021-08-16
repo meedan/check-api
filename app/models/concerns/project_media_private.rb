@@ -66,6 +66,10 @@ module ProjectMediaPrivate
     self.team.apply_rules_and_actions(self, rule_ids)
   end
 
+  def send_slack_notification_events
+    self.team.apply_slack_notifications_events(self)
+  end
+
   def set_team_id
     if self.team_id.blank? && !self.project_id.blank?
       project = Project.find_by_id self.project_id

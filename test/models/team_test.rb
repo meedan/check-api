@@ -3031,4 +3031,65 @@ class TeamTest < ActiveSupport::TestCase
     pm.save!
     create_project_media media: m, team: t2
   end
+
+  test "should return slack notifications as JSON schema" do
+    t = create_team
+    create_project team: t
+    create_project team: t
+    assert_not_nil t.slack_notifications_json_schema
+  end
+
+  test "should match slack notifications based on status" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    t = create_team
+    p0 = create_project team: t
+    p1 = create_project team: t
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "condition": {
+        "event_type": "status_is",
+        "values": "in_progress"
+      },
+      "action": {
+        "slack_channel": "@melsawy"
+      }
+    }
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
+    pm1 = create_project_media project: p0, disable_es_callbacks: false
+    s = pm1.last_status_obj
+    s.status = 'in_progress'
+    s.save!
+  end
+
+  test "should match slack notifications based on folder" do
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    p = create_project team: t
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "condition": {
+        "event_type": "folder_is",
+        "values": "#{p.id}"
+      },
+      "action": {
+        "slack_channel": "@melsawy"
+      }
+    }
+    slack_notifications << {
+      "label": random_string,
+      "condition": {
+        "event_type": "any_activity",
+      },
+      "action": {
+        "slack_channel": "@melsawy"
+      }
+    }
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
+    pm = create_project_media project: p, disable_es_callbacks: false
+  end
 end
