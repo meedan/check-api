@@ -38,7 +38,7 @@ class Bot::Alegre < BotUser
           match_id, score = matches
           match = ProjectMedia.find_by_id(match_id)
           return if match.nil?
-          parent = Relationship.confirmed_parent(match)
+          parent = Relationship.where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).where(target_id: match_id).first || match
           Bot::Alegre.create_relationship(parent, pm, score, Relationship.suggested_type)
         end
       end
