@@ -73,12 +73,6 @@ ActiveRecord::Schema.define(version: 20210812190835) do
     t.string   "application"
   end
 
-  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
-    t.string   "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "assignments", force: :cascade do |t|
     t.integer  "assigned_id",   null: false
     t.integer  "user_id",       null: false

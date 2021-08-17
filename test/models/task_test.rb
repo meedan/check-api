@@ -702,4 +702,11 @@ class TaskTest < ActiveSupport::TestCase
     assert_kind_of Array, file_urls
     assert_equal 2, file_urls.size
   end
+
+  test "should get team task from task" do
+    t = create_team
+    tt = create_team_task team_id: t.id
+    pm = create_project_media team: t
+    assert_equal tt, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).last.team_task
+  end
 end
