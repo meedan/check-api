@@ -56,9 +56,10 @@ module Api
         ids = nil
         unless text.blank?
           fields = filters[:similarity_fields].blank? ? nil : filters[:similarity_fields].to_a.flatten
-          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, {value: threshold}, nil, filters.dig(:fuzzy, 0))
+          ids_and_scores = Bot::Alegre.get_similar_texts(organization_ids, text[0], fields, { value: threshold }, nil, filters.dig(:fuzzy, 0))
           RequestStore.store[:scores] = ids_and_scores # Store the scores so we can return them
-          ids = ids_and_scores.keys.uniq || [0]
+          ids = ids_and_scores.keys.uniq
+          ids = [0] if ids.blank?
         end
         ids
       end
@@ -69,7 +70,7 @@ module Api
           threshold,
           "api_v2_similar_image/#{SecureRandom.hex}",
           filters[:similar_to_image],
-          "image"
+          'image'
         )
       end
 
@@ -79,7 +80,7 @@ module Api
           threshold,
           "api_v2_similar_video/#{SecureRandom.hex}",
           filters[:similar_to_video],
-          "video"
+          'video'
         )
       end
 
@@ -89,7 +90,7 @@ module Api
           threshold,
           "api_v2_similar_audio/#{SecureRandom.hex}",
           filters[:similar_to_audio],
-          "audio"
+          'audio'
         )
       end
 

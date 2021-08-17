@@ -17,7 +17,7 @@ TeamTaskType = GraphqlCrudOperations.define_default_type do
   field :fieldset, types.String
   field :associated_type, types.String
   field :show_in_browser_extension, types.Boolean
-  field :is_child, types.Boolean
+  field :conditional_info, types.String
 
   field :type do
     type types.String

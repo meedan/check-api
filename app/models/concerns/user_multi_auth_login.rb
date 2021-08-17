@@ -103,7 +103,7 @@ module UserMultiAuthLogin
         account = Account.where(token: token).last
         account.nil? ? User.where(token: token).last&.id : account.user&.id
       end
-      uid ? User.find(uid) : nil
+      uid ? User.find_by_id(uid) : nil
     end
 
     def accept_invitation_or_confirm

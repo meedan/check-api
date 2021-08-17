@@ -156,9 +156,12 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        pm.project_id = project.id
-        pm.save!
-        CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
+        unless pm.nil?
+          pm.project_id = project.id
+          pm.skip_check_ability = true
+          pm.save!
+          CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
+        end
       end
     end
 

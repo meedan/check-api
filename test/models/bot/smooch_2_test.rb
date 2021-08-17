@@ -92,18 +92,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     assert_equal 'verified', s.status
   end
 
-  # test "should handle race condition on state machine" do
-  #   passed = false
-  #   while !passed
-  #     if run_concurrent_requests == 2
-  #       passed = true
-  #     else
-  #       puts 'Test "should handle race condition on state machine" failed, retrying...'
-  #     end
-  #   end
-  #   assert passed
-  # end
-
   test "should inherit status from parent" do
     parent = create_project_media project: @project
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
@@ -594,6 +582,4 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
       end
     end
   end
-
-  # Add tests to test/models/bot/smooch_3_test.rb
 end

@@ -18,6 +18,8 @@ module SmoochTos
     kn: 'ನಾವು ಎಂದಿಗೂ ನಿಮ್ಮ ವೈಯಕ್ತಿಕವಾಗಿ ಗುರುತಿಸಬಹುದಾದ ಮಾಹಿತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ. ನಮ್ಮ ಗೌಪ್ಯತೆ ಮತ್ತು ಉದ್ದೇಶ ಹೇಳಿಕೆಯನ್ನು ಓದಲು 9 ಎಂದು ಪ್ರತಿಕ್ರಿಯಿಸಿ.',
     ur: 'ہم آپ کی ذاتی شناخت والی معلومات کبھی بھی شیئر نہیں کریں گے۔ ہماری پرائیویسی اور مقصد والے بیان کے مطالعہ کیلئے جواب 9 میں دیجئے۔',
     pa: 'ਅਸੀਂ ਕਦੇ ਵੀ ਤੁਹਾਡੀ ਨਿੱਜੀ ਪਛਾਣ ਕਰਨ ਵਾਲੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸਾਂਝਾ ਨਹੀਂ ਕਰਾਂਗੇ। ਸਾਡੇ ਗੋਪਨੀਯਤਾ ਅਤੇ ਉਦੇਸ਼ ਕਥਨ ਨੂੰ ਪੜ੍ਹਨ ਲਈ ਜਵਾਬ ਵਿੱਚ 9 ਭੇਜੋ।',
+    id: 'Kami tidak akan pernah membagikan informasi pengenal pribadi Anda. Balas dengan angka 9 untuk membaca pernyataan Privasi dan Tujuan kami.',
+    de: 'Wir werden Daten, mit denen Sie identifiziert werden können, niemals weitergeben. Drücken Sie 9, um unsere Datenschutzbestimmungen zu lesen.'
   }
 
   CONTENT = {
@@ -190,7 +192,6 @@ module SmoochTos
 
       ಈ ಕಾರ್ಯದಲ್ಲಿ ನಿಮ್ಮ ಸಲ್ಲಿಕೆಗಳನ್ನು ಬಳಸಬಾರದು ಎಂದು ನೀವು ಬಯಸಿದರೆ, ದಯವಿಟ್ಟು ನಮ್ಮ ವ್ಯವಸ್ಥೆಗೆ ಕೊಡುಗೆ ನೀಡಬೇಡಿ.
 
-
       ----------
 
       📌ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಒಂದು ಸಂಖ್ಯೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ.
@@ -241,6 +242,48 @@ module SmoochTos
 
       0. ਮੁੱਖ ਮੀਨੂ ↩
     },
+
+    id: %{
+      Privasi dan Tujuan
+
+      Selamat datang di {partner team name} tipline WhatsApp. Kami berupaya menjadikan Anda sumber informasi yang lebih baik untuk keluarga dan teman Anda di WhatsApp. 
+
+      Anda dapat menggunakan nomor ini untuk mengirimkan pertanyaan untuk diverifikasi. Kami tidak dapat menanggapi setiap permintaan, tetapi data Anda akan tetap aman. 
+
+      Kami menganggap serius tanggung jawab kami untuk menjaga informasi pribadi Anda dan menjaga WhatsApp tetap pribadi dan aman; tidak akan pernah membagikan, menjual, atau menggunakan informasi pengenal pribadi (PII) Anda kecuali untuk menyediakan dan meningkatkan layanan ini.
+       
+      Untuk mendeteksi kesalahan informasi viral sedini mungkin di masa mendatang, kami dapat membagikan konten non-PII dari tipline ini dengan peneliti dan mitra pengecek fakta yang terpilih. 
+
+      Mohon dicatat bahwa situs web yang kami tautkan akan memiliki kebijakan privasi mereka sendiri.
+
+      Jika Anda tidak ingin kiriman Anda digunakan dalam pekerjaan ini, mohon jangan berkontribusi pada sistem kami.
+
+      ----------
+      
+      📌 Ketik nomor untuk menavigasi.
+
+      0. Menu Utama ↩
+    },
+
+    de: %{
+      Datenschutzbestimmungen
+
+      Willkommen bei der WhatsApp-Hinweisnummer von {partner team name}. Wir arbeiten daran, dass Sie für Ihre Familie und Freunde bei WhatsApp eine zuverlässigere Informationsquelle werden.
+
+      Sie können diese Nummer verwenden, um uns Ihre Anfragen zu einer Wahrheitsprüfung zuzusenden. Wir können leider nicht jede Anfrage beantworten, aber Ihre Daten sind auf jeden Fall geschützt.
+
+      Wir nehmen unsere Verantwortung zum Schutz Ihrer personenbezogenen Daten sehr ernst und wollen WhatsApp privat und sicher halten; wir werden personenbezogene Daten, mit denen Sie identifiziert werden können, niemals weitergeben, verkaufen oder anderweitig verwenden, außer um unseren Service anzubieten und zu verbessern.
+
+      Um zukünftig virale Desinformation so schnell wie möglich erkennen zu können, geben wir nicht-personenbezogene Informationen von dieser Hinweisnummer möglicherweise an geprüfte Rechercheure und Partner weiter, die Fakten für uns überprüfen.
+
+      Bitte beachten Sie, dass von uns verlinkte Webseiten ihre eigenen Datenschutzbestimmungen haben. \n Wenn Sie nicht wollen, dass Ihre Anfragen derartig verwendet werden, wirken Sie bei unserem System bitte einfach nicht mit.
+
+      ----------
+      
+      Nummer eintippen zum Navigieren.
+
+      0. Hauptmenü ↩
+    }
   }
 
   module ClassMethods

@@ -11,7 +11,7 @@ module TeamTaskMutations
     fieldset: 'str',
     associated_type: 'str',
     show_in_browser_extension: 'bool',
-    is_child: 'bool'
+    conditional_info: 'str'
   }
 
   create_fields = fields.merge({
