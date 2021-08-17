@@ -154,7 +154,8 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project].each{ |klass| klass.delete_all }
+    # puts "Starting test #{self.class.name}/#{self.method_name}"
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
@@ -187,6 +188,7 @@ class ActiveSupport::TestCase
     User.current = nil
     RequestStore.clear!
     CONFIG.unstub(:[])
+    # puts "Finished test #{self.class.name}/#{self.method_name}"
   end
 
   def valid_flags_data(random = true)
@@ -744,12 +746,6 @@ class ActiveSupport::TestCase
         "default": ""
       },
       {
-        "name": "smooch_project_id",
-        "label": "Check Project ID",
-        "type": "number",
-        "default": ""
-      },
-      {
         "name": "smooch_twitter_authorization_url",
         "label": "Visit this link to authorize the Twitter Business Account that will forward DMs to this bot",
         "type": "readonly",
@@ -785,7 +781,6 @@ class ActiveSupport::TestCase
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     @pm_for_menu_option = create_project_media(project: @project)
     @settings = {
-      'smooch_project_id' => @project.id,
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => @app_id,
       'smooch_secret_key_key_id' => random_string,
