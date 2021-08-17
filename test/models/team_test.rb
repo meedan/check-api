@@ -438,13 +438,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'https://hooks.slack.com/services/123456', t.get_slack_webhook
   end
 
-  test "should set slack_channel" do
-    t = create_team
-    t.slack_channel = '#my-channel'
-    t.save
-    assert_equal '#my-channel', t.reload.get_slack_channel
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { name: 'My team', slug: 'my-team' }
     params = ActionController::Parameters.new(raw_params)
