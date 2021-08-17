@@ -24,11 +24,11 @@ class Bot::Slack < BotUser
     User.current.present?
   end
 
-  def notify_slack(model, event = nil, channel = nil)
+  def notify_slack(model, event = nil)
     t = model.team
     if self.should_notify?(t, model)
       webhook = t.setting(:slack_webhook)
-      channel ||= t.any_activity_channel
+      channel = t.get_slack_notifications_channel(model)
       attachment = model.slack_notification_message(event) if model.respond_to?(:slack_notification_message)
       attachment = {
         pretext: attachment

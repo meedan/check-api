@@ -223,6 +223,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should notify Slack when project media is created" do
+    create_verification_status_stuff
     t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'admin'
@@ -241,6 +242,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
       "event_type": "any_activity",
       "slack_channel": "##{random_string}"
     }
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "status_changed",
+      "values": ["in_progress"],
+      "slack_channel": "##{random_string}"
+    }
     t.slack_notifications = slack_notifications.to_json
     t.save!
     with_current_user_and_team(u, t) do
@@ -252,6 +259,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert pm.sent_to_slack
       pm = create_project_media project: p
       assert pm.sent_to_slack
+      # status changes
+      s = pm.last_status_obj
+      s.status = 'in_progress'
+      s.save!
+      assert s.sent_to_slack
     end
   end
 

@@ -22,7 +22,7 @@ class ProjectMedia < ActiveRecord::Base
   validates :channel, inclusion: { in: ->(pm) { [pm.channel_was] }, message: :channel_update }, on: :update
 
   before_validation :set_team_id, :set_channel, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification_events, :create_relationship, :create_team_tasks
+  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item
