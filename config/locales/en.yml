@@ -708,7 +708,6 @@ en:
   team_slack_notification_select_folder: Select folder
   team_slack_notification_slack_channel: send notification to
   team_slack_notification_event_type: Event type
-  team_slack_notification_label_invalid: Slack notifications label can't be blank and must be unique
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical

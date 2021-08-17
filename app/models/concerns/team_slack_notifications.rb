@@ -8,6 +8,8 @@ module TeamSlackNotifications
   SLACK_NOTIFICATIONS_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'slack_json_schema.json'))
 
   included do
+    validate :slack_channel_format
+
     def status_changed(model, values)
       model.is_annotation? && model.annotation_type == 'verification_status' && values.include?(model.status)
     end
@@ -46,5 +48,18 @@ module TeamSlackNotifications
       end
     end
     other_events.blank? ? any_activity.first : other_events.first
+  end
+
+  private
+
+  def slack_channel_format
+    invalid_channels = []
+    unless self.get_slack_notifications.blank?
+      self.get_slack_notifications.map(&:with_indifferent_access).each do |notification|
+        channel = notification[:slack_channel]
+        invalid_channels << channel if !channel.blank? && /\A[#@]/.match(channel).nil?
+      end
+    end
+    self.errors.add(:base, I18n.t(:slack_channel_format_wrong)) unless invalid_channels.blank?
   end
 end

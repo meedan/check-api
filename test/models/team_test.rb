@@ -276,6 +276,41 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate Slack channel" do
+    t = create_team
+    p = create_project team: t
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "@#{random_string}"
+    }
+    assert_nothing_raised do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "item_added",
+      "values": ["#{p.id}"],
+      "slack_channel": "##{random_string}"
+    }
+    assert_nothing_raised do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "status_changed",
+      "values": ["in_progress"],
+      "slack_channel": "#{random_string}"
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+  end
+
   test "should downcase slug" do
     t = create_team slug: 'NewsLab'
     assert_equal 'newslab', t.reload.slug
