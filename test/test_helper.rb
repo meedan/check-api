@@ -155,7 +155,7 @@ class ActiveSupport::TestCase
 
   def setup
     # puts "Starting test #{self.class.name}/#{self.method_name}"
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, BotResource].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
     DynamicAnnotation::FieldInstance.where.not(name: 'metadata_value').delete_all
