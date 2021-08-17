@@ -504,24 +504,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil t.search_id
   end
 
-  test "should save valid slack_channel" do
-    t = create_team
-    value =  "#slack_channel"
-    assert_nothing_raised do
-      t.set_slack_channel(value)
-      t.save!
-    end
-  end
-
-  test "should not save slack_channel if is not valid" do
-    t = create_team
-    value = 'invalid_channel'
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_slack_channel(value)
-      t.save!
-    end
-  end
-
   test "should be private by default" do
     Team.delete_all
     t = Team.new
