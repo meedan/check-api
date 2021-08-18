@@ -3048,4 +3048,14 @@ class TeamTest < ActiveSupport::TestCase
     create_project team: t
     assert_not_nil t.slack_notifications_json_schema
   end
+
+  test "should map team tasks on saved searches when duplicating team" do
+    t1 = create_team
+    tt1 = create_team_task team: t1
+    ss1 = create_saved_search team: t1, filters: { 'team_tasks' => [{ 'id' => tt1.id.to_s, 'task_type' => 'free_text', 'response' => 'ANY_VALUE' }] }
+    t2 = Team.duplicate(t1)
+    tt2 = t2.team_tasks.first
+    ss2 = t2.saved_searches.first
+    assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
+  end
 end
