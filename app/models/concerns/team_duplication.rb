@@ -173,6 +173,7 @@ module TeamDuplication
           filters[filter] = filters[filter].collect { |id| collection[id.to_i].to_s }
         end
       end
+      filters['team_tasks'].to_a.each_with_index { |filter, i| filters['team_tasks'][i]['id'] = self.team_task_map[filter['id'].to_i].to_s }
       filters
     end
   end
