@@ -51,7 +51,7 @@ module SmoochResources
           feed = RSS::Parser.parse(rss, false)
           feed.items.first(count).each do |item|
             output << item.title.strip + "\n" + item.link.strip
-          end
+          end unless feed.nil?
         end
       rescue StandardError => e
         self.notify_error(e, { bot: 'Smooch', operation: 'Render RSS Feed', url: url }, RequestStore[:request])
