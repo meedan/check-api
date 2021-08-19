@@ -1,6 +1,7 @@
 namespace :check do
   namespace :migrate do
     task index_extracted_text: :environment do
+      started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
       last_team_id = Rails.cache.read('check:migrate:index_extracted_text:team_id') || 0
@@ -22,7 +23,7 @@ namespace :check do
         Rails.cache.write('check:migrate:add_channel_to_project_medias:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
-      puts "[#{Time.now}] Done in #{minutes} minutes. Errors: #{errors}"
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
