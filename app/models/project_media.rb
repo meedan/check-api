@@ -307,16 +307,6 @@ class ProjectMedia < ActiveRecord::Base
     end
   end
 
-  def slack_channel(event)
-    return nil if self.project_id.nil?
-    event ||= 'item_added'
-    slack_events = self.project.setting(:slack_events)
-    slack_events ||= []
-    slack_events.map!(&:with_indifferent_access)
-    selected_event = slack_events.select{|i| i['event'] == event }.last
-    selected_event.blank? ? nil : selected_event['slack_channel']
-  end
-
   def user_can_see_project?(user = User.current)
     project = self.project
     project.nil? || project.privacy <= Project.privacy_for_role(project.team, user)

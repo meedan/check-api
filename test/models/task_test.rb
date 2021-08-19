@@ -135,7 +135,15 @@ class TaskTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
@@ -157,7 +165,15 @@ class TaskTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
@@ -201,7 +217,15 @@ class TaskTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
@@ -235,7 +259,15 @@ class TaskTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     pm = create_project_media project: p
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
@@ -682,7 +714,15 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     pm = create_project_media team: t
     create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json
     with_current_user_and_team(u, t) do

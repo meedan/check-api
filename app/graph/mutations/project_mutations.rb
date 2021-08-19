@@ -9,10 +9,8 @@ module ProjectMutations
   update_fields = {
     description: 'str',
     title: 'str',
-    set_slack_channel: 'str',
     assigned_to_ids: 'str',
     assignment_message: 'str',
-    slack_events: 'str',
     project_group_id: 'int',
     previous_project_group_id: 'int',
     privacy: 'int'
