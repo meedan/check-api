@@ -257,7 +257,15 @@ class CommentTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     pm = create_project_media project: p
     pm2 = create_project_media project: p
     with_current_user_and_team(u, t) do

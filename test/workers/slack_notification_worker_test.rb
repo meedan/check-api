@@ -10,7 +10,15 @@ class SlackNotificationWorkerTest < ActiveSupport::TestCase
   test "should notify Slack in background" do
     Rails.stubs(:env).returns(:production)
     t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     with_current_user_and_team(u, t) do
       create_team_user team: t, user: u, role: 'admin'
