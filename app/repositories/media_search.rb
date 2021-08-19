@@ -115,5 +115,7 @@ class MediaSearch
     indexes :url, { type: 'text', analyzer: 'check' }
 
     indexes :channel, { type: 'integer' }
+
+    indexes :extracted_text, { type: 'text', analyzer: 'check' }
   end
 end

@@ -129,6 +129,7 @@ class Dynamic < ActiveRecord::Base
   def add_update_elasticsearch_dynamic(op)
     return if self.disable_es_callbacks
     handle_elasticsearch_response(op)
+    handle_extracted_text(op)
     op = 'create_or_update' if annotation_type == 'smooch'
     options = get_elasticsearch_options_dynamic
     options.merge!({op: op, nested_key: 'dynamics'})
@@ -153,6 +154,13 @@ class Dynamic < ActiveRecord::Base
     end
   end
 
+  def handle_extracted_text(op)
+    if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
+      value = op == 'destroy' ? '' : self.data['text']
+      self.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, self.annotated)
+    end
+  end
+
   def handle_destroy_response(task, pm)
     # destroy choice should reset the answer to nil to keep search for ANY/NON value in ES
     # so it'll be update action for choice
@@ -168,6 +176,7 @@ class Dynamic < ActiveRecord::Base
     destroy_es_items('dynamics')
     # destroy task response
     handle_elasticsearch_response('destroy')
+    handle_extracted_text('destroy')
   end
 
   def annotation_type_exists
