@@ -426,6 +426,10 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     assert_equal output, Bot::Smooch.render_articles_from_rss_feed(url)
+    WebMock.stub_request(:get, url).to_return(status: 404, body: 'not valid RSS')
+    assert_nothing_raised do
+      Bot::Smooch.render_articles_from_rss_feed(url)
+    end
   end
 
   test "should refresh RSS cache" do
