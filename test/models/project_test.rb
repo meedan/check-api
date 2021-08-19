@@ -241,7 +241,15 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should notify Slack when project is created if there are settings and user and notifications are enabled" do
     t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
@@ -260,7 +268,15 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should not notify Slack when project is created if not enabled" do
     t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 0; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 0
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = create_project context_team: t, team: t, current_user: u
@@ -313,41 +329,9 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "should set slack_notifications_enabled" do
-    p = create_project
-    p.slack_notifications_enabled = true
-    p.save
-    assert p.get_slack_notifications_enabled
-  end
-
-  test "should set slack_channel" do
-    p = create_project
-    p.slack_channel = 'my-channel'
-    p.save
-    assert_equal 'my-channel', p.get_slack_channel
-  end
-
   test "should have search id" do
     p = create_project
     assert_not_nil p.search_id
-  end
-
-  test "should save valid slack_channel" do
-    p = create_project
-    value =  "#slack_channel"
-    assert_nothing_raised do
-      p.set_slack_channel(value)
-      p.save!
-    end
-  end
-
-  test "should not save slack_channel if is not valid" do
-    p = create_project
-    value = 'invalid_channel'
-    assert_raises ActiveRecord::RecordInvalid do
-      p.set_slack_channel(value)
-      p.save!
-    end
   end
 
   test "should have token" do
@@ -491,7 +475,15 @@ class ProjectTest < ActiveSupport::TestCase
   test "should notify Slack when project is assigned" do
     t = create_team slug: 'test'
     p = create_project team: t
-    t.set_slack_notifications_enabled = 1; t.set_slack_webhook = 'https://hooks.slack.com/services/123'; t.set_slack_channel = '#test'; t.save!
+    t.set_slack_notifications_enabled = 1
+    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     p = Project.find(p.id)

@@ -10,6 +10,7 @@ class Team < ActiveRecord::Base
   include TeamPrivate
   include TeamDuplication
   include TeamRules
+  include TeamSlackNotifications
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
 
@@ -121,10 +122,6 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_webhook, webhook)
   end
 
-  def slack_channel=(channel)
-    self.send(:set_slack_channel, channel)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -158,6 +155,10 @@ class Team < ActiveRecord::Base
 
   def rules=(rules)
     self.send(:set_rules, JSON.parse(rules))
+  end
+
+  def slack_notifications=(slack_notifications)
+    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
 
   def languages=(languages)

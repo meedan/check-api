@@ -34,7 +34,6 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :title
   validates :lead_image, size: true
-  validate :slack_channel_format, unless: proc { |p| p.settings.nil? }
   validate :team_is_not_archived, unless: proc { |p| p.is_being_copied }
   validate :project_group_is_under_same_team
 
@@ -125,14 +124,6 @@ class Project < ActiveRecord::Base
       }
     end
     project
-  end
-
-  def slack_notifications_enabled=(enabled)
-    self.send(:set_slack_notifications_enabled, enabled)
-  end
-
-  def slack_channel=(channel)
-    self.send(:set_slack_channel, channel)
   end
 
   def update_elasticsearch_doc_team_bg(_options)
@@ -248,11 +239,6 @@ class Project < ActiveRecord::Base
 
   def inactive
     team.inactive
-  end
-
-  def slack_events=(events_json)
-    self.skip_notifications = true
-    self.set_slack_events = JSON.parse(events_json)
   end
 
   def self.bulk_update_medias_count(pids)

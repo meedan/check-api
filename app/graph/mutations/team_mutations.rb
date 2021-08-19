@@ -14,11 +14,11 @@ module TeamMutations
     description: 'str',
     slack_notifications_enabled: 'str',
     slack_webhook: 'str',
-    slack_channel: 'str',
     add_auto_task: 'json',
     media_verification_statuses: 'json',
     set_team_tasks: 'json',
     rules: 'str',
+    slack_notifications: 'str',
     remove_auto_task: 'str', # label
     empty_trash: 'int',
     report: 'json',
