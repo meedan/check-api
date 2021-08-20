@@ -20,7 +20,7 @@ namespace :check do
           end
           client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:migrate:add_channel_to_project_medias:team_id', team.id)
+        Rails.cache.write('check:migrate:index_extracted_text:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
