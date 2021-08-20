@@ -222,12 +222,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Slack when project media is created" do
+  test "should notify Slack based on slack events" do
     create_verification_status_stuff
     t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
+    p2 = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = []
@@ -264,6 +265,11 @@ class ProjectMediaTest < ActiveSupport::TestCase
       s.status = 'in_progress'
       s.save!
       assert s.sent_to_slack
+      # move item
+      pm = create_project_media project: p2
+      pm.project_id = p.id
+      pm.save!
+      assert pm.sent_to_slack
     end
   end
 
