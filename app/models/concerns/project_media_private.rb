@@ -96,7 +96,7 @@ module ProjectMediaPrivate
   end
 
   def send_move_to_slack_notification
-    self.send_slack_notification('update') if self.project_id_changed?
+    self.send_slack_notification('move_to') if self.project_id_changed?
   end
 
   def project_is_not_archived

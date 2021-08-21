@@ -201,6 +201,7 @@ en:
       project_media_create_related: "%{user} (%{role} at %{team}) added a related
         %{type}"
       project_media_update: "%{user} (%{role} at %{team}) updated an item"
+      project_media_move_to: "%{user} (%{role} at %{team}) moved an item to %{project}"
       project_media_added_to_list: "%{user} (%{role} at %{team}) added an item to
         folder %{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow}
