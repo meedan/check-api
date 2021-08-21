@@ -66,6 +66,7 @@ class ProjectMedia < ActiveRecord::Base
       description: Bot::Slack.to_slack(self.description, false),
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
+      project: Bot::Slack.to_slack(self.project&.title),
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
@@ -83,9 +84,9 @@ class ProjectMedia < ActiveRecord::Base
     return "<#{self.full_url}|#{text}>"
   end
 
-  def slack_notification_message(update = false)
+  def slack_notification_message(event = nil)
     params = self.slack_params
-    event = update ? 'update' : 'create'
+    event ||= 'create'
     related = params[:related_to].blank? ? '' : '_related'
     pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
     # Either render a card or update an existing one
