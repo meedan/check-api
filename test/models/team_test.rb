@@ -2908,11 +2908,20 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should duplicate team with Smooch Bot" do
+  test "should duplicate team with Bots" do
     setup_smooch_bot(true)
+    alegre_bot = create_alegre_bot(name: "alegre", login: "alegre")
+    alegre_bot.approve!
+    alegre_bot.install_to!(@team)
+    tbi = TeamBotInstallation.where(team: @team)
+    assert_equal ['alegre', 'smooch'], tbi.map(&:user).map(&:login).sort
+    duplicate_team = nil
     assert_nothing_raised do
-      Team.duplicate(@team)
+      duplicate_team = Team.duplicate(@team)
     end
+    assert_not_nil duplicate_team
+    tbi = TeamBotInstallation.where(team: duplicate_team)
+    assert_equal ['alegre'], tbi.map(&:user).map(&:login)
   end
 
   test "should delete team and partition" do
