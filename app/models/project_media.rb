@@ -84,7 +84,7 @@ class ProjectMedia < ActiveRecord::Base
     return "<#{self.full_url}|#{text}>"
   end
 
-  def slack_notification_message(event)
+  def slack_notification_message(event = nil)
     params = self.slack_params
     event ||= 'create'
     related = params[:related_to].blank? ? '' : '_related'
