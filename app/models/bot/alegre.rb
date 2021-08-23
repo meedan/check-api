@@ -203,7 +203,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('get', '/text/langid/', { text: text }, 'query')
+      response = self.request_api('post', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
     rescue
       nil

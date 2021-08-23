@@ -33,9 +33,10 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       alegre.given('a text exists').
       upon_receiving('a request to identify its language').
       with(
-        method: :get,
+        method: :post,
         path: '/text/langid/',
-        query: {text: 'This is a test'}
+        headers: {'Content-Type' => 'application/json'},
+        body: {text: 'This is a test'}
       ).
       will_respond_with(
         status: 200,
