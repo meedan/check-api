@@ -95,6 +95,10 @@ module ProjectMediaPrivate
     end
   end
 
+  def send_move_to_slack_notification
+    self.send_slack_notification('move_to') if self.project_id_changed?
+  end
+
   def project_is_not_archived
     parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end

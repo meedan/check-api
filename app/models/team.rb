@@ -10,6 +10,7 @@ class Team < ActiveRecord::Base
   include TeamPrivate
   include TeamDuplication
   include TeamRules
+  include TeamSlackNotifications
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
 
@@ -121,10 +122,6 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_webhook, webhook)
   end
 
-  def slack_channel=(channel)
-    self.send(:set_slack_channel, channel)
-  end
-
   def report=(report_settings)
     settings = report_settings.is_a?(String) ? JSON.parse(report_settings) : report_settings
     self.send(:set_report, settings)
@@ -158,6 +155,10 @@ class Team < ActiveRecord::Base
 
   def rules=(rules)
     self.send(:set_rules, JSON.parse(rules))
+  end
+
+  def slack_notifications=(slack_notifications)
+    self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
 
   def languages=(languages)
@@ -278,6 +279,7 @@ class Team < ActiveRecord::Base
     tag_text = TagText.new(team_id: self.id)
     team_task = TeamTask.new(team_id: self.id)
     project = Project.new(team_id: self.id)
+    relationship = Relationship.new(source: tmp, target: tmp)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
@@ -287,6 +289,8 @@ class Team < ActiveRecord::Base
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
     perms["set_privacy Project"] = ability.can?(:set_privacy, project)
+    perms["update Relationship"] = ability.can?(:update, relationship)
+    perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     # FIXME fix typo
     perms["mange TagText"] = ability.can?(:manage, tag_text)
     # FIXME fix typo

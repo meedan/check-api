@@ -276,6 +276,41 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate Slack channel" do
+    t = create_team
+    p = create_project team: t
+    slack_notifications = []
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "@#{random_string}"
+    }
+    assert_nothing_raised do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "item_added",
+      "values": ["#{p.id}"],
+      "slack_channel": "##{random_string}"
+    }
+    assert_nothing_raised do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+    slack_notifications << {
+      "label": random_string,
+      "event_type": "status_changed",
+      "values": ["in_progress"],
+      "slack_channel": "#{random_string}"
+    }
+    assert_raises ActiveRecord::RecordInvalid do
+      t.slack_notifications = slack_notifications.to_json
+      t.save!
+    end
+  end
+
   test "should downcase slug" do
     t = create_team slug: 'NewsLab'
     assert_equal 'newslab', t.reload.slug
@@ -290,7 +325,8 @@ class TeamTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
       "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "invite Members", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
-      "duplicate Team", "mange TagText", "mange TeamTask", "set_privacy Project"
+      "duplicate Team", "mange TagText", "mange TeamTask", "set_privacy Project", "update Relationship",
+      "destroy Relationship"
     ].sort
 
     # load permissions as owner
@@ -438,13 +474,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'https://hooks.slack.com/services/123456', t.get_slack_webhook
   end
 
-  test "should set slack_channel" do
-    t = create_team
-    t.slack_channel = '#my-channel'
-    t.save
-    assert_equal '#my-channel', t.reload.get_slack_channel
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { name: 'My team', slug: 'my-team' }
     params = ActionController::Parameters.new(raw_params)
@@ -474,24 +503,6 @@ class TeamTest < ActiveSupport::TestCase
   test "should have search id" do
     t = create_team
     assert_not_nil t.search_id
-  end
-
-  test "should save valid slack_channel" do
-    t = create_team
-    value =  "#slack_channel"
-    assert_nothing_raised do
-      t.set_slack_channel(value)
-      t.save!
-    end
-  end
-
-  test "should not save slack_channel if is not valid" do
-    t = create_team
-    value = 'invalid_channel'
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_slack_channel(value)
-      t.save!
-    end
   end
 
   test "should be private by default" do
@@ -2898,11 +2909,20 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should duplicate team with Smooch Bot" do
+  test "should duplicate team with Bots" do
     setup_smooch_bot(true)
+    alegre_bot = create_alegre_bot(name: "alegre", login: "alegre")
+    alegre_bot.approve!
+    alegre_bot.install_to!(@team)
+    tbi = TeamBotInstallation.where(team: @team)
+    assert_equal ['alegre', 'smooch'], tbi.map(&:user).map(&:login).sort
+    duplicate_team = nil
     assert_nothing_raised do
-      Team.duplicate(@team)
+      duplicate_team = Team.duplicate(@team)
     end
+    assert_not_nil duplicate_team
+    tbi = TeamBotInstallation.where(team: duplicate_team)
+    assert_equal ['alegre'], tbi.map(&:user).map(&:login)
   end
 
   test "should delete team and partition" do
@@ -3030,5 +3050,22 @@ class TeamTest < ActiveSupport::TestCase
     pm.archived = 1
     pm.save!
     create_project_media media: m, team: t2
+  end
+
+  test "should return slack notifications as JSON schema" do
+    t = create_team
+    create_project team: t
+    create_project team: t
+    assert_not_nil t.slack_notifications_json_schema
+  end
+
+  test "should map team tasks on saved searches when duplicating team" do
+    t1 = create_team
+    tt1 = create_team_task team: t1
+    ss1 = create_saved_search team: t1, filters: { 'team_tasks' => [{ 'id' => tt1.id.to_s, 'task_type' => 'free_text', 'response' => 'ANY_VALUE' }] }
+    t2 = Team.duplicate(t1)
+    tt2 = t2.team_tasks.first
+    ss2 = t2.saved_searches.first
+    assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
   end
 end

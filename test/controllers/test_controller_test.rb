@@ -476,4 +476,20 @@ class TestControllerTest < ActionController::TestCase
     assert_response 400
     Rails.unstub(:env)
   end
+
+  test "should add team user if in test mode" do
+    u = create_user
+    t = create_team
+    get :add_team_user, { email: u.email, slug: t.slug, role: 'editor' }
+    assert_response :success
+  end
+
+  test "should not add team user if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    get :add_team_user, { email: u.email, slug: t.slug, role: 'editor' }
+    assert_response 400
+    Rails.unstub(:env)
+  end
 end
