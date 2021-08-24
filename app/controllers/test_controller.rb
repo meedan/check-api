@@ -51,6 +51,14 @@ class TestController < ApplicationController
     render_success 'team_users', ret
   end
 
+  def add_team_user
+    team = Team.where(slug: params[:slug]).last
+    user = User.where(email: params[:email]).last
+    role = params[:role]
+    create_team_user team: team, user: user, role: role
+    render_success 'team', team.reload
+  end
+
   def new_team
     user = User.where(email: params[:email]).last
     User.current = user

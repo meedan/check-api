@@ -54,7 +54,7 @@ module SmoochResources
           end unless feed.nil?
         end
       rescue StandardError => e
-        self.notify_error(e, { bot: 'Smooch', operation: 'Render RSS Feed', url: url }, RequestStore[:request])
+        Rails.logger.info "Could not parse RSS feed from URL #{url}, error was: #{e.message}"
       end
       output.join("\n\n")
     end
