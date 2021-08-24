@@ -25,7 +25,7 @@ class ProjectMedia < ActiveRecord::Base
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
@@ -66,6 +66,7 @@ class ProjectMedia < ActiveRecord::Base
       description: Bot::Slack.to_slack(self.description, false),
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
+      project: Bot::Slack.to_slack(self.project&.title),
       button: I18n.t("slack.fields.view_button", {
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
@@ -83,9 +84,9 @@ class ProjectMedia < ActiveRecord::Base
     return "<#{self.full_url}|#{text}>"
   end
 
-  def slack_notification_message(update = false)
+  def slack_notification_message(event = nil)
     params = self.slack_params
-    event = update ? 'update' : 'create'
+    event ||= 'create'
     related = params[:related_to].blank? ? '' : '_related'
     pretext = I18n.t("slack.messages.project_media_#{event}#{related}", params)
     # Either render a card or update an existing one
@@ -305,16 +306,6 @@ class ProjectMedia < ActiveRecord::Base
       t.skip_check_ability = true
       t.destroy
     end
-  end
-
-  def slack_channel(event)
-    return nil if self.project_id.nil?
-    event ||= 'item_added'
-    slack_events = self.project.setting(:slack_events)
-    slack_events ||= []
-    slack_events.map!(&:with_indifferent_access)
-    selected_event = slack_events.select{|i| i['event'] == event }.last
-    selected_event.blank? ? nil : selected_event['slack_channel']
   end
 
   def user_can_see_project?(user = User.current)

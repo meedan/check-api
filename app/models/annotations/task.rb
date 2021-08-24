@@ -268,6 +268,11 @@ class Task < ActiveRecord::Base
     self.annotated.task_value(self.team_task_id, true) unless self.team_task_id.blank?
   end
 
+  def team_task
+    id = self.team_task_id
+    id ? TeamTask.find_by_id(id) : nil
+  end
+
   private
 
   def task_options_is_array

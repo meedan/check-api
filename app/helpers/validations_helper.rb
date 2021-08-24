@@ -1,11 +1,4 @@
 module ValidationsHelper
-  def slack_channel_format
-    channel = self.get_slack_channel
-    if !channel.blank? && /\A[#@]/.match(channel).nil?
-      self.errors.add(:base, I18n.t(:slack_channel_format_wrong))
-    end
-  end
-
   def slack_webhook_format
     webhook = self.get_slack_webhook
     if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?

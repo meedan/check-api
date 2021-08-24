@@ -309,6 +309,50 @@ class ElasticSearch7Test < ActionController::TestCase
     end
   end
 
+  test "should filter keyword by extracted text OCR" do
+    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
+    at = create_annotation_type annotation_type: 'language', label: 'Language'
+    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
+    bot = create_alegre_bot(name: "alegre", login: "alegre")
+    bot.approve!
+    team = create_team
+    bot.install_to!(team)
+    create_flag_annotation_type
+    create_extracted_text_annotation_type
+    Bot::Alegre.unstub(:request_api)
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+      WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
+      WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:get, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/similarity/').to_return(body: {
+        "result": []
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/classification/').with({ query: { uri: 'some/path' } }).to_return(body: {
+        "result": valid_flags_data
+      }.to_json)
+      WebMock.stub_request(:get, 'http://alegre/image/ocr/').with({ query: { url: 'some/path' } }).to_return(body: {
+        "text": "ocr_text"
+      }.to_json)
+      WebMock.stub_request(:post, 'http://alegre/image/similarity/').to_return(body: 'success')
+      # Text extraction
+      Bot::Alegre.unstub(:media_file_url)
+      pm = create_project_media team: team, media: create_uploaded_image, disable_es_callbacks: false
+      Bot::Alegre.stubs(:media_file_url).with(pm).returns("some/path")
+      assert Bot::Alegre.run({ data: { dbid: pm.id }, event: 'create_project_media' })
+      sleep 2
+      Team.stubs(:current).returns(team)
+      result = CheckSearch.new({keyword: 'ocr_text'}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'ocr_text', keyword_fields: {fields: ['extracted_text']}}.to_json)
+      assert_equal [pm.id], result.medias.map(&:id)
+      result = CheckSearch.new({keyword: 'ocr_text', keyword_fields: {fields: ['title']}}.to_json)
+      assert_empty result.medias
+      Team.unstub(:current)
+      Bot::Alegre.unstub(:media_file_url)
+    end
+  end
+
   test "should search by non or any for choices tasks" do
     t = create_team
     u = create_user

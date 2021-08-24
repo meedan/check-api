@@ -131,16 +131,8 @@ module TeamDuplication
     def self.process_team_bot_installations(t, team)
       t.team_bot_installations.each do |tbi|
         new_tbi = TeamBotInstallation.where(team: team, user: tbi.user).first || tbi.deep_dup
+        next if new_tbi.user.name == 'Smooch'
         new_tbi.team = team
-        if new_tbi.user.name == 'Smooch'
-          new_tbi = Bot::Smooch.sanitize_installation(new_tbi, true)
-          new_tbi.settings['smooch_workflows'] = tbi.settings["smooch_workflows"].deep_dup
-          tbi.settings['smooch_workflows'].to_a.each_with_index do |w, i|
-            w['smooch_custom_resources'].to_a.each_with_index do |r, j|
-              new_tbi.settings['smooch_workflows'][i]['smooch_custom_resources'][j] = r.deep_dup.merge({ 'smooch_custom_resource_id' => (0...8).map { (65 + rand(26)).chr }.join })
-            end
-          end
-        end
         new_tbi.skip_check_ability = true
         new_tbi.save(validate: false)
         @bot_ids << new_tbi.user_id
@@ -173,6 +165,7 @@ module TeamDuplication
           filters[filter] = filters[filter].collect { |id| collection[id.to_i].to_s }
         end
       end
+      filters['team_tasks'].to_a.each_with_index { |filter, i| filters['team_tasks'][i]['id'] = self.team_task_map[filter['id'].to_i].to_s }
       filters
     end
   end

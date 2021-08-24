@@ -39,6 +39,12 @@ class Bot::SlackTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     create_team_task label: 'When?', team_id: t.id
     t.set_limits_slack_integration = false
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
     t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -206,9 +212,19 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should notify about related claims" do
     t = create_team slug: 'test'
+    slack_notifications = [{
+      "label": random_string,
+      "event_type": "any_activity",
+      "slack_channel": "#test"
+    }]
+    t.slack_notifications = slack_notifications.to_json
+    t.save!
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    @bot.set_slack_notifications_enabled = 1; @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'; @bot.set_slack_channel = '#test'; @bot.save!
+    @bot.set_slack_notifications_enabled = 1
+    @bot.set_slack_webhook = 'https://hooks.slack.com/services/123'
+    @bot.set_slack_channel = '#test'
+    @bot.save!
     with_current_user_and_team(u, t) do
       pmp = create_project_media team: t
       pmc = create_project_media team: t, related_to_id: pmp.id
