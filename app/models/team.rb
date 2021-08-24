@@ -279,6 +279,7 @@ class Team < ActiveRecord::Base
     tag_text = TagText.new(team_id: self.id)
     team_task = TeamTask.new(team_id: self.id)
     project = Project.new(team_id: self.id)
+    relationship = Relationship.new(source: tmp, target: tmp)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
     perms["restore ProjectMedia"] = ability.can?(:restore, tmp)
@@ -288,6 +289,8 @@ class Team < ActiveRecord::Base
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
     perms["set_privacy Project"] = ability.can?(:set_privacy, project)
+    perms["update Relationship"] = ability.can?(:update, relationship)
+    perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     # FIXME fix typo
     perms["mange TagText"] = ability.can?(:manage, tag_text)
     # FIXME fix typo
