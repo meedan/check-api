@@ -465,13 +465,14 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold)
+  def self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
     {
       text: text,
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
       context: self.build_context(team_id, field),
-      threshold: threshold[:value]
+      threshold: threshold[:value],
+      match_across_content_types: match_across_content_types,
     }
   end
 
@@ -486,11 +487,12 @@ class Bot::Alegre < BotUser
     results.reject{ |id, _score| pm.id == id }
   end
 
-  def self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
+  def self.similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)
     {
       url: media_url,
       context: self.build_context(team_id),
-      threshold: threshold[:value]
+      threshold: threshold[:value],
+      match_across_content_types: match_across_content_types,
     }
   end
 
