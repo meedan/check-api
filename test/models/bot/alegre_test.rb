@@ -281,7 +281,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     p = create_project
     pm1 = create_project_media team: @pm.team
     pm1 = create_project_media project: p, media: create_uploaded_video
-    pm2 = create_project_media project: p, media: create_uploaded_video
+    pm2 = create_project_media project: p, media: create_uploaded_audio
     pm3 = create_project_media project: p, media: create_uploaded_audio
     create_relationship source_id: pm2.id, target_id: pm1.id
     Bot::Alegre.stubs(:request_api).returns({
@@ -302,7 +302,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
           "hash_value" => "0111",
           "url" => "https://foo.com/baz.mp4",
           "context"=>[
-            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s, "content_type" => "video"}
+            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s}
           ],
           "score"=>"0.983167",
         }
@@ -474,12 +474,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
+    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
     conditions = Bot::Alegre.similar_media_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
+    assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should get similar items when they are text-based" do
