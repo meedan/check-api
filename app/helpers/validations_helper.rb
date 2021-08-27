@@ -1,7 +1,7 @@
 module ValidationsHelper
   def slack_webhook_format
     webhook = self.get_slack_webhook
-    if !webhook.blank? && /\Ahttps?:\/\/hooks\.slack\.com\/services\/[^\s]+\z/.match(webhook).nil?
+    if !webhook.blank? && /https?:\/\/hooks\.slack\.com/.match(webhook).nil?
       errors.add(:base, I18n.t(:slack_webhook_format_wrong))
     end
   end
