@@ -16,8 +16,20 @@ module Workflow
           self.value if ::Workflow::Workflow.is_field_name_a_workflow?(self.field_name)
         end
 
-        def index_on_es
-          self.update_elasticsearch_doc([self.annotation_type], { self.annotation_type => { method: 'value', klass: self.class.name, id: self.id } }, self.annotation.annotated)
+        def index_on_es_background
+          data = { self.annotation_type => { method: 'value', klass: self.class.name, id: self.id } }
+          self.update_elasticsearch_doc([self.annotation_type], data, self.annotation.annotated)
+        end
+
+        def index_on_es_foreground
+          obj = self.annotation.annotated
+          options = {
+            keys: [self.annotation_type],
+            data: { self.annotation_type => self.value },
+            obj: obj,
+            doc_id:  Base64.encode64("#{obj.class.name}/#{obj.id}")
+          }
+          self.update_elasticsearch_doc_bg(options)
         end
 
         ::Workflow::Workflow.workflow_ids.each do |id|
