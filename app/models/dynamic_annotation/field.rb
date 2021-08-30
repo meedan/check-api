@@ -55,6 +55,7 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   private
 
   def add_update_elasticsearch_field
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     # Handle analysis fields (title/ description)
     if self.annotation_type == "verification_status" && ['title', 'content'].include?(self.field_name)
       obj = self.annotation.project_media

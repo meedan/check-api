@@ -329,11 +329,10 @@ class ProjectMedia < ActiveRecord::Base
     ms.attributes[:associated_type] = m.type
     ms.attributes[:url] = m.url
     ms.attributes[:accounts] = self.set_es_account_data unless m.account.nil?
-    data = self.analysis || {}
-    ms.attributes[:title] = data['title'].blank? ? m.metadata['title'] : data['title']
+    ms.attributes[:title] = self.original_title
     # initiate sort_title with same title value for sorting by title purpose
-    ms.attributes[:sort_title] = ms.attributes[:title]&.downcase
-    ms.attributes[:description] = data['content'].blank? ? m.metadata['description'] : data['content']
+    ms.attributes[:sort_title] = self.title&.downcase
+    ms.attributes[:description] = self.original_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     # set fields with integer value

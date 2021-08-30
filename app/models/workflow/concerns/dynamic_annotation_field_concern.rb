@@ -22,6 +22,7 @@ module Workflow
         end
 
         def index_on_es_foreground
+          return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
           obj = self.annotation.annotated
           options = {
             keys: [self.annotation_type],
