@@ -104,7 +104,7 @@ class Bot::FetchTest < ActiveSupport::TestCase
     pm = ProjectMedia.last
     result = $repository.find(get_es_id(pm))
     assert_equal pm.media.type, result['associated_type']
-    assert_equal pm.title, result['title']
+    assert_equal pm.original_title, result['title']
     assert_equal "Earth isn't flat", pm.title
   end
 
