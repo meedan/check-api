@@ -899,4 +899,38 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     Bot::Alegre.unstub(:get_items_with_similar_description)
   end
+
+  test "should check existing relationship before create a new one" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    pm3 = create_project_media team: @team
+    pm4 = create_project_media team: @team
+    r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_no_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    r = Relationship.where(source_id: pm2.id, target_id: pm.id).last
+    assert_equal r.relationship_type, Relationship.suggested_type
+    assert_nothing_raised do
+      r.relationship_type = Relationship.confirmed_type
+      r.save!
+    end
+    r2 = create_relationship source_id: pm4.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => 0.9 })
+    assert_no_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm3, set_fields: { text: 'Foo bar' }.to_json
+    end
+    r = Relationship.where(source_id: pm4.id, target_id: pm3.id).last
+    assert_equal r.relationship_type, Relationship.confirmed_type
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+    # should confirm existing relation if the new one type == confirmed
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
+    assert_no_difference 'Relationship.count' do
+      Bot::Alegre.create_relationship(pm2, pm, 0.9, Relationship.confirmed_type)
+    end
+    assert_equal r.reload.relationship_type, Relationship.confirmed_type
+  end
 end
