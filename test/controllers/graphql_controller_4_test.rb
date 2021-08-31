@@ -568,7 +568,6 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     query = "query { team(slug: \"#{@team.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_newsletter_information } } } } }"
     post :create, query: query
-    puts @response.body
     assert_response :success
     assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
   end
