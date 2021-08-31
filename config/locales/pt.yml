@@ -143,6 +143,10 @@ pt:
           attributes:
             slug:
               slug_format: aceita apenas letras, números e hífens
+        project_media:
+          attributes:
+            channel:
+              channel_update: Desculpe, não possível atualizar o valor do canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: é um número inválido
@@ -667,7 +671,7 @@ pt:
   team_rule_type_is_uploadedimage: Imagem
   team_rule_type_is_uploadedvideo: Vídeo
   team_rule_contains_keyword: A solicitação contém uma ou mais destas palavras-chave
-  team_rule_title_contains_keyword: O conteúdo contém uma ou mais das seguintes palavras-chave
+  team_rule_title_contains_keyword: O conteúdo possui uma ou mais das seguintes palavras-chave
   team_rule_select_type: Selecionar tipo
   team_rule_select_language: Selecionar idioma
   team_rule_select_user: Escolha um(a) colaborador(a)
@@ -777,6 +781,7 @@ pt:
     por isso não pode ter uma pasta descendente
   project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de
     trabalho
+  unsubscribe: Desinscrever-se
   info:
     messages:
       sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo
@@ -795,3 +800,5 @@ pt:
         foi enviada para %{requestors_count} solicitantes.
       tagged_by_rule: O item "%{item_title}" foi marcado como "%{tag}", seguindo uma
         regra automática.
+      moved_to_private_folder: O item "%{item_title}" foi movido para uma pasta à
+        qual você não possui acesso.

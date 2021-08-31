@@ -146,6 +146,10 @@ id:
           attributes:
             slug:
               slug_format: hanya menerima huruf, angka dan tanda hubung
+        project_media:
+          attributes:
+            channel:
+              channel_update: Maaf, Anda tidak dapat memperbarui nilai saluran
       messages:
         record_invalid: "%{errors}"
         improbable_phone: salah nomor
@@ -647,7 +651,7 @@ id:
     Semua pesan yang diterima oleh profil Twitter ini akan ditangani oleh tipline.
     Mohon muat ulang halaman pengaturan tipline Anda untuk melihat perubahan baru.
   must_select_exactly_one_facebook_page: Silakan pilih salah satu halaman Facebook
-    yang Anda ingin integrasikan dengan tipline.
+    yang Anda ingin integrasikan dengan Tipline.
   invalid_task_answer: Format jawaban dari tugas salah
   team_rule_name: Nama unik yang dapat mengidentifikasi apa yang aturan ini lakukan
   team_rule_project_ids: Terapkan pada folder
@@ -778,6 +782,7 @@ id:
     sehingga tidak dapat membuat folder turunan di dalamnya.
   project_group_must_be_under_same_team: Koleksi tersebut harus berada di bawah ruang
     kerja yang sama
+  unsubscribe: Berhenti berlangganan
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan
@@ -796,3 +801,5 @@ id:
         "%{status}" telah dikirimkan ke %{requestors_count} pemohon.
       tagged_by_rule: '"%{item_title}" telah ditandai sebagai "%{tag}" oleh aturan
         otomasi.'
+      moved_to_private_folder: '"%{item_title}" telah dipindahkan ke folder yang tidak
+        dapat Anda akses.'
