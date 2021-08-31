@@ -11,8 +11,8 @@ module SmoochNewsletter
       after_save do
         if self.bot_user.identifier == 'smooch'
           self.settings['smooch_workflows'].to_a.each do |workflow|
-            newsletter = workflow['smooch_newsletter']
-            unless newsletter.nil?
+            if Bot::Smooch.newsletter_is_set?(workflow)
+              newsletter = workflow['smooch_newsletter']
               name = "newsletter:job:team:#{self.team_id}:#{workflow['smooch_workflow_language']}"
               Sidekiq::Cron::Job.destroy(name)
               Sidekiq::Cron::Job.create(name: name, cron: Bot::Smooch.newsletter_cron(newsletter), class: 'TiplineNewsletterWorker', args: [self.team_id, workflow['smooch_workflow_language']])
@@ -25,8 +25,8 @@ module SmoochNewsletter
         information = {} # Per language
         if self.bot_user.identifier == 'smooch'
           self.settings['smooch_workflows'].to_a.each do |workflow|
-            newsletter = workflow['smooch_newsletter']
-            unless newsletter.nil?
+            if Bot::Smooch.newsletter_is_set?(workflow)
+              newsletter = workflow['smooch_newsletter']
               language = workflow['smooch_workflow_language']
               information[language] = {
                 subscribers_count: TiplineSubscription.where(team_id: self.team_id, language: language).count,
@@ -57,6 +57,10 @@ module SmoochNewsletter
     def user_name_from_uid(uid)
       user_data = begin DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last.annotation.load.get_field_value('smooch_user_data') rescue nil end
       user_data.nil? ? nil : JSON.parse(user_data).dig('raw', 'clients', 0, 'raw','profile', 'name')
+    end
+
+    def newsletter_is_set?(workflow)
+      workflow['smooch_newsletter'] && workflow['smooch_newsletter']['smooch_newsletter_time'] && workflow['smooch_newsletter']['smooch_newsletter_timezone'] && workflow['smooch_newsletter']['smooch_newsletter_day']
     end
 
     def build_newsletter_content(newsletter, language, team_id, cache = true)
