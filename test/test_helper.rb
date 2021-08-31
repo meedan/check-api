@@ -452,10 +452,88 @@ class ActiveSupport::TestCase
                 }
               }
             },
+            "smooch_newsletter": {
+              "title": "Newsletter",
+              "type": "object",
+              "properties": {
+                "smooch_newsletter_day": {
+                  "type": "string",
+                  "title": "Day",
+                  "default": "",
+                },
+                "smooch_newsletter_time": {
+                  "type": "string",
+                  "title": "Time",
+                  "default": "",
+                },
+                "smooch_newsletter_timezone": {
+                  "type": "string",
+                  "title": "Timezone",
+                  "default": "",
+                },
+                "smooch_newsletter_body": {
+                  "type": "string",
+                  "title": "Body",
+                  "default": "",
+                },
+                "smooch_newsletter_feed_url": {
+                  "type": "string",
+                  "title": "Feed URL",
+                  "default": "",
+                },
+                "smooch_newsletter_number_of_articles": {
+                  "type": "integer",
+                  "title": "Number of articles",
+                  "default": 3,
+                }
+              }
+            },
             "smooch_message_smooch_bot_greetings": {
               "type": "string",
               "title": "First message that is sent to the user as an introduction about the service",
               "default": ""
+            },
+            "smooch_state_subscription": {
+              "type": "object",
+              "title": "Subscription opt-in",
+              "properties": {
+                "smooch_menu_message": {
+                  "type": "string",
+                  "title": "Message",
+                  "default": ""
+                },
+                "smooch_menu_options": {
+                  "title": "Menu options",
+                  "type": "array",
+                  "default": [],
+                  "items": {
+                    "title": "Option",
+                    "type": "object",
+                    "properties": {
+                      "smooch_menu_option_keyword": {
+                        "title": "If",
+                        "type": "string",
+                        "default": ""
+                      },
+                      "smooch_menu_option_value": {
+                        "title": "Then",
+                        "type": "string",
+                        "enum": [
+                          {
+                            "key": "main_state",
+                            "value": "Main menu"
+                          },
+                          {
+                            "key": "subscription_confirmation",
+                            "value": "Subscription confirmation"
+                          },
+                        ],
+                        "default": ""
+                      },
+                    }
+                  }
+                }
+              }
             },
             "smooch_state_main": {
               "type": "object",
@@ -502,6 +580,10 @@ class ActiveSupport::TestCase
                           {
                             "key": "custom_resource",
                             "value": "Custom resource"
+                          },
+                          {
+                            "key": "subscription_state",
+                            "value": "Subscription opt-in"
                           }
                         ],
                         "default": ""
@@ -574,6 +656,10 @@ class ActiveSupport::TestCase
                           {
                             "key": "custom_resource",
                             "value": "Custom resource"
+                          },
+                          {
+                            "key": "subscription_state",
+                            "value": "Subscription opt-in"
                           }
                         ],
                         "default": ""
@@ -685,6 +771,10 @@ class ActiveSupport::TestCase
                           {
                             "key": "custom_resource",
                             "value": "Custom resource"
+                          },
+                          {
+                            "key": "subscription_state",
+                            "value": "Subscription opt-in"
                           }
                         ],
                         "default": ""
@@ -830,8 +920,33 @@ class ActiveSupport::TestCase
               'smooch_menu_option_keyword' => '4',
               'smooch_menu_option_value' => 'custom_resource',
               'smooch_menu_custom_resource_id' => 'latest'
+            },
+            {
+              'smooch_menu_option_keyword' => '5',
+              'smooch_menu_option_value' => 'subscription_state',
             }
           ]
+        },
+        'smooch_state_subscription' => {
+          'smooch_menu_message' => 'Enter your query or send 0 to go back to the main menu',
+          'smooch_menu_options' => [
+            {
+              'smooch_menu_option_keyword' => '0',
+              'smooch_menu_option_value' => 'main_state',
+            },
+            {
+              'smooch_menu_option_keyword' => '1',
+              'smooch_menu_option_value' => 'subscription_confirmation',
+            }
+          ]
+        },
+        'smooch_newsletter' => {
+          'smooch_newsletter_day' => 'monday',
+          'smooch_newsletter_time' => '9',
+          'smooch_newsletter_timezone' => 'BRT',
+          'smooch_newsletter_body' => 'Test',
+          'smooch_newsletter_feed_url' => 'http://test.com/feed.rss',
+          'smooch_newsletter_number_of_articles' => 3
         },
         'smooch_state_query' => {
           'smooch_menu_message' => 'Enter your query or send 0 to go back to the main menu',

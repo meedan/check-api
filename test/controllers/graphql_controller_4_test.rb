@@ -560,6 +560,19 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
+  test "should get Smooch newsletter information" do
+    setup_smooch_bot(true)
+    rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
+    WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{@team.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_newsletter_information } } } } }"
+    post :create, query: query
+    puts @response.body
+    assert_response :success
+    assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
+  end
+
   protected
 
   def assert_error_message(expected)

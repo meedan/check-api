@@ -13,9 +13,7 @@ class TiplineNewsletterWorker
               username = Bot::Smooch.user_name_from_uid(ts.uid)
               content = Bot::Smooch.build_newsletter_content(newsletter, language, team_id)
               fallback = I18n.t(:smooch_bot_message_newsletter_fallback, { locale: language, name: username, date: date, content: content })
-              Bot::Smooch.get_installation do |i|
-                i.id == tbi.id
-              end
+              Bot::Smooch.get_installation { |i| i.id == tbi.id }
               message = Bot::Smooch.format_template_message(Bot::Smooch::NEWSLETTER_TEMPLATE_NAME, [date, content], nil, fallback, language, username)
               Bot::Smooch.send_message_to_user(ts.uid, message)
             end

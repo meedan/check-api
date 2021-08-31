@@ -92,7 +92,6 @@ class AddNewsletterSettingsToSmoochBot < ActiveRecord::Migration
 
           s[:items][:properties].each do |key, _value|
             if key.to_s =~ /^smooch_state_/ && key.to_s != 'smooch_state_subscription' && settings[:settings][i][:items][:properties][key][:properties][:smooch_menu_options][:items][:properties][:smooch_menu_option_value][:enum].select{ |x| x.with_indifferent_access[:key] == 'subscription_state' }.empty?
-              settings[:settings][i][:items][:properties][key][:properties][:smooch_menu_options][:items][:properties][:smooch_menu_option_value][:enum].delete_if{ |x| x.with_indifferent_access[:key] == 'subscription' }
               settings[:settings][i][:items][:properties][key][:properties][:smooch_menu_options][:items][:properties][:smooch_menu_option_value][:enum] << { key: 'subscription_state', value: 'Subscription opt-in' }
             end
           end

@@ -174,4 +174,50 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       Bot::Smooch.refresh_rss_feeds_cache
     end
   end
+
+  test "should take a shortcut to subscribe or unsubscribe to newsletter" do
+    setup_smooch_bot(true)
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      sm = CheckStateMachine.new(uid)
+      assert_difference 'TiplineSubscription.count' do
+        send_message_to_smooch_bot('subscribe', uid)
+      end
+      assert_difference 'TiplineSubscription.count', -1 do
+        send_message_to_smooch_bot('unsubscribe', uid)
+      end
+    end
+  end
+
+  test "should subscribe or unsubscribe to newsletter" do
+    setup_smooch_bot(true)
+    Sidekiq::Testing.fake! do
+      uid = random_string
+      sm = CheckStateMachine.new(uid)
+      send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('5', uid)
+      assert_equal 'subscription', sm.state.value
+      send_message_to_smooch_bot('0', uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('5', uid)
+      assert_equal 'subscription', sm.state.value
+      assert_difference 'TiplineSubscription.count' do
+        send_message_to_smooch_bot('1', uid)
+      end
+      send_message_to_smooch_bot(random_string, uid)
+      assert_equal 'main', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'secondary', sm.state.value
+      send_message_to_smooch_bot('5', uid)
+      assert_equal 'subscription', sm.state.value
+      assert_difference 'TiplineSubscription.count', -1 do
+        send_message_to_smooch_bot('1', uid)
+      end
+    end
+  end
 end

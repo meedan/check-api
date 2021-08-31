@@ -410,6 +410,12 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
+    # Shortcuts
+    if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
+      self.toggle_subscription(uid, language, self.config['team_id'])
+      return true
+    end
+
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
@@ -450,11 +456,6 @@ class Bot::Smooch < BotUser
       self.send_tos_to_user(workflow, uid, language, platform)
       self.bundle_message(message)
       sm.reset
-      return true
-    end
-    # Shortcuts
-    if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(typed.downcase)
-      self.toggle_subscription(uid, language, self.config['team_id'])
       return true
     end
     workflow ||= {}
