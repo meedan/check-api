@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210812190835) do
+ActiveRecord::Schema.define(version: 20210830012850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,6 +71,12 @@ ActiveRecord::Schema.define(version: 20210812190835) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "application"
+  end
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "assignments", force: :cascade do |t|
@@ -258,11 +264,13 @@ ActiveRecord::Schema.define(version: 20210812190835) do
     t.text     "settings"
     t.string   "token"
     t.integer  "assignments_count", default: 0
+    t.integer  "parent_id"
     t.integer  "project_group_id"
     t.integer  "privacy",           default: 0, null: false
   end
 
   add_index "projects", ["id"], name: "index_projects_on_id", using: :btree
+  add_index "projects", ["parent_id"], name: "index_projects_on_parent_id", using: :btree
   add_index "projects", ["privacy"], name: "index_projects_on_privacy", using: :btree
   add_index "projects", ["project_group_id"], name: "index_projects_on_project_group_id", using: :btree
   add_index "projects", ["team_id"], name: "index_projects_on_team_id", using: :btree
@@ -391,6 +399,14 @@ ActiveRecord::Schema.define(version: 20210812190835) do
   add_index "teams", ["inactive"], name: "index_teams_on_inactive", using: :btree
   add_index "teams", ["slug"], name: "index_teams_on_slug", using: :btree
   add_index "teams", ["slug"], name: "unique_team_slugs", unique: true, using: :btree
+
+  create_table "tipline_subscriptions", force: :cascade do |t|
+    t.string  "uid"
+    t.string  "language"
+    t.integer "team_id"
+  end
+
+  add_index "tipline_subscriptions", ["uid", "language", "team_id"], name: "index_tipline_subscriptions_on_uid_and_language_and_team_id", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "name",                      default: "",    null: false
