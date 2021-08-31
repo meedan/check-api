@@ -762,6 +762,27 @@ en:
   project_cant_have_children_if_has_parent: This folder has a parent folder, so it
     can't have a child folder
   project_group_must_be_under_same_team: The collection should be under the same workspace
+  smooch_bot_message_subscribed: |-
+    You are now subscribed.
+
+    *Reply 0* to get back to the main menu.
+  smooch_bot_message_unsubscribed: |-
+    You are now unsubscribed.
+
+    *Reply 0* to get back to the main menu.
+  subscribe: Subscribe
+  unsubscribe: Unsubscribe
+  subscribed: subscribed
+  unsubscribed: unsubscribed
+  smooch_message_subscription_header: You are currently *%{status}* to our newsletter.
+  smooch_bot_message_newsletter_fallback: |-
+    Hi {name}, here is your Weekly COVID-19 digest.
+  
+    You are receiving this message because you opted to receive our Weekly COVID-19 digest. Here are the most important facts for the week of {date}:
+      
+    {content}
+
+    To opt out from this digest, type Unsubscribe.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation

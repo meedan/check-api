@@ -141,3 +141,5 @@ gem 'bitly', require: false
 gem 'open_uri_redirections', require: false
 gem 'jsonapi-resources'
 gem 'where-or'
+gem 'sidekiq-cron', '~> 1.1'
+gem 'parse-cron'

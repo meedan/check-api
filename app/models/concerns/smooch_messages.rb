@@ -48,11 +48,18 @@ module SmoochMessages
       end
     end
 
-    def get_message_for_state(workflow, state, language)
+    def get_message_for_state(workflow, state, language, uid = nil)
       message = []
       message << self.tos_message(workflow, language) if state.to_s == 'main'
+      message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
       message.join("\n\n")
+    end
+
+    def subscription_message(uid, language)
+      subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
+      status = subscribed ? I18n.t(:subscribed, locale: language) : I18n.t(:unsubscribed, locale: language)
+      I18n.t(:smooch_message_subscription_header, locale: language, status: status)
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)
