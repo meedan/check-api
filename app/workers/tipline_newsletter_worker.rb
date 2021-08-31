@@ -7,7 +7,7 @@ class TiplineNewsletterWorker
       tbi.settings['smooch_workflows'].to_a.each do |workflow|
         if workflow['smooch_workflow_language'] == language
           newsletter = workflow['smooch_newsletter']
-          unless newsletter.nil?
+          if !newsletter.nil? && Bot::Smooch.newsletter_content_changed?(newsletter, language, team_id)
             date = I18n.l(Time.now.to_date, locale: language.to_s.tr('_', '-'), format: :short)
             TiplineSubscription.where(language: language, team_id: team_id).each do |ts|
               username = Bot::Smooch.user_name_from_uid(ts.uid)
