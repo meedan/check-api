@@ -22,17 +22,18 @@ class CheckStateMachine
     state :secondary
     state :query
     state :human_mode
+    state :subscription
 
     event :start do
       transitions :from => [:waiting_for_message, :main], :to => :main
     end
 
     event :reset do
-      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message], :to => :waiting_for_message
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :waiting_for_message
     end
 
     event :enter_human_mode do
-      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message], :to => :human_mode
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :human_mode
     end
 
     event :leave_human_mode do
@@ -40,15 +41,19 @@ class CheckStateMachine
     end
 
     event :go_to_secondary do
-      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message], :to => :secondary
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :secondary
     end
 
     event :go_to_main do
-      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message], :to => :main
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :main
     end
 
     event :go_to_query do
-      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message], :to => :query
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :query
+    end
+
+    event :go_to_subscription do
+      transitions :from => [:human_mode, :main, :secondary, :query, :waiting_for_message, :subscription], :to => :subscription
     end
   end
 end

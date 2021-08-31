@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210812190835) do
+ActiveRecord::Schema.define(version: 20210830012850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -391,6 +391,18 @@ ActiveRecord::Schema.define(version: 20210812190835) do
   add_index "teams", ["inactive"], name: "index_teams_on_inactive", using: :btree
   add_index "teams", ["slug"], name: "index_teams_on_slug", using: :btree
   add_index "teams", ["slug"], name: "unique_team_slugs", unique: true, using: :btree
+
+  create_table "tipline_subscriptions", force: :cascade do |t|
+    t.string  "uid"
+    t.string  "language"
+    t.integer "team_id"
+  end
+
+  add_index "tipline_subscriptions", ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id", using: :btree
+  add_index "tipline_subscriptions", ["language"], name: "index_tipline_subscriptions_on_language", using: :btree
+  add_index "tipline_subscriptions", ["team_id"], name: "index_tipline_subscriptions_on_team_id", using: :btree
+  add_index "tipline_subscriptions", ["uid", "language", "team_id"], name: "index_tipline_subscriptions_on_uid_and_language_and_team_id", unique: true, using: :btree
+  add_index "tipline_subscriptions", ["uid"], name: "index_tipline_subscriptions_on_uid", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "name",                      default: "",    null: false
