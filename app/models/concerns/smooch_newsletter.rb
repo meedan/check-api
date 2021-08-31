@@ -2,7 +2,7 @@ require 'active_support/concern'
 
 module SmoochNewsletter
   extend ActiveSupport::Concern
-    
+
   NEWSLETTER_TEMPLATE_NAME = 'newsletter_1'
 
   module ClassMethods
