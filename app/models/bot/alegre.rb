@@ -555,14 +555,22 @@ class Bot::Alegre < BotUser
 
   def self.create_relationship(source, target, weight, relationship_type)
     return if source.nil? || target.nil?
-    r = Relationship.new
-    r.skip_check_ability = true
-    r.relationship_type = relationship_type
-    r.weight = weight
-    r.source_id = source.id
-    r.target_id = target.id
-    r.user_id ||= BotUser.alegre_user&.id
-    r.save!
+    r = Relationship.where(source_id: source.id, target_id: target.id)
+    .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
+    if r.nil?
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = relationship_type
+      r.weight = weight
+      r.source_id = source.id
+      r.target_id = target.id
+      r.user_id ||= BotUser.alegre_user&.id
+      r.save!
+    elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+      # confirm existing relation if a new one is confirmed
+      r.relationship_type = relationship_type
+      r.save!
+    end
     CheckNotification::InfoMessages.send(
       r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
       item_title: target.title,
