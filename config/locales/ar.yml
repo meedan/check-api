@@ -140,6 +140,10 @@ ar:
           attributes:
             slug:
               slug_format: 'يقبل الأحرف والأرقام و''-'' فقط '
+        project_media:
+          attributes:
+            channel:
+              channel_update: عذراً، لم تتمكن من تحديث الغرفة
       messages:
         record_invalid: "%{errors}"
         improbable_phone: رقم غير صالح
@@ -760,6 +764,7 @@ ar:
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله
   project_group_must_be_under_same_team: يجب أن تكون المجموعة ضمن نفس مساحة العمل
+  unsubscribe: إلغاء الاشتراك
   info:
     messages:
       sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.
@@ -773,3 +778,5 @@ ar:
       sent_message_to_requestors_on_status_change: لقد أُرسِل تحديث ذو الحالة "%{status}"
         إلى %{requestors_count} مستخدم قد طلبها.
       tagged_by_rule: لقد وُضع الوسم "%{tag}" على "%{item_title}" بواسطة قاعدة آلية.
+      moved_to_private_folder: لقد تم نقل "%{item_title}" إلى مجلد ليس لديك تصريح
+        الوصول إليه.
