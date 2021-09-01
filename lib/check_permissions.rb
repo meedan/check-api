@@ -49,7 +49,7 @@ module CheckPermissions
   def permissions(ability = nil, klass = self.class)
     perms = Hash.new
     unless User.current.nil?
-      # xache team permissions
+      # read team permissions from cache if exists
       cache_key = ''
       if self.class.name == 'Team'
         role = User.current.role(self)
@@ -64,6 +64,7 @@ module CheckPermissions
         perms["destroy #{klass}"] = ability.can?(:destroy, self)
         perms = perms.merge self.set_create_permissions(klass.name, ability)
         perms = perms.merge self.set_custom_permissions(ability)
+        # cache team permissions
         Rails.cache.write(cache_key, perms) if self.class.name == 'Team'
       end
     end
