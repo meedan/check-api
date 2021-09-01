@@ -3,8 +3,6 @@ require 'active_support/concern'
 module SmoochNewsletter
   extend ActiveSupport::Concern
 
-  NEWSLETTER_TEMPLATE_NAME = 'newsletter_1'
-
   module ClassMethods
     TeamBotInstallation.class_eval do
       # Re-create the Sidekiq job
@@ -39,6 +37,10 @@ module SmoochNewsletter
         end
         information
       end
+
+      def get_newsletter_template_name
+        self.settings['smooch_template_name_for_newsletter'] || 'newsletter'
+      end
     end
 
     def toggle_subscription(uid, language, team_id)
@@ -52,11 +54,6 @@ module SmoochNewsletter
         self.send_message_to_user(uid, I18n.t(:smooch_bot_message_unsubscribed))
       end
       sm.reset
-    end
-
-    def user_name_from_uid(uid)
-      user_data = begin DynamicAnnotation::Field.where(field_name: 'smooch_user_id', value: uid).last.annotation.load.get_field_value('smooch_user_data') rescue nil end
-      user_data.nil? ? nil : JSON.parse(user_data).dig('raw', 'clients', 0, 'raw','profile', 'name')
     end
 
     def newsletter_is_set?(workflow)

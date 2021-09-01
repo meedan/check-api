@@ -775,10 +775,14 @@ en:
   subscribed: subscribed
   unsubscribed: unsubscribed
   smooch_message_subscription_header: You are currently *%{status}* to our newsletter.
-  smooch_bot_message_newsletter_fallback: "Hi {name}, here is your Weekly COVID-19
-    digest.\n\nYou are receiving this message because you opted to receive our Weekly
-    COVID-19 digest. Here are the most important facts for the week of {date}:\n  \n{content}\n\nTo
-    opt out from this digest, type Unsubscribe."
+  smooch_bot_message_newsletter_fallback: |-
+    Hi! Here are your Weekly COVID-19 Facts.
+
+    This newsletter is published on WhatsApp by {team}. Here are the most important facts for the week of {date}:
+
+    {content}
+
+    To stop receiving this newsletter, type _Unsubscribe_.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
