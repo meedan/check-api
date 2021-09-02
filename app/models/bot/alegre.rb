@@ -349,6 +349,7 @@ class Bot::Alegre < BotUser
           project_media_id: pm.id,
           has_custom_id: true
         }
+        match_across_content_types: true,
       }
       self.request_api(
         'post',
