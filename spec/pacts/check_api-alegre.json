@@ -55,9 +55,14 @@
       "description": "a request to identify its language",
       "providerState": "a text exists",
       "request": {
-        "method": "get",
+        "method": "post",
         "path": "/text/langid/",
-        "query": "text=This+is+a+test"
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "This is a test"
+        }
       },
       "response": {
         "status": 200,

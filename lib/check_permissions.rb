@@ -49,12 +49,24 @@ module CheckPermissions
   def permissions(ability = nil, klass = self.class)
     perms = Hash.new
     unless User.current.nil?
-      ability ||= Ability.new
-      perms["read #{klass}"] = ability.can?(:read, self)
-      perms["update #{klass}"] = ability.can?(:update, self)
-      perms["destroy #{klass}"] = ability.can?(:destroy, self)
-      perms = perms.merge self.set_create_permissions(klass.name, ability)
-      perms = perms.merge self.set_custom_permissions(ability)
+      # read team permissions from cache if exists
+      cache_key = ''
+      if self.class.name == 'Team'
+        role = User.current.role(self)
+        role ||= 'authenticated'
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role"
+        perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
+      end
+      if perms.blank?
+        ability ||= Ability.new
+        perms["read #{klass}"] = ability.can?(:read, self)
+        perms["update #{klass}"] = ability.can?(:update, self)
+        perms["destroy #{klass}"] = ability.can?(:destroy, self)
+        perms = perms.merge self.set_create_permissions(klass.name, ability)
+        perms = perms.merge self.set_custom_permissions(ability)
+        # cache team permissions
+        Rails.cache.write(cache_key, perms) if self.class.name == 'Team'
+      end
     end
     perms.to_json
   end

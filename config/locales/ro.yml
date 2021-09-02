@@ -716,6 +716,7 @@ ro:
   list_column_related_count: Asociate
   list_column_suggestions_count: Potriviri sugerate
   go_back_to_check: Întoarcere la Check
+  unsubscribe: Anulați abonarea
   info:
     messages:
       sent_to_trash_by_rule: "„%{item_title}” a fost pus la coșul de gunoi de o regulă

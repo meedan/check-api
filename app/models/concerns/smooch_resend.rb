@@ -141,7 +141,7 @@ module SmoochResend
       languages.blank? ? ['en'] : languages
     end
 
-    def format_template_message(template_name, placeholders, image, fallback, language)
+    def format_template_message(template_name, placeholders, image, fallback, language, header = nil)
       namespace = self.config['smooch_template_namespace']
       return '' if namespace.blank?
       template = self.config["smooch_template_name_for_#{template_name}"] || template_name
@@ -150,7 +150,7 @@ module SmoochResend
       if RequestStore.store[:smooch_bot_provider] == 'TURN'
         self.turnio_format_template_message(namespace, template, fallback, locale, image, placeholders)
       else
-        self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders)
+        self.zendesk_format_template_message(namespace, template, fallback, locale, image, placeholders, header)
       end
     end
 

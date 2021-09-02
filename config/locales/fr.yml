@@ -146,6 +146,11 @@ fr:
           attributes:
             slug:
               slug_format: n’accepte que les lettres, les chiffres et les tirets
+        project_media:
+          attributes:
+            channel:
+              channel_update: Désolé, il ne vous a pas été possible de mettre à jour
+                la valeur du canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: est un numéro invalide
@@ -798,6 +803,7 @@ fr:
     peut donc pas avoir un dossier enfant
   project_group_must_be_under_same_team: La collection devrait être dans le même espace
     de travail
+  unsubscribe: Se désabonner
   info:
     messages:
       sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
@@ -815,3 +821,5 @@ fr:
       sent_message_to_requestors_on_status_change: Une mise à jour dont l’état est
         « %{status} » a été envoyée à %{requestors_count} demandeurs.
       tagged_by_rule: "« %{item_title} » a été étiqueté « %{tag} » par une règle d’automatisation."
+      moved_to_private_folder: "« %{item_title} » a été déplacé vers un dossier auquel
+        vous n’avez pas accès."

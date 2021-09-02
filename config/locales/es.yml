@@ -142,6 +142,10 @@ es:
           attributes:
             slug:
               slug_format: acepta solo letras, números y guiones
+        project_media:
+          attributes:
+            channel:
+              channel_update: Lo sentimos, no pudiste actualizar el valor del canal
       messages:
         record_invalid: "%{errors}"
         improbable_phone: 'es un número inválido '
@@ -776,6 +780,7 @@ es:
     por lo que no puede tener una subcarpeta
   project_group_must_be_under_same_team: La colección debe estar en la misma área
     de trabajo
+  unsubscribe: 'Cancelar suscripción '
   info:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una
@@ -794,3 +799,5 @@ es:
         \ ha sido enviada a %{requestors_count} solicitantes."
       tagged_by_rule: '"%{item_title}" ha sido etiquetado como "%{tag}" por una regla
         de automatización.'
+      moved_to_private_folder: '"%{item_title}" se ha movido a una carpeta a la que
+        no tienes acceso.'

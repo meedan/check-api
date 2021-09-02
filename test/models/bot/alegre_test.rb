@@ -277,6 +277,49 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Bot::Alegre.unstub(:media_file_url)
   end
 
+  test "should relate project media to similar items as audio and also include audio from videos" do
+    p = create_project
+    pm1 = create_project_media team: @pm.team
+    pm1 = create_project_media project: p, media: create_uploaded_video
+    pm2 = create_project_media project: p, media: create_uploaded_audio
+    pm3 = create_project_media project: p, media: create_uploaded_audio
+    create_relationship source_id: pm2.id, target_id: pm1.id
+    Bot::Alegre.stubs(:request_api).returns({
+      "result" => [
+        {
+          "id" => 1,
+          "doc_id" => "blah",
+          "hash_value" => "0101",
+          "url" => "https://foo.com/bar.mp4",
+          "context"=>[
+            {"team_id"=>pm1.team.id.to_s, "project_media_id"=>pm1.id.to_s, "content_type" => "video"}
+          ],
+          "score"=>"0.983167",
+        },
+        {
+          "id" => 2,
+          "doc_id" => "blah2",
+          "hash_value" => "0111",
+          "url" => "https://foo.com/baz.mp4",
+          "context"=>[
+            {"team_id"=>pm2.team.id.to_s, "project_media_id"=>pm2.id.to_s}
+          ],
+          "score"=>"0.983167",
+        }
+      ]
+    })
+    Bot::Alegre.stubs(:media_file_url).with(pm3).returns("some/path")
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.relate_project_media_to_similar_items(pm3)
+    end
+    r = Relationship.last
+    assert_equal pm3, r.target
+    assert_equal pm1, r.source
+    assert_equal r.weight, 0.983167
+    Bot::Alegre.unstub(:request_api)
+    Bot::Alegre.unstub(:media_file_url)
+  end
+
   test "should relate project media to similar items" do
     p = create_project
     pm1 = create_project_media project: p, media: create_uploaded_image
@@ -431,12 +474,12 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should generate correct text conditions for api request" do
     conditions = Bot::Alegre.similar_texts_from_api_conditions("blah", "elasticsearch", 'true', 1, 'original_title', {value: 0.7, key: 'text_elasticsearch_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7}
+    assert_equal conditions, {:text=>"blah", :model=>"elasticsearch", :fuzzy=>true, :context=>{:has_custom_id=>true, :field=>"original_title", :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should generate correct media conditions for api request" do
     conditions = Bot::Alegre.similar_media_content_from_api_conditions(1, "https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", {value: 0.7, key: 'image_hash_suggestion_threshold', automatic: false})
-    assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7}
+    assert_equal conditions, {:url=>"https://upload.wikimedia.org/wikipedia/en/7/7d/Lenna_%28test_image%29.png", :context=>{:has_custom_id=>true, :team_id=>1}, :threshold=>0.7, :match_across_content_types=>true}
   end
 
   test "should get similar items when they are text-based" do
@@ -855,5 +898,39 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
     end
     Bot::Alegre.unstub(:get_items_with_similar_description)
+  end
+
+  test "should check existing relationship before create a new one" do
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    pm3 = create_project_media team: @team
+    pm4 = create_project_media team: @team
+    r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => 0.9 })
+    assert_no_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm, set_fields: { text: 'Foo bar' }.to_json
+    end
+    r = Relationship.where(source_id: pm2.id, target_id: pm.id).last
+    assert_equal r.relationship_type, Relationship.suggested_type
+    assert_nothing_raised do
+      r.relationship_type = Relationship.confirmed_type
+      r.save!
+    end
+    r2 = create_relationship source_id: pm4.id, target_id: pm3.id, relationship_type: Relationship.confirmed_type
+    Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm4.id => 0.9 })
+    assert_no_difference 'Relationship.count' do
+      create_dynamic_annotation annotation_type: 'extracted_text', annotated: pm3, set_fields: { text: 'Foo bar' }.to_json
+    end
+    r = Relationship.where(source_id: pm4.id, target_id: pm3.id).last
+    assert_equal r.relationship_type, Relationship.confirmed_type
+    Bot::Alegre.unstub(:get_items_with_similar_description)
+    # should confirm existing relation if the new one type == confirmed
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    r = create_relationship source_id: pm2.id, target_id: pm.id, relationship_type: Relationship.suggested_type
+    assert_no_difference 'Relationship.count' do
+      Bot::Alegre.create_relationship(pm2, pm, 0.9, Relationship.confirmed_type)
+    end
+    assert_equal r.reload.relationship_type, Relationship.confirmed_type
   end
 end
