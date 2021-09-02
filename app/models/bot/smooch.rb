@@ -18,6 +18,7 @@ class Bot::Smooch < BotUser
   include SmoochStatus
   include SmoochResend
   include SmoochTeamBotInstallation
+  include SmoochNewsletter
   include SmoochZendesk
   include SmoochTurnio
 
@@ -409,6 +410,12 @@ class Bot::Smooch < BotUser
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
 
+    # Shortcuts
+    if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
+      self.toggle_subscription(uid, language, self.config['team_id'])
+      return true
+    end
+
     case state
     when 'waiting_for_message'
       self.bundle_message(message)
@@ -422,9 +429,9 @@ class Bot::Smooch < BotUser
         sm.go_to_query
         self.parse_message_based_on_state(message, app_id)
       end
-    when 'main', 'secondary'
+    when 'main', 'secondary', 'subscription'
       if !self.process_menu_option(message, state, app_id)
-        no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], self.get_message_for_state(workflow, state, language)].join("\n\n")
+        no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], self.get_message_for_state(workflow, state, language, uid)].join("\n\n")
         self.send_message_to_user(uid, utmize_urls(no_option_message, 'resource'))
       end
     when 'query'
@@ -459,7 +466,7 @@ class Bot::Smooch < BotUser
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
           self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
-          self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language), 'resource'))
+          self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language, uid), 'resource'))
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -472,6 +479,8 @@ class Bot::Smooch < BotUser
           resource = self.send_resource_to_user(uid, workflow, option)
           self.bundle_message(message)
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
+        elsif option['smooch_menu_option_value'] == 'subscription_confirmation'
+          self.toggle_subscription(uid, language, self.config['team_id'])
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}(_[A-Z]{2})?$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')

@@ -109,9 +109,23 @@ class Bot::Alegre < BotUser
     Hash[similar_items.collect{|k,v| [k, {score: v, relationship_type: relationship_type}]}]
   end
 
+  def self.valid_match_types(type)
+    {
+      "Claim" => ["text"],
+      "Link" => ["text"],
+      "UploadedImage" => ["image"],
+      "UploadedVideo" => ["video", "audio"],
+      "UploadedAudio" => ["audio", "video"]
+      }[type] || []
+  end
+
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
-    pm.is_text? ? matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? } : matches.select{ |k, _v| other_pms[k.to_i]&.media&.type == pm.media.type }
+    if pm.is_text?
+      matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? }
+    else
+      matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
+    end
   end
 
   def self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
@@ -203,7 +217,7 @@ class Bot::Alegre < BotUser
   def self.get_language_from_alegre(text)
     lang = 'und'
     begin
-      response = self.request_api('get', '/text/langid/', { text: text }, 'query')
+      response = self.request_api('post', '/text/langid/', { text: text })
       lang = response['result']['language'] || lang
     rescue
       nil
@@ -365,7 +379,6 @@ class Bot::Alegre < BotUser
         self.request_api(method, path, params, query_or_body , retries - 1)
       end
       Rails.logger.error("[Alegre Bot] Alegre error: #{e.message}")
-      self.notify_error(e, { method: method, bot: self.name, url: uri, params: params }, RequestStore[:request] )
       { 'type' => 'error', 'data' => { 'message' => e.message } }
     end
   end
@@ -465,13 +478,14 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold)
+  def self.similar_texts_from_api_conditions(text, model, fuzzy, team_id, field, threshold, match_across_content_types=true)
     {
       text: text,
       model: model,
       fuzzy: fuzzy == 'true' || fuzzy.to_i == 1,
       context: self.build_context(team_id, field),
-      threshold: threshold[:value]
+      threshold: threshold[:value],
+      match_across_content_types: match_across_content_types,
     }
   end
 
@@ -486,11 +500,12 @@ class Bot::Alegre < BotUser
     results.reject{ |id, _score| pm.id == id }
   end
 
-  def self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
+  def self.similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)
     {
       url: media_url,
       context: self.build_context(team_id),
-      threshold: threshold[:value]
+      threshold: threshold[:value],
+      match_across_content_types: match_across_content_types,
     }
   end
 
@@ -540,14 +555,22 @@ class Bot::Alegre < BotUser
 
   def self.create_relationship(source, target, weight, relationship_type)
     return if source.nil? || target.nil?
-    r = Relationship.new
-    r.skip_check_ability = true
-    r.relationship_type = relationship_type
-    r.weight = weight
-    r.source_id = source.id
-    r.target_id = target.id
-    r.user_id ||= BotUser.alegre_user&.id
-    r.save!
+    r = Relationship.where(source_id: source.id, target_id: target.id)
+    .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
+    if r.nil?
+      r = Relationship.new
+      r.skip_check_ability = true
+      r.relationship_type = relationship_type
+      r.weight = weight
+      r.source_id = source.id
+      r.target_id = target.id
+      r.user_id ||= BotUser.alegre_user&.id
+      r.save!
+    elsif r.relationship_type != relationship_type && r.relationship_type == Relationship.suggested_type
+      # confirm existing relation if a new one is confirmed
+      r.relationship_type = relationship_type
+      r.save!
+    end
     CheckNotification::InfoMessages.send(
       r.is_confirmed? ? 'related_to_confirmed_similar' : 'related_to_suggested_similar',
       item_title: target.title,

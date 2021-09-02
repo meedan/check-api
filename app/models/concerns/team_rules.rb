@@ -140,11 +140,13 @@ module TeamRules
 
   module Actions
     def send_to_trash(pm, _value, _rule_id)
-      pm = ProjectMedia.find(pm.id)
-      pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-      pm.skip_check_ability = true
-      pm.save!
-      CheckNotification::InfoMessages.send('sent_to_trash_by_rule', item_title: pm.title)
+      pm = ProjectMedia.find_by_id(pm.id)
+      unless pm.nil? || pm.archived == CheckArchivedFlags::FlagCodes::TRASHED
+        pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+        pm.skip_check_ability = true
+        pm.save!
+        CheckNotification::InfoMessages.send('sent_to_trash_by_rule', item_title: pm.title)
+      end
     end
 
     def ban_submitter(pm, _value, _rule_id)
@@ -156,7 +158,7 @@ module TeamRules
       project = Project.where(team_id: self.id, id: value.to_i).last
       unless project.nil?
         pm = ProjectMedia.where(id: pm.id).last
-        unless pm.nil?
+        unless pm.nil? || pm.project_id == project.id
           pm.project_id = project.id
           pm.skip_check_ability = true
           pm.save!

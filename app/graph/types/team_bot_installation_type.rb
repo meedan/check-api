@@ -50,4 +50,6 @@ TeamBotInstallationType = GraphqlCrudOperations.define_default_type do
       end
     end
   end
+
+  field :smooch_newsletter_information, JsonStringType
 end
