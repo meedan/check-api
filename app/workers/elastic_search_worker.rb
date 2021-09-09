@@ -7,18 +7,20 @@ class ElasticSearchWorker
   sidekiq_retry_in { |_count, _e| 5 }
 
   def perform(model, options, type)
-    model = YAML::load(model)
-    options = set_options(model, options)
-    ops = {
-      'create_doc' => 'create_elasticsearch_doc_bg',
-      'update_doc' => 'update_elasticsearch_doc_bg',
-      'update_doc_team' => 'update_elasticsearch_doc_team_bg',
-      'create_update_doc_nested' => 'create_update_nested_obj_bg',
-      'destroy_doc' => 'destroy_elasticsearch_doc',
-      'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
-    }
-    unless ops[type].nil?
-      model.send(ops[type], options) if should_perform_es_action?(type, options) && model.respond_to?(ops[type])
+    model = begin YAML::load(model) rescue nil end
+    unless model.nil?
+      options = set_options(model, options)
+      ops = {
+        'create_doc' => 'create_elasticsearch_doc_bg',
+        'update_doc' => 'update_elasticsearch_doc_bg',
+        'update_doc_team' => 'update_elasticsearch_doc_team_bg',
+        'create_update_doc_nested' => 'create_update_nested_obj_bg',
+        'destroy_doc' => 'destroy_elasticsearch_doc',
+        'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
+      }
+      unless ops[type].nil?
+        model.send(ops[type], options) if should_perform_es_action?(type, options) && model.respond_to?(ops[type])
+      end
     end
   end
 
