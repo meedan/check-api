@@ -436,13 +436,18 @@ class Bot::Smooch < BotUser
       end
     when 'query'
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
-        self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+        self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
     end
   end
 
   def self.get_platform_from_message(message)
     type = message.dig('source', 'type')
     type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : ''
+  end
+
+  def self.time_to_send_request
+    value = self.config['smooch_time_to_send_request'] || 15
+    value.to_i.seconds
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -464,7 +469,7 @@ class Bot::Smooch < BotUser
         if option['smooch_menu_option_value'] =~ /_state$/
           self.bundle_message(message)
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
-          self.delay_for(15.seconds, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
+          self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language, uid), 'resource'))
         elsif option['smooch_menu_option_value'] == 'resource'
