@@ -17,6 +17,8 @@ before_script:
 - cp config/credentials.json.example config/credentials.json
 - cp config/sidekiq-test.yml.example config/sidekiq-test.yml
 - docker-compose build
+- docker-compose run api bundle exec rails c
+- quit
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
 - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 - docker-compose exec api test/setup-parallel-env.sh
