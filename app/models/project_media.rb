@@ -333,6 +333,8 @@ class ProjectMedia < ActiveRecord::Base
     # initiate sort_title with same title value for sorting by title purpose
     ms.attributes[:sort_title] = self.title&.downcase
     ms.attributes[:description] = self.original_description
+    ms.attributes[:analysis_title] = self.analysis_title
+    ms.attributes[:analysis_description] = self.analysis_description
     ms.attributes[:quote] = m.quote
     ms.attributes[:verification_status] = self.last_status
     # set fields with integer value

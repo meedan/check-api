@@ -105,7 +105,7 @@ class Dynamic < ActiveRecord::Base
   def create_field(name, value)
     f = DynamicAnnotation::Field.new
     f.skip_check_ability = true
-    f.disable_es_callbacks = self.disable_es_callbacks
+    f.disable_es_callbacks = self.disable_es_callbacks || value.blank?
     f.field_name = name
     f.value = value
     f.annotation_id = self.id
