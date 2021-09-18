@@ -58,8 +58,7 @@ module SmoochMessages
 
     def subscription_message(uid, language)
       subscribed = !TiplineSubscription.where(team_id: self.config['team_id'], uid: uid, language: language).last.nil?
-      status = subscribed ? I18n.t(:subscribed, locale: language) : I18n.t(:unsubscribed, locale: language)
-      I18n.t(:smooch_message_subscription_header, locale: language, status: status)
+      subscribed ? I18n.t(:smooch_message_subscription_header_subscribed, locale: language) : I18n.t(:smooch_message_subscription_header_unsubscribed, locale: language)
     end
 
     def send_message_if_disabled_and_return_state(uid, workflow, state)

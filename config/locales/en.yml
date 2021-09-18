@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description: 
+        description:
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description: 
+        description:
       misleading:
         label: Misleading
-        description: 
+        description:
       disputed:
         label: Disputed
-        description: 
+        description:
       out_of_scope:
         label: Out of Scope
-        description: 
+        description:
       junk:
         label: Junk
-        description: 
+        description:
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -704,8 +704,8 @@ en:
   team_slack_notifications: Slack notifications
   team_slack_notification_label: Slack notification label
   team_slack_notification_any_activity: Any workspace activity
-  team_slack_notification_folder_is: Item is added to folder...
-  team_slack_notification_status_is: Status is changed to...
+  team_slack_notification_folder_is: Item is added to folder…
+  team_slack_notification_status_is: Status is changed to…
   team_slack_notification_select_folder: Select folder
   team_slack_notification_slack_channel: send notification to
   team_slack_notification_event_type: Event type
@@ -772,17 +772,16 @@ en:
     *Reply 0* to get back to the main menu.
   subscribe: Subscribe
   unsubscribe: Unsubscribe
-  subscribed: subscribed
-  unsubscribed: unsubscribed
-  smooch_message_subscription_header: You are currently *%{status}* to our newsletter.
+  smooch_message_subscription_header_subscribed: You are currently *subscribed* to our newsletter.
+  smooch_message_subscription_header_unsubscribed: You are currently *unsubscribed* to our newsletter.
   smooch_bot_message_newsletter_fallback: |-
     Hi! Here are your Weekly COVID-19 Facts.
 
-    This newsletter is published on WhatsApp by {team}. Here are the most important facts for the week of {date}:
+    This newsletter is published on WhatsApp by %{team}. Here are the most important facts for the week of %{date}:
 
-    {content}
+    %{content}
 
-    To stop receiving this newsletter, type _Unsubscribe_.
+    To stop receiving this newsletter, type _%{unsubscribe}_.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
