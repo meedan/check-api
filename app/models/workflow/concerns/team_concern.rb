@@ -53,7 +53,7 @@ module Workflow
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method id.pluralize do |type, obj = nil, items_count = false, published_reports_count = false|
             return @statuses if @statuses
-            statuses = self.send("get_#{type}_#{id.pluralize}") || ::Workflow::Workflow.core_options(type.camelize.constantize.new, id)
+            statuses = self.send("get_#{type}_#{id.pluralize}") || ::Workflow::Workflow.core_options(type.camelize.constantize.new, id, self.get_language)
             statuses[:statuses].each{ |s| s[:can_change] = true } if !obj.nil? && type.to_s == 'media'
             if type.to_s == 'media' && items_count
               count = Hash[DynamicAnnotation::Field

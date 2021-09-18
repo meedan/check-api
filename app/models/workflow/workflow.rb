@@ -12,7 +12,7 @@ module Workflow
       ::Workflow::Workflow.workflow_ids.include?(field_name.gsub(/_status$/, ''))
     end
 
-    def self.core_options(annotated, annotation_type)
+    def self.core_options(annotated, annotation_type, default_language = 'en')
       klass = "Workflow::#{annotation_type.camelize}".constantize
       type = (annotated.class_name == 'ProjectMedia') ? 'media' : annotated.class_name
       core_statuses = YAML.load(ERB.new(File.read("#{Rails.root}/config/core_statuses.yml")).result)
@@ -27,7 +27,8 @@ module Workflow
             description: I18n.t('statuses.media.' + key.to_s.gsub(/^false$/, 'not_true') + '.description', { locale: locale })
           }
         end
-        status.with_indifferent_access.merge({ locales: locales })
+        label = default_language == 'en' ? status[:label] : I18n.t('statuses.media.' + status[:id].to_s.gsub(/^false$/, 'not_true') + '.label', { locale: default_language })
+        status.with_indifferent_access.merge({ locales: locales, label: label })
       end
       {
         label: 'Status',
