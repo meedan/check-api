@@ -520,4 +520,31 @@ class ElasticSearch7Test < ActionController::TestCase
       assert_equal tipline_ids.concat([pm.id]).sort, results.medias.map(&:id).sort
     end
   end
+
+  test "should filter items by non project and read-unread" do
+    t = create_team
+    p = create_project team: t
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u ,t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      pm2 = create_project_media project: p, disable_es_callbacks: false
+      pm3 = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
+      results = CheckSearch.new({ projects: ['-1'] }.to_json)
+      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ projects: [p.id, '-1'] }.to_json)
+      assert_equal [pm.id, pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ keyword: 'claim', projects: ['-1'] }.to_json)
+      assert_equal [pm3.id], results.medias.map(&:id)
+      # test read/unread
+      pm.read = true
+      pm.save!
+      results = CheckSearch.new({ read: ['1'] }.to_json)
+      assert_equal [pm.id], results.medias.map(&:id)
+      results = CheckSearch.new({ read: ['0'] }.to_json)
+      assert_equal [pm2.id, pm3.id], results.medias.map(&:id).sort
+      results = CheckSearch.new({ keyword: 'claim', read: ['0'] }.to_json)
+      assert_equal [pm3.id], results.medias.map(&:id)
+    end
+  end
 end
