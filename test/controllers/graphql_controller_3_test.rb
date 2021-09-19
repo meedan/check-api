@@ -1137,12 +1137,12 @@ class GraphqlController3Test < ActionController::TestCase
     sleep 1
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[1]}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[0]}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }

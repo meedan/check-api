@@ -533,12 +533,12 @@ class GraphqlController4Test < ActionController::TestCase
     pm1 = create_project_media team: t, project: p1, read: true
     pm2 = create_project_media team: t, project: p2, read: false
 
-    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":true,\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":[1],\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":true,\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":[1],\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, query: query, team: t.slug
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
