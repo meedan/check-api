@@ -18,8 +18,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
     # Check for non project
-    @options['projects'] ||= []
-    @options['none_project'] = @options['projects'].include?('-1')
+    @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
     adjust_project_filter
     adjust_channel_filter
     # set es_id option
