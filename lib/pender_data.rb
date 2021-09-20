@@ -50,7 +50,7 @@ module PenderData
     when PenderClient::ErrorCodes::UNSAFE
       I18n.t('errors.messages.pender_url_unsafe')
     else
-      I18n.t('errors.messages.pender_could_not_parse')
+      I18n.t('errors.messages.pender_could_not_parse', support_email: CheckConfig.get('support_email'))
     end
   end
 
