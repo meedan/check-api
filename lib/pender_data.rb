@@ -20,6 +20,7 @@ module PenderData
         self.pender_error_code = result['data']['code']
         self.retry_pender_or_fail(force, retry_on_error, result)
       else
+        self.pender_error = false
         self.pender_data = result['data'].to_h.merge(pender_key: pender_key)
         self.url = self.get_url_from_result(result)
       end

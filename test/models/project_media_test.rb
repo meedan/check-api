@@ -1191,8 +1191,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.team = t
     pm.url = url
     pm.media_type = 'Link'
-    assert !pm.valid?
-    assert pm.errors.messages.values.flatten.include? I18n.t('errors.messages.pender_conflict')
+    assert_raises RuntimeError do
+      pm.save!
+      assert_equal PenderClient::ErrorCodes::DUPLICATED, pm.media.pender_error_code
+    end
   end
 
   test "should not create project media under archived project" do
@@ -1638,7 +1640,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     response = '{"type":"error","data":{"code":12}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    assert_raises ActiveRecord::RecordInvalid do
+    assert_raises RuntimeError do
       pm = create_project_media media: nil, url: url
       assert_equal 12, pm.media.pender_error_code
     end
