@@ -69,5 +69,7 @@ class Link < Media
 
   def validate_pender_result_and_retry
     self.validate_pender_result(false, true)
+    # raise error for invalid links
+    raise self.handle_pender_error(self.pender_error_code) if self.pender_error
   end
 end

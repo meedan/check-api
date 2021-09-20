@@ -99,7 +99,7 @@ en:
         seconds.
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
-      pender_could_not_parse: Could not parse this link.
+      pender_could_not_parse: We could not parse this link. Please contact %{support_email} if the error persists.
       invalid_format_for_languages: Invalid language format. Expecting the format
         `['en', 'ar', …]`
   activerecord:
