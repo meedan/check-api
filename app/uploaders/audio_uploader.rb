@@ -17,41 +17,20 @@ class AudioUploader < FileUploader
     %w(mp3 wav ogg m4a)
   end
 
-  private
-
-  def audio_cover
-    extname = File.extname(current_path).delete('.')
-    method = "audio_cover_art_#{extname}"
-    data = self.send(method) #if self.respond_to?(method)
-    save_audio_cover(data)
-  end
-
   def audio_cover_art_mp3
     data = {}
     TagLib::MPEG::File.open(current_path) do |file|
       tag = file.id3v2_tag
-      unless tag.nil?
-        cover_art = tag.frame_list('APIC').first
-        data = {
-          ext: cover_art.mime_type.rpartition('/')[2],
-          cover: cover_art.picture
-        } unless cover_art.nil?
-      end
+      data = audio_cover_data(tag) unless tag.nil?
     end
     data
   end
 
   def audio_cover_art_wav
     data = {}
-    TagLib::Ogg::Vorbis::File.open(current_path) do |file|
+    TagLib::RIFF::WAV::File.open(current_path) do |file|
       tag = file.tag
-      unless tag.nil?
-        cover_art = tag.frame_list('APIC').first
-        data = {
-          ext: cover_art.mime_type.rpartition('/')[2],
-          cover: cover_art.picture
-        } unless cover_art.nil?
-      end
+      data = audio_cover_data(tag) unless tag.nil?
     end
     data
   end
@@ -92,16 +71,31 @@ class AudioUploader < FileUploader
     data
   end
 
+  private
+
+  def audio_cover
+    extname = File.extname(current_path).delete('.')
+    method = "audio_cover_art_#{extname}"
+    data = self.send(method) if self.respond_to?(method)
+    save_audio_cover(data)
+  end
+
+  def audio_cover_data(tag)
+    cover_art = tag.frame_list('APIC').first
+    cover_art.nil? ? {} : { ext: cover_art.mime_type.rpartition('/')[2], cover: cover_art.picture }
+  end
+
   def save_audio_cover(data)
-    return if data[:cover].blank?
-    tmp_path = File.join( File.dirname(current_path), "tmpfile.#{data[:ext]}" )
-    File.open(tmp_path, "wb") { |f| f.write(data[:cover]) }
-    # convert to `jpg` extension
-    if data[:ext] != 'jpg'
-      image = MiniMagick::Image.new(tmp_path)
-      image.format "jpg"
+    unless data[:cover].blank?
+      tmp_path = File.join( File.dirname(current_path), "tmpfile.#{data[:ext]}" )
+      File.open(tmp_path, "wb") { |f| f.write(data[:cover]) }
+      # convert to `jpg` extension
+      if data[:ext] != 'jpg'
+        image = MiniMagick::Image.new(tmp_path)
+        image.format "jpg"
+      end
+      File.rename tmp_path, current_path
     end
-    File.rename tmp_path, current_path
     File.delete(current_path) if data[:cover].nil?
   end
 
