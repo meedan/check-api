@@ -77,17 +77,28 @@ class Bot::Alegre < BotUser
     handled = false
     pm = nil
     begin
+      # puts "Entrou no Run!!!!"
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
         Rails.logger.info("[Alegre Bot] now updating PM of ID #{pm.id}")
         self.get_language(pm)
         self.send_to_media_similarity_index(pm)
+        # puts "send_to_media_similarity_index(pm)"
+        # puts '---------------------------------------'
+        # puts 
         self.send_field_to_similarity_index(pm, 'original_title')
+        # puts "send_field_to_similarity_index(pm, 'original_title')"
+        # puts '---------------------------------------'
+        # puts 
         self.send_field_to_similarity_index(pm, 'original_description')
+        # puts "send_field_to_similarity_index(pm, 'original_description')"
+        # puts '---------------------------------------'
+        # puts 
         self.get_extracted_text(pm)
         self.relate_project_media_to_similar_items(pm)
         self.get_flags(pm)
         handled = true
+      # puts "Saiu do Run!!!!"
       end
     rescue StandardError => e
       Rails.logger.error("[Alegre Bot] Exception for event `#{body['event']}`: #{e.message}")
@@ -192,11 +203,12 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similarity(type, pm, threshold)
+  def self.get_items_with_similarity(type, pm, threshold, query_or_body = 'body') 
     if type == 'text'
       self.get_merged_items_with_similar_text(pm, threshold)
     else
-      self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/"), pm)
+      puts "self.get_items_with_similarity: #{query_or_body}"
+      self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body), pm)
     end
   end
 
@@ -255,6 +267,8 @@ class Bot::Alegre < BotUser
   def self.get_extracted_text(pm)
     if pm.report_type == 'uploadedimage'
       result = self.request_api('get', '/image/ocr/', { url: self.media_file_url(pm) }, 'query')
+      puts "result: #{result}"
+      puts '-----------------------------------'
       self.save_annotation(pm, 'extracted_text', result) if result
     end
   end
@@ -364,6 +378,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.request_api(method, path, params = {}, query_or_body = 'body', retries = 3)
+    puts "params: #{params}"
     uri = URI(CheckConfig.get('alegre_host') + path)
     klass = 'Net::HTTP::' + method.capitalize
     request = klass.constantize.new(uri.path, 'Content-Type' => 'application/json')
@@ -450,10 +465,12 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.get_similar_items_from_api(path, conditions, _threshold={})
+  def self.get_similar_items_from_api(path, conditions, _threshold={}, query_or_body = 'body' )
     Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
     response = {}
-    result = self.request_api('get', path, conditions).dig('result')
+    puts "entrou no get_similar_items_from_api #{query_or_body}"
+    puts "path: #{path} conditions #{conditions}"
+    result = self.request_api('get', path, conditions, query_or_body).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
@@ -497,10 +514,11 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_media(media_url, threshold, team_id, path)
+  def self.get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
+    puts ""
     self.get_similar_items_from_api(
       path,
-      self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
+      self.similar_media_content_from_api_conditions(team_id, media_url, threshold), threshold, query_or_body
     )
   end
 
