@@ -1304,7 +1304,7 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal r, new.get_dynamic_annotation('report_design')
   end
 
-  test "should get and set Slack settings for team" do
+  test "should set and get Slack settings for team" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -1313,6 +1313,17 @@ class GraphqlController3Test < ActionController::TestCase
     post :create, query: query, team: t.slug
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
+  end
+
+  test "should set and get tipline inbox filters for team" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", tipline_inbox_filters: "{\"read\":[\"0\"],\"projects\":[\"-1\"]}" }) { team { get_tipline_inbox_filters } } }'
+    post :create, query: query, team: t.slug
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
   end
 
   test "should get Smooch Bot RSS feed preview if has permissions" do

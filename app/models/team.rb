@@ -161,6 +161,10 @@ class Team < ActiveRecord::Base
     self.send(:set_slack_notifications, JSON.parse(slack_notifications))
   end
 
+  def tipline_inbox_filters=(tipline_inbox_filters)
+    self.send(:set_tipline_inbox_filters, JSON.parse(tipline_inbox_filters))
+  end
+
   def languages=(languages)
     languages = languages.is_a?(String) ? JSON.parse(languages) : languages
     self.send(:set_languages, languages.uniq)
