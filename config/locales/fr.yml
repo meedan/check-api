@@ -97,7 +97,6 @@ fr:
         quelques secondes.
       pender_url_invalid: Ce lien est invalide.
       pender_url_unsafe: Ce lien n’est pas fiable.
-      pender_could_not_parse: Il n’a pas été possible d’analyser ce lien.
       invalid_format_for_languages: Le format de langue est invalide. Le format `['fr',
         'en'…]` est attendu
   activerecord:
@@ -206,6 +205,8 @@ fr:
       project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un ou une
         %{type} associé.e"
       project_media_update: "%{user} (%{role} de %{team}) a mis un élément à jour"
+      project_media_move_to: "%{user} (%{role} de %{team}) a déplacé un élément vers
+        %{project}"
       project_media_added_to_list: "%{user} (%{role} de %{team}) a ajouté un élément
         au dossier %{list_name}"
       project_media_status: "%{user} (%{role} de%{team}) a changé l’état %{workflow}
@@ -219,7 +220,7 @@ fr:
       project_source_update: "%{user} (%{role} de %{team}) a modifié un ou une %{type}"
       project_create: "%{user} (%{role} de %{team}) a créé un dossier"
       project_assign: "%{user} (%{role} de %{team}) a affecté un dossier"
-      project_unassign: "%{user} (%{role} de %{team}) a retiré l'attribution d'un
+      project_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution d’un
         dossier"
       user_member: "%{user} s’est joint à l’espace de travail %{team}"
       user_requested: "%{user} a demandé à se joindre à l’espace de travail %{team}"
@@ -803,7 +804,16 @@ fr:
     peut donc pas avoir un dossier enfant
   project_group_must_be_under_same_team: La collection devrait être dans le même espace
     de travail
-  unsubscribe: Se désabonner
+  smooch_bot_message_subscribed: |-
+    L’abonnement est en vigueur.
+
+    *Répondez 0* pour revenir au menu principal.
+  smooch_bot_message_unsubscribed: |-
+    L’abonnement a été annulé.
+
+    *Répondez 0* pour revenir au menu principal.
+  subscribe: M’abonner
+  unsubscribe: Me désabonner
   info:
     messages:
       sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
