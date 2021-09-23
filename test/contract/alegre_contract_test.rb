@@ -22,11 +22,11 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: { "result": [] }.to_json)
   end
 
-  def teardown
-    puts '$ cat log/alegre_mock_service.log'
-    path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
-    puts `cat #{path}`
-  end
+  # def teardown
+  #   puts '$ cat log/alegre_mock_service.log'
+  #   path = File.join(Rails.root, 'log', 'alegre_mock_service.log')
+  #   puts `cat #{path}`
+  # end
 
   test "should return language" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
@@ -79,6 +79,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   test "should extract text" do
     stub_configs({ 'alegre_host' => 'http://localhost:5000' }) do
       stub_similarity_requests(@url)
+      WebMock.stub_request(:get, 'http://localhost:5000/text/similarity/').to_return(body: {success: true}.to_json)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to extract text').
@@ -111,7 +112,6 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
       pm1 = create_project_media team: @pm.team, media: create_uploaded_image
       Bot::Alegre.stubs(:media_file_url).with(pm1).returns(@url)
       assert Bot::Alegre.run({ data: { dbid: pm1.id }, event: 'create_project_media' })
-      # WebMock.stub_request(:get, 'http://localhost:5000/image/similarity/').to_return(body: body)
       Bot::Alegre.unstub(:media_file_url)
       alegre.given('an image URL').
       upon_receiving('a request to link similar images').
