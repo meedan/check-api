@@ -94,7 +94,6 @@ pt:
         em alguns segundos.
       pender_url_invalid: Este link é inválido.
       pender_url_unsafe: Este link não é seguro.
-      pender_could_not_parse: Não foi possível processar este link.
       invalid_format_for_languages: Formato de idioma inválido. O formato esperado
         é `['en', 'ar', …]`
   activerecord:
@@ -199,6 +198,7 @@ pt:
       project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a)
         %{type} relacionado(a)"
       project_media_update: "%{user} (%{role} em %{team}) atualizou um item"
+      project_media_move_to: "%{user} (%{role} de %{team}) moveu um item para %{project}"
       project_media_added_to_list: "%{user} (%{role} em %{team}) adicionou um item
         à pasta %{list_name}"
       project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow}
@@ -781,6 +781,15 @@ pt:
     por isso não pode ter uma pasta descendente
   project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de
     trabalho
+  smooch_bot_message_subscribed: |-
+    Sua inscrição foi feita.
+
+    *Responda 0* para voltar ao Menu Principal.
+  smooch_bot_message_unsubscribed: |-
+    Sua inscrição foi cancelada.
+
+    *Responda 0* para voltar ao Menu Principal.
+  subscribe: Inscrever-se
   unsubscribe: Desinscrever-se
   info:
     messages:
