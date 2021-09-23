@@ -3,30 +3,23 @@
   "properties": {
     "notifications": {
       "type": "array",
-      "title": "<%= I18n.t(:team_slack_notifications) %>",
       "items": {
-        "title": "<%= I18n.t(:team_slack_notifications) %>",
         "type": "object",
         "properties": {
           "label": {
-            "title": "<%= I18n.t(:team_slack_notification_label) %>",
             "type": "string"
           },
           "event_type": {
-            "title": "<%= I18n.t(:team_slack_notification_event_type) %>",
             "type": "string",
             "enum": [
               {
                 "key": "any_activity",
-                "value": "<%= I18n.t(:team_slack_notification_any_activity) %>"
               },
               {
                 "key": "item_added",
-                "value": "<%= I18n.t(:team_slack_notification_folder_is) %>"
               },
               {
                 "key": "status_changed",
-                "value": "<%= I18n.t(:team_slack_notification_status_is) %>"
               }
             ],
             "allOf": [
@@ -37,10 +30,8 @@
                 "then": {
                   "properties": { 
                     "values": { 
-                      "title": "<%= I18n.t(:team_slack_notification_select_folder) %>",
                       "type": "array",
                       "items": {
-                        "title": "<%= I18n.t(:team_slack_notification_select_folder) %>",
                         "type": "string",
                         "enum": <%= projects.to_json %>
                       }
@@ -55,10 +46,8 @@
                 "then": {
                   "properties": {
                     "values": { 
-                      "title": "<%= I18n.t(:team_rule_select_status) %>",
                       "type": "array",
                       "items": {
-                        "title": "<%= I18n.t(:team_rule_select_status) %>",
                         "type": "string",
                         "enum": <%= statuses.to_json %>
                       }
@@ -69,7 +58,6 @@
             ]
           },
           "slack_channel": {
-            "title": "<%= I18n.t(:team_slack_notification_slack_channel) %>",
             "type": "string"
           }
         }
