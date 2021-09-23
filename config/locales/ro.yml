@@ -93,7 +93,6 @@ ro:
         din nou în câteva secunde.
       pender_url_invalid: Acest link este nevalid.
       pender_url_unsafe: Acest link este nesigur.
-      pender_could_not_parse: Analiza acestui link a eșuat.
       invalid_format_for_languages: Format nevalid al limbilor. Se aștepta formatul
         `['en', 'ar', …]`
   activerecord:

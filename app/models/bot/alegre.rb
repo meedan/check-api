@@ -68,6 +68,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.run(body)
+    Rails.logger.info("[Alegre Bot] received task to update PM with body of #{body}")
     if CheckConfig.get('alegre_host').blank?
       Rails.logger.warn("[Alegre Bot] Skipping events because `alegre_host` config is blank")
       return false
@@ -78,6 +79,7 @@ class Bot::Alegre < BotUser
     begin
       pm = ProjectMedia.where(id: body.dig(:data, :dbid)).last
       if body.dig(:event) == 'create_project_media' && !pm.nil?
+        Rails.logger.info("[Alegre Bot] now updating PM of ID #{pm.id}")
         self.get_language(pm)
         self.send_to_media_similarity_index(pm)
         self.send_field_to_similarity_index(pm, 'original_title')
@@ -181,7 +183,9 @@ class Bot::Alegre < BotUser
     unless type.blank?
       return {} if !self.should_get_similar_items_of_type?('master', pm.team_id) || !self.should_get_similar_items_of_type?(type, pm.team_id)
       suggested_or_confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm))
+      Rails.logger.info("[Alegre Bot] suggested_or_confirmed for #{pm.id} is #{suggested_or_confirmed.inspect}")
       confirmed = self.get_items_with_similarity(type, pm, self.get_threshold_for_query(type, pm, true))
+      Rails.logger.info("[Alegre Bot] confirmed for #{pm.id} is #{confirmed.inspect}")
       self.merge_suggested_and_confirmed(suggested_or_confirmed, confirmed, pm)
     else
       {}
@@ -348,7 +352,8 @@ class Bot::Alegre < BotUser
           team_id: pm.team_id,
           project_media_id: pm.id,
           has_custom_id: true
-        }
+        },
+        match_across_content_types: true,
       }
       self.request_api(
         'post',
@@ -372,7 +377,10 @@ class Bot::Alegre < BotUser
     http.use_ssl = uri.scheme == 'https'
     begin
       response = http.request(request)
-      JSON.parse(response.body)
+      Rails.logger.info("[Alegre Bot] Alegre Bot request: (#{method}, #{path}, #{params.inspect}, #{query_or_body}, #{retries})")
+      response_body = response.body
+      Rails.logger.info("[Alegre Bot] Alegre response: #{response_body.inspect}")
+      JSON.parse(response_body)
     rescue StandardError => e
       if retries > 0
         sleep 1

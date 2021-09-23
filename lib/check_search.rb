@@ -17,6 +17,8 @@ class CheckSearch
     @options['eslimit'] ||= 50
     @options['esoffset'] ||= 0
     adjust_es_window_size
+    # Check for non project
+    @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
     adjust_project_filter
     adjust_channel_filter
     # set es_id option
@@ -160,10 +162,9 @@ class CheckSearch
     custom_conditions = {}
     core_conditions = {}
     core_conditions['team_id'] = @options['team_id'] unless @options['team_id'].blank?
-    custom_conditions['read'] = @options['read'].to_i if @options.has_key?('read')
     # Add custom conditions for array values
     {
-      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels'
+      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'channel' => 'channels', 'read' => 'read'
     }.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
@@ -203,7 +204,7 @@ class CheckSearch
     core_conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
     archived = @options['archived'].to_i
     core_conditions << { term: { archived: archived } }
-    custom_conditions << { term: { read: @options['read'].to_i } } if @options.has_key?('read')
+    custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     core_conditions << { term: { sources_count: 0 } } unless should_include_related_items?
     custom_conditions.concat build_search_keyword_conditions
     custom_conditions.concat build_search_tags_conditions
@@ -260,6 +261,7 @@ class CheckSearch
     if Team.current
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
+    @options['projects'] += [nil] if @options['none_project']
   end
 
   def adjust_channel_filter

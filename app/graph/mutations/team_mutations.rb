@@ -24,7 +24,8 @@ module TeamMutations
     report: 'json',
     language: 'str',
     languages: 'json',
-    list_columns: 'json'
+    list_columns: 'json',
+    tipline_inbox_filters: 'str',
   }
 
   Create, Update, Destroy = GraphqlCrudOperations.define_crud_operations('team', create_fields, update_fields, ['check_search_team', 'check_search_trash', 'check_search_unconfirmed', 'public_team'])

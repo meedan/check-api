@@ -161,12 +161,7 @@ module ProjectAssociation
     def set_media
       unless self.url.blank? && self.quote.blank? && self.file.blank?
         m = self.create_media
-        error_messages = m.errors.messages.values.flatten
-        if error_messages.any?
-          error_messages.each { |error| errors.add(:base, error) }
-        else
-          self.media_id = m.id unless m.nil?
-        end
+        self.media_id = m.id unless m.nil?
       end
     end
 

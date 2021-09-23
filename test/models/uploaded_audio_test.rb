@@ -38,5 +38,8 @@ class UploadedAudioTest < ActiveSupport::TestCase
     # ogg file
     a = create_uploaded_audio file: 'with_cover.ogg'
     assert_not_empty a.thumbnail_path
+    # m4a file
+    a = create_uploaded_audio file: 'with_cover.m4a'
+    assert_not_empty a.thumbnail_path
   end
 end

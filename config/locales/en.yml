@@ -99,7 +99,8 @@ en:
         seconds.
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
-      pender_could_not_parse: Could not parse this link.
+      pender_could_not_parse: We could not parse this link. Please contact %{support_email}
+        if the error persists.
       invalid_format_for_languages: Invalid language format. Expecting the format
         `['en', 'ar', …]`
   activerecord:
@@ -699,14 +700,6 @@ en:
   team_rule_select_field_value_tasks: Select answer
   team_rule_item_is_assigned_to_user: Item is assigned to
   team_rule_add_tag: Add tag
-  team_slack_notifications: Slack notifications
-  team_slack_notification_label: Slack notification label
-  team_slack_notification_any_activity: Any workspace activity
-  team_slack_notification_folder_is: Item is added to folder...
-  team_slack_notification_status_is: Status is changed to...
-  team_slack_notification_select_folder: Select folder
-  team_slack_notification_slack_channel: send notification to
-  team_slack_notification_event_type: Event type
   flag_adult: Adult
   flag_spoof: Spoof
   flag_medical: Medical
@@ -770,17 +763,18 @@ en:
     *Reply 0* to get back to the main menu.
   subscribe: Subscribe
   unsubscribe: Unsubscribe
-  subscribed: subscribed
-  unsubscribed: unsubscribed
-  smooch_message_subscription_header: You are currently *%{status}* to our newsletter.
+  smooch_message_subscription_header_subscribed: You are currently *subscribed* to
+    our newsletter.
+  smooch_message_subscription_header_unsubscribed: You are currently *unsubscribed*
+    to our newsletter.
   smooch_bot_message_newsletter_fallback: |-
     Hi! Here are your Weekly COVID-19 Facts.
 
-    This newsletter is published on WhatsApp by {team}. Here are the most important facts for the week of {date}:
+    This newsletter is published on WhatsApp by %{team}. Here are the most important facts for the week of %{date}:
 
-    {content}
+    %{content}
 
-    To stop receiving this newsletter, type _Unsubscribe_.
+    To stop receiving this newsletter, type _%{unsubscribe}_.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
