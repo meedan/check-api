@@ -92,7 +92,6 @@ ar:
         ثوانٍ.
       pender_url_invalid: هذا الرابط غير صالح.
       pender_url_unsafe: هذا الرابط غير آمن.
-      pender_could_not_parse: لا يمكن معالجة هذا الرابط.
       invalid_format_for_languages: صيغة اللغة غير صالحة. المتوقع `['en', 'ar', …]`
   activerecord:
     models:
@@ -201,6 +200,7 @@ ar:
       project_media_create_related: قام %{user} (%{role} في %{team}) بإنشاء %{type}
         مرتبط
       project_media_update: قام %{user} (%{role} في %{team}) بتحديث عنصر
+      project_media_move_to: قام %{user} (%{role} في %{team}) بنقل عنصر إلى %{project}
       project_media_added_to_list: قام %{user} (%{role} في %{team}) بإضافة عنصر إلى
         مجلد %{list_name}
       project_media_status: قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow}
@@ -764,6 +764,15 @@ ar:
   project_cant_have_children_if_has_parent: يوجد هذا المجلد ضمن مجلد آخر، لذا لا يمكن
     أن يحوي مجلدا بداخله
   project_group_must_be_under_same_team: يجب أن تكون المجموعة ضمن نفس مساحة العمل
+  smooch_bot_message_subscribed: |-
+    لقد اشتركت الآن.
+
+    *يُرجى إرسال 0* للعودة إلى القائمة الرئيسية.
+  smooch_bot_message_unsubscribed: |-
+    تم إلغاء اشتراكك.
+
+    *يُرجى إرسال 0* للعودة إلى القائمة الرئيسية.
+  subscribe: اشتراك
   unsubscribe: إلغاء الاشتراك
   info:
     messages:

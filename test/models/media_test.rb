@@ -173,7 +173,7 @@ class MediaTest < ActiveSupport::TestCase
     response = '{"type":"error","data":{"message":"Error"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    assert_raises ActiveRecord::RecordInvalid do
+    assert_raises RuntimeError do
       create_media(account: create_valid_account, url: url)
     end
   end

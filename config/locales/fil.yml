@@ -96,7 +96,6 @@ fil:
         pagkatapos ng ilang segundo.
       pender_url_invalid: Hindi wasto ang link na ito.
       pender_url_unsafe: Hindi ligtas ang link na ito.
-      pender_could_not_parse: Hindi ma-parse ang link na ito.
       invalid_format_for_languages: Hindi wastong format ng wika. Ang inaasahan ay
         `['en', 'ar', …]`
   activerecord:

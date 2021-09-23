@@ -705,9 +705,11 @@ class Bot::Smooch < BotUser
   end
 
   def self.ban_user(message)
-    uid = message['authorId']
-    Rails.logger.info("[Smooch Bot] Banned user #{uid}")
-    Rails.cache.write("smooch:banned:#{uid}", message.to_json)
+    unless message.nil?
+      uid = message['authorId']
+      Rails.logger.info("[Smooch Bot] Banned user #{uid}")
+      Rails.cache.write("smooch:banned:#{uid}", message.to_json)
+    end
   end
 
   # Don't save as a ProjectMedia if it contains only menu options

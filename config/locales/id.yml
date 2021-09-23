@@ -97,7 +97,6 @@ id:
         detik.
       pender_url_invalid: Tautan ini salah.
       pender_url_unsafe: Tautan ini tidak aman.
-      pender_could_not_parse: Tidak dapat mengurai tautan ini.
       invalid_format_for_languages: Format bahasa salah. Format yang diharapkan `['en',
         'ar', ....]`
   activerecord:
@@ -199,6 +198,8 @@ id:
       project_media_create_related: "%{user} (%{role} pada %{team}) menambahkan sebuah
         %{type} terkait"
       project_media_update: "%{user} (%{role} pada %{team}) memperbarui sebuah perihal"
+      project_media_move_to: "%{user} (%{role} pada %{team}) memindahkan sebuah perihal
+        ke %{project}"
       project_media_added_to_list: "%{user} (%{role} pada %{team}) menambahkan perihal
         ke folder %{list_name}"
       project_media_status: "%{user} (%{role} pada %{team}) mengganti status %{workflow}
@@ -782,6 +783,15 @@ id:
     sehingga tidak dapat membuat folder turunan di dalamnya.
   project_group_must_be_under_same_team: Koleksi tersebut harus berada di bawah ruang
     kerja yang sama
+  smooch_bot_message_subscribed: |-
+    Sekarang Anda telah berlangganan.
+
+    *Balas 0* untuk kembali ke menu utama.
+  smooch_bot_message_unsubscribed: |-
+    Sekarang Anda telah berhenti berlangganan.
+
+    *Balas 0* untuk kembali ke menu utama.
+  subscribe: Berlangganan
   unsubscribe: Berhenti berlangganan
   info:
     messages:
