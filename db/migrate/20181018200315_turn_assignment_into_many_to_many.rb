@@ -1,4 +1,4 @@
-class TurnAssignmentIntoManyToMany < ActiveRecord::Migration
+class TurnAssignmentIntoManyToMany < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     

@@ -1,4 +1,4 @@
-class AddInitialStatusToMedia < ActiveRecord::Migration
+class AddInitialStatusToMedia < ActiveRecord::Migration[4.2]
   def change
     unless defined?(Status).nil?
       ProjectMedia.all.each do |pm|

@@ -1,5 +1,5 @@
 # check-api
-FROM ruby:2.4-slim-buster
+FROM ruby:2.6.6-slim
 MAINTAINER sysops@meedan.com
 
 ENV DEPLOYUSER=checkdeploy \

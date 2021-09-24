@@ -46,8 +46,8 @@ class << Concurrent::Future
 end
 
 class Api::V1::TestController < Api::V1::BaseApiController
-  before_filter :verify_payload!, only: [:notify]
-  skip_before_filter :authenticate_from_token!, only: [:notify]
+  before_action :verify_payload!, only: [:notify]
+  skip_before_action :authenticate_from_token!, only: [:notify]
 
   def test
     @p = get_params
@@ -201,16 +201,16 @@ class ActiveSupport::TestCase
   end
 
   def assert_queries(num = 1, operator = '=', test = true, &block)
-    old = ActiveRecord::Base.connection.query_cache_enabled
-    ActiveRecord::Base.connection.enable_query_cache!
+    old = ApplicationRecord.connection.query_cache_enabled
+    ApplicationRecord.connection.enable_query_cache!
     queries  = []
     callback = lambda { |name, start, finish, id, payload|
-      queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and payload[:name] != 'CACHE'
+      queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and !payload[:cached]
     }
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
     queries
   ensure
-    ActiveRecord::Base.connection.disable_query_cache! unless old
+    ApplicationRecord.connection.disable_query_cache! unless old
     debug = "Total of #{queries.size} Queries:\n#{queries.join("\n")}"
     msg = "#{queries.size} expected to be #{operator} #{num}. " + debug
     if test
@@ -325,7 +325,7 @@ class ActiveSupport::TestCase
     query = "mutation create { create#{klass}(input: #{input}) { #{type} { #{response_fields.join(',')} } } }"
 
     assert_difference "#{klass}.count" do
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       yield if block_given?
     end
@@ -344,7 +344,7 @@ class ActiveSupport::TestCase
     id = obj.graphql_id
     input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
     query = "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
-    post :create, query: query
+    post :create, params: { query: query }
     yield if block_given?
     assert_response :success
     assert_equal to, obj.reload.send(attr)
@@ -358,7 +358,7 @@ class ActiveSupport::TestCase
     id = obj.graphql_id
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
-      post :create, query: query
+      post :create, params: { query: query }
       yield if block_given?
     end
     assert_response :success
@@ -369,7 +369,7 @@ class ActiveSupport::TestCase
     authenticate_with_user
     obj = send("create_#{type}", { field.to_sym => value, team: @team })
     query = "query GetById { #{type}(id: \"#{obj.id}\") { #{field} } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     document_graphql_query('get_by_id', type, query, @response.body)
     data = JSON.parse(@response.body)['data'][type]

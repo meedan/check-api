@@ -1,7 +1,7 @@
 require 'sample_data'
 
 class TestController < ApplicationController
-  before_filter :check_environment
+  before_action :check_environment
 
   include SampleData
 
@@ -11,7 +11,7 @@ class TestController < ApplicationController
       user.skip_check_ability = true
       user.confirm
     end
-    render text: 'OK'
+    render plain: 'OK'
   end
 
   def make_team_public
@@ -20,7 +20,7 @@ class TestController < ApplicationController
       team.private = false
       team.save!
     end
-    render text: 'OK'
+    render plain: 'OK'
   end
 
   def install_bot
@@ -131,14 +131,14 @@ class TestController < ApplicationController
   def new_task
     user = User.where(email: params[:email]).last
     pm = ProjectMedia.find(params[:pm_id])
-    t = create_task({ annotated: pm, annotator: user }.merge(params))
+    t = create_task({ annotated: pm, annotator: user }.merge(params.permit(params.keys)))
     render_success 'task', t
   end
 
   def new_team_data_field
     Team.current = Team.find(params[:team_id])
     team_data_field = "Team-#{params[:fieldset]}-#{Time.now}"
-    tt = create_team_task({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params))
+    tt = create_team_task({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params.permit(params.keys)))
     render_success 'team_task', tt
   end
 
@@ -234,6 +234,6 @@ class TestController < ApplicationController
   private
 
   def check_environment
-    (render(text: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
+    (render(plain: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
   end
 end

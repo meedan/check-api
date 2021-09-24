@@ -1,4 +1,4 @@
-class ProjectMedia < ActiveRecord::Base
+class ProjectMedia < ApplicationRecord
   attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules
 
   include ProjectAssociation
@@ -26,7 +26,7 @@ class ProjectMedia < ActiveRecord::Base
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
   after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :add_remove_team_tasks, :move_similar_item, :send_move_to_slack_notification
-  after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.changes.keys.include?('read') }
+  after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
   after_destroy :destroy_related_medias
 
   notifies_pusher on: [:save, :destroy],

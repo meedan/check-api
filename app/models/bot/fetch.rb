@@ -13,7 +13,7 @@ class Bot::Fetch < BotUser
 
     after_save do
       if self.bot_user.identifier == 'fetch'
-        previous_service = self.settings_was.to_h.with_indifferent_access[:fetch_service_name].to_s
+        previous_service = self.settings_before_last_save.to_h.with_indifferent_access[:fetch_service_name].to_s
         new_service = self.settings.to_h.with_indifferent_access[:fetch_service_name].to_s
         if new_service != previous_service
           Bot::Fetch.setup_service(self, previous_service, new_service)
@@ -167,7 +167,7 @@ class Bot::Fetch < BotUser
         team = Team.find(team_id)
         unless self.already_imported?(claim_review, team)
           Rails.cache.write(self.semaphore_key(team_id, claim_review['identifier']), Time.now)
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             pm = self.create_project_media(team, user)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)

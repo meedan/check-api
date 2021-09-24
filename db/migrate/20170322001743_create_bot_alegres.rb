@@ -1,4 +1,4 @@
-class CreateBotAlegres < ActiveRecord::Migration
+class CreateBotAlegres < ActiveRecord::Migration[4.2]
   def change
     create_table :bot_alegres do |t|
       t.string :name

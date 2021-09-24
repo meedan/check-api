@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class ReplaceMemebusterAnnotationByReportDesignAnnotation < ActiveRecord::Migration
+class ReplaceMemebusterAnnotationByReportDesignAnnotation < ActiveRecord::Migration[4.2]
   def change
     json_schema = {
       type: 'object',

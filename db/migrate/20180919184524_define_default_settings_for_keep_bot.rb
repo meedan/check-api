@@ -1,4 +1,4 @@
-class DefineDefaultSettingsForKeepBot < ActiveRecord::Migration
+class DefineDefaultSettingsForKeepBot < ActiveRecord::Migration[4.2]
   def change
     config = CheckConfig.get('clamav_service_path')
     CheckConfig.set('clamav_service_path', nil)

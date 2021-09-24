@@ -1,4 +1,4 @@
-class AddExtraIndexes < ActiveRecord::Migration
+class AddExtraIndexes < ActiveRecord::Migration[4.2]
   def change
     # Team
     remove_index :teams, name: "index_teams_on_id"

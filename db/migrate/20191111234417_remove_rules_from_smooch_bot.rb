@@ -1,4 +1,4 @@
-class RemoveRulesFromSmoochBot < ActiveRecord::Migration
+class RemoveRulesFromSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.smooch_user
     unless tb.nil?

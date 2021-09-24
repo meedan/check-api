@@ -1,4 +1,4 @@
-class AddArchivedFlag < ActiveRecord::Migration
+class AddArchivedFlag < ActiveRecord::Migration[4.2]
   def change
     add_column :project_medias, :archived, :integer, default: 0
     add_index :project_medias, :archived

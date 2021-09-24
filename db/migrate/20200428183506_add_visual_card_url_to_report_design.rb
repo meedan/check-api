@@ -1,4 +1,4 @@
-class AddVisualCardUrlToReportDesign < ActiveRecord::Migration
+class AddVisualCardUrlToReportDesign < ActiveRecord::Migration[4.2]
   def change
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').last
     unless at.nil?

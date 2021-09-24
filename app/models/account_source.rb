@@ -1,11 +1,11 @@
 require 'error_codes'
 
-class AccountSource < ActiveRecord::Base
+class AccountSource < ApplicationRecord
   include CheckElasticSearch
   attr_accessor :url
 
-  belongs_to :source
-  belongs_to :account
+  belongs_to :source, optional: true
+  belongs_to :account, optional: true
 
   validates_presence_of :source_id, :account_id
 

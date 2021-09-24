@@ -37,7 +37,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.saved_change_to_archived?
   end
 
   def destroy_related_medias
@@ -79,17 +79,17 @@ module ProjectMediaPrivate
   end
 
   def add_remove_team_tasks
-    if self.project_id_changed?
+    if self.saved_change_to_project_id?
       # add new team tasks based on new project_id
       self.add_destination_team_tasks(self.project_id)
       # remove existing team tasks based on old project_id
-      TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id_was, YAML::dump(User.current), YAML::dump({ project_media_id: self.id }))
+      TeamTaskWorker.perform_in(1.second, 'remove_from', self.project_id_before_last_save, YAML::dump(User.current), YAML::dump({ project_media_id: self.id }))
     end
   end
 
   def move_similar_item
     # move similar items to same project as main item
-    if self.project_id_changed?
+    if self.saved_change_to_project_id?
       secondary_ids = self.source_relationships.map(&:target_id)
       ProjectMedia.bulk_move(secondary_ids, self.project, self.team) unless secondary_ids.blank?
     end

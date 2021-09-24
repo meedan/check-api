@@ -1,4 +1,4 @@
-class PointTagsToTagTexts < ActiveRecord::Migration
+class PointTagsToTagTexts < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     print "Converting #{Tag.length} tags: "

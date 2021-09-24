@@ -1,4 +1,4 @@
-class AddKeepBot < ActiveRecord::Migration
+class AddKeepBot < ActiveRecord::Migration[4.2]
   def change
     # create team task table to fix migration when start app from scratch
     create_table :team_tasks do |t|

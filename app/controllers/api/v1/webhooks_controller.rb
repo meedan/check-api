@@ -1,7 +1,7 @@
 module Api
   module V1
     class WebhooksController < BaseApiController
-      skip_before_filter :authenticate_from_token!
+      skip_before_action :authenticate_from_token!
 
       def index
         bot_name_to_class = {

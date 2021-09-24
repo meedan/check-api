@@ -79,7 +79,7 @@ module AnnotationBase
     after_save :touch_annotated, unless: proc { |a| a.is_being_copied }
     after_destroy :touch_annotated
 
-    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }, class_name: 'Version'
+    has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at, :id, :entities, :lock_version], if: proc { |a| (User.current.present? && !a.is_being_copied) || a.force_version }, versions: { class_name: 'Version' }
 
     has_many :assignments, ->{ where(assigned_type: 'Annotation') }, foreign_key: :assigned_id, dependent: :destroy
 
@@ -106,7 +106,7 @@ module AnnotationBase
         annotated.skip_clear_cache = self.skip_clear_cache
         annotated.updated_at = Time.now
         annotated.disable_es_callbacks = true
-        ActiveRecord::Base.connection_pool.with_connection do
+        ApplicationRecord.connection_pool.with_connection do
           annotated.save!(validate: false)
         end
       end

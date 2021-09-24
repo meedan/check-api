@@ -1,13 +1,13 @@
-class Media < ActiveRecord::Base
+class Media < ApplicationRecord
   include AnnotationBase::Association
 
   self.inheritance_column = :type
 
   attr_accessor :disable_es_callbacks
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], class_name: 'Version'
-  belongs_to :account
-  belongs_to :user
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], versions: { class_name: 'Version' }
+  belongs_to :account, optional: true
+  belongs_to :user, optional: true
   has_many :project_medias, dependent: :destroy
   has_annotations
 

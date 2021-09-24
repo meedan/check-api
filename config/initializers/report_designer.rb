@@ -140,7 +140,7 @@ Dynamic.class_eval do
   end
 
   def copy_report_image_paths
-    return unless self.file_changed?
+    return unless self.saved_change_to_file?
     fields = self.set_fields || '{}'
     data = { 'options' => [] }.merge(JSON.parse(fields))
     self.file.each_with_index do |image, i|

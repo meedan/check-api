@@ -1,4 +1,4 @@
-class CreatePartitions < ActiveRecord::Migration
+class CreatePartitions < ActiveRecord::Migration[4.2]
   def change
     Version.create_infrastructure
     Version.create_new_partition_tables([0])

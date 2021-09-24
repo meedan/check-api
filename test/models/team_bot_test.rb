@@ -558,11 +558,11 @@ class TeamBotTest < ActiveSupport::TestCase
       with_current_user_and_team(u, t2) do
         tb = BotUser.new({
           name: random_string,
-          set_description: random_string,
-          set_request_url: random_url,
-          team_author_id: t1.id,
-          set_events: [{ event: 'create_project_media', graphql: nil }]
-        });
+          team_author_id: t1.id
+        })
+        tb.set_description = random_string
+        tb.set_request_url = random_url
+        tb.set_events = [{ event: 'create_project_media', graphql: nil }]
         File.open(File.join(Rails.root, 'test', 'data', 'rails.png')) do |f|
           tb.image = f
         end

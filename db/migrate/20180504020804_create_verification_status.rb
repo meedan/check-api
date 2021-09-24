@@ -1,4 +1,4 @@
-class CreateVerificationStatus < ActiveRecord::Migration
+class CreateVerificationStatus < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

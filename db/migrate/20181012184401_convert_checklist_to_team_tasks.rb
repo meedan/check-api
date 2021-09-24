@@ -1,4 +1,4 @@
-class ConvertChecklistToTeamTasks < ActiveRecord::Migration
+class ConvertChecklistToTeamTasks < ActiveRecord::Migration[4.2]
   def change
     Team.all.each do |team|
       next unless team.get_checklist.is_a?(Array)

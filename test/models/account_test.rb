@@ -66,7 +66,7 @@ class AccountTest < ActiveSupport::TestCase
     s = create_source
     User.current = u
     a = create_account source: s
-    assert_equal 2, a.versions.size
+    assert_equal 1, a.versions.size
     User.current = nil
   end
 
@@ -78,7 +78,7 @@ class AccountTest < ActiveSupport::TestCase
       a = create_account
       a.team = create_team
       a.save!
-      assert_equal 3, a.versions.size
+      assert_equal 2, a.versions.size
     end
 
   end

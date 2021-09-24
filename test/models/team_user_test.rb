@@ -188,7 +188,7 @@ class TeamUserTest < ActiveSupport::TestCase
     u2 = create_user
     tu2 = create_team_user team: t, user: u2, role: 'admin'
 
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       with_current_user_and_team(u, t) do
         tu2.role = 'editor'
         tu2.save!
@@ -291,7 +291,7 @@ class TeamUserTest < ActiveSupport::TestCase
     raw_params = { user: create_user, team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       TeamUser.create(params)
     end
   end

@@ -18,7 +18,7 @@ module ActiveRecordExtensions
 
   module ClassMethods
     def permissioned(team = nil)
-      klass = self.to_s.gsub(/::ActiveRecord.*$/, '')
+      klass = self.to_s.gsub(/::ApplicationRecord.*$/, '')
       all_params = RequestStore.store[:graphql_connection_params] || {}
       user = User.current || User.new
       team ||= (Team.current || Team.new)
@@ -74,7 +74,7 @@ module ActiveRecordExtensions
   end
 
   def destroy_annotations_and_versions
-    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if self.class_name.constantize.paper_trail.enabled?
+    Version.from_partition(self.team&.id).where(item_type: self.class_name, item_id: self.id.to_s).destroy_all if PaperTrail.request.enabled_for_model?(self.class_name.constantize)
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
@@ -121,10 +121,8 @@ module ActiveRecordExtensions
     # https://github.com/paper-trail-gem/paper_trail/issues/215#issuecomment-21196200
     transaction do
       save!
-      self.version_object = Version.from_partition(self.team.id).where(item_type: self.class_name, item_id: self.id.to_s).last if self.class_name.constantize.paper_trail.enabled? && self.team
+      self.version_object = Version.from_partition(self.team.id).where(item_type: self.class_name, item_id: self.id.to_s).last if PaperTrail.request.enabled_for_model?(self.class_name.constantize) && self.team
       self
     end
   end
 end
-
-ActiveRecord::Base.send(:include, ActiveRecordExtensions)

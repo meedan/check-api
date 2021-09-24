@@ -1,4 +1,4 @@
-class SetAssignmentsProgressCache < ActiveRecord::Migration
+class SetAssignmentsProgressCache < ActiveRecord::Migration[4.2]
   def change
     uids = Assignment.joins("INNER JOIN annotations a ON a.id = assignments.assigned_id AND a.annotation_type = 'task'").where(assigned_type: 'Annotation').distinct('assignments.user_id').select('assignments.user_id AS uid').map(&:uid)
     users = User.where(id: uids)

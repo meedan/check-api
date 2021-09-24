@@ -23,7 +23,7 @@ module Api
       def setup
         setup_twitter if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Twitter)
         setup_facebook if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Facebook)
-        render text: 'Setup complete.', status: 404
+        render plain: 'Setup complete.', status: 404
       end
 
       private

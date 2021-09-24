@@ -1,4 +1,4 @@
-class AddSmoochBot < ActiveRecord::Migration
+class AddSmoochBot < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
 

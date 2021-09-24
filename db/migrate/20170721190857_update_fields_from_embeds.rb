@@ -1,4 +1,4 @@
-class UpdateFieldsFromEmbeds < ActiveRecord::Migration
+class UpdateFieldsFromEmbeds < ActiveRecord::Migration[4.2]
 
   def change
     @n = 0

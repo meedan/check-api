@@ -1,4 +1,4 @@
-class BotGardenRefactoring < ActiveRecord::Migration
+class BotGardenRefactoring < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     config = CheckConfig.get('clamav_service_path')
@@ -18,8 +18,8 @@ class BotGardenRefactoring < ActiveRecord::Migration
 
     puts "[#{Time.now}] Converting team_bots and removing the table..."
     mapping = {}
-    if ActiveRecord::Base.connection.table_exists?(:team_bots)
-      ActiveRecord::Base.connection.execute('SELECT * FROM team_bots').to_a.each do |team_bot|
+    if ApplicationRecord.connection.table_exists?(:team_bots)
+      ApplicationRecord.connection.execute('SELECT * FROM team_bots').to_a.each do |team_bot|
         bot_user = BotUser.find(team_bot['bot_user_id'])
         mapping[team_bot['id']] = team_bot['bot_user_id']
         s = team_bot.clone.with_indifferent_access
@@ -38,8 +38,8 @@ class BotGardenRefactoring < ActiveRecord::Migration
     end
 
     puts "[#{Time.now}] Converting team_bot_installations and removing the table..."
-    if ActiveRecord::Base.connection.table_exists?(:team_bot_installations)
-      ActiveRecord::Base.connection.execute('SELECT * FROM team_bot_installations').to_a.each do |tbi|
+    if ApplicationRecord.connection.table_exists?(:team_bot_installations)
+      ApplicationRecord.connection.execute('SELECT * FROM team_bot_installations').to_a.each do |tbi|
         tu = TeamUser.where(team_id: tbi['team_id'], user_id: mapping[tbi['team_bot_id']]).last
         tu.type = 'TeamBotInstallation'
         tu.settings = tbi['settings'].blank? ? {} : YAML::load(tbi['settings'])
@@ -49,10 +49,10 @@ class BotGardenRefactoring < ActiveRecord::Migration
     end
    
     puts "[#{Time.now}] Converting Bot::* classes..."
-    if ActiveRecord::Base.connection.table_exists?(:bot_bots)
+    if ApplicationRecord.connection.table_exists?(:bot_bots)
       old_pender = nil
       old_check = nil
-      ActiveRecord::Base.connection.execute('SELECT * FROM bot_bots').to_a.each do |b|
+      ApplicationRecord.connection.execute('SELECT * FROM bot_bots').to_a.each do |b|
         old_pender = b['id'] if b['name'] == 'Pender'
         old_check = b['id'] if b['name'] == 'Check Bot'
       end
@@ -63,13 +63,13 @@ class BotGardenRefactoring < ActiveRecord::Migration
     end
 
     ['alegre', 'facebook', 'twitter', 'slack', 'bridge_reader', 'viber'].each do |identifier|
-      if ActiveRecord::Base.connection.table_exists?("bot_#{identifier.pluralize}")
+      if ApplicationRecord.connection.table_exists?("bot_#{identifier.pluralize}")
         old = nil
         name = identifier.camelize.gsub(/([a-z])([A-Z])/, '\1 \2') + ' Bot'
         klass = 'Bot::' + identifier.camelize
         new = BotUser.where(login: identifier).last || User.create!(name: name, login: identifier, type: klass)
         new = BotUser.find(new.id)
-        ActiveRecord::Base.connection.execute("SELECT * FROM bot_#{identifier.pluralize}").to_a.each do |b|
+        ApplicationRecord.connection.execute("SELECT * FROM bot_#{identifier.pluralize}").to_a.each do |b|
           if b['name'] == name
             old = b['id']
             unless b['settings'].blank?
@@ -87,7 +87,7 @@ class BotGardenRefactoring < ActiveRecord::Migration
 
     puts "[#{Time.now}] Removing other bot-specific tables..."
     ['bot_alegres', 'bot_bots', 'bot_bridge_readers', 'bot_facebooks', 'bot_slacks', 'bot_twitters', 'bot_vibers'].each do |table|
-      drop_table(table) if ActiveRecord::Base.connection.table_exists?(table)
+      drop_table(table) if ApplicationRecord.connection.table_exists?(table)
     end
 
     CheckConfig.set('clamav_service_path', config)

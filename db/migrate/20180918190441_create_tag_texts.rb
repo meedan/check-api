@@ -1,4 +1,4 @@
-class CreateTagTexts < ActiveRecord::Migration
+class CreateTagTexts < ActiveRecord::Migration[4.2]
   def change
     create_table :tag_texts do |t|
       t.string :text, null: false

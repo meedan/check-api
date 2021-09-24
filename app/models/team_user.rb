@@ -1,7 +1,7 @@
-class TeamUser < ActiveRecord::Base
+class TeamUser < ApplicationRecord
 
-  belongs_to :team
-  belongs_to :user
+  belongs_to :team, optional: true
+  belongs_to :user, optional: true
 
   validates_presence_of :team, :user
 
@@ -60,7 +60,7 @@ class TeamUser < ActiveRecord::Base
 
   def slack_notification_message(_event = nil)
     # Ignore updates that don't involve the status. The presence of "id" indicates creation.
-    return nil if (self.changed & ['id', 'status']).blank?
+    return nil if (self.saved_changes.keys & ['id', 'status']).blank?
 
     params = self.slack_params
     {
@@ -128,7 +128,7 @@ class TeamUser < ActiveRecord::Base
 
   def send_email_to_requestor
     return if self.is_being_copied
-    if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
+    if self.status_before_last_save === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
       TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted)
     end

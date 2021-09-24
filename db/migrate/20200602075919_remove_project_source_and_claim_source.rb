@@ -1,4 +1,4 @@
-class RemoveProjectSourceAndClaimSource < ActiveRecord::Migration
+class RemoveProjectSourceAndClaimSource < ActiveRecord::Migration[4.2]
   def change
     drop_table(:project_sources) if table_exists?(:project_sources)
     drop_table(:claim_sources) if table_exists?(:claim_sources)

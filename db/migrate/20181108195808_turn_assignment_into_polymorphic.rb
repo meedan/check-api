@@ -1,4 +1,4 @@
-class TurnAssignmentIntoPolymorphic < ActiveRecord::Migration
+class TurnAssignmentIntoPolymorphic < ActiveRecord::Migration[4.2]
   def change
     rename_column :assignments, :annotation_id, :assigned_id
     add_column :assignments, :assigned_type, :string

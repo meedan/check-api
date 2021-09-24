@@ -1,4 +1,4 @@
-class SetProjectMediaIdForVersions < ActiveRecord::Migration
+class SetProjectMediaIdForVersions < ActiveRecord::Migration[4.2]
   def change
     PaperTrail::Version.reset_column_information
     PaperTrail::Version.find_each do |version|

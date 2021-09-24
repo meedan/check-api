@@ -1,4 +1,5 @@
 require 'digest'
+require 'check_state_machine'
 
 class SmoochBotDeliveryFailure < StandardError
 end
@@ -36,7 +37,7 @@ class Bot::Smooch < BotUser
     end
 
     def suggestion_accepted?
-      self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
+      self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
     def inherit_status_and_send_report

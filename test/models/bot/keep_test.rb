@@ -81,7 +81,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
         Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
       end
     end
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       Bot::Keep.run({ data: { dbid: pm.id }, user_id: u.id })
     end
   end

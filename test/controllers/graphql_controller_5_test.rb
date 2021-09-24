@@ -49,7 +49,7 @@ class GraphqlController5Test < ActionController::TestCase
     t = create_team private: true
     tt = create_team_task team_id: t.id
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_error_message "Not Found"
   end
@@ -58,14 +58,14 @@ class GraphqlController5Test < ActionController::TestCase
     t = create_team private: true
     tt = create_team_task team_id: t.id
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_error_message "Not Found"
   end
 
   test "should move team task up" do
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, @tt2.reload.order
     assert_equal 2, @tt1.reload.order
@@ -82,7 +82,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move team task down" do
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tt2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 3, @tt2.reload.order
     assert_equal 2, @tt3.reload.order
@@ -99,7 +99,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move team metadata up" do
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, @tm2.reload.order
     assert_equal 2, @tm1.reload.order
@@ -116,7 +116,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move team metadata down" do
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + @tm2.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 3, @tm2.reload.order
     assert_equal 2, @tm3.reload.order
@@ -136,7 +136,7 @@ class GraphqlController5Test < ActionController::TestCase
     pm = create_project_media team: t
     tk = create_task annotated: pm
     query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_error_message "Not Found"
   end
@@ -146,14 +146,14 @@ class GraphqlController5Test < ActionController::TestCase
     pm = create_project_media team: t
     tk = create_task annotated: pm
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + tk.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_error_message "Not Found"
   end
 
   test "should move task up" do
     query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, @t2.reload.order
     assert_equal 2, @t1.reload.order
@@ -170,7 +170,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move task down" do
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @t2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 3, @t2.reload.order
     assert_equal 2, @t3.reload.order
@@ -187,7 +187,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move metadata up" do
     query = 'mutation { moveTaskUp(input: { clientMutationId: "1", id: "' + @m2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, @m2.reload.order
     assert_equal 2, @m1.reload.order
@@ -204,7 +204,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should move metadata down" do
     query = 'mutation { moveTaskDown(input: { clientMutationId: "1", id: "' + @m2.graphql_id + '" }) { task { order }, project_media { tasks(fieldset: "metadata", first: 10) { edges { node { dbid, order } } } } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 3, @m2.reload.order
     assert_equal 2, @m3.reload.order
@@ -226,19 +226,19 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 0, t0.reload.first_response_obj.file_data.size
 
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
-    post :create, query: query, file: { '0' => @f1 }, team: @t.slug
+    post :create, params: { query: query, file: { '0' => @f1 }, team: @t.slug }
     assert_response :success
     assert_equal 1, t0.reload.first_response_obj.file_data.size
     assert_equal ['rails.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
 
     query = 'mutation { addFilesToTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '" }) { task { id } } }'
-    post :create, query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug
+    post :create, params: { query: query, file: { '0' => @f2, '1' => @f3 }, team: @t.slug }
     assert_response :success
     assert_equal 3, t0.reload.first_response_obj.file_data.size
     assert_equal ['rails.png', 'rails2.png', 'rails.mp4'].sort, t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }.sort
 
     query = 'mutation { removeFilesFromTask(input: { clientMutationId: "1", id: "' + t0.graphql_id + '", filenames: ["rails.mp4", "rails.png"] }) { task { id } } }'
-    post :create, query: query, team: @t.slug
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 1, t0.reload.first_response_obj.file_data.size
     assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }

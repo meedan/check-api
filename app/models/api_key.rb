@@ -1,4 +1,4 @@
-class ApiKey < ActiveRecord::Base
+class ApiKey < ApplicationRecord
   validates_presence_of :access_token, :expire_at
   validates_uniqueness_of :access_token
 

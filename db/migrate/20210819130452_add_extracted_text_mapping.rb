@@ -1,4 +1,4 @@
-class AddExtractedTextMapping < ActiveRecord::Migration
+class AddExtractedTextMapping < ActiveRecord::Migration[4.2]
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client

@@ -57,9 +57,9 @@ module CheckCachedFields
 
     def update_pg_cache_field(options, value, name, target)
       table_name = target.class.name.tableize
-      if ActiveRecord::Base.connection.table_exists?(table_name)
+      if ApplicationRecord.connection.data_source_exists?(table_name)
         column_name = options[:pg_field_name] || name
-        target.update_column(column_name, value) if ActiveRecord::Base.connection.column_exists?(table_name, column_name)
+        target.update_column(column_name, value) if ApplicationRecord.connection.column_exists?(table_name, column_name)
       end
     end
 
@@ -69,7 +69,7 @@ module CheckCachedFields
       recalculate = options[:recalculate]
       self.where(id: ids.call(obj)).each do |target|
         value = callback == :recalculate ? recalculate.call(target) : callback.call(target, obj)
-        Rails.cache.write("check_cached_field:#{self}:#{target.id}:#{name}", value)
+        Rails.cache.write(self.check_cache_key(self, target.id, name), value)
         # Update ES index and PG, if needed
         self.index_and_pg_cached_field(options, value, name, target)
       end

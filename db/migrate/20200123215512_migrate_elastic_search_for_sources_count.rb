@@ -1,4 +1,4 @@
-class MigrateElasticSearchForSourcesCount < ActiveRecord::Migration
+class MigrateElasticSearchForSourcesCount < ActiveRecord::Migration[4.2]
   def change
     client = $repository.client
     options = {

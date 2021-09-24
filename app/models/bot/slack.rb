@@ -184,7 +184,7 @@ class Bot::Slack < BotUser
     after_save :call_slack_api_post_message, if: proc { |t| t.should_send_slack_notification_to_thread? }
 
     def should_send_slack_notification_to_thread?
-      self.data_changed? && !self.team_task_id
+      self.saved_change_to_data? && !self.team_task_id
     end
 
     def slack_message_parameters(id, _channel, _attachments, user, _endpoint)
@@ -221,7 +221,7 @@ class Bot::Slack < BotUser
     after_update :call_slack_api_post_message, if: proc { |f| f.should_send_slack_notification_to_thread? }
 
     def should_send_slack_notification_to_thread?
-      self.annotation_type == 'verification_status' && self.value != self.value_was && ['verification_status_status', 'content', 'title'].include?(self.field_name)
+      self.annotation_type == 'verification_status' && self.value != self.value_before_last_save && ['verification_status_status', 'content', 'title'].include?(self.field_name)
     end
 
     def slack_message_parameters(id, _channel, attachments, user, endpoint)
