@@ -1,4 +1,4 @@
-class AddUserIdToRelationship < ActiveRecord::Migration
+class AddUserIdToRelationship < ActiveRecord::Migration[4.2]
   def change
     add_column(:relationships, :user_id, :integer) unless column_exists?(:relationships, :user_id)
 

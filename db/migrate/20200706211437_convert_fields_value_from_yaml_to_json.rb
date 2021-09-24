@@ -1,4 +1,4 @@
-class ConvertFieldsValueFromYamlToJson < ActiveRecord::Migration
+class ConvertFieldsValueFromYamlToJson < ActiveRecord::Migration[4.2]
   BATCH_SIZE = 10000
 
   class NewDynamicAnnotationField < DynamicAnnotation::Field

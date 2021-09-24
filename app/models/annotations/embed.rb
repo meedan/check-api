@@ -1,3 +1,9 @@
+class Embed < Dynamic
+  # Re-define class variables from parent class
+  @pusher_options = Dynamic.pusher_options
+  @custom_optimistic_locking_options = Dynamic.custom_optimistic_locking_options
+end
+
 Dynamic.class_eval do
   after_commit :update_elasticsearch_metadata, on: [:create, :update], if: proc { |d| ['metadata', 'verification_status'].include?(d.annotation_type) }
 

@@ -1,4 +1,4 @@
-class ConvertTaskStatusesToWorkflow < ActiveRecord::Migration
+class ConvertTaskStatusesToWorkflow < ActiveRecord::Migration[4.2]
   def change
     Annotation.reset_column_information
 

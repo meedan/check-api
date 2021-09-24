@@ -1,6 +1,6 @@
-class ProjectMediaUser < ActiveRecord::Base
-  belongs_to :project_media
-  belongs_to :user
+class ProjectMediaUser < ApplicationRecord
+  belongs_to :project_media, optional: true
+  belongs_to :user, optional: true
 
   validates_presence_of :user_id
   validates_presence_of :project_media_id

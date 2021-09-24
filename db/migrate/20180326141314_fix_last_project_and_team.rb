@@ -1,4 +1,4 @@
-class FixLastProjectAndTeam < ActiveRecord::Migration
+class FixLastProjectAndTeam < ActiveRecord::Migration[4.2]
   def change
     User.find_each do |user|
       changes = {}

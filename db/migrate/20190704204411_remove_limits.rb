@@ -1,4 +1,4 @@
-class RemoveLimits < ActiveRecord::Migration
+class RemoveLimits < ActiveRecord::Migration[4.2]
   def change
     if column_exists?(:teams, :limits)
       Team.find_each do |team|

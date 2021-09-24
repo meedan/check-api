@@ -1,11 +1,11 @@
-class Assignment < ActiveRecord::Base
+class Assignment < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :propagate_in_foreground
 
-  belongs_to :assigned, polymorphic: true
-  belongs_to :user
-  belongs_to :assigner, :class_name => 'User'
+  belongs_to :assigned, polymorphic: true, optional: true
+  belongs_to :user, optional: true
+  belongs_to :assigner, :class_name => 'User', optional: true
 
   before_validation :set_annotation_assigned_type, :set_assigner
   before_update { raise ActiveRecord::ReadOnlyRecord }
@@ -15,7 +15,7 @@ class Assignment < ActiveRecord::Base
 
   validate :assigned_to_user_from_the_same_team, if: proc { |a| a.user.present? }
 
-  has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, class_name: 'Version'
+  has_paper_trail on: [:create, :destroy], if: proc { |a| User.current.present? && a.assigned_type == 'Annotation' }, versions: { class_name: 'Version' }
 
   def version_metadata(_changes)
     meta = { user_name: self.user&.name }

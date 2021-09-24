@@ -1,4 +1,4 @@
-class MigrateProjectMediaFromPgToEs < ActiveRecord::Migration
+class MigrateProjectMediaFromPgToEs < ActiveRecord::Migration[4.2]
   def change
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!

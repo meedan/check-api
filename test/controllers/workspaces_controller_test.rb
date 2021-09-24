@@ -15,20 +15,20 @@ class WorkspacesControllerTest < ActionController::TestCase
 
   test "should return all workspaces" do
     authenticate_with_token @a
-    get :index
+    get :index, params: {}
     assert_response :success
     assert_equal 3, json_response['data'].size
   end
 
   test "should return some workspaces" do
     authenticate_with_user @u
-    get :index
+    get :index, params: {}
     assert_response :success
     assert_equal 2, json_response['data'].size
   end
 
   test "should return no workspaces" do
-    get :index
+    get :index, params: {}
     assert_response 401
   end
 
@@ -37,16 +37,16 @@ class WorkspacesControllerTest < ActionController::TestCase
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
     create_team_bot_installation user_id: b.id, settings: nil, team_id: @t1.id
 
-    get :index
+    get :index, params: {}
     assert_response :success
     assert_equal 2, json_response['data'].size
 
-    get :index, filter: { is_tipline_installed: true }
+    get :index, params: { filter: { is_tipline_installed: true } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 'Test 1', json_response['data'][0]['attributes']['name']
 
-    get :index, filter: { is_tipline_installed: false }
+    get :index, params: { filter: { is_tipline_installed: false } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 'Test 3', json_response['data'][0]['attributes']['name']
@@ -57,16 +57,16 @@ class WorkspacesControllerTest < ActionController::TestCase
     b = create_team_bot name: 'Alegre', login: 'alegre', set_approved: true, set_settings: nil, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/alegre"
     create_team_bot_installation user_id: b.id, settings: nil, team_id: @t1.id
 
-    get :index
+    get :index, params: {}
     assert_response :success
     assert_equal 2, json_response['data'].size
 
-    get :index, filter: { is_similarity_feature_enabled: true }
+    get :index, params: { filter: { is_similarity_feature_enabled: true } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 'Test 1', json_response['data'][0]['attributes']['name']
 
-    get :index, filter: { is_similarity_feature_enabled: false }
+    get :index, params: { filter: { is_similarity_feature_enabled: false } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 'Test 3', json_response['data'][0]['attributes']['name']

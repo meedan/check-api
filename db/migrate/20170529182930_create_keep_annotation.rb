@@ -1,4 +1,4 @@
-class CreateKeepAnnotation < ActiveRecord::Migration
+class CreateKeepAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

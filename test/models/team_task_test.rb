@@ -117,7 +117,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm_tt2.reload
       end
-      assert_nothing_raised ActiveRecord::RecordNotFound do
+      assert_nothing_raised do
         s_tt.reload
       end
       tt.destroy
@@ -182,7 +182,7 @@ class TeamTaskTest < ActiveSupport::TestCase
         assert_no_difference 'Task.length' do
           create_team_task team_id: t.id, project_ids: [p.id]
         end
-        assert_nothing_raised RuntimeError do
+        assert_nothing_raised do
           tt.destroy
         end
       end
@@ -238,7 +238,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       with_current_user_and_team(u2, t) do
         tt.label = 'update label'
         tt.skip_check_ability = true
-        assert_nothing_raised RuntimeError do
+        assert_nothing_raised do
           tt.save!
         end
       end
@@ -410,7 +410,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm_tt.reload
       end
-      assert_nothing_raised ActiveRecord::RecordNotFound do
+      assert_nothing_raised do
         pm2_tt.reload
       end
     end

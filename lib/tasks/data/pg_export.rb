@@ -67,7 +67,7 @@ module PgExport
       protected
 
       def all_active_record_columns
-        ActiveRecord::Base.connection.columns(pg_table_name)
+        ApplicationRecord.connection.columns(pg_table_name)
       end
 
       # If non-nil, make it a Set: a whitelist of names we want.
@@ -101,7 +101,7 @@ module PgExport
       end
 
       def copy_data_to_sqlite3(db)
-        conn = ActiveRecord::Base.connection
+        conn = ApplicationRecord.connection
         columns = wanted_active_record_columns
         pg_conn = conn.raw_connection
         decode = PG::TextDecoder::CopyRow.new(type_map: build_pg_copy_rows_type_map(columns))

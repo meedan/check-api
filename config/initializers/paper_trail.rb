@@ -1,4 +1,3 @@
-PaperTrail.config.track_associations = false
 PaperTrail.serializer = PaperTrail::Serializers::JSON
 
 module PaperTrail
@@ -11,4 +10,4 @@ module PaperTrail
   end
 end
 
-ActiveRecord::Base.send :include, AnnotationBase::Association
+ApplicationRecord.send :include, AnnotationBase::Association

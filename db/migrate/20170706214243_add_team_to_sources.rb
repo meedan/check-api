@@ -1,4 +1,4 @@
-class AddTeamToSources < ActiveRecord::Migration
+class AddTeamToSources < ActiveRecord::Migration[4.2]
   def change
     add_column :sources, :team_id, :integer
     add_index :sources, :team_id

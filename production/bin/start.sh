@@ -30,4 +30,4 @@ workers 2
 worker_timeout 120
 EOF
 
-bundle exec puma -C ${puma} -t 4:32
+bundle exec puma -C ${puma} -t 4:32 -p 8000 -p 3300

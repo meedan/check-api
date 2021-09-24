@@ -1,9 +1,12 @@
+require 'record_loader'
+require 'permissions_loader'
+
 module GraphQL
   module Relay
     class Edge
       def self.between(child_node, parent_node)
         relation = nil
-        relation = Version.from_partition(parent_node.team_id).where(id: child_node.id) if child_node.is_a?(Version) && parent_node.class == ProjectMedia
+        relation = Version.from_partition(parent_node.team_id).where(id: child_node.id) if child_node.is_a?(Version)
         relation ||= child_node.is_annotation? ? parent_node.annotation_relation : parent_node.send(child_node.class_name.underscore.pluralize)
         relation = child_node.class.where(id: child_node.id) if self.not_part_of_relation(relation, child_node)
         parent_connection = GraphQL::Relay::RelationConnection.new(relation, {})

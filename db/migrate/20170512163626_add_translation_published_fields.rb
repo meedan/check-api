@@ -1,4 +1,4 @@
-class AddTranslationPublishedFields < ActiveRecord::Migration
+class AddTranslationPublishedFields < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

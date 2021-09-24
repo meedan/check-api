@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class CreateArchiverAnnotationAndFields < ActiveRecord::Migration
+class CreateArchiverAnnotationAndFields < ActiveRecord::Migration[4.2]
   def change
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'archiver').first || create_annotation_type(annotation_type: 'archiver', label: 'Archivers')
     json = DynamicAnnotation::FieldType.where(field_type: 'json').last

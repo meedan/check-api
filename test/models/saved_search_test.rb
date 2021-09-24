@@ -37,7 +37,7 @@ class SavedSearchTest < ActiveSupport::TestCase
   end
 
   test "should serialize the filters" do
-    ss = create_saved_search filters: '{"foo":"bar"}'
+    ss = create_saved_search filters: { foo: 'bar'}
     assert_equal 'bar', ss.reload.filters['foo']
   end
 end

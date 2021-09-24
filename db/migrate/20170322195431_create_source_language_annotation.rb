@@ -1,4 +1,4 @@
-class CreateSourceLanguageAnnotation < ActiveRecord::Migration
+class CreateSourceLanguageAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

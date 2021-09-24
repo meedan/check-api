@@ -15,8 +15,8 @@ module TeamDuplication
       @team_id = nil
       @custom_name = custom_name
       @custom_slug = custom_slug
-      ActiveRecord::Base.transaction do
-        Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
+      ApplicationRecord.transaction do
+        Version.skip_callback(:create, :after, :increment_project_association_annotations_count, raise: false)
         team = t.deep_clone include: [
           { project_groups: [:projects] },
           { projects: { if: lambda{ |p| p.project_group_id.blank? }}},
@@ -157,6 +157,7 @@ module TeamDuplication
 
     def self.update_saved_search_filters(filters)
       return filters if filters.nil?
+      filters = JSON.parse(filters.to_s) if filters.is_a?(String)
       {
         'projects' => @project_id_map,
         'project_group_id' => @project_group_id_map

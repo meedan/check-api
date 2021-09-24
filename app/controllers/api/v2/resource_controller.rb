@@ -5,8 +5,8 @@ module Api
 
       include JSONAPI::ActsAsResourceController
 
-      skip_before_filter :authenticate_from_token!
-      before_filter :authenticate_user!
+      skip_before_action :authenticate_from_token!
+      before_action :authenticate_user!
       before_action :set_current_user
 
       def context

@@ -1,4 +1,4 @@
-class TagText < ActiveRecord::Base
+class TagText < ApplicationRecord
   include CheckPusher
   attr_accessor :marked_for_deletion
 
@@ -12,7 +12,7 @@ class TagText < ActiveRecord::Base
   after_destroy :destroy_tags_in_background
   after_update :update_tags_in_background, :delete_if_marked_for_deletion
 
-  belongs_to :team
+  belongs_to :team, optional: true
 
   notifies_pusher on: [:save, :destroy],
                   event: 'tagtext_updated',

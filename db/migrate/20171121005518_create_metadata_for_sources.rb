@@ -1,4 +1,4 @@
-class CreateMetadataForSources < ActiveRecord::Migration
+class CreateMetadataForSources < ActiveRecord::Migration[4.2]
   def change
     Source.find_each do |source|
       if source.get_annotations(['metadata']).empty?

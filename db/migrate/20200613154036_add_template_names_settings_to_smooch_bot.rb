@@ -1,4 +1,4 @@
-class AddTemplateNamesSettingsToSmoochBot < ActiveRecord::Migration
+class AddTemplateNamesSettingsToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.smooch_user
     unless tb.nil?

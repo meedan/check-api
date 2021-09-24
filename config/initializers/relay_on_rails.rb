@@ -72,9 +72,8 @@ class CheckGraphql
       obj = type_name.constantize.find_if_can(id)
     end
     if type_name == 'TeamUser' && obj.class_name != 'TeamUser'
-      attributes = obj.attributes
-      attributes.delete 'type'
-      obj = TeamUser.new(attributes)
+      obj = obj.becomes(TeamUser)
+      obj.type = nil
       obj.instance_variable_set(:@new_record, false)
     end
     obj

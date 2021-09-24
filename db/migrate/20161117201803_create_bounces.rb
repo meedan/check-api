@@ -1,4 +1,4 @@
-class CreateBounces < ActiveRecord::Migration
+class CreateBounces < ActiveRecord::Migration[4.2]
   def change
     create_table :bounces do |t|
       t.string :email, null: false

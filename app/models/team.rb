@@ -1,4 +1,4 @@
-class Team < ActiveRecord::Base
+class Team < ApplicationRecord
   # These two callbacks must be in the top
   after_create :create_team_partition
   before_destroy :delete_created_bots
@@ -11,6 +11,7 @@ class Team < ActiveRecord::Base
   include TeamDuplication
   include TeamRules
   include TeamSlackNotifications
+  include CheckArchivedFlags
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created
 
@@ -88,7 +89,7 @@ class Team < ActiveRecord::Base
     # Re-create an empty partition before destroying the rest, to avoid errors
     self.send :delete_team_partition
     self.send :create_team_partition
-    ActiveRecord::Base.connection_pool.with_connection { self.destroy! }
+    ApplicationRecord.connection_pool.with_connection { self.destroy! }
     RequestStore.store[:skip_cached_field_update] = false
   end
 
@@ -202,7 +203,7 @@ class Team < ActiveRecord::Base
         self.affected_ids = self.trash.all.map(&:graphql_id)
         Team.delay_for(5.seconds).empty_trash(self.id)
       else
-        raise I18n.t(:permission_error, "Sorry, you are not allowed to do this")
+        raise I18n.t(:permission_error, default: "Sorry, you are not allowed to do this")
       end
     end
   end
