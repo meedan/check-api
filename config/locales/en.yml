@@ -41,25 +41,25 @@ en:
         description: Translation has been reviewed and approved for publishing
       error:
         label: Error
-        description:
+        description: 
       false:
         label: false
         description: 'Conclusion: the item''s content is false'
       inconclusive:
         label: Inconclusive
-        description:
+        description: 
       misleading:
         label: Misleading
-        description:
+        description: 
       disputed:
         label: Disputed
-        description:
+        description: 
       out_of_scope:
         label: Out of Scope
-        description:
+        description: 
       junk:
         label: Junk
-        description:
+        description: 
       unstarted:
         label: Unstarted
         description: Default, just added, no work has started
@@ -99,7 +99,8 @@ en:
         seconds.
       pender_url_invalid: This link is invalid.
       pender_url_unsafe: This link is unsafe.
-      pender_could_not_parse: We could not parse this link. Please contact %{support_email} if the error persists.
+      pender_could_not_parse: We could not parse this link. Please contact %{support_email}
+        if the error persists.
       invalid_format_for_languages: Invalid language format. Expecting the format
         `['en', 'ar', …]`
   activerecord:
@@ -764,8 +765,10 @@ en:
     *Reply 0* to get back to the main menu.
   subscribe: Subscribe
   unsubscribe: Unsubscribe
-  smooch_message_subscription_header_subscribed: You are currently *subscribed* to our newsletter.
-  smooch_message_subscription_header_unsubscribed: You are currently *unsubscribed* to our newsletter.
+  smooch_message_subscription_header_subscribed: You are currently *subscribed* to
+    our newsletter.
+  smooch_message_subscription_header_unsubscribed: You are currently *unsubscribed*
+    to our newsletter.
   smooch_bot_message_newsletter_fallback: |-
     Hi! Here are your Weekly COVID-19 Facts.
 

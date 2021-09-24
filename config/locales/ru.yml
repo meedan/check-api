@@ -91,7 +91,6 @@ ru:
         пару секунд.
       pender_url_invalid: Некорректная ссылка.
       pender_url_unsafe: Небезопасная ссылка.
-      pender_could_not_parse: Не удалось обработать ссылку.
       invalid_format_for_languages: 'Неверный формат для указания языков. Пример:
         `[''en'', ''ar'', …]`'
   activerecord:

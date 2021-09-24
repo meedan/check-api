@@ -93,7 +93,6 @@ es:
         nuevo en unos segundos.
       pender_url_invalid: Este enlace es inválido.
       pender_url_unsafe: Este enlace no es seguro.
-      pender_could_not_parse: No se pudo analizar este enlace.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
   activerecord:
@@ -197,6 +196,7 @@ es:
       project_media_create_related: "%{user} (%{role} at %{team}) añadió un %{type}
         relacionado"
       project_media_update: "%{user}(%{role} en %{team}) actualizó un ítem"
+      project_media_move_to: "%{user}(%{role}en %{team}) movió un ítem a %{project}"
       project_media_added_to_list: "%{user}(%{role}en%{team}) añadió un ítem a la
         carpeta%{list_name}"
       project_media_status: "%{user} (%{role} at %{team}) cambiar el %{workflow} del
@@ -780,6 +780,15 @@ es:
     por lo que no puede tener una subcarpeta
   project_group_must_be_under_same_team: La colección debe estar en la misma área
     de trabajo
+  smooch_bot_message_subscribed: |-
+    Ahora estás suscrita(o).
+
+    *Responde 0* para regresar al menú principal.
+  smooch_bot_message_unsubscribed: |-
+    Se ha cancelado tu suscripción.
+
+    *Responde 0* para regresar al menú principal.
+  subscribe: Suscribirse
   unsubscribe: 'Cancelar suscripción '
   info:
     messages:

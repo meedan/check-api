@@ -93,7 +93,6 @@ sw:
         ya sekunde chache
       pender_url_invalid: Kiungo hiki ni batili.
       pender_url_unsafe: Kiungo hiki sio salama.
-      pender_could_not_parse: Haikuweza kuchambua kiungo hiki.
       invalid_format_for_languages: 'Muundo batili wa lugha. Inatarajia muundo ''["en'',
         ''ar'', ...]'' '
   activerecord:
