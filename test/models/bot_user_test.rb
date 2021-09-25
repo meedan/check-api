@@ -77,4 +77,14 @@ class UserTest < ActiveSupport::TestCase
     assert_match /properties/, b.settings_as_json_schema(false, t.slug)
     assert_match /uniqueItems/, b.settings_as_json_schema(false, t.slug)
   end
+
+  test "should not raise error if table doesn't exist yet" do
+    connection = ApplicationRecord.connection
+    connection.stubs(:data_source_exists?).raises(ActiveRecord::NoDatabaseError)
+    assert_nothing_raised do
+      load 'bot_user.rb'
+      assert_equal 'BotUser', BotUser.new.type
+    end
+    connection.unstub(:data_source_exists?)
+  end
 end
