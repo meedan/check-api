@@ -109,7 +109,7 @@ class Workflow::VerificationStatus < Workflow::Base
       return custom_statuses unless custom_statuses.is_a?(Hash)
       if custom_statuses
         custom_statuses.with_indifferent_access['statuses'].to_a.each do |s|
-          s[:label] = ProjectMedia.new(team: self).status_i18n(s[:id]) # Return label in current language
+          s[:label] = ProjectMedia.new(team: self).status_i18n(s[:id], { locale: self.get_language }) # Return label in current language
         end
       end
       custom_statuses
