@@ -781,6 +781,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal @bot.id, r.user_id
   end
 
+  test "should add relationships as confirmed when parent and score are confirmed" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm1, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}, pm3.id => {score: 1, relationship_type: Relationship.suggested_type}})
+    end
+    r = Relationship.last
+    assert_equal pm1, r.target
+    assert_equal pm3, r.source
+    assert_equal r.weight, 1
+    assert_equal Relationship.confirmed_type, r.relationship_type
+  end
+
   test "should unarchive item after running" do
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       pm = create_project_media
