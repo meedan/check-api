@@ -990,6 +990,7 @@ class Bot::Smooch < BotUser
       team_bot_installation.settings.delete('smooch_webhook_secret')
       team_bot_installation.settings.delete('turnio_secret')
       team_bot_installation.settings.delete('turnio_token')
+      team_bot_installation.settings.delete('turnio_host')
     end
     team_bot_installation
   end
