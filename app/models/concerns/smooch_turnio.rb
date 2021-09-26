@@ -13,14 +13,20 @@ module SmoochTurnio
       end
     end
 
+    def get_whatsapp_installation(account_id)
+      self.get_installation do |i|
+        account_id == i.settings.with_indifferent_access['turnio_secret'].to_s
+      end
+    end
+
     def valid_turnio_request?(request)
-      valid = !self.get_turnio_installation(request.headers['HTTP_X_TURN_HOOK_SIGNATURE'], request.raw_post).nil?
+      valid = !self.get_whatsapp_installation(request.headers['HTTP_X_WA_ACCOUNT_ID']).nil? || !self.get_turnio_installation(request.headers['HTTP_X_TURN_HOOK_SIGNATURE'], request.raw_post).nil?
       RequestStore.store[:smooch_bot_provider] = 'TURN'
       valid
     end
 
     def turnio_api_get_user_data(uid, payload)
-      payload['turnIo']['contacts'][0].merge({ clients: [{ platform: 'whatsapp', displayName: uid }] })
+      payload['turnIo'].to_h['contacts'].to_a[0].to_h.merge({ clients: [{ platform: 'whatsapp', displayName: uid }] })
     end
 
     def turnio_api_get_app_name
@@ -49,8 +55,12 @@ module SmoochTurnio
       }
     end
 
+    def get_turnio_host
+      self.config['turnio_host'] || 'https://whatsapp.turn.io'
+    end
+
     def store_turnio_media(media_id, mime_type)
-      uri = URI("https://whatsapp.turn.io/v1/media/#{media_id}")
+      uri = URI("#{self.get_turnio_host}/v1/media/#{media_id}")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['turnio_token']}")
@@ -68,9 +78,9 @@ module SmoochTurnio
       json = JSON.parse(body)
 
       # Convert a message received from a WhatsApp user to the payload accepted by the Smooch Bot
-      if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound'
+      if json.dig('messages', 0, '_vnd', 'v1', 'direction') == 'inbound' || json.dig('messages', 0, 'from')
         message = json['messages'][0]
-        uid = message['_vnd']['v1']['author']['id']
+        uid = message.dig('_vnd', 'v1', 'author', 'id') || json.dig('messages', 0, 'from')
         messages = [{
           '_id': message['id'],
           authorId: uid,
@@ -169,7 +179,7 @@ module SmoochTurnio
 
     def turnio_upload_image(url)
       require 'open-uri'
-      uri = URI('https://whatsapp.turn.io/v1/media')
+      uri = URI("#{self.get_turnio_host}/v1/media")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
@@ -207,7 +217,7 @@ module SmoochTurnio
         }
       end
       return if payload[:type] == 'text' && payload[:text][:body].blank?
-      uri = URI('https://whatsapp.turn.io/v1/messages')
+      uri = URI("#{self.get_turnio_host}/v1/messages")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
