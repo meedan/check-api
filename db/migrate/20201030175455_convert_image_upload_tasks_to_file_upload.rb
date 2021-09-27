@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class ConvertImageUploadTasksToFileUpload < ActiveRecord::Migration
+class ConvertImageUploadTasksToFileUpload < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
     RequestStore.store[:skip_rules] = true

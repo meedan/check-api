@@ -404,7 +404,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
     r.set_fields = { state: 'paused' }.to_json
     r.action = 'pause'
     r.save!
-    s.save!
+    s.reload.save!
     assert_equal 'In Progress', r.reload.report_design_field_value('status_label', 'en')
     assert_not_equal 'In Progress', r.reload.report_design_field_value('previous_published_status_label', 'en')
     r = Dynamic.find(r.id)

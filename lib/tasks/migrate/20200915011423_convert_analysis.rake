@@ -18,7 +18,7 @@ namespace :check do
       puts "[#{Time.now}] Converting and deleting #{n} project media metadata annotations and fields..."
       i = 0
       q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-      result = ActiveRecord::Base.connection.execute(q).to_a
+      result = ApplicationRecord.connection.execute(q).to_a
       while !result.empty? do
         new_fields = []
         fields_to_delete = []
@@ -62,12 +62,12 @@ namespace :check do
         i += 1
         puts "[#{Time.now}] Converted #{SIZE * i}/#{n} project media metadata fields..."
         q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-        result = ActiveRecord::Base.connection.execute(q).to_a
+        result = ApplicationRecord.connection.execute(q).to_a
       end
 
       i = 0
       q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-      result = ActiveRecord::Base.connection.execute(q).to_a
+      result = ApplicationRecord.connection.execute(q).to_a
       while !result.empty? do
         annotation_ids = []
         field_ids = []
@@ -79,7 +79,7 @@ namespace :check do
         i += 1
         puts "[#{Time.now}] Deleted #{SIZE * i}/#{n} project media metadata annotations and fields..."
         q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'metadata_value' AND a.annotation_type = 'metadata' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-        result = ActiveRecord::Base.connection.execute(q).to_a
+        result = ApplicationRecord.connection.execute(q).to_a
       end
 
       # ProjectMedia "analysis" annotations
@@ -88,7 +88,7 @@ namespace :check do
       puts "[#{Time.now}] Converting and deleting #{n} project media analysis annotations and fields..."
       i = 0
       q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
-      result = ActiveRecord::Base.connection.execute(q).to_a
+      result = ApplicationRecord.connection.execute(q).to_a
       while !result.empty? do
         new_fields = []
         result.each do |field|
@@ -115,12 +115,12 @@ namespace :check do
         i += 1
         puts "[#{Time.now}] Imported #{SIZE * i}/#{n} analysis fields..."
         q = "SELECT f.*, a.annotated_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE} OFFSET #{SIZE * i}"
-        result = ActiveRecord::Base.connection.execute(q).to_a
+        result = ApplicationRecord.connection.execute(q).to_a
       end
 
       i = 0
       q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-      result = ActiveRecord::Base.connection.execute(q).to_a
+      result = ApplicationRecord.connection.execute(q).to_a
       while !result.empty? do
         annotation_ids = []
         field_ids = []
@@ -133,7 +133,7 @@ namespace :check do
         i += 1
         puts "[#{Time.now}] Deleted #{SIZE * i}/#{n} analysis annotations and fields..."
         q = "SELECT f.id, f.annotation_id FROM dynamic_annotation_fields f INNER JOIN annotations a ON a.id = f.annotation_id WHERE f.field_name = 'analysis_text' AND a.annotation_type = 'analysis' AND a.annotated_type = 'ProjectMedia' ORDER BY f.id ASC LIMIT #{SIZE}"
-        result = ActiveRecord::Base.connection.execute(q).to_a
+        result = ApplicationRecord.connection.execute(q).to_a
       end
 
       DynamicAnnotation::AnnotationType.where(annotation_type: 'analysis').destroy_all

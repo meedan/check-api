@@ -2076,7 +2076,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     # Create media in different team with no list
     m = create_valid_media
     create_project_media team: t, media: m
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       create_project_media team: t2, url: m.url
     end
     # Try to add same item to list
@@ -2090,13 +2090,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media team: t, url: m2.url
     end
     # Add same item to list in different team
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       create_project_media team: t2, url: m2.url
     end
     # create item in a list then try to add it to all items in different team
     m3 = create_valid_media
     create_project_media team: t, project_id: p.id, media: m3
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       create_project_media team: t2, url: m3.url
     end
   end

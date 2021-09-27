@@ -1,4 +1,4 @@
-class AddMappingForNewColumns2 < ActiveRecord::Migration
+class AddMappingForNewColumns2 < ActiveRecord::Migration[4.2]
   def change
     started = Time.now.to_i
     index_alias = CheckElasticSearchModel.get_index_alias

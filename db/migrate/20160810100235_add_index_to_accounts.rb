@@ -1,4 +1,4 @@
-class AddIndexToAccounts < ActiveRecord::Migration
+class AddIndexToAccounts < ActiveRecord::Migration[4.2]
   def change
     #add_column :accounts, :url, :string
     # remove duplicate URLs

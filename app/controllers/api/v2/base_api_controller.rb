@@ -8,12 +8,12 @@ module Api
       end
 
       def ping
-        render text: ''
+        render plain: ''
       end
 
       # Needed for pre-flight check
       def options
-        render text: ''
+        render plain: ''
       end
     end
   end

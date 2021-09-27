@@ -1,4 +1,4 @@
-class AddSingletonToDynamicAnnotationTypes < ActiveRecord::Migration
+class AddSingletonToDynamicAnnotationTypes < ActiveRecord::Migration[4.2]
   def change
     add_column :dynamic_annotation_annotation_types, :singleton, :boolean, default: true
     DynamicAnnotation::AnnotationType.reset_column_information

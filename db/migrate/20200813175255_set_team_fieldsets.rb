@@ -1,4 +1,4 @@
-class SetTeamFieldsets < ActiveRecord::Migration
+class SetTeamFieldsets < ActiveRecord::Migration[4.2]
   def change
     started = Time.now.to_i
     RequestStore.store[:skip_notifications] = true

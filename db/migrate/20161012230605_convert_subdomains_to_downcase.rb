@@ -1,4 +1,4 @@
-class ConvertSubdomainsToDowncase < ActiveRecord::Migration
+class ConvertSubdomainsToDowncase < ActiveRecord::Migration[4.2]
   def change
     Team.all.each do |t|
       unless t.subdomain.match(/[A-Z]/).nil?

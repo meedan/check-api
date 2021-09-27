@@ -11,7 +11,7 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should remove empty parameters" do
-    get :ping, empty: '', notempty: 'Something'
+    get :ping, params: { empty: '', notempty: 'Something' }
     assert !@controller.params.keys.include?('empty')
     assert @controller.params.keys.include?('notempty')
   end
@@ -19,31 +19,31 @@ class BaseApiControllerTest < ActionController::TestCase
   test "should remove empty headers" do
     @request.headers['X-Empty'] = ''
     @request.headers['X-Not-Empty'] = 'Something'
-    get :ping
+    get :ping, params: {}
     assert @request.headers['X-Empty'].nil?
     assert !@request.headers['X-Not-Empty'].nil?
   end
 
   test "should return build as a custom header" do
-    get :ping
+    get :ping, params: {}
     assert_not_nil @response.headers['X-Build']
   end
 
   test "should return default api version as a custom header" do
-    get :ping
+    get :ping, params: {}
     assert_match /v1$/, @response.headers['Accept']
   end
 
   test "should get version" do
     authenticate_with_token
-    get :version
+    get :version, params: {}
     assert_response :success
   end
 
   test "should get current user from session" do
     u = create_omniauth_user info: {name: 'Test User'}
     authenticate_with_user(u)
-    get :me
+    get :me, params: {}
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 'Test User', response['data']['name']
@@ -54,7 +54,7 @@ class BaseApiControllerTest < ActionController::TestCase
     u = create_omniauth_user info: {name: 'Test User'}
     header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
-    get :me
+    get :me, params: {}
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 'Test User', response['data']['name']
@@ -63,14 +63,14 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should not get current user" do
     u = create_omniauth_user info: {name: 'Test User'}
-    get :me
+    get :me, params: {}
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal({ 'type' => 'user' }, response)
   end
 
   test "should get options" do
-    process :options, 'OPTIONS'
+    process :options, params: {}
     assert_response :success
   end
 
@@ -79,7 +79,7 @@ class BaseApiControllerTest < ActionController::TestCase
     header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = 'Error message'
-    get :me
+    get :me, params: {}
     assert_response 400
     response = JSON.parse(@response.body)
     error_info = response['errors'].first
@@ -91,7 +91,7 @@ class BaseApiControllerTest < ActionController::TestCase
     header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.warning'] = 'Warning message'
-    get :me
+    get :me, params: {}
     assert_response 400
     response = JSON.parse(@response.body)
     error_info = response['errors'].first
@@ -103,23 +103,23 @@ class BaseApiControllerTest < ActionController::TestCase
     header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     @request.session['check.error'] = nil
-    get :me
+    get :me, params: {}
     assert_response :success
   end
 
   test "should send logs" do
     authenticate_with_user_token
-    post :log, foo: 'bar'
+    post :log, params: { foo: 'bar' }
     assert_response :success
   end
 
   test "should not send logs if not logged in" do
-    post :log, foo: 'bar'
+    post :log, params: { foo: 'bar' }
     assert_response 401
   end
 
   test "should ping" do
-    get :ping
+    get :ping, params: {}
     assert_response :success
   end
 end

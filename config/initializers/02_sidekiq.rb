@@ -12,6 +12,12 @@ if File.exist?(file)
 
   SIDEKIQ_CONFIG = YAML.load_file(file)
 
+  Rails.application.configure do
+    config.active_job.queue_adapter = :sidekiq
+    redis_url = { host: SIDEKIQ_CONFIG[:redis_host], port: SIDEKIQ_CONFIG[:redis_port], db: SIDEKIQ_CONFIG[:redis_database], namespace: "cache_checkapi_#{Rails.env}" }
+    config.cache_store = :redis_store, redis_url
+  end
+
   redis_config = { url: "redis://#{SIDEKIQ_CONFIG[:redis_host]}:#{SIDEKIQ_CONFIG[:redis_port]}/#{SIDEKIQ_CONFIG[:redis_database]}", namespace: "sidekiq_checkapi_#{Rails.env}", network_timeout: 5 }
   REDIS_CONFIG.merge!(redis_config)
 

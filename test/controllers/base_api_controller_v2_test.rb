@@ -12,17 +12,17 @@ class BaseApiControllerV2Test < ActionController::TestCase
 
   test "should get version" do
     authenticate_with_token
-    get :version
+    get :version, params: {}
     assert_response :success
   end
 
   test "should get ping" do
-    get :ping
+    get :ping, params: {}
     assert_response :success
   end
 
   test "should get options" do
-    process :options, 'OPTIONS'
+    process :options, params: {}
     assert_response :success
   end
 end

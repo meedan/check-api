@@ -1,4 +1,4 @@
-class MigrateDuplicateSourcesPerTeam < ActiveRecord::Migration
+class MigrateDuplicateSourcesPerTeam < ActiveRecord::Migration[4.2]
   def change
   	Source.select('lower(name) as lname', :team_id).where.not(team_id: nil).group(['lname', 'team_id']).having('count(*) > 1').each do |item|
   		sources = Source.where('lower(name) = ? AND team_id = ?', item['lname'], item['team_id']).to_a

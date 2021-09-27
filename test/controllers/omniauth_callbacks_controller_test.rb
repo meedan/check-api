@@ -91,60 +91,60 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
 
   test "should redirect to root after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter
+    get :twitter, params: {}
     assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
     assert_nil session['checkdesk.user']
-    get :twitter
+    get :twitter, params: {}
     assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to destination after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter, destination: '/close.html'
+    get :twitter, params: { destination: '/close.html' }
     assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Facebook authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     assert_nil session['checkdesk.user']
-    get :facebook
+    get :facebook, params: {}
     assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to API page after Facebook authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
-    get :facebook
+    get :facebook, params: {}
     assert_redirected_to '/close.html'
   end
 
   test "should redirect to destination after Facebook authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     request.env['omniauth.params'] = { 'destination' => '/close.html' }
-    get :facebook
+    get :facebook, params: {}
     assert_redirected_to '/close.html'
   end
 
   test "should redirect to root after Slack authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
-    get :slack
+    get :slack, params: {}
     assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Slack authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     assert_nil session['checkdesk.user']
-    get :slack
+    get :slack, params: {}
     assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to destination after Slack authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
     request.env['omniauth.params'] = { 'destination' => '/close.html' }
-    get :slack
+    get :slack, params: {}
     assert_redirected_to '/close.html'
   end
 
@@ -153,14 +153,14 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     assert_nil request.env['warden'].user
     authenticate_with_user(u)
     assert_equal u, request.env['warden'].user
-    get :logout, destination: '/api'
+    get :logout, params: { destination: '/api' }
     assert_redirected_to '/api'
     assert_nil request.env['warden'].user
   end
 
   test "should not store error if there is no error from provider" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
-    get :facebook
+    get :facebook, params: {}
     assert_nil session['check.error']
     assert_nil session['check.warning']
   end
@@ -168,7 +168,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should store error if there is error from provider" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     User.stubs(:from_omniauth).raises(ActiveRecord::RecordInvalid)
-    get :facebook
+    get :facebook, params: {}
     assert_not_nil session['check.error']
     User.unstub(:from_omniauth)
   end
@@ -176,7 +176,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   test "should store warning if there is warning from provider" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
     User.stubs(:from_omniauth).raises(RuntimeError)
-    get :facebook
+    get :facebook, params: {}
     assert_not_nil session['check.warning']
     User.unstub(:from_omniauth)
   end
@@ -185,7 +185,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'https://meedan.slack.com/team/melsawy' } }).to_return(body: '{"type":"media","data":{"url":"https://meedan.slack.com/?redir=/team/melsawy","type":"profile"}}')
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:slack]
-    get :slack
+    get :slack, params: {}
     assert_equal 'https://meedan.slack.com/team/melsawy', Account.last.url
   end
 
@@ -194,39 +194,39 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     u.confirm
     authenticate_with_user(u)
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter
+    get :twitter, params: {}
     u = User.find(u.id)
     assert_equal 1, u.source.accounts.count
   end
 
   test "should redirect to root after Google authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
-    get :google_oauth2
+    get :google_oauth2, params: {}
     assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Google authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
     assert_nil session['checkdesk.user']
-    get :google_oauth2
+    get :google_oauth2, params: {}
     assert_not_nil session['checkdesk.current_user_id']
   end
 
   test "should redirect to destination after Google authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
-    get :google_oauth2, destination: '/close.html'
+    get :google_oauth2, params: { destination: '/close.html' }
     assert_redirected_to '/close.html'
   end
 
   test "should setup Twitter authentication" do
     request.env['omniauth.strategy'] = OmniAuth::Strategies::Twitter.new({})
-    get :setup
+    get :setup, params: {}
     assert_response 404
   end
 
   test "should setup Facebook authentication" do
     request.env['omniauth.strategy'] = OmniAuth::Strategies::Facebook.new({})
-    get :setup
+    get :setup, params: {}
     assert_response 404
   end
 

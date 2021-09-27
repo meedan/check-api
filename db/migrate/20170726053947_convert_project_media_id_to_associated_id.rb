@@ -1,4 +1,4 @@
-class ConvertProjectMediaIdToAssociatedId < ActiveRecord::Migration
+class ConvertProjectMediaIdToAssociatedId < ActiveRecord::Migration[4.2]
   def change
     remove_index :versions, :project_media_id
     rename_column :versions, :project_media_id, :associated_id

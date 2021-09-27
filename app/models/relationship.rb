@@ -1,11 +1,11 @@
-class Relationship < ActiveRecord::Base
+class Relationship < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :is_being_copied, :add_to_project_id
 
-  belongs_to :source, class_name: 'ProjectMedia'
-  belongs_to :target, class_name: 'ProjectMedia'
-  belongs_to :user
+  belongs_to :source, class_name: 'ProjectMedia', optional: true
+  belongs_to :target, class_name: 'ProjectMedia', optional: true
+  belongs_to :user, optional: true
 
   serialize :relationship_type
 
@@ -24,7 +24,7 @@ class Relationship < ActiveRecord::Base
   after_commit :update_counters, :update_elasticsearch_parent, on: [:create, :update]
   after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
 
-  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
   notifies_pusher on: [:save, :destroy],
                   event: 'relationship_change',
@@ -121,7 +121,8 @@ class Relationship < ActiveRecord::Base
   end
 
   def is_being_confirmed?
-    self.relationship_type_was.to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
+    method = self.saved_change_to_relationship_type? ? :relationship_type_before_last_save : :relationship_type_was
+    self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
   end
 
   protected
@@ -152,8 +153,8 @@ class Relationship < ActiveRecord::Base
   end
 
   def reset_counters
-    if (self.source_id_was && self.source_id_was != self.source_id) || (self.target_id_was && self.target_id_was != self.target_id)
-      previous = Relationship.new(source_id: self.source_id_was, target_id: self.target_id_was)
+    if (self.source_id_before_last_save && self.source_id_before_last_save != self.source_id) || (self.target_id_before_last_save && self.target_id_before_last_save != self.target_id)
+      previous = Relationship.new(source_id: self.source_id_before_last_save, target_id: self.target_id_before_last_save)
       previous.update_counters
       current = Relationship.new(source_id: self.source_id, target_id: self.target_id)
       current.update_counters
@@ -161,7 +162,7 @@ class Relationship < ActiveRecord::Base
   end
 
   def propagate_inversion
-    if self.source_id_was == self.target_id && self.target_id_was == self.source_id
+    if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
       ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)

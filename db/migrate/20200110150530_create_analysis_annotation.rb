@@ -1,4 +1,4 @@
-class CreateAnalysisAnnotation < ActiveRecord::Migration
+class CreateAnalysisAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

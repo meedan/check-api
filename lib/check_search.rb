@@ -605,7 +605,7 @@ class CheckSearch
       values << "(#{id}, #{i})"
     end
     return results if values.empty?
-    joins = ActiveRecord::Base.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), table])
+    joins = ApplicationRecord.send(:sanitize_sql_array, ["JOIN (VALUES %s) AS x(value, order_number) ON %s.id = x.value", values.join(', '), table])
     results.joins(joins).order('x.order_number')
   end
 

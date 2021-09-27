@@ -109,7 +109,8 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_kind_of String, tb.json_settings
     b = create_team_bot login: 'smooch', set_approved: true
     tb = create_team_bot_installation user_id: b.id
-    assert_not_equal({}, tb.settings)
+    assert tb.settings.kind_of?(Hash)
+    assert_not_empty tb.settings
   end
 
   test "should get alegre settings with fallback values" do

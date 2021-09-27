@@ -1,4 +1,4 @@
-class AddCompletedKeyToCustomStatusesAgain < ActiveRecord::Migration
+class AddCompletedKeyToCustomStatusesAgain < ActiveRecord::Migration[4.2]
   def change
     Team.find_each do |t|
       if t.get_media_verification_statuses

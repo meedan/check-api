@@ -1,4 +1,4 @@
-class DynamicAnnotation::AnnotationType < ActiveRecord::Base
+class DynamicAnnotation::AnnotationType < ApplicationRecord
   include HasJsonSchema
 
   validates :annotation_type, machine_name: true
@@ -8,7 +8,7 @@ class DynamicAnnotation::AnnotationType < ActiveRecord::Base
   has_many :annotations, class_name: 'Annotation', foreign_key: 'annotation_type', primary_key: 'annotation_type'
 
   def json_schema_enabled?
-    self.respond_to?('json_schema=') && ActiveRecord::Base.connection.column_exists?(:dynamic_annotation_annotation_types, :json_schema)
+    self.respond_to?('json_schema=') && ApplicationRecord.connection.column_exists?(:dynamic_annotation_annotation_types, :json_schema)
   end
 
   private

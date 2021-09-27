@@ -35,24 +35,6 @@
       }
     },
     {
-      "description": "a request to extract text",
-      "providerState": "an image URL",
-      "request": {
-        "method": "get",
-        "path": "/image/ocr/",
-        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
-        }
-      }
-    },
-    {
       "description": "a request to identify its language",
       "providerState": "a text exists",
       "request": {
@@ -83,6 +65,24 @@
             }
           ],
           "provider": "google"
+        }
+      }
+    },
+    {
+      "description": "a request to extract text",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/ocr/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
         }
       }
     },

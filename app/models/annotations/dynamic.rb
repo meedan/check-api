@@ -1,4 +1,4 @@
-class Dynamic < ActiveRecord::Base
+class Dynamic < ApplicationRecord
   include AnnotationBase
 
   mount_uploaders :file, ImageUploader
@@ -6,7 +6,7 @@ class Dynamic < ActiveRecord::Base
 
   attr_accessor :set_fields, :set_attribution, :action, :action_data
 
-  belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
+  belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type', optional: true
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
 
   before_validation :update_attribution, :update_timestamp, :set_data

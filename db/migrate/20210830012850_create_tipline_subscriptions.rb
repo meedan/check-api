@@ -1,4 +1,4 @@
-class CreateTiplineSubscriptions < ActiveRecord::Migration
+class CreateTiplineSubscriptions < ActiveRecord::Migration[4.2]
   def change
     create_table :tipline_subscriptions do |t|
       t.string :uid

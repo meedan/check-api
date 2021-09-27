@@ -1,4 +1,4 @@
-class CreateTranslationStatusApproverField < ActiveRecord::Migration
+class CreateTranslationStatusApproverField < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

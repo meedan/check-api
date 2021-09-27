@@ -1,4 +1,4 @@
-class MigrateAccountSourceId < ActiveRecord::Migration
+class MigrateAccountSourceId < ActiveRecord::Migration[4.2]
   def change
     Account.find_each do |account|
       unless account.source_id.nil?
