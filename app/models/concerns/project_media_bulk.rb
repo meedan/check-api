@@ -28,7 +28,8 @@ module ProjectMediaBulk
 
       # SQL bulk-update
       update_columns = { archived: archived }
-      update_columns[:project_id] = project_id if archived == CheckArchivedFlags::FlagCodes::NONE && !project_id.blank?
+      target_project = Project.where(id: project_id.to_i, team_id: team.id).last
+      update_columns[:project_id] = target_project.id if archived == CheckArchivedFlags::FlagCodes::NONE && !target_project.nil?
       ProjectMedia.where(id: ids, team_id: team&.id).update_all(update_columns)
 
       # Update "medias_count" cache of each list
@@ -36,8 +37,8 @@ module ProjectMediaBulk
       Project.bulk_update_medias_count(pids)
 
       # Get a project, if any
-      target_project = Project.where(id: project_id.to_i, team_id: team.id).last
-      previous_project = Project.where(id: previous_project_id.to_i, team_id: team.id).last
+      project_id = previous_project_id || project_id
+      project = Project.where(id: project_id.to_i, team_id: team.id).last
       project = previous_project || target_project
 
       # Pusher
@@ -45,10 +46,13 @@ module ProjectMediaBulk
       project&.notify_pusher_channel
 
       # ElasticSearch
-      script = {
-        source: "ctx._source.archived = params.archived;ctx._source.project_id = params.project_id",
-        params: { archived: archived.to_i, project_id: target_project.id }
-      }
+      source = "ctx._source.archived = params.archived"
+      params = { archived: archived.to_i }
+      unless target_project.nil?
+        source << ";ctx._source.project_id = params.project_id"
+        params[:project_id] = target_project.id
+      end
+      script = { source: source, params: params }
       self.bulk_reindex(ids.to_json, script)
 
       self.update_folder_cache(ids, target_project)
