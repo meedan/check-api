@@ -36,16 +36,22 @@ module ProjectMediaBulk
       Project.bulk_update_medias_count(pids)
 
       # Get a project, if any
-      project_id = previous_project_id || project_id
-      project = Project.where(id: project_id.to_i, team_id: team.id).last
+      target_project = Project.where(id: project_id.to_i, team_id: team.id).last
+      previous_project = Project.where(id: previous_project_id.to_i, team_id: team.id).last
+      project = previous_project || target_project
 
       # Pusher
       team.notify_pusher_channel
       project&.notify_pusher_channel
 
       # ElasticSearch
-      script = { source: "ctx._source.archived = params.archived", params: { archived: archived.to_i } }
+      script = {
+        source: "ctx._source.archived = params.archived;ctx._source.project_id = params.project_id",
+        params: { archived: archived.to_i, project_id: target_project.id }
+      }
       self.bulk_reindex(ids.to_json, script)
+
+      self.update_folder_cache(ids, target_project)
 
       { team: team, project: project, check_search_project: project&.check_search_project, check_search_team: team.check_search_team, check_search_trash: team.check_search_trash }
     end
@@ -61,8 +67,7 @@ module ProjectMediaBulk
       pids << project.id
       Project.bulk_update_medias_count(pids)
 
-      # Update "folder" cache of each list
-      ids.each{|pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s)}
+      self.update_folder_cache(ids, project)
 
       # Other callbacks to run in background
       ProjectMedia.delay.run_bulk_update_team_tasks(pmp_mapping, User.current&.id)
@@ -118,6 +123,11 @@ module ProjectMediaBulk
         }
       }
       client.update_by_query options
+    end
+
+    def update_folder_cache(ids, project)
+      # Update "folder" cache of each list
+      ids.each{|pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s)} unless project.nil?
     end
 
     def bulk_assign(ids, assigned_to_ids, assignment_message, team)
