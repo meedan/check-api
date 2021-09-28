@@ -63,6 +63,7 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/media/#{media_id}")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['turnio_token']}")
       response = http.request(req)
       path = "turnio/#{media_id}"
