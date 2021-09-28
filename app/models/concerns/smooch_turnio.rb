@@ -63,6 +63,7 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/media/#{media_id}")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       req = Net::HTTP::Get.new(uri.request_uri, 'Authorization' => "Bearer #{self.config['turnio_token']}")
       response = http.request(req)
       path = "turnio/#{media_id}"
@@ -182,6 +183,7 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/media")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'image/png', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = open(url).read
       response = http.request(req)
@@ -220,6 +222,7 @@ module SmoochTurnio
       uri = URI("#{self.get_turnio_host}/v1/messages")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['turnio_token']}")
       req.body = payload.to_json
       response = http.request(req)
