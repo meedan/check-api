@@ -39,7 +39,6 @@ module ProjectMediaBulk
       # Get a project, if any
       project_id = previous_project_id || project_id
       project = Project.where(id: project_id.to_i, team_id: team.id).last
-      project = previous_project || target_project
 
       # Pusher
       team.notify_pusher_channel
