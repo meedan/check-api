@@ -17,6 +17,7 @@ before_script:
 - cp config/credentials.json.example config/credentials.json
 - cp config/sidekiq-test.yml.example config/sidekiq-test.yml
 - docker-compose build
+- docker-compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
 - docker-compose -f docker-compose.yml -f docker-test.yml up -d
 - until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 - docker-compose exec api test/setup-parallel-env.sh
