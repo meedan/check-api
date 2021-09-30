@@ -116,4 +116,11 @@ class UserTest < ActiveSupport::TestCase
 
     WebMock.reset!
   end
+
+  test "should get events from bot" do
+    team = create_team
+    team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'create_project_media', graphql: nil }, { event: 'publish_report', graphql: nil }]
+    assert team_bot.is_bot
+    assert_equal 'create_project_media,publish_report', team_bot.bot_events
+  end
 end
