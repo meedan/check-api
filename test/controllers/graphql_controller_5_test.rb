@@ -244,6 +244,40 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal ['rails2.png'], t0.reload.first_response_obj.file_data.collect{ |f| f.split('/').last }
   end
 
+  test "should transcribe audio" do
+    Sidekiq::Testing.inline! do
+      t = create_team
+      pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
+      url = Bot::Alegre.media_file_url(pm)
+      s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
+
+      Bot::Alegre.unstub(:request_api)
+      Bot::Alegre.stubs(:request_api).with('post', '/audio/transcription/', { url: s3_url, job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'IN_PROGRESS' })
+      Bot::Alegre.stubs(:request_api).with('get', '/audio/transcription/', { job_name: '0c481e87f2774b1bd41a0a70d9b70d11' }).returns({ 'job_status' => 'COMPLETED', 'transcription' => 'Foo bar' })
+
+      json_schema = {
+        type: 'object',
+        required: ['job_name'],
+        properties: {
+          text: { type: 'string' },
+          job_name: { type: 'string' },
+          last_response: { type: 'object' }
+        }
+      }
+      create_annotation_type_and_fields('Transcription', {}, json_schema)
+      b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
+      b.install_to!(t)
+      WebMock.stub_request(:get, Bot::Alegre.media_file_url(pm)).to_return(body: File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+
+      query = 'mutation { transcribeAudio(input: { clientMutationId: "1", id: "' + pm.graphql_id + '" }) { project_media { id }, annotation { data } } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal 'Foo bar', JSON.parse(@response.body)['data']['transcribeAudio']['annotation']['data']['text']
+
+      Bot::Alegre.unstub(:request_api)
+    end
+  end
+
   protected
 
   def assert_error_message(expected)
