@@ -259,6 +259,31 @@ class Bot::Alegre < BotUser
     end
   end
 
+  def self.update_audio_transcription(transcription_annotation_id, attempts)
+    annotation = Dynamic.find(transcription_annotation_id)
+    result = self.request_api('get', '/audio/transcription/', { job_name: annotation.get_field_value('job_name') })
+    if result['job_status'] == 'COMPLETED'
+      annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+      annotation.set_fields = { text: result['transcription'], last_response: result }.to_json
+      annotation.skip_check_ability = true
+      annotation.save!
+    else
+      self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if attempts < 2000 # Maximum: ~5h of transcription
+    end
+  end
+
+  def self.transcribe_audio(pm)
+    if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
+      url = self.media_file_url(pm)
+      job_name = Digest::MD5.hexdigest(open(url).read)
+      s3_url = url.gsub(/^https?:\/\/[^\/]+/, "s3://#{CheckConfig.get('storage_bucket')}")
+      result = self.request_api('post', '/audio/transcription/', { url: s3_url, job_name: job_name })
+      annotation = self.save_annotation(pm, 'transcription', { text: '', job_name: job_name, last_response: result }) if result
+      # FIXME: Calculate schedule interval based on audio duration
+      self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, 1)
+    end
+  end
+
   def self.media_file_url(pm)
     # FIXME Ugly hack to get a usable URL in docker-compose development environment.
     ENV['RAILS_ENV'] != 'development' ? pm.media.file.file.public_url : "#{CheckConfig.get('storage_endpoint')}/#{CheckConfig.get('storage_bucket')}/#{pm.media.file.file.path}"
