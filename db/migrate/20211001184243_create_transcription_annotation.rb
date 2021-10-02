@@ -12,6 +12,6 @@ class CreateTranscriptionAnnotation < ActiveRecord::Migration[4.2]
         last_response: { type: 'object' }
       }
     }
-    create_annotation_type_and_fields('Transcription', {}, json_schema)
+    create_annotation_type_and_fields('Transcription', {}, json_schema) unless Rails.env.test?
   end
 end
