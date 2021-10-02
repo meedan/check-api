@@ -196,7 +196,8 @@ class Bot::Alegre < BotUser
     if type == 'text'
       self.get_merged_items_with_similar_text(pm, threshold)
     else
-      self.reject_same_case(self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/"), pm)
+      results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/")
+      results.reject{ |id, _score| pm.id == id }
     end
   end
 
@@ -262,17 +263,19 @@ class Bot::Alegre < BotUser
   def self.update_audio_transcription(transcription_annotation_id, attempts)
     annotation = Dynamic.find(transcription_annotation_id)
     result = self.request_api('get', '/audio/transcription/', { job_name: annotation.get_field_value('job_name') })
+    completed = false
     if result['job_status'] == 'COMPLETED'
       annotation.disable_es_callbacks = Rails.env.to_s == 'test'
       annotation.set_fields = { text: result['transcription'], last_response: result }.to_json
       annotation.skip_check_ability = true
       annotation.save!
-    else
-      self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if attempts < 2000 # Maximum: ~5h of transcription
+      completed = true
     end
+    self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, attempts + 1) if !completed && attempts < 2000 # Maximum: ~5h of transcription
   end
 
   def self.transcribe_audio(pm)
+    annotation = nil
     if pm.report_type == 'uploadedaudio' || pm.report_type == 'uploadedvideo'
       url = self.media_file_url(pm)
       job_name = Digest::MD5.hexdigest(open(url).read)
@@ -282,6 +285,7 @@ class Bot::Alegre < BotUser
       # FIXME: Calculate schedule interval based on audio duration
       self.delay_for(10.seconds, retry: 5).update_audio_transcription(annotation.id, 1)
     end
+    annotation
   end
 
   def self.media_file_url(pm)
@@ -416,10 +420,6 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.split_text(text)
-    text.split(/\s/)
-  end
-
   def self.get_items_with_similar_title(pm, threshold)
     pm.original_title.blank? ? {} : self.get_merged_similar_items(pm, threshold, ['original_title', 'report_text_title', 'report_visual_card_title'], pm.original_title)
   end
@@ -529,10 +529,6 @@ class Bot::Alegre < BotUser
     )
   end
 
-  def self.reject_same_case(results, pm)
-    results.reject{ |id, _score| pm.id == id }
-  end
-
   def self.similar_media_content_from_api_conditions(team_id, media_url, threshold, match_across_content_types=true)
     {
       url: media_url,
@@ -631,7 +627,7 @@ class Bot::Alegre < BotUser
     unless pm.alegre_matched_fields.blank?
       fields_size = []
       pm.alegre_matched_fields.uniq.each do |field|
-        fields_size << self.split_text(pm.send(field).to_s).length if pm.respond_to?(field)
+        fields_size << pm.send(field).to_s.split(/\s/).length if pm.respond_to?(field)
       end
       is_short = fields_size.max < length_threshold unless fields_size.blank?
     end
