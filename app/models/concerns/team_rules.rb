@@ -15,14 +15,14 @@ module TeamRules
     def has_less_than_x_words(pm, value, _rule_id)
       return false unless pm.media&.type == 'Claim'
       smooch_message = get_smooch_message(pm)
-      return false if smooch_message.blank?
-      smooch_message.to_s.gsub(Bot::Smooch::MESSAGE_BOUNDARY, '').split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
+      return false if smooch_message['text'].blank?
+      smooch_message['text'].to_s.gsub(Bot::Smooch::MESSAGE_BOUNDARY, '').split(/\s+/).select{ |w| (w =~ /^[0-9]+$/).nil? }.size <= value.to_i
     end
 
     def contains_keyword(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
-      return false if smooch_message.blank?
-      text_contains_keyword(smooch_message, value)
+      return false if smooch_message['text'].blank?
+      text_contains_keyword(smooch_message['text'], value)
     end
 
     def title_contains_keyword(pm, value, _rule_id)
@@ -47,7 +47,7 @@ module TeamRules
       if smooch_message.nil?
         smooch_message = begin JSON.parse(pm.get_annotations('smooch').last.load.get_field_value('smooch_data').to_s) rescue {} end
       end
-      smooch_message['text']
+      smooch_message
     end
 
     def title_matches_regexp(pm, value, _rule_id)
@@ -56,7 +56,7 @@ module TeamRules
 
     def request_matches_regexp(pm, value, _rule_id)
       smooch_message = get_smooch_message(pm)
-      matches_regexp(smooch_message, value)
+      matches_regexp(smooch_message['text'], value)
     end
 
     def matches_regexp(text, value)
@@ -150,8 +150,11 @@ module TeamRules
     end
 
     def ban_submitter(pm, _value, _rule_id)
-      ::Bot::Smooch.ban_user(pm.smooch_message)
-      CheckNotification::InfoMessages.send('banned_submitter_by_rule', item_title: pm.title)
+      smooch_message = get_smooch_message(pm)
+      unless smooch_message.blank?
+        ::Bot::Smooch.ban_user(smooch_message)
+        CheckNotification::InfoMessages.send('banned_submitter_by_rule', item_title: pm.title)
+      end
     end
 
     def move_to_project(pm, value, _rule_id)

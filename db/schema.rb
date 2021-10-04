@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210901005937) do
+ActiveRecord::Schema.define(version: 2021_10_01_184243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,23 +68,17 @@ ActiveRecord::Schema.define(version: 20210901005937) do
     t.datetime "expire_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "application"
-  end
-
-  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
-    t.string   "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "application"
   end
 
   create_table "assignments", id: :serial, force: :cascade do |t|
-    t.integer  "assigned_id",   null: false
-    t.integer  "user_id",       null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.string   "assigned_type"
-    t.integer  "assigner_id"
-    t.text     "message"
+    t.integer "assigned_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "assigned_type"
+    t.integer "assigner_id"
+    t.text "message"
     t.index ["assigned_id", "assigned_type", "user_id"], name: "index_assignments_on_assigned_id_and_assigned_type_and_user_id", unique: true
     t.index ["assigned_id", "assigned_type"], name: "index_assignments_on_assigned_id_and_assigned_type"
     t.index ["assigned_id"], name: "index_assignments_on_assigned_id"
@@ -94,12 +88,12 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "bot_resources", id: :serial, force: :cascade do |t|
-    t.string   "uuid",               default: "", null: false
-    t.string   "title",              default: "", null: false
-    t.string   "content",            default: "", null: false
-    t.string   "feed_url"
-    t.integer  "number_of_articles", default: 3
-    t.integer  "team_id"
+    t.string "uuid", default: "", null: false
+    t.string "title", default: "", null: false
+    t.string "content", default: "", null: false
+    t.string "feed_url"
+    t.integer "number_of_articles", default: 3
+    t.integer "team_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["team_id"], name: "index_bot_resources_on_team_id"
@@ -114,43 +108,44 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "dynamic_annotation_annotation_types", primary_key: "annotation_type", id: :string, force: :cascade do |t|
-    t.string   "label",                      null: false
-    t.text     "description"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.boolean  "singleton",   default: true
-    t.jsonb    "json_schema"
+    t.string "label", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "singleton", default: true
+    t.jsonb "json_schema"
     t.index ["json_schema"], name: "index_dynamic_annotation_annotation_types_on_json_schema", using: :gin
   end
 
   create_table "dynamic_annotation_field_instances", primary_key: "name", id: :string, force: :cascade do |t|
-    t.string   "field_type",                     null: false
-    t.string   "annotation_type",                null: false
-    t.string   "label",                          null: false
-    t.text     "description"
-    t.boolean  "optional",        default: true
-    t.text     "settings"
-    t.string   "default_value"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.string "field_type", null: false
+    t.string "annotation_type", null: false
+    t.string "label", null: false
+    t.text "description"
+    t.boolean "optional", default: true
+    t.text "settings"
+    t.string "default_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "dynamic_annotation_field_types", primary_key: "field_type", id: :string, force: :cascade do |t|
-    t.string   "label",       null: false
+    t.string "label", null: false
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "dynamic_annotation_fields", id: :integer, default: -> { "nextval('new_dynamic_annotation_fields_id_seq'::regclass)" }, force: :cascade do |t|
-    t.integer  "annotation_id",                null: false
-    t.string   "field_name",                   null: false
-    t.string   "annotation_type",              null: false
-    t.string   "field_type",                   null: false
-    t.text     "value",                        null: false
-    t.jsonb    "value_json",      default: {}
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.integer "annotation_id", null: false
+    t.string "field_name", null: false
+    t.string "annotation_type", null: false
+    t.string "field_type", null: false
+    t.text "value", null: false
+    t.jsonb "value_json", default: "{}"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
@@ -158,31 +153,31 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "login_activities", id: :serial, force: :cascade do |t|
-    t.string   "scope"
-    t.string   "strategy"
-    t.string   "identity"
-    t.boolean  "success"
-    t.string   "failure_reason"
-    t.integer  "user_id"
-    t.string   "user_type"
-    t.string   "context"
-    t.string   "ip"
-    t.text     "user_agent"
-    t.text     "referrer"
+    t.string "scope"
+    t.string "strategy"
+    t.string "identity"
+    t.boolean "success"
+    t.string "failure_reason"
+    t.string "user_type"
+    t.integer "user_id"
+    t.string "context"
+    t.string "ip"
+    t.text "user_agent"
+    t.text "referrer"
     t.datetime "created_at"
     t.index ["identity"], name: "index_login_activities_on_identity"
     t.index ["ip"], name: "index_login_activities_on_ip"
   end
 
   create_table "medias", id: :serial, force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "account_id"
-    t.string   "url"
+    t.integer "user_id"
+    t.integer "account_id"
+    t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string   "quote"
-    t.string   "type"
-    t.string   "file"
+    t.string "quote"
+    t.string "type"
+    t.string "file"
     t.index ["url"], name: "index_medias_on_url", unique: true
   end
 
@@ -216,43 +211,43 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "project_medias", id: :serial, force: :cascade do |t|
-    t.integer  "media_id"
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
-    t.integer  "user_id"
-    t.integer  "cached_annotations_count", default: 0
-    t.integer  "archived",                 default: 0
-    t.integer  "targets_count",            default: 0,     null: false
-    t.integer  "sources_count",            default: 0,     null: false
-    t.integer  "team_id"
-    t.boolean  "read",                     default: false, null: false
-    t.integer  "source_id"
-    t.integer  "project_id"
-    t.integer  "last_seen"
-    t.integer  "channel",                  default: 0
+    t.integer "media_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.integer "cached_annotations_count", default: 0
+    t.integer "archived", default: 0
+    t.integer "targets_count", default: 0, null: false
+    t.integer "sources_count", default: 0, null: false
+    t.integer "team_id"
+    t.boolean "read", default: false, null: false
+    t.integer "source_id"
+    t.integer "project_id"
+    t.integer "last_seen"
+    t.integer "channel", default: 0
+    t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
     t.index ["project_id"], name: "index_project_medias_on_project_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
-    t.index ["channel"], name: "index_project_medias_on_channel"
   end
 
   create_table "projects", id: :serial, force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "team_id"
-    t.string   "title"
-    t.text     "description"
-    t.string   "lead_image"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "archived",          default: 0
-    t.text     "settings"
-    t.string   "token"
-    t.integer  "assignments_count", default: 0
-    t.integer  "project_group_id"
-    t.integer  "privacy",           default: 0, null: false
+    t.integer "user_id"
+    t.integer "team_id"
+    t.string "title"
+    t.text "description"
+    t.string "lead_image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "archived", default: 0
+    t.text "settings"
+    t.string "token"
+    t.integer "assignments_count", default: 0
+    t.integer "project_group_id"
+    t.integer "privacy", default: 0, null: false
     t.index ["id"], name: "index_projects_on_id"
     t.index ["privacy"], name: "index_projects_on_privacy"
     t.index ["project_group_id"], name: "index_projects_on_project_group_id"
@@ -261,14 +256,14 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "relationships", id: :serial, force: :cascade do |t|
-    t.integer  "source_id",                       null: false
-    t.integer  "target_id",                       null: false
-    t.string   "relationship_type",               null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.integer  "user_id"
-    t.float    "weight",            default: 0.0
-    t.integer  "confirmed_by"
+    t.integer "source_id", null: false
+    t.integer "target_id", null: false
+    t.string "relationship_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.float "weight", default: 0.0
+    t.integer "confirmed_by"
     t.datetime "confirmed_at"
     t.index ["relationship_type"], name: "index_relationships_on_relationship_type"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
@@ -322,38 +317,38 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "team_tasks", id: :serial, force: :cascade do |t|
-    t.string   "label",                                              null: false
-    t.string   "task_type",                                          null: false
-    t.text     "description"
-    t.text     "options"
-    t.text     "project_ids"
-    t.text     "mapping"
-    t.boolean  "required",                  default: false
-    t.integer  "team_id",                                            null: false
-    t.integer  "order",                     default: 0
-    t.string   "associated_type",           default: "ProjectMedia", null: false
-    t.datetime "created_at",                                         null: false
-    t.datetime "updated_at",                                         null: false
-    t.string   "json_schema"
-    t.string   "fieldset",                  default: "",             null: false
-    t.boolean  "show_in_browser_extension", default: true,           null: false
-    t.text     "conditional_info"
+    t.string "label", null: false
+    t.string "task_type", null: false
+    t.text "description"
+    t.text "options"
+    t.text "project_ids"
+    t.text "mapping"
+    t.boolean "required", default: false
+    t.integer "team_id", null: false
+    t.integer "order", default: 0
+    t.string "associated_type", default: "ProjectMedia", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "json_schema"
+    t.string "fieldset", default: "", null: false
+    t.boolean "show_in_browser_extension", default: true, null: false
+    t.text "conditional_info"
     t.index ["team_id", "fieldset", "associated_type"], name: "index_team_tasks_on_team_id_and_fieldset_and_associated_type"
   end
 
   create_table "team_users", id: :serial, force: :cascade do |t|
     t.integer "team_id"
     t.integer "user_id"
+    t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "role"
     t.string "status", default: "member"
+    t.text "settings"
     t.integer "invited_by_id"
     t.string "invitation_token"
     t.string "raw_invitation_token"
     t.datetime "invitation_accepted_at"
-    t.text "settings"
-    t.string "type"
     t.string "invitation_email"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
     t.index ["type"], name: "index_team_users_on_type"
@@ -362,24 +357,24 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "teams", id: :serial, force: :cascade do |t|
-    t.string   "name"
-    t.string   "logo"
-    t.boolean  "private",     default: true
-    t.integer  "archived",    default: 0
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.text     "description"
-    t.string   "slug"
-    t.text     "settings"
-    t.boolean  "inactive",    default: false
+    t.string "name"
+    t.string "logo"
+    t.boolean "private", default: true
+    t.integer "archived", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "description"
+    t.string "slug"
+    t.text "settings"
+    t.boolean "inactive", default: false
     t.index ["inactive"], name: "index_teams_on_inactive"
     t.index ["slug"], name: "index_teams_on_slug"
     t.index ["slug"], name: "unique_team_slugs", unique: true
   end
 
-  create_table "tipline_subscriptions", force: :cascade do |t|
-    t.string  "uid"
-    t.string  "language"
+  create_table "tipline_subscriptions", id: :serial, force: :cascade do |t|
+    t.string "uid"
+    t.string "language"
     t.integer "team_id"
     t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
     t.index ["language"], name: "index_tipline_subscriptions_on_language"
@@ -389,12 +384,12 @@ ActiveRecord::Schema.define(version: 20210901005937) do
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
-    t.string   "name",                      default: "",    null: false
-    t.string   "login",                     default: "",    null: false
-    t.string   "token",                     default: "",    null: false
-    t.string   "email"
-    t.string   "encrypted_password",        default: ""
-    t.string   "reset_password_token"
+    t.string "name", default: "", null: false
+    t.string "login", default: "", null: false
+    t.string "token", default: "", null: false
+    t.string "email"
+    t.string "encrypted_password", default: ""
+    t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer "sign_in_count", default: 0, null: false
@@ -418,7 +413,6 @@ ActiveRecord::Schema.define(version: 20210901005937) do
     t.string "unconfirmed_email"
     t.integer "current_project_id"
     t.boolean "is_active", default: true
-    t.datetime "last_accepted_terms_at"
     t.string "invitation_token"
     t.string "raw_invitation_token"
     t.datetime "invitation_created_at"
@@ -427,6 +421,7 @@ ActiveRecord::Schema.define(version: 20210901005937) do
     t.integer "invitation_limit"
     t.integer "invited_by_id"
     t.string "invited_by_type"
+    t.datetime "last_accepted_terms_at"
     t.string "encrypted_otp_secret"
     t.string "encrypted_otp_secret_iv"
     t.string "encrypted_otp_secret_salt"
@@ -466,8 +461,4 @@ ActiveRecord::Schema.define(version: 20210901005937) do
     t.index ["team_id"], name: "index_versions_on_team_id"
   end
 
-  add_foreign_key "accounts", "teams"
-  add_foreign_key "project_medias", "users"
-  add_foreign_key "sources", "teams"
-  add_foreign_key "users", "sources"
 end

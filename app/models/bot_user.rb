@@ -173,7 +173,7 @@ class BotUser < User
         bot.run(data.with_indifferent_access) unless bot.blank?
       else
         uri = URI.parse(self.get_request_url)
-        headers = { 'Content-Type': 'application/json' }
+        headers = (self.get_headers || {}).merge({ 'Content-Type': 'application/json' })
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true if self.get_request_url =~ /^https:/
         request = Net::HTTP::Post.new(uri.request_uri, headers)
