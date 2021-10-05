@@ -5,20 +5,23 @@ module ProjectMediaBulk
 
   module ClassMethods
     def bulk_update(ids, updates, team)
-      keys = updates.keys.map(&:to_sym)
-      if keys.include?(:archived)
-        self.bulk_archive(ids, updates[:archived], updates[:previous_project_id], updates[:project_id], team)
-      elsif keys.include?(:move_to)
-        project = Project.where(team_id: team&.id, id: updates[:move_to]).last
+      params = begin JSON.parse(updates[:params]).with_indifferent_access rescue {} end
+      case updates[:action]
+      when 'archived'
+        self.bulk_archive(ids, params[:archived], params[:previous_project_id], params[:project_id], team)
+      when 'move_to'
+        project = Project.where(team_id: team&.id, id: params[:move_to]).last
         unless project.nil?
           self.bulk_move(ids, project, team)
           # bulk move secondary items
           self.bulk_move_secondary_items(ids, project, team)
           # send pusher and set parent objects for graphql
-          self.send_pusher_and_parents(project, updates[:previous_project_id], team)
+          self.send_pusher_and_parents(project, params[:previous_project_id], team)
         end
-      elsif keys.include?(:assigned_to_ids)
-        self.bulk_assign(ids, updates[:assigned_to_ids], updates[:assignment_message], team)
+      when 'assigned_to_ids'
+        self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
+      when 'update_status'
+        self.bulk_update_status(ids, params[:status], team)
       end
     end
 
@@ -223,6 +226,15 @@ module ProjectMediaBulk
         sql += sql_values.join(", ")
         ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
       end
+    end
+
+    def bulk_update_status(ids, status, team)
+      statuses = Annotation.where(annotated_type: 'ProjectMedia', annotation_type: 'verification_status', annotated_id: ids)
+      status_ids = statuses.map(&:id)
+      DynamicAnnotation::Field.where(
+        field_name: "verification_status_status", annotation_type: "verification_status", annotation_id: status_ids
+      ).update_all(value: status)
+      { team: team }
     end
   end
 end
