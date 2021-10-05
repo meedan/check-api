@@ -1,4 +1,4 @@
-class RemoveUnneededIndexes < ActiveRecord::Migration
+class RemoveUnneededIndexes < ActiveRecord::Migration[4.2]
   def change
     remove_index :account_sources, name: "index_account_sources_on_account_id"
     remove_index :annotations, name: "index_annotations_on_annotated_type"

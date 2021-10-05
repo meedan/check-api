@@ -1,4 +1,4 @@
-class CreateEmptyIndexForElasticsearch6 < ActiveRecord::Migration
+class CreateEmptyIndexForElasticsearch6 < ActiveRecord::Migration[4.2]
   def change
   	MediaSearch.delete_index
     client = $repository.client

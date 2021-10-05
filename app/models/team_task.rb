@@ -1,4 +1,4 @@
-class TeamTask < ActiveRecord::Base
+class TeamTask < ApplicationRecord
   include ErrorNotification
 
   attr_accessor :keep_completed_tasks
@@ -13,7 +13,7 @@ class TeamTask < ActiveRecord::Base
   serialize :project_ids, Array
   serialize :mapping
 
-  belongs_to :team
+  belongs_to :team, optional: true
 
   after_create :add_teamwide_tasks
   after_update :update_teamwide_tasks
@@ -137,15 +137,15 @@ class TeamTask < ActiveRecord::Base
   def update_teamwide_tasks
     Rails.cache.delete("list_columns:team:#{self.team_id}")
     options = {
-      label: self.label_changed?,
-      description: self.description_changed?,
-      options: self.options_changed?
+      label: self.saved_change_to_label?,
+      description: self.saved_change_to_description?,
+      options: self.saved_change_to_options?
     }
     options.delete_if{|_k, v| v == false || v.nil?}
     projects = {}
-    if self.project_ids_changed?
+    if self.saved_change_to_project_ids?
       projects = {
-        old: self.project_ids_was,
+        old: self.project_ids_before_last_save,
         new: self.project_ids,
       }
     end
@@ -218,7 +218,7 @@ class TeamTask < ActiveRecord::Base
     .joins("LEFT JOIN annotations a ON a.annotation_type = 'task' AND a.annotated_type = 'ProjectMedia'
       AND a.annotated_id = project_medias.id
       AND task_team_task_id(a.annotation_type, a.data) = #{self.id}")
-    .where("a.id" => nil).order(id: :desc).uniq.find_each do |pm|
+    .where("a.id" => nil).order(id: :desc).distinct.find_each do |pm|
       begin
         pm.create_auto_tasks(nil, [self])
       rescue StandardError => e

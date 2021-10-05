@@ -2,7 +2,7 @@ namespace :swagger do
   namespace :docs do
     task markdown: :environment do
       # Work with test environment
-      ActiveRecord::Base.establish_connection('test')
+      ApplicationRecord.establish_connection('test')
       ApiKey.where(access_token: 'test').destroy_all
       api_key = ApiKey.create!
       api_key.access_token = 'test'
@@ -74,7 +74,7 @@ namespace :swagger do
       output.close
 
       api_key.destroy!
-      ActiveRecord::Base.establish_connection(ENV['RAILS_ENV'])
+      ApplicationRecord.establish_connection(ENV['RAILS_ENV'])
 
       puts "Done! Check your API documentation at doc/api.md. You can copy and paste it to your README.md."
     end # task

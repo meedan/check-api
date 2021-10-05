@@ -1,4 +1,4 @@
-class AddIndexToTeamUsers < ActiveRecord::Migration
+class AddIndexToTeamUsers < ActiveRecord::Migration[4.2]
   def change
 
     tu = TeamUser.all.group_by { |x| [x.team_id, x.user_id] }

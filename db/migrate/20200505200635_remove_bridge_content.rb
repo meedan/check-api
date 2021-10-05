@@ -7,7 +7,7 @@ end
 class Bot::BridgeReader < BotUser
 end
 
-class RemoveBridgeContent < ActiveRecord::Migration
+class RemoveBridgeContent < ActiveRecord::Migration[4.2]
   def change
     bot_types = ['Bot::Viber', 'Bot::Facebook', 'Bot::Twitter', 'Bot::BridgeReader']
     User.where('type in (?)', bot_types).destroy_all

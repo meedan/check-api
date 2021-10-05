@@ -1,4 +1,4 @@
-class AddTurnioSettingsToSmoochBot < ActiveRecord::Migration
+class AddTurnioSettingsToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.where(login: 'smooch').last
     unless tb.nil?

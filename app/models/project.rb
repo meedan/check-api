@@ -1,4 +1,4 @@
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
   include CheckPusher
   include ValidationsHelper
   include DestroyLater
@@ -15,10 +15,10 @@ class Project < ActiveRecord::Base
 
   attr_accessor :project_media_ids_were, :previous_project_group_id
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
-  belongs_to :user
-  belongs_to :team
-  belongs_to :project_group
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  belongs_to :user, optional: true
+  belongs_to :team, optional: true
+  belongs_to :project_group, optional: true
   has_many :project_medias
 
   mount_uploader :lead_image, ImageUploader
@@ -69,8 +69,8 @@ class Project < ActiveRecord::Base
       },
       {
         model: ProjectMedia,
-        if: proc { |pm| pm.archived_changed? || pm.project_id_changed? },
-        affected_ids: proc { |pm| [pm.project_id, pm.project_id_was] },
+        if: proc { |pm| pm.saved_change_to_archived? || pm.saved_change_to_project_id? },
+        affected_ids: proc { |pm| [pm.project_id, pm.project_id_before_last_save] },
         events: {
           update: :recalculate,
         }
@@ -278,7 +278,7 @@ class Project < ActiveRecord::Base
   end
 
   def archive_or_restore_project_medias_if_needed
-    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.team_id) if self.archived_changed?
+    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.team_id) if self.saved_change_to_archived?
   end
 
   def team_is_not_archived

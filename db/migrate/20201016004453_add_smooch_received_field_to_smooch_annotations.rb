@@ -1,6 +1,6 @@
 require 'sample_data'
 include SampleData
-class AddSmoochReceivedFieldToSmoochAnnotations < ActiveRecord::Migration
+class AddSmoochReceivedFieldToSmoochAnnotations < ActiveRecord::Migration[4.2]
   def change
     t = DynamicAnnotation::FieldType.where(field_type: 'timestamp').last || create_field_type(field_type: 'timestamp', label: 'Timestamp')
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'smooch').last

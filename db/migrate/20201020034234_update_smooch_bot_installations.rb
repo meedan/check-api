@@ -1,4 +1,4 @@
-class UpdateSmoochBotInstallations < ActiveRecord::Migration
+class UpdateSmoochBotInstallations < ActiveRecord::Migration[4.2]
   def change
     # Iterate through Smooch Bot installations in order to store bot resources
     current_user = User.current

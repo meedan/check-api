@@ -1,4 +1,4 @@
-class CreateTaskStatusAnnotation < ActiveRecord::Migration
+class CreateTaskStatusAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

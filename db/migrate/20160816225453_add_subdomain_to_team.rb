@@ -1,4 +1,4 @@
-class AddSubdomainToTeam < ActiveRecord::Migration
+class AddSubdomainToTeam < ActiveRecord::Migration[4.2]
   def change
     add_column :teams, :subdomain, :string
     add_index :teams, :subdomain

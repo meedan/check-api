@@ -1,4 +1,4 @@
-class AddDefaultValueToFieldInstance < ActiveRecord::Migration
+class AddDefaultValueToFieldInstance < ActiveRecord::Migration[4.2]
   def change
     unless column_exists? :dynamic_annotation_field_instances, :default_value
       add_column :dynamic_annotation_field_instances, :default_value, :string

@@ -1,4 +1,4 @@
-class RemoveUserProfileImage < ActiveRecord::Migration
+class RemoveUserProfileImage < ActiveRecord::Migration[4.2]
   def change
     remove_column :users, :profile_image
 

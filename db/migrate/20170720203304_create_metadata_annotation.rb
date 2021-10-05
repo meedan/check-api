@@ -1,4 +1,4 @@
-class CreateMetadataAnnotation < ActiveRecord::Migration
+class CreateMetadataAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

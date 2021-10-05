@@ -44,7 +44,7 @@ module SampleData
     ss = SavedSearch.new
     ss.team = create_team
     ss.title = random_string
-    ss.filters = '{}'
+    ss.filters = {}
     options.each do |key, value|
       ss.send("#{key}=", value) if ss.respond_to?("#{key}=")
     end
@@ -146,6 +146,7 @@ module SampleData
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
       url = random_url
       options[:data] ||= {}
+      options[:data] = options[:data].permit(options[:data].keys) if options[:data].respond_to?(:permit)
       data = { url: url, provider: 'twitter', author_picture: 'http://provider/picture.png', title: 'Foo Bar', description: 'Just a test', type: 'profile', author_name: 'Foo Bar' }.merge(options[:data])
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":' + data.to_json + '}')
       url

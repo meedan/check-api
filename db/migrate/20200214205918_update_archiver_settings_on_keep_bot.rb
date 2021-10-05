@@ -1,4 +1,4 @@
-class UpdateArchiverSettingsOnKeepBot < ActiveRecord::Migration
+class UpdateArchiverSettingsOnKeepBot < ActiveRecord::Migration[4.2]
   def change
     bot = BotUser.keep_user
     settings = bot.get_settings

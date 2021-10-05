@@ -1,4 +1,4 @@
-class AddRequestTypeAndResourceToSmooch < ActiveRecord::Migration
+class AddRequestTypeAndResourceToSmooch < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

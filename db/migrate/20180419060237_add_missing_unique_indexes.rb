@@ -1,4 +1,4 @@
-class AddMissingUniqueIndexes < ActiveRecord::Migration
+class AddMissingUniqueIndexes < ActiveRecord::Migration[4.2]
   def change
   	# fix existing duplicates 
     fix_duplicate(AccountSource, [:account_id, :source_id])

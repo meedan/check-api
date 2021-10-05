@@ -1,4 +1,4 @@
-class RemoveDataFromMedias < ActiveRecord::Migration
+class RemoveDataFromMedias < ActiveRecord::Migration[4.2]
   def change
     Media.find_each do |media|
       media.pender_data= media.read_attribute(:data)

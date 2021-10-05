@@ -1,4 +1,4 @@
-class ConvertTaskOptionsToArray < ActiveRecord::Migration
+class ConvertTaskOptionsToArray < ActiveRecord::Migration[4.2]
   def change
     Team.all.find_each do |t|
       next if t.get_checklist.nil?

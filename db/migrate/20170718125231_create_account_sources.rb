@@ -1,4 +1,4 @@
-class CreateAccountSources < ActiveRecord::Migration
+class CreateAccountSources < ActiveRecord::Migration[4.2]
   def change
     create_table :account_sources do |t|
       t.belongs_to :account, index: true

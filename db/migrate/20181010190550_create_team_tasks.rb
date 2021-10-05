@@ -1,6 +1,6 @@
-class CreateTeamTasks < ActiveRecord::Migration
+class CreateTeamTasks < ActiveRecord::Migration[4.2]
   def change
-    unless ActiveRecord::Base.connection.table_exists?(:team_tasks)
+    unless ApplicationRecord.connection.table_exists?(:team_tasks)
       create_table :team_tasks do |t|
         t.string :label, null: false
         t.string :task_type, null: false

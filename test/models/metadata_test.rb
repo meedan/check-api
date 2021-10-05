@@ -111,6 +111,7 @@ class MetadataTest < ActiveSupport::TestCase
   end
 
   test "should get and set fields" do
+    require File.join(Rails.root, 'app', 'models', 'annotations', 'embed')
     m = create_metadata
     
     m = Dynamic.find(m.id)

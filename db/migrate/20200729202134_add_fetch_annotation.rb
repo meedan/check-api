@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class AddFetchAnnotation < ActiveRecord::Migration
+class AddFetchAnnotation < ActiveRecord::Migration[4.2]
   def change
     json_schema = {
       type: 'object',

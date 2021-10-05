@@ -1,4 +1,4 @@
-class CreateDateTimeTask < ActiveRecord::Migration
+class CreateDateTimeTask < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

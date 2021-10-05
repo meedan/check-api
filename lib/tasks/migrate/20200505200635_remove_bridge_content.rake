@@ -5,7 +5,7 @@ namespace :check do
       i = 0
       skipped = 0
       annotation_types = ['mt', 'translation_request', 'translation_status', 'translation']
-      team_ids = ActiveRecord::Base.connection.execute("
+      team_ids = ApplicationRecord.connection.execute("
         select distinct(pm.team_id) from annotations a inner join project_medias pm on a.annotated_id = pm.id
         where a.annotated_type = 'ProjectMedia' and a.annotation_type in ('#{annotation_types.join("','")}')
       ").collect{ |t| t["team_id"].to_i }
@@ -16,13 +16,13 @@ namespace :check do
 
       team_ids.each { |t|
         progressbar.increment
-        annotation_ids = ActiveRecord::Base.connection.execute("
+        annotation_ids = ApplicationRecord.connection.execute("
           select a.id from annotations a inner join project_medias pm on a.annotated_id = pm.id
           where a.annotated_type = 'ProjectMedia' and a.annotation_type in ('#{annotation_types.join("','")}')
           and pm.team_id = #{t}
         ").collect{ |t| t["id"] }
         Version.from_partition(t).where(item_type: 'Dynamic', item_id: annotation_ids).delete_all
-        field_ids = ActiveRecord::Base.connection.execute("
+        field_ids = ApplicationRecord.connection.execute("
           select f.id from dynamic_annotation_fields f left join annotations a on f.annotation_id = a.id
           where a.id in (#{annotation_ids.join(',')})
         ").collect{ |f| f["id"] }

@@ -42,17 +42,17 @@ class ReportsControllerTest < ActionController::TestCase
 
     Bot::Alegre.stubs(:request_api).returns({ 'result' => [from_alegre(@pm), from_alegre(pm), from_alegre(pm2), from_alegre(pm3), from_alegre(pm4), from_alegre(pm5)] })
 
-    get :index
+    post :index, params: {}
     assert_response :success
     assert_equal 7, json_response['data'].size
     assert_equal 7, json_response['meta']['record-count']
 
-    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' }
+    post :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'published' } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
 
-    get :index, filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' }
+    post :index, params: { filter: { similar_to_text: 'Test', similar_to_image: @f, similar_to_video: @m, similarity_threshold: 0.7, similarity_organization_ids: [@t.id], similarity_fields: ['original_title', 'analysis_title'], archived: 0, media_type: 'Link', report_state: 'unpublished' } }
     assert_response :success
     assert_equal 1, json_response['data'].size
     assert_equal 1, json_response['meta']['record-count']
@@ -67,7 +67,7 @@ class ReportsControllerTest < ActionController::TestCase
 
     Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
 
-    get :index, filter: { similar_to_text: 'Test' }
+    get :index, params: { filter: { similar_to_text: 'Test' } }
     assert_response :success
     assert_equal 0, json_response['data'].size
     assert_equal 0, json_response['meta']['record-count']
@@ -83,7 +83,7 @@ class ReportsControllerTest < ActionController::TestCase
     BotUser.delete_all
     Bot::Alegre.stubs(:request_api).returns({ 'result' => [] })
 
-    get :index, filter: { similar_to_text: 'Test' }
+    get :index, params: { filter: { similar_to_text: 'Test' } }
     assert_response :success
     assert_equal 0, json_response['data'].size
     assert_equal 0, json_response['meta']['record-count']

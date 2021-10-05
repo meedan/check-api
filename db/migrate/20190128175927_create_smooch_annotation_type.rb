@@ -1,4 +1,4 @@
-class CreateSmoochAnnotationType < ActiveRecord::Migration
+class CreateSmoochAnnotationType < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

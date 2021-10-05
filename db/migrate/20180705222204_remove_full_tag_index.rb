@@ -1,4 +1,4 @@
-class RemoveFullTagIndex < ActiveRecord::Migration
+class RemoveFullTagIndex < ActiveRecord::Migration[4.2]
   def change
     # Remove full_tag field and trim spaces
     Annotation.where(annotation_type: 'tag').find_each do |t|

@@ -1,4 +1,4 @@
-class CreateGeolocationTask < ActiveRecord::Migration
+class CreateGeolocationTask < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

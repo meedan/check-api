@@ -9,7 +9,7 @@ module Workflow
         validate :can_set_workflow_status, unless: proc { |x| x.skip_check_ability }
 
         def previous_value
-          self.value_was.nil? ? self.value : self.value_was
+          self.will_save_change_to_value? ? self.value_was : self.value
         end
 
         def status

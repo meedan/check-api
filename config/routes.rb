@@ -22,7 +22,7 @@ Rails.application.routes.draw do
       get 'version', to: 'base_api#version'
       get 'ping', to: 'base_api#ping'
 
-      namespace :v2, module: false do
+      scope :v2 do
         jsonapi_resources :workspaces, only: [:index, :show]
         jsonapi_resources :reports, only: [:index, :show]
         post :reports, to: 'reports#index' # For the case we want to upload an image

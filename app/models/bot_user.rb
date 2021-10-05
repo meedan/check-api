@@ -3,16 +3,20 @@ class BotUser < User
   include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
-  if ActiveRecord::Base.connection.table_exists?(:dynamic_annotation_annotation_types)
-    annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'tag', 'task', 'geolocation']
-    annotation_types.each do |type|
-      EVENTS << "create_annotation_#{type}"
-      EVENTS << "update_annotation_#{type}"
+  begin
+    if ApplicationRecord.connection.data_source_exists?(:dynamic_annotation_annotation_types)
+      annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'tag', 'task', 'geolocation']
+      annotation_types.each do |type|
+        EVENTS << "create_annotation_#{type}"
+        EVENTS << "update_annotation_#{type}"
+      end
+      Task.task_types.each do |type|
+        EVENTS << "create_annotation_task_#{type}"
+        EVENTS << "update_annotation_task_#{type}"
+      end
     end
-    Task.task_types.each do |type|
-      EVENTS << "create_annotation_task_#{type}"
-      EVENTS << "update_annotation_task_#{type}"
-    end
+  rescue ActiveRecord::NoDatabaseError => e
+    Rails.logger.info "Database not created yet: #{e.message}"
   end
   JSON_SCHEMA = {
     "title": "Events",
@@ -59,8 +63,8 @@ class BotUser < User
   validate :events_is_valid
   validate :can_approve
 
-  belongs_to :api_key, dependent: :destroy
-  belongs_to :source, dependent: :destroy
+  belongs_to :api_key, dependent: :destroy, optional: true
+  belongs_to :source, dependent: :destroy, optional: true
 
   devise
 
@@ -169,7 +173,7 @@ class BotUser < User
         bot.run(data.with_indifferent_access) unless bot.blank?
       else
         uri = URI.parse(self.get_request_url)
-        headers = { 'Content-Type': 'application/json' }
+        headers = (self.get_headers || {}).merge({ 'Content-Type': 'application/json' })
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true if self.get_request_url =~ /^https:/
         request = Net::HTTP::Post.new(uri.request_uri, headers)
@@ -415,7 +419,7 @@ class BotUser < User
   end
 
   def update_role_if_changed
-    TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.settings_changed?
+    TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.saved_change_to_settings?
   end
 
   def set_version

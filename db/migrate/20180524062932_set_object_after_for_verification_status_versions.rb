@@ -1,4 +1,4 @@
-class SetObjectAfterForVerificationStatusVersions < ActiveRecord::Migration
+class SetObjectAfterForVerificationStatusVersions < ActiveRecord::Migration[4.2]
   def change
     PaperTrail::Version.where(event_type: 'update_dynamicannotationfield').find_each do |version|
       item = DynamicAnnotation::Field.where(id: version.item_id).last

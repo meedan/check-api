@@ -1,4 +1,4 @@
-class AddContextSearchToPenderAnnotations < ActiveRecord::Migration
+class AddContextSearchToPenderAnnotations < ActiveRecord::Migration[4.2]
   def change
     Media.all.each do |m|
       search_context = []

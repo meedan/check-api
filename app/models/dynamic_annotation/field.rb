@@ -1,13 +1,13 @@
-class DynamicAnnotation::Field < ActiveRecord::Base
+class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
   include Versioned
 
   attr_accessor :disable_es_callbacks
 
-  belongs_to :annotation
-  belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type'
-  belongs_to :field_instance, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'field_name', primary_key: 'name'
-  belongs_to :field_type_object, class_name: 'DynamicAnnotation::FieldType', foreign_key: 'field_type', primary_key: 'field_type'
+  belongs_to :annotation, optional: true
+  belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type', optional: true
+  belongs_to :field_instance, class_name: 'DynamicAnnotation::FieldInstance', foreign_key: 'field_name', primary_key: 'name', optional: true
+  belongs_to :field_type_object, class_name: 'DynamicAnnotation::FieldType', foreign_key: 'field_type', primary_key: 'field_type', optional: true
 
   serialize :value, JSON
 
@@ -85,6 +85,12 @@ class DynamicAnnotation::Field < ActiveRecord::Base
   end
 
   def set_json_value
-    self.value_json = self.value if self.field_type =~ /json/i && self.respond_to?(:value_json)
+    if self.field_type =~ /json/i && self.respond_to?(:value_json)
+      begin
+        self.value_json = JSON.parse(self.value.to_s)
+      rescue JSON::ParserError
+        self.value_json = self.value
+      end
+    end
   end
 end

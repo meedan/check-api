@@ -33,8 +33,8 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (19) do
-      post :create, query: query, team: 'team'
+    assert_queries (19), '<=' do
+      post :create, params: { query: query, team: 'team' }
     end
 
     assert_response :success
@@ -172,7 +172,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     # Make sure we only run queries for the 20 first items
     assert_queries 100, '<=' do
-      post :create, query: query, team: 'team'
+      post :create, params: { query: query, team: 'team' }
     end
 
     assert_response :success
@@ -202,42 +202,42 @@ class GraphqlController3Test < ActionController::TestCase
 
     # Default sort criteria and order: recent added, descending
     query = 'query CheckSearch { search(query: "{}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1b.id, pm1a.id], results
 
     # Another sort criteria and default order: recent activity, descending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1a.id, pm1b.id], results
 
     # Default sorting criteria and custom order: recent added, ascending
     query = 'query CheckSearch { search(query: "{\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1a.id, pm1b.id], results
 
     # Another search criteria and another order: recent activity, ascending
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1b.id, pm1a.id], results
 
     # Filter by project
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p1b.id.to_s + ']}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1b.id], results
 
     # Get archived items
     query = 'query CheckSearch { search(query: "{\"archived\":1}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1c.id], results
@@ -251,7 +251,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
     query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"show_similar\":true}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
     assert_equal 3, response['number_of_results']
@@ -260,21 +260,21 @@ class GraphqlController3Test < ActionController::TestCase
 
     # Paginate, page 1
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t2.slug
+    post :create, params: { query: query, team: t2.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm2[5].id, pm2[4].id], results
 
     # Paginate, page 2
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":2}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t2.slug
+    post :create, params: { query: query, team: t2.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm2[3].id, pm2[2].id], results
 
     # Paginate, page 3
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":4}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t2.slug
+    post :create, params: { query: query, team: t2.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
     assert_equal 6, response['number_of_results']
@@ -314,7 +314,7 @@ class GraphqlController3Test < ActionController::TestCase
     queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
     queries.each do |query|
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
       assert_equal [pm2.id], results
@@ -325,7 +325,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user
     @request.headers['X-Timezone'] = 'America/Bahia'
     t = create_team slug: 'context'
-    post :create, query: 'query Query { me { name } }'
+    post :create, params: { query: 'query Query { me { name } }' }
     assert_equal 'America/Bahia', assigns(:context_timezone)
   end
 
@@ -341,7 +341,7 @@ class GraphqlController3Test < ActionController::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_token
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal d.id.to_s, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
   end
@@ -358,7 +358,7 @@ class GraphqlController3Test < ActionController::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
   end
@@ -375,7 +375,7 @@ class GraphqlController3Test < ActionController::TestCase
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + random_string + '\" } }") { annotation { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
   end
@@ -388,26 +388,26 @@ class GraphqlController3Test < ActionController::TestCase
     u.two_factor
     # generate backup codes with valid uid
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{u.id} }) { success, codes } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal 5, JSON.parse(@response.body)['data']['generateTwoFactorBackupCodes']['codes'].size
     # generate backup codes with invalid uid
     invalid_uid = u.id + rand(10..100)
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     # Enable/Disable 2FA
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert u.reload.otp_required_for_login?
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{false}, password: \"test1234\" }) { success }}"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not u.reload.otp_required_for_login?
     # Disable with invalid uid
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
   end
 
@@ -420,7 +420,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm = create_project_media project: p
     RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response 400
     RelayOnRailsSchema.unstub(:execute)
   end
@@ -439,7 +439,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media project: p2, media: l
     pm3 = create_project_media media: l
     query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
@@ -451,7 +451,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     id = Base64.encode64("TeamUser/#{i.id}")
     query = 'mutation update { updateTeamUser(input: { clientMutationId: "1", id: "' + id + '", role: "editor" }) { team_user { id } } }'
-    post :create, query: query, team: i.team.slug
+    post :create, params: { query: query, team: i.team.slug }
     assert_response :success
   end
 
@@ -468,7 +468,7 @@ class GraphqlController3Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: m
     query = "query GetById { project_medias(url: \"#{url}\", first: 10000) { edges { node { dbid } } } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['project_medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
@@ -479,11 +479,11 @@ class GraphqlController3Test < ActionController::TestCase
     t1 = create_team slug: 'batch-1', name: 'Batch 1'
     t2 = create_team slug: 'batch-2', name: 'Batch 2'
     t3 = create_team slug: 'batch-3', name: 'Batch 3'
-    post :batch, _json: [
+    post :batch, params: { _json: [
       { query: 'query { team(slug: "batch-1") { name } }', variables: {}, id: 'q1' },
       { query: 'query { team(slug: "batch-2") { name } }', variables: {}, id: 'q2' },
       { query: 'query { team(slug: "batch-3") { name } }', variables: {}, id: 'q3' }
-    ]
+    ]}
     result = JSON.parse(@response.body)
     assert_equal 'Batch 1', result.find{ |t| t['id'] == 'q1' }['payload']['data']['team']['name']
     assert_equal 'Batch 2', result.find{ |t| t['id'] == 'q2' }['payload']['data']['team']['name']
@@ -500,7 +500,7 @@ class GraphqlController3Test < ActionController::TestCase
     tg = create_tag annotated: pm
     id = Base64.encode64("Tag/#{tg.id}")
     query = 'mutation update { updateTag(input: { clientMutationId: "1", id: "' + id + '", fragment: "t=1,2" }) { tag { id } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
   end
 
@@ -553,8 +553,8 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 21, '=' do
-      post :create, query: query, team: 'team'
+    assert_queries 21, '<=' do
+      post :create, params: { query: query, team: 'team' }
     end
 
     assert_response :success
@@ -579,11 +579,11 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_token
     assert_nil ApiKey.current
 
-    post :create, query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    post :create, params: { query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
 
-    post :create, query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    post :create, params: { query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
     assert_response :success
     assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
 
@@ -591,7 +591,7 @@ class GraphqlController3Test < ActionController::TestCase
     cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
     Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: d.id, field_name: 'smooch_user_data').last&.id)
 
-    post :create, query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
+    post :create, params: { query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
     assert_response :success
     assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
   end
@@ -606,7 +606,7 @@ class GraphqlController3Test < ActionController::TestCase
     sleep 1
     pm2 = create_project_media project: p
     query = 'query CheckSearch { search(query: "{\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + '],\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
@@ -626,7 +626,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm2.id, target_id: create_project_media(project: p).id, relationship_type: Relationship.confirmed_type
     sleep 10
     query = 'query CheckSearch { search(query: "{\"sort\":\"related\",\"id\":' + pm1.id.to_s + ',\"esoffset\":0,\"eslimit\":1}") {item_navigation_offset,medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
@@ -651,7 +651,7 @@ class GraphqlController3Test < ActionController::TestCase
         authenticate_with_token
         url = random_url
         query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
-        post :create, query: query
+        post :create, params: { query: query }
         assert_response :success
         assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
         # check that cache key exists
@@ -662,7 +662,7 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal 0, Sidekiq::Worker.jobs.size
         url2 = random_url
         query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
-        post :create, query: query
+        post :create, params: { query: query }
         assert_response :success
         assert Sidekiq::Worker.jobs.size > 0
         assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
@@ -673,7 +673,7 @@ class GraphqlController3Test < ActionController::TestCase
         assert_equal url2, Rails.cache.read(key)
         # call mutation with non existing id
         query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "99999", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
-        post :create, query: query
+        post :create, params: { query: query }
         assert_response :success
     end
   end
@@ -690,7 +690,7 @@ class GraphqlController3Test < ActionController::TestCase
     u2 = create_user
     authenticate_with_user(u2)
     query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response 400
   end
 
@@ -704,7 +704,7 @@ class GraphqlController3Test < ActionController::TestCase
     tg = create_tag annotated: pm
     id = Base64.encode64("Tag/#{tg.id}")
     query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
   end
 
@@ -717,7 +717,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media team: t
     assert_difference 'Relationship.count' do
       query = 'mutation { createRelationship(input: { clientMutationId: "1", source_id: ' + pm1.id.to_s + ', target_id: ' + pm2.id.to_s + ', relationship_type: "{\"source\":\"full_video\",\"target\":\"clip\"}" }) { relationship { dbid } } }'
-      post :create, query: query
+      post :create, params: { query: query }
     end
     assert_response :success
   end
@@ -727,7 +727,7 @@ class GraphqlController3Test < ActionController::TestCase
     t = create_team
     authenticate_with_user(u)
     query = "query { team(slug: \"#{t.slug}\") { verification_statuses } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
   end
@@ -738,7 +738,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
     assert_difference 'Comment.length', 1 do
-      post :create, query: query, team: pm.team.slug
+      post :create, params: { query: query, team: pm.team.slug }
     end
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['createComment']['comment']['parsed_fragment'])
@@ -756,7 +756,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_flag annotated: pm1, disable_es_callbacks: false, set_fields: data.to_json
     sleep 5
     query = 'query { search(query: "{\"dynamic\":{\"flag_name\":[\"adult\"]}}") { medias(first: 10000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
   end
@@ -767,7 +767,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation { createTag(input: { annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", tag: "Test" }) { tag_text_object { text } } }'
     assert_difference 'Tag.length', 1 do
-      post :create, query: query, team: pm.team.slug
+      post :create, params: { query: query, team: pm.team.slug }
     end
     assert_response :success
     assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
@@ -781,7 +781,7 @@ class GraphqlController3Test < ActionController::TestCase
     c = create_comment annotated: pm, fragment: 't=10,20'
     authenticate_with_user(u)
     query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
   end
@@ -795,7 +795,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_relationship source_id: pm1.id, target_id: pm2.id
     authenticate_with_user(u)
     query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
   end
 
@@ -812,40 +812,40 @@ class GraphqlController3Test < ActionController::TestCase
     query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
 
     # Anonymous user searching across all teams
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['search']
     assert_not_nil JSON.parse(@response.body)['errors']
 
     # Anonymous user searching for a public team
-    post :create, query: query, team: t3.slug
+    post :create, params: { query: query, team: t3.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
 
     # Anonymous user searching for a team
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['search']
     assert_not_nil JSON.parse(@response.body)['errors']
 
     # Unpermissioned user searching across all teams
     authenticate_with_user(u)
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['search']
     assert_not_nil JSON.parse(@response.body)['errors']
 
     # Unpermissioned user searching for a team
     authenticate_with_user(u)
-    post :create, query: query, team: t1.slug
+    post :create, params: { query: query, team: t1.slug }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['search']
     assert_not_nil JSON.parse(@response.body)['errors']
 
     # Permissioned user searching for a team
     authenticate_with_user(u)
-    post :create, query: query, team: t2.slug
+    post :create, params: { query: query, team: t2.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['search']
     assert_nil JSON.parse(@response.body)['errors']
@@ -885,7 +885,7 @@ class GraphqlController3Test < ActionController::TestCase
         }
       }
     }
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     comments = JSON.parse(@response.body)['data']['project_media']['comments']['edges']
     assert_equal 1, comments.size
@@ -912,7 +912,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
     assert_difference 'Annotation.where(annotation_type: "clip").count', 1 do
-      post :create, query: query, team: pm.team.slug
+      post :create, params: { query: query, team: pm.team.slug }
     end
     assert_response :success
     annotation = JSON.parse(@response.body)['data']['createDynamic']['dynamic']
@@ -936,7 +936,7 @@ class GraphqlController3Test < ActionController::TestCase
         }
       }
     }
-    post :create, query: query, team: pm.team.slug
+    post :create, params: { query: query, team: pm.team.slug }
     assert_response :success
     clips = JSON.parse(@response.body)['data']['project_media']['clips']['edges']
     assert_equal 1, clips.size
@@ -951,12 +951,12 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query { me { team_user(team_slug: "' + t.slug + '") { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal tu.id, JSON.parse(@response.body)['data']['me']['team_user']['dbid']
 
     query = 'query { me { team_user(team_slug: "' + random_string + '") { dbid } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['me']['team_user']
   end
@@ -971,7 +971,7 @@ class GraphqlController3Test < ActionController::TestCase
     file1 = Rack::Test::UploadedFile.new(path1, 'image/png')
     file2 = Rack::Test::UploadedFile.new(path2, 'image/png')
     query = 'mutation create { createDynamicAnnotationReportDesign(input: { action: "save", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", set_fields: "{\"options\":[{\"language\":\"en\"},{\"language\":\"es\",\"image\":\"http://test.com/test.png\"},{\"language\":\"pt\"}]}" }) { dynamic { dbid } } }'
-    post :create, query: query, file: { '2' => file2, '0' => file1 }
+    post :create, params: { query: query, file: { '2' => file2, '0' => file1 } }
     assert_response :success
     d = Dynamic.find(JSON.parse(@response.body)['data']['createDynamicAnnotationReportDesign']['dynamic']['dbid']).data.with_indifferent_access
     assert_match /rails\.png/, d[:options][0]['image']
@@ -991,18 +991,18 @@ class GraphqlController3Test < ActionController::TestCase
     assert_nil t.reload.get_languages
 
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "por" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response 400
 
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", languages: "[\"por\"]" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response 400
 
     assert_nil t.reload.get_language
     assert_nil t.reload.get_languages
 
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", languages: "[\"es\", \"pt\"]" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
 
     assert_equal 'pt_BR', t.reload.get_language
@@ -1025,7 +1025,7 @@ class GraphqlController3Test < ActionController::TestCase
     }
 
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", language: "pt_BR", media_verification_statuses: ' + custom_statuses.to_json.to_json + ' }) { team { id, verification_statuses_with_counters: verification_statuses(items_count: true, published_reports_count: true), verification_statuses } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'updateTeam', 'team')
     assert_match /items_count/, data['verification_statuses_with_counters'].to_json
@@ -1043,7 +1043,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
 
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
@@ -1059,7 +1059,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + '], \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
 
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
@@ -1073,12 +1073,12 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_token(a)
 
     query = 'query { me { dbid } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal b.id, JSON.parse(@response.body)['data']['me']['dbid']
 
     query = 'query { project(id: "' + p.id.to_s + '") { dbid } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
   end
@@ -1091,12 +1091,12 @@ class GraphqlController3Test < ActionController::TestCase
 
     assert_difference 'ProjectMediaUser.count' do
       query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
-      post :create, query: query, team: pm.team.slug
+      post :create, params: { query: query, team: pm.team.slug }
       assert_response :success
       assert pm.reload.read
 
       query = 'mutation { createProjectMediaUser(input: { clientMutationId: "1", project_media_id: ' + pm.id.to_s + ', read: true }) { project_media { is_read } } }'
-      post :create, query: query, team: pm.team.slug
+      post :create, params: { query: query, team: pm.team.slug }
       assert_response 400
     end
   end
@@ -1119,7 +1119,7 @@ class GraphqlController3Test < ActionController::TestCase
     }.each do |id, values|
       ids = [id, p.id, t.id].join(',')
       query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       data = JSON.parse(@response.body)['data']['project_media']
       assert_equal values[0], data['read_by_someone']
@@ -1138,17 +1138,17 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[1]}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
     query = 'query CheckSearch { search(query: "{\"keyword\":\"test\",\"read\":[0]}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
     query = 'query CheckSearch { search(query: "{\"keyword\":\"test\"}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
@@ -1164,17 +1164,17 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query CheckSearch { search(query: "{\"read\":true, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
     query = 'query CheckSearch { search(query: "{\"read\":false, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
     query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
   end
@@ -1199,7 +1199,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     assert_difference 'Version.count' do
       query = 'mutation { updateDynamic(input: { clientMutationId: "1", id: "' + d.graphql_id + '", locked: true }) { version { dbid, object_changes_json, event_type }, versionEdge { node { dbid, object_changes_json, event_type } } } }'
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       data = JSON.parse(@response.body)['data']['updateDynamic']
       vo = data['version']
@@ -1223,7 +1223,7 @@ class GraphqlController3Test < ActionController::TestCase
 
     assert_difference 'Version.count', 2 do
       query = 'mutation { updateTask(input: { clientMutationId: "1", response: "{\"annotation_type\":\"task_response_test\",\"set_fields\":\"{\\\"response_test\\\":\\\"test\\\"}\"}", id: "' + tk.graphql_id + '" }) { version { event_type }, versionEdge { node { event_type } } } }'
-      post :create, query: query, team: t.slug
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       data = JSON.parse(@response.body)['data']['updateTask']
       assert_equal 'create_dynamicannotationfield', data['version']['event_type']
@@ -1236,7 +1236,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team
     query = 'query { team { get_fieldsets } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_kind_of Array, JSON.parse(@response.body)['data']['team']['get_fieldsets']
   end
@@ -1251,18 +1251,18 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal t1.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
 
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal t2.id, JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']['dbid'].to_i
     s = create_source team: t
     t3 = create_task annotated: s, fieldset: 'metadata'
     query = 'query { source(id: "' + s.id.to_s + '") { tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal t3.id, JSON.parse(@response.body)['data']['source']['tasks']['edges'][0]['node']['dbid'].to_i
   end
@@ -1275,12 +1275,12 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query { team { team_tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal t1.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
 
     query = 'query { team { team_tasks(fieldset: "metadata", first: 1000) { edges { node { dbid } } } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal t2.id, JSON.parse(@response.body)['data']['team']['team_tasks']['edges'][0]['node']['dbid'].to_i
   end
@@ -1295,7 +1295,7 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['replaceProjectMedia']
     assert_equal old.graphql_id, data['old_project_media_deleted_id']
@@ -1310,7 +1310,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", slack_notifications: "[{\"label\":\"not #1\",\"event_type\":\"any_activity\",\"slack_channel\":\"#list\"}]" }) { team { get_slack_notifications } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
   end
@@ -1321,7 +1321,7 @@ class GraphqlController3Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", tipline_inbox_filters: "{\"read\":[\"0\"],\"projects\":[\"-1\"]}" }) { team { get_tipline_inbox_filters } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_tipline_inbox_filters']
   end
@@ -1361,7 +1361,7 @@ class GraphqlController3Test < ActionController::TestCase
     WebMock.stub_request(:get, url).to_return(status: 200, body: rss)
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_no_match /Sorry/, @response.body
     assert_equal output, JSON.parse(@response.body)['data']['node']['smooch_bot_preview_rss_feed']
   end
@@ -1374,10 +1374,10 @@ class GraphqlController3Test < ActionController::TestCase
     tu = create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation { updateTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '", json_settings: "{\"text_length_matching_threshold\":\"4\"}" }) { team_bot_installation { json_settings } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { alegre_settings } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     alegre_settings =  JSON.parse(@response.body)['data']['node']['alegre_settings']
     assert_equal 4.0, alegre_settings['text_length_matching_threshold']
   end
@@ -1392,7 +1392,7 @@ class GraphqlController3Test < ActionController::TestCase
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_match /Sorry/, @response.body
   end
 
@@ -1406,7 +1406,7 @@ class GraphqlController3Test < ActionController::TestCase
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_match /Sorry/, @response.body
   end
 
@@ -1419,7 +1419,7 @@ class GraphqlController3Test < ActionController::TestCase
     url = random_url
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_match /Sorry/, @response.body
   end
 
@@ -1439,7 +1439,7 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_main, is_secondary, is_confirmed_similar_to_another_item, suggested_main_item { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_main, is_secondary, is_confirmed_similar_to_another_item, suggested_main_item { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug }
     assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
   end
 
@@ -1459,7 +1459,7 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug; false
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
   end
 
@@ -1479,7 +1479,7 @@ class GraphqlController3Test < ActionController::TestCase
     p2b = create_project_media project: p
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
-    post :create, query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug; false
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
   end
 
@@ -1530,28 +1530,28 @@ class GraphqlController3Test < ActionController::TestCase
     authenticate_with_user(u)
 
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size
     assert_equal pm2.id, results.first
 
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"asc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size
     assert_equal pm3.id, results.first
 
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt1.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size
     assert_equal pm2.id, results.last
 
     query = 'query CheckSearch { search(query: "{\"sort\":\"task_value_' + tt2.id.to_s + '\",\"sort_type\":\"desc\"}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal 4, results.size

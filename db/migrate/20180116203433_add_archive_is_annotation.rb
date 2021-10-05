@@ -1,4 +1,4 @@
-class AddArchiveIsAnnotation < ActiveRecord::Migration
+class AddArchiveIsAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

@@ -77,4 +77,50 @@ class UserTest < ActiveSupport::TestCase
     assert_match /properties/, b.settings_as_json_schema(false, t.slug)
     assert_match /uniqueItems/, b.settings_as_json_schema(false, t.slug)
   end
+
+  test "should not raise error if table doesn't exist yet" do
+    connection = ApplicationRecord.connection
+    connection.stubs(:data_source_exists?).raises(ActiveRecord::NoDatabaseError)
+    assert_nothing_raised do
+      load 'bot_user.rb'
+      assert_equal 'BotUser', BotUser.new.type
+    end
+    connection.unstub(:data_source_exists?)
+  end
+
+  test "should notify about event including bot headers" do
+    bot_request_url = 'http://bot'
+    WebMock.stub_request(:post, bot_request_url).to_return(body: { "success": true }.to_json)
+    team = create_team
+    team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'create_project_media', graphql: nil }], set_request_url: bot_request_url
+
+    data = {
+      event: 'create_project_media',
+      team: team,
+      time: Time.now,
+      data: nil,
+      user_id: team_bot.id,
+    }
+
+    team_bot.call(data)
+    assert_not_requested :post, bot_request_url,
+      headers: {'X-Header' => 'ABCDEFG'}, body: data.to_json,
+      times: 1
+
+    team_bot.set_headers = { 'X-Header' => 'ABCDEFG' }
+    team_bot.save!
+    team_bot.call(data)
+    assert_requested :post, bot_request_url,
+      headers: {'X-Header' => 'ABCDEFG'}, body: data.to_json,
+      times: 1
+
+    WebMock.reset!
+  end
+
+  test "should get events from bot" do
+    team = create_team
+    team_bot = create_team_bot team_author_id: team.id, set_events: [{ event: 'create_project_media', graphql: nil }, { event: 'publish_report', graphql: nil }]
+    assert team_bot.is_bot
+    assert_equal 'create_project_media,publish_report', team_bot.bot_events
+  end
 end

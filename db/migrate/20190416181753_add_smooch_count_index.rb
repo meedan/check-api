@@ -1,4 +1,4 @@
-class AddSmoochCountIndex < ActiveRecord::Migration
+class AddSmoochCountIndex < ActiveRecord::Migration[4.2]
   def change
     # No schema changes here, only need to call ES reindexing on all `smooch` annotations.
     # Remember the last project media we need to work on since once this code is deployed,

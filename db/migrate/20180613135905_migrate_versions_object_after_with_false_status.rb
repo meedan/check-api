@@ -1,4 +1,4 @@
-class MigrateVersionsObjectAfterWithFalseStatus < ActiveRecord::Migration
+class MigrateVersionsObjectAfterWithFalseStatus < ActiveRecord::Migration[4.2]
   def change
   	PaperTrail::Version.where("object_changes ILIKE ?", '%"value":[%,"false"]%').find_each do |v|
   		object_after = JSON.parse(v.object_after)

@@ -1,4 +1,4 @@
-class AddFieldsetToTasks < ActiveRecord::Migration
+class AddFieldsetToTasks < ActiveRecord::Migration[4.2]
   def change
     execute 'COMMIT;'
     execute %{
