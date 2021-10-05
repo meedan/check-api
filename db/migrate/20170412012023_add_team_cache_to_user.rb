@@ -1,4 +1,4 @@
-class AddTeamCacheToUser < ActiveRecord::Migration
+class AddTeamCacheToUser < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :cached_teams, :text
     User.reset_column_information

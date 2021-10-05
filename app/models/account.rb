@@ -1,12 +1,12 @@
-class Account < ActiveRecord::Base
+class Account < ApplicationRecord
   include PenderData
   include CheckElasticSearch
 
   attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation, :created_on_registration
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, ignore: [:updated_at], class_name: 'Version'
-  belongs_to :user, inverse_of: :accounts
-  belongs_to :team
+  has_paper_trail on: [:update, :create], ignore: [:updated_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  belongs_to :user, inverse_of: :accounts, optional: true
+  belongs_to :team, optional: true
   has_many :medias
   has_many :account_sources, dependent: :destroy
   has_many :sources, through: :account_sources
@@ -121,7 +121,7 @@ class Account < ActiveRecord::Base
   def set_omniauth_info_as_annotation
     m = self.annotations('metadata').last
     if m.nil?
-      m = Dynamic.new
+      m = Embed.new
       m.annotation_type = 'metadata'
       m.annotated = self
     else

@@ -69,9 +69,9 @@ module PenderData
 
   def metadata_annotation
     pender = BotUser.where(name: 'Pender').last
-    m = Dynamic.where(annotation_type: 'metadata', annotated_type: self.class_name, annotated_id: self.id).first
+    m = Embed.where(annotation_type: 'metadata', annotated_type: self.class_name, annotated_id: self.id).first
     if m.nil?
-      m = Dynamic.new
+      m = Embed.new
       m.annotation_type = 'metadata'
       m.annotated = self
       m.annotator = pender unless pender.nil?

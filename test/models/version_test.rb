@@ -222,7 +222,7 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test "should return version from action" do
-    ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection # Use the same database connection for all threads
+    ActiveRecord::Base.shared_connection = ApplicationRecord.connection # Use the same database connection for all threads
     u = create_user is_admin: true
     t = create_team
     create_team_user user: u, team: t

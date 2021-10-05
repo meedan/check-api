@@ -1,4 +1,4 @@
-class AddLanguagesToTeamReportSettings < ActiveRecord::Migration
+class AddLanguagesToTeamReportSettings < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_rules] = true
 

@@ -1,4 +1,4 @@
-class CreateResponseAnnotations < ActiveRecord::Migration
+class CreateResponseAnnotations < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

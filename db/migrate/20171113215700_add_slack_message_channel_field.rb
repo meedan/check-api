@@ -1,4 +1,4 @@
-class AddSlackMessageChannelField < ActiveRecord::Migration
+class AddSlackMessageChannelField < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

@@ -1,4 +1,4 @@
-class AddTeamIdToVersions < ActiveRecord::Migration
+class AddTeamIdToVersions < ActiveRecord::Migration[4.2]
   def change
     add_column :versions, :team_id, :integer
     add_index :versions, :team_id

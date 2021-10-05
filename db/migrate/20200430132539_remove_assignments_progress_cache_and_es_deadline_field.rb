@@ -1,4 +1,4 @@
-class RemoveAssignmentsProgressCacheAndEsDeadlineField < ActiveRecord::Migration
+class RemoveAssignmentsProgressCacheAndEsDeadlineField < ActiveRecord::Migration[4.2]
   def change
     # remove deadline field
     DynamicAnnotation::Field.where(field_name: 'deadline').delete_all

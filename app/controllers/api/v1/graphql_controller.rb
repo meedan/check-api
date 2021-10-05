@@ -5,7 +5,7 @@ module Api
     class GraphqlController < Api::V1::BaseApiController
       include GraphqlDoc
 
-      skip_before_filter :authenticate_from_token!
+      skip_before_action :authenticate_from_token!
 
       before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]
@@ -86,6 +86,9 @@ module Api
       # If the request wasn't `Content-Type: application/json`, parse the variables
       def ensure_hash(variables_param)
         return {} if variables_param.blank?
+        if !variables_param.kind_of?(Hash)
+          variables_param = variables_param.to_json unless variables_param.kind_of?(String)
+        end
         variables_param.kind_of?(Hash) ? variables_param : JSON.parse(variables_param)
       end
 

@@ -1,4 +1,4 @@
-class AddMappingForSortTitle < ActiveRecord::Migration
+class AddMappingForSortTitle < ActiveRecord::Migration[4.2]
   def change
     index_alias = CheckElasticSearchModel.get_index_alias
     client = $repository.client

@@ -1,7 +1,7 @@
 require 'sample_data'
 include SampleData
 
-class AddClipAnnotationType < ActiveRecord::Migration
+class AddClipAnnotationType < ActiveRecord::Migration[4.2]
   def change
     json_schema = {
       type: 'object',

@@ -1,4 +1,4 @@
-class UpdateSmoochBotSettingsForLanguage < ActiveRecord::Migration
+class UpdateSmoochBotSettingsForLanguage < ActiveRecord::Migration[4.2]
   def change
     settings_to_remove = ['smooch_message_smooch_bot_result', 'smooch_message_smooch_bot_ask_for_confirmation', 'smooch_message_smooch_bot_message_unconfirmed',
                           'smooch_message_smooch_bot_not_final', 'smooch_message_smooch_bot_meme', 'smooch_message_smooch_bot_window_closing', 'smooch_bot_id',

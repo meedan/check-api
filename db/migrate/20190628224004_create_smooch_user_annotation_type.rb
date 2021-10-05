@@ -1,5 +1,5 @@
 require 'sample_data'
-class CreateSmoochUserAnnotationType < ActiveRecord::Migration
+class CreateSmoochUserAnnotationType < ActiveRecord::Migration[4.2]
   include SampleData
 
   def change

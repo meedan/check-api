@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   self.inheritance_column = :type
   attr_accessor :skip_confirmation_mail, :from_omniauth_login, :frozen_account_ids, :frozen_source_id
 
@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   include UserTwoFactorAuth
   include ErrorNotification
 
-  belongs_to :source
+  belongs_to :source, optional: true
   has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
   has_many :projects
@@ -57,7 +57,7 @@ class User < ActiveRecord::Base
 
   def role(team = nil)
     context_team = team || Team.current || self.current_team
-    return nil if context_team.nil?
+    return nil if context_team.nil? || context_team.new_record?
     @roles ||= {}
     if @roles[context_team.id].nil?
       tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
@@ -188,7 +188,7 @@ class User < ActiveRecord::Base
   # Whether two users are members of any same team
   def is_a_colleague_of?(user)
     params = ['SELECT COUNT(*) AS number_of_common_teams FROM team_users tu1 INNER JOIN team_users tu2 ON tu1.team_id = tu2.team_id WHERE tu1.user_id = ? AND tu2.user_id = ? AND tu1.status = ? AND tu2.status = ?', self.id, user.id, 'member', 'member']
-    results = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, params))
+    results = ApplicationRecord.connection.execute(ApplicationRecord.send(:sanitize_sql_array, params))
     results[0]['number_of_common_teams'].to_i >= 1
   end
 

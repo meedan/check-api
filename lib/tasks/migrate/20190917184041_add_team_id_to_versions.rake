@@ -60,9 +60,9 @@ namespace :check do
       i = 0
       mapping.keys.each do |team_id|
         i += 1
-        while ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id = #{team_id}")[0]['count'].to_i > 0
-          ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p#{team_id}\" (SELECT * FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
-          ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
+        while ApplicationRecord.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id = #{team_id}")[0]['count'].to_i > 0
+          ApplicationRecord.connection.execute("INSERT INTO \"versions_partitions\".\"p#{team_id}\" (SELECT * FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
+          ApplicationRecord.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id = #{team_id} ORDER BY id ASC LIMIT 10000)")
         end
         print "#{i}/#{n} teams processed...\r"
         $stdout.flush
@@ -70,9 +70,9 @@ namespace :check do
       
       puts "[#{Time.now}] Now let's move the items without team_id to the partition zero..."
 
-      while ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id IS NULL")[0]['count'].to_i > 0
-        ActiveRecord::Base.connection.execute("INSERT INTO \"versions_partitions\".\"p0\" (SELECT * FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
-        ActiveRecord::Base.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
+      while ApplicationRecord.connection.execute("SELECT COUNT(*) FROM ONLY versions WHERE team_id IS NULL")[0]['count'].to_i > 0
+        ApplicationRecord.connection.execute("INSERT INTO \"versions_partitions\".\"p0\" (SELECT * FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
+        ApplicationRecord.connection.execute("DELETE FROM ONLY versions WHERE id IN (SELECT id FROM ONLY versions WHERE team_id IS NULL ORDER BY id ASC LIMIT 10000)")
       end
       
       puts "[#{Time.now}] Done!"

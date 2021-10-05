@@ -1,4 +1,4 @@
-class UpdateAttributionForTaskResponses < ActiveRecord::Migration
+class UpdateAttributionForTaskResponses < ActiveRecord::Migration[4.2]
   def change
     Annotation.reset_column_information
     Dynamic.reset_column_information

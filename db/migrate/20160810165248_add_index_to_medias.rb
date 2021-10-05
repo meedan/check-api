@@ -1,4 +1,4 @@
-class AddIndexToMedias < ActiveRecord::Migration
+class AddIndexToMedias < ActiveRecord::Migration[4.2]
   def change
     #add_column :medias, :url, :string
     # remove duplicate URLs

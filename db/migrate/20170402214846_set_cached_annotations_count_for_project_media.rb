@@ -1,4 +1,4 @@
-class SetCachedAnnotationsCountForProjectMedia < ActiveRecord::Migration
+class SetCachedAnnotationsCountForProjectMedia < ActiveRecord::Migration[4.2]
   def change
     ProjectMedia.reset_column_information
     ProjectMedia.find_each do |pm|

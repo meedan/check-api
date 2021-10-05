@@ -410,10 +410,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
+    Relationship.all.class.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
     response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     assert_equal response, false
-    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
+    Relationship.all.class.any_instance.unstub(:all)
   end
 
   test "resets relationship transitively" do
@@ -421,10 +421,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     pm1 = create_project_media project: p, is_image: true
     pm2 = create_project_media project: p, is_image: true
     pm3 = create_project_media project: p, is_image: true
-    Relationship::ActiveRecord_Relation.any_instance.stubs(:all).returns([Relationship.new(source_id: 1, relationship_type: Relationship.confirmed_type), Relationship.new(source_id: 2)])
+    Relationship.all.class.any_instance.stubs(:all).returns([Relationship.new(source_id: 1), Relationship.new(source_id: 2)])
     response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     assert_equal response, false
-    Relationship::ActiveRecord_Relation.any_instance.unstub(:all)
+    Relationship.all.class.any_instance.unstub(:all)
   end
 
   test "should get similar items" do
@@ -779,6 +779,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm3, r.source
     assert_not_nil r.user_id
     assert_equal @bot.id, r.user_id
+  end
+
+  test "should add relationships as confirmed when parent and score are confirmed" do
+    p = create_project
+    pm1 = create_project_media project: p, is_image: true
+    pm2 = create_project_media project: p, is_image: true
+    pm3 = create_project_media project: p, is_image: true
+    create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm1, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}, pm3.id => {score: 1, relationship_type: Relationship.suggested_type}})
+    end
+    r = Relationship.last
+    assert_equal pm1, r.target
+    assert_equal pm3, r.source
+    assert_equal r.weight, 1
+    assert_equal Relationship.confirmed_type, r.relationship_type
   end
 
   test "should unarchive item after running" do

@@ -1,5 +1,5 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_filter :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
+  before_action :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_facebook_credentials_for_smooch_bot]
 
   # GET /api/admin/project/add_publisher?token=:project-token
   def add_publisher_to_project
@@ -12,9 +12,9 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       project.set_social_publishing(setting)
       project.skip_check_ability = true
       project.save!
-      render text: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
+      render plain: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
     else
-      render text: I18n.t(:invalid_token), status: 401
+      render plain: I18n.t(:invalid_token), status: 401
     end
   end
 

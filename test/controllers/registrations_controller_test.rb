@@ -17,7 +17,7 @@ class RegistrationsControllerTest < ActionController::TestCase
 
   test "should create user" do
     assert_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response 401 # needs to confirm before login
     end
   end
@@ -33,7 +33,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     end
     User.current = Team.current = nil
     assert_no_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: email, login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: email, login: 'test', name: 'Test' } }
       assert_response :success
     end
   end
@@ -41,7 +41,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   test "should create user if confirmed" do
     User.any_instance.stubs(:confirmation_required?).returns(false)
     assert_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response :success
     end
     User.any_instance.unstub(:confirmation_required?)
@@ -49,42 +49,42 @@ class RegistrationsControllerTest < ActionController::TestCase
 
   test "should not create user if password is missing" do
     assert_no_difference 'User.count' do
-      post :create, api_user: { password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password_confirmation: '12345678', email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response 400
     end
   end
 
   test "should not create user if password is too short" do
     assert_no_difference 'User.count' do
-      post :create, api_user: { password: '123456', password_confirmation: '123456', email: 't@test.com', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '123456', password_confirmation: '123456', email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response 400
     end
   end
 
   test "should not create user if password don't match" do
     assert_no_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345677', email: 't@test.com', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345677', email: 't@test.com', login: 'test', name: 'Test' } }
       assert_response 400
     end
   end
 
   test "should not create user if email is not present" do
     assert_no_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: '', login: 'test', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: '', login: 'test', name: 'Test' } }
       assert_response 400
     end
   end
 
   test "should create user if login is not present" do
     assert_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: '', name: 'Test' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: '', name: 'Test' } }
       assert_response 401 # needs to confirm before login
     end
   end
 
   test "should not create user if name is not present" do
     assert_no_difference 'User.count' do
-      post :create, api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: '' }
+      post :create, params: { api_user: { password: '12345678', password_confirmation: '12345678', email: 't@test.com', login: 'test', name: '' } }
       assert_response 400
     end
   end
@@ -92,7 +92,7 @@ class RegistrationsControllerTest < ActionController::TestCase
   test "should update only a few attributes" do
     u = create_user name: 'Foo', login: 'test', token: 'test', email: 'foo@test.com', password: '12345678'
     authenticate_with_user(u)
-    post :update, api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678' }
+    post :update, params: { api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678' } }
     assert_response :success
     u = u.reload
     assert_equal 'Bar', u.name
@@ -103,14 +103,14 @@ class RegistrationsControllerTest < ActionController::TestCase
   end
 
   test "should not update account if not logged in" do
-    post :update, api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678' }
+    post :update, params: { api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678' } }
     assert_response 401
   end
 
   test "should not update account" do
     u = create_user name: 'Foo', login: 'test', token: 'test', email: 'foo@test.com', password: '12345678'
     authenticate_with_user(u)
-    post :update, api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678', password: '123', password_confirmation: '123' }
+    post :update, params: { api_user: { name: 'Bar', login: 'bar', token: 'bar', email: 'bar@test.com', current_password: '12345678', password: '123', password_confirmation: '123' } }
     assert_response 400
     u = u.reload
   end
@@ -119,14 +119,14 @@ class RegistrationsControllerTest < ActionController::TestCase
     u = create_user name: 'Foo', login: 'test', token: 'test', email: 'foo@test.com', password: '12345678'
     authenticate_with_user(u)
     assert_difference 'User.count', -1 do
-      delete :destroy
+      delete :destroy, params: {}
     end
     assert_response :success
   end
 
   test "should not destroy account if not logged in" do
     assert_no_difference 'User.count' do
-      delete :destroy
+      delete :destroy, params: {}
     end
     assert_response 401
   end

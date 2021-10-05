@@ -1,4 +1,4 @@
-class MigrateToSingleStatus < ActiveRecord::Migration
+class MigrateToSingleStatus < ActiveRecord::Migration[4.2]
   def change
     unless defined?(Status).nil?
       ProjectMedia.all.each do |pm|

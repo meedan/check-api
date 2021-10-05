@@ -1,4 +1,4 @@
-class CreatePenderArchiveAnnotation < ActiveRecord::Migration
+class CreatePenderArchiveAnnotation < ActiveRecord::Migration[4.2]
   require 'sample_data'
   include SampleData
 

@@ -1,4 +1,4 @@
-class CreateAccountsForSlackUsers < ActiveRecord::Migration
+class CreateAccountsForSlackUsers < ActiveRecord::Migration[4.2]
   def change
     n = 0
     m = 0
