@@ -215,17 +215,7 @@ module ProjectMediaBulk
           end
         end
       end
-      if versions.size > 0
-        keys = versions.first.keys
-        columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
-        sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
-        sql_values = []
-        versions.each do |version|
-          sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
-        end
-        sql += sql_values.join(", ")
-        ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
-      end
+      bulk_import_versions(versions, team_id) if versions.size > 0
     end
 
     def bulk_update_status(ids, status, team)
@@ -249,7 +239,7 @@ module ProjectMediaBulk
       self.bulk_reindex(ids.to_json, script)
       # Run callbacks in background
       extra_options = { team_id: team&.id, user_id: User.current&.id, status: status }
-      self.delay.run_bulk_status_callbacks(ids.to_json, status_mapping.to_json, extra_options.to_json)
+      self.delay.run_bulk_status_callbacks(status_ids.to_json, status_mapping.to_json, extra_options.to_json)
       { team: team }
     end
 
@@ -261,39 +251,40 @@ module ProjectMediaBulk
       team_id = extra_options['team_id']
       versions = []
       callbacks = [:apply_rules, :update_report_design_if_needed]
-      ids.each do |id|
-        f = DynamicAnnotation::Field.find_by_id(id)
-        unless f.nil?
-          versions << {
-            item_type: 'DynamicAnnotation::Field',
-            item_id: f.id.to_s,
-            event: 'update',
-            whodunnit: whodunnit,
-            object: f.to_json,
-            object_changes: { value: [nil, "#{extra_options['status']}"]}.to_json,
-            created_at: f.created_at,
-            event_type: 'update_dynamicannotationfield',
-            object_after: f.to_json,
-            associated_id: status_mapping[a.assigned_id.to_s],
-            associated_type: 'ProjectMedia',
-            team_id: team_id
-          }
-          callbacks.each do |callback|
-            f.send(callback)
-          end
+      DynamicAnnotation::Field.where(
+        field_name: "verification_status_status", annotation_type: "verification_status", annotation_id: ids
+      ).find_each do |f|
+        versions << {
+          item_type: 'DynamicAnnotation::Field',
+          item_id: f.id.to_s,
+          event: 'update',
+          whodunnit: whodunnit,
+          object: f.to_json,
+          object_changes: { value: [nil, "#{extra_options['status']}"]}.to_json,
+          created_at: f.created_at,
+          event_type: 'update_dynamicannotationfield',
+          object_after: f.to_json,
+          associated_id: status_mapping[f.annotation_id.to_s],
+          associated_type: 'ProjectMedia',
+          team_id: team_id
+        }
+        callbacks.each do |callback|
+          f.send(callback)
         end
       end
-      if versions.size > 0
-        keys = versions.first.keys
-        columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
-        sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
-        sql_values = []
-        versions.each do |version|
-          sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
-        end
-        sql += sql_values.join(", ")
-        ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+      bulk_import_versions(versions, team_id) if versions.size > 0
+    end
+
+    def bulk_import_versions(versions, team_id)
+      keys = versions.first.keys
+      columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
+      sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
+      sql_values = []
+      versions.each do |version|
+        sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
       end
+      sql += sql_values.join(", ")
+      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
     end
   end
 end

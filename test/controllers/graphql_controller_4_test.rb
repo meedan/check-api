@@ -217,6 +217,20 @@ class GraphqlController4Test < ActionController::TestCase
     end
   end
 
+  test "should bulk-update project medias status" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    assert_equal 0, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+    Sidekiq::Testing.inline! do
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "update_status", params: "{\"status\":\"in_progress\"}"}) { ids, team { dbid } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_equal 'in_progress', @pm1.last_status
+      assert_equal 1, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+    end
+  end
+
   test "should not bulk-move project medias from a list to another if not allowed" do
     u = create_user
     authenticate_with_user(u)
