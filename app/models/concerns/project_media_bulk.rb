@@ -229,12 +229,71 @@ module ProjectMediaBulk
     end
 
     def bulk_update_status(ids, status, team)
+      # Exclude published reports
+      excluded_ids = []
+      Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |a|
+        published = begin (a.read_attribute(:data)['state'] == 'published') rescue false end
+        excluded_ids << a.annotated_id if published
+      end
+      # bulk-update status
+      ids -= excluded_ids
+      status_mapping = {}
       statuses = Annotation.where(annotated_type: 'ProjectMedia', annotation_type: 'verification_status', annotated_id: ids)
       status_ids = statuses.map(&:id)
+      statuses.collect{ |s| status_mapping[s.id] = s.annotated_id }
       DynamicAnnotation::Field.where(
         field_name: "verification_status_status", annotation_type: "verification_status", annotation_id: status_ids
       ).update_all(value: status)
+      # ElasticSearch update
+      script = { source: "ctx._source.verification_status = params.verification_status", params: { verification_status: status } }
+      self.bulk_reindex(ids.to_json, script)
+      # Run callbacks in background
+      extra_options = { team_id: team&.id, user_id: User.current&.id, status: status }
+      self.delay.run_bulk_status_callbacks(ids.to_json, status_mapping.to_json, extra_options.to_json)
       { team: team }
+    end
+
+    def run_bulk_status_callbacks(ids_json, status_mapping_json, extra_options_json)
+      ids = JSON.parse(ids_json)
+      status_mapping = JSON.parse(status_mapping_json)
+      extra_options = JSON.parse(extra_options_json)
+      whodunnit = extra_options['user_id'].blank? ? nil : extra_options['user_id'].to_s
+      team_id = extra_options['team_id']
+      versions = []
+      callbacks = [:apply_rules, :update_report_design_if_needed]
+      ids.each do |id|
+        f = DynamicAnnotation::Field.find_by_id(id)
+        unless f.nil?
+          versions << {
+            item_type: 'DynamicAnnotation::Field',
+            item_id: f.id.to_s,
+            event: 'update',
+            whodunnit: whodunnit,
+            object: f.to_json,
+            object_changes: { value: [nil, "#{extra_options['status']}"]}.to_json,
+            created_at: f.created_at,
+            event_type: 'update_dynamicannotationfield',
+            object_after: f.to_json,
+            associated_id: status_mapping[a.assigned_id.to_s],
+            associated_type: 'ProjectMedia',
+            team_id: team_id
+          }
+          callbacks.each do |callback|
+            f.send(callback)
+          end
+        end
+      end
+      if versions.size > 0
+        keys = versions.first.keys
+        columns_sql = "(#{keys.map { |name| "\"#{name}\"" }.join(',')})"
+        sql = "INSERT INTO versions_partitions.p#{team_id} #{columns_sql} VALUES "
+        sql_values = []
+        versions.each do |version|
+          sql_values << "(#{version.values.map{|v| "'#{v}'"}.join(", ")})"
+        end
+        sql += sql_values.join(", ")
+        ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, sql))
+      end
     end
   end
 end
