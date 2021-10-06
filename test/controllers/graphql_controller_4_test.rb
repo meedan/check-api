@@ -38,7 +38,7 @@ class GraphqlController4Test < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -48,7 +48,7 @@ class GraphqlController4Test < ActionController::TestCase
   test "should not bulk-send project medias to trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -61,7 +61,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
@@ -77,7 +77,7 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -87,7 +87,7 @@ class GraphqlController4Test < ActionController::TestCase
   test "should not bulk-restore project medias from trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -103,7 +103,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
@@ -125,7 +125,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
 
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0, project_id: ' + add_to.id.to_s + ' }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0, \"project_id\": \"' + add_to.id.to_s + '\"}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
 
@@ -202,18 +202,32 @@ class GraphqlController4Test < ActionController::TestCase
     assigned_to_ids = [u1.id, u2.id, u3.id].join(', ')
     assert_equal 1, @pm1.get_versions_log(['create_assignment']).size
     Sidekiq::Testing.inline! do
-        query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', assignment_message: "add custom message", assigned_to_ids: "' + assigned_to_ids + '" }) { ids, team { dbid } } }'
-        assert_difference 'Assignment.count', 6 do
-          post :create, params: { query: query, team: @t.slug }
-          assert_response :success
-        end
-        pm1_assignments = Annotation.joins(:assignments).where(
-            'annotations.annotated_type' => 'ProjectMedia',
-            'annotations.annotated_id' => @pm1.id,
-            'annotations.annotation_type' => 'verification_status'
-            ).count
-        assert_equal 3, pm1_assignments
-        assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "assigned_to_ids", params: "{\"assignment_message\":\"add custom message\",\"assigned_to_ids\":\"' + assigned_to_ids + '\"}"}) { ids, team { dbid } } }'
+      assert_difference 'Assignment.count', 6 do
+        post :create, params: { query: query, team: @t.slug }
+        assert_response :success
+      end
+      pm1_assignments = Annotation.joins(:assignments).where(
+          'annotations.annotated_type' => 'ProjectMedia',
+          'annotations.annotated_id' => @pm1.id,
+          'annotations.annotation_type' => 'verification_status'
+          ).count
+      assert_equal 3, pm1_assignments
+      assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+    end
+  end
+
+  test "should bulk-update project medias status" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    assert_equal 0, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+    Sidekiq::Testing.inline! do
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "update_status", params: "{\"status\":\"in_progress\"}"}) { ids, team { dbid } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_equal 'in_progress', @pm1.last_status
+      assert_equal 1, @pm1.get_versions_log(['update_dynamicannotationfield']).size
     end
   end
 
@@ -221,7 +235,7 @@ class GraphqlController4Test < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -231,7 +245,7 @@ class GraphqlController4Test < ActionController::TestCase
     ids = []
     10001.times { ids << random_string }
     p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -257,7 +271,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 0, p4.reload.medias_count
     ids = []
     [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
-    query = "mutation { updateProjectMedias(input: { clientMutationId: \"1\", ids: #{ids.to_json}, move_to: #{p4.id} }) { team { dbid } } }"
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to\": \"' + p4.id.to_s + '\"}" }) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 0, @p1.reload.medias_count
