@@ -2541,4 +2541,67 @@ class ProjectMediaTest < ActiveSupport::TestCase
       assert_equal medias_count, media_type.to_s.constantize.count
     end
   end
+
+  test "should run callbacks for bulk-update status" do
+    setup_elasticsearch
+    create_verification_status_stuff
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    p = create_project team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "verified"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "move_to_project",
+          "action_value": p.id.to_s
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      publish_report(pm)
+      pm_status = pm.last_status
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      sleep 2
+      ids = [pm.id, pm2.id, pm3.id]
+      updates = { action: 'update_status', params: { status: 'verified' }.to_json }
+      Sidekiq::Testing.inline! do
+        ProjectMedia.bulk_update(ids, updates, t)
+        sleep 2
+        # Verify nothing happens for published reports
+        assert_equal pm_status, pm.reload.last_status
+        result = $repository.find(get_es_id(pm))
+        assert_equal pm_status, result['verification_status']
+        # Verify rules callback
+        assert_nil pm.reload.project_id
+        assert_equal p.id, pm2.reload.project_id
+        assert_equal p.id, pm3.reload.project_id
+        # Verify ES index
+        result = $repository.find(get_es_id(pm2))
+        assert_equal 'verified', result['verification_status']
+        result = $repository.find(get_es_id(pm3))
+        assert_equal 'verified', result['verification_status']
+      end
+    end
+  end
 end
