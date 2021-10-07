@@ -196,7 +196,7 @@ class Bot::Alegre < BotUser
     if type == 'text'
       self.get_merged_items_with_similar_text(pm, threshold)
     else
-      results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/",query_or_body)
+      results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body)
       results.reject{ |id, _score| pm.id == id }
     end
   end
@@ -525,7 +525,13 @@ class Bot::Alegre < BotUser
   def self.get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
     self.get_similar_items_from_api(
       path,
-      self.similar_media_content_from_api_conditions(team_id, media_url, threshold), threshold, query_or_body
+      self.similar_media_content_from_api_conditions(
+        team_id,
+        media_url,
+        threshold
+      ),
+      threshold,
+      query_or_body
     )
   end
 
