@@ -795,6 +795,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal pm3, r.source
     assert_equal r.weight, 1
     assert_equal Relationship.confirmed_type, r.relationship_type
+    # should confirm/restore target if source is confirmed
+    pm4 = create_project_media project: p
+    pm5 = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    assert_difference 'Relationship.count' do
+      Bot::Alegre.add_relationships(pm5, {pm4.id => {score: 1, relationship_type: Relationship.suggested_type}})
+    end
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm5.reload.archived
   end
 
   test "should unarchive item after running" do
