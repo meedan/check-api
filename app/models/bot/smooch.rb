@@ -443,7 +443,7 @@ class Bot::Smooch < BotUser
 
   def self.get_platform_from_message(message)
     type = message.dig('source', 'type')
-    type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : ''
+    type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
   end
 
   def self.time_to_send_request
