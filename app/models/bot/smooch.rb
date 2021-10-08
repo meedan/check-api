@@ -413,7 +413,7 @@ class Bot::Smooch < BotUser
 
     # Shortcuts
     if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
-      self.toggle_subscription(uid, language, self.config['team_id'])
+      self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
       return true
     end
 
@@ -486,7 +486,7 @@ class Bot::Smooch < BotUser
           self.bundle_message(message)
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
         elsif option['smooch_menu_option_value'] == 'subscription_confirmation'
-          self.toggle_subscription(uid, language, self.config['team_id'])
+          self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}(_[A-Z]{2})?$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')

@@ -770,13 +770,13 @@ en:
   smooch_message_subscription_header_unsubscribed: You are currently *unsubscribed*
     to our newsletter.
   smooch_bot_message_newsletter_fallback: |-
-    Hi! Here are your Weekly COVID-19 Facts.
+    Hi! Here are your weekly facts.
 
-    This newsletter is published on WhatsApp by %{team}. Here are the most important facts for the week of %{date}:
+    This newsletter is published on %{platform} by %{team}. Here are the most important facts for the week of %{date}:
 
     %{content}
 
-    To stop receiving this newsletter, type _%{unsubscribe}_.
+    To stop receiving this newsletter, type "%{unsubscribe}".
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
