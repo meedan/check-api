@@ -70,6 +70,10 @@ class Media < ApplicationRecord
     ''
   end
 
+  def domain
+    ''
+  end
+
   private
 
   def set_url_nil_if_empty
