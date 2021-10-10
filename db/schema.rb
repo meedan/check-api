@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_01_184243) do
+ActiveRecord::Schema.define(version: 2021_10_07_204934) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -376,8 +376,10 @@ ActiveRecord::Schema.define(version: 2021_10_01_184243) do
     t.string "uid"
     t.string "language"
     t.integer "team_id"
+    t.string "platform"
     t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
     t.index ["language"], name: "index_tipline_subscriptions_on_language"
+    t.index ["platform"], name: "index_tipline_subscriptions_on_platform"
     t.index ["team_id"], name: "index_tipline_subscriptions_on_team_id"
     t.index ["uid", "language", "team_id"], name: "index_tipline_subscriptions_on_uid_and_language_and_team_id", unique: true
     t.index ["uid"], name: "index_tipline_subscriptions_on_uid"
