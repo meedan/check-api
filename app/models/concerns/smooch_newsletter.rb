@@ -43,11 +43,11 @@ module SmoochNewsletter
       end
     end
 
-    def toggle_subscription(uid, language, team_id)
+    def toggle_subscription(uid, language, team_id, platform)
       s = TiplineSubscription.where(uid: uid, language: language, team_id: team_id).last
       sm = CheckStateMachine.new(uid)
       if s.nil?
-        TiplineSubscription.create!(uid: uid, language: language, team_id: team_id)
+        TiplineSubscription.create!(uid: uid, language: language, team_id: team_id, platform: platform)
         self.send_message_to_user(uid, I18n.t(:smooch_bot_message_subscribed))
       else
         s.destroy!
