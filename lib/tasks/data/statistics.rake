@@ -3,22 +3,19 @@
 require 'open-uri'
 
 def get_statistics(start_date, end_date, slugs)
-  puts '----------------------------------------------------------------'
-  puts "From #{start_date} to #{end_date}"
-  puts '----------------------------------------------------------------'
+  data = [start_date, end_date]
   relationships_query = Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date)
   
   { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
     ['confirmed', 'suggested'].each do |relationship_type|
-      puts "Number of #{type} #{relationship_type} matches: " + relationships_query.joins('INNER JOIN medias m ON m.id = pm.media_id').where('m.type' => klass).send(relationship_type).count.to_s
+      data << relationships_query.joins('INNER JOIN medias m ON m.id = pm.media_id').where('m.type' => klass).send(relationship_type).count.to_s
     end
   end
   
-  puts 'Number of OCR’d images: ' + Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  puts 'Number of claims available through the search DB: ' + ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
-  puts 'List of publishers who sent a newsletter: ' + TiplineSubscription.group(:team_id).count.keys.collect{ |id| Team.find(id).name }.join(',')
-  puts 'Number of users who opted-in / received the newsletter, per publisher: ' + TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join(',')
-  puts
+  data << Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  data << ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
+  data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join(',')
+  puts data.join(',')
 end
 
 namespace :check do
@@ -34,7 +31,18 @@ namespace :check do
       if slugs.empty?
         puts 'Please provide a list of workspace slugs'
       else
-        puts "Getting data from #{start_month}/#{year} to #{end_month}/#{year} for workspaces #{slugs.join(', ')}#{group_by_month == 1 ? ' (grouped by month)' : ''}."
+        # puts "Getting data from #{start_month}/#{year} to #{end_month}/#{year} for workspaces #{slugs.join(', ')}#{group_by_month == 1 ? ' (grouped by month)' : ''}."
+        header = ['From', 'To']
+        { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
+          ['confirmed', 'suggested'].each do |relationship_type|
+            header << "Number of #{type} #{relationship_type}"
+          end
+        end
+        header << 'Number of OCR’d images'
+        header << 'Number of claims available through the search DB'
+        header << 'Number of users who opted-in / received the newsletter, per publisher'
+        puts header.join(',')
+
         if group_by_month == 1
           (start_month..end_month).to_a.each do |month|
             get_statistics(Time.parse("#{year}-#{month}-01"), Time.parse("#{year}-#{month+1}-01"), slugs)
