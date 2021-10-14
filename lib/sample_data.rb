@@ -942,6 +942,6 @@ module SampleData
   end
 
   def create_tipline_subscription(options = {})
-    TiplineSubscription.create!({ uid: random_string, team_id: create_team.id, language: 'en' }.merge(options))
+    TiplineSubscription.create!({ uid: random_string, team_id: create_team.id, language: 'en', platform: 'WhatsApp' }.merge(options))
   end
 end

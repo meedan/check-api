@@ -284,6 +284,9 @@ class MediaTest < ActiveSupport::TestCase
     assert_nil m.domain
     m.url = nil
     assert_nil m.domain
+    # get domain for other types
+    m = create_claim_media
+    assert_empty m.domain
   end
 
   test "should set pender result as annotation" do

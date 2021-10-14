@@ -593,6 +593,11 @@ class Bot::Alegre < BotUser
     r = Relationship.where(source_id: source.id, target_id: target.id)
     .where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).last
     if r.nil?
+      # Ensure that target relationship is confirmed before creating the relation `CHECK-907`
+      if target.archived != CheckArchivedFlags::FlagCodes::NONE
+        target.archived = CheckArchivedFlags::FlagCodes::NONE
+        target.save!
+      end
       r = Relationship.new
       r.skip_check_ability = true
       r.relationship_type = relationship_type
