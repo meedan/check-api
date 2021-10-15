@@ -192,11 +192,11 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_items_with_similarity(type, pm, threshold)
+  def self.get_items_with_similarity(type, pm, threshold, query_or_body = 'body')
     if type == 'text'
       self.get_merged_items_with_similar_text(pm, threshold)
     else
-      results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/")
+      results = self.get_items_with_similar_media(self.media_file_url(pm), threshold, pm.team_id, "/#{type}/similarity/", query_or_body)
       results.reject{ |id, _score| pm.id == id }
     end
   end
@@ -475,10 +475,10 @@ class Bot::Alegre < BotUser
     (search_result.with_indifferent_access.dig('_score')||search_result.with_indifferent_access.dig('score'))
   end
 
-  def self.get_similar_items_from_api(path, conditions, _threshold={})
+  def self.get_similar_items_from_api(path, conditions, _threshold={}, query_or_body = 'body' )
     Rails.logger.error("[Alegre Bot] Sending request to alegre : #{path} , #{conditions.to_json}")
     response = {}
-    result = self.request_api('get', path, conditions)&.dig('result')
+    result = self.request_api('get', path, conditions, query_or_body).dig('result')
     project_medias = result.collect{ |r| self.extract_project_medias_from_context(r) } if !result.nil? && result.is_a?(Array)
     project_medias.each do |request_response|
       request_response.each do |pmid, score|
@@ -522,10 +522,16 @@ class Bot::Alegre < BotUser
     }
   end
 
-  def self.get_items_with_similar_media(media_url, threshold, team_id, path)
+  def self.get_items_with_similar_media(media_url, threshold, team_id, path, query_or_body = 'body')
     self.get_similar_items_from_api(
       path,
-      self.similar_media_content_from_api_conditions(team_id, media_url, threshold)
+      self.similar_media_content_from_api_conditions(
+        team_id,
+        media_url,
+        threshold
+      ),
+      threshold,
+      query_or_body
     )
   end
 
