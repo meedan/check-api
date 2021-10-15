@@ -648,8 +648,6 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     }
     @team.rules = rules.to_json
     @team.save!
-    puts "p1 #{p1.inspect}"
-    puts "p2 #{p2.inspect}"
     pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
     pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
     pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
