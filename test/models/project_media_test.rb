@@ -2543,6 +2543,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should run callbacks for bulk-update status" do
+    ProjectMedia.stubs(:clear_caches).returns(nil)
     setup_elasticsearch
     create_verification_status_stuff
     t = create_team
@@ -2603,5 +2604,6 @@ class ProjectMediaTest < ActiveSupport::TestCase
         assert_equal 'verified', result['verification_status']
       end
     end
+    ProjectMedia.unstub(:clear_caches)
   end
 end
