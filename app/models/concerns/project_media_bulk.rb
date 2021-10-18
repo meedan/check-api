@@ -219,6 +219,7 @@ module ProjectMediaBulk
     end
 
     def bulk_update_status(ids, status, team)
+      ids.map!(&:to_i)
       # Exclude published reports
       excluded_ids = []
       Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids).find_each do |a|
