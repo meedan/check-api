@@ -1012,7 +1012,7 @@ class Bot::Smooch < BotUser
 
   def self.timeout_smooch_menu(time, message, app_id)
     # FIXME: Re-enabled this by deleting the line below:
-    return
+    # return
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     language = self.get_user_language(message)
     workflow = self.get_workflow(language)
