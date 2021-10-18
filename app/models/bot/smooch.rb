@@ -20,6 +20,7 @@ class Bot::Smooch < BotUser
   include SmoochResend
   include SmoochTeamBotInstallation
   include SmoochNewsletter
+  include SmoochSearch
   include SmoochZendesk
   include SmoochTurnio
 
@@ -367,12 +368,16 @@ class Bot::Smooch < BotUser
         false
       end
     rescue StandardError => e
-      raise(e) if Rails.env.development?
-      Rails.logger.error("[Smooch Bot] Exception for trigger #{json&.dig('trigger') || 'unknown'}: #{e.message}")
-      self.notify_error(e, { bot: self.name, body: body }, RequestStore[:request])
-      raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
+      self.handle_exception(e, body)
       false
     end
+  end
+
+  def self.handle_exception(e, extra = {})
+    raise(e) if Rails.env.development?
+    Rails.logger.error("[Smooch Bot] Exception: #{e.message}")
+    self.notify_error(e, { bot: 'Smooch', extra: extra }, RequestStore[:request])
+    raise(e) if e.is_a?(AASM::InvalidTransition) # Race condition: return 500 so Smooch can retry it later
   end
 
   def self.get_workflow(language = nil)
@@ -401,6 +406,19 @@ class Bot::Smooch < BotUser
     supported_languages.include?(user_language) ? user_language : default_language
   end
 
+  def self.start_flow(message, workflow, language, uid)
+    sm = CheckStateMachine.new(uid)
+    message = ''
+    if self.config['smooch_version'] == 'v2'
+      sm.start_v2
+      message = [workflow['smooch_message_smooch_bot_greetings'], I18n.t(:smooch_v2_first_state, locale: language)].join("\n\n")
+    else
+      sm.start
+      message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
+    end
+    self.send_message_to_user(uid, utmize_urls(message, 'resource'))
+  end
+
   def self.parse_message_based_on_state(message, app_id)
     uid = message['authorId']
     sm = CheckStateMachine.new(uid)
@@ -410,7 +428,7 @@ class Bot::Smooch < BotUser
     message['language'] = language
 
     state = self.send_message_if_disabled_and_return_state(uid, workflow, state)
-
+    
     # Shortcuts
     if [I18n.t(:subscribe, locale: language), I18n.t(:unsubscribe, locale: language)].map(&:downcase).include?(message['text'].to_s.downcase.strip)
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
@@ -422,22 +440,24 @@ class Bot::Smooch < BotUser
       self.bundle_message(message)
       has_main_menu = (workflow&.dig('smooch_state_main', 'smooch_menu_options').to_a.size > 0)
       if has_main_menu
-        sm.start
-        main_message = [workflow['smooch_message_smooch_bot_greetings'], self.get_message_for_state(workflow, 'main', language)].join("\n\n")
-        self.send_message_to_user(uid, utmize_urls(main_message, 'resource'))
+        self.start_flow(message, workflow, language, uid)
       else
         self.clear_user_bundled_messages(uid)
         sm.go_to_query
         self.parse_message_based_on_state(message, app_id)
       end
-    when 'main', 'secondary', 'subscription'
+    when 'main', 'secondary', 'subscription', 'first', 'search_result'
       if !self.process_menu_option(message, state, app_id)
         no_option_message = [workflow['smooch_message_smooch_bot_option_not_available'], self.get_message_for_state(workflow, state, language, uid)].join("\n\n")
         self.send_message_to_user(uid, utmize_urls(no_option_message, 'resource'))
       end
+    when 'search'
+      self.send_message_to_user(uid, self.get_message_for_state(workflow, state, language, uid))
     when 'query'
       (self.process_menu_option(message, state, app_id) && self.clear_user_bundled_messages(uid)) ||
         self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(message['authorId'], message['_id'], app_id)
+    when 'add_more_details'
+      self.process_menu_option(message, state, app_id) || self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).ask_for_more_details(message['authorId'], message['_id'], app_id)
     end
   end
 
@@ -449,6 +469,23 @@ class Bot::Smooch < BotUser
   def self.time_to_send_request
     value = self.config['smooch_time_to_send_request'] || 15
     value.to_i.seconds
+  end
+
+  def self.get_menu_options(state, workflow)
+    if ['first', 'add_more_details'].include?(state)
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_state' },
+        { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'add_more_details_state' },
+        { 'smooch_menu_option_keyword' => '3', 'smooch_menu_option_value' => 'main_state' }
+      ]
+    elsif state == 'search_result'
+      [
+        { 'smooch_menu_option_keyword' => '1', 'smooch_menu_option_value' => 'search_result_is_relevant' },
+        { 'smooch_menu_option_keyword' => '2', 'smooch_menu_option_value' => 'search_result_is_not_relevant' }
+      ]
+    else
+      workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a
+    end
   end
 
   def self.process_menu_option(message, state, app_id)
@@ -465,14 +502,15 @@ class Bot::Smooch < BotUser
       return true
     end
     workflow ||= {}
-    workflow.dig("smooch_state_#{state}", 'smooch_menu_options').to_a.each do |option|
+    self.get_menu_options(state, workflow).each do |option|
       if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(typed)
         if option['smooch_menu_option_value'] =~ /_state$/
           self.bundle_message(message)
           new_state = option['smooch_menu_option_value'].gsub(/_state$/, '')
-          self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if new_state == 'query'
+          self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if ['query', 'add_more_details'].include?(new_state)
           sm.send("go_to_#{new_state}")
           self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language, uid), 'resource'))
+          self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language) if new_state == 'search'
         elsif option['smooch_menu_option_value'] == 'resource'
           pmid = option['smooch_menu_project_media_id'].to_i
           pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -487,6 +525,12 @@ class Bot::Smooch < BotUser
           self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
         elsif option['smooch_menu_option_value'] == 'subscription_confirmation'
           self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message))
+        elsif option['smooch_menu_option_value'] == 'search_result_is_not_relevant'
+          self.submit_search_query_for_verification(uid, app_id)
+        elsif option['smooch_menu_option_value'] == 'search_result_is_relevant'
+          self.clear_user_bundled_messages(uid)
+          sm.reset
+          self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, 'first', language, uid), 'resource'))
         elsif option['smooch_menu_option_value'] =~ /^[a-z]{2}(_[A-Z]{2})?$/
           Rails.cache.write("smooch:user_language:#{uid}", option['smooch_menu_option_value'])
           sm.send('go_to_main')
@@ -618,10 +662,11 @@ class Bot::Smooch < BotUser
       Digest::MD5.hexdigest(identifier)
   end
 
-  def self.save_message_later_and_reply_to_user(message, app_id)
+  def self.save_message_later_and_reply_to_user(message, app_id, send_message = true)
     self.save_message_later(message, app_id)
     workflow = self.get_workflow(message['language'])
-    self.send_message_to_user(message['authorId'], utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource'))
+    uid = message['authorId']
+    self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message
   end
 
   def self.get_text_from_message(message)
@@ -966,6 +1011,8 @@ class Bot::Smooch < BotUser
   end
 
   def self.timeout_smooch_menu(time, message, app_id)
+    # FIXME: Re-enabled this by deleting the line below:
+    return
     self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
     language = self.get_user_language(message)
     workflow = self.get_workflow(language)

@@ -32,18 +32,18 @@ module SmoochMessages
       redis.rpush(key, message.to_json)
     end
 
-    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil)
+    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
       list = redis.lrange(key, 0, redis.llen(key))
       unless list.empty?
         last = JSON.parse(list.last)
-        if last['_id'] == id || type == 'menu_options_requests'
+        if last['_id'] == id || ['menu_options_requests'].include?(type) || force
           self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
-          self.handle_bundle_messages(type, list, last, app_id, annotated)
+          self.handle_bundle_messages(type, list, last, app_id, annotated, !force)
           redis.del(key)
           sm = CheckStateMachine.new(uid)
-          sm.reset
+          sm.reset unless sm.state.value == 'add_more_details'
         end
       end
     end
@@ -53,7 +53,8 @@ module SmoochMessages
       message << self.tos_message(workflow, language) if state.to_s == 'main'
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
       message << workflow.dig("smooch_state_#{state}", 'smooch_menu_message')
-      message.join("\n\n")
+      message << I18n.t("smooch_v2_#{state}_state", locale: language) if ['first', 'search', 'search_result', 'add_more_details'].include?(state.to_s)
+      message.reject{ |m| m.blank? }.join("\n\n")
     end
 
     def subscription_message(uid, language)
@@ -67,7 +68,7 @@ module SmoochMessages
       disabled ? 'disabled' : state
     end
 
-    def process_message(message, app_id)
+    def process_message(message, app_id, send_message = true)
       message['language'] = self.get_user_language(message)
 
       return if !Rails.cache.read("smooch:banned:#{message['authorId']}").nil?
@@ -77,12 +78,12 @@ module SmoochMessages
       if pm_id.nil?
         is_supported = self.supported_message?(message)
         if is_supported.slice(:type, :size).all?{ |_k, v| v }
-          self.save_message_later_and_reply_to_user(message, app_id)
+          self.save_message_later_and_reply_to_user(message, app_id, send_message)
         else
           self.send_error_message(message, is_supported)
         end
       else
-        self.save_message_later_and_reply_to_user(message, app_id)
+        self.save_message_later_and_reply_to_user(message, app_id, send_message)
       end
     end
 
@@ -90,7 +91,7 @@ module SmoochMessages
       Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
     end
 
-    def handle_bundle_messages(type, list, last, app_id, annotated)
+    def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
       bundle = last.clone
       text = []
       media = nil
@@ -105,7 +106,7 @@ module SmoochMessages
       end
       bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
       if type == 'default_requests'
-        self.process_message(bundle, app_id)
+        self.process_message(bundle, app_id, send_message)
       elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)
         key = "smooch:banned:#{bundle['authorId']}"
         self.save_message_later(bundle, app_id, type, annotated) if Rails.cache.read(key).nil?
@@ -159,7 +160,7 @@ module SmoochMessages
       if ['default_requests', 'timeout_requests', 'resource_requests'].include?(request_type)
         message['archived'] = request_type == 'default_requests' ? self.default_archived_flag : CheckArchivedFlags::FlagCodes::UNCONFIRMED
         annotated = self.create_project_media_from_message(message)
-      elsif 'menu_options_requests' == request_type
+      elsif ['menu_options_requests'].include?(request_type)
         annotated = annotated_obj
       end
 
