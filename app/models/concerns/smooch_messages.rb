@@ -68,6 +68,45 @@ module SmoochMessages
       disabled ? 'disabled' : state
     end
 
+    def get_platform_from_message(message)
+      type = message.dig('source', 'type')
+      type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
+    end
+
+    def save_message_later_and_reply_to_user(message, app_id, send_message = true)
+      self.save_message_later(message, app_id)
+      workflow = self.get_workflow(message['language'])
+      uid = message['authorId']
+      self.send_message_to_user(uid, utmize_urls(workflow['smooch_message_smooch_bot_message_confirmed'], 'resource')) if send_message
+    end
+
+    def message_hash(message)
+      hash = nil
+      case message['type']
+      when 'text'
+        hash = Digest::MD5.hexdigest(self.get_text_from_message(message))
+      when 'image', 'file'
+        open(message['mediaUrl']) do |f|
+          hash = Digest::MD5.hexdigest(f.read)
+        end
+      end
+      hash
+    end
+
+    def get_text_from_message(message)
+      text = message['text'][/[^\s]+\.[^\s]+/, 0].to_s.gsub(/^https?:\/\//, '')
+      text = message['text'] if text.blank?
+      text.downcase
+    end
+
+    def preprocess_message(body)
+      if RequestStore.store[:smooch_bot_provider] == 'TURN'
+        self.preprocess_turnio_message(body)
+      else
+        JSON.parse(body)
+      end
+    end
+
     def process_message(message, app_id, send_message = true)
       message['language'] = self.get_user_language(message)
 

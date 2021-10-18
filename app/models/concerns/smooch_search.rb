@@ -52,8 +52,8 @@ module SmoochSearch
     end
 
     # TODO: Implement this logic
-    def format_search_results(results)
+    def format_search_results(_results)
       'Search results go here'
     end
   end
-end 
+end
