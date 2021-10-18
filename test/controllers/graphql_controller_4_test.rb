@@ -179,6 +179,14 @@ class GraphqlController4Test < ActionController::TestCase
     assert_nothing_raised do
       Sidekiq::Worker.drain_all
     end
+    # should not duplicate tag
+    query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + @pm2.id.to_s + '" }, { tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm3.id.to_s + '" }, { tag: "test", annotated_type: "ProjectMedia", annotated_id: "' + pm4.id.to_s + '" }, { tag: "bar", annotated_type: "Comment", annotated_id: "' + c.id.to_s + '" }]}) { team { dbid } } }'
+    assert_no_difference 'TagText.count' do
+      assert_no_difference 'Tag.length' do
+        post :create, params: { query: query, team: @t.slug }
+        assert_response :success
+      end
+    end
   end
 
   test "should bulk-assign project medias" do
