@@ -3,12 +3,7 @@ class BotUser < User
   include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
-  custom_annotation_types = []
-  begin
-    custom_annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) if ApplicationRecord.connection.table_exists?(:dynamic_annotation_annotation_types)
-  rescue ActiveRecord::NoDatabaseError => e
-    # Database not created yet (unlikely to happen)
-  end
+  custom_annotation_types = begin DynamicAnnotation::AnnotationType.all.map(&:annotation_type) rescue [] end
   annotation_types = custom_annotation_types + ['comment', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
     EVENTS << "create_annotation_#{type}"
