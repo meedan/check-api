@@ -376,7 +376,7 @@ class ActiveSupport::TestCase
     assert_equal value, data[field]
   end
 
-  def setup_smooch_bot(menu = false)
+  def setup_smooch_bot(menu = false, extra_settings = {})
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
@@ -984,7 +984,7 @@ class ActiveSupport::TestCase
         }
       })
     end
-    @installation = create_team_bot_installation user_id: @bot.id, settings: @settings, team_id: @team.id
+    @installation = create_team_bot_installation user_id: @bot.id, settings: @settings.merge(extra_settings), team_id: @team.id
     create_team_bot_installation user_id: @bot.id, settings: {}, team_id: create_team.id
     Bot::Smooch.get_installation('smooch_webhook_secret', 'test')
     @media_url = 'https://smooch.com/image/test.jpeg'

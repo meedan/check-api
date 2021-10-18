@@ -47,8 +47,7 @@ module SmoochSearch
 
     # TODO: Implement this logic
     def get_search_results
-      ProjectMedia.last(3)
-      # []
+      ProjectMedia.last(3) # []
     end
 
     # TODO: Implement this logic

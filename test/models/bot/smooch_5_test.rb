@@ -220,4 +220,78 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should return search results for bot v2" do
+    assert_kind_of Array, Bot::Smooch.get_search_results
+  end
+
+  test "should use bot v2 when search result is empty" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      assert_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('1', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should use bot v2 when search result is not empty but not relevant" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([create_project_media(team: @team)])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search_result', sm.state.value
+      assert_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('2', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should use bot v2 when search result is not empty and relevant" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([create_project_media(team: @team)])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search_result', sm.state.value
+      assert_no_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('1', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
 end

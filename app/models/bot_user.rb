@@ -7,7 +7,7 @@ class BotUser < User
   begin
     custom_annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) if ApplicationRecord.connection.table_exists?(:dynamic_annotation_annotation_types)
   rescue ActiveRecord::NoDatabaseError => e
-    Rails.logger.info "Database not created yet: #{e.message}"
+    # Database not created yet (unlikely to happen)
   end
   annotation_types = custom_annotation_types + ['comment', 'tag', 'task', 'geolocation']
   annotation_types.each do |type|
