@@ -44,13 +44,20 @@ class Tag < ApplicationRecord
     (texts - existing_texts).each { |text| new_texts << { team_id: team.id, text: text } }
     TagText.import(new_texts, { validate: false, recursive: false, timestamps: true })
     texts_to_ids = {}
-    TagText.where(text: texts, team_id: team.id).each { |tag_text| texts_to_ids[tag_text.text] = tag_text.id }
+    tag_pms = {}
+    TagText.where(text: texts, team_id: team.id).each do |tag_text|
+      texts_to_ids[tag_text.text] = tag_text.id
+      existing_tags = Tag.where(annotated_id: ids, annotated_type: 'ProjectMedia').where("data = ?", { tag: tag_text.id }.with_indifferent_access.to_yaml)
+      tag_pms[tag_text.id] = existing_tags.map(&:annotated_id)
+    end
 
     # Bulk-insert tags
     inserts = []
     inputs.each do |input|
       tag = texts_to_ids[input['tag']] || input['tag']
-      inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_s == 'tag' }.merge({ annotation_type: 'tag', data: { tag: tag } }) if ids.include?(input['annotated_id'].to_i)
+      if ids.include?(input['annotated_id'].to_i) && !tag_pms[tag].include?(input['annotated_id'].to_i)
+        inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_s == 'tag' }.merge({ annotation_type: 'tag', data: { tag: tag } })
+      end
     end
     result = Annotation.import inserts, validate: false, recursive: false, timestamps: true
 
