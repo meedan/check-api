@@ -316,4 +316,44 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       Bot::Smooch.unstub(:get_search_results)
     end
   end
+
+  test "should perform a keyword search if text with less or equal to 3 words" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    CheckSearch.any_instance.unstub(:medias)
+  end
+
+  test "should perform a text similarity search if text with more than 3 words" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm.id => 0.9 })
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    ProjectMedia.any_instance.unstub(:report_status)
+    Bot::Alegre.unstub(:get_similar_texts)
+  end
+
+  test "should perform a media similarity search" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.9 })
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    ProjectMedia.any_instance.unstub(:report_status)
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
 end

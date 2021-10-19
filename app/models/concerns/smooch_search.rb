@@ -47,6 +47,10 @@ module SmoochSearch
       end
     end
 
+    def parse_search_results_from_alegre(results)
+      results.sort{ |a, b| a[1] <=> b[1] }.to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }.select{ |pm| pm.report_status == 'published' }.last(3)
+    end
+
     def get_search_results(uid, last_message, team_id)
       results = []
       begin
@@ -56,13 +60,13 @@ module SmoochSearch
         if type == 'text'
           text = message['text'].gsub(/^[0-9]+$/, '')
           if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
-            results = CheckSearch.new({ keyword: text, eslimit: 3, sort: 'demand', team_id: team_id }.to_json).medias
+            results = CheckSearch.new({ keyword: text, eslimit: 3, sort: 'demand', team_id: team_id, report_status: 'published' }.to_json).medias
           else
-            results = Bot::Alegre.get_similar_texts([team_id], message['text']).sort{ |a, b| a[1] <=> b[1] }.last(3).to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }
+            results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], message['text']))
           end
         else
           threshold = Bot::Alegre.get_threshold_for_query(type, ProjectMedia.new(team_id: team_id))[:value]
-          results = Bot::Alegre.get_items_with_similar_media(message['mediaUrl'], { value: threshold }, [team_id], "/#{type}/similarity/").sort{ |a, b| a[1] <=> b[1] }.last(3).to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }
+          results = self.parse_search_results_from_alegre(Bot::Alegre.get_items_with_similar_media(message['mediaUrl'], { value: threshold }, [team_id], "/#{type}/similarity/"))
         end
       rescue StandardError => e
         self.handle_search_error(uid, e)
