@@ -222,7 +222,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should return search results for bot v2" do
-    assert_kind_of Array, Bot::Smooch.get_search_results(nil, nil, nil)
+    assert_kind_of Array, Bot::Smooch.get_search_results(random_string, nil, nil)
   end
 
   test "should use bot v2 when search result is empty" do
