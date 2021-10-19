@@ -777,6 +777,37 @@ en:
     %{content}
 
     To stop receiving this newsletter, type "%{unsubscribe}".
+  smooch_v2_first_state: |-
+    Type a number to navigate:
+
+    1. Submit content to fact-check
+    2. Add more details
+    3. Main menu
+  smooch_v2_add_more_details_menu: |-
+    Thank you! Are you ready to submit?
+
+    1. Submit content to fact-check
+    2. Add more details
+    3. Cancel and go to main menu
+  smooch_v2_search_state: Looking for fact-check...
+  smooch_v2_search_error: Error when trying to look for fact-checks. Please try again later.
+  smooch_v2_add_more_details_state: Please add more details.
+  smooch_v2_search_result_state: |-
+    Are these fact-checks relevant?
+
+    1. Yes - go back to main menu
+    2. No - send to journalists for verification
+  smooch_v2_search_no_results: |-
+    No fact-checks could be found for this content. Thank you for alerting us!
+    It was sent to our journalists for investigation.
+
+    You will be notified in this thread if a fact-check is produced.
+
+    *0. Main menu*
+  smooch_v2_search_submit: |-
+    The claim was sent to journalists. If fact-checked, you will receive it here.
+
+    Type 0 to go back to the main menu.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" has been sent to trash by an automation
