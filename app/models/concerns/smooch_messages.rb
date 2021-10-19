@@ -32,16 +32,20 @@ module SmoochMessages
       redis.rpush(key, message.to_json)
     end
 
-    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false)
+    def list_of_bundled_messages_from_user(uid)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
-      list = redis.lrange(key, 0, redis.llen(key))
+      redis.lrange(key, 0, redis.llen(key))
+    end
+
+    def bundle_messages(uid, id, app_id, type = 'default_requests', annotated = nil, force = false)
+      list = self.list_of_bundled_messages_from_user(uid)
       unless list.empty?
         last = JSON.parse(list.last)
         if last['_id'] == id || ['menu_options_requests'].include?(type) || force
           self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
           self.handle_bundle_messages(type, list, last, app_id, annotated, !force)
-          redis.del(key)
+          Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
           sm = CheckStateMachine.new(uid)
           sm.reset unless sm.state.value == 'add_more_details'
         end
@@ -130,7 +134,7 @@ module SmoochMessages
       Redis.new(REDIS_CONFIG).del("smooch:bundle:#{uid}")
     end
 
-    def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
+    def bundle_list_of_messages(list, last)
       bundle = last.clone
       text = []
       media = nil
@@ -144,6 +148,11 @@ module SmoochMessages
         text << message['text'].to_s
       end
       bundle['text'] = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}") # Add a boundary so we can easily split messages if needed
+      bundle
+    end
+
+    def handle_bundle_messages(type, list, last, app_id, annotated, send_message = true)
+      bundle = self.bundle_list_of_messages(list, last)
       if type == 'default_requests'
         self.process_message(bundle, app_id, send_message)
       elsif ['timeout_requests', 'menu_options_requests', 'resource_requests'].include?(type)

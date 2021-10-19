@@ -222,7 +222,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should return search results for bot v2" do
-    assert_kind_of Array, Bot::Smooch.get_search_results
+    assert_kind_of Array, Bot::Smooch.get_search_results(nil, nil, nil)
   end
 
   test "should use bot v2 when search result is empty" do
@@ -293,5 +293,27 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
     end
     Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should go to search state" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2' })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+    end
+  end
+
+  test "should handle search error" do
+    assert_nothing_raised do
+      Bot::Smooch.stubs(:get_search_results).raises(StandardError)
+      Bot::Smooch.search(random_string, random_string, nil, nil, nil)
+      Bot::Smooch.unstub(:get_search_results)
+    end
   end
 end

@@ -488,7 +488,7 @@ class Bot::Smooch < BotUser
       self.delay_for(self.time_to_send_request, { queue: 'smooch_ping', retry: false }).bundle_messages(uid, message['_id'], app_id) if ['query', 'add_more_details'].include?(new_state)
       sm.send("go_to_#{new_state}")
       self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, new_state, language, uid), 'resource'))
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language) if new_state == 'search'
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).search(app_id, uid, language, message, self.config['team_id'].to_i) if new_state == 'search'
     elsif value == 'resource'
       pmid = option['smooch_menu_project_media_id'].to_i
       pm = ProjectMedia.where(id: pmid, team_id: self.config['team_id'].to_i).last
@@ -508,6 +508,7 @@ class Bot::Smooch < BotUser
     elsif value == 'search_result_is_relevant'
       self.clear_user_bundled_messages(uid)
       sm.reset
+      sm.go_to_first
       self.send_message_to_user(uid, utmize_urls(self.get_message_for_state(workflow, 'first', language, uid), 'resource'))
     elsif value =~ /^[a-z]{2}(_[A-Z]{2})?$/
       Rails.cache.write("smooch:user_language:#{uid}", value)
