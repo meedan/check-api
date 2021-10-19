@@ -4,7 +4,7 @@ class CheckSearch
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
-    @options['team_id'] = Team.current.id unless Team.current.nil?
+    @options['team_id'] = team_condition 
     @options['operator'] ||= 'AND' # AND or OR
     # set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
@@ -36,6 +36,15 @@ class CheckSearch
     'type_of_media' => 'type_of_media', 'title' => 'sort_title'
   }
 
+  def team_condition
+    if @options['country'] && User.current&.is_admin?
+      country = [@options['country']].flatten.reject{ |c| c.blank? }
+      Team.where(country: country).map(&:id)
+    else
+      Team.current&.id
+    end
+  end
+
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
       Project.find(@options['parent']['id']).pusher_channel
@@ -47,7 +56,8 @@ class CheckSearch
   end
 
   def team
-    Team.find(@options['team_id']) unless @options['team_id'].blank?
+    team_id = @options['team_id'].is_a?(Array) ? @options['team_id'].first : @options['team_id']
+    Team.find(team_id) unless team_id.blank?
   end
 
   def teams
@@ -201,7 +211,7 @@ class CheckSearch
   def medias_build_search_query
     core_conditions = []
     custom_conditions = []
-    core_conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
+    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
     archived = @options['archived'].to_i
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
@@ -258,7 +268,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current
+    if Team.current && !@options['country']
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']

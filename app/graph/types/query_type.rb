@@ -34,6 +34,7 @@ QueryType = GraphQL::ObjectType.define do
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
         channels: CheckChannels::ChannelCodes.all_channels,
+        countries: Team.group(:country).count.keys.reject{ |c| c.blank? }.sort
       })
     end
   end

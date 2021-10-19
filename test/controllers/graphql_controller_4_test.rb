@@ -594,6 +594,82 @@ class GraphqlController4Test < ActionController::TestCase
     assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
   end
 
+  test "should search by country on ES" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    
+    t1 = create_team country: 'Brazil'
+    t2 = create_team country: 'United States'
+    m1 = create_claim_media quote: 'Test 1'
+    m2 = create_claim_media quote: 'Test 2'
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media disable_es_callbacks: false, media: m1, project: p1
+    pm2 = create_project_media disable_es_callbacks: false, media: m2, project: p2
+    sleep 5
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":\"Brazil\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":\"United States\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":[\"Brazil\",\"United States\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal [pm1.id, pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should search by country on PG" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    
+    t1 = create_team country: 'Brazil'
+    t2 = create_team country: 'United States'
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+
+    query = 'query CheckSearch { search(query: "{\"country\":\"Brazil\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"country\":\"United States\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"country\":[\"Brazil\",\"United States\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal [pm1.id, pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
   protected
 
   def assert_error_message(expected)
