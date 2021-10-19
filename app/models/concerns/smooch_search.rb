@@ -54,8 +54,8 @@ module SmoochSearch
         message = self.bundle_list_of_messages(list, last_message)
         type = message['type'] || 'text'
         if type == 'text'
-            text = message['text'].gsub(/^[0-9]+$/, '')
-            if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
+          text = message['text'].gsub(/^[0-9]+$/, '')
+          if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
             results = CheckSearch.new({ keyword: text, eslimit: 3, sort: 'demand', team_id: team_id }.to_json).medias
           else
             results = Bot::Alegre.get_similar_texts([team_id], message['text']).sort{ |a, b| a[1] <=> b[1] }.last(3).to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }
