@@ -241,7 +241,7 @@ module ProjectMediaBulk
       # Run callbacks in background
       extra_options = { team_id: team&.id, user_id: User.current&.id, status: status }
       self.delay.run_bulk_status_callbacks(status_ids.to_json, status_mapping.to_json, extra_options.to_json)
-      { team: team }
+      { team: team, check_search_team: team.check_search_team }
     end
 
     def run_bulk_status_callbacks(ids_json, status_mapping_json, extra_options_json)
