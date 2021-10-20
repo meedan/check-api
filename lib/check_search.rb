@@ -4,7 +4,7 @@ class CheckSearch
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
-    @options['team_id'] = team_condition 
+    @options['team_id'] = team_condition
     @options['operator'] ||= 'AND' # AND or OR
     # set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
