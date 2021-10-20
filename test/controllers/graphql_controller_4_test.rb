@@ -740,6 +740,22 @@ class GraphqlController4Test < ActionController::TestCase
     Bot::Alegre.unstub(:get_items_with_similar_media)
   end
 
+  test "should upload search file" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation { searchUpload(input: {}) { file_handle } }'
+    post :create, params: { query: query, team: t.slug, file: file }
+    assert_response :success
+    puts @response.body
+    hash = JSON.parse(@response.body)['data']['searchUpload']['file_handle']
+    assert_kind_of String, hash
+    assert CheckS3.exist?("check_search/#{hash}")
+  end
+
   protected
 
   def assert_error_message(expected)

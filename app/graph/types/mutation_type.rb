@@ -114,4 +114,6 @@ MutationType = GraphQL::ObjectType.define do
   field :createProjectGroup, field: ProjectGroupMutations::Create.field
   field :updateProjectGroup, field: ProjectGroupMutations::Update.field
   field :destroyProjectGroup, field: ProjectGroupMutations::Destroy.field
+
+  field :searchUpload, field: SearchUploadMutations::SearchUpload.field
 end
