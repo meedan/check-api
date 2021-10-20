@@ -1,10 +1,10 @@
 class CheckSearch
-  def initialize(options)
+  def initialize(options, file = nil)
     # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
-    @options['team_id'] = Team.current.id unless Team.current.nil?
+    @options['team_id'] = team_condition
     @options['operator'] ||= 'AND' # AND or OR
     # set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
@@ -24,6 +24,7 @@ class CheckSearch
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
+    @file = file
   end
 
   MEDIA_TYPES = %w[claims links images videos audios blank]
@@ -36,6 +37,15 @@ class CheckSearch
     'type_of_media' => 'type_of_media', 'title' => 'sort_title'
   }
 
+  def team_condition
+    if @options['country'] && User.current&.is_admin?
+      country = [@options['country']].flatten.reject{ |c| c.blank? }
+      Team.where(country: country).map(&:id)
+    else
+      Team.current&.id
+    end
+  end
+
   def pusher_channel
     if @options['parent'] && @options['parent']['type'] == 'project'
       Project.find(@options['parent']['id']).pusher_channel
@@ -47,7 +57,8 @@ class CheckSearch
   end
 
   def team
-    Team.find(@options['team_id']) unless @options['team_id'].blank?
+    team_id = @options['team_id'].is_a?(Array) ? @options['team_id'].first : @options['team_id']
+    Team.find(team_id) unless team_id.blank?
   end
 
   def teams
@@ -180,6 +191,15 @@ class CheckSearch
     else
       relation = relation.where(custom_conditions)
     end
+    if @file && @options['file_type']
+      @file.rewind
+      file_path = "check_search/#{SecureRandom.hex}"
+      CheckS3.write(file_path, @file.content_type.gsub(/^video/, 'application'), @file.read)
+      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current&.id))[:value]
+      results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), { value: threshold }, @options['team_id'], "/#{@options['file_type']}/similarity/")
+      ids = results.blank? ? [0] : results.keys
+      core_conditions.merge!({ 'project_medias.id' => ids })
+    end
     relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
   end
 
@@ -201,7 +221,7 @@ class CheckSearch
   def medias_build_search_query
     core_conditions = []
     custom_conditions = []
-    core_conditions << { term: { team_id: @options['team_id'] } } unless @options['team_id'].nil?
+    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } unless @options['team_id'].blank?
     archived = @options['archived'].to_i
     core_conditions << { term: { archived: archived } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
@@ -258,7 +278,7 @@ class CheckSearch
       @options['projects'] = project_ids.empty? ? [0] : project_ids
     end
     # Also, adjust projects filter taking projects' privacy settings into account
-    if Team.current
+    if Team.current && !@options['country']
       @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: Team.current.id).allowed(Team.current).map(&:id) + [nil]) : Project.where(id: @options['projects']).allowed(Team.current).map(&:id)
     end
     @options['projects'] += [nil] if @options['none_project']
@@ -278,6 +298,11 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
+    if Team.current&.get_trends_enabled && @options["keyword"].split(/\s+/).size > 3
+      result = Bot::Alegre.get_similar_texts([@options['team_id']].flatten, @options["keyword"])
+      pmids = result.empty? ? [0] : result.keys
+      return [{ bool: { must: [{ terms: { parent_id: pmids }}] }}]
+    end
     set_keyword_fields
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields

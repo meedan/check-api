@@ -45,6 +45,8 @@ TeamType = GraphqlCrudOperations.define_default_type do
   field :get_tasks_enabled, types.Boolean
   field :url, types.String
   field :get_tipline_inbox_filters, JsonStringType
+  field :get_trends_enabled, types.Boolean
+  field :country, types.String
 
   field :public_team do
     type PublicTeamType

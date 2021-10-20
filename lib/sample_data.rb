@@ -490,6 +490,7 @@ module SampleData
     team.archived = options[:archived] || 0
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
+    team.country = options[:country]
     team.save!
     team.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     team.reload
