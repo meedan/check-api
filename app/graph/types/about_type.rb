@@ -27,4 +27,5 @@ AboutType = GraphQL::ObjectType.define do
   field :audio_max_size_in_bytes, types.Int, 'Maximum audio upload size, in bytes'
 
   field :channels, JsonStringType, 'List check channels'
+  field :countries, JsonStringType, 'List of workspace countries'
 end
