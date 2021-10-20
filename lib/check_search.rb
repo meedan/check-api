@@ -1,5 +1,5 @@
 class CheckSearch
-  def initialize(options)
+  def initialize(options, file = nil)
     # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
@@ -24,6 +24,7 @@ class CheckSearch
     # set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['String', 'Integer'].include?(@options['id'].class.name)
     Project.current = Project.where(id: @options['projects'].last).last if @options['projects'].to_a.size == 1 && Project.current.nil?
+    @file = file
   end
 
   MEDIA_TYPES = %w[claims links images videos audios blank]
@@ -190,6 +191,15 @@ class CheckSearch
     else
       relation = relation.where(custom_conditions)
     end
+    if @file && @options['file_type']
+      @file.rewind
+      file_path = "check_search/#{SecureRandom.hex}"
+      CheckS3.write(file_path, @file.content_type.gsub(/^video/, 'application'), @file.read)
+      threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current&.id))[:value]
+      results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), { value: threshold }, @options['team_id'], "/#{@options['file_type']}/similarity/")
+      ids = results.blank? ? [0] : results.keys
+      core_conditions.merge!({ 'project_medias.id' => ids })
+    end
     relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
   end
 
@@ -288,6 +298,11 @@ class CheckSearch
 
   def build_search_keyword_conditions
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
+    if Team.current&.get_trends_enabled && @options["keyword"].split(/\s+/).size > 3
+      result = Bot::Alegre.get_similar_texts([@options['team_id']].flatten, @options["keyword"])
+      pmids = result.empty? ? [0] : result.keys
+      return [{ bool: { must: [{ terms: { parent_id: pmids }}] }}]
+    end
     set_keyword_fields
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
