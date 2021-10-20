@@ -169,6 +169,15 @@ class CheckSearch
     condition
   end
 
+  def self.upload_file(file)
+    return nil if file.blank?
+    file.rewind
+    hash = SecureRandom.hex
+    file_path = "check_search/#{hash}"
+    CheckS3.write(file_path, file.content_type.gsub(/^video/, 'application'), file.read)
+    hash
+  end
+
   def get_pg_results_for_media
     custom_conditions = {}
     core_conditions = {}
@@ -191,10 +200,12 @@ class CheckSearch
     else
       relation = relation.where(custom_conditions)
     end
-    if @file && @options['file_type']
-      @file.rewind
-      file_path = "check_search/#{SecureRandom.hex}"
-      CheckS3.write(file_path, @file.content_type.gsub(/^video/, 'application'), @file.read)
+    if @options['file_type']
+      file_path = "check_search/#{@options['file_handle']}"
+      if @file
+        hash = CheckSearch.upload_file(@file)
+        file_path = "check_search/#{hash}"
+      end
       threshold = Bot::Alegre.get_threshold_for_query(@options['file_type'], ProjectMedia.new(team_id: Team.current&.id))[:value]
       results = Bot::Alegre.get_items_with_similar_media(CheckS3.public_url(file_path), { value: threshold }, @options['team_id'], "/#{@options['file_type']}/similarity/")
       ids = results.blank? ? [0] : results.keys
