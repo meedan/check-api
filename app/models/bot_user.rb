@@ -3,20 +3,15 @@ class BotUser < User
   include CheckPusher
 
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report']
-  begin
-    if ApplicationRecord.connection.data_source_exists?(:dynamic_annotation_annotation_types)
-      annotation_types = DynamicAnnotation::AnnotationType.all.map(&:annotation_type) + ['comment', 'tag', 'task', 'geolocation']
-      annotation_types.each do |type|
-        EVENTS << "create_annotation_#{type}"
-        EVENTS << "update_annotation_#{type}"
-      end
-      Task.task_types.each do |type|
-        EVENTS << "create_annotation_task_#{type}"
-        EVENTS << "update_annotation_task_#{type}"
-      end
-    end
-  rescue ActiveRecord::NoDatabaseError => e
-    Rails.logger.info "Database not created yet: #{e.message}"
+  custom_annotation_types = begin DynamicAnnotation::AnnotationType.all.map(&:annotation_type) rescue [] end
+  annotation_types = custom_annotation_types + ['comment', 'tag', 'task', 'geolocation']
+  annotation_types.each do |type|
+    EVENTS << "create_annotation_#{type}"
+    EVENTS << "update_annotation_#{type}"
+  end
+  Task.task_types.each do |type|
+    EVENTS << "create_annotation_task_#{type}"
+    EVENTS << "update_annotation_task_#{type}"
   end
   JSON_SCHEMA = {
     "title": "Events",

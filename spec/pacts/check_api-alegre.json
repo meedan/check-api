@@ -7,12 +7,12 @@
   },
   "interactions": [
     {
-      "description": "a request to get image flags",
+      "description": "a request to link similar images",
       "providerState": "an image URL",
       "request": {
         "method": "get",
-        "path": "/image/classification/",
-        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+        "path": "/image/similarity/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png&threshold=0.89"
       },
       "response": {
         "status": 200,
@@ -20,34 +20,17 @@
           "Content-Type": "application/json"
         },
         "body": {
-          "result": {
-            "flags": {
-              "adult": 1,
-              "spoof": 1,
-              "medical": 2,
-              "violence": 1,
-              "racy": 1,
-              "spam": 0
+          "result": [
+            {
+              "id": 1,
+              "sha256": "9bb1b8da9eec7caaea50099ba0488a1bdd221305a327097057fb8f626b6ba39b",
+              "phash": 26558343354958209,
+              "url": "https://i.imgur.com/ewGClFQ.png",
+              "context": {
+              },
+              "score": 0
             }
-          }
-        }
-      }
-    },
-    {
-      "description": "a request to extract text",
-      "providerState": "an image URL",
-      "request": {
-        "method": "get",
-        "path": "/image/ocr/",
-        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
+          ]
         }
       }
     },
@@ -82,6 +65,51 @@
             }
           ],
           "provider": "google"
+        }
+      }
+    },
+    {
+      "description": "a request to extract text",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/ocr/",
+        "query": "url=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "X X X\n3\nTranslate this sentence\nو عندي وقت في الساعة العاشرة.\n"
+        }
+      }
+    },
+    {
+      "description": "a request to get image flags",
+      "providerState": "an image URL",
+      "request": {
+        "method": "get",
+        "path": "/image/classification/",
+        "query": "uri=https%3A%2F%2Fi.imgur.com%2FewGClFQ.png"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": {
+            "flags": {
+              "adult": 1,
+              "spoof": 1,
+              "medical": 2,
+              "violence": 1,
+              "racy": 1,
+              "spam": 0
+            }
+          }
         }
       }
     }

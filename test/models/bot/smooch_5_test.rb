@@ -220,4 +220,140 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should return search results for bot v2" do
+    assert_kind_of Array, Bot::Smooch.get_search_results(random_string, nil, nil)
+  end
+
+  test "should use bot v2 when search result is empty" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      assert_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('1', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should use bot v2 when search result is not empty but not relevant" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([create_project_media(team: @team)])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search_result', sm.state.value
+      assert_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('2', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should use bot v2 when search result is not empty and relevant" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2', 'smooch_disable_timeout' => true })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.inline! do
+      Bot::Smooch.stubs(:get_search_results).returns([create_project_media(team: @team)])
+      sm.reset
+      Bot::Smooch.clear_user_bundled_messages(uid)
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('2', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+      assert_equal 'add_more_details', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search_result', sm.state.value
+      assert_no_difference 'ProjectMedia.count' do
+        send_message_to_smooch_bot('1', uid)
+      end
+    end
+    Bot::Smooch.unstub(:get_search_results)
+  end
+
+  test "should go to search state" do
+    setup_smooch_bot(true, { 'smooch_version' => 'v2' })
+    uid = random_string
+    sm = CheckStateMachine.new(uid)
+
+    Sidekiq::Testing.fake! do
+      send_message_to_smooch_bot('Foo', uid)
+      assert_equal 'first', sm.state.value
+      send_message_to_smooch_bot('1', uid)
+      assert_equal 'search', sm.state.value
+      send_message_to_smooch_bot('Bar', uid)
+    end
+  end
+
+  test "should handle search error" do
+    assert_nothing_raised do
+      Bot::Smooch.stubs(:get_search_results).raises(StandardError)
+      Bot::Smooch.search(random_string, random_string, nil, nil, nil)
+      Bot::Smooch.unstub(:get_search_results)
+    end
+  end
+
+  test "should perform a keyword search if text with less or equal to 3 words" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
+    CheckSearch.any_instance.stubs(:medias).returns([pm])
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    CheckSearch.any_instance.unstub(:medias)
+  end
+
+  test "should perform a text similarity search if text with more than 3 words" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm.id => 0.9 })
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    ProjectMedia.any_instance.unstub(:report_status)
+    Bot::Alegre.unstub(:get_similar_texts)
+  end
+
+  test "should perform a media similarity search" do
+    pm = create_project_media
+
+    Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
+    ProjectMedia.any_instance.stubs(:report_status).returns('published')
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.9 })
+
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id)
+
+    Bot::Smooch.unstub(:bundle_list_of_messages)
+    ProjectMedia.any_instance.unstub(:report_status)
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
 end

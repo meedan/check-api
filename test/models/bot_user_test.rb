@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class UserTest < ActiveSupport::TestCase
+class BotUserTest < ActiveSupport::TestCase
   def setup
     super
   end
