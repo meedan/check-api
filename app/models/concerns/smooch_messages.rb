@@ -74,7 +74,7 @@ module SmoochMessages
 
     def get_platform_from_message(message)
       type = message.dig('source', 'type')
-      type ? SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
+      type ? ::Bot::Smooch::SUPPORTED_INTEGRATION_NAMES[type].to_s : 'Unknown'
     end
 
     def save_message_later_and_reply_to_user(message, app_id, send_message = true)
