@@ -103,7 +103,7 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     type -> { TeamType }
 
     resolve -> (project_media, _args, _ctx) {
-      Team.current || project_media.team
+      project_media.team
     }
   end
 
