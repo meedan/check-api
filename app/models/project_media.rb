@@ -273,18 +273,16 @@ class ProjectMedia < ApplicationRecord
   end
 
   def list_columns_values
-    Concurrent::Future.execute(executor: POOL) do
-      values = {}
-      columns = self.team.list_columns || Team.default_list_columns
-      columns.each do |column|
-        c = column.with_indifferent_access
-        if c[:show]
-          key = c[:key]
-          values[key] = self.send(key)
-        end
+    values = {}
+    columns = self.team.list_columns || Team.default_list_columns
+    columns.each do |column|
+      c = column.with_indifferent_access
+      if c[:show]
+        key = c[:key]
+        values[key] = self.send(key)
       end
-      values
     end
+    values
   end
 
   def remove_related_team_tasks_bg(pid)
