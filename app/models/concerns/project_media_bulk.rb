@@ -13,9 +13,9 @@ module ProjectMediaBulk
         project = Project.where(team_id: team&.id, id: params[:move_to]).last
         unless project.nil?
           self.bulk_move(ids, project, team)
-          # bulk move secondary items
+          # Bulk move secondary items
           self.bulk_move_secondary_items(ids, project, team)
-          # send pusher and set parent objects for graphql
+          # Send pusher and set parent objects for graphql
           self.send_pusher_and_parents(project, params[:previous_project_id], team)
         end
       when 'assigned_to_ids'
@@ -109,9 +109,9 @@ module ProjectMediaBulk
       ids.each do |id|
         pm = ProjectMedia.find(id)
         if pm.project_id != pmp_mapping[pm.id]
-          # remove existing team tasks based on old project_id
+          # Remove existing team tasks based on old project_id
           pm.remove_related_team_tasks_bg(pmp_mapping[pm.id]) unless pmp_mapping[pm.id].blank?
-          # add new team tasks based on new project_id
+          # Add new team tasks based on new project_id
           pm.add_destination_team_tasks(pm.project_id)
         end
       end
@@ -133,7 +133,7 @@ module ProjectMediaBulk
 
     def update_folder_cache(ids, project)
       # Update "folder" cache of each list
-      ids.each{|pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s)} unless project.nil?
+      ids.each{ |pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s) } unless project.nil?
     end
 
     def bulk_assign(ids, assigned_to_ids, assignment_message, team)
@@ -149,7 +149,7 @@ module ProjectMediaBulk
       # Bulk-insert assignments
       assigner_id = User.current.nil? ? nil : User.current.id
       assigned_ids = assigned_to_ids.to_s.split(',').map(&:to_i)
-      # verify that users aleady exists
+      # Verify that users aleady exists
       u_ids = team.team_users.where(user_id: assigned_ids).map(&:user_id)
       inserts = []
       status_ids.each do |s_id|
@@ -226,7 +226,7 @@ module ProjectMediaBulk
         published = begin (a.read_attribute(:data)['state'] == 'published') rescue false end
         excluded_ids << a.annotated_id if published
       end
-      # bulk-update status
+      # Bulk-update status
       ids -= excluded_ids
       status_mapping = {}
       statuses = Annotation.where(annotated_type: 'ProjectMedia', annotation_type: 'verification_status', annotated_id: ids)
@@ -235,6 +235,8 @@ module ProjectMediaBulk
       DynamicAnnotation::Field.where(
         field_name: "verification_status_status", annotation_type: "verification_status", annotation_id: status_ids
       ).update_all(value: status)
+      # Update cache
+      ids.each{ |pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:status", status) }
       # ElasticSearch update
       script = { source: "ctx._source.verification_status = params.verification_status", params: { verification_status: status } }
       self.bulk_reindex(ids.to_json, script)
