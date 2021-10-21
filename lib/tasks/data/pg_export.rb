@@ -4,22 +4,6 @@ require 'sqlite3'
 require 'tempfile'
 
 module PgExport
-  module InQ
-    extend ActiveRecord::ConnectionAdapters::PostgreSQL::Quoting
-  end
-
-  module OutQ
-    # Rails 4: there's no ActiveRecord::ConnectionAdapters::SQLite3::Quoting
-    # so we make it up
-    def self.quote_column_name(name)
-      %Q("#{name.to_s.gsub('"', '""')}")
-    end
-
-    def self.quote_table_name(name)
-      quote_column_name(name)
-    end
-  end
-
   class PGTextDecoderISO8601Timestamp < PG::SimpleDecoder
     def decode(value, tuple=nil, field=nil)
       value.tr(' ', 'T') << 'Z'
@@ -38,7 +22,7 @@ module PgExport
       def select_sql
         columns = wanted_active_record_columns.map do |column|
           clause = override_field_select_sql(column)
-          quoted_column_name = InQ.quote_column_name(column.name)
+          quoted_column_name = ApplicationRecord.connection.quote_column_name(column.name)
           if clause.nil?
             quoted_column_name
           else
@@ -46,7 +30,7 @@ module PgExport
           end
         end
 
-        "SELECT #{columns.join(', ')} FROM #{InQ.quote_table_name(pg_table_name)} #{where_clause}"
+        "SELECT #{columns.join(', ')} FROM #{ApplicationRecord.connection.quote_table_name(pg_table_name)} #{where_clause}"
       end
 
       # Returns partial-SQL string. If it isn't empty, it should start with "WHERE"
@@ -108,8 +92,8 @@ module PgExport
 
         db.transaction do
           statement = db.prepare <<-SQL
-            INSERT INTO #{OutQ.quote_table_name(table_name)}
-              (#{columns.map{ |col| OutQ.quote_column_name(col.name) }.join(', ')})
+            INSERT INTO #{ApplicationRecord.connection.quote_column_name(table_name)}
+              (#{columns.map{ |col| ApplicationRecord.connection.quote_column_name(col.name) }.join(', ')})
             VALUES (#{columns.map{'?'}.join(', ')})
           SQL
           pg_conn.copy_data("COPY (#{select_sql}) TO STDOUT", decode) do
@@ -117,7 +101,7 @@ module PgExport
               result_set = statement.execute(row.map!{|v| sqlite3_encode_value(v)})
             end
           end
-          statement.close()
+          statement.close
         end
       end
 
@@ -150,7 +134,7 @@ module PgExport
       end
 
       def select_ids_in_team
-        "SELECT id FROM #{InQ.quote_table_name(pg_table_name)} #{where_clause}"
+        "SELECT id FROM #{ApplicationRecord.connection.quote_table_name(pg_table_name)} #{where_clause}"
       end
 
       def define_sqlite3_column(column)
@@ -165,7 +149,7 @@ module PgExport
           jsonb: 'JSONTEXT',
         }[column.type]
         null = if column.null then '' else ' NOT NULL' end
-        "#{OutQ.quote_column_name(name)} #{type}#{null}"
+        "#{ApplicationRecord.connection.quote_column_name(name)} #{type}#{null}"
       end
 
       def build_pg_copy_rows_type_map(columns)
@@ -315,7 +299,7 @@ module PgExport
           column.name.start_with?('current_')
         )
           # redact for non-members only, so teams can't export info on non-members
-          "CASE WHEN id IN (#{member_user_ids_sql}) THEN #{InQ.quote_column_name(column.name)} ELSE #{redacted} END"
+          "CASE WHEN id IN (#{member_user_ids_sql}) THEN #{ApplicationRecord.connection.quote_column_name(column.name)} ELSE #{redacted} END"
         else
           nil
         end

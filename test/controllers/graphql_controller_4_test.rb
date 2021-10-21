@@ -38,7 +38,7 @@ class GraphqlController4Test < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -48,7 +48,7 @@ class GraphqlController4Test < ActionController::TestCase
   test "should not bulk-send project medias to trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -61,7 +61,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 1 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
@@ -77,7 +77,7 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -87,7 +87,7 @@ class GraphqlController4Test < ActionController::TestCase
   test "should not bulk-restore project medias from trash if there are more than 10.000 ids" do
     ids = []
     10001.times { ids << random_string }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -103,7 +103,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
     
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0 }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     
@@ -125,7 +125,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
 
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', archived: 0, project_id: ' + add_to.id.to_s + ' }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0, \"project_id\": \"' + add_to.id.to_s + '\"}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
 
@@ -179,6 +179,14 @@ class GraphqlController4Test < ActionController::TestCase
     assert_nothing_raised do
       Sidekiq::Worker.drain_all
     end
+    # should not duplicate tag
+    query = 'mutation { createTags(input: { clientMutationId: "1", inputs: [{ tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm1.id.to_s + '" }, { tag: "bar", annotated_type: "ProjectMedia", annotated_id: "' + @pm2.id.to_s + '" }, { tag: "foo", annotated_type: "ProjectMedia", annotated_id: "' + @pm3.id.to_s + '" }, { tag: "test", annotated_type: "ProjectMedia", annotated_id: "' + pm4.id.to_s + '" }, { tag: "bar", annotated_type: "Comment", annotated_id: "' + c.id.to_s + '" }]}) { team { dbid } } }'
+    assert_no_difference 'TagText.count' do
+      assert_no_difference 'Tag.length' do
+        post :create, params: { query: query, team: @t.slug }
+        assert_response :success
+      end
+    end
   end
 
   test "should bulk-assign project medias" do
@@ -202,18 +210,32 @@ class GraphqlController4Test < ActionController::TestCase
     assigned_to_ids = [u1.id, u2.id, u3.id].join(', ')
     assert_equal 1, @pm1.get_versions_log(['create_assignment']).size
     Sidekiq::Testing.inline! do
-        query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', assignment_message: "add custom message", assigned_to_ids: "' + assigned_to_ids + '" }) { ids, team { dbid } } }'
-        assert_difference 'Assignment.count', 6 do
-          post :create, params: { query: query, team: @t.slug }
-          assert_response :success
-        end
-        pm1_assignments = Annotation.joins(:assignments).where(
-            'annotations.annotated_type' => 'ProjectMedia',
-            'annotations.annotated_id' => @pm1.id,
-            'annotations.annotation_type' => 'verification_status'
-            ).count
-        assert_equal 3, pm1_assignments
-        assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "assigned_to_ids", params: "{\"assignment_message\":\"add custom message\",\"assigned_to_ids\":\"' + assigned_to_ids + '\"}"}) { ids, team { dbid } } }'
+      assert_difference 'Assignment.count', 6 do
+        post :create, params: { query: query, team: @t.slug }
+        assert_response :success
+      end
+      pm1_assignments = Annotation.joins(:assignments).where(
+          'annotations.annotated_type' => 'ProjectMedia',
+          'annotations.annotated_id' => @pm1.id,
+          'annotations.annotation_type' => 'verification_status'
+          ).count
+      assert_equal 3, pm1_assignments
+      assert_equal 3, @pm1.get_versions_log(['create_assignment']).size
+    end
+  end
+
+  test "should bulk-update project medias status" do
+    u = create_user
+    create_team_user team: @t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    assert_equal 0, @pm1.get_versions_log(['update_dynamicannotationfield']).size
+    Sidekiq::Testing.inline! do
+      query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "update_status", params: "{\"status\":\"in_progress\"}"}) { ids, team { dbid } } }'
+      post :create, params: { query: query, team: @t.slug }
+      assert_response :success
+      assert_equal 'in_progress', @pm1.last_status
+      assert_equal 1, @pm1.get_versions_log(['update_dynamicannotationfield']).size
     end
   end
 
@@ -221,7 +243,7 @@ class GraphqlController4Test < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_error_message 'allowed'
@@ -231,7 +253,7 @@ class GraphqlController4Test < ActionController::TestCase
     ids = []
     10001.times { ids << random_string }
     p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', move_to: ' + p4.id.to_s + ' }) { team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response 400
     assert_error_message 'maximum'
@@ -257,7 +279,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_equal 0, p4.reload.medias_count
     ids = []
     [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
-    query = "mutation { updateProjectMedias(input: { clientMutationId: \"1\", ids: #{ids.to_json}, move_to: #{p4.id} }) { team { dbid } } }"
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to\": \"' + p4.id.to_s + '\"}" }) { team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_equal 0, @p1.reload.medias_count
@@ -570,6 +592,168 @@ class GraphqlController4Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     assert_not_nil json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_newsletter_information')
+  end
+
+  test "should search by country on ES" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    
+    t1 = create_team country: 'Brazil'
+    t2 = create_team country: 'United States'
+    m1 = create_claim_media quote: 'Test 1'
+    m2 = create_claim_media quote: 'Test 2'
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media disable_es_callbacks: false, media: m1, project: p1
+    pm2 = create_project_media disable_es_callbacks: false, media: m2, project: p2
+    sleep 5
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":\"Brazil\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":\"United States\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"country\":[\"Brazil\",\"United States\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal [pm1.id, pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should search by country on PG" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+    
+    t1 = create_team country: 'Brazil'
+    t2 = create_team country: 'United States'
+    p1 = create_project team: t1
+    p2 = create_project team: t2
+    pm1 = create_project_media project: p1
+    pm2 = create_project_media project: p2
+
+    query = 'query CheckSearch { search(query: "{\"country\":\"Brazil\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"country\":\"United States\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    query = 'query CheckSearch { search(query: "{\"country\":[\"Brazil\",\"United States\"]}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal [pm1.id, pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
+
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
+  test "should search by keyword and get similar texts" do
+    setup_elasticsearch
+    t = create_team
+    t.set_trends_enabled = true
+    t.save!
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    m1 = create_claim_media quote: 'This is a test'
+    m2 = create_claim_media quote: 'Foo bar'
+    p = create_project team: t
+    pm1 = create_project_media disable_es_callbacks: false, media: m1, project: p
+    pm2 = create_project_media disable_es_callbacks: false, media: m2, project: p
+    sleep 5
+
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm1.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.8 })
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"This is a test\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+    Bot::Alegre.unstub(:get_similar_texts)
+  end
+
+  test "should search by similar image on PG" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    pm = create_project_media team: t
+
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'query CheckSearch { search(query: "{\"file_type\":\"image\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug, file: file }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
+
+  test "should search by similar image on ES" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    m = create_claim_media quote: 'Test'
+    p = create_project team: t
+    pm = create_project_media disable_es_callbacks: false, media: m, project: p
+    sleep 5
+
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm.id => 0.8 })
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"file_type\":\"image\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug, file: file }
+    assert_response :success
+    assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal pm.id, JSON.parse(@response.body)['data']['search']['medias']['edges'][0]['node']['dbid']
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
+
+  test "should upload search file" do
+    t = create_team
+    u = create_user is_admin: true
+    authenticate_with_user(u)
+
+    path = File.join(Rails.root, 'test', 'data', 'rails.png')
+    file = Rack::Test::UploadedFile.new(path, 'image/png')
+    query = 'mutation { searchUpload(input: {}) { file_handle } }'
+    post :create, params: { query: query, team: t.slug, file: file }
+    assert_response :success
+    puts @response.body
+    hash = JSON.parse(@response.body)['data']['searchUpload']['file_handle']
+    assert_kind_of String, hash
+    assert CheckS3.exist?("check_search/#{hash}")
   end
 
   protected
