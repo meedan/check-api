@@ -691,12 +691,12 @@ en:
   team_rule_item_user_is: Item was created by
   team_rule_item_is_read: Item is read
   team_rule_field_from_fieldset_tasks_value_is: Task has specific answer
-  team_rule_field_from_fieldset_metadata_value_is: Metadata has specific value
+  team_rule_field_from_fieldset_metadata_value_is: Annotation has specific value
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Task answer contains
     keyword
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Metadata value contains
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Annotation value contains
     keyword
-  team_rule_select_field_metadata: Select metadata
+  team_rule_select_field_metadata: Select annotation
   team_rule_select_field_value_metadata: Select value
   team_rule_select_field_tasks: Select task
   team_rule_select_field_value_tasks: Select answer
