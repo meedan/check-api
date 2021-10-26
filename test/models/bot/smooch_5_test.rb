@@ -356,4 +356,12 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     ProjectMedia.any_instance.unstub(:report_status)
     Bot::Alegre.unstub(:get_items_with_similar_media)
   end
+
+  test "should handle exception when adding Smooch integration" do
+    SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).raises(SmoochApi::ApiError)
+    assert_nothing_raised do
+      @installation.smooch_add_integration('telegram', { token: random_string })
+    end
+    SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
+  end
 end
