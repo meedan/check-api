@@ -47,7 +47,12 @@ module SmoochTeamBotInstallation
         if Bot::Smooch::SUPPORTED_INTEGRATIONS.include?(type) && self.bot_user.identifier == 'smooch'
           api_instance = self.smooch_integrations_api_client
           integration = SmoochApi::IntegrationCreate.new({ 'type' => type, 'displayName' => type.capitalize }.merge(params))
-          api_instance.create_integration(self.get_smooch_app_id, integration)
+          begin
+            api_instance.create_integration(self.get_smooch_app_id, integration)
+          rescue SmoochApi::ApiError => e
+            message = begin JSON.parse(e.response_body).dig('error', 'description') rescue nil end
+            raise message unless message.blank?
+          end
         end
       end
 
