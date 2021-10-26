@@ -534,7 +534,7 @@ class Bot::Smooch < BotUser
     end
     workflow ||= {}
     self.get_menu_options(state, workflow).each do |option|
-      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).include?(typed)
+      if option['smooch_menu_option_keyword'].split(',').map(&:downcase).map(&:strip).collect{ |k| k.gsub(/[^a-z0-9]+/, '') }.include?(typed.gsub(/[^a-z0-9]+/, ''))
         self.process_menu_option_value(option['smooch_menu_option_value'], option, message, language, workflow, app_id)
         return true
       end
