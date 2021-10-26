@@ -142,11 +142,10 @@ ActiveRecord::Schema.define(version: 2021_10_19_121302) do
     t.string "annotation_type", null: false
     t.string "field_type", null: false
     t.text "value", null: false
-    t.jsonb "value_json", default: {}
+    t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "index_dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
@@ -159,8 +158,8 @@ ActiveRecord::Schema.define(version: 2021_10_19_121302) do
     t.string "identity"
     t.boolean "success"
     t.string "failure_reason"
-    t.integer "user_id"
     t.string "user_type"
+    t.integer "user_id"
     t.string "context"
     t.string "ip"
     t.text "user_agent"
@@ -247,11 +246,9 @@ ActiveRecord::Schema.define(version: 2021_10_19_121302) do
     t.text "settings"
     t.string "token"
     t.integer "assignments_count", default: 0
-    t.integer "parent_id"
     t.integer "project_group_id"
     t.integer "privacy", default: 0, null: false
     t.index ["id"], name: "index_projects_on_id"
-    t.index ["parent_id"], name: "index_projects_on_parent_id"
     t.index ["privacy"], name: "index_projects_on_privacy"
     t.index ["project_group_id"], name: "index_projects_on_project_group_id"
     t.index ["team_id"], name: "index_projects_on_team_id"
@@ -382,10 +379,14 @@ ActiveRecord::Schema.define(version: 2021_10_19_121302) do
     t.string "language"
     t.integer "team_id"
     t.string "platform"
-    t.datetime "created_at", default: "2021-10-14 17:36:29", null: false
-    t.datetime "updated_at", default: "2021-10-14 17:36:29", null: false
+    t.datetime "created_at", default: "2021-10-25 20:18:01", null: false
+    t.datetime "updated_at", default: "2021-10-25 20:18:01", null: false
+    t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
+    t.index ["language"], name: "index_tipline_subscriptions_on_language"
     t.index ["platform"], name: "index_tipline_subscriptions_on_platform"
+    t.index ["team_id"], name: "index_tipline_subscriptions_on_team_id"
     t.index ["uid", "language", "team_id"], name: "index_tipline_subscriptions_on_uid_and_language_and_team_id", unique: true
+    t.index ["uid"], name: "index_tipline_subscriptions_on_uid"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
