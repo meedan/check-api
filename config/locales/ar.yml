@@ -92,6 +92,8 @@ ar:
         ثوانٍ.
       pender_url_invalid: هذا الرابط غير صالح.
       pender_url_unsafe: هذا الرابط غير آمن.
+      pender_could_not_parse: "‫لا يمكن معالجة هذا الرابط. إذا تكرر هذا الخطأ، يُرجى
+        التواصل عبر العنوان %{support_email}."
       invalid_format_for_languages: صيغة اللغة غير صالحة. المتوقع `['en', 'ar', …]`
   activerecord:
     models:
@@ -699,12 +701,8 @@ ar:
   team_rule_item_user_is: تم إنشاء العنصر من قبل
   team_rule_item_is_read: 'تمت قراءة العنصر '
   team_rule_field_from_fieldset_tasks_value_is: المهمة لها إجابة محددة
-  team_rule_field_from_fieldset_metadata_value_is: البيانات الوصفية لها قيمة محددة
   team_rule_field_from_fieldset_tasks_value_contains_keyword: إجابة المهمة تتضمن كلمة
     مفتاحية
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: قيمة البيانات الوصفيّة
-    تتضمن كلمة مفتاحية
-  team_rule_select_field_metadata: تحديد البيانات الوصفيّة
   team_rule_select_field_value_metadata: تحديد القيمة
   team_rule_select_field_tasks: اختيار مهمة
   team_rule_select_field_value_tasks: اختيار إجابة
@@ -774,6 +772,9 @@ ar:
     *يُرجى إرسال 0* للعودة إلى القائمة الرئيسية.
   subscribe: اشتراك
   unsubscribe: إلغاء الاشتراك
+  smooch_message_subscription_header_subscribed: أنت حاليا *مشترك* في رسالتنا الإخبارية.
+  smooch_message_subscription_header_unsubscribed: أنت حاليا *غير مشترك* في رسالتنا
+    الإخبارية.
   info:
     messages:
       sent_to_trash_by_rule: أُرسِل "%{item_title}" إلى المهملات بواسطة قاعدة آلية.

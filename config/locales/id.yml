@@ -97,6 +97,8 @@ id:
         detik.
       pender_url_invalid: Tautan ini salah.
       pender_url_unsafe: Tautan ini tidak aman.
+      pender_could_not_parse: Kami tidak dapat mengurai tautan ini. Silakan hubungi
+        %{support_email} jika kesalahannya terus berlanjut.
       invalid_format_for_languages: Format bahasa salah. Format yang diharapkan `['en',
         'ar', ....]`
   activerecord:
@@ -715,12 +717,8 @@ id:
   team_rule_item_user_is: Perihal dibuat oleh
   team_rule_item_is_read: Perihal dibaca
   team_rule_field_from_fieldset_tasks_value_is: Tugas dengan jawaban spesifik
-  team_rule_field_from_fieldset_metadata_value_is: Metadata dengan nilai spesifik
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Jawaban tugas mengandung
     kata kunci
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Nilai metadata mengandung
-    kata kunci
-  team_rule_select_field_metadata: Pilih metadata
   team_rule_select_field_value_metadata: Pilih nilai
   team_rule_select_field_tasks: Pilih tugas
   team_rule_select_field_value_tasks: Pilih jawaban
@@ -793,6 +791,10 @@ id:
     *Balas 0* untuk kembali ke menu utama.
   subscribe: Berlangganan
   unsubscribe: Berhenti berlangganan
+  smooch_message_subscription_header_subscribed: Anda saat ini sedang *berlangganan*
+    ke buletin kami.
+  smooch_message_subscription_header_unsubscribed: Anda saat ini sedang *berhenti
+    berlangganan* ke buletin kami.
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan
