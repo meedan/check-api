@@ -632,12 +632,8 @@ ru:
   team_rule_item_user_is: Материал был создан данным автором
   team_rule_item_is_read: Материал прочитан
   team_rule_field_from_fieldset_tasks_value_is: На вопрос есть конкретный ответ
-  team_rule_field_from_fieldset_metadata_value_is: У метаданных есть конкретное значение
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Ответ содержит ключевое
     слово
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Значение метаданных
-    содержит ключевое слово
-  team_rule_select_field_metadata: Выберите метаданные
   team_rule_select_field_value_metadata: Выберите значение
   team_rule_select_field_tasks: Выберите вопрос
   team_rule_select_field_value_tasks: Выберите ответ

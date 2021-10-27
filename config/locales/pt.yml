@@ -94,6 +94,8 @@ pt:
         em alguns segundos.
       pender_url_invalid: Este link é inválido.
       pender_url_unsafe: Este link não é seguro.
+      pender_could_not_parse: Não foi possível analisar este link. Por favor, contate
+        %{support_email} se o erro persistir.
       invalid_format_for_languages: Formato de idioma inválido. O formato esperado
         é `['en', 'ar', …]`
   activerecord:
@@ -712,12 +714,8 @@ pt:
   team_rule_item_user_is: O item foi criado por
   team_rule_item_is_read: O item foi lido
   team_rule_field_from_fieldset_tasks_value_is: A tarefa tem uma resposta específica
-  team_rule_field_from_fieldset_metadata_value_is: Os metadados têm um valor específico
   team_rule_field_from_fieldset_tasks_value_contains_keyword: A resposta da tarefa
     contém a palavra-chave
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Os metadados contêm
-    a palavra-chave
-  team_rule_select_field_metadata: Selecionar metadados
   team_rule_select_field_value_metadata: Selecionar valor
   team_rule_select_field_tasks: Selecionar tarefa
   team_rule_select_field_value_tasks: Selecionar resposta
@@ -791,6 +789,10 @@ pt:
     *Responda 0* para voltar ao Menu Principal.
   subscribe: Inscrever-se
   unsubscribe: Desinscrever-se
+  smooch_message_subscription_header_subscribed: Atualmente, você *está inscrito(a)*
+    em nosso boletim informativo.
+  smooch_message_subscription_header_unsubscribed: Atualmente, você *não está inscrito(a)*
+    em nosso boletim informativo.
   info:
     messages:
       sent_to_trash_by_rule: O item "%{item_title}" foi enviado para a lixeira, seguindo

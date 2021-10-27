@@ -622,12 +622,8 @@ sw:
   team_rule_item_user_is: Kitu kiliundwa na
   team_rule_item_is_read: Kitu kimesomwa
   team_rule_field_from_fieldset_tasks_value_is: Kazi ina jibu fulani
-  team_rule_field_from_fieldset_metadata_value_is: Metadata ina thamani maalum
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Jibu la kazi lina neno
     kuu
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Thamani ya Metadata
-    ina neno kuu
-  team_rule_select_field_metadata: Chagua metadata
   team_rule_select_field_value_metadata: Chagua thamani
   team_rule_select_field_tasks: Chagua kazi
   team_rule_select_field_value_tasks: Chagua jibu

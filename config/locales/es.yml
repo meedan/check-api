@@ -93,6 +93,8 @@ es:
         nuevo en unos segundos.
       pender_url_invalid: Este enlace es inválido.
       pender_url_unsafe: Este enlace no es seguro.
+      pender_could_not_parse: No pudimos analizar este enlace. Por favor contacta
+        %{support_email} si el error persiste.
       invalid_format_for_languages: Formato de idiomas no válido. Se espera `['en',
         'ar', ...]`
   activerecord:
@@ -711,12 +713,8 @@ es:
   team_rule_item_user_is: El ítem fue creado por
   team_rule_item_is_read: Ítem leído
   team_rule_field_from_fieldset_tasks_value_is: La tarea tiene una respuesta específica
-  team_rule_field_from_fieldset_metadata_value_is: El metadato tiene un valor específico
   team_rule_field_from_fieldset_tasks_value_contains_keyword: La respuesta de la tarea
     contiene una palabra clave
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: El valor de los metadatos
-    contiene una palabra clave
-  team_rule_select_field_metadata: Seleccionar metadato
   team_rule_select_field_value_metadata: Seleccionar valor
   team_rule_select_field_tasks: Seleccionar tarea
   team_rule_select_field_value_tasks: Seleccionar respuesta
@@ -790,6 +788,10 @@ es:
     *Responde 0* para regresar al menú principal.
   subscribe: Suscribirse
   unsubscribe: 'Cancelar suscripción '
+  smooch_message_subscription_header_subscribed: Actualmente estás *suscrita(o)* a
+    nuestro boletín.
+  smooch_message_subscription_header_unsubscribed: Actualmente estás *desuscrita(o)*
+    de nuestro boletín.
   info:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una

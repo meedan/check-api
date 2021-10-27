@@ -694,8 +694,8 @@ en:
   team_rule_field_from_fieldset_metadata_value_is: Annotation has specific value
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Task answer contains
     keyword
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Annotation value contains
-    keyword
+  team_rule_field_from_fieldset_metadata_value_contains_keyword: Annotation value
+    contains keyword
   team_rule_select_field_metadata: Select annotation
   team_rule_select_field_value_metadata: Select value
   team_rule_select_field_tasks: Select task
@@ -790,7 +790,8 @@ en:
     2. Add more details
     3. Cancel and go to main menu
   smooch_v2_search_state: Looking for fact-check...
-  smooch_v2_search_error: Error when trying to look for fact-checks. Please try again later.
+  smooch_v2_search_error: Error when trying to look for fact-checks. Please try again
+    later.
   smooch_v2_add_more_details_state: Please add more details.
   smooch_v2_search_result_state: |-
     Are these fact-checks relevant?

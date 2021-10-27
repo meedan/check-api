@@ -97,6 +97,8 @@ fr:
         quelques secondes.
       pender_url_invalid: Ce lien est invalide.
       pender_url_unsafe: Ce lien n’est pas fiable.
+      pender_could_not_parse: 'Nous n’avons pas pu analyser ce lien. Veuillez contacter
+        %{support_email} si l’erreur persiste. '
       invalid_format_for_languages: Le format de langue est invalide. Le format `['fr',
         'en'…]` est attendu
   activerecord:
@@ -305,7 +307,7 @@ fr:
   error_annotated_archived: Désolé, vous ne pouvez pas ajouter une note à un élément
     qui est dans la corbeille
   only_super_admin_can_do_this: Désolé, seuls les administrateurs système peuvent
-    effectuer cette modification
+    effectuer cet changement
   cant_change_custom_statuses: |-
     Désolé, vous ne pouvez pas modifier les définitions des états, car certains états disparaîtraient. Ces identifiants d’état : %{statuses} sont utilisés par les articles suivants :
     %{urls} %{others_amount}
@@ -734,13 +736,8 @@ fr:
   team_rule_item_user_is: L’élément a été créé par
   team_rule_item_is_read: L’élément a été lu
   team_rule_field_from_fieldset_tasks_value_is: La tâche à une réponse précise
-  team_rule_field_from_fieldset_metadata_value_is: Les métadonnées ont une valeur
-    précise
   team_rule_field_from_fieldset_tasks_value_contains_keyword: La réponse de la tâche
     comprend le mot-clé
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: La valeur des métadonnées
-    comprend le mot-clé
-  team_rule_select_field_metadata: Sélectionnez les métadonnées
   team_rule_select_field_value_metadata: Sélectionnez la valeur
   team_rule_select_field_tasks: Sélectionnez la tâche
   team_rule_select_field_value_tasks: Sélectionnez la réponse
@@ -814,6 +811,10 @@ fr:
     *Répondez 0* pour revenir au menu principal.
   subscribe: M’abonner
   unsubscribe: Me désabonner
+  smooch_message_subscription_header_subscribed: L’abonnement à notre lettre d’information
+    est actuellement *activé*.
+  smooch_message_subscription_header_unsubscribed: L’abonnement à notre lettre d’information
+    est actuellement *désactivé*.
   info:
     messages:
       sent_to_trash_by_rule: "« %{item_title} » a été mis dans la corbeille par une
