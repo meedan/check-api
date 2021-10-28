@@ -17,9 +17,6 @@ class Comment < ApplicationRecord
                   targets: proc { |a| [a.annotated.media] },
                   data: proc { |a| a.to_json }
 
-  def content
-    { text: self.text }.to_json
-  end
 
   def slack_params
     super.merge({
