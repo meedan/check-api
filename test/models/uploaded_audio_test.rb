@@ -41,5 +41,11 @@ class UploadedAudioTest < ActiveSupport::TestCase
     # m4a file
     a = create_uploaded_audio file: 'with_cover.m4a'
     assert_not_empty a.thumbnail_path
+    # should rescue error for non existing cover
+    AudioUploader.any_instance.stubs(:audio_cover_art_m4a).raises(StandardError)
+    assert_nothing_raised do
+      create_uploaded_audio file: 'with_cover_error.m4a'
+    end
+    AudioUploader.any_instance.unstub(:audio_cover_art_m4a)
   end
 end
