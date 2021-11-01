@@ -40,8 +40,12 @@ module ProjectMediaCreators
       type = self.media.type.sub('Uploaded', '').downcase
       title = "#{type}-#{self.team&.slug}-#{type_count}"
     else
-      file_path = self.media.file.path
-      title = File.basename(file_path, File.extname(file_path))
+      # Get original file name first
+      title = File.basename(self.file.original_filename, '.*')
+      if title.blank?
+        file_path = self.media.file.path
+        title = File.basename(file_path, File.extname(file_path))
+      end
     end
     self.analysis = { title: title }
   end
