@@ -41,7 +41,7 @@ module ProjectMediaCreators
       title = "#{type}-#{self.team&.slug}-#{type_count}"
     else
       # Get original file name first
-      title = File.basename(self.file.original_filename, '.*')
+      title = File.basename(self.file.original_filename, '.*') if !self.file.blank? && self.file.respond_to?(:original_filename)
       if title.blank?
         file_path = self.media.file.path
         title = File.basename(file_path, File.extname(file_path))
