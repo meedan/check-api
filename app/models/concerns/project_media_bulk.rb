@@ -253,7 +253,7 @@ module ProjectMediaBulk
       whodunnit = extra_options['user_id'].blank? ? nil : extra_options['user_id'].to_s
       team_id = extra_options['team_id']
       versions = []
-      callbacks = [:apply_rules, :update_report_design_if_needed]
+      callbacks = [:apply_rules, :update_report_design_if_needed, :replicate_status_to_children, :send_message]
       DynamicAnnotation::Field.where(
         field_name: "verification_status_status", annotation_type: "verification_status", annotation_id: ids
       ).find_each do |f|

@@ -448,5 +448,4 @@ class BotUser < User
   def self.check_bot_user
     self.get_user('check_bot')
   end
-
 end

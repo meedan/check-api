@@ -648,12 +648,8 @@ fil:
   team_rule_item_user_is: Ginawa ang item ni
   team_rule_item_is_read: Nabasa na ang item
   team_rule_field_from_fieldset_tasks_value_is: May tiyak na sagot ang gawain
-  team_rule_field_from_fieldset_metadata_value_is: May tiyak na value ang metadata
   team_rule_field_from_fieldset_tasks_value_contains_keyword: May nilalamang keyword
     ang sagot sa gawain
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: May nilalamang keyword
-    ang metadata value
-  team_rule_select_field_metadata: Mamili ng metadata
   team_rule_select_field_value_metadata: Mamili ng value
   team_rule_select_field_tasks: Mamili ng gawain
   team_rule_select_field_value_tasks: Mamili ng sagot

@@ -47,8 +47,16 @@ module SmoochSearch
       end
     end
 
-    def parse_search_results_from_alegre(results)
-      results.sort{ |a, b| a[1] <=> b[1] }.to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }.select{ |pm| pm.report_status == 'published' }.last(3)
+    def parse_search_results_from_alegre(results, team_id)
+      after = self.date_filter(team_id)
+      results.sort{ |a, b| a[1] <=> b[1] }.to_h.keys.reverse.collect{ |id| ProjectMedia.find(id) }.select{ |pm| pm.report_status == 'published' && pm.updated_at.to_i > after.to_i }.last(3)
+    end
+
+    def date_filter(team_id)
+      tbi = TeamBotInstallation.where(user_id: BotUser.alegre_user&.id, team_id: team_id).last
+      settings = tbi.nil? ? {} : tbi.alegre_settings
+      date = Time.now - settings['similarity_date_threshold'].to_i.months unless settings['similarity_date_threshold'].blank?
+      settings['date_similarity_threshold_enabled'] && !date.blank? ? date : nil
     end
 
     def get_search_results(uid, last_message, team_id)
@@ -57,16 +65,19 @@ module SmoochSearch
         list = self.list_of_bundled_messages_from_user(uid)
         message = self.bundle_list_of_messages(list, last_message)
         type = message['type'] || 'text'
+        after = self.date_filter(team_id)
         if type == 'text'
           text = message['text'].gsub(/^[0-9]+$/, '')
           if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
-            results = CheckSearch.new({ keyword: text, eslimit: 3, sort: 'demand', team_id: team_id, report_status: 'published' }.to_json).medias
+            filters = { keyword: text, eslimit: 3, report_status: ['published'] }
+            filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
+            results = CheckSearch.new(filters.to_json, nil, team_id).medias
           else
-            results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], message['text']))
+            results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], message['text']), team_id)
           end
         else
           threshold = Bot::Alegre.get_threshold_for_query(type, ProjectMedia.new(team_id: team_id))[:value]
-          results = self.parse_search_results_from_alegre(Bot::Alegre.get_items_with_similar_media(message['mediaUrl'], { value: threshold }, [team_id], "/#{type}/similarity/"))
+          results = self.parse_search_results_from_alegre(Bot::Alegre.get_items_with_similar_media(message['mediaUrl'], { value: threshold }, [team_id], "/#{type}/similarity/"), team_id)
         end
       rescue StandardError => e
         self.handle_search_error(uid, e)

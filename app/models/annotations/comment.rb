@@ -1,6 +1,7 @@
 class Comment < ApplicationRecord
   include AnnotationBase
-  include HasImage
+  include HasFile
+  mount_uploader :file, GenericFileUploader
 
   field :text
   validates_presence_of :text, if: proc { |comment| comment.file.blank? }
@@ -17,9 +18,6 @@ class Comment < ApplicationRecord
                   targets: proc { |a| [a.annotated.media] },
                   data: proc { |a| a.to_json }
 
-  def content
-    { text: self.text }.to_json
-  end
 
   def slack_params
     super.merge({
@@ -39,6 +37,22 @@ class Comment < ApplicationRecord
 
   def file_mandatory?
     false
+  end
+
+  def content
+    data = { text: self.text }
+    data.merge!(self.file_data) unless self.file_data.blank?
+    data.to_json
+  end
+
+  def file_data
+    data = {}
+    file = self.file&.file
+    unless file.blank?
+      filename = begin JSON.parse(file.filename).first rescue file.filename end
+      data = { file_path: self.public_path, file_name: filename }
+    end
+    data
   end
 
   protected

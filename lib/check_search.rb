@@ -1,10 +1,10 @@
 class CheckSearch
-  def initialize(options, file = nil)
+  def initialize(options, file = nil, team_id = nil)
     # options include keywords, projects, tags, status, report status
     options = begin JSON.parse(options) rescue {} end
     @options = options.clone.with_indifferent_access
     @options['input'] = options.clone
-    @options['team_id'] = team_condition
+    @options['team_id'] = team_condition(team_id)
     @options['operator'] ||= 'AND' # AND or OR
     # set sort options
     smooch_bot_installed = TeamBotInstallation.where(team_id: @options['team_id'], user_id: BotUser.smooch_user&.id).exists?
@@ -37,7 +37,8 @@ class CheckSearch
     'type_of_media' => 'type_of_media', 'title' => 'sort_title'
   }
 
-  def team_condition
+  def team_condition(team_id = nil)
+    return team_id unless team_id.nil?
     if @options['country'] && User.current&.is_admin?
       country = [@options['country']].flatten.reject{ |c| c.blank? }
       Team.where(country: country).map(&:id)

@@ -59,7 +59,7 @@ class AudioUploader < FileUploader
     data = {}
     TagLib::MP4::File.open(current_path) do |file|
       tag = file.tag
-      unless tag.nil?
+      unless tag.nil? || tag.item_map['covr'].nil?
         cover_art_list = tag.item_map['covr'].to_cover_art_list
         cover_art = cover_art_list.first
         data = {
@@ -76,8 +76,12 @@ class AudioUploader < FileUploader
   def audio_cover
     extname = File.extname(current_path).delete('.')
     method = "audio_cover_art_#{extname}"
-    data = self.send(method) if self.respond_to?(method)
-    save_audio_cover(data)
+    begin
+      data = self.send(method) if self.respond_to?(method)
+      save_audio_cover(data)
+    rescue StandardError => e
+      Rails.logger.error("[Audio Cover] Exception for file #{current_path}: #{e.message}")
+    end
   end
 
   def audio_cover_data(tag)

@@ -61,13 +61,16 @@ class Tag < ApplicationRecord
     end
     result = Annotation.import inserts, validate: false, recursive: false, timestamps: true
 
-    # Run callbacks in background
-    Tag.delay.run_bulk_create_callbacks(result.ids.map(&:to_i).to_json)
+    # delete cache to enforce creation on first hit
+    ids.each{ |pm_id| Rails.cache.delete("check_cached_field:ProjectMedia:#{pm_id.to_i}:tags_as_sentence") }
 
-    { team: team }
+    # Run callbacks in background
+    Tag.delay.run_bulk_create_callbacks(result.ids.map(&:to_i).to_json, ids.to_json)
+
+    { team: team, check_search_team: team.check_search_team }
   end
 
-  def self.run_bulk_create_callbacks(ids_json)
+  def self.run_bulk_create_callbacks(ids_json, pmids_json)
     ids = JSON.parse(ids_json)
     callbacks = [:add_elasticsearch_tag, :apply_rules_and_actions, :update_tags_count]
     ids.each do |id|
@@ -76,6 +79,9 @@ class Tag < ApplicationRecord
         t.send(callback)
       end
     end
+    # fill the tag cache
+    pmids = JSON.parse(pmids_json)
+    ProjectMedia.where(id: pmids).find_each { |pm| pm.tags_as_sentence }
   end
 
   private
