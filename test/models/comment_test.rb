@@ -155,6 +155,8 @@ class CommentTest < ActiveSupport::TestCase
   test "should have content" do
     c = create_comment
     assert_equal ['text'], JSON.parse(c.content).keys
+    c = create_comment file: 'rails.png'
+    assert_equal ['text', 'file'].sort, JSON.parse(c.content).keys.sort
   end
 
   test "should have annotators" do
@@ -329,55 +331,9 @@ class CommentTest < ActiveSupport::TestCase
     assert_not_nil c.file
   end
 
-  test "should not upload a file that is not an image" do
-    assert_no_difference 'Comment.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'not-an-image.csv'
-      end
-    end
-  end
-
-  test "should not upload a big image" do
-    assert_no_difference 'Comment.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'ruby-big.png'
-      end
-    end
-  end
-
-  test "should not upload a small image" do
-    assert_no_difference 'Comment.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'ruby-small.png'
-      end
-    end
-  end
-
   test "should have public path" do
     t = create_comment file: 'rails.png'
     assert_match /^http/, t.public_path
-  end
-
-  test "should not upload a heavy image" do
-    assert_no_difference 'Comment.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'rails-photo.jpg'
-      end
-    end
-  end
-
-  test "should create versions" do
-    i = create_comment file: 'rails.png'
-    assert_not_nil i.file.thumbnail
-    assert_not_nil i.file.embed
-  end
-
-  test "should not upload corrupted file" do
-    assert_no_difference 'Comment.length' do
-      assert_raises ActiveRecord::RecordInvalid do
-        create_comment file: 'corrupted-image.png'
-      end
-    end
   end
 
   test "should not upload if disk is full" do
@@ -388,18 +344,6 @@ class CommentTest < ActiveSupport::TestCase
       end
     end
     Comment.any_instance.unstub(:save!)
-  end
-
-  test "should not upload unsafe image (mocked)" do
-    stub_configs({ 'clamav_service_path' => 'localhost:8080' }) do
-      ClamAV::Client.stubs(:new).returns(MockedClamavClient.new('virus'))
-      assert_no_difference 'Comment.length' do
-        assert_raises ActiveRecord::RecordInvalid do
-          create_comment file: 'rails.png'
-        end
-      end
-      ClamAV::Client.unstub(:new)
-    end
   end
 
   test "should upload safe image (mocked)" do
@@ -432,14 +376,11 @@ class CommentTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have image data" do
+  test "should have file data" do
     c1 = create_comment file: 'rails.png'
-    a1 = Annotation.find(c1.id).file_data
-    assert a1.has_key?(:embed)
-    assert a1.has_key?(:thumbnail)
+    assert c1.file_data.has_key?(:file)
     c2 = create_comment
-    a2 = Annotation.find(c2.id).file_data
-    assert_equal({}, a2)
+    assert_equal({}, c2.file_data)
   end
 
   test "should extract Check URLs inside brackets" do
