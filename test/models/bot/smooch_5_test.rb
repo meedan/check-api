@@ -318,7 +318,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should perform a keyword search if text with less or equal to 3 words" do
-    pm = create_project_media
+    t = create_team
+    b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
+    b.install_to!(t)
+    tbi = TeamBotInstallation.where(team_id: t.id, user_id: b.id).last
+    tbi.set_similarity_date_threshold = 6
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.save!
+    pm = create_project_media team: t
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar' })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
@@ -330,7 +337,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should perform a text similarity search if text with more than 3 words" do
-    pm = create_project_media
+    t = create_team
+    b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
+    b.install_to!(t)
+    tbi = TeamBotInstallation.where(team_id: t.id, user_id: b.id).last
+    tbi.set_similarity_date_threshold = 6
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.save!
+    pm = create_project_media team: t
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => 'Foo bar foo bar foo bar' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
@@ -344,7 +358,14 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
   end
 
   test "should perform a media similarity search" do
-    pm = create_project_media
+    t = create_team
+    b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
+    b.install_to!(t)
+    tbi = TeamBotInstallation.where(team_id: t.id, user_id: b.id).last
+    tbi.set_similarity_date_threshold = 6
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.save!
+    pm = create_project_media team: t
 
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'image', 'mediaUrl' => 'https://image' })
     ProjectMedia.any_instance.stubs(:report_status).returns('published')
@@ -355,5 +376,13 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
     Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
+
+  test "should handle exception when adding Smooch integration" do
+    SmoochApi::IntegrationApi.any_instance.stubs(:create_integration).raises(SmoochApi::ApiError)
+    assert_nothing_raised do
+      @installation.smooch_add_integration('telegram', { token: random_string })
+    end
+    SmoochApi::IntegrationApi.any_instance.unstub(:create_integration)
   end
 end

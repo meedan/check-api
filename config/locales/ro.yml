@@ -652,12 +652,8 @@ ro:
   team_rule_item_user_is: Elementul a fost creat de
   team_rule_item_is_read: Elementul este citit
   team_rule_field_from_fieldset_tasks_value_is: Sarcina are un răspuns specific
-  team_rule_field_from_fieldset_metadata_value_is: Metadatele au o valoare specifică
   team_rule_field_from_fieldset_tasks_value_contains_keyword: Răspunsul la sarcină
     conține cuvântul-cheie
-  team_rule_field_from_fieldset_metadata_value_contains_keyword: Valoarea metadatelor
-    conține cuvântul-cheie
-  team_rule_select_field_metadata: Selectează metadatele
   team_rule_select_field_value_metadata: Selectează valoarea
   team_rule_select_field_tasks: Selectează sarcina
   team_rule_select_field_value_tasks: Selectează răspunsul
