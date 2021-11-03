@@ -378,7 +378,7 @@ class CommentTest < ActiveSupport::TestCase
 
   test "should have file data" do
     c1 = create_comment file: 'rails.png'
-    assert c1.file_data.has_key?(:file)
+    assert ['file_path', 'file_name'].sort, c1.file_data.keys.sort
     c2 = create_comment
     assert_equal({}, c2.file_data)
   end
