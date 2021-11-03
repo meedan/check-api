@@ -69,9 +69,9 @@ module SmoochSearch
         if type == 'text'
           text = message['text'].gsub(/^[0-9]+$/, '')
           if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
-            filters = { keyword: text, eslimit: 3, sort: 'demand', team_id: team_id, report_status: 'published' }
+            filters = { keyword: text, eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
-            results = CheckSearch.new(filters.to_json).medias
+            results = CheckSearch.new(filters.to_json, nil, team_id).medias
           else
             results = self.parse_search_results_from_alegre(Bot::Alegre.get_similar_texts([team_id], message['text']), team_id)
           end
