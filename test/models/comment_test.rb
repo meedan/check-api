@@ -156,7 +156,7 @@ class CommentTest < ActiveSupport::TestCase
     c = create_comment
     assert_equal ['text'], JSON.parse(c.content).keys
     c = create_comment file: 'rails.png'
-    assert_equal ['text', 'file'].sort, JSON.parse(c.content).keys.sort
+    assert_equal ['text', 'file_path', 'file_name'].sort, JSON.parse(c.content).keys.sort
   end
 
   test "should have annotators" do

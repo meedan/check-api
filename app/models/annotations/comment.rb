@@ -46,7 +46,13 @@ class Comment < ApplicationRecord
   end
 
   def file_data
-    self.file.blank? ? {} : { file: self.public_path }
+    data = {}
+    file = self.file&.file
+    unless file.blank?
+      filename = begin JSON.parse(file.filename).first rescue file.filename end
+      data = { file_path: self.public_path, file_name: filename }
+    end
+    data
   end
 
   protected

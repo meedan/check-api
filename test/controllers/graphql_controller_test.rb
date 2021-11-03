@@ -715,7 +715,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     assert_response :success
     data = JSON.parse(Comment.where(annotation_type: 'comment').last.content)
-    assert_match /\.png$/, data['file']
+    assert_match /\.png$/, data['file_path']
   end
 
   test "should not query invalid type" do
