@@ -67,7 +67,7 @@ module SmoochSearch
         type = message['type'] || 'text'
         after = self.date_filter(team_id)
         if type == 'text'
-          text = message['text'].gsub(/^[0-9]+$/, '')
+          text = message['text'].gsub(/^[0-9]+$/, '').gsub(/\s+/, ' ')
           if text.split(/\s+/).reject{ |w| w.blank? }.size <= 3
             filters = { keyword: text, eslimit: 3, report_status: ['published'] }
             filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) if after
