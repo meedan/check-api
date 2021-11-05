@@ -67,7 +67,7 @@ module SmoochSearch
         type = message['type'] || 'text'
         after = self.date_filter(team_id)
         if type == 'text'
-          words = message['text'].gsub(/\s+/, ' ').split(' ').reject{ |w| w.blank? }.reject{ |w| w =~ /^[0-9]+$/ }
+          words = message['text'].gsub(/#{::Bot::Smooch::MESSAGE_BOUNDARY}|\s+/, ' ').split(/ +/).reject{ |w| w.blank? }.reject{ |w| w =~ /^[0-9]+$/ }
           text = words.join(' ')
           if words.size <= 3
             filters = { keyword: text, eslimit: 3, report_status: ['published'] }
