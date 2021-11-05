@@ -162,7 +162,8 @@ class TeamTest < ActiveSupport::TestCase
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     f = Rack::Test::UploadedFile.new(path, 'image/png')
     t.file = f
-    assert_match /rails\.png$/, t.logo.url
+    t.save!
+    assert_match /rails\.png$/, t.reload.logo.url
   end
 
   test "should not upload a logo that is not an image" do
