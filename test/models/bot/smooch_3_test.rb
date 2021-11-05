@@ -125,36 +125,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     end
   end
 
-  test "should not crash on und language annotation" do
-    ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
-    at = create_annotation_type annotation_type: 'language', label: 'Language'
-    create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-    bot = create_alegre_bot
-    pm = create_project_media
-    Bot::Alegre.save_language(pm, 'und')
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      message: {
-        '_id': random_string,
-        authorId: random_string,
-        type: random_string,
-        text: random_string,
-      },
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.with_indifferent_access
-    Rails.cache.write('smooch:response:' + payload['message']['_id'], pm.id)
-    assert_nothing_raised do
-      Bot::Smooch.resend_message_after_window(payload.to_json)
-    end
-  end
-
   test "should delete cache entries when user annotation is deleted" do
     create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
     Bot::Smooch.unstub(:save_user_information)
