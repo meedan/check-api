@@ -283,7 +283,7 @@ class GraphqlController5Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p, media: create_uploaded_audio(file: 'rails.mp3')
     pm2 = create_project_media project: p
-    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
@@ -298,7 +298,7 @@ class GraphqlController5Test < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     pm2 = create_project_media project: p
-    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9 })
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
     query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
