@@ -7,9 +7,33 @@ class Bot::Alegre < BotUser
   ELASTICSEARCH_MODEL = 'elasticsearch'
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
+  ALL_TEXT_SIMILARITY_FIELDS = REPORT_TEXT_SIMILARITY_FIELDS + ['original_title', 'original_description', 'extracted_text']
 
   ::ProjectMedia.class_eval do
     attr_accessor :alegre_similarity_thresholds, :alegre_matched_fields
+
+    def similar_items
+      ids = [0]
+      team_ids = User.current&.is_admin? ? Team.where.not(country: nil).map(&:id) : [self.team_id]
+      if self.is_media?
+        media_type = {
+          'UploadedVideo' => 'video',
+          'UploadedAudio' => 'audio',
+          'UploadedImage' => 'image',
+        }[self.media.type]
+        threshold = Bot::Alegre.get_threshold_for_query(media_type, self)[:value]
+        ids = Bot::Alegre.get_items_with_similar_media(Bot::Alegre.media_file_url(self), { value: threshold }, team_ids, "/#{media_type}/similarity/").to_h.keys
+      elsif self.is_text?
+        ids = []
+        threads = []
+        ALL_TEXT_SIMILARITY_FIELDS.each do |field|
+          threads << Thread.new { ids << Bot::Alegre.get_similar_texts(team_ids, self.send(field)).to_h.keys }
+        end
+        threads.map(&:join)
+        ids = ids.flatten.uniq
+      end
+      ProjectMedia.where(id: ids.empty? ? [0] : ids)
+    end
   end
 
   Dynamic.class_eval do

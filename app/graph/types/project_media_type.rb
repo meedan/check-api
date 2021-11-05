@@ -301,5 +301,9 @@ ProjectMediaType = GraphqlCrudOperations.define_default_type do
     }
   end
 
-  # End of fields
+  connection :similar_items, -> { ProjectMediaType.connection_type } do
+    resolve -> (project_media, _args, _ctx) {
+      project_media.similar_items
+    }
+  end
 end
