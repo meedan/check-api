@@ -35,6 +35,10 @@ module ProjectMediaGetters
     self.is_claim? || self.is_link?
   end
 
+  def is_media?
+    self.is_image? || self.is_audio? || self.is_video?
+  end
+
   def report_type
     self.media.class.name.downcase
   end

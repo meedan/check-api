@@ -278,6 +278,36 @@ class GraphqlController5Test < ActionController::TestCase
     end
   end
 
+  test "should find similar items to media item" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p, media: create_uploaded_audio(file: 'rails.mp3')
+    pm2 = create_project_media project: p
+    Bot::Alegre.stubs(:get_items_with_similar_media).returns({ pm2.id => 0.9 })
+
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
+
+    Bot::Alegre.unstub(:get_items_with_similar_media)
+  end
+
+  test "should find similar items to text item" do
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    pm2 = create_project_media project: p
+    Bot::Alegre.stubs(:get_similar_texts).returns({ pm2.id => 0.9 })
+
+    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
+
+    Bot::Alegre.unstub(:get_similar_texts)
+  end
+
   protected
 
   def assert_error_message(expected)
