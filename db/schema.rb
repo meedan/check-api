@@ -379,8 +379,8 @@ ActiveRecord::Schema.define(version: 2021_10_19_121302) do
     t.string "language"
     t.integer "team_id"
     t.string "platform"
-    t.datetime "created_at", default: "2021-11-03 15:11:38", null: false
-    t.datetime "updated_at", default: "2021-11-03 15:11:38", null: false
+    t.datetime "created_at", default: "2021-11-05 02:44:21", null: false
+    t.datetime "updated_at", default: "2021-11-05 02:44:21", null: false
     t.index ["language", "team_id"], name: "index_tipline_subscriptions_on_language_and_team_id"
     t.index ["language"], name: "index_tipline_subscriptions_on_language"
     t.index ["platform"], name: "index_tipline_subscriptions_on_platform"
