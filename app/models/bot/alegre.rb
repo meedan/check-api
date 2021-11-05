@@ -239,7 +239,7 @@ class Bot::Alegre < BotUser
 
   def self.get_language(pm)
     lang = pm.text.blank? ? 'und' : self.get_language_from_alegre(pm.text)
-    self.save_language(pm, lang)
+    self.save_annotation(pm, 'language', { language: lang })
     lang
   end
 
@@ -252,10 +252,6 @@ class Bot::Alegre < BotUser
       nil
     end
     lang
-  end
-
-  def self.save_language(pm, lang)
-    self.save_annotation(pm, 'language', { language: lang })
   end
 
   def self.save_annotation(pm, type, fields)
