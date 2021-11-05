@@ -156,15 +156,6 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should be equivalent to set file or logo" do
-    t = create_team logo: nil
-    assert_match /team\.png$/, t.logo.url
-    path = File.join(Rails.root, 'test', 'data', 'rails.png')
-    f = Rack::Test::UploadedFile.new(path, 'image/png')
-    t.file = f
-    assert_match /rails\.png$/, t.logo.url
-  end
-
   test "should not upload a logo that is not an image" do
     assert_no_difference 'Team.count' do
       assert_raises ActiveRecord::RecordInvalid do
