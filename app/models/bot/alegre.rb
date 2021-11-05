@@ -32,7 +32,7 @@ class Bot::Alegre < BotUser
         threads.map(&:join)
         ids = ids.flatten.uniq
       end
-      ProjectMedia.where(id: ids.empty? ? [0] : ids)
+      ProjectMedia.where(id: ids.empty? ? [0] : ids.reject{ |id| id == self.id })
     end
   end
 
