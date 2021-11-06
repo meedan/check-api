@@ -194,13 +194,18 @@ class Bot::Fetch < BotUser
       ProjectMedia.create!(media: Blank.create!, team: team, user: user, channel: CheckChannels::ChannelCodes::FETCH)
     end
 
+    def self.get_title(claim_review)
+      title = claim_review['claimReviewed'] || claim_review['headline']
+      self.parse_text(title.to_s)
+    end
+
     def self.set_analysis(claim_review, pm)
       s = pm.last_status_obj
       s.skip_check_ability = true
       s.skip_notifications = true
       s.disable_es_callbacks = Rails.env.to_s == 'test'
       s.set_fields = {
-        title: self.parse_text(claim_review['claimReviewed']),
+        title: self.get_title(claim_review),
         content: self.parse_text(claim_review['text']),
         published_article_url: claim_review['url'].to_s,
         date_published: claim_review['datePublished'].blank? ? '' : Time.parse(claim_review['datePublished']).to_i,
@@ -258,8 +263,8 @@ class Bot::Fetch < BotUser
           language: language,
           status_label: pm.status_i18n(pm.reload.last_verification_status),
           description: self.parse_text(claim_review['text']).truncate(240),
-          title: self.parse_text(claim_review['claimReviewed']).truncate(85),
-          headline: self.parse_text(claim_review['claimReviewed']).truncate(85),
+          title: self.get_title(claim_review).truncate(85),
+          headline: self.get_title(claim_review).truncate(85),
           use_visual_card: true,
           image: '',
           use_introduction: false,
