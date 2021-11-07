@@ -14,13 +14,13 @@ module SmoochResources
       end
     end
 
-    def send_rss_to_user(uid, resource)
+    def send_rss_to_user(uid, resource, no_cache = false)
       message = []
       unless resource.blank?
         message << "*#{resource['smooch_custom_resource_title']}*" unless resource['smooch_custom_resource_title'].to_s.strip.blank?
         message << resource['smooch_custom_resource_body'] unless resource['smooch_custom_resource_body'].to_s.strip.blank?
         unless resource['smooch_custom_resource_feed_url'].blank?
-          message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}") do
+          message << Rails.cache.fetch("smooch:rss_feed:#{Digest::MD5.hexdigest(resource['smooch_custom_resource_feed_url'])}:#{resource['smooch_custom_resource_number_of_articles']}", force: no_cache) do
             self.render_articles_from_rss_feed(resource['smooch_custom_resource_feed_url'], resource['smooch_custom_resource_number_of_articles'])
           end
         end
@@ -39,7 +39,7 @@ module SmoochResources
       redis = Redis.new(REDIS_CONFIG)
       user_messages_count = redis.llen("smooch:bundle:#{uid}")
       resource = workflow['smooch_message_smooch_bot_no_action']
-      self.send_rss_to_user(uid, resource) if !resource.blank? && user_messages_count > 0
+      self.send_rss_to_user(uid, resource, true) if !resource.blank? && user_messages_count > 0
     end
 
     def render_articles_from_rss_feed(url, count = 3)
