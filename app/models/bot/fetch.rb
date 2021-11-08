@@ -249,7 +249,7 @@ class Bot::Fetch < BotUser
       report.annotation_type = 'report_design'
       report.annotated = pm
       report.annotator = user
-      tmp_file_path = self.get_image_file(claim_review['image'].to_s)
+      tmp_file_path = begin self.get_image_file(claim_review['image'].to_s) rescue nil end
       if tmp_file_path
         File.open(tmp_file_path) do |f|
           report.file = [f]
