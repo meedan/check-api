@@ -414,7 +414,7 @@ class BotUser < User
   end
 
   def update_role_if_changed
-    TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.saved_change_to_settings?
+    TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.get_role
   end
 
   def set_version
