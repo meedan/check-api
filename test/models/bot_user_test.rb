@@ -123,16 +123,4 @@ class BotUserTest < ActiveSupport::TestCase
     assert team_bot.is_bot
     assert_equal 'create_project_media,publish_report', team_bot.bot_events
   end
-
-  test "should not change role when change team bot settings" do
-    team = create_team
-    team_bot = create_team_bot team_author_id: team.id
-    tbi = TeamBotInstallation.where(team_id: team.id, user_id: team_bot.id).last
-    tbi.role = 'admin'
-    tbi.save
-    assert_equal 'admin', TeamBotInstallation.find(tbi.id).role
-    team_bot.set_headers = { 'X-Header' => 'ABCDEFG' }
-    team_bot.save
-    assert_equal 'admin', TeamBotInstallation.find(tbi.id).role
-  end
 end

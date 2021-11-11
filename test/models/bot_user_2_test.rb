@@ -26,4 +26,16 @@ class BotUser2Test < ActiveSupport::TestCase
       BotUser.check_bot_user
     end
   end
+
+  test "should not change role when change team bot settings" do
+    team = create_team
+    team_bot = create_team_bot team_author_id: team.id
+    tbi = TeamBotInstallation.where(team_id: team.id, user_id: team_bot.id).last
+    tbi.role = 'admin'
+    tbi.save
+    assert_equal 'admin', TeamBotInstallation.find(tbi.id).role
+    team_bot.set_headers = { 'X-Header' => 'ABCDEFG' }
+    team_bot.save
+    assert_equal 'admin', TeamBotInstallation.find(tbi.id).role
+  end
 end
