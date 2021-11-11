@@ -400,7 +400,7 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
-  test "should create team task and metadata if in test mode oi" do
+  test "should create team task and metadata if in test mode" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u
@@ -410,7 +410,7 @@ class TestControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should not create team task and metadata if not in test mode oi" do
+  test "should not create team task and metadata if not in test mode" do
     Rails.stubs(:env).returns('development')
     u = create_user
     t = create_team

@@ -28,7 +28,7 @@ require 'sidekiq/testing'
 require 'minitest/retry'
 require 'pact/consumer/minitest'
 require 'rspec/rails'
-# Minitest::Retry.use!
+Minitest::Retry.use!
 
 class ActionController::TestCase
   include Devise::Test::ControllerHelpers
