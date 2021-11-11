@@ -93,7 +93,8 @@ module TeamRules
     end
 
     def flagged_as(pm, value, _rule_id)
-      pm.get_annotations('flag').map(&:load).select{ |flag| flag.get_field_value('flags')[value['flag'].to_s] >= value['threshold'].to_i }.size > 0
+      range_condition = [value['threshold'].to_i - 1, value['threshold'].to_i]
+      pm.get_annotations('flag').map(&:load).select{ |flag| range_condition.include?(flag.get_field_value('flags')[value['flag'].to_s]) }.size > 0
     end
 
     def report_is_published(pm, _value, _rule_id)
@@ -184,6 +185,7 @@ module TeamRules
       flag = pm.annotations('flag').last.load
       unless flag.nil?
         flag.set_fields = { show_cover: true }.to_json
+        flag.skip_rules = true
         flag.save!
         CheckNotification::InfoMessages.send('add_warning_cover_by_rule', item_title: pm.title)
       end
@@ -215,7 +217,7 @@ module TeamRules
       flags: DynamicAnnotation::AnnotationType.where(annotation_type: 'flag').last&.json_schema&.dig('properties', 'flags', 'required').to_a
              .reject{ |f| f == 'spam' } # We are currently hiding the SPAM flag, as per #8220
              .collect{ |f| { key: f, value: I18n.t("flag_#{f}") } },
-      likelihoods: (0..5).to_a.collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
+      likelihoods: [1, 3, 5].collect{ |n| { key: n, value: I18n.t("flag_likelihood_#{n}") } },
       languages: self.get_languages.to_a.collect{ |l| { key: l, value: CheckCldr.language_code_to_name(l) } },
       users: self.users.to_a.sort_by{ |u| u.name }.collect{ |u| { key: u.id, value: u.name } },
       choice_fields: choice_field_objs.deep_dup.each{ |_fs, tts| tts.collect!{ |tt| { key: tt[:id], value: tt[:label] } } },

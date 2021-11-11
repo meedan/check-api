@@ -298,17 +298,17 @@ module ProjectMediaCachedFields
       ]
 
     cached_field :show_warning_cover,
-        start_as: false,
-        recalculate: proc { |pm| pm.get_annotations('flag').last.load.get_field_value('show_cover') || false },
-        update_on: [
-          {
-            model: DynamicAnnotation::Field,
-            if: proc { |f| f.field_name == 'show_cover' },
-            affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
-            events: {
-              save: :recalculate
-            }
+      start_as: false,
+      recalculate: proc { |pm| pm.get_dynamic_annotation('flag')&.get_field_value('show_cover') || false },
+      update_on: [
+        {
+          model: Dynamic,
+          if: proc { |d| d.annotation_type == 'flag' },
+          affected_ids: proc { |d| d.annotated_id },
+          events: {
+            save: proc { |_pm, d| d.data.with_indifferent_access[:show_cover] }
           }
-        ]
+        },
+      ]
   end
 end

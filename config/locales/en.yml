@@ -679,7 +679,7 @@ en:
   team_rule_type_image_threshold: Distance between images
   team_rule_type_flag_threshold: With a likelihood of at least
   team_rule_select_flag: Select flag
-  team_rule_flagged_as: Item is flagged as
+  team_rule_flagged_as: Item has been detected as
   team_rule_report_is_published: Report is published
   team_rule_report_is_paused: Report is paused
   team_rule_condition_groups: Condition groups
@@ -703,20 +703,20 @@ en:
   team_rule_item_is_assigned_to_user: Item is assigned to
   team_rule_add_tag: Add tag
   team_rule_add_warning_cover: Add content warning cover
-  flag_adult: Adult
+  flag_adult: Adult (nudity, pornographic)
   flag_spoof: Spoof
-  flag_medical: Medical
+  flag_medical: Medical conditions/procedures
   flag_violence: Violence
   flag_racy: Racy
   flag_spam: Spam
   annotation_type_flag_name_label: Flag
   annotation_type_flag_value_label: Flag likelihood
   flag_likelihood_0: Unknown
-  flag_likelihood_1: Very unlikely
+  flag_likelihood_1: Low (less content will be detected)
   flag_likelihood_2: Unlikely
-  flag_likelihood_3: Possible
+  flag_likelihood_3: Medium (some content will be detected)
   flag_likelihood_4: Likely
-  flag_likelihood_5: Very likely
+  flag_likelihood_5: High (more content will be detected)
   relationship_not_same_team: Related items must exist in the same workspace
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
