@@ -181,12 +181,13 @@ module TeamRules
       CheckNotification::InfoMessages.send('tagged_by_rule', item_title: pm.title, tag: tag_text.text) if tag.save
     end
 
-    def add_warning_cover(pm, value, _rule_id)
+    def add_warning_cover(pm, _value, _rule_id)
       flag = pm.annotations('flag').last.load
       unless flag.nil?
+        RequestStore.store[:skip_rules] = true
         flag.set_fields = { show_cover: true }.to_json
-        flag.skip_rules = true
         flag.save!
+        RequestStore.store[:skip_rules] = false
         CheckNotification::InfoMessages.send('add_warning_cover_by_rule', item_title: pm.title)
       end
     end

@@ -1443,15 +1443,17 @@ class TeamTest < ActiveSupport::TestCase
     data[:flags]['spam'] = 1
     d = create_flag set_fields: data.to_json, annotated: pm
     assert !pm.reload.show_warning_cover
-    # data[:flags]['spam'] = 3
-    # d.set_fields = data.to_json
-    # d.save!
-    # assert pm.reload.show_warning_cover
+    data[:flags]['spam'] = 3
+    d.set_fields = data.to_json
+    d.save!
+    data = d.reload.data.with_indifferent_access
+    assert data['show_cover']
     pm = create_project_media team: t
     assert !pm.show_warning_cover
     data[:flags]['spam'] = 3
     d = create_flag set_fields: data.to_json, annotated: pm
-    # assert pm.reload.show_warning_cover
+    data = d.reload.data.with_indifferent_access
+    assert data['show_cover']
   end
 
   test "should get team URL" do
@@ -1768,10 +1770,10 @@ class TeamTest < ActiveSupport::TestCase
     pm3 = create_project_media project: p1, quote: 'bar test'
 
     data = valid_flags_data(false)
-    data[:flags]['spam'] = 4
+    data[:flags]['spam'] = 3
     create_flag set_fields: data.to_json, annotated: pm1
     create_flag set_fields: data.to_json, annotated: pm2
-    data[:flags]['spam'] = 2
+    data[:flags]['spam'] = 1
     create_flag set_fields: data.to_json, annotated: pm3
 
     assert_equal p2, pm1.reload.project
