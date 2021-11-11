@@ -136,9 +136,14 @@ class TestController < ApplicationController
   end
 
   def new_team_data_field
+    type = params[:type] || 'free_text'
     Team.current = Team.find(params[:team_id])
     team_data_field = "Team-#{params[:fieldset]}-#{Time.now}"
-    tt = create_team_task({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset]}.merge(params.permit(params.keys)))
+    options = []
+    if params[:options]
+      options = JSON.parse(params[:options])
+    end
+    tt = create_team_task(params.permit(params.keys).merge({label: team_data_field, team_id: params[:team_id], fieldset: params[:fieldset], task_type: type, options: options }))
     render_success 'team_task', tt
   end
 
