@@ -68,13 +68,13 @@ class TeamTask < ApplicationRecord
     # collect updated fields with new values
     columns = {}
     options.each do |k, _v|
-      columns[k] = self.read_attribute(k)
+      attribute = self.read_attribute(k)
+      # type is called `task_type` on TeamTask and `type` on Task
+      k = :type if k == :task_type
+      columns[k] = attribute
     end
     unless columns.blank?
-      # update tasks with zero answer
-      update_tasks_with_zero_answer(columns)
-      # handle tasks with answers
-      update_tasks_with_answer(columns) unless keep_completed_tasks
+      update_tasks(columns, keep_completed_tasks)
     end
     # items related to added projects
     unless projects.blank?
@@ -139,6 +139,7 @@ class TeamTask < ApplicationRecord
     options = {
       label: self.saved_change_to_label?,
       description: self.saved_change_to_description?,
+      task_type: self.saved_change_to_task_type?,
       options: self.saved_change_to_options?
     }
     options.delete_if{|_k, v| v == false || v.nil?}
@@ -194,6 +195,14 @@ class TeamTask < ApplicationRecord
       condition = { "#{prefix}project_id": projects[if_key] }
     end
     [condition, excluded_ids]
+  end
+
+  def update_tasks(columns, keep_completed_tasks)
+    columns = columns.except(:type, :options) if get_teamwide_tasks_with_answers.any?
+    # update tasks with zero answer
+    update_tasks_with_zero_answer(columns)
+    # handle tasks with answers
+    update_tasks_with_answer(columns) unless keep_completed_tasks
   end
 
   def update_tasks_with_zero_answer(columns)
