@@ -717,6 +717,7 @@ en:
   flag_likelihood_3: Medium (some content will be detected)
   flag_likelihood_4: Likely
   flag_likelihood_5: High (more content will be detected)
+  flag_likelihood_7: Manual
   relationship_not_same_team: Related items must exist in the same workspace
   bulk_operation_limit_error: Sorry, the maximum number of items to be processed at
     once is %{limit}
