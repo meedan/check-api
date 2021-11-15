@@ -186,6 +186,7 @@ module TeamRules
       unless flag.nil?
         RequestStore.store[:skip_rules] = true
         flag.set_fields = { show_cover: true }.to_json
+        flag.skip_check_ability = true
         flag.save!
         RequestStore.store[:skip_rules] = false
         CheckNotification::InfoMessages.send('add_warning_cover_by_rule', item_title: pm.title)
