@@ -4,17 +4,25 @@ require 'open-uri'
 
 def get_statistics(start_date, end_date, slugs)
   data = [start_date, end_date]
-  relationships_query = Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date)
-  
-  { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
-    ['confirmed', 'suggested'].each do |relationship_type|
-      data << relationships_query.joins('INNER JOIN medias m ON m.id = pm.media_id').where('m.type' => klass).send(relationship_type).count.to_s
-    end
+  # relationships_query = Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date)
+  # 
+  # { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
+  #   ['confirmed', 'suggested'].each do |relationship_type|
+  #     data << relationships_query.joins('INNER JOIN medias m ON m.id = pm.media_id').where('m.type' => klass).send(relationship_type).count.to_s
+  #   end
+  # end
+  # 
+  # data << Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  # data << ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
+  # data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join(',')
+  data << Annotation.where(annotation_type: 'report_design').where('data LIKE ?', '%state: published%').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  value = 0
+  slugs.each do |slug|
+    value += Version.from_partition(Team.find_by_slug(slug).id).joins("INNER JOIN annotations a ON a.id = versions.item_id::int8 AND versions.item_type = 'Dynamic'").where('a.annotation_type' => 'report_design').where('object_after LIKE ?', '%"state":"published"%').joins("INNER JOIN project_medias pm ON pm.id = a.annotated_id AND a.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slug).where('a.created_at' => start_date..end_date).count
   end
-  
-  data << Annotation.where(annotation_type: 'extracted_text').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
-  data << ProjectMedia.joins(:team).where('teams.slug' => slugs).where('project_medias.created_at' => start_date..end_date).count.to_s
-  data << TiplineSubscription.where(created_at: start_date..end_date).where('teams.slug' => slugs).group(:team_id).joins(:team).count.collect{ |id, count| "#{Team.find(id).name} (#{count})" }.join(',')
+  data << value.to_s
+  data << Annotation.where(annotation_type: 'smooch').joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia' INNER JOIN teams t ON t.id = pm.team_id").where('t.slug' => slugs).where('annotations.created_at' => start_date..end_date).count.to_s
+  data << Relationship.joins('INNER JOIN project_medias pm ON pm.id = relationships.source_id INNER JOIN teams t ON t.id = pm.team_id').where('t.slug' => slugs).where('relationships.created_at' => start_date..end_date).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count.to_s
   puts data.join(',')
 end
 
@@ -33,14 +41,18 @@ namespace :check do
       else
         # puts "Getting data from #{start_month}/#{year} to #{end_month}/#{year} for workspaces #{slugs.join(', ')}#{group_by_month == 1 ? ' (grouped by month)' : ''}."
         header = ['From', 'To']
-        { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
-          ['confirmed', 'suggested'].each do |relationship_type|
-            header << "Number of #{type} #{relationship_type}"
-          end
-        end
-        header << 'Number of OCR’d images'
-        header << 'Number of claims available through the search DB'
-        header << 'Number of users who opted-in / received the newsletter, per publisher'
+        # { 'video' => 'UploadedVideo', 'audio' => 'UploadedAudio', 'image' => 'UploadedImage', 'text' => ['Claim', 'Link'] }.each do |type, klass|
+        #   ['confirmed', 'suggested'].each do |relationship_type|
+        #     header << "Number of #{type} #{relationship_type}"
+        #   end
+        # end
+        # header << 'Number of OCR’d images'
+        # header << 'Number of claims available through the search DB'
+        # header << 'Number of users who opted-in / received the newsletter, per publisher'
+        header << 'Number of fact-checks published'
+        header << 'Number of fact-checks sent to users'
+        header << 'Number of requests'
+        header << 'Number of similar media'
         puts header.join(',')
 
         if group_by_month == 1
